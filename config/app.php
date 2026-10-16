@@ -101,7 +101,7 @@ return [
 
     'previous_keys' => [
         ...array_filter(
-            explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
+            explode(',', env('APP_PREVIOUS_KEYS', ''))
         ),
     ],
 
@@ -114,7 +114,7 @@ return [
     | manage Laravel's "maintenance mode" status. The "cache" driver will
     | allow maintenance mode to be controlled across multiple machines.
     |
-    | Supported drivers: "file", "cache", "array"
+    | Supported drivers: "file", "cache"
     |
     */
 
@@ -127,10 +127,15 @@ return [
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
     |--------------------------------------------------------------------------
+    |
+    | The service providers listed here will be automatically loaded on the
+    | request to your application. Feel free to add your own services to
+    | this array to grant expanded functionality to your applications.
+    |
     */
 
-    'providers' => [
+    'providers' => ServiceProvider::defaultProviders()->merge([
         App\Providers\SystemUpdateServiceProvider::class,
-    ],
+    ])->toArray(),
 
 ];
