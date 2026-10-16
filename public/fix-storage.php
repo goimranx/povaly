@@ -4,8 +4,8 @@
  * Upload this file to your public_html root and visit it in browser
  */
 
-$publicStoragePath = __DIR__ . '/public/storage';
-$appStoragePath = __DIR__ . '/storage/app/public';
+$publicStoragePath = __DIR__ . '/storage';
+$appStoragePath = dirname(__DIR__) . '/storage/app/public';
 
 echo "<h1>Povaly Storage Symlink Fix</h1>";
 
@@ -54,7 +54,7 @@ if (!file_exists($publicStoragePath)) {
     } else {
         echo "<p style='color:red;'>❌ Failed to create symlink</p>";
         echo "<p>Try running this command via SSH:</p>";
-        echo "<pre>cd " . __DIR__ . "\nphp artisan storage:link</pre>";
+        echo "<pre>cd " . dirname(__DIR__) . "\nphp artisan storage:link</pre>";
     }
 }
 
