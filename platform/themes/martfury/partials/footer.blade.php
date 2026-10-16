@@ -675,7 +675,5 @@
         }); // end document.ready
     </script>
 
-    @stack('footer')
-
     </body>
 </html>

@@ -267,9 +267,8 @@
     </div>
 @endif
 
-
+@once
 {{-- Inline CSS for Enhanced Product Card --}}
-@pushonce('footer')
 <style>
 /**
  * Enhanced Product Card - Global Styles
@@ -1311,4 +1310,4 @@
 
 })(jQuery);
 </script>
-@endpushonce
+@endonce
