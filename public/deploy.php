@@ -119,6 +119,12 @@ try {
     chdir(REPO_DIR);
     log_message("✓ Changed to repository directory");
     
+    // Reset any local changes first
+    log_message("\n--- Resetting local changes ---");
+    execute_command('git reset --hard HEAD');
+    execute_command('git clean -fd');
+    log_message("✓ Local changes reset");
+    
     // Pull latest changes
     log_message("\n--- Pulling from GitHub ---");
     if (!execute_command('git pull origin ' . BRANCH)) {
