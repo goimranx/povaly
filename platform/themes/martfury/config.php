@@ -64,7 +64,7 @@ return [
             $theme->asset()->container('footer')->usePath()
                 ->add('nouislider-js', 'plugins/nouislider/nouislider.min.js', ['jquery']);
             $theme->asset()->container('footer')->usePath()
-                ->add('owl-carousel-js', 'plugins/owl-carousel/owl.carousel.min.js', ['jquery'], version: $version);
+                ->add('owl-carousel-js', 'plugins/owl-carousel/owl.carousel.min.js', ['jquery']);
             $theme->asset()->container('footer')->usePath()
                 ->add('bootstrap-js', 'plugins/bootstrap/js/bootstrap.bundle.min.js', ['jquery'], version: '5.3.7');
             $theme->asset()->container('footer')->usePath()
@@ -85,8 +85,8 @@ return [
             $theme->asset()->container('footer')->usePath()
                 ->add('masonry-js', 'plugins/masonry.pkgd.min.js', ['jquery']);
 
-            $theme->asset()->container('footer')->usePath()->add('main', 'js/main.js', ['jquery'], [], $version);
-            $theme->asset()->container('footer')->usePath()->add('product-card-enhanced', 'js/product-card-enhanced.js', ['jquery'], [], $version);
+            $theme->asset()->container('footer')->usePath()->add('main', 'js/main.js', ['jquery', 'owl-carousel-js']);
+            $theme->asset()->container('footer')->usePath()->add('product-card-enhanced', 'js/product-card-enhanced.js', ['jquery']);
             $theme->asset()->container('footer')->usePath()
                 ->add('backend', 'js/backend.js', ['jquery'], [], $version);
 
