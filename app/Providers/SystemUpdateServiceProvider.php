@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
+
+class SystemUpdateServiceProvider extends ServiceProvider
+{
+    /**
+     * Register services.
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Bootstrap services.
+     */
+    public function boot(): void
+    {
+        // Add menu item to admin panel
+        if (class_exists('\Botble\Base\Facades\DashboardMenu')) {
+            \Botble\Base\Facades\DashboardMenu::default()->beforeRetrieving(function () {
+                \Botble\Base\Facades\DashboardMenu::make()
+                    ->registerItem([
+                        'id' => 'cms-core-system-update',
+                        'priority' => 9999,
+                        'parent_id' => 'cms-core-system',
+                        'name' => 'System Update',
+                        'icon' => 'ti ti-cloud-download',
+                        'url' => route('system.update.index'),
+                        'permissions' => ['superuser'],
+                    ]);
+            });
+        }
+    }
+}
