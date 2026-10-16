@@ -20,14 +20,15 @@ class SystemUpdateServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Add menu item to admin panel
+        // Add menu item to admin panel under Tools menu
         if (class_exists('\Botble\Base\Facades\DashboardMenu')) {
             \Botble\Base\Facades\DashboardMenu::default()->beforeRetrieving(function () {
                 \Botble\Base\Facades\DashboardMenu::make()
                     ->registerItem(
                         \Botble\Base\Supports\DashboardMenuItem::make()
                             ->id('cms-core-system-update')
-                            ->priority(998)
+                            ->priority(100)
+                            ->parentId('cms-core-tools')
                             ->name('System Update')
                             ->icon('ti ti-refresh')
                             ->route('system.update.index')
