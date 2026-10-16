@@ -269,7 +269,7 @@
 
 
 {{-- Inline CSS for Enhanced Product Card --}}
-@once
+@pushonce('footer')
 <style>
 /**
  * Enhanced Product Card - Global Styles
@@ -1311,4 +1311,4 @@
 
 })(jQuery);
 </script>
-@endonce
+@endpushonce
