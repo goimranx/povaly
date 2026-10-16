@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Process;
 
 class SystemUpdateController extends Controller
 {
@@ -239,15 +240,14 @@ class SystemUpdateController extends Controller
      */
     private function executeCommand(string $command, &$returnCode = 0): array
     {
-        $output = [];
+        // Use Laravel Process facade instead of exec()
+        $result = Process::path(base_path())->run($command);
         
-        // Change to the base directory
-        $currentDir = base_path();
-        chdir($currentDir);
-
-        // Execute command
-        exec($command . ' 2>&1', $output, $returnCode);
-
+        $returnCode = $result->exitCode();
+        
+        // Split output by newlines and return as array
+        $output = array_filter(explode("\n", $result->output()));
+        
         return $output;
     }
 
