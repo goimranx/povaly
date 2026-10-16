@@ -53,6 +53,7 @@ return [
             $theme->asset()->usePath()->add('select2-css', 'plugins/select2/css/select2.min.css');
             $theme->asset()->usePath()->add('fontawesome', 'plugins/font-awesome/css/font-awesome.min.css');
             $theme->asset()->usePath()->add('style', 'css/style.css', [], [], $version);
+            $theme->asset()->usePath()->add('style-integration', 'css/style.integration.css', [], [], $version);
 
             if (BaseHelper::isRtlEnabled()) {
                 $theme->asset()->usePath()->add('rtl', 'css/rtl.css', [], [], $version);
