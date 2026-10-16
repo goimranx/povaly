@@ -149,7 +149,7 @@
                         @auth('customer')
                             <a href="{{ route('customer.overview') }}" class="user-greeting-link">
                                 <div class="user-avatar">
-                                    <img src="{{ auth('customer')->user()->avatar_url }}" alt="{{ auth('customer')->user()->name }}" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22 viewBox=%220 0 24 24%22 fill=%22%23ccc%22%3E%3Cpath d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/%3E%3C/svg%3E'">
+                                    <img src="{{ auth('customer')->user()->avatar_url }}" alt="{{ auth('customer')->user()->name }}" onerror="this.src='{{ asset('vendor/core/core/base/images/default-user.png') }}'">
                                 </div>
                                 <div class="user-info">
                                     <span class="greeting">{{ __('Hello') }},</span>
@@ -185,7 +185,7 @@
                         @auth('customer')
                             <a href="{{ route('customer.overview') }}" class="user-greeting-link">
                                 <div class="user-avatar">
-                                    <img src="{{ auth('customer')->user()->avatar_url }}" alt="{{ auth('customer')->user()->name }}" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22 viewBox=%220 0 24 24%22 fill=%22%23ccc%22%3E%3Cpath d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/%3E%3C/svg%3E'">
+                                    <img src="{{ auth('customer')->user()->avatar_url }}" alt="{{ auth('customer')->user()->name }}" onerror="this.src='{{ asset('vendor/core/core/base/images/default-user.png') }}'">
                                 </div>
                                 <div class="user-info">
                                     <span class="greeting">{{ __('Hello') }},</span>
@@ -259,7 +259,7 @@
                     @auth('customer')
                         <a href="{{ route('customer.overview') }}" class="user-greeting-link">
                             <div class="user-avatar">
-                                <img src="{{ auth('customer')->user()->avatar_url }}" alt="{{ auth('customer')->user()->name }}" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22150%22 height=%22150%22 viewBox=%220 0 24 24%22 fill=%22%23ccc%22%3E%3Cpath d=%22M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z%22/%3E%3C/svg%3E'">
+                                <img src="{{ auth('customer')->user()->avatar_url }}" alt="{{ auth('customer')->user()->name }}" onerror="this.src='{{ asset('vendor/core/core/base/images/default-user.png') }}'">
                             </div>
                             <div class="user-info">
                                 <span class="greeting">{{ __('Hello') }},</span>
