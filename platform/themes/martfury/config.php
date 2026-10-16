@@ -54,7 +54,7 @@ return [
             $theme->asset()->usePath()->add('fontawesome', 'plugins/font-awesome/css/font-awesome.min.css');
             $theme->asset()->usePath()->add('style', 'css/style.css', [], [], $version);
             $theme->asset()->usePath()->add('style-integration', 'css/style.integration.css', [], [], $version);
-            $theme->asset()->usePath()->add('product-card-enhanced', 'css/product-card-enhanced.css', [], [], time());
+            $theme->asset()->usePath()->add('product-card-enhanced', 'css/product-card-enhanced.css', [], [], $version);
 
             if (BaseHelper::isRtlEnabled()) {
                 $theme->asset()->usePath()->add('rtl', 'css/rtl.css', [], [], $version);
