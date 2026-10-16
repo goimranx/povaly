@@ -24,15 +24,14 @@ class SystemUpdateServiceProvider extends ServiceProvider
         if (class_exists('\Botble\Base\Facades\DashboardMenu')) {
             \Botble\Base\Facades\DashboardMenu::default()->beforeRetrieving(function () {
                 \Botble\Base\Facades\DashboardMenu::make()
-                    ->registerItem([
-                        'id' => 'cms-core-system-update',
-                        'priority' => 998,
-                        'parent_id' => null,
-                        'name' => 'System Update',
-                        'icon' => 'ti ti-refresh',
-                        'url' => route('system.update.index'),
-                        'permissions' => ['superuser'],
-                    ]);
+                    ->registerItem(
+                        \Botble\Base\Supports\DashboardMenuItem::make()
+                            ->id('cms-core-system-update')
+                            ->priority(998)
+                            ->name('System Update')
+                            ->icon('ti ti-refresh')
+                            ->route('system.update.index')
+                    );
             });
         }
     }
