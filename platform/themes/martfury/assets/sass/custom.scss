@@ -2760,3 +2760,123 @@ ul.bb-social-sharing {
         }
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+ * CUSTOM INTEGRATION STYLES - style.integration.css
+ * ═══════════════════════════════════════════════════════════════════ */
+
+.ck-content p:empty {
+  display: none;
+}
+
+.ps-section__header {
+  margin: 15px 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  justify-content: start !important;
+  gap: 7px;
+
+  h3 {
+    line-height: 1.2 !important;
+  }
+
+  .ps-section__links a {
+    color: var(--global-color-link) !important;
+
+    &:hover {
+      color: var(--global-color-link-hover) !important;
+      text-decoration: underline;
+    }
+  }
+}
+
+.ps-product__actions li a:hover {
+  background: var(--global-color-warning) !important;
+}
+
+.widget_contact-us .widget_content h3 {
+  color: #FBB13C;
+}
+
+.widget_footer a:before {
+  background: #ffffff !important;
+}
+
+.ps-footer {
+  .ps-container {
+    padding: 0;
+
+    > div {
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+  }
+
+  .ps-footer__links,
+  .ps-footer__copyright {
+    background: #0d1b2a;
+  }
+}
+
+.ps-home-banner {
+  padding-top: 15px !important;
+  margin-bottom: 15px !important;
+
+  .ps-section__left {
+    padding-right: 0 !important;
+    margin: 0 !important;
+
+    .owl-item {
+      border-radius: 8px;
+      overflow: hidden;
+    }
+  }
+
+  .ps-collection {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .ps-section__right {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .ps-collection {
+      border-radius: 6px;
+      overflow: hidden;
+      aspect-ratio: 16/8.5;
+    }
+  }
+
+  .ps-container {
+    display: flex;
+    flex-direction: row;
+    gap: 15px !important;
+    flex-wrap: wrap;
+  }
+}
+
+.ps-product__desc .antd-external-collapse {
+  height: auto !important;
+}
+
+.ps-product-list[data-shortcode-name="featured-products"] {
+  margin: 0 0 20px 0;
+
+  .ps-section__header {
+    margin: 0 0 10px 0 !important;
+  }
+
+  .ps-section__content {
+    padding: 0 !important;
+  }
+}
+
+@media all and (max-width: 480px) {
+  .ps-container {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+}
