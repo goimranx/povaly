@@ -581,39 +581,15 @@
         window.siteConfig.ajaxCartUrl = "{{ route('public.ajax.cart') }}";
     </script>
 
+    {!! Theme::footer() !!}
+
     <script>
-        $(document).ready(function() {
-            // Force Owl Carousel initialization for all owl-slider elements
-            $('.owl-slider').each(function(){
-                var $el = $(this);
-                var children = $el.children('div, span, a, img, h1, h2, h3, h4, h5, .ps-product');
-                if(children.length >= 2 && !$el.hasClass('owl-carousel')) {
-                    $el.addClass('owl-carousel').owlCarousel({
-                        rtl: $('body').prop('dir') === 'rtl',
-                        items: $el.data('owl-item') || 4,
-                        nav: $el.data('owl-nav') !== false,
-                        dots: $el.data('owl-dots') !== false,
-                        loop: $el.data('owl-loop') !== false,
-                        autoplay: $el.data('owl-auto') === 'true' || $el.data('owl-auto') === true,
-                        autoplayTimeout: $el.data('owl-speed') || 5000,
-                        margin: $el.data('owl-gap') || 0,
-                        responsive: {
-                            0: {items: $el.data('owl-item-xs') || 1},
-                            480: {items: $el.data('owl-item-sm') || 2},
-                            768: {items: $el.data('owl-item-md') || 3},
-                            992: {items: $el.data('owl-item-lg') || 4},
-                            1200: {items: $el.data('owl-item-xl') || $el.data('owl-item') || 4}
-                        }
-                    });
-                }
-            });
+        // Floating Action Button for Offer Products - Global Script (Owl Carousel Compatible)
+        if (!window.floatingActionsInitialized) {
+            window.floatingActionsInitialized = true;
             
-            // Floating Action Button for Offer Products - Global Script (Owl Carousel Compatible)
-            if (!window.floatingActionsInitialized) {
-                window.floatingActionsInitialized = true;
-                
-                // Mobile/Touch: use click on toggle button
-                document.body.addEventListener('click', function(e) {
+            // Mobile/Touch: use click on toggle button
+            document.body.addEventListener('click', function(e) {
                 const toggleBtn = e.target.closest('.ps-floating-toggle');
                 if (!toggleBtn) return;
                 
@@ -695,10 +671,7 @@
                 });
             });
         }
-        }); // end document.ready
     </script>
-
-    {!! Theme::footer() !!}
 
     </body>
 </html>
