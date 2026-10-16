@@ -53,8 +53,6 @@ return [
             $theme->asset()->usePath()->add('select2-css', 'plugins/select2/css/select2.min.css');
             $theme->asset()->usePath()->add('fontawesome', 'plugins/font-awesome/css/font-awesome.min.css');
             $theme->asset()->usePath()->add('style', 'css/style.css', [], [], $version);
-            $theme->asset()->usePath()->add('style-integration', 'css/style.integration.css', [], [], $version);
-            $theme->asset()->usePath()->add('product-card-enhanced', 'css/product-card-enhanced.css', [], [], $version);
 
             if (BaseHelper::isRtlEnabled()) {
                 $theme->asset()->usePath()->add('rtl', 'css/rtl.css', [], [], $version);
@@ -86,7 +84,6 @@ return [
                 ->add('masonry-js', 'plugins/masonry.pkgd.min.js', ['jquery']);
 
             $theme->asset()->container('footer')->usePath()->add('main', 'js/main.js', ['jquery'], [], $version);
-            $theme->asset()->container('footer')->usePath()->add('product-card-enhanced', 'js/product-card-enhanced.js', ['jquery'], [], $version);
             $theme->asset()->container('footer')->usePath()
                 ->add('backend', 'js/backend.js', ['jquery'], [], $version);
 
