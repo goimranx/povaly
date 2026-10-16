@@ -1,93 +1,86 @@
 /**
  * Owl Carousel Initialization Script
- * This script initializes all .owl-slider elements on page load
+ * Based on simple-slider plugin implementation
  */
 (function($) {
     'use strict';
     
-    function initializeCarousels() {
-        let owlSliders = $('.owl-slider');
-        
-        if (owlSliders.length === 0) {
-            return;
+    class CarouselManager {
+        init() {
+            let target = $(document).find('.owl-slider');
+            
+            if (target.length > 0) {
+                target.each(function() {
+                    let el = $(this);
+                    
+                    // Skip if already initialized
+                    if (el.hasClass('owl-loaded') || el.data('owl.carousel')) {
+                        return;
+                    }
+                    
+                    let dataAuto = el.data('owl-auto'),
+                        dataLoop = el.data('owl-loop'),
+                        dataSpeed = el.data('owl-speed'),
+                        dataGap = el.data('owl-gap'),
+                        dataNav = el.data('owl-nav'),
+                        dataDots = el.data('owl-dots'),
+                        dataAnimateIn = el.data('owl-animate-in') ? el.data('owl-animate-in') : '',
+                        dataAnimateOut = el.data('owl-animate-out') ? el.data('owl-animate-out') : '',
+                        dataDefaultItem = el.data('owl-item'),
+                        dataItemXS = el.data('owl-item-xs'),
+                        dataItemSM = el.data('owl-item-sm'),
+                        dataItemMD = el.data('owl-item-md'),
+                        dataItemLG = el.data('owl-item-lg'),
+                        dataItemXL = el.data('owl-item-xl'),
+                        dataNavLeft = el.data('owl-nav-left') ? el.data('owl-nav-left') : '<i class="icon-chevron-left"></i>',
+                        dataNavRight = el.data('owl-nav-right') ? el.data('owl-nav-right') : '<i class="icon-chevron-right"></i>',
+                        duration = el.data('owl-duration'),
+                        dataMouseDrag = el.data('owl-mousedrag') === 'on',
+                        center = el.data('owl-center');
+                    
+                    // Count only visible div/article children (exclude script/style)
+                    if (el.children('div, article, span, a, img, h1, h2, h3, h4, h5').length >= 1) {
+                        el.owlCarousel({
+                            rtl: $('body').prop('dir') === 'rtl',
+                            animateIn: dataAnimateIn,
+                            animateOut: dataAnimateOut,
+                            margin: dataGap,
+                            autoplay: dataAuto,
+                            autoplayTimeout: dataSpeed,
+                            autoplayHoverPause: true,
+                            loop: dataLoop,
+                            nav: dataNav,
+                            mouseDrag: dataMouseDrag,
+                            touchDrag: true,
+                            autoplaySpeed: duration,
+                            navSpeed: duration,
+                            dotsSpeed: duration,
+                            dragEndSpeed: duration,
+                            navText: [dataNavLeft, dataNavRight],
+                            dots: dataDots,
+                            items: dataDefaultItem,
+                            center: Boolean(center),
+                            responsive: {
+                                0: { items: dataItemXS },
+                                480: { items: dataItemSM },
+                                768: { items: dataItemMD },
+                                992: { items: dataItemLG },
+                                1200: { items: dataItemXL },
+                                1680: { items: dataDefaultItem }
+                            }
+                        });
+                    }
+                });
+            }
         }
-        
-        owlSliders.each(function() {
-            let $this = $(this);
-            
-            // Skip if already initialized
-            if ($this.hasClass('owl-loaded') || $this.data('owl.carousel')) {
-                return;
-            }
-            
-            // Check if owlCarousel plugin is available
-            if (typeof $.fn.owlCarousel === 'undefined') {
-                console.error('[Carousel Init] Owl Carousel plugin not loaded');
-                return;
-            }
-            
-            // Get configuration from data attributes
-            let config = {
-                rtl: $('body').prop('dir') === 'rtl',
-                animateIn: $this.data('owl-animate-in') || '',
-                animateOut: $this.data('owl-animate-out') || '',
-                margin: $this.data('owl-gap') || 0,
-                autoplay: $this.data('owl-auto') || false,
-                autoplayTimeout: $this.data('owl-speed') || 5000,
-                autoplayHoverPause: true,
-                loop: $this.data('owl-loop') || false,
-                nav: $this.data('owl-nav') || false,
-                mouseDrag: $this.data('owl-mousedrag') === 'on',
-                touchDrag: true,
-                autoplaySpeed: $this.data('owl-duration') || 1000,
-                navSpeed: $this.data('owl-duration') || 1000,
-                dotsSpeed: $this.data('owl-duration') || 1000,
-                dragEndSpeed: $this.data('owl-duration') || 1000,
-                navText: [
-                    $this.data('owl-nav-left') || "<i class='icon-chevron-left'></i>",
-                    $this.data('owl-nav-right') || "<i class='icon-chevron-right'></i>"
-                ],
-                dots: $this.data('owl-dots') || false,
-                items: $this.data('owl-item') || 1,
-                responsive: {
-                    0: { items: $this.data('owl-item-xs') || 1 },
-                    480: { items: $this.data('owl-item-sm') || 2 },
-                    768: { items: $this.data('owl-item-md') || 3 },
-                    992: { items: $this.data('owl-item-lg') || 4 },
-                    1200: { items: $this.data('owl-item-xl') || 5 },
-                    1680: { items: $this.data('owl-item') || 1 }
-                }
-            };
-            
-            // Move script and style tags outside the carousel container
-            // This prevents them from being treated as carousel items
-            $this.children('style, script').each(function() {
-                $(this).insertAfter($this);
-            });
-            
-            // Count actual carousel items
-            let itemCount = $this.children().length;
-            
-            // If we have at least 2 real items, initialize carousel
-            if (itemCount >= 2) {
-                $this.addClass('owl-carousel').owlCarousel(config);
-            }
-        });
     }
     
-    // Initialize on document ready
-    $(document).ready(function() {
-        initializeCarousels();
-    });
-    
-    // Re-initialize after AJAX content loads
-    document.addEventListener('shortcode.loaded', function() {
-        setTimeout(initializeCarousels, 100);
-    });
-    
-    // Re-initialize for lazy-loaded content
-    $(document).on('lazyContentLoaded', function() {
-        setTimeout(initializeCarousels, 100);
+    $(function() {
+        new CarouselManager().init();
+        
+        document.addEventListener('shortcode.loaded', function(event) {
+            new CarouselManager().init();
+        });
     });
     
 })(jQuery);
