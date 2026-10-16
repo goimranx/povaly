@@ -62,11 +62,24 @@ class SystemUpdateController extends Controller
             $this->clearAllCaches();
             $output[] = "✓ All caches cleared";
 
-            // Step 7: Run database migrations
+            // Step 7: Run database migrations (skip errors if tables already exist)
             $output[] = "\n=== Running Database Migrations ===";
-            Artisan::call('migrate', ['--force' => true]);
-            $output[] = Artisan::output();
-            $output[] = "✓ Migrations completed";
+            try {
+                Artisan::call('migrate', ['--force' => true]);
+                $migrationOutput = Artisan::output();
+                if (!empty(trim($migrationOutput))) {
+                    $output[] = $migrationOutput;
+                }
+                $output[] = "✓ Migrations completed";
+            } catch (\Exception $e) {
+                // If migration fails due to existing tables, just note it and continue
+                if (str_contains($e->getMessage(), 'already exists')) {
+                    $output[] = "⚠ Migrations skipped (tables already exist)";
+                } else {
+                    // Re-throw if it's a different error
+                    throw $e;
+                }
+            }
 
             // Step 8: Publish assets
             $output[] = "\n=== Publishing Vendor Assets ===";
