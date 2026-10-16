@@ -59,8 +59,11 @@
                 }
             };
             
-            // Count actual carousel items (exclude style and script tags)
-            let itemCount = $this.children('div, span, a, img, h1, h2, h3, h4, h5, article').length;
+            // Remove style and script tags before initializing carousel
+            $this.children('style, script').remove();
+            
+            // Count actual carousel items
+            let itemCount = $this.children().length;
             
             if (itemCount >= 2) {
                 $this.addClass('owl-carousel').owlCarousel(config);
