@@ -85,6 +85,8 @@ return [
 
             $theme->asset()->container('footer')->usePath()->add('main', 'js/main.js', ['jquery'], [], $version);
             $theme->asset()->container('footer')->usePath()
+                ->add('carousel-init', 'js/carousel-init.js', ['jquery', 'owl-carousel-js'], [], $version);
+            $theme->asset()->container('footer')->usePath()
                 ->add('backend', 'js/backend.js', ['jquery'], [], $version);
 
             if (function_exists('shortcode')) {
