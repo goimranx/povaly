@@ -26,10 +26,10 @@ class SystemUpdateServiceProvider extends ServiceProvider
                 \Botble\Base\Facades\DashboardMenu::make()
                     ->registerItem([
                         'id' => 'cms-core-system-update',
-                        'priority' => 9999,
-                        'parent_id' => 'cms-core-system',
+                        'priority' => 998,
+                        'parent_id' => null,
                         'name' => 'System Update',
-                        'icon' => 'ti ti-cloud-download',
+                        'icon' => 'ti ti-refresh',
                         'url' => route('system.update.index'),
                         'permissions' => ['superuser'],
                     ]);
