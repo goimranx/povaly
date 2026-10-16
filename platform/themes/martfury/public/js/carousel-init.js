@@ -59,12 +59,16 @@
                 }
             };
             
-            // Remove style and script tags before initializing carousel
-            $this.children('style, script').remove();
+            // Move script and style tags outside the carousel container
+            // This prevents them from being treated as carousel items
+            $this.children('style, script').each(function() {
+                $(this).insertAfter($this);
+            });
             
             // Count actual carousel items
             let itemCount = $this.children().length;
             
+            // If we have at least 2 real items, initialize carousel
             if (itemCount >= 2) {
                 $this.addClass('owl-carousel').owlCarousel(config);
             }
