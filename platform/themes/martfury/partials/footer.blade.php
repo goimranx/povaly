@@ -480,6 +480,8 @@
     </style>
     @endonce
 
+    {!! Theme::footer() !!}
+
     {{-- Override quick-shop to use offcanvas instead of modal --}}
     <script>
     (function() {
@@ -581,15 +583,14 @@
         window.siteConfig.ajaxCartUrl = "{{ route('public.ajax.cart') }}";
     </script>
 
-    {!! Theme::footer() !!}
-
     <script>
-        // Floating Action Button for Offer Products - Global Script (Owl Carousel Compatible)
-        if (!window.floatingActionsInitialized) {
-            window.floatingActionsInitialized = true;
-            
-            // Mobile/Touch: use click on toggle button
-            document.body.addEventListener('click', function(e) {
+        $(document).ready(function() {
+            // Floating Action Button for Offer Products - Global Script (Owl Carousel Compatible)
+            if (!window.floatingActionsInitialized) {
+                window.floatingActionsInitialized = true;
+                
+                // Mobile/Touch: use click on toggle button
+                document.body.addEventListener('click', function(e) {
                 const toggleBtn = e.target.closest('.ps-floating-toggle');
                 if (!toggleBtn) return;
                 
@@ -671,6 +672,7 @@
                 });
             });
         }
+        }); // end document.ready
     </script>
 
     </body>
