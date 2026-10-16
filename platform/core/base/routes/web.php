@@ -157,3 +157,17 @@ Route::group(['namespace' => 'Botble\Base\Http\Controllers'], function (): void 
         });
     });
 });
+
+
+// System Update Routes
+Route::group(['namespace' => 'App\Http\Controllers'], function (): void {
+    AdminHelper::registerRoutes(function (): void {
+        Route::group(['prefix' => 'system-update', 'as' => 'system.update.', 'permission' => 'superuser'], function (): void {
+            Route::get('/', 'SystemUpdateController@index')->name('index');
+            Route::post('/perform', 'SystemUpdateController@update')->name('perform');
+            Route::get('/check', 'SystemUpdateController@checkUpdates')->name('check');
+            Route::get('/version', 'SystemUpdateController@getVersion')->name('version');
+            Route::post('/clear-cache', 'SystemUpdateController@clearCacheOnly')->name('clear-cache');
+        });
+    });
+});
