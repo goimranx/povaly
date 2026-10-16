@@ -480,8 +480,6 @@
     </style>
     @endonce
 
-    {!! Theme::footer() !!}
-
     {{-- Override quick-shop to use offcanvas instead of modal --}}
     <script>
     (function() {
@@ -699,6 +697,8 @@
         }
         }); // end document.ready
     </script>
+
+    {!! Theme::footer() !!}
 
     </body>
 </html>
