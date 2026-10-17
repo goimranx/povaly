@@ -190,7 +190,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load recently viewed products via AJAX
     function loadRecentlyViewed() {
         fetch('{{ route('public.ajax.recently-viewed-products') }}')
-            .then(response => response.json())
+            .then(response => {
+                // Log the response status
+                console.log('Response status:', response.status);
+                console.log('Response URL:', response.url);
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Response is not JSON. Content-Type: ' + contentType);
+                }
+                
+                return response.json();
+            })
             .then(data => {
                 console.log('Recently viewed response:', data);
                 spinner.classList.add('d-none');
