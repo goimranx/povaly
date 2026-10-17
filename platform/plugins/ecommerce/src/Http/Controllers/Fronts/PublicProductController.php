@@ -447,12 +447,7 @@ class PublicProductController extends BaseController
             auth('customer')->user()->viewedProducts()->detach();
         }
 
-        return $this
-            ->httpResponse()
-            ->setData([
-                'error' => false,
-                'message' => __('Browsing history cleared successfully!'),
-            ]);
+        return redirect()->back()->with('success', __('Browsing history cleared successfully!'));
     }
 
     public function ajaxGetRecentlyViewedProducts(ProductInterface $productRepository)

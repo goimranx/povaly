@@ -56,18 +56,21 @@
 <div class="modal fade" id="clearHistoryModal" tabindex="-1" aria-labelledby="clearHistoryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="clearHistoryModalLabel">{{ __('Clear Browsing History') }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>{{ __('Are you sure you want to clear your recently viewed products history?') }}</p>
-                <p class="text-muted small mb-0">{{ __('This action cannot be undone.') }}</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                <button type="button" class="btn btn-danger" id="confirmClearHistory">{{ __('Clear History') }}</button>
-            </div>
+            <form action="{{ route('public.ajax.clear-recently-viewed') }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clearHistoryModalLabel">{{ __('Clear Browsing History') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ __('Are you sure you want to clear your recently viewed products history?') }}</p>
+                    <p class="text-muted small mb-0">{{ __('This action cannot be undone.') }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                    <button type="submit" class="btn btn-danger">{{ __('Clear History') }}</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -307,59 +310,4 @@
         opacity: 1;
     }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const confirmButton = document.getElementById('confirmClearHistory');
-    const clearHistoryModal = document.getElementById('clearHistoryModal');
-    
-    // Clear history confirmation button handler
-    if (confirmButton) {
-        confirmButton.addEventListener('click', function() {
-            // Disable button and show loading state
-            confirmButton.disabled = true;
-            const originalText = confirmButton.textContent;
-            confirmButton.textContent = '{{ __('Clearing...') }}';
-            
-            fetch('{{ route('public.ajax.clear-recently-viewed') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                credentials: 'same-origin'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.error === false) {
-                    // Close modal
-                    const modalInstance = bootstrap.Modal.getInstance(clearHistoryModal);
-                    if (modalInstance) {
-                        modalInstance.hide();
-                    }
-                    
-                    // Reload page to show updated list
-                    window.location.reload();
-                } else {
-                    throw new Error(data.message || '{{ __('Failed to clear history.') }}');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert(error.message || '{{ __('An error occurred. Please try again.') }}');
-                
-                // Re-enable button
-                confirmButton.disabled = false;
-                confirmButton.textContent = originalText;
-            });
-        });
-    }
-});
-</script>
 @endif
