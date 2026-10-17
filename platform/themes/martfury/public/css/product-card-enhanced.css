@@ -361,7 +361,7 @@
 
     /* Action Buttons - Hidden on desktop for offers */
     .ps-product--offer .ps-product__actions {
-        display: none;
+        display: none !important;
     }
 
     /* Floating Action Button */
@@ -1754,7 +1754,7 @@
 
     /* Action Buttons - Hidden on desktop for offers */
     .ps-product--standard .ps-product__actions {
-        display: none;
+        display: none !important;
     }
 
     /* Floating Action Button */
@@ -2235,3 +2235,4 @@
             padding: 2px 7px !important;
         }
     }
+
