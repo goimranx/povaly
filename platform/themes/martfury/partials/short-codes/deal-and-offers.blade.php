@@ -114,6 +114,11 @@
         background: var(--global-color-site-bg);
     }
 
+    .ps-deal-of-day .ps-container {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
     /* Left Side - Deal of the Day */
     .ps-block--deal-of-day {
         border: 1px solid var(--global-color-primary-border);
