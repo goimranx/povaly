@@ -506,6 +506,10 @@
    ============================================================ */
 
 @media (max-width: 480px) {
+
+    /* Remove card margins on mobile */
+    .ec-card { margin: 0 !important; }
+
     /* Show bottom button for offer & standard on mobile */
     .ec-card--flyout .ec-card__actions,
     .ec-card--flyout .ec-card__actions {
