@@ -452,8 +452,8 @@
     opacity: 1;
 }
 
-/* Mobile: adjust toggle-h position for better centering */
-@media (max-width: 480px) {
+/* Tablet (481-768px): adjust toggle-h position for better centering */
+@media (min-width: 481px) and (max-width: 768px) {
     .ec-card__toggle-h { left: -50%; }
 }
 
