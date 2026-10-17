@@ -30,6 +30,7 @@ use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class PublicProductController extends BaseController
 {
@@ -439,15 +440,18 @@ class PublicProductController extends BaseController
 
     public function ajaxClearRecentlyViewed(Request $request)
     {
-        if (! auth('customer')->check()) {
-            // Clear guest cart session
-            Cart::instance('recently_viewed')->destroy();
-        } else {
-            // Clear logged-in customer viewed products
-            auth('customer')->user()->viewedProducts()->detach();
-        }
+        try {
+            if (auth('customer')->check()) {
+                auth('customer')->user()->viewedProducts()->detach();
+            } else {
+                Cart::instance('recently_viewed')->destroy();
+            }
 
-        return redirect()->back()->with('success', __('Browsing history cleared successfully!'));
+            return redirect()->back()->with('success', __('Browsing history cleared successfully!'));
+        } catch (\Exception $e) {
+            Log::error('Clear recently viewed error: ' . $e->getMessage());
+            return redirect()->back()->with('error', __('Failed to clear history. Please try again.'));
+        }
     }
 
     public function ajaxGetRecentlyViewedProducts(ProductInterface $productRepository)
