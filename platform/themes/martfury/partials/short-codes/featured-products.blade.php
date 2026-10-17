@@ -23,7 +23,7 @@
     /* Featured Products Section - Matches Offers Container Design */
     .ps-featured-products {
         padding: 0 !important;
-        margin: 20px 0 !important;
+        margin: 0 0 20px 0 !important;
         background: var(--global-color-site-bg);
     }
 
