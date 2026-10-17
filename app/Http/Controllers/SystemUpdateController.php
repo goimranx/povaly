@@ -89,7 +89,12 @@ class SystemUpdateController extends Controller
             // Step 8: Publish assets
             $output[] = "\n=== Publishing Vendor Assets ===";
             Artisan::call('vendor:publish', ['--tag' => 'public', '--force' => true]);
-            $output[] = "✓ Assets published";
+            $output[] = "✓ Vendor assets published";
+
+            // Step 8b: Publish theme assets (copies platform/themes/*/public/ → public/themes/)
+            $output[] = "\n=== Publishing Theme Assets ===";
+            Artisan::call('cms:theme:assets:publish');
+            $output[] = "✓ Theme assets published";
 
             // Step 9: Optimize application
             $output[] = "\n=== Optimizing Application ===";
