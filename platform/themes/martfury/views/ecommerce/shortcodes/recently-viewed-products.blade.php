@@ -1,6 +1,4 @@
 @php
-    use Gloudemans\Shoppingcart\Facades\Cart;
-    
     // Get recently viewed products directly
     $recentlyViewedProducts = collect();
     
