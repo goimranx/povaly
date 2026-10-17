@@ -29,12 +29,8 @@
     // but does NOT call loadCart() to refresh the mini-cart HTML.
     // main.js exposes window.loadCart — call it here.
     document.addEventListener('ecommerce.cart.added', function (e) {
-        console.log('[ec-card] ecommerce.cart.added fired', e.detail);
         if (typeof window.loadCart === 'function') {
-            console.log('[ec-card] calling window.loadCart()');
             window.loadCart();
-        } else {
-            console.warn('[ec-card] window.loadCart not found');
         }
     });
 
