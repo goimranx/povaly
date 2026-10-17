@@ -651,6 +651,7 @@
    LOADING STATE — btn-loading class added by front-ecommerce.js
    ============================================================ */
 
+/* Add to cart button — yellow background, spinner uses text-on-dark color */
 .ec-card__btn--cart.btn-loading,
 .ec-card__btn--cart.button-loading {
     position: relative;
@@ -667,7 +668,34 @@
     width: 16px;
     height: 16px;
     margin: -8px 0 0 -8px;
-    border: 2px solid #fff;
+    border: 2px solid var(--global-color-text-on-dark);
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    animation: ec-card-spin .7s linear infinite;
+}
+
+/* Flyout buttons — site-bg background, spinner uses text-main (dark) so it's visible */
+.ec-card__float-btn.btn-loading,
+.ec-card__float-btn.button-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.ec-card__float-btn.btn-loading i,
+.ec-card__float-btn.button-loading i {
+    opacity: 0;
+}
+
+.ec-card__float-btn.btn-loading::after,
+.ec-card__float-btn.button-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border: 2px solid var(--global-color-text-main);
     border-bottom-color: transparent;
     border-radius: 50%;
     animation: ec-card-spin .7s linear infinite;
