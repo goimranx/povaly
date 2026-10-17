@@ -58,9 +58,12 @@
 .ec-card__seller,
 .ec-card__badges,
 .ec-card__float,
-.ec-card__actions {
+.ec-card__actions,
+.ec-card__sale-duration,
+.ec-card__info-icon {
     position: relative;
     z-index: 2;
+    pointer-events: auto;
 }
 
 /* Badges */
