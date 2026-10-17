@@ -275,12 +275,6 @@
 
 .ec-card__rating:hover { opacity: .8; }
 
-.ec-card__rating-num {
-    font-weight: 700;
-    color: var(--global-color-primary);
-    font-size: 12px;
-}
-
 /* Delivery message */
 .ec-card__delivery {
     font-size: 11px;
@@ -311,11 +305,11 @@
     color: #ddd;
 }
 
-.ec-card__star--filled { color: #FF9900 !important; }
-.ec-card__star--half  { color: #FF9900 !important; opacity: .5; }
+.ec-card__star--filled { color: var(--global-color-primary) !important; }
+.ec-card__star--half  { color: var(--global-color-primary) !important; opacity: .5; }
 
 .ec-card__rating-count { 
-    color: #565959;
+    color: var(--global-color-link);
     font-size: 11px;
     margin-left: 2px;
 }

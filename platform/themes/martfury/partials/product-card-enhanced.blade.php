@@ -196,9 +196,8 @@
                                 @endif
                             @endfor
                         </span>
-                        <span class="ec-card__rating-num">{{ $product->reviews_count > 0 ? number_format($product->reviews_avg, 1) : '0.0' }}</span>
                     </a>
-                    <span class="ec-card__rating-count">{{ number_format($product->reviews_count) }}+ viewed in past month</span>
+                    <span class="ec-card__rating-count">{{ number_format($product->reviews_count) }} viewed in past month</span>
                 </div>
 
                 {{-- Sale duration info --}}

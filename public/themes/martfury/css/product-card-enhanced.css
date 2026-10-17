@@ -218,13 +218,14 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    margin-top: 5px;
     margin-bottom: 8px;
 }
 
 .ec-card__price-amount {
-    font-size: 18px;
+    font-size: 1.7rem;
     font-weight: 400;
-    color: var(--global-color-alert);
+    color: var(--global-color-text-body);
 }
 
 .ec-card__sold {
@@ -242,7 +243,7 @@
     -webkit-line-clamp: 3 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
-    font-size: 13px;
+    font-size: 1.15rem;
     font-weight: 400;
     color: var(--global-color-text-main);
     text-decoration: none;
@@ -256,24 +257,42 @@
     color: var(--global-color-alert-text);
 }
 
+/* Rating wrapper */
+.ec-card__rating-wrapper {
+    margin-bottom: 6px;
+}
+
 /* Rating */
 .ec-card__rating {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 6px;
-    font-size: 12px;
+    gap: 4px;
+    font-size: 11px;
     text-decoration: none;
     color: inherit;
-    width: fit-content;
     transition: opacity .3s ease;
 }
 
 .ec-card__rating:hover { opacity: .8; }
 
-.ec-card__rating-num {
-    font-weight: 700;
-    color: var(--global-color-text-main);
+/* Delivery message */
+.ec-card__delivery {
+    font-size: 11px;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.ec-card__delivery-date {
+    color: var(--global-color-text-body);
+}
+
+.ec-card__delivery-date strong {
+    font-weight: 600;
+}
+
+.ec-card__delivery-charge {
+    color: var(--global-color-success);
+    font-weight: 500;
 }
 
 .ec-card__stars {
@@ -282,14 +301,18 @@
 }
 
 .ec-card__stars i {
-    font-size: 12px;
+    font-size: 14px;
     color: #ddd;
 }
 
-.ec-card__star--filled { color: #ffa500 !important; }
-.ec-card__star--half  { color: #ffa500 !important; opacity: .5; }
+.ec-card__star--filled { color: var(--global-color-primary) !important; }
+.ec-card__star--half  { color: var(--global-color-primary) !important; opacity: .5; }
 
-.ec-card__rating-count { color: #999; }
+.ec-card__rating-count { 
+    color: var(--global-color-link);
+    font-size: 11px;
+    margin-left: 2px;
+}
 
 /* Seller */
 .ec-card__seller {
@@ -314,10 +337,10 @@
 .ec-card__btn {
     display: block;
     width: 100%;
-    padding: 10px 15px;
+    padding: 5px 15px;
     border-radius: 50px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 400;
     text-align: center;
     text-decoration: none;
     cursor: pointer;
@@ -338,21 +361,22 @@
 .ec-card__btn--select {
     background: transparent;
     color: var(--global-color-text-main);
-    border: 1px solid var(--global-color-text-main);
+    border: 1px solid var(--global-color-border-strong);
 }
 
 .ec-card__btn--select:hover,
 .ec-card__btn--select:active,
 .ec-card__btn--select:focus {
-    background: var(--global-color-text-main);
-    color: var(--global-color-text-on-dark);
+    background: var(--global-color-card-bg);
+    color: var(--global-color-text-main);
+    border-color: var(--global-color-border-strong);
 }
 
 /* ── Floating actions (offer/standard desktop) ── */
 .ec-card__float {
     position: absolute;
     bottom: 10px;
-    right: 10px;
+    right: 12px;
     z-index: 20;
 }
 
@@ -432,8 +456,8 @@
 }
 
 .ec-card__toggle-icon {
-    width: 10px;
-    height: 10px;
+    width: 11.5px;
+    height: 11.5px;
     position: relative;
     display: inline-block;
     transition: transform .4s cubic-bezier(.4,0,.2,1);
@@ -447,18 +471,18 @@
 }
 
 .ec-card__toggle-h {
-    width: 10px; height: 2px;
+    width: 11.5px; height: 2px;
     top: 50%; left: 0; margin-top: -1px;
     opacity: 1;
 }
 
 /* Tablet (481-768px): adjust toggle-h position for better centering */
 @media (min-width: 481px) and (max-width: 768px) {
-    .ec-card__toggle-h { left: -50%; }
+    .ec-card__toggle-h { left: -43.5%; }
 }
 
 .ec-card__toggle-v {
-    width: 2px; height: 10px;
+    width: 2px; height: 11.5px;
     left: 50%; top: 0; margin-left: -1px;
     opacity: 1;
 }
@@ -491,7 +515,7 @@
 .ec-card--inline .ec-card__actions  { display: block; }
 
 .ec-card--inline .ec-card__price-amount {
-    font-size: 22px;
+    font-size: 1.7rem;
 }
 
 /* ============================================================
@@ -518,6 +542,18 @@
     /* Remove card margins on mobile */
     .ec-card { margin: 0 !important; }
 
+    /* Mobile float button positioning and sizing */
+    .ec-card__float {
+        bottom: 7px !important;
+        right: 7px !important;
+    }
+
+    .ec-card__float-btn,
+    .ec-card__float-toggle {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
     /* Show bottom button for offer & standard on mobile */
     .ec-card--flyout .ec-card__actions,
     .ec-card--flyout .ec-card__actions {
@@ -535,7 +571,7 @@
     .ec-card--flyout .ec-card__btn,
     .ec-card--flyout .ec-card__btn,
     .ec-card--inline .ec-card__btn {
-        padding: 7px 12px !important;
+        padding: 5px 10px !important;
         border-radius: 16px !important;
         font-size: 11px !important;
     }
@@ -555,7 +591,7 @@
     .ec-card--flyout .ec-card__thumb,
     .ec-card--inline .ec-card__thumb,
     .ec-card--flyout .ec-card__thumb {
-        width: 130px !important;
+        width: 35.5% !important;
         flex-shrink: 0 !important;
         margin-bottom: 0 !important;
         border-radius: 8px 0 0 8px !important;
@@ -615,11 +651,11 @@
 
     .ec-card--flyout .ec-card__price-amount,
     .ec-card--flyout .ec-card__price-amount {
-        font-size: 15px !important;
+        font-size: 1.55rem !important;
     }
 
     .ec-card--inline .ec-card__price-amount {
-        font-size: 15px !important;
+        font-size: 1.55rem !important;
     }
 
     .ec-card--flyout .ec-card__rating,
