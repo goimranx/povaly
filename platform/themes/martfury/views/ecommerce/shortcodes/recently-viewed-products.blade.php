@@ -189,7 +189,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load recently viewed products via AJAX
     function loadRecentlyViewed() {
-        fetch('{{ route('public.ajax.recently-viewed-products') }}')
+        const ajaxUrl = '{{ route('public.ajax.recently-viewed-products') }}';
+        console.log('Fetching from URL:', ajaxUrl);
+        
+        fetch(ajaxUrl)
             .then(response => {
                 // Log the response status
                 console.log('Response status:', response.status);
