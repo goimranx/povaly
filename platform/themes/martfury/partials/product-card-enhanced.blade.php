@@ -269,7 +269,7 @@
 
 
 {{-- Inline CSS for Enhanced Product Card --}}
-@once
+@pushonce('styles:product-card-enhanced')
 <style>
 /**
  * Enhanced Product Card - Global Styles
