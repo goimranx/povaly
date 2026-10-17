@@ -316,28 +316,22 @@
 
 .ec-card__stars i {
     font-size: 14px;
-    color: transparent;
-    -webkit-text-stroke: 1px var(--global-color-primary);
-    text-stroke: 1px var(--global-color-primary);
+    color: var(--global-color-primary);
 }
 
-.ec-card__star--filled { 
-    color: var(--global-color-primary) !important;
-    -webkit-text-stroke: 0;
-    text-stroke: 0;
+/* Filled star - already uses icon-star which is filled */
+.ec-card__stars .icon-star {
+    color: var(--global-color-primary);
 }
 
-.ec-card__star--half { 
-    color: var(--global-color-primary) !important;
-    opacity: .5;
-    -webkit-text-stroke: 0;
-    text-stroke: 0;
+/* Half-filled star */
+.ec-card__stars .icon-star-half {
+    color: var(--global-color-primary);
 }
 
-.ec-card__star--outline {
-    color: transparent !important;
-    -webkit-text-stroke: 1px var(--global-color-primary);
-    text-stroke: 1px var(--global-color-primary);
+/* Empty/outline star */
+.ec-card__stars .icon-star-empty {
+    color: var(--global-color-primary);
 }
 
 /* Seller */
@@ -694,7 +688,7 @@
     .ec-card--flyout .ec-card__stars i,
     .ec-card--inline .ec-card__stars i,
     .ec-card--flyout .ec-card__stars i {
-        font-size: 9px !important;
+        font-size: 10px !important;
     }
 
     .ec-card--flyout .ec-card__badge-discount,
