@@ -256,8 +256,16 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Loading more products from:', url.toString());
         
         fetch(url)
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers.get('content-type'));
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success && data.data.html) {
                     // Append products
                     grid.insertAdjacentHTML('beforeend', data.data.html);
@@ -279,6 +287,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error loading products:', error);
+                console.error('Error details:', error.message, error.stack);
                 alert('{{ __('Failed to load more products. Please try again.') }}');
                 
                 // Re-enable button
@@ -320,8 +329,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('Auto-loading products from:', url.toString());
                     
                     fetch(url)
-                        .then(response => response.json())
+                        .then(response => {
+                            console.log('Auto-load response status:', response.status);
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
                         .then(data => {
+                            console.log('Auto-load data:', data);
                             if (data.success && data.data.html) {
                                 grid.insertAdjacentHTML('beforeend', data.data.html);
                                 grid.dataset.currentPage = nextPage;
@@ -338,6 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         })
                         .catch(error => {
                             console.error('Error loading products:', error);
+                            console.error('Error details:', error.message, error.stack);
                             isLoading = false;
                             loadingIndicator.classList.add('d-none');
                         });
