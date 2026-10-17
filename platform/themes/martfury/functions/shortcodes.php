@@ -849,44 +849,44 @@ app()->booted(function (): void {
                     ->helperText(__('Show 1 for single product, or more for carousel'))
             )
             ->add(
-                    'offers_title',
-                    TextField::class,
-                    TextFieldOption::make()
-                        ->label(__('Offers Section Title'))
-                        ->placeholder(__('Offers'))
-                        ->defaultValue('Offers')
-                )
-                ->add(
-                    'offers_link_text',
-                    TextField::class,
-                    TextFieldOption::make()
-                        ->label(__('Offers Link Text'))
-                        ->placeholder(__('Show all offers'))
-                        ->defaultValue('Show all offers')
-                )
-                ->add(
-                    'offers_link_url',
-                    TextField::class,
-                    TextFieldOption::make()
-                        ->label(__('Offers Link URL'))
-                        ->placeholder(__('#'))
-                )
-                ->add(
-                    'offers_type',
-                    SelectField::class,
-                    SelectFieldOption::make()
-                        ->label(__('Offers Source Type'))
-                        ->choices([
-                            'category' => __('Category'),
-                            'collection' => __('Collection'),
-                            'product' => __('Specific Products'),
-                        ])
-                        ->defaultValue('category')
-                        ->attributes([
-                            'data-bb-toggle' => 'collapse',
-                            'data-bb-target' => '.offers-source-wrapper',
-                        ])
-                );
+                'offers_title',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('Offers Section Title'))
+                    ->placeholder(__('Offers'))
+                    ->defaultValue('Offers')
+            )
+            ->add(
+                'offers_link_text',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('Offers Link Text'))
+                    ->placeholder(__('Show all offers'))
+                    ->defaultValue('Show all offers')
+            )
+            ->add(
+                'offers_link_url',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('Offers Link URL'))
+                    ->placeholder(__('#'))
+            )
+            ->add(
+                'offers_type',
+                SelectField::class,
+                SelectFieldOption::make()
+                    ->label(__('Offers Source Type'))
+                    ->choices([
+                        'category' => __('Category'),
+                        'collection' => __('Collection'),
+                        'product' => __('Specific Products'),
+                    ])
+                    ->defaultValue('category')
+                    ->attributes([
+                        'data-bb-toggle' => 'collapse',
+                        'data-bb-target' => '.offers-source-wrapper',
+                    ])
+            );
 
             // Offers source fields with conditional display
             $offersType = $attributes['offers_type'] ?? 'category';
@@ -944,7 +944,8 @@ app()->booted(function (): void {
             return $form;
         });
 
-        shortcode()->registerLoadingState('deal-and-offers', Theme::getThemeNamespace('partials.short-codes.deal-and-offers-skeleton'));
+        // Lazy loading disabled - renders directly for better performance
+        // shortcode()->registerLoadingState('deal-and-offers', Theme::getThemeNamespace('partials.short-codes.deal-and-offers-skeleton'));
     }
 });
 
