@@ -535,7 +535,7 @@
     .ec-card--flyout .ec-card__btn,
     .ec-card--flyout .ec-card__btn,
     .ec-card--inline .ec-card__btn {
-        padding: 7px 12px !important;
+        padding: 5px 10px !important;
         border-radius: 16px !important;
         font-size: 11px !important;
     }
