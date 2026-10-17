@@ -494,24 +494,16 @@
     {{-- Override quick-shop to use offcanvas instead of modal --}}
     <script>
     jQuery(document).ready(function($) {
-        console.log('[OFFCANVAS DEBUG] Quick view/shop override script loaded');
-        
         // Override quick-shop modal behavior to use offcanvas
         $(document).on('click', '[data-bb-toggle="quick-shop"]', function(e) {
             e.preventDefault();
             e.stopPropagation();
             
-            console.log('[OFFCANVAS DEBUG] Quick shop button clicked');
-            
             const $btn = $(this);
             const $offcanvas = $('#quick-shop-modal');
             const url = $btn.data('url');
             
-            console.log('[OFFCANVAS DEBUG] URL:', url);
-            console.log('[OFFCANVAS DEBUG] Offcanvas element:', $offcanvas[0]);
-            
             if (!url) {
-                console.error('[OFFCANVAS DEBUG] No URL found');
                 return;
             }
             
@@ -519,13 +511,10 @@
                 url: url,
                 type: 'GET',
                 beforeSend: function() {
-                    console.log('[OFFCANVAS DEBUG] Loading product...');
                     $btn.addClass('loading');
                     $offcanvas.find('.modal-body').html('<div class="loading-spinner" style="padding: 40px; text-align: center;"><i class="icon-spinner"></i> Loading...</div>');
                 },
                 success: function(response) {
-                    console.log('[OFFCANVAS DEBUG] AJAX success:', response);
-                    
                     if (response.error) {
                         alert(response.message || 'Error loading product');
                         return;
@@ -533,24 +522,21 @@
                     
                     // Insert content
                     $offcanvas.find('.modal-body').html(response.data);
-                    console.log('[OFFCANVAS DEBUG] Content inserted');
                     
                     // Try to show offcanvas using Bootstrap 5 API
                     try {
                         if (typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
-                            console.log('[OFFCANVAS DEBUG] Using Bootstrap 5 Offcanvas API');
                             let offcanvasInstance = bootstrap.Offcanvas.getInstance($offcanvas[0]);
                             if (!offcanvasInstance) {
                                 offcanvasInstance = new bootstrap.Offcanvas($offcanvas[0]);
                             }
                             offcanvasInstance.show();
                         } else {
-                            console.error('[OFFCANVAS DEBUG] Bootstrap Offcanvas not found, trying manual method');
                             $offcanvas.addClass('show');
                             $('body').append('<div class="offcanvas-backdrop fade show"></div>');
                         }
                     } catch(error) {
-                        console.error('[OFFCANVAS DEBUG] Error showing offcanvas:', error);
+                        // silently handle
                     }
                     
                     // Update title if product name is available
@@ -558,7 +544,6 @@
                         const productName = $offcanvas.find('h1').first().text();
                         if (productName) {
                             $offcanvas.find('.offcanvas-title').text(productName.substring(0, 40) + (productName.length > 40 ? '...' : ''));
-                            console.log('[OFFCANVAS DEBUG] Title updated:', productName);
                         }
                     }, 100);
                     
@@ -568,7 +553,6 @@
                     }));
                 },
                 error: function(xhr) {
-                    console.error('[OFFCANVAS DEBUG] AJAX error:', xhr);
                     alert('Failed to load product details');
                 },
                 complete: function() {
@@ -576,10 +560,6 @@
                 }
             });
         });
-        
-        // Test quick view on page load
-        console.log('[OFFCANVAS DEBUG] Quick view offcanvas element:', $('#product-quickview')[0]);
-        console.log('[OFFCANVAS DEBUG] Quick shop offcanvas element:', $('#quick-shop-modal')[0]);
     });
     </script>
 
