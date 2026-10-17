@@ -6,7 +6,6 @@
             </div>
             <div class="ps-block__content">
                 <div class="ps-grid--smart-products js-smart-products-grid"
-                     data-criteria="{{ $criteria }}"
                      data-category-id="{{ $categoryId ?? '' }}"
                      data-load-more-type="{{ $loadMoreType }}"
                      data-items-per-page="{{ $itemsPerPage }}"
@@ -235,7 +234,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     function loadMoreProducts(grid, button) {
-        const criteria = grid.dataset.criteria;
         const categoryId = grid.dataset.categoryId || '';
         const perPage = parseInt(grid.dataset.itemsPerPage);
         const currentPage = parseInt(grid.dataset.currentPage);
@@ -249,7 +247,6 @@ document.addEventListener('DOMContentLoaded', function() {
         button.querySelector('.btn-loading').classList.remove('d-none');
         
         const url = new URL('{{ route('public.ajax.smart-products') }}', window.location.origin);
-        url.searchParams.set('criteria', criteria);
         url.searchParams.set('page', nextPage);
         url.searchParams.set('per_page', perPage);
         if (categoryId) {
@@ -306,14 +303,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     isLoading = true;
                     loadingIndicator.classList.remove('d-none');
                     
-                    const criteria = grid.dataset.criteria;
                     const categoryId = grid.dataset.categoryId || '';
                     const perPage = parseInt(grid.dataset.itemsPerPage);
                     const currentPage = parseInt(grid.dataset.currentPage);
                     const nextPage = currentPage + 1;
                     
                     const url = new URL('{{ route('public.ajax.smart-products') }}', window.location.origin);
-                    url.searchParams.set('criteria', criteria);
                     url.searchParams.set('page', nextPage);
                     url.searchParams.set('per_page', perPage);
                     if (categoryId) {

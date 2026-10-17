@@ -14,143 +14,29 @@ class SmartProductService
     }
 
     /**
-     * Get most viewed products
+     * Get smart products with combined scoring from multiple criteria
+     * 
+     * @param int $limit Number of products to return
+     * @param int|null $categoryId Optional category filter
+     * @param array $weights Scoring weights for each criteria
+     * @return Collection
      */
-    public function getMostViewed(int $limit, ?int $categoryId = null): Collection
+    public function getSmartProducts(int $limit, ?int $categoryId = null, array $weights = []): Collection
     {
-        $query = $this->baseQuery($categoryId);
+        // Default weights for each criteria (adjustable)
+        $defaultWeights = [
+            'views' => 1.0,           // Current views weight
+            'sales' => 10.0,          // Sales weight (higher because fewer sales)
+            'recent_views' => 2.0,    // Recent views (trending)
+            'recent_sales' => 15.0,   // Recent sales (trending)
+            'wishlists' => 5.0,       // Wishlist weight
+            'rating' => 3.0,          // Rating weight
+        ];
         
-        return $query->orderBy('ec_products.views', 'DESC')
-            ->limit($limit)
-            ->get();
-    }
-
-    /**
-     * Get best selling products (most sold)
-     */
-    public function getMostSold(int $limit, ?int $categoryId = null): Collection
-    {
-        $query = $this->baseQuery($categoryId);
+        $weights = array_merge($defaultWeights, $weights);
+        $daysAgo = now()->subDays(7);
         
-        $query->leftJoin('ec_order_product', 'ec_products.id', '=', 'ec_order_product.product_id')
-            ->leftJoin('ec_orders', 'ec_order_product.order_id', '=', 'ec_orders.id')
-            ->where(function($q) {
-                $q->where('ec_orders.status', 'completed')
-                  ->orWhereNull('ec_orders.status');
-            })
-            ->select('ec_products.*', DB::raw('COALESCE(SUM(ec_order_product.qty), 0) as total_sold'))
-            ->groupBy('ec_products.id')
-            ->orderBy('total_sold', 'DESC')
-            ->limit($limit);
-        
-        return $query->get();
-    }
-
-    /**
-     * Get trending products (recent views + recent sales weighted)
-     */
-    public function getTrending(int $limit, ?int $categoryId = null, int $days = 7): Collection
-    {
-        $query = $this->baseQuery($categoryId);
-        $daysAgo = now()->subDays($days);
-        
-        $query->leftJoin('ec_product_views', function($join) use ($daysAgo) {
-                $join->on('ec_products.id', '=', 'ec_product_views.product_id')
-                     ->where('ec_product_views.date', '>=', $daysAgo);
-            })
-            ->leftJoin('ec_order_product', 'ec_products.id', '=', 'ec_order_product.product_id')
-            ->leftJoin('ec_orders', function($join) use ($daysAgo) {
-                $join->on('ec_order_product.order_id', '=', 'ec_orders.id')
-                     ->where('ec_orders.status', 'completed')
-                     ->where('ec_orders.created_at', '>=', $daysAgo);
-            })
-            ->select('ec_products.*', 
-                DB::raw('(COALESCE(COUNT(DISTINCT ec_product_views.id), 0) * 2 + COALESCE(SUM(ec_order_product.qty), 0) * 10) as trending_score'))
-            ->groupBy('ec_products.id')
-            ->orderBy('trending_score', 'DESC')
-            ->limit($limit);
-        
-        return $query->get();
-    }
-
-    /**
-     * Get most wishlisted products
-     */
-    public function getMostWishlisted(int $limit, ?int $categoryId = null): Collection
-    {
-        $query = $this->baseQuery($categoryId);
-        
-        $query->leftJoin('ec_wish_lists', 'ec_products.id', '=', 'ec_wish_lists.product_id')
-            ->select('ec_products.*', DB::raw('COALESCE(COUNT(ec_wish_lists.id), 0) as wishlist_count'))
-            ->groupBy('ec_products.id')
-            ->orderBy('wishlist_count', 'DESC')
-            ->limit($limit);
-        
-        return $query->get();
-    }
-
-    /**
-     * Get best rated products
-     */
-    public function getBestRated(int $limit, ?int $categoryId = null): Collection
-    {
-        $query = $this->baseQuery($categoryId);
-        
-        $query->where('ec_products.reviews_count', '>', 0)
-            ->select('ec_products.*', 
-                DB::raw('(ec_products.reviews_avg * LOG(ec_products.reviews_count + 1)) as rating_score'))
-            ->orderBy('rating_score', 'DESC')
-            ->limit($limit);
-        
-        return $query->get();
-    }
-
-    /**
-     * Get most added to cart (using views as proxy)
-     */
-    public function getMostAddedToCart(int $limit, ?int $categoryId = null): Collection
-    {
-        // Using views as proxy since there's no persistent cart tracking
-        return $this->getMostViewed($limit, $categoryId);
-    }
-
-    /**
-     * Get similar products based on category and price range
-     */
-    public function getSimilarProducts(int $productId, int $limit): Collection
-    {
-        $product = $this->productRepository->findById($productId);
-        
-        if (!$product) {
-            return collect();
-        }
-        
-        $priceMin = $product->front_sale_price * 0.8;
-        $priceMax = $product->front_sale_price * 1.2;
-        
-        $query = $this->baseQuery();
-        
-        // Same categories
-        $categoryIds = $product->categories()->pluck('ec_product_categories.id')->toArray();
-        
-        if (!empty($categoryIds)) {
-            $query->join('ec_product_categories', 'ec_products.id', '=', 'ec_product_categories.product_id')
-                ->whereIn('ec_product_categories.category_id', $categoryIds);
-        }
-        
-        $query->where('ec_products.id', '!=', $productId)
-            ->whereBetween('ec_products.front_sale_price', [$priceMin, $priceMax])
-            ->orderBy('ec_products.views', 'DESC')
-            ->limit($limit);
-        
-        return $query->get();
-    }
-
-    /**
-     * Base query with common filters
-     */
-    protected function baseQuery(?int $categoryId = null)
-    {
+        // Build base query
         $query = DB::table('ec_products')
             ->where('ec_products.status', 'published')
             ->where('ec_products.is_variation', 0);
@@ -170,19 +56,237 @@ class SmartProductService
                 ->where('ec_product_categories.category_id', $categoryId);
         }
         
-        // Transform to Product models with eager loading
+        // Join all data sources for scoring
+        $query
+            // Recent views (trending)
+            ->leftJoin('ec_product_views as recent_views', function($join) use ($daysAgo) {
+                $join->on('ec_products.id', '=', 'recent_views.product_id')
+                     ->where('recent_views.date', '>=', $daysAgo);
+            })
+            // All time sales
+            ->leftJoin(DB::raw('(
+                SELECT 
+                    op.product_id,
+                    SUM(op.qty) as total_sold
+                FROM ec_order_product op
+                INNER JOIN ec_orders o ON op.order_id = o.id
+                WHERE o.status = "completed"
+                GROUP BY op.product_id
+            ) as sales'), 'ec_products.id', '=', 'sales.product_id')
+            // Recent sales (trending)
+            ->leftJoin(DB::raw('(
+                SELECT 
+                    op.product_id,
+                    SUM(op.qty) as recent_sold
+                FROM ec_order_product op
+                INNER JOIN ec_orders o ON op.order_id = o.id
+                WHERE o.status = "completed" AND o.created_at >= "' . $daysAgo->format('Y-m-d H:i:s') . '"
+                GROUP BY op.product_id
+            ) as recent_sales'), 'ec_products.id', '=', 'recent_sales.product_id')
+            // Wishlists count
+            ->leftJoin(DB::raw('(
+                SELECT 
+                    product_id,
+                    COUNT(*) as wishlist_count
+                FROM ec_wish_lists
+                GROUP BY product_id
+            ) as wishlists'), 'ec_products.id', '=', 'wishlists.product_id');
+        
+        // Calculate combined score
+        $query->select(
+            'ec_products.*',
+            DB::raw(sprintf('(
+                (ec_products.views * %f) +
+                (COALESCE(sales.total_sold, 0) * %f) +
+                (COALESCE(COUNT(DISTINCT recent_views.id), 0) * %f) +
+                (COALESCE(recent_sales.recent_sold, 0) * %f) +
+                (COALESCE(wishlists.wishlist_count, 0) * %f) +
+                (COALESCE(ec_products.reviews_avg * LOG(ec_products.reviews_count + 1), 0) * %f)
+            ) as smart_score',
+                $weights['views'],
+                $weights['sales'],
+                $weights['recent_views'],
+                $weights['recent_sales'],
+                $weights['wishlists'],
+                $weights['rating']
+            ))
+        );
+        
+        $query->groupBy('ec_products.id')
+            ->orderBy('smart_score', 'DESC')
+            ->limit($limit * 2); // Get more for diversity
+        
         $productIds = $query->pluck('ec_products.id')->toArray();
         
         if (empty($productIds)) {
             return collect();
         }
         
-        return $this->productRepository
+        // Get products with eager loading, maintaining order
+        $products = $this->productRepository
             ->getModel()
             ->whereIn('id', $productIds)
             ->with(array_merge(
                 EcommerceHelper::withProductEagerLoadingRelations(),
                 ['reviews']
-            ));
+            ))
+            ->get();
+        
+        // Sort by original order and apply vendor diversity
+        $orderedProducts = collect($productIds)
+            ->map(fn($id) => $products->firstWhere('id', $id))
+            ->filter();
+        
+        // Apply vendor diversity (don't show too many from same vendor)
+        return $this->applyVendorDiversity($orderedProducts, $limit);
+    }
+
+    /**
+     * Get most viewed products (fallback/simple mode)
+     */
+    public function getMostViewed(int $limit, ?int $categoryId = null): Collection
+    {
+        return $this->getSmartProducts($limit, $categoryId, [
+            'views' => 10.0,
+            'sales' => 0,
+            'recent_views' => 0,
+            'recent_sales' => 0,
+            'wishlists' => 0,
+            'rating' => 0,
+        ]);
+    }
+
+    /**
+     * Get best selling products
+     */
+    public function getMostSold(int $limit, ?int $categoryId = null): Collection
+    {
+        return $this->getSmartProducts($limit, $categoryId, [
+            'views' => 0,
+            'sales' => 100.0,
+            'recent_views' => 0,
+            'recent_sales' => 0,
+            'wishlists' => 0,
+            'rating' => 0,
+        ]);
+    }
+
+    /**
+     * Get trending products (emphasize recent activity)
+     */
+    public function getTrending(int $limit, ?int $categoryId = null, int $days = 7): Collection
+    {
+        return $this->getSmartProducts($limit, $categoryId, [
+            'views' => 0.5,
+            'sales' => 2.0,
+            'recent_views' => 10.0,
+            'recent_sales' => 50.0,
+            'wishlists' => 1.0,
+            'rating' => 1.0,
+        ]);
+    }
+
+    /**
+     * Get most wishlisted products
+     */
+    public function getMostWishlisted(int $limit, ?int $categoryId = null): Collection
+    {
+        return $this->getSmartProducts($limit, $categoryId, [
+            'views' => 0,
+            'sales' => 0,
+            'recent_views' => 0,
+            'recent_sales' => 0,
+            'wishlists' => 100.0,
+            'rating' => 0,
+        ]);
+    }
+
+    /**
+     * Get best rated products
+     */
+    public function getBestRated(int $limit, ?int $categoryId = null): Collection
+    {
+        return $this->getSmartProducts($limit, $categoryId, [
+            'views' => 0,
+            'sales' => 0,
+            'recent_views' => 0,
+            'recent_sales' => 0,
+            'wishlists' => 0,
+            'rating' => 100.0,
+        ]);
+    }
+
+    /**
+     * Get most added to cart (using combined signals)
+     */
+    public function getMostAddedToCart(int $limit, ?int $categoryId = null): Collection
+    {
+        return $this->getSmartProducts($limit, $categoryId, [
+            'views' => 5.0,
+            'sales' => 10.0,
+            'recent_views' => 3.0,
+            'recent_sales' => 0,
+            'wishlists' => 2.0,
+            'rating' => 0,
+        ]);
+    }
+
+    /**
+     * Get similar products based on category and price range
+     */
+    public function getSimilarProducts(int $productId, int $limit): Collection
+    {
+        $product = $this->productRepository->findById($productId);
+        
+        if (!$product) {
+            return collect();
+        }
+        
+        $priceMin = $product->front_sale_price * 0.8;
+        $priceMax = $product->front_sale_price * 1.2;
+        
+        $categoryIds = $product->categories()->pluck('ec_product_categories.id')->toArray();
+        
+        if (empty($categoryIds)) {
+            return collect();
+        }
+        
+        // Use smart scoring for similar products from same category
+        return $this->getSmartProducts($limit * 2, $categoryIds[0])
+            ->where('id', '!=', $productId)
+            ->filter(function($p) use ($priceMin, $priceMax) {
+                return $p->front_sale_price >= $priceMin && $p->front_sale_price <= $priceMax;
+            })
+            ->take($limit);
+    }
+
+    /**
+     * Apply vendor diversity to prevent showing too many products from one vendor
+     */
+    protected function applyVendorDiversity(Collection $products, int $limit): Collection
+    {
+        if (!is_plugin_active('marketplace')) {
+            return $products->take($limit);
+        }
+        
+        $result = collect();
+        $vendorCounts = [];
+        $maxPerVendor = max(3, ceil($limit / 3)); // Max 3 products per vendor or limit/3
+        
+        foreach ($products as $product) {
+            $storeId = $product->store_id ?? 'no_store';
+            $count = $vendorCounts[$storeId] ?? 0;
+            
+            if ($count < $maxPerVendor || $result->count() < $limit) {
+                $result->push($product);
+                $vendorCounts[$storeId] = $count + 1;
+                
+                if ($result->count() >= $limit) {
+                    break;
+                }
+            }
+        }
+        
+        return $result;
     }
 }

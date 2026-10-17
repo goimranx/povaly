@@ -191,20 +191,13 @@ app()->booted(function (): void {
 
         add_shortcode('smart-products', __('Smart Products'), __('Smart Products'), function ($shortCode) {
             $service = app('Botble\Ecommerce\Services\Products\SmartProductService');
-            $criteria = $shortCode->criteria ?: 'most_viewed';
             $itemsToShow = (int)($shortCode->items_to_show ?: 12);
             $itemsPerPage = (int)($shortCode->items_per_page ?: 6);
             $loadMoreType = $shortCode->load_more_type ?: 'button';
             $categoryId = $shortCode->category_id ? (int)$shortCode->category_id : null;
             
-            $products = match($criteria) {
-                'most_sold' => $service->getMostSold($itemsToShow, $categoryId),
-                'trending' => $service->getTrending($itemsToShow, $categoryId, 7),
-                'most_wishlisted' => $service->getMostWishlisted($itemsToShow, $categoryId),
-                'best_rated' => $service->getBestRated($itemsToShow, $categoryId),
-                'most_added_to_cart' => $service->getMostAddedToCart($itemsToShow, $categoryId),
-                default => $service->getMostViewed($itemsToShow, $categoryId),
-            };
+            // Get products using combined smart scoring
+            $products = $service->getSmartProducts($itemsToShow, $categoryId);
             
             // Only show first page initially
             $initialProducts = $products->take($itemsPerPage);
@@ -212,7 +205,6 @@ app()->booted(function (): void {
             
             return Theme::partial('short-codes.smart-products', [
                 'title' => $shortCode->title,
-                'criteria' => $criteria,
                 'products' => $initialProducts,
                 'itemsPerPage' => $itemsPerPage,
                 'loadMoreType' => $loadMoreType,
@@ -230,17 +222,6 @@ app()->booted(function (): void {
                 ->add('title', TextField::class, TextFieldOption::make()
                     ->label(__('Title'))
                     ->placeholder(__('Title')))
-                ->add('criteria', SelectField::class, SelectFieldOption::make()
-                    ->label(__('Criteria'))
-                    ->choices([
-                        'most_viewed' => __('Most Viewed'),
-                        'most_sold' => __('Best Sellers'),
-                        'trending' => __('Trending'),
-                        'most_wishlisted' => __('Most Wishlisted'),
-                        'best_rated' => __('Best Rated'),
-                        'most_added_to_cart' => __('Most Added to Cart'),
-                    ])
-                    ->defaultValue('most_viewed'))
                 ->add('items_to_show', NumberField::class, NumberFieldOption::make()
                     ->label(__('Total items'))
                     ->defaultValue(12))
