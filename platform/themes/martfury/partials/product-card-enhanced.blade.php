@@ -169,7 +169,7 @@
                                     <i class="icon-bag2"></i>
                                 </button>
                             @else
-                                <button type="button" class="ps-floating-action add-to-cart-button" {!! EcommerceHelper::jsAttributes('add-to-cart', $product) !!} title="{{ __('Add To Cart') }}">
+                                <button type="button" class="ps-floating-action add-to-cart-button" data-id="{{ $product->id }}" data-url="{{ route('public.cart.add-to-cart') }}" {!! EcommerceHelper::jsAttributes('add-to-cart', $product, additional: ['data-bb-toggle' => 'none']) !!} title="{{ __('Add To Cart') }}">
                                     <i class="icon-bag2"></i>
                                 </button>
                             @endif
@@ -248,15 +248,15 @@
                     </a>
                 @endif
 
-                {{-- Action Buttons (works on both desktop and mobile) --}}
+                {{-- Action Buttons --}}
                 @if (EcommerceHelper::isCartEnabled() && !$product->isOutOfStock())
-                    <div class="ps-enhanced-actions" style="position: relative; z-index: 100;">
+                    <div class="ps-product__actions">
                         @if ($product->has_variation)
-                            <button type="button" class="ps-enhanced-btn ps-enhanced-btn--select" data-bb-toggle="quick-shop" data-url="{{ route('public.ajax.quick-shop', $product->slug) }}" {!! EcommerceHelper::jsAttributes('quick-shop', $product) !!}>
+                            <button type="button" class="ps-btn ps-btn--fullwidth" data-bb-toggle="quick-shop" data-url="{{ route('public.ajax.quick-shop', $product->slug) }}" {!! EcommerceHelper::jsAttributes('quick-shop', $product) !!}>
                                 {{ __('Select Options') }}
                             </button>
                         @else
-                            <button type="button" class="ps-enhanced-btn ps-enhanced-btn--cart" {!! EcommerceHelper::jsAttributes('add-to-cart', $product) !!}>
+                            <button type="button" class="ps-btn ps-btn--fullwidth add-to-cart-button" data-id="{{ $product->id }}" data-url="{{ route('public.cart.add-to-cart') }}" {!! EcommerceHelper::jsAttributes('add-to-cart', $product, additional: ['data-bb-toggle' => 'none']) !!}>
                                 {{ __('Add to Cart') }}
                             </button>
                         @endif
@@ -297,7 +297,7 @@
         });
 
         // Prevent card link when clicking action buttons
-        $(document).on('click', '.ps-floating-action, .ps-product__actions .ps-btn, .ps-enhanced-actions, .ps-enhanced-btn', function(e) {
+        $(document).on('click', '.ps-floating-action, .ps-product__actions .ps-btn', function(e) {
             e.stopPropagation();
         });
 
