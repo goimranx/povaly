@@ -291,6 +291,11 @@ Theme::registerRoutes(function (): void {
                 ->middleware(RequiresJsonRequestMiddleware::class)
                 ->name('public.ajax.checkout.update-tax');
 
+            Route::post('ajax/clear-recently-viewed', [
+                'uses' => 'PublicProductController@ajaxClearRecentlyViewed',
+                'as' => 'public.ajax.clear-recently-viewed',
+            ]);
+
             Route::group(['prefix' => 'orders/payment-proof'], function (): void {
                 Route::post('{token}/upload', [GuestPaymentProofController::class, 'upload'])
                     ->name('public.orders.upload-proof-guest');

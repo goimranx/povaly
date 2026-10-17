@@ -26,6 +26,7 @@ use Botble\Ecommerce\Services\Products\ProductImageService;
 use Botble\Media\Facades\RvMedia;
 use Botble\SeoHelper\Facades\SeoHelper;
 use Botble\Theme\Facades\Theme;
+use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -434,6 +435,24 @@ class PublicProductController extends BaseController
                     'plugins/ecommerce::themes.includes.cross-sale-products'
                 )->content() ?: ' '
             );
+    }
+
+    public function ajaxClearRecentlyViewed(Request $request)
+    {
+        if (! auth('customer')->check()) {
+            // Clear guest cart session
+            Cart::instance('recently_viewed')->destroy();
+        } else {
+            // Clear logged-in customer viewed products
+            auth('customer')->user()->viewedProducts()->detach();
+        }
+
+        return $this
+            ->httpResponse()
+            ->setData([
+                'error' => false,
+                'message' => __('Browsing history cleared successfully!'),
+            ]);
     }
 
     protected function ajaxFilterProductsResponse($products, ?ProductCategory $category = null)
