@@ -3463,4 +3463,8 @@ document.addEventListener('DOMContentLoaded', function () {
 {{-- ?v=filectime — same versioning pattern Botble uses for all theme CSS files --}}
 @php $ecCardCssFile = public_path('themes/' . Theme::getPublicThemeName() . '/css/product-card-enhanced.css'); @endphp
 <link rel="stylesheet" href="{{ Theme::asset()->url('css/product-card-enhanced.css') }}?v={{ file_exists($ecCardCssFile) ? filectime($ecCardCssFile) : '1' }}">
+<style>
+    /* Override theme default 30px padding — use 15px site-wide */
+    .ps-container { padding-left: 15px !important; padding-right: 15px !important; }
+</style>
 </head>
