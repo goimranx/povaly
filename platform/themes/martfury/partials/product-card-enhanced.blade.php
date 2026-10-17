@@ -262,6 +262,41 @@
         $(document).on('click', '.ec-card__float-btn, .ec-card__actions, .ec-card__btn, .ec-card__rating, .ec-card__title, .ec-card__seller', function(e) {
             e.stopPropagation();
         });
+
+        // Sync cart UI after add-to-cart — front-ecommerce.js fires this event
+        // but doesn't call loadCart(), so the mini-cart HTML doesn't update.
+        document.addEventListener('ecommerce.cart.added', function(e) {
+            var count = e.detail && e.detail.data && e.detail.data.count;
+
+            // Update cart count badge
+            if (count !== undefined) {
+                $('[data-bb-value="cart-count"]').text(count);
+                $('.header__extra.btn-shopping-cart span i').text(count);
+            }
+
+            // Reload mini-cart HTML (same as main.js loadCart)
+            var cartUrl = (window.siteConfig && window.siteConfig.ajaxCartUrl)
+                ? window.siteConfig.ajaxCartUrl
+                : '/ajax/cart';
+
+            $.ajax({
+                url: cartUrl,
+                type: 'GET',
+                success: function(res) {
+                    var data  = res.data || res;
+                    var html  = data.html || data;
+                    var cnt   = data.count;
+                    $('.ps-cart--mobile').html(html);
+                    if (cnt !== undefined) {
+                        $('.header__extra.btn-shopping-cart span i').text(cnt);
+                        $('[data-bb-value="cart-count"]').text(cnt);
+                    }
+                    if (typeof Theme !== 'undefined' && Theme.lazyLoadInstance) {
+                        Theme.lazyLoadInstance.update();
+                    }
+                }
+            });
+        });
     }
 
     if (window.jQuery) {
