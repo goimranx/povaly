@@ -34,7 +34,7 @@
         <div class="ps-block--recently-viewed">
             <div class="ps-block__header">
                 <h3>{{ $shortcode->title ?: __('Recently Viewed') }}</h3>
-                <button type="button" class="ps-block__clear-history" id="clearRecentlyViewedHistory">
+                <button type="button" class="ps-block__clear-history" data-bs-toggle="modal" data-bs-target="#clearHistoryModal">
                     {{ __('Clear History') }}
                 </button>
             </div>
@@ -47,6 +47,26 @@
                         ])
                     @endforeach
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Clear History Confirmation Modal -->
+<div class="modal fade" id="clearHistoryModal" tabindex="-1" aria-labelledby="clearHistoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="clearHistoryModalLabel">{{ __('Clear Browsing History') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ __('Are you sure you want to clear your recently viewed products history?') }}</p>
+                <p class="text-muted small mb-0">{{ __('This action cannot be undone.') }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                <button type="button" class="btn btn-danger" id="confirmClearHistory">{{ __('Clear History') }}</button>
             </div>
         </div>
     </div>
@@ -208,43 +228,136 @@
             grid-template-columns: repeat(1, 1fr) !important;
         }
     }
+
+    /* Clear History Modal Styles */
+    #clearHistoryModal .modal-content {
+        border-radius: 8px;
+        border: none;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    #clearHistoryModal .modal-header {
+        border-bottom: 1px solid #eee;
+        padding: 20px 24px;
+    }
+
+    #clearHistoryModal .modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--global-color-text-main);
+    }
+
+    #clearHistoryModal .modal-body {
+        padding: 24px;
+    }
+
+    #clearHistoryModal .modal-body p {
+        margin-bottom: 12px;
+        color: var(--global-color-text-main);
+    }
+
+    #clearHistoryModal .modal-footer {
+        border-top: 1px solid #eee;
+        padding: 16px 24px;
+        gap: 12px;
+    }
+
+    #clearHistoryModal .btn {
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    #clearHistoryModal .btn-secondary {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        color: #666;
+    }
+
+    #clearHistoryModal .btn-secondary:hover {
+        background: #e8e8e8;
+        border-color: #ccc;
+    }
+
+    #clearHistoryModal .btn-danger {
+        background: var(--global-color-alert);
+        border: none;
+        color: white;
+    }
+
+    #clearHistoryModal .btn-danger:hover {
+        background: var(--global-color-alert-text);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+
+    #clearHistoryModal .btn-danger:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    #clearHistoryModal .btn-close {
+        padding: 0.5rem;
+        opacity: 0.5;
+    }
+
+    #clearHistoryModal .btn-close:hover {
+        opacity: 1;
+    }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const clearButton = document.getElementById('clearRecentlyViewedHistory');
-    const container = document.querySelector('.ps-recently-viewed-products');
+    const confirmButton = document.getElementById('confirmClearHistory');
+    const clearHistoryModal = document.getElementById('clearHistoryModal');
     
-    // Clear history button handler
-    if (clearButton) {
-        clearButton.addEventListener('click', function() {
-            if (confirm('{{ __('Are you sure you want to clear your recently viewed products history?') }}')) {
-                fetch('{{ route('public.ajax.clear-recently-viewed') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    // Clear history confirmation button handler
+    if (confirmButton) {
+        confirmButton.addEventListener('click', function() {
+            // Disable button and show loading state
+            confirmButton.disabled = true;
+            const originalText = confirmButton.textContent;
+            confirmButton.textContent = '{{ __('Clearing...') }}';
+            
+            fetch('{{ route('public.ajax.clear-recently-viewed') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error === false) {
+                    // Close modal
+                    const modalInstance = bootstrap.Modal.getInstance(clearHistoryModal);
+                    if (modalInstance) {
+                        modalInstance.hide();
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error === false) {
-                        // Hide the entire section
-                        if (container) {
-                            container.style.display = 'none';
-                        }
-                        
-                        // Reload page to show updated list
-                        window.location.reload();
-                    } else {
-                        alert(data.message || '{{ __('Failed to clear history. Please try again.') }}');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('{{ __('An error occurred. Please try again.') }}');
-                });
-            }
+                    
+                    // Reload page to show updated list
+                    window.location.reload();
+                } else {
+                    throw new Error(data.message || '{{ __('Failed to clear history.') }}');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message || '{{ __('An error occurred. Please try again.') }}');
+                
+                // Re-enable button
+                confirmButton.disabled = false;
+                confirmButton.textContent = originalText;
+            });
         });
     }
 });
