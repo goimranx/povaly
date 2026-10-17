@@ -141,6 +141,17 @@
             border-color: var(--global-color-border-strong) !important;
         }
 
+        .ps-carousel--trending .owl-nav button.disabled {
+            opacity: 0.3 !important;
+            cursor: not-allowed !important;
+            pointer-events: auto !important;
+        }
+
+        .ps-carousel--trending .owl-nav button.disabled:hover {
+            background: transparent !important;
+            border-color: var(--global-color-border-strong) !important;
+        }
+
         .ps-carousel--trending .owl-nav .owl-prev {
             left: 0;
         }
