@@ -6,15 +6,15 @@
                 <a href="{{ route('public.products') }}" class="ps-block__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
             </div>
             <div class="ps-block__content">
-                <div class="ps-carousel--responsive owl-slider"
+                <div class="ps-carousel--trending owl-slider"
                      data-owl-auto="true"
                      data-owl-loop="false"
                      data-owl-speed="10000"
                      data-owl-gap="10"
-                     data-owl-nav="false"
+                     data-owl-nav="true"
                      data-owl-dots="true"
-                     data-owl-item="7"
-                     data-owl-item-xs="2"
+                     data-owl-item="6"
+                     data-owl-item-xs="1"
                      data-owl-item-sm="2"
                      data-owl-item-md="3"
                      data-owl-item-lg="4"
@@ -37,14 +37,14 @@
 </div>
 
 <style>
-    /* Trending Products Section - Matches Featured Products Design */
+    /* Trending Products Section */
     .ps-trending-products {
         padding: 0 !important;
         margin: 10px 0 !important;
         background: var(--global-color-site-bg);
     }
 
-    /* Trending Block - Same as Featured Products */
+    /* Trending Block */
     .ps-block--trending {
         border: none;
         border-radius: 0;
@@ -87,16 +87,103 @@
     .ps-block--trending .ps-block__content {
         padding: 0;
         margin: 0;
+        position: relative;
     }
 
-    /* Carousel item spacing */
+    /* Remove hover border on carousel items */
     .ps-block--trending .ps-product {
         padding: 0;
         margin: 0;
+        border: none !important;
     }
 
-    /* Mobile (≤768px) */
-    @media (max-width: 768px) {
+    .ps-block--trending .ps-product:hover {
+        border: none !important;
+    }
+
+    /* Navigation Arrows - Desktop only (≥768px) */
+    @media (min-width: 768px) {
+        .ps-carousel--trending .owl-nav {
+            display: block !important;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .ps-carousel--trending .owl-nav button {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--global-color-border-strong) !important;
+            background: transparent !important;
+            color: var(--global-color-text-main) !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .ps-carousel--trending .owl-nav button:hover {
+            background: var(--global-color-card-bg) !important;
+            border-color: var(--global-color-border-strong) !important;
+        }
+
+        .ps-carousel--trending .owl-nav .owl-prev {
+            left: -50px;
+        }
+
+        .ps-carousel--trending .owl-nav .owl-next {
+            right: -50px;
+        }
+
+        /* Hide dots on desktop */
+        .ps-carousel--trending .owl-dots {
+            display: none !important;
+        }
+    }
+
+    /* Navigation Dots - Mobile only (<768px) */
+    @media (max-width: 767px) {
+        /* Hide arrows on mobile */
+        .ps-carousel--trending .owl-nav {
+            display: none !important;
+        }
+
+        /* Show and style dots */
+        .ps-carousel--trending .owl-dots {
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-top: 15px;
+            padding: 0;
+        }
+
+        .ps-carousel--trending .owl-dots .owl-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--global-color-border-strong);
+            border: none;
+            padding: 0;
+            margin: 0;
+            transition: all 0.3s ease;
+        }
+
+        .ps-carousel--trending .owl-dots .owl-dot.active {
+            background: var(--global-color-primary);
+            width: 24px;
+            border-radius: 4px;
+        }
+
         .ps-trending-products .ps-container {
             padding-left: 0 !important;
             padding-right: 0 !important;
@@ -105,8 +192,6 @@
         .ps-block--trending {
             padding: 0 !important;
             margin-bottom: 0 !important;
-            border: none !important;
-            border-radius: 0 !important;
         }
 
         .ps-block--trending .ps-block__header {
