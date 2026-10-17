@@ -218,6 +218,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    margin-top: 5px;
     margin-bottom: 8px;
 }
 
@@ -628,11 +629,11 @@
 
     .ec-card--flyout .ec-card__price-amount,
     .ec-card--flyout .ec-card__price-amount {
-        font-size: 1.4rem !important;
+        font-size: 1.55rem !important;
     }
 
     .ec-card--inline .ec-card__price-amount {
-        font-size: 1.4rem !important;
+        font-size: 1.55rem !important;
     }
 
     .ec-card--flyout .ec-card__rating,
