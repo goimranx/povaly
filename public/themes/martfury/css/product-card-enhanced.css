@@ -197,7 +197,7 @@
     visibility: hidden;
     pointer-events: none;
     transition: opacity .15s ease, visibility .15s ease;
-    z-index: 10000;
+    z-index: 100000;
     filter: drop-shadow(0 -1px 1px rgba(0,0,0,.05));
 }
 
