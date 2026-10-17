@@ -1,7 +1,7 @@
 /*
  * product-card-enhanced.css
  * All classes use ec-card prefix — zero conflict with theme style.css
- * Layouts: ec-card--offer | ec-card--deal | ec-card--standard
+ * Layouts: ec-card--grid | ec-card--featured
  */
 
 /* ============================================================
@@ -453,7 +453,7 @@
 .ec-card__float-capsule.active .ec-card__toggle-h    { opacity: 0; }
 
 /* ============================================================
-   OFFER layout (ec-card--offer)
+   GRID layout (ec-card--grid)
    Desktop: floating actions, no bottom button
    Mobile ≤480px: horizontal card, show bottom button
    ============================================================ */
@@ -461,14 +461,14 @@
 .ec-card--grid .ec-card__actions { display: none; }
 
 /* ============================================================
-   STANDARD layout (ec-card--standard)
+   GRID layout (ec-card--grid)
    Same as offer
    ============================================================ */
 
 .ec-card--grid .ec-card__actions { display: none; }
 
 /* ============================================================
-   DEAL layout (ec-card--deal)
+   FEATURED layout (ec-card--featured)
    Desktop: no floating actions, always show bottom button
    Mobile ≤480px: horizontal card, show bottom button
    ============================================================ */
