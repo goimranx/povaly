@@ -316,21 +316,28 @@
 
 .ec-card__stars i {
     font-size: 14px;
-    color: var(--global-color-primary);
+    color: transparent;
+    -webkit-text-stroke: 1px var(--global-color-primary);
+    text-stroke: 1px var(--global-color-primary);
 }
 
 .ec-card__star--filled { 
     color: var(--global-color-primary) !important;
+    -webkit-text-stroke: 0;
+    text-stroke: 0;
 }
 
 .ec-card__star--half { 
     color: var(--global-color-primary) !important;
     opacity: .5;
+    -webkit-text-stroke: 0;
+    text-stroke: 0;
 }
 
 .ec-card__star--outline {
-    color: var(--global-color-primary) !important;
-    font-weight: 300;
+    color: transparent !important;
+    -webkit-text-stroke: 1px var(--global-color-primary);
+    text-stroke: 1px var(--global-color-primary);
 }
 
 /* Seller */

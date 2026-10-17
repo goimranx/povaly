@@ -214,10 +214,44 @@
                         $dayName = $deliveryDate->format('l');
                         $monthDay = $deliveryDate->format('M j');
                         
-                        // Get shipping info
-                        $shippingInfo = 'Free Delivery';
-                        if ($product->shipping_cost > 0) {
-                            $shippingInfo = format_price($product->shipping_cost) . ' Delivery';
+                        // Check if free shipping is available globally or by weight
+                        $shippingInfo = null;
+                        $weight = $product->weight ?? 0;
+                        
+                        // Check for free shipping rules
+                        $hasFreeShipping = false;
+                        if (get_ecommerce_setting('free_shipping_enabled', false)) {
+                            $hasFreeShipping = true;
+                        } else {
+                            // Check if product weight qualifies for free shipping based on default rules
+                            try {
+                                $defaultCountry = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                                $shipping = \Botble\Ecommerce\Models\Shipping::query()
+                                    ->whereNull('country')
+                                    ->orWhere('country', $defaultCountry)
+                                    ->first();
+                                
+                                if ($shipping) {
+                                    // Check if any rule offers free shipping
+                                    $freeRule = \Botble\Ecommerce\Models\ShippingRule::query()
+                                        ->where('shipping_id', $shipping->id)
+                                        ->where('price', 0)
+                                        ->first();
+                                    
+                                    if ($freeRule) {
+                                        $hasFreeShipping = true;
+                                    }
+                                }
+                            } catch (\Exception $e) {
+                                // If shipping check fails, show generic shipping info
+                            }
+                        }
+                        
+                        if ($hasFreeShipping) {
+                            $shippingInfo = 'Free Delivery';
+                        } else {
+                            // Show generic shipping info since we can't calculate exact fee without location
+                            $shippingInfo = 'Shipping charges apply';
                         }
                     @endphp
                     <div class="ec-card__delivery">
