@@ -455,6 +455,59 @@ class PublicProductController extends BaseController
             ]);
     }
 
+    public function ajaxGetRecentlyViewedProducts(ProductInterface $productRepository)
+    {
+        if (! EcommerceHelper::isEnabledCustomerRecentlyViewedProducts()) {
+            return $this
+                ->httpResponse()
+                ->setData([
+                    'error' => true,
+                    'data' => '',
+                ]);
+        }
+
+        $queryParams = [
+            'paginate' => [
+                'per_page' => 12,
+                'current_paged' => 1,
+            ],
+            'with' => EcommerceHelper::withProductEagerLoadingRelations(),
+        ];
+
+        if (auth('customer')->check()) {
+            $products = $productRepository->getProductsRecentlyViewed(auth('customer')->id(), $queryParams);
+        } else {
+            $products = collect();
+            
+            $itemIds = collect(Cart::instance('recently_viewed')->content())
+                ->sortBy([['updated_at', 'desc']])
+                ->pluck('id')
+                ->all();
+
+            if ($itemIds) {
+                $products = $productRepository->getProductsByIds($itemIds, $queryParams);
+            }
+        }
+
+        $html = '';
+        if ($products && $products->isNotEmpty()) {
+            foreach ($products as $product) {
+                $html .= Theme::scope(
+                    'partials.product-card-enhanced',
+                    ['product' => $product, 'layout' => 'flyout'],
+                    'theme.martfury::partials.product-card-enhanced'
+                )->render();
+            }
+        }
+
+        return $this
+            ->httpResponse()
+            ->setData([
+                'error' => false,
+                'data' => $html,
+            ]);
+    }
+
     protected function ajaxFilterProductsResponse($products, ?ProductCategory $category = null)
     {
         return app(HandleFrontPages::class)->ajaxFilterProductsResponse($products, $this->httpResponse(), $category);

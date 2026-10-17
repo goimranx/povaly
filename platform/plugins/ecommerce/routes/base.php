@@ -296,6 +296,11 @@ Theme::registerRoutes(function (): void {
                 'as' => 'public.ajax.clear-recently-viewed',
             ]);
 
+            Route::get('ajax/recently-viewed-products', [
+                'uses' => 'PublicProductController@ajaxGetRecentlyViewedProducts',
+                'as' => 'public.ajax.recently-viewed-products',
+            ]);
+
             Route::group(['prefix' => 'orders/payment-proof'], function (): void {
                 Route::post('{token}/upload', [GuestPaymentProofController::class, 'upload'])
                     ->name('public.orders.upload-proof-guest');
