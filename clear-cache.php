@@ -1,49 +1,68 @@
 <?php
 /**
- * Temporary cache clearing script
- * Upload this to your server root and visit it in browser: https://povaly.com/clear-cache.php
- * Delete this file after use for security
+ * Emergency Cache Clear Script
+ * 
+ * Upload this to your server root and visit: https://povaly.com/clear-cache.php
+ * This will clear all Laravel caches without needing SSH access
+ * 
+ * DELETE THIS FILE after use for security!
  */
 
 define('LARAVEL_START', microtime(true));
 
+// Load Laravel
 require __DIR__.'/vendor/autoload.php';
-
 $app = require_once __DIR__.'/bootstrap/app.php';
-
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel->bootstrap();
 
-echo "<h1>Clearing Laravel Cache...</h1>";
+echo "<h1>Laravel Cache Clear</h1>";
+echo "<pre>";
 
-// Clear route cache
-echo "<p>Clearing route cache...";
-\Illuminate\Support\Facades\Artisan::call('route:clear');
-echo " ✓</p>";
+try {
+    // Clear route cache
+    echo "Clearing route cache...\n";
+    Artisan::call('route:clear');
+    echo Artisan::output();
+    
+    // Clear config cache
+    echo "\nClearing config cache...\n";
+    Artisan::call('config:clear');
+    echo Artisan::output();
+    
+    // Clear view cache
+    echo "\nClearing view cache...\n";
+    Artisan::call('view:clear');
+    echo Artisan::output();
+    
+    // Clear application cache
+    echo "\nClearing application cache...\n";
+    Artisan::call('cache:clear');
+    echo Artisan::output();
+    
+    // Clear compiled
+    echo "\nClearing compiled classes...\n";
+    Artisan::call('clear-compiled');
+    echo Artisan::output();
+    
+    // Optimize
+    echo "\nOptimizing...\n";
+    Artisan::call('optimize:clear');
+    echo Artisan::output();
+    
+    echo "\n✅ All caches cleared successfully!\n";
+    echo "\n🔒 IMPORTANT: DELETE THIS FILE (clear-cache.php) NOW for security!\n";
+    
+} catch (Exception $e) {
+    echo "\n❌ Error: " . $e->getMessage() . "\n";
+    echo $e->getTraceAsString();
+}
 
-// Clear config cache
-echo "<p>Clearing config cache...";
-\Illuminate\Support\Facades\Artisan::call('config:clear');
-echo " ✓</p>";
-
-// Clear application cache
-echo "<p>Clearing application cache...";
-\Illuminate\Support\Facades\Artisan::call('cache:clear');
-echo " ✓</p>";
-
-// Clear view cache
-echo "<p>Clearing view cache...";
-\Illuminate\Support\Facades\Artisan::call('view:clear');
-echo " ✓</p>";
-
-// Clear compiled classes
-echo "<p>Clearing compiled classes...";
-\Illuminate\Support\Facades\Artisan::call('clear-compiled');
-echo " ✓</p>";
-
-// Optimize
-echo "<p>Optimizing...";
-\Illuminate\Support\Facades\Artisan::call('optimize:clear');
-echo " ✓</p>";
-
-echo "<h2 style='color: green;'>✓ All caches cleared successfully!</h2>";
-echo "<p><strong>Important:</strong> Delete this file (clear-cache.php) immediately for security!</p>";
+echo "</pre>";
+echo "<hr>";
+echo "<p><strong>Next steps:</strong></p>";
+echo "<ol>";
+echo "<li>DELETE this file (clear-cache.php) immediately</li>";
+echo "<li>Test the endpoint: <a href='/ajax/smart-products-test'>/ajax/smart-products-test</a></li>";
+echo "<li>Test smart products: <a href='/ajax/smart-products?page=1&per_page=6'>/ajax/smart-products?page=1&per_page=6</a></li>";
+echo "</ol>";
