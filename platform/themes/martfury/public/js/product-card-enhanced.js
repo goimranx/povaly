@@ -5,6 +5,21 @@
 (function ($) {
     'use strict';
 
+    // ── Tooltip smart positioning ─────────────────────────────────────────
+    // Default: below. If not enough space below, show above.
+    $(document).on('mouseenter', '.ec-card__info-icon', function () {
+        var $icon = $(this);
+        var rect  = this.getBoundingClientRect();
+        var spaceBelow = window.innerHeight - rect.bottom;
+        var spaceAbove = rect.top;
+        // Tooltip height approx 80px — show above if less than 100px below
+        if (spaceBelow < 100 && spaceAbove > spaceBelow) {
+            $icon.addClass('tooltip-above');
+        } else {
+            $icon.removeClass('tooltip-above');
+        }
+    });
+
     // ── Floating capsule toggle (touch devices) ──────────────────────────
     $(document).on('click', '.ec-card__float-toggle', function (e) {
         e.preventDefault();

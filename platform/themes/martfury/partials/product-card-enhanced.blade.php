@@ -49,23 +49,23 @@
                 $daysLeft = (int) ceil(\Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($product->end_date), false));
                 if ($daysLeft > 7) {
                     $saleDurationText    = 'Deal ends in ' . $daysLeft . ' days';
-                    $saleDurationTooltip = 'Limited time offer! This special price is only available for ' . $daysLeft . ' more days.';
+                    $saleDurationTooltip = 'This price won\'t last — only ' . $daysLeft . ' days left at this rate. Once it\'s gone, it\'s gone.';
                 } elseif ($daysLeft > 1) {
                     $saleDurationText    = 'Only ' . $daysLeft . ' days left';
-                    $saleDurationTooltip = 'Hurry! This deal expires in just ' . $daysLeft . ' days.';
+                    $saleDurationTooltip = 'Moving fast — just ' . $daysLeft . ' days remain at this price. Others are watching this too.';
                 } elseif ($daysLeft == 1) {
-                    $saleDurationText    = 'Last day - ends tomorrow';
-                    $saleDurationTooltip = 'Final chance! This offer ends tomorrow.';
+                    $saleDurationText    = 'Ends tomorrow';
+                    $saleDurationTooltip = 'Last chance — this price expires tomorrow. Order now to lock it in.';
                 } elseif ($daysLeft == 0) {
-                    $saleDurationText    = 'Ends today - last hours';
-                    $saleDurationTooltip = 'Act fast! This deal expires today.';
+                    $saleDurationText    = 'Ends today';
+                    $saleDurationTooltip = 'Final hours — this deal closes today. Don\'t miss out.';
                 } else {
                     $saleDurationText    = 'Offer ended';
                     $saleDurationTooltip = 'This promotion has expired.';
                 }
             } else {
-                $saleDurationText    = 'Limited time only';
-                $saleDurationTooltip = 'Special promotional pricing available for a limited time.';
+                $saleDurationText    = 'Limited time offer';
+                $saleDurationTooltip = 'Reduced for a limited period only — this price may change without notice.';
             }
         }
     @endphp

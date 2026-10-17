@@ -159,13 +159,13 @@
     font-style: normal;
 }
 
-/* Tooltip */
+/* Tooltip — default shows BELOW the icon */
 .ec-card__info-icon::after {
     content: attr(data-tooltip);
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    bottom: calc(100% + 8px);
+    top: calc(100% + 8px);
     background: #fff;
     color: #0F1111;
     padding: 8px 12px;
@@ -190,15 +190,15 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    bottom: calc(100% + 2px);
+    top: calc(100% + 2px);
     border: 6px solid transparent;
-    border-top-color: #fff;
+    border-bottom-color: #fff;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
     transition: opacity .15s ease, visibility .15s ease;
     z-index: 10000;
-    filter: drop-shadow(0 2px 1px rgba(0,0,0,.05));
+    filter: drop-shadow(0 -1px 1px rgba(0,0,0,.05));
 }
 
 .ec-card__info-icon:hover::after,
@@ -705,4 +705,17 @@
 
 @keyframes ec-card-spin {
     to { transform: rotate(360deg); }
+}
+
+/* Tooltip — show ABOVE when .tooltip-above class is added by JS */
+.ec-card__info-icon.tooltip-above::after {
+    top: auto;
+    bottom: calc(100% + 8px);
+}
+
+.ec-card__info-icon.tooltip-above::before {
+    top: auto;
+    bottom: calc(100% + 2px);
+    border-bottom-color: transparent;
+    border-top-color: #fff;
 }
