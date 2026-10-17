@@ -267,8 +267,17 @@
         // but doesn't call loadCart(), so the mini-cart HTML doesn't update.
         // window.loadCart is exposed by main.js (window.loadCart = d.loadCart)
         document.addEventListener('ecommerce.cart.added', function(e) {
+            console.log('[ec-card] ecommerce.cart.added fired', e.detail);
+            console.log('[ec-card] window.loadCart:', typeof window.loadCart);
+            console.log('[ec-card] window.MartApp:', typeof window.MartApp);
             if (typeof window.loadCart === 'function') {
+                console.log('[ec-card] calling window.loadCart()');
                 window.loadCart();
+            } else {
+                console.warn('[ec-card] window.loadCart not available — trying MartApp');
+                if (window.MartApp && typeof window.MartApp.loadCart === 'function') {
+                    window.MartApp.loadCart();
+                }
             }
         });
     }
