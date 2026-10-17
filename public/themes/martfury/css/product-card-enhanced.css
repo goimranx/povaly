@@ -128,7 +128,7 @@
     line-height: 1.2;
     width: fit-content;
     position: relative;
-    z-index: 20;
+    z-index: 30;
 }
 
 .ec-card__duration-text {
