@@ -15,7 +15,7 @@
                      data-owl-dots="true"
                      data-owl-item="6"
                      data-owl-item-xs="1"
-                     data-owl-item-sm="2"
+                     data-owl-item-sm="3"
                      data-owl-item-md="3"
                      data-owl-item-lg="4"
                      data-owl-item-xl="6"
@@ -184,8 +184,8 @@
         }
 
         .ps-carousel--trending .owl-dots .owl-dot {
-            width: 8px !important;
-            height: 8px !important;
+            width: 6px !important;
+            height: 6px !important;
             border-radius: 50% !important;
             background: var(--global-color-border-strong) !important;
             border: none !important;
@@ -201,8 +201,8 @@
 
         .ps-carousel--trending .owl-dots .owl-dot.active {
             background: var(--global-color-primary) !important;
-            width: 24px !important;
-            border-radius: 4px !important;
+            width: 20px !important;
+            border-radius: 3px !important;
         }
 
         .ps-trending-products .ps-container {
@@ -225,11 +225,22 @@
         }
     }
 
-    /* Tablet (481-767px): Add ps-container padding */
+    /* Tablet (481-767px): Add ps-container padding and header bottom padding */
     @media (min-width: 481px) and (max-width: 767px) {
         .ps-trending-products .ps-container {
             padding-left: 15px !important;
             padding-right: 15px !important;
+        }
+
+        .ps-block--trending .ps-block__header {
+            padding: 0 0 10px 0 !important;
+        }
+    }
+
+    /* Mobile (≤480px): Header bottom padding */
+    @media (max-width: 480px) {
+        .ps-block--trending .ps-block__header {
+            padding: 0 10px 10px 10px !important;
         }
     }
 </style>
