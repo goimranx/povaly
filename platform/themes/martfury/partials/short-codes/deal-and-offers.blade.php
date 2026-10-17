@@ -25,7 +25,7 @@
                                     @foreach($deal_products as $product)
                                         @include('theme.martfury::partials.product-card-enhanced', [
                                             'product' => $product,
-                                            'layout' => 'featured'
+                                            'layout' => 'grid'
                                         ])
                                     @endforeach
                                 @else
