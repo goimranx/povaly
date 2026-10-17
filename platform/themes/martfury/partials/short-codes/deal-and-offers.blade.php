@@ -3,7 +3,7 @@
         <div class="ps-section__content">
             <div class="row">
                 {{-- Left Side: Deal of the Day --}}
-                <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
+                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 col-12">
                     <div class="ps-block--deal-of-day">
                         <div class="ps-block__header">
                             <h3>{{ $deal_title }}</h3>
@@ -62,7 +62,7 @@
                 </div>
 
                 {{-- Right Side: Offers --}}
-                <div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
+                <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12 col-12">
                     <div class="ps-block--offers">
                         <div class="ps-block__header">
                             <h3>{{ $offers_title }}</h3>
