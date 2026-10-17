@@ -351,8 +351,8 @@
 /* ── Floating actions (offer/standard desktop) ── */
 .ec-card__float {
     position: absolute;
-    bottom: 10px;
-    right: 12px;
+    bottom: 7px;
+    right: 7px;
     z-index: 20;
 }
 
@@ -388,8 +388,8 @@
 }
 
 .ec-card__float-btn {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: transparent;
     color: var(--global-color-text-main);
@@ -417,8 +417,8 @@
 .ec-card__float-btn i { font-size: 14px; }
 
 .ec-card__float-toggle {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     background: var(--global-color-warning);
     color: var(--global-color-text-main);
