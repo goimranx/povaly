@@ -243,7 +243,7 @@
     -webkit-line-clamp: 3 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
-    font-size: 13px;
+    font-size: 1.15rem;
     font-weight: 400;
     color: var(--global-color-text-main);
     text-decoration: none;
