@@ -253,6 +253,8 @@ document.addEventListener('DOMContentLoaded', function() {
             url.searchParams.set('category_id', categoryId);
         }
         
+        console.log('Loading more products from:', url.toString());
+        
         fetch(url)
             .then(response => response.json())
             .then(data => {
@@ -314,6 +316,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (categoryId) {
                         url.searchParams.set('category_id', categoryId);
                     }
+                    
+                    console.log('Auto-loading products from:', url.toString());
                     
                     fetch(url)
                         .then(response => response.json())
