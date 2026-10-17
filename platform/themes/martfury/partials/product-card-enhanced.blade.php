@@ -1215,100 +1215,116 @@
 </style>
 
 {{-- Inline JavaScript for Enhanced Product Card --}}
+@pushonce('scripts:product-card-enhanced')
 <script>
-(function($) {
+(function() {
     'use strict';
 
-    // Handler for MOBILE enhanced buttons only (not desktop floating buttons)
-    $(document).on('click', '.ps-enhanced-actions .ps-enhanced-btn--cart', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        
-        let _self = $(this);
+    function initProductCardHandlers() {
+        var $ = window.jQuery;
+        if (!$) return;
 
-        _self.prop('disabled', true).addClass('button-loading');
+        // Handler for MOBILE enhanced buttons only (not desktop floating buttons)
+        $(document).on('click', '.ps-enhanced-actions .ps-enhanced-btn--cart', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            
+            let _self = $(this);
 
-        $.ajax({
-            url: _self.data('url'),
-            method: 'POST',
-            data: {
-                id: _self.data('id'),
-            },
-            dataType: 'json',
-            success: res => {
-                _self.prop('disabled', false).removeClass('button-loading').addClass('active');
+            _self.prop('disabled', true).addClass('button-loading');
 
-                if (res.error) {
-                    if (typeof Theme !== 'undefined' && Theme.showError) {
-                        Theme.showError(res.message);
+            $.ajax({
+                url: _self.data('url'),
+                method: 'POST',
+                data: {
+                    id: _self.data('id'),
+                },
+                dataType: 'json',
+                success: res => {
+                    _self.prop('disabled', false).removeClass('button-loading').addClass('active');
+
+                    if (res.error) {
+                        if (typeof Theme !== 'undefined' && Theme.showError) {
+                            Theme.showError(res.message);
+                        }
+                        if (res.data && res.data.next_url !== undefined) {
+                            setTimeout(() => {
+                                window.location.href = res.data.next_url;
+                            }, 500);
+                        }
+                        return false;
                     }
+
+                    if (typeof Theme !== 'undefined' && Theme.showSuccess) {
+                        Theme.showSuccess(res.message);
+                    }
+
                     if (res.data && res.data.next_url !== undefined) {
-                        setTimeout(() => {
-                            window.location.href = res.data.next_url;
-                        }, 500);
-                    }
-                    return false;
-                }
+                        window.location.href = res.data.next_url;
+                    } else {
+                        $.ajax({
+                            url: window.siteUrl + '/ajax/cart',
+                            method: 'GET',
+                            success: response => {
+                                if (!response.error) {
+                                    $('.ps-cart--mobile').html(response.data.html);
+                                    $('.btn-shopping-cart span i').text(response.data.count);
 
-                if (typeof Theme !== 'undefined' && Theme.showSuccess) {
-                    Theme.showSuccess(res.message);
-                }
-
-                if (res.data && res.data.next_url !== undefined) {
-                    window.location.href = res.data.next_url;
-                } else {
-                    $.ajax({
-                        url: window.siteUrl + '/ajax/cart',
-                        method: 'GET',
-                        success: response => {
-                            if (!response.error) {
-                                $('.ps-cart--mobile').html(response.data.html);
-                                $('.btn-shopping-cart span i').text(response.data.count);
-
-                                if (typeof Theme !== 'undefined' && typeof Theme.lazyLoadInstance !== 'undefined') {
-                                    Theme.lazyLoadInstance.update();
+                                    if (typeof Theme !== 'undefined' && typeof Theme.lazyLoadInstance !== 'undefined') {
+                                        Theme.lazyLoadInstance.update();
+                                    }
                                 }
-                            }
-                        },
-                    });
-                }
-            },
-            error: res => {
-                _self.prop('disabled', false).removeClass('button-loading');
-                if (typeof Theme !== 'undefined' && Theme.showError) {
-                    Theme.showError(res.message || res.responseJSON?.message || 'Error adding to cart');
-                }
-            },
+                            },
+                        });
+                    }
+                },
+                error: res => {
+                    _self.prop('disabled', false).removeClass('button-loading');
+                    if (typeof Theme !== 'undefined' && Theme.showError) {
+                        Theme.showError(res.message || res.responseJSON?.message || 'Error adding to cart');
+                    }
+                },
+            });
         });
-    });
 
-    // Toggle floating actions on mobile/tablet (touch devices)
-    $(document).on('click', '.ps-floating-toggle', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const $capsule = $(this).closest('.ps-floating-actions-capsule');
-        $capsule.toggleClass('active');
-    });
+        // Toggle floating actions on mobile/tablet (touch devices)
+        $(document).on('click', '.ps-floating-toggle', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const $capsule = $(this).closest('.ps-floating-actions-capsule');
+            $capsule.toggleClass('active');
+        });
 
-    // Close floating actions when clicking outside
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('.ps-product__floating-actions').length) {
-            $('.ps-floating-actions-capsule').removeClass('active');
-        }
-    });
+        // Close floating actions when clicking outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.ps-product__floating-actions').length) {
+                $('.ps-floating-actions-capsule').removeClass('active');
+            }
+        });
 
-    // Prevent card link when clicking action buttons
-    $(document).on('click', '.ps-floating-action, .ps-product__actions .ps-btn, .ps-enhanced-actions, .ps-enhanced-btn', function(e) {
-        e.stopPropagation();
-    });
+        // Prevent card link when clicking action buttons
+        $(document).on('click', '.ps-floating-action, .ps-product__actions .ps-btn, .ps-enhanced-actions, .ps-enhanced-btn', function(e) {
+            e.stopPropagation();
+        });
 
-    // Prevent card link when clicking anywhere in the floating actions
-    $(document).on('click', '.ps-product__floating-actions', function(e) {
-        e.stopPropagation();
-    });
+        // Prevent card link when clicking anywhere in the floating actions
+        $(document).on('click', '.ps-product__floating-actions', function(e) {
+            e.stopPropagation();
+        });
+    }
 
-})(jQuery);
+    // Run when jQuery is available - handles both normal page load and lazy loading injection
+    if (window.jQuery) {
+        initProductCardHandlers();
+    } else {
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.jQuery) {
+                initProductCardHandlers();
+            }
+        });
+    }
+})();
 </script>
-@endonce
+@endpushonce

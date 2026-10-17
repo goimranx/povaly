@@ -497,27 +497,44 @@
 </style>
 
 <script>
-    (function($) {
-        'use strict';
-        
-        $(document).ready(function() {
-            // Wait for Owl Carousel to initialize
-            setTimeout(function() {
-                const $carousel = $('.ps-carousel--deal');
-                
-                if ($carousel.length && $carousel.hasClass('owl-loaded')) {
-                    // Custom navigation for deal carousel
-                    $('.ps-carousel-prev').on('click', function(e) {
-                        e.preventDefault();
-                        $carousel.trigger('prev.owl.carousel');
-                    });
-                    
-                    $('.ps-carousel-next').on('click', function(e) {
-                        e.preventDefault();
-                        $carousel.trigger('next.owl.carousel');
-                    });
-                }
-            }, 1000);
+(function() {
+    'use strict';
+
+    function initDealOffersCarousel() {
+        var $ = window.jQuery;
+        if (!$) return;
+
+        setTimeout(function() {
+            var $carousel = $('.ps-carousel--deal');
+            if ($carousel.length && $carousel.hasClass('owl-loaded')) {
+                $('.ps-carousel-prev').off('click.deal').on('click.deal', function(e) {
+                    e.preventDefault();
+                    $carousel.trigger('prev.owl.carousel');
+                });
+                $('.ps-carousel-next').off('click.deal').on('click.deal', function(e) {
+                    e.preventDefault();
+                    $carousel.trigger('next.owl.carousel');
+                });
+            }
+        }, 1000);
+    }
+
+    // Safe init - works on normal page load AND after lazy loading injection
+    if (window.jQuery) {
+        window.jQuery(document).ready(function() { initDealOffersCarousel(); });
+    } else {
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.jQuery) {
+                window.jQuery(document).ready(function() { initDealOffersCarousel(); });
+            }
         });
-    })(jQuery);
+    }
+
+    // Also re-init when shortcode is lazy loaded
+    document.addEventListener('shortcode.loaded', function(e) {
+        if (e.detail && e.detail.name === 'deal-and-offers') {
+            initDealOffersCarousel();
+        }
+    });
+})();
 </script>
