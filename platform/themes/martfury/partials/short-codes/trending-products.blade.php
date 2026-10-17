@@ -169,20 +169,25 @@
         }
 
         .ps-carousel--trending .owl-dots .owl-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--global-color-border-strong);
-            border: none;
-            padding: 0;
-            margin: 0;
-            transition: all 0.3s ease;
+            width: 8px !important;
+            height: 8px !important;
+            border-radius: 50% !important;
+            background: var(--global-color-border-strong) !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            transition: all 0.3s ease !important;
+            flex-shrink: 0 !important;
+        }
+
+        .ps-carousel--trending .owl-dots .owl-dot span {
+            display: none !important;
         }
 
         .ps-carousel--trending .owl-dots .owl-dot.active {
-            background: var(--global-color-primary);
-            width: 24px;
-            border-radius: 4px;
+            background: var(--global-color-primary) !important;
+            width: 24px !important;
+            border-radius: 4px !important;
         }
 
         .ps-trending-products .ps-container {
