@@ -1,110 +1,100 @@
-/* Enhanced Product Card Styles - Auto-loaded */
-.ps-product--offer,
-.ps-product--deal,
-.ps-product--standard {
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
+/*
+ * product-card-enhanced.css
+ * All classes use ec-card prefix — zero conflict with theme style.css
+ * Layouts: ec-card--offer | ec-card--deal | ec-card--standard
+ */
+
+/* ============================================================
+   BASE — shared by all three layouts
+   ============================================================ */
+
+.ec-card {
     position: relative;
-    border: 1px solid transparent !important;
+    background: transparent;
 }
 
-.ps-product--offer .ps-product__card-link,
-.ps-product--deal .ps-product__card-link,
-.ps-product--standard .ps-product__card-link {
+/* Full-card invisible link overlay */
+.ec-card__overlay-link {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     z-index: 1;
     cursor: pointer;
-    pointer-events: auto;
 }
 
-.ps-product--offer .ps-product__thumbnail,
-.ps-product--offer .ps-product__title,
-.ps-product--offer .ps-product__rating,
-.ps-product--offer .ps-product__seller,
-.ps-product--offer .ps-product__badges,
-.ps-product--offer .ps-enhanced-actions,
-.ps-product--deal .ps-product__thumbnail,
-.ps-product--deal .ps-product__title,
-.ps-product--deal .ps-product__rating,
-.ps-product--deal .ps-product__seller,
-.ps-product--deal .ps-product__badges,
-.ps-product--deal .ps-enhanced-actions,
-.ps-product--standard .ps-product__thumbnail,
-.ps-product--standard .ps-product__title,
-.ps-product--standard .ps-product__rating,
-.ps-product--standard .ps-product__seller,
-.ps-product--standard .ps-product__badges,
-.ps-product--standard .ps-enhanced-actions {
+/* Thumbnail */
+.ec-card__thumb {
     position: relative;
-    z-index: 2;
-    pointer-events: auto;
-}
-
-.ps-product--offer .ps-product__thumbnail,
-.ps-product--deal .ps-product__thumbnail,
-.ps-product--standard .ps-product__thumbnail {
     padding: 7px;
     background: var(--global-color-card-bg);
     border-radius: 7px;
-    position: relative;
     margin-bottom: 5px;
-    border: none !important;
-    outline: none !important;
 }
 
-.ps-product--offer .ps-product__thumbnail a,
-.ps-product--deal .ps-product__thumbnail a,
-.ps-product--standard .ps-product__thumbnail a {
+.ec-card__thumb a {
     display: block;
-    outline: none !important;
-    border: none !important;
 }
 
-.ps-product--offer .ps-product__thumbnail img,
-.ps-product--deal .ps-product__thumbnail img,
-.ps-product--standard .ps-product__thumbnail img {
+.ec-card__thumb img {
     width: 100%;
     height: auto;
     border-radius: 4px;
-    outline: none !important;
-    border: none !important;
+    display: block;
 }
 
-.ps-product--offer .ps-product__container,
-.ps-product--deal .ps-product__container,
-.ps-product--standard .ps-product__container {
+/* Body */
+.ec-card__body {
     padding: 0;
-    margin: 0;
-    border: none !important;
-    outline: none !important;
 }
 
-.ps-product--offer .ps-product__content,
-.ps-product--deal .ps-product__content,
-.ps-product--standard .ps-product__content {
+.ec-card__content {
     padding: 0;
-    margin: 0;
-    border: none !important;
-    outline: none !important;
 }
 
-.ps-product--offer .ps-product__price-row,
-.ps-product--deal .ps-product__price-row,
-.ps-product--standard .ps-product__price-row {
+/* Elements above the overlay link */
+.ec-card__thumb,
+.ec-card__body,
+.ec-card__title,
+.ec-card__rating,
+.ec-card__seller,
+.ec-card__badges,
+.ec-card__float,
+.ec-card__actions {
+    position: relative;
+    z-index: 2;
+}
+
+/* Badges */
+.ec-card__badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 5;
+}
+
+.ec-card__badge {
+    display: inline-block;
+    background: var(--global-color-primary);
+    color: var(--global-color-text-on-dark);
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.ec-card__badge--out {
+    background: var(--global-color-alert);
+}
+
+/* Price row */
+.ec-card__price-row {
     display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 5px;
 }
 
-.ps-product--offer .ps-product__discount-badge,
-.ps-product--deal .ps-product__discount-badge,
-.ps-product--standard .ps-product__discount-badge {
+.ec-card__badge-discount {
     display: inline-block;
     background: var(--global-color-success);
     color: #fff;
@@ -114,38 +104,31 @@
     font-weight: 600;
 }
 
-.ps-product--offer .ps-product__regular-price,
-.ps-product--deal .ps-product__regular-price,
-.ps-product--standard .ps-product__regular-price {
+.ec-card__price-original {
     font-size: 13px;
     color: var(--global-color-text-muted);
     opacity: 0.7;
 }
 
-.ps-product--offer .ps-product__sale-duration,
-.ps-product--deal .ps-product__sale-duration,
-.ps-product--standard .ps-product__sale-duration {
-    width: fit-content;
+/* Sale duration */
+.ec-card__sale-duration {
     display: flex;
     align-items: center;
     gap: 4px;
     margin-bottom: 5px;
     font-size: 10px;
     line-height: 1.2;
+    width: fit-content;
     position: relative;
-    z-index: 100;
+    z-index: 3;
 }
 
-.ps-product--offer .ps-product__sale-duration .duration-text,
-.ps-product--deal .ps-product__sale-duration .duration-text,
-.ps-product--standard .ps-product__sale-duration .duration-text {
+.ec-card__duration-text {
     color: #565959;
     font-weight: 400;
 }
 
-.ps-product--offer .ps-product__sale-duration .info-icon,
-.ps-product--deal .ps-product__sale-duration .info-icon,
-.ps-product--standard .ps-product__sale-duration .info-icon {
+.ec-card__info-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -153,133 +136,117 @@
     height: 11px;
     border: 1px solid var(--global-color-text-subtle);
     border-radius: 50%;
-    position: relative;
     cursor: help;
     flex-shrink: 0;
     margin-left: 2px;
     padding: 4px;
+    position: relative;
 }
 
-.ps-product--offer .ps-product__sale-duration .info-icon i,
-.ps-product--deal .ps-product__sale-duration .info-icon i,
-.ps-product--standard .ps-product__sale-duration .info-icon i {
+.ec-card__info-icon i {
     font-size: 7px;
     color: var(--global-color-text-subtle);
-    font-weight: 600;
     font-style: normal;
     line-height: 1;
 }
 
-.ps-product--offer .ps-product__sale-duration .info-icon i::before,
-.ps-product--deal .ps-product__sale-duration .info-icon i::before,
-.ps-product--standard .ps-product__sale-duration .info-icon i::before {
+.ec-card__info-icon i::before {
     content: 'i';
     font-family: Georgia, serif;
     font-weight: 600;
     font-style: normal;
 }
 
-.ps-product--offer .ps-product__sale-duration .info-icon::after,
-.ps-product--deal .ps-product__sale-duration .info-icon::after,
-.ps-product--standard .ps-product__sale-duration .info-icon::after {
+/* Tooltip */
+.ec-card__info-icon::after {
     content: attr(data-tooltip);
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    bottom: calc(100% + 8px);
     background: #fff;
     color: #0F1111;
     padding: 8px 12px;
     border-radius: 8px;
     border: 1px solid #D5D9D9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 2px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 8px rgba(0,0,0,.1);
     font-size: 10px;
     white-space: normal;
     width: 180px;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.15s ease, visibility 0.15s ease;
+    transition: opacity .15s ease, visibility .15s ease;
     z-index: 9999;
     line-height: 1.4;
     font-weight: 400;
     text-align: left;
-    bottom: calc(100% + 8px);
 }
 
-.ps-product--offer .ps-product__sale-duration .info-icon:hover::after,
-.ps-product--deal .ps-product__sale-duration .info-icon:hover::after,
-.ps-product--standard .ps-product__sale-duration .info-icon:hover::after {
+.ec-card__info-icon::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(100% + 2px);
+    border: 6px solid transparent;
+    border-top-color: #fff;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .15s ease, visibility .15s ease;
+    z-index: 10000;
+    filter: drop-shadow(0 2px 1px rgba(0,0,0,.05));
+}
+
+.ec-card__info-icon:hover::after,
+.ec-card__info-icon:hover::before {
     opacity: 1;
     visibility: visible;
 }
 
-.ps-product--offer .ps-product__sale-row,
-.ps-product--deal .ps-product__sale-row,
-.ps-product--standard .ps-product__sale-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.ps-product--offer .ps-product__price,
-.ps-product--deal .ps-product__price,
-.ps-product--standard .ps-product__price {
-    margin: 0;
+/* Sale price */
+.ec-card__price-sale {
     display: flex;
     align-items: center;
     gap: 6px;
+    margin-bottom: 8px;
 }
 
-.ps-product--offer .ps-product__price-amount,
-.ps-product--deal .ps-product__price-amount,
-.ps-product--standard .ps-product__price-amount {
-    font-size: 18px !important;
-    font-weight: 400 !important;
-    color: var(--global-color-alert) !important;
-}
-
-.ps-product--offer .ps-product__sold-count,
-.ps-product--deal .ps-product__sold-count,
-.ps-product--standard .ps-product__sold-count {
-    font-size: 11px !important;
-    color: var(--global-color-text-muted) !important;
-    white-space: nowrap;
-    margin-left: 4px;
-}
-
-.ps-product.ps-product--offer .ps-product__title,
-.ps-product--offer .ps-product__title,
-.ps-product.ps-product--deal .ps-product__title,
-.ps-product--deal .ps-product__title,
-.ps-product.ps-product--standard .ps-product__title,
-.ps-product--standard .ps-product__title {
-    font-size: 13px;
+.ec-card__price-amount {
+    font-size: 18px;
     font-weight: 400;
-    color: var(--global-color-text-main);
-    text-decoration: none;
+    color: var(--global-color-alert);
+}
+
+.ec-card__sold {
+    font-size: 11px;
+    color: var(--global-color-text-muted);
+    white-space: nowrap;
+}
+
+/* Title */
+.ec-card__title {
     display: -webkit-box !important;
     -webkit-line-clamp: 3 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--global-color-text-main);
+    text-decoration: none;
     margin-bottom: 10px;
-    line-height: 1.4 !important;
-    max-height: calc(1.4em * 3) !important;
-    padding: 0 !important;
-    min-height: auto !important;
+    line-height: 1.4;
     word-break: break-word;
-    transition: color 0.3s ease;
+    transition: color .3s ease;
 }
 
-.ps-product--offer .ps-product__title:hover,
-.ps-product--deal .ps-product__title:hover,
-.ps-product--standard .ps-product__title:hover {
+.ec-card__title:hover {
     color: var(--global-color-alert-text);
 }
 
-.ps-product--offer .ps-product__rating,
-.ps-product--deal .ps-product__rating,
-.ps-product--standard .ps-product__rating {
+/* Rating */
+.ec-card__rating {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -288,155 +255,128 @@
     text-decoration: none;
     color: inherit;
     width: fit-content;
-    transition: opacity 0.3s ease;
+    transition: opacity .3s ease;
 }
 
-.ps-product--offer .ps-product__rating .rating-number,
-.ps-product--deal .ps-product__rating .rating-number,
-.ps-product--standard .ps-product__rating .rating-number {
+.ec-card__rating:hover { opacity: .8; }
+
+.ec-card__rating-num {
     font-weight: 700;
     color: var(--global-color-text-main);
-    margin-left: 0;
 }
 
-.ps-product--offer .ps-product__rating .rating-stars,
-.ps-product--deal .ps-product__rating .rating-stars,
-.ps-product--standard .ps-product__rating .rating-stars {
+.ec-card__stars {
     display: flex;
     gap: 2px;
 }
 
-.ps-product--offer .ps-product__rating .rating-stars i,
-.ps-product--deal .ps-product__rating .rating-stars i,
-.ps-product--standard .ps-product__rating .rating-stars i {
+.ec-card__stars i {
     font-size: 12px;
     color: #ddd;
 }
 
-.ps-product--offer .ps-product__rating .rating-stars i.filled,
-.ps-product--deal .ps-product__rating .rating-stars i.filled,
-.ps-product--standard .ps-product__rating .rating-stars i.filled {
-    color: #ffa500;
-}
+.ec-card__star--filled { color: #ffa500 !important; }
+.ec-card__star--half  { color: #ffa500 !important; opacity: .5; }
 
-.ps-product--offer .ps-product__seller,
-.ps-product--deal .ps-product__seller,
-.ps-product--standard .ps-product__seller {
-    margin-top: 0;
-    font-size: 12px;
+.ec-card__rating-count { color: #999; }
+
+/* Seller */
+.ec-card__seller {
     display: inline-block;
+    font-size: 12px;
     color: var(--global-color-link);
     text-decoration: none;
-    cursor: pointer;
-    transition: color 0.3s ease;
+    transition: color .3s ease;
+    margin-top: 0;
 }
 
-.ps-product--offer .ps-product__seller:hover,
-.ps-product--deal .ps-product__seller:hover,
-.ps-product--standard .ps-product__seller:hover {
+.ec-card__seller:hover {
     color: var(--global-color-link-hover);
     text-decoration: underline;
 }
 
-.ps-product--offer .ps-product__badges,
-.ps-product--deal .ps-product__badges,
-.ps-product--standard .ps-product__badges {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 5;
+/* ── Action buttons (shown on mobile / deal desktop) ── */
+.ec-card__actions {
+    margin-top: 12px;
 }
 
-.ps-product--offer .ps-product__badge,
-.ps-product--deal .ps-product__badge,
-.ps-product--standard .ps-product__badge {
-    background: var(--global-color-primary);
-    color: var(--global-color-text-on-dark);
-    padding: 5px 10px;
-    border-radius: 3px;
-    font-size: 11px;
+.ec-card__btn {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 50px;
+    font-size: 14px;
     font-weight: 600;
-    display: inline-block;
-    margin-bottom: 5px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .3s ease;
+    outline: none;
+    box-sizing: border-box;
+    border: none;
 }
 
-.ps-product.ps-product--offer .ps-enhanced-actions,
-.ps-product.ps-product--standard .ps-enhanced-actions {
-    display: none !important;
+.ec-card__btn--cart {
+    background: var(--global-color-warning);
+    color: var(--global-color-text-main);
+    border: none;
 }
 
-.ps-product.ps-product--deal .ps-enhanced-actions {
-    display: block !important;
-    margin-top: 10px !important;
+.ec-card__btn--cart:hover { opacity: .9; }
+
+.ec-card__btn--select {
+    background: transparent;
+    color: var(--global-color-text-main);
+    border: 1px solid var(--global-color-text-main);
 }
 
-.ps-product.ps-product--deal .ps-enhanced-btn {
-    width: 100% !important;
-    padding: 8px 16px !important;
-    border-radius: 20px !important;
-    font-size: 13px !important;
-    font-weight: 500 !important;
-    cursor: pointer !important;
-    text-align: center !important;
-    transition: all 0.3s ease !important;
+.ec-card__btn--select:hover,
+.ec-card__btn--select:active,
+.ec-card__btn--select:focus {
+    background: var(--global-color-text-main);
+    color: var(--global-color-text-on-dark);
 }
 
-.ps-product.ps-product--deal .ps-enhanced-btn--cart {
-    background: var(--global-color-warning) !important;
-    color: var(--global-color-text-main) !important;
-    border: none !important;
-}
-
-.ps-product.ps-product--deal .ps-enhanced-btn--select {
-    background: transparent !important;
-    color: var(--global-color-text-main) !important;
-    border: 1px solid var(--global-color-text-main) !important;
-}
-
-.ps-product.ps-product--deal .ps-product__floating-actions {
-    display: none !important;
-}
-
-.ps-product--offer .ps-product__floating-actions,
-.ps-product--standard .ps-product__floating-actions {
+/* ── Floating actions (offer/standard desktop) ── */
+.ec-card__float {
     position: absolute;
     bottom: 10px;
     right: 10px;
-    z-index: 20 !important;
+    z-index: 20;
 }
 
-.ps-floating-actions-capsule {
+.ec-card__float-capsule {
     display: flex;
     align-items: center;
     gap: 0;
     background: transparent;
     border-radius: 50px;
     padding: 0;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
+    transition: all .4s cubic-bezier(.4,0,.2,1);
+    justify-content: flex-end;
 }
 
-.ps-floating-actions-capsule.active {
+.ec-card__float-capsule.active,
+.ec-card__float-capsule:hover {
     background: var(--global-color-site-bg, #f5f5f5);
-    border: 1px solid var(--global-color-primary-border);
+    border-color: var(--global-color-primary-border);
     padding: 4px;
     gap: 4px;
 }
 
+/* Only show on hover for true pointer devices */
 @media (hover: hover) and (pointer: fine) {
-    .ps-floating-actions-capsule:hover {
-        background: var(--global-color-site-bg, #f5f5f5);
-        border: 1px solid var(--global-color-primary-border);
-        padding: 4px;
-        gap: 4px;
-    }
-    .ps-floating-actions-capsule:hover .ps-floating-action {
+    .ec-card__float-capsule:hover .ec-card__float-btn {
         display: flex !important;
         opacity: 1 !important;
         transform: scale(1) !important;
     }
+    .ec-card__float-capsule:hover .ec-card__toggle-icon { transform: rotate(90deg) !important; }
+    .ec-card__float-capsule:hover .ec-card__toggle-h    { opacity: 0 !important; }
 }
 
-.ps-floating-action {
+.ec-card__float-btn {
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -447,16 +387,25 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: opacity .3s ease, transform .3s ease;
+    flex-shrink: 0;
+    opacity: 0;
+    transform: scale(0);
 }
 
-.ps-floating-actions-capsule.active .ps-floating-action {
+.ec-card__float-capsule.active .ec-card__float-btn {
     display: flex;
     opacity: 1;
     transform: scale(1);
 }
 
-.ps-floating-toggle {
+.ec-card__float-btn:hover {
+    border: 1px solid var(--global-color-text-body);
+}
+
+.ec-card__float-btn i { font-size: 14px; }
+
+.ec-card__float-toggle {
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -467,61 +416,233 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: all .3s ease;
+    flex-shrink: 0;
 }
 
-.ps-toggle-icon {
+.ec-card__toggle-icon {
     width: 14px;
     height: 14px;
     position: relative;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-block;
+    transition: transform .4s cubic-bezier(.4,0,.2,1);
 }
 
-.ps-toggle-line {
+.ec-card__toggle-line {
     position: absolute;
-    background-color: currentColor;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: currentColor;
     border-radius: 1px;
+    transition: all .4s cubic-bezier(.4,0,.2,1);
 }
 
-.ps-toggle-horizontal {
-    width: 14px;
-    height: 2px;
-    top: 50%;
-    left: 0;
-    margin-top: -1px;
+.ec-card__toggle-h {
+    width: 14px; height: 2px;
+    top: 50%; left: 0; margin-top: -1px;
+    opacity: 1;
 }
 
-.ps-toggle-vertical {
-    width: 2px;
-    height: 14px;
-    left: 50%;
-    top: 0;
-    margin-left: -1px;
+.ec-card__toggle-v {
+    width: 2px; height: 14px;
+    left: 50%; top: 0; margin-left: -1px;
+    opacity: 1;
 }
+
+.ec-card__float-capsule.active .ec-card__toggle-icon { transform: rotate(90deg); }
+.ec-card__float-capsule.active .ec-card__toggle-h    { opacity: 0; }
+
+/* ============================================================
+   OFFER layout (ec-card--offer)
+   Desktop: floating actions, no bottom button
+   Mobile ≤480px: horizontal card, show bottom button
+   ============================================================ */
+
+.ec-card--offer .ec-card__actions { display: none; }
+
+/* ============================================================
+   STANDARD layout (ec-card--standard)
+   Same as offer
+   ============================================================ */
+
+.ec-card--standard .ec-card__actions { display: none; }
+
+/* ============================================================
+   DEAL layout (ec-card--deal)
+   Desktop: no floating actions, always show bottom button
+   Mobile ≤480px: horizontal card, show bottom button
+   ============================================================ */
+
+.ec-card--deal .ec-card__float    { display: none !important; }
+.ec-card--deal .ec-card__actions  { display: block; }
+
+.ec-card--deal .ec-card__price-amount {
+    font-size: 22px;
+}
+
+/* ============================================================
+   RESPONSIVE — tablet (481px – 768px) floating btn size
+   ============================================================ */
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .ec-card__float-btn,
+    .ec-card__float-toggle {
+        width: 18px;
+        height: 18px;
+    }
+    .ec-card__float-btn i { font-size: 9px; }
+    .ec-card__float-capsule.active { padding: 2px; gap: 2px; }
+}
+
+/* ============================================================
+   RESPONSIVE — mobile ≤480px
+   All layouts: hide floating, show bottom button, horizontal
+   ============================================================ */
 
 @media (max-width: 480px) {
-    .ps-product.ps-product--offer .ps-product__floating-actions,
-    .ps-product.ps-product--deal .ps-product__floating-actions,
-    .ps-product.ps-product--standard .ps-product__floating-actions {
+    /* Show bottom button for offer & standard on mobile */
+    .ec-card--offer .ec-card__actions,
+    .ec-card--standard .ec-card__actions {
+        display: block !important;
+        margin-top: 6px;
+    }
+
+    /* Hide floating actions on mobile for all layouts */
+    .ec-card--offer .ec-card__float,
+    .ec-card--standard .ec-card__float {
         display: none !important;
     }
-    
-    .ps-product.ps-product--offer .ps-enhanced-actions,
-    .ps-product.ps-product--deal .ps-enhanced-actions,
-    .ps-product.ps-product--standard .ps-enhanced-actions {
-        display: block !important;
+
+    /* Mobile button sizing */
+    .ec-card--offer .ec-card__btn,
+    .ec-card--standard .ec-card__btn,
+    .ec-card--deal .ec-card__btn {
+        padding: 7px 12px !important;
+        border-radius: 16px !important;
+        font-size: 11px !important;
     }
-    
-    .ps-product--offer,
-    .ps-product--deal {
+
+    /* Horizontal card layout */
+    .ec-card--offer,
+    .ec-card--deal,
+    .ec-card--standard {
         display: flex !important;
         flex-direction: row !important;
         gap: 0 !important;
+        align-items: stretch !important;
+        margin-bottom: 12px !important;
     }
-    
-    .ps-product--offer .ps-product__thumbnail,
-    .ps-product--deal .ps-product__thumbnail {
+
+    /* Thumbnail — left side */
+    .ec-card--offer .ec-card__thumb,
+    .ec-card--deal .ec-card__thumb,
+    .ec-card--standard .ec-card__thumb {
         width: 130px !important;
-        flex-shrink: 0;
+        flex-shrink: 0 !important;
+        margin-bottom: 0 !important;
+        border-radius: 8px 0 0 8px !important;
+        padding: 6px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .ec-card--offer .ec-card__thumb a,
+    .ec-card--deal .ec-card__thumb a,
+    .ec-card--standard .ec-card__thumb a {
+        display: flex !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+
+    .ec-card--offer .ec-card__thumb img,
+    .ec-card--deal .ec-card__thumb img,
+    .ec-card--standard .ec-card__thumb img {
+        object-fit: contain !important;
+        border-radius: 3px !important;
+    }
+
+    /* Body — right side */
+    .ec-card--offer .ec-card__body,
+    .ec-card--deal .ec-card__body,
+    .ec-card--standard .ec-card__body {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        min-width: 0 !important;
+        border: 1px solid var(--global-color-primary-border) !important;
+        border-left: none !important;
+        border-radius: 0 8px 8px 0 !important;
+        padding: 8px 10px !important;
+        background: transparent !important;
+    }
+
+    .ec-card--offer .ec-card__content,
+    .ec-card--deal .ec-card__content,
+    .ec-card--standard .ec-card__content {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        padding: 0 !important;
+    }
+
+    /* Smaller text on mobile */
+    .ec-card--offer .ec-card__title,
+    .ec-card--deal .ec-card__title,
+    .ec-card--standard .ec-card__title {
+        font-size: 11px !important;
+        -webkit-line-clamp: 3 !important;
+        margin-bottom: 4px !important;
+    }
+
+    .ec-card--offer .ec-card__price-amount,
+    .ec-card--standard .ec-card__price-amount {
+        font-size: 15px !important;
+    }
+
+    .ec-card--deal .ec-card__price-amount {
+        font-size: 15px !important;
+    }
+
+    .ec-card--offer .ec-card__rating,
+    .ec-card--deal .ec-card__rating,
+    .ec-card--standard .ec-card__rating {
+        font-size: 9px !important;
+        margin-bottom: 3px !important;
+    }
+
+    .ec-card--offer .ec-card__stars i,
+    .ec-card--deal .ec-card__stars i,
+    .ec-card--standard .ec-card__stars i {
+        font-size: 9px !important;
+    }
+
+    .ec-card--offer .ec-card__badge-discount,
+    .ec-card--deal .ec-card__badge-discount,
+    .ec-card--standard .ec-card__badge-discount {
+        font-size: 9px !important;
+        padding: 1px 4px !important;
+    }
+
+    .ec-card--offer .ec-card__price-original,
+    .ec-card--deal .ec-card__price-original,
+    .ec-card--standard .ec-card__price-original {
+        font-size: 10px !important;
+    }
+
+    .ec-card--offer .ec-card__sale-duration,
+    .ec-card--deal .ec-card__sale-duration,
+    .ec-card--standard .ec-card__sale-duration {
+        font-size: 8px !important;
+    }
+
+    .ec-card--offer .ec-card__sold,
+    .ec-card--deal .ec-card__sold,
+    .ec-card--standard .ec-card__sold {
+        font-size: 9px !important;
+    }
+
+    .ec-card--offer .ec-card__actions,
+    .ec-card--deal .ec-card__actions,
+    .ec-card--standard .ec-card__actions {
+        margin-top: 6px !important;
     }
 }

@@ -17,6 +17,14 @@ $filesToDeploy = [
     'platform/themes/martfury/config.php',
     'platform/themes/martfury/partials/footer.blade.php',
     'bootstrap/app.php',
+    // Theme CSS assets - must be deployed to BOTH source and public locations
+    'platform/themes/martfury/public/css/product-card-enhanced.css',
+    'public/themes/martfury/css/product-card-enhanced.css',
+    // Theme partials
+    'platform/themes/martfury/partials/product-card-enhanced.blade.php',
+    'platform/themes/martfury/partials/header-meta.blade.php',
+    'platform/themes/martfury/partials/short-codes/deal-and-offers.blade.php',
+    'platform/themes/martfury/functions/shortcodes.php',
 ];
 
 function log_message($message) {
@@ -158,28 +166,43 @@ try {
     // Clear caches
     clear_caches();
     
-    // Recreate theme symlink
-    log_message("\n--- Recreating Theme Symlinks ---");
+    // Recreate theme symlink OR copy assets if symlink not supported
+    log_message("\n--- Syncing Theme Assets ---");
     $publicThemesDir = BASE_DIR . '/public/themes';
-    $martfurySymlink = $publicThemesDir . '/martfury';
-    $martfuryTarget = BASE_DIR . '/platform/themes/martfury/public';
-    
-    // Remove old symlink if exists
-    if (is_link($martfurySymlink)) {
-        @unlink($martfurySymlink);
-        log_message("✓ Removed old symlink");
-    }
-    
-    // Create directory if doesn't exist
+    $martfuryPublicDir = $publicThemesDir . '/martfury';
+    $martfurySourceDir = BASE_DIR . '/platform/themes/martfury/public';
+
     if (!is_dir($publicThemesDir)) {
         @mkdir($publicThemesDir, 0755, true);
     }
-    
-    // Create new symlink
-    if (@symlink($martfuryTarget, $martfurySymlink)) {
-        log_message("✓ Theme symlink recreated");
+
+    // Try symlink first
+    if (is_link($martfuryPublicDir)) {
+        log_message("✓ Theme symlink already exists");
+    } elseif (!is_dir($martfuryPublicDir)) {
+        if (@symlink($martfurySourceDir, $martfuryPublicDir)) {
+            log_message("✓ Theme symlink created — assets auto-sync from source");
+        } else {
+            // Symlink failed — copy CSS files manually
+            log_message("⚠ Symlink not supported — copying CSS files directly");
+            $cssSource = $martfurySourceDir . '/css/product-card-enhanced.css';
+            $cssDest   = $martfuryPublicDir . '/css/product-card-enhanced.css';
+            if (!is_dir(dirname($cssDest))) {
+                @mkdir(dirname($cssDest), 0755, true);
+            }
+            if (@copy($cssSource, $cssDest)) {
+                log_message("✓ product-card-enhanced.css copied to public");
+            } else {
+                log_message("⚠ Could not copy CSS (already downloaded above)");
+            }
+        }
     } else {
-        log_message("⚠ Could not create symlink (might need manual setup)");
+        // It's a real directory (not symlink) — just copy the CSS
+        $cssSource = $martfurySourceDir . '/css/product-card-enhanced.css';
+        $cssDest   = $martfuryPublicDir . '/css/product-card-enhanced.css';
+        if (@copy($cssSource, $cssDest)) {
+            log_message("✓ product-card-enhanced.css synced to public/themes/martfury/css/");
+        }
     }
     
     log_message("\n========================================");
