@@ -3461,4 +3461,16 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 {{-- Product Card Enhanced global styles - loaded on every page so single product page gets them too --}}
 <link rel="stylesheet" href="{{ Theme::asset()->url('css/product-card-enhanced.css') }}">
+{{-- Override theme style.css .ps-product .ps-product__actions which conflicts with enhanced card layouts.
+     Only apply to card layouts (offer/deal/standard), NOT the product detail page. --}}
+<style>
+    .ps-product--offer .ps-product__actions,
+    .ps-product--deal .ps-product__actions,
+    .ps-product--standard .ps-product__actions {
+        padding: 0 !important;
+        background-color: transparent !important;
+        max-width: none !important;
+        transition: none !important;
+    }
+</style>
 </head>
