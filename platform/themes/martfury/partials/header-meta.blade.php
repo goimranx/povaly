@@ -3459,4 +3459,6 @@ document.addEventListener('DOMContentLoaded', function () {
     })();
 });
 </script>
+{{-- Product Card Enhanced global styles - loaded on every page so single product page gets them too --}}
+<link rel="stylesheet" href="{{ Theme::asset()->url('css/product-card-enhanced.css') }}">
 </head>
