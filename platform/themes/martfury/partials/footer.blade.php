@@ -480,6 +480,17 @@
     </style>
     @endonce
 
+    <script>
+        window.trans = {
+            "View All": "{{ __('View All') }}",
+            "No reviews!": "{{ __('No reviews!') }}",
+        };
+        window.siteConfig = window.siteConfig || {};
+        window.siteConfig.ajaxCartUrl = "{{ route('public.ajax.cart') }}";
+    </script>
+
+    {!! Theme::footer() !!}
+
     {{-- Override quick-shop to use offcanvas instead of modal --}}
     <script>
     jQuery(document).ready(function($) {
@@ -571,17 +582,6 @@
         console.log('[OFFCANVAS DEBUG] Quick shop offcanvas element:', $('#quick-shop-modal')[0]);
     });
     </script>
-
-    <script>
-        window.trans = {
-            "View All": "{{ __('View All') }}",
-            "No reviews!": "{{ __('No reviews!') }}",
-        };
-        window.siteConfig = window.siteConfig || {};
-        window.siteConfig.ajaxCartUrl = "{{ route('public.ajax.cart') }}";
-    </script>
-
-    {!! Theme::footer() !!}
 
     <script>
         // Floating Action Button for Offer Products - Global Script (Owl Carousel Compatible)
