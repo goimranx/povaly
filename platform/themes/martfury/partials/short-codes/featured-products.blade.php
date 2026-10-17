@@ -26,7 +26,7 @@
                 @foreach($products as $product)
                     @include('theme.martfury::partials.product-card-enhanced', [
                         'product' => $product,
-                        'layout' => 'default'
+                        'layout' => 'grid'
                     ])
                 @endforeach
             </div>

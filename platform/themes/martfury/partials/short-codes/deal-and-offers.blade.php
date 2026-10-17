@@ -25,7 +25,7 @@
                                     @foreach($deal_products as $product)
                                         @include('theme.martfury::partials.product-card-enhanced', [
                                             'product' => $product,
-                                            'layout' => 'deal'
+                                            'layout' => 'featured'
                                         ])
                                     @endforeach
                                 @else
@@ -91,7 +91,7 @@
                                     @foreach($offers_products as $product)
                                         @include('theme.martfury::partials.product-card-enhanced', [
                                             'product' => $product,
-                                            'layout' => 'offer'
+                                            'layout' => 'grid'
                                         ])
                                     @endforeach
                                 </div>
@@ -419,9 +419,8 @@
         }
 
         /* Adjust product items for mobile grid */
-        .ec-card--offer,
-        .ec-card--deal,
-        .ec-card--standard {
+        .ec-card--grid,
+        .ec-card--featured {
             width: 100% !important;
             height: auto !important;
             margin: 0 !important;

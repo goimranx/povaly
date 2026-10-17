@@ -458,14 +458,14 @@
    Mobile ≤480px: horizontal card, show bottom button
    ============================================================ */
 
-.ec-card--offer .ec-card__actions { display: none; }
+.ec-card--grid .ec-card__actions { display: none; }
 
 /* ============================================================
    STANDARD layout (ec-card--standard)
    Same as offer
    ============================================================ */
 
-.ec-card--standard .ec-card__actions { display: none; }
+.ec-card--grid .ec-card__actions { display: none; }
 
 /* ============================================================
    DEAL layout (ec-card--deal)
@@ -473,10 +473,10 @@
    Mobile ≤480px: horizontal card, show bottom button
    ============================================================ */
 
-.ec-card--deal .ec-card__float    { display: none !important; }
-.ec-card--deal .ec-card__actions  { display: block; }
+.ec-card--featured .ec-card__float    { display: none !important; }
+.ec-card--featured .ec-card__actions  { display: block; }
 
-.ec-card--deal .ec-card__price-amount {
+.ec-card--featured .ec-card__price-amount {
     font-size: 22px;
 }
 
@@ -501,31 +501,31 @@
 
 @media (max-width: 480px) {
     /* Show bottom button for offer & standard on mobile */
-    .ec-card--offer .ec-card__actions,
-    .ec-card--standard .ec-card__actions {
+    .ec-card--grid .ec-card__actions,
+    .ec-card--grid .ec-card__actions {
         display: block !important;
         margin-top: 6px;
     }
 
     /* Hide floating actions on mobile for all layouts */
-    .ec-card--offer .ec-card__float,
-    .ec-card--standard .ec-card__float {
+    .ec-card--grid .ec-card__float,
+    .ec-card--grid .ec-card__float {
         display: none !important;
     }
 
     /* Mobile button sizing */
-    .ec-card--offer .ec-card__btn,
-    .ec-card--standard .ec-card__btn,
-    .ec-card--deal .ec-card__btn {
+    .ec-card--grid .ec-card__btn,
+    .ec-card--grid .ec-card__btn,
+    .ec-card--featured .ec-card__btn {
         padding: 7px 12px !important;
         border-radius: 16px !important;
         font-size: 11px !important;
     }
 
     /* Horizontal card layout */
-    .ec-card--offer,
-    .ec-card--deal,
-    .ec-card--standard {
+    .ec-card--grid,
+    .ec-card--featured,
+    .ec-card--grid {
         display: flex !important;
         flex-direction: row !important;
         gap: 0 !important;
@@ -534,9 +534,9 @@
     }
 
     /* Thumbnail — left side */
-    .ec-card--offer .ec-card__thumb,
-    .ec-card--deal .ec-card__thumb,
-    .ec-card--standard .ec-card__thumb {
+    .ec-card--grid .ec-card__thumb,
+    .ec-card--featured .ec-card__thumb,
+    .ec-card--grid .ec-card__thumb {
         width: 130px !important;
         flex-shrink: 0 !important;
         margin-bottom: 0 !important;
@@ -547,25 +547,25 @@
         justify-content: center !important;
     }
 
-    .ec-card--offer .ec-card__thumb a,
-    .ec-card--deal .ec-card__thumb a,
-    .ec-card--standard .ec-card__thumb a {
+    .ec-card--grid .ec-card__thumb a,
+    .ec-card--featured .ec-card__thumb a,
+    .ec-card--grid .ec-card__thumb a {
         display: flex !important;
         align-items: center !important;
         width: 100% !important;
     }
 
-    .ec-card--offer .ec-card__thumb img,
-    .ec-card--deal .ec-card__thumb img,
-    .ec-card--standard .ec-card__thumb img {
+    .ec-card--grid .ec-card__thumb img,
+    .ec-card--featured .ec-card__thumb img,
+    .ec-card--grid .ec-card__thumb img {
         object-fit: contain !important;
         border-radius: 3px !important;
     }
 
     /* Body — right side */
-    .ec-card--offer .ec-card__body,
-    .ec-card--deal .ec-card__body,
-    .ec-card--standard .ec-card__body {
+    .ec-card--grid .ec-card__body,
+    .ec-card--featured .ec-card__body,
+    .ec-card--grid .ec-card__body {
         flex: 1 !important;
         display: flex !important;
         flex-direction: column !important;
@@ -577,9 +577,9 @@
         background: transparent !important;
     }
 
-    .ec-card--offer .ec-card__content,
-    .ec-card--deal .ec-card__content,
-    .ec-card--standard .ec-card__content {
+    .ec-card--grid .ec-card__content,
+    .ec-card--featured .ec-card__content,
+    .ec-card--grid .ec-card__content {
         display: flex !important;
         flex-direction: column !important;
         height: 100% !important;
@@ -587,64 +587,64 @@
     }
 
     /* Smaller text on mobile */
-    .ec-card--offer .ec-card__title,
-    .ec-card--deal .ec-card__title,
-    .ec-card--standard .ec-card__title {
+    .ec-card--grid .ec-card__title,
+    .ec-card--featured .ec-card__title,
+    .ec-card--grid .ec-card__title {
         font-size: 11px !important;
         -webkit-line-clamp: 3 !important;
         margin-bottom: 4px !important;
     }
 
-    .ec-card--offer .ec-card__price-amount,
-    .ec-card--standard .ec-card__price-amount {
+    .ec-card--grid .ec-card__price-amount,
+    .ec-card--grid .ec-card__price-amount {
         font-size: 15px !important;
     }
 
-    .ec-card--deal .ec-card__price-amount {
+    .ec-card--featured .ec-card__price-amount {
         font-size: 15px !important;
     }
 
-    .ec-card--offer .ec-card__rating,
-    .ec-card--deal .ec-card__rating,
-    .ec-card--standard .ec-card__rating {
+    .ec-card--grid .ec-card__rating,
+    .ec-card--featured .ec-card__rating,
+    .ec-card--grid .ec-card__rating {
         font-size: 9px !important;
         margin-bottom: 3px !important;
     }
 
-    .ec-card--offer .ec-card__stars i,
-    .ec-card--deal .ec-card__stars i,
-    .ec-card--standard .ec-card__stars i {
+    .ec-card--grid .ec-card__stars i,
+    .ec-card--featured .ec-card__stars i,
+    .ec-card--grid .ec-card__stars i {
         font-size: 9px !important;
     }
 
-    .ec-card--offer .ec-card__badge-discount,
-    .ec-card--deal .ec-card__badge-discount,
-    .ec-card--standard .ec-card__badge-discount {
+    .ec-card--grid .ec-card__badge-discount,
+    .ec-card--featured .ec-card__badge-discount,
+    .ec-card--grid .ec-card__badge-discount {
         font-size: 9px !important;
         padding: 1px 4px !important;
     }
 
-    .ec-card--offer .ec-card__price-original,
-    .ec-card--deal .ec-card__price-original,
-    .ec-card--standard .ec-card__price-original {
+    .ec-card--grid .ec-card__price-original,
+    .ec-card--featured .ec-card__price-original,
+    .ec-card--grid .ec-card__price-original {
         font-size: 10px !important;
     }
 
-    .ec-card--offer .ec-card__sale-duration,
-    .ec-card--deal .ec-card__sale-duration,
-    .ec-card--standard .ec-card__sale-duration {
+    .ec-card--grid .ec-card__sale-duration,
+    .ec-card--featured .ec-card__sale-duration,
+    .ec-card--grid .ec-card__sale-duration {
         font-size: 8px !important;
     }
 
-    .ec-card--offer .ec-card__sold,
-    .ec-card--deal .ec-card__sold,
-    .ec-card--standard .ec-card__sold {
+    .ec-card--grid .ec-card__sold,
+    .ec-card--featured .ec-card__sold,
+    .ec-card--grid .ec-card__sold {
         font-size: 9px !important;
     }
 
-    .ec-card--offer .ec-card__actions,
-    .ec-card--deal .ec-card__actions,
-    .ec-card--standard .ec-card__actions {
+    .ec-card--grid .ec-card__actions,
+    .ec-card--featured .ec-card__actions,
+    .ec-card--grid .ec-card__actions {
         margin-top: 6px !important;
     }
 }
