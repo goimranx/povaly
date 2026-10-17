@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Sync Theme CSS to Public",
+      "trigger": "PostFileSave",
+      "description": "Automatically copies any CSS file saved in platform/themes/martfury/public/css/ to public/themes/martfury/css/ so the browser-served copy stays in sync with the source.",
+      "matcher": "platform/themes/martfury/public/css/.*\\.css$",
+      "action": {
+        "type": "command",
+        "command": "node -e \"const fs=require('fs');const path=require('path');const stdin=[];process.stdin.on('data',d=>stdin.push(d));process.stdin.on('end',()=>{const ctx=JSON.parse(stdin.join(''));const src=ctx.file||'';if(!src)process.exit(0);const filename=path.basename(src);const dst=src.replace('platform/themes/martfury/public/css/','public/themes/martfury/css/').replace('platform\\\\\\\\themes\\\\\\\\martfury\\\\\\\\public\\\\\\\\css\\\\\\\\','public\\\\\\\\themes\\\\\\\\martfury\\\\\\\\css\\\\\\\\');try{fs.copyFileSync(src,dst);console.log('Synced '+filename+' to public/themes/martfury/css/');}catch(e){console.error('Sync failed:',e.message);}});\""
+      }
+    }
+  ]
+}
