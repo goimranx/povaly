@@ -290,4 +290,10 @@ Theme::registerRoutes(function (): void {
             'uses' => 'PublicController@getDownload',
         ]);
     });
+
+    // Clear recently viewed products (accessible to everyone)
+    Route::post('clear-recently-viewed', [
+        'uses' => 'Botble\Ecommerce\Http\Controllers\Fronts\PublicProductController@clearRecentlyViewed',
+        'as' => 'public.clear-recently-viewed',
+    ]);
 });

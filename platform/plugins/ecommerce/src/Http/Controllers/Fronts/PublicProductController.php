@@ -438,20 +438,15 @@ class PublicProductController extends BaseController
             );
     }
 
-    public function ajaxClearRecentlyViewed(Request $request)
+    public function clearRecentlyViewed(Request $request)
     {
-        try {
-            if (auth('customer')->check()) {
-                auth('customer')->user()->viewedProducts()->detach();
-            } else {
-                Cart::instance('recently_viewed')->destroy();
-            }
-
-            return redirect()->back()->with('success', __('Browsing history cleared successfully!'));
-        } catch (\Exception $e) {
-            Log::error('Clear recently viewed error: ' . $e->getMessage());
-            return redirect()->back()->with('error', __('Failed to clear history. Please try again.'));
+        if (auth('customer')->check()) {
+            auth('customer')->user()->viewedProducts()->detach();
+        } else {
+            Cart::instance('recently_viewed')->destroy();
         }
+
+        return redirect()->back()->with('success', __('Browsing history cleared successfully!'));
     }
 
     public function ajaxGetRecentlyViewedProducts(ProductInterface $productRepository)
