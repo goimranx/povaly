@@ -25,7 +25,7 @@
                                     @foreach($deal_products as $product)
                                         @include('theme.martfury::partials.product-card-enhanced', [
                                             'product' => $product,
-                                            'layout' => 'grid'
+                                            'layout' => 'inline'
                                         ])
                                     @endforeach
                                 @else
@@ -91,7 +91,7 @@
                                     @foreach($offers_products as $product)
                                         @include('theme.martfury::partials.product-card-enhanced', [
                                             'product' => $product,
-                                            'layout' => 'grid'
+                                            'layout' => 'inline'
                                         ])
                                     @endforeach
                                 </div>

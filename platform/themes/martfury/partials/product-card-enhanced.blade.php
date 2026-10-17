@@ -4,7 +4,7 @@
      * Uses ec-card prefix for all classes to avoid conflicts with theme CSS.
      *
      * @param Product $product
-     * @param string  $layout   'grid' | 'featured'
+     * @param string  $layout   'inline' | 'flyout'
      * @param bool    $lazy
      * @param bool    $showSaleDuration
      * @param bool    $showSeller
@@ -19,8 +19,8 @@
     $additionalClass     = $additionalClass     ?? '';
 
     $layoutClass = match($layout) {
-        'featured' => 'ec-card--featured',
-        default    => 'ec-card--grid',
+        'inline'  => 'ec-card--inline',
+        default   => 'ec-card--flyout',
     };
 @endphp
 
@@ -92,8 +92,8 @@
                 </div>
             @endif
 
-            {{-- Floating actions (desktop grid layout) --}}
-            @if (!$product->isOutOfStock() && $showFloatingActions && $layout !== 'featured')
+            {{-- Floating actions (flyout layout only) --}}
+            @if (!$product->isOutOfStock() && $showFloatingActions && $layout !== 'inline')
                 <div class="ec-card__float">
                     <div class="ec-card__float-capsule">
                         <button type="button" class="ec-card__float-btn js-quick-view-button"
