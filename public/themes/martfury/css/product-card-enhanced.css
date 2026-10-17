@@ -452,6 +452,11 @@
     opacity: 1;
 }
 
+/* Mobile: adjust toggle-h position for better centering */
+@media (max-width: 480px) {
+    .ec-card__toggle-h { left: -50%; }
+}
+
 .ec-card__toggle-v {
     width: 2px; height: 14px;
     left: 50%; top: 0; margin-left: -1px;

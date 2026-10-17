@@ -270,14 +270,14 @@
     }
 
     .ps-carousel--offers .owl-nav button.owl-prev {
-        left: 0;
+        left: 10px;
         border-left: none !important;
         border-top-right-radius: 4px;
         border-bottom-right-radius: 4px;
     }
 
     .ps-carousel--offers .owl-nav button.owl-next {
-        right: 0;
+        right: 10px;
         border-right: none !important;
         border-top-left-radius: 4px;
         border-bottom-left-radius: 4px;
