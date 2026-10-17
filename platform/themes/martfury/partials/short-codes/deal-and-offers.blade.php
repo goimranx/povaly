@@ -126,9 +126,8 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 10px;
+        margin-bottom: 0;
         padding-bottom: 10px;
-        border-bottom: 1px solid var(--global-color-border);
     }
 
     .ps-block--deal-of-day .ps-block__header h3 {
@@ -201,9 +200,8 @@
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        margin-bottom: 10px;
+        margin-bottom: 0;
         padding: 0 0 10px 0;
-        border-bottom: 1px solid var(--global-color-border);
         flex-wrap: nowrap;
         gap: 15px;
     }
