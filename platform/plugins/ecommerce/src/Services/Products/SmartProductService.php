@@ -58,11 +58,6 @@ class SmartProductService
         
         // Join all data sources for scoring
         $query
-            // Recent views (trending)
-            ->leftJoin('ec_product_views as recent_views', function($join) use ($daysAgo) {
-                $join->on('ec_products.id', '=', 'recent_views.product_id')
-                     ->where('recent_views.date', '>=', $daysAgo);
-            })
             // All time sales
             ->leftJoin(DB::raw('(
                 SELECT 
@@ -92,16 +87,26 @@ class SmartProductService
                 GROUP BY product_id
             ) as wishlists'), 'ec_products.id', '=', 'wishlists.product_id');
         
+        // First, get recent views count per product
+        $recentViewsSubquery = DB::table('ec_product_views')
+            ->select('product_id', DB::raw('COUNT(*) as recent_view_count'))
+            ->where('date', '>=', $daysAgo)
+            ->groupBy('product_id');
+        
+        // Now join it as a subquery
+        $query->leftJoin(DB::raw("({$recentViewsSubquery->toSql()}) as recent_view_counts"), 'ec_products.id', '=', 'recent_view_counts.product_id')
+            ->mergeBindings($recentViewsSubquery);
+        
         // Calculate combined score
         $query->select(
-            'ec_products.*',
+            'ec_products.id',
             DB::raw(sprintf('(
-                (ec_products.views * %f) +
+                (COALESCE(ec_products.views, 0) * %f) +
                 (COALESCE(sales.total_sold, 0) * %f) +
-                (COALESCE(COUNT(DISTINCT recent_views.id), 0) * %f) +
+                (COALESCE(recent_view_counts.recent_view_count, 0) * %f) +
                 (COALESCE(recent_sales.recent_sold, 0) * %f) +
                 (COALESCE(wishlists.wishlist_count, 0) * %f) +
-                (COALESCE(ec_products.reviews_avg * LOG(ec_products.reviews_count + 1), 0) * %f)
+                (COALESCE(ec_products.reviews_avg * LOG(COALESCE(ec_products.reviews_count, 0) + 1), 0) * %f)
             ) as smart_score',
                 $weights['views'],
                 $weights['sales'],
