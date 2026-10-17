@@ -1,65 +1,41 @@
-// Enhanced Product Card - Mobile cart button handler
-(function($) {
+/**
+ * product-card-enhanced.js
+ * Loaded via config.php after main.js — handles ec-card button interactions.
+ */
+(function ($) {
     'use strict';
-    
-    $(document).on('click', '.ps-enhanced-actions .ps-enhanced-btn--cart', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        
-        let _self = $(this);
-        _self.prop('disabled', true).addClass('button-loading');
-        
-        $.ajax({
-            url: _self.data('url'),
-            method: 'POST',
-            data: { id: _self.data('id') },
-            dataType: 'json',
-            success: res => {
-                _self.prop('disabled', false).removeClass('button-loading');
-                if (res.error) {
-                    if (typeof Theme !== 'undefined' && Theme.showError) {
-                        Theme.showError(res.message);
-                    }
-                    return false;
-                }
-                if (typeof Theme !== 'undefined' && Theme.showSuccess) {
-                    Theme.showSuccess(res.message);
-                }
-                if (res.data && res.data.next_url) {
-                    window.location.href = res.data.next_url;
-                } else {
-                    $.ajax({
-                        url: window.siteUrl + '/ajax/cart',
-                        method: 'GET',
-                        success: response => {
-                            if (!response.error) {
-                                $('.ps-cart--mobile').html(response.data.html);
-                                $('.btn-shopping-cart span i').text(response.data.count);
-                            }
-                        }
-                    });
-                }
-            },
-            error: res => {
-                _self.prop('disabled', false).removeClass('button-loading');
-                if (typeof Theme !== 'undefined' && Theme.showError) {
-                    Theme.showError(res.message || 'Error adding to cart');
-                }
-            }
-        });
-    });
-    
-    // Enhanced Product Card - Floating actions toggle
-    $(document).on('click', '.ps-floating-toggle', function(e) {
+
+    // ── Floating capsule toggle (touch devices) ──────────────────────────
+    $(document).on('click', '.ec-card__float-toggle', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        $(this).closest('.ps-floating-actions-capsule').toggleClass('active');
+        $(this).closest('.ec-card__float-capsule').toggleClass('active');
     });
-    
-    // Enhanced Product Card - Close floating actions when clicking outside
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('.ps-product__floating-actions').length) {
-            $('.ps-floating-actions-capsule').removeClass('active');
+
+    // Close capsule when clicking outside
+    $(document).on('click', function (e) {
+        if (!$(e.target).closest('.ec-card__float').length) {
+            $('.ec-card__float-capsule').removeClass('active');
         }
     });
+
+    // Prevent card overlay link firing when clicking interactive elements
+    $(document).on('click', '.ec-card__float-btn, .ec-card__actions, .ec-card__btn, .ec-card__rating, .ec-card__title, .ec-card__seller', function (e) {
+        e.stopPropagation();
+    });
+
+    // ── Cart update after add-to-cart ─────────────────────────────────────
+    // front-ecommerce.js handles the AJAX and fires ecommerce.cart.added
+    // but does NOT call loadCart() to refresh the mini-cart HTML.
+    // main.js exposes window.loadCart — call it here.
+    document.addEventListener('ecommerce.cart.added', function (e) {
+        console.log('[ec-card] ecommerce.cart.added fired', e.detail);
+        if (typeof window.loadCart === 'function') {
+            console.log('[ec-card] calling window.loadCart()');
+            window.loadCart();
+        } else {
+            console.warn('[ec-card] window.loadCart not found');
+        }
+    });
+
 })(jQuery);
