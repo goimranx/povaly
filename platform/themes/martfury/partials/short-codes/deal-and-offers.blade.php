@@ -428,7 +428,7 @@
 
         /* Adjust product items for mobile grid */
         .ps-product--offer,
-        .ps-product--deal-of-day {
+        .ps-product--deal {
             width: 100% !important;
             height: auto !important;
             margin: 0 !important;
