@@ -39,7 +39,6 @@
 <style>
     /* Trending Products Section */
     .ps-trending-products {
-        padding: 0 !important;
         margin: 10px 0 !important;
         background: var(--global-color-site-bg);
     }
@@ -186,6 +185,8 @@
         .ps-carousel--trending .owl-dots .owl-dot {
             width: 6px !important;
             height: 6px !important;
+            min-width: 6px !important;
+            min-height: 6px !important;
             border-radius: 50% !important;
             background: var(--global-color-border-strong) !important;
             border: none !important;
@@ -202,6 +203,9 @@
         .ps-carousel--trending .owl-dots .owl-dot.active {
             background: var(--global-color-primary) !important;
             width: 20px !important;
+            min-width: 20px !important;
+            height: 6px !important;
+            min-height: 6px !important;
             border-radius: 3px !important;
         }
 
