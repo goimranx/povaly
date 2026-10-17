@@ -454,7 +454,7 @@
 
 /* Tablet (481-768px): adjust toggle-h position for better centering */
 @media (min-width: 481px) and (max-width: 768px) {
-    .ec-card__toggle-h { left: -50%; }
+    .ec-card__toggle-h { left: -40%; }
 }
 
 .ec-card__toggle-v {
@@ -555,7 +555,7 @@
     .ec-card--flyout .ec-card__thumb,
     .ec-card--inline .ec-card__thumb,
     .ec-card--flyout .ec-card__thumb {
-        width: 130px !important;
+        width: 35.5% !important;
         flex-shrink: 0 !important;
         margin-bottom: 0 !important;
         border-radius: 8px 0 0 8px !important;
