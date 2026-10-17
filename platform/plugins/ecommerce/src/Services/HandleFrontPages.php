@@ -126,10 +126,9 @@ class HandleFrontPages
 
                 if (Helper::handleViewCount($product, 'viewed_product')) {
                     event(new ProductViewed($product->getKey(), Carbon::now()));
-                }
 
-                // Always track recently viewed, regardless of view count
-                EcommerceHelper::handleCustomerRecentlyViewedProduct($product);
+                    EcommerceHelper::handleCustomerRecentlyViewedProduct($product);
+                }
 
                 Theme::breadcrumb()->add(__('Products'), route('public.products'));
 
