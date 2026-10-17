@@ -944,8 +944,8 @@ app()->booted(function (): void {
             return $form;
         });
 
-        // Lazy loading disabled - renders directly for better performance
-        // shortcode()->registerLoadingState('deal-and-offers', Theme::getThemeNamespace('partials.short-codes.deal-and-offers-skeleton'));
+        // Register loading state for lazy loading
+        shortcode()->registerLoadingState('deal-and-offers', Theme::getThemeNamespace('partials.short-codes.deal-and-offers-skeleton'));
     }
 });
 
