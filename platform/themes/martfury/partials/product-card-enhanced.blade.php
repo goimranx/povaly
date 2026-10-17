@@ -1213,6 +1213,7 @@
     }
 }
 </style>
+@endpushonce
 
 {{-- Inline JavaScript for Enhanced Product Card --}}
 @pushonce('scripts:product-card-enhanced')
