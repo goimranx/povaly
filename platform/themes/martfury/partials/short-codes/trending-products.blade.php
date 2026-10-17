@@ -104,7 +104,7 @@
     @media (min-width: 768px) {
         /* Add padding to carousel wrapper to leave space for arrows */
         .ps-carousel--trending {
-            padding: 0 50px;
+            padding: 0 70px;
         }
 
         .ps-carousel--trending .owl-nav {
@@ -122,7 +122,7 @@
             position: absolute;
             width: 40px;
             height: 40px;
-            border-radius: 50%;
+            border-radius: 6px;
             border: 1px solid var(--global-color-border-strong) !important;
             background: transparent !important;
             color: var(--global-color-text-main) !important;
