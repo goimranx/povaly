@@ -257,16 +257,19 @@
     color: var(--global-color-alert-text);
 }
 
+/* Rating wrapper */
+.ec-card__rating-wrapper {
+    margin-bottom: 6px;
+}
+
 /* Rating */
 .ec-card__rating {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 6px;
-    font-size: 12px;
+    gap: 4px;
+    font-size: 11px;
     text-decoration: none;
     color: inherit;
-    width: fit-content;
     transition: opacity .3s ease;
 }
 
@@ -274,15 +277,28 @@
 
 .ec-card__rating-num {
     font-weight: 700;
-    color: var(--global-color-text-main);
+    color: #007185;
+    font-size: 12px;
 }
 
 /* Delivery message */
 .ec-card__delivery {
     font-size: 11px;
-    color: var(--global-color-success);
     margin-bottom: 6px;
-    line-height: 1.3;
+    line-height: 1.4;
+}
+
+.ec-card__delivery-date {
+    color: var(--global-color-text-body);
+}
+
+.ec-card__delivery-date strong {
+    font-weight: 600;
+}
+
+.ec-card__delivery-charge {
+    color: var(--global-color-success);
+    font-weight: 500;
 }
 
 .ec-card__stars {
@@ -291,14 +307,18 @@
 }
 
 .ec-card__stars i {
-    font-size: 12px;
+    font-size: 14px;
     color: #ddd;
 }
 
-.ec-card__star--filled { color: #ffa500 !important; }
-.ec-card__star--half  { color: #ffa500 !important; opacity: .5; }
+.ec-card__star--filled { color: #FF9900 !important; }
+.ec-card__star--half  { color: #FF9900 !important; opacity: .5; }
 
-.ec-card__rating-count { color: #999; }
+.ec-card__rating-count { 
+    color: #565959;
+    font-size: 11px;
+    margin-left: 2px;
+}
 
 /* Seller */
 .ec-card__seller {

@@ -181,42 +181,55 @@
                 </a>
 
                 {{-- Rating --}}
-                <a href="{{ $product->url }}#tab-reviews" class="ec-card__rating"
-                   onclick="sessionStorage.setItem('scrollToReviews','true');">
-                    <span class="ec-card__rating-num">{{ $product->reviews_count > 0 ? number_format($product->reviews_avg, 1) : '0.0' }}</span>
-                    <span class="ec-card__stars">
-                        @php $avgRating = $product->reviews_count > 0 ? $product->reviews_avg : 0; @endphp
-                        @for ($i = 1; $i <= 5; $i++)
-                            @if ($i <= floor($avgRating))
-                                <i class="icon-star ec-card__star--filled"></i>
-                            @elseif ($i - 0.5 <= $avgRating)
-                                <i class="icon-star ec-card__star--half"></i>
-                            @else
-                                <i class="icon-star"></i>
-                            @endif
-                        @endfor
-                    </span>
-                    <span class="ec-card__rating-count">({{ number_format($product->reviews_count) }})</span>
-                </a>
+                <div class="ec-card__rating-wrapper">
+                    <a href="{{ $product->url }}#tab-reviews" class="ec-card__rating"
+                       onclick="sessionStorage.setItem('scrollToReviews','true');">
+                        <span class="ec-card__stars">
+                            @php $avgRating = $product->reviews_count > 0 ? $product->reviews_avg : 0; @endphp
+                            @for ($i = 1; $i <= 5; $i++)
+                                @if ($i <= floor($avgRating))
+                                    <i class="icon-star ec-card__star--filled"></i>
+                                @elseif ($i - 0.5 <= $avgRating)
+                                    <i class="icon-star ec-card__star--half"></i>
+                                @else
+                                    <i class="icon-star"></i>
+                                @endif
+                            @endfor
+                        </span>
+                        <span class="ec-card__rating-num">{{ $product->reviews_count > 0 ? number_format($product->reviews_avg, 1) : '0.0' }}</span>
+                    </a>
+                    <span class="ec-card__rating-count">{{ number_format($product->reviews_count) }}+ viewed in past month</span>
+                </div>
 
-                {{-- Delivery Message --}}
-                @php
-                    $minDays = 5;
-                    $maxDays = 7;
-                    $deliveryDate = \Carbon\Carbon::now()->addDays(rand($minDays, $maxDays));
-                    $dayName = $deliveryDate->format('l');
-                    $monthDay = $deliveryDate->format('M j');
-                    
-                    // Smart message variations
-                    $messages = [
-                        "Get it as soon as {$dayName}, {$monthDay}",
-                        "Delivery by {$dayName}, {$monthDay}",
-                        "Arrives {$dayName}, {$monthDay}",
-                    ];
-                    $deliveryMessage = $messages[array_rand($messages)];
-                @endphp
+                {{-- Sale duration info --}}
+                @if ($showSaleDuration && $product->front_sale_price !== $product->price && $saleDurationText)
+                    <div class="ec-card__sale-duration">
+                        <span class="ec-card__duration-text">{{ $saleDurationText }}</span>
+                        <span class="ec-card__info-icon" data-tooltip="{{ $saleDurationTooltip }}">
+                            <i class="icon-information"></i>
+                        </span>
+                    </div>
+                @endif
+
+                {{-- Delivery Message with Shipping Info --}}
                 @if (!$product->isOutOfStock())
-                    <div class="ec-card__delivery">{{ $deliveryMessage }}</div>
+                    @php
+                        $minDays = 5;
+                        $maxDays = 7;
+                        $deliveryDate = \Carbon\Carbon::now()->addDays(rand($minDays, $maxDays));
+                        $dayName = $deliveryDate->format('l');
+                        $monthDay = $deliveryDate->format('M j');
+                        
+                        // Get shipping info
+                        $shippingInfo = 'Free Delivery';
+                        if ($product->shipping_cost > 0) {
+                            $shippingInfo = format_price($product->shipping_cost) . ' Delivery';
+                        }
+                    @endphp
+                    <div class="ec-card__delivery">
+                        <div class="ec-card__delivery-date">Get it as soon as <strong>{{ $dayName }}, {{ $monthDay }}</strong></div>
+                        <div class="ec-card__delivery-charge">{{ $shippingInfo }}</div>
+                    </div>
                 @endif
 
                 {{-- Seller --}}
