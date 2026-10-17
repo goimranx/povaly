@@ -324,7 +324,7 @@
         }
     }
 
-    /* Mobile (≤768px): Convert to grid, 2 columns */
+    /* Mobile (≤768px): Convert to grid, 3 columns */
     @media (max-width: 768px) {
         /* Stack containers vertically */
         .ps-deal-of-day .row {
@@ -341,11 +341,11 @@
             margin-bottom: 15px !important;
         }
 
-        /* Convert carousels to grid - 2 columns */
+        /* Convert carousels to grid - 3 columns */
         .ps-carousel--deal.owl-slider,
         .ps-carousel--offers.owl-slider {
             display: grid !important;
-            grid-template-columns: repeat(2, 1fr) !important;
+            grid-template-columns: repeat(3, 1fr) !important;
             gap: 10px !important;
             width: 100% !important;
             overflow: visible !important;
