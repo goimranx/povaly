@@ -1,4 +1,4 @@
-<div class="ps-product-list mt-40 mb-40">
+<div class="ps-product-list" style="margin: 10px 0;">
     <div class="ps-container">
         <div class="ps-section__header">
             <h3>{!! BaseHelper::clean($title) !!}</h3>

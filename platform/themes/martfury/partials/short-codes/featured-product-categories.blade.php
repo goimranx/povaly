@@ -1,4 +1,4 @@
-<div class="ps-top-categories mt-40 mb-40">
+<div class="ps-top-categories" style="margin: 10px 0;">
     <div class="ps-container">
         <h3>{!! BaseHelper::clean($title) !!}</h3>
         <div class="row justify-content-center">

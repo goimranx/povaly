@@ -1,4 +1,4 @@
-<div class="mt-40 mb-40">
+<div style="margin: 10px 0;">
     <div class="ps-container">
         @if($title)
             <div class="ps-top-categories">
