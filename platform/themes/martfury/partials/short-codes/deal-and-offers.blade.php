@@ -181,15 +181,9 @@
         display: none !important;
     }
 
-    /* Override ps-product hover border */
-    .ps-block--deal-of-day .ps-product,
-    .ps-block--deal-of-day .ps-product:hover,
-    .ps-block--deal-of-day .ps-product:focus,
-    .ps-block--deal-of-day .ps-product:active,
-    .ps-block--deal-of-day .ps-product--deal,
-    .ps-block--deal-of-day .ps-product--deal:hover,
-    .ps-block--deal-of-day .ps-product--deal:focus,
-    .ps-block--deal-of-day .ps-product--deal:active {
+    /* Override any border on ec-card inside deal block */
+    .ps-block--deal-of-day .ec-card,
+    .ps-block--deal-of-day .ec-card:hover {
         border: none !important;
         outline: none !important;
         box-shadow: none !important;
@@ -427,8 +421,9 @@
         }
 
         /* Adjust product items for mobile grid */
-        .ps-product--offer,
-        .ps-product--deal {
+        .ec-card--offer,
+        .ec-card--deal,
+        .ec-card--standard {
             width: 100% !important;
             height: auto !important;
             margin: 0 !important;

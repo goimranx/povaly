@@ -1,2238 +1,648 @@
+/*
+ * product-card-enhanced.css
+ * All classes use ec-card prefix — zero conflict with theme style.css
+ * Layouts: ec-card--offer | ec-card--deal | ec-card--standard
+ */
+
 /* ============================================================
-   Product Card Enhanced - Global Styles
-   Derived from offer-product-item.blade.php  (offer/standard)
-   and deal-product-item.blade.php (deal)
+   BASE — shared by all three layouts
    ============================================================ */
 
-/* ── OFFER LAYOUT ─────────────────────────────────────────── */
-">
-    /* Offer Product Base Styles */
-    .ps-block--offers .ps-product,
-    .ps-block--offers .ps-product--offer {
-        border: 1px solid transparent !important;
+.ec-card {
+    position: relative;
+    background: transparent;
+}
+
+/* Full-card invisible link overlay */
+.ec-card__overlay-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    cursor: pointer;
+}
+
+/* Thumbnail */
+.ec-card__thumb {
+    position: relative;
+    padding: 7px;
+    background: var(--global-color-card-bg);
+    border-radius: 7px;
+    margin-bottom: 5px;
+}
+
+.ec-card__thumb a {
+    display: block;
+}
+
+.ec-card__thumb img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    display: block;
+}
+
+/* Body */
+.ec-card__body {
+    padding: 0;
+}
+
+.ec-card__content {
+    padding: 0;
+}
+
+/* Elements above the overlay link */
+.ec-card__thumb,
+.ec-card__body,
+.ec-card__title,
+.ec-card__rating,
+.ec-card__seller,
+.ec-card__badges,
+.ec-card__float,
+.ec-card__actions {
+    position: relative;
+    z-index: 2;
+}
+
+/* Badges */
+.ec-card__badges {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 5;
+}
+
+.ec-card__badge {
+    display: inline-block;
+    background: var(--global-color-primary);
+    color: var(--global-color-text-on-dark);
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.ec-card__badge--out {
+    background: var(--global-color-alert);
+}
+
+/* Price row */
+.ec-card__price-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.ec-card__badge-discount {
+    display: inline-block;
+    background: var(--global-color-success);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.ec-card__price-original {
+    font-size: 13px;
+    color: var(--global-color-text-muted);
+    opacity: 0.7;
+}
+
+/* Sale duration */
+.ec-card__sale-duration {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 5px;
+    font-size: 10px;
+    line-height: 1.2;
+    width: fit-content;
+    position: relative;
+    z-index: 3;
+}
+
+.ec-card__duration-text {
+    color: #565959;
+    font-weight: 400;
+}
+
+.ec-card__info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 11px;
+    height: 11px;
+    border: 1px solid var(--global-color-text-subtle);
+    border-radius: 50%;
+    cursor: help;
+    flex-shrink: 0;
+    margin-left: 2px;
+    padding: 4px;
+    position: relative;
+}
+
+.ec-card__info-icon i {
+    font-size: 7px;
+    color: var(--global-color-text-subtle);
+    font-style: normal;
+    line-height: 1;
+}
+
+.ec-card__info-icon i::before {
+    content: 'i';
+    font-family: Georgia, serif;
+    font-weight: 600;
+    font-style: normal;
+}
+
+/* Tooltip */
+.ec-card__info-icon::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(100% + 8px);
+    background: #fff;
+    color: #0F1111;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #D5D9D9;
+    box-shadow: 0 4px 8px rgba(0,0,0,.1);
+    font-size: 10px;
+    white-space: normal;
+    width: 180px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .15s ease, visibility .15s ease;
+    z-index: 9999;
+    line-height: 1.4;
+    font-weight: 400;
+    text-align: left;
+}
+
+.ec-card__info-icon::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(100% + 2px);
+    border: 6px solid transparent;
+    border-top-color: #fff;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .15s ease, visibility .15s ease;
+    z-index: 10000;
+    filter: drop-shadow(0 2px 1px rgba(0,0,0,.05));
+}
+
+.ec-card__info-icon:hover::after,
+.ec-card__info-icon:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Sale price */
+.ec-card__price-sale {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.ec-card__price-amount {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--global-color-alert);
+}
+
+.ec-card__sold {
+    font-size: 11px;
+    color: var(--global-color-text-muted);
+    white-space: nowrap;
+}
+
+/* Title */
+.ec-card__title {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--global-color-text-main);
+    text-decoration: none;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    word-break: break-word;
+    transition: color .3s ease;
+}
+
+.ec-card__title:hover {
+    color: var(--global-color-alert-text);
+}
+
+/* Rating */
+.ec-card__rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    text-decoration: none;
+    color: inherit;
+    width: fit-content;
+    transition: opacity .3s ease;
+}
+
+.ec-card__rating:hover { opacity: .8; }
+
+.ec-card__rating-num {
+    font-weight: 700;
+    color: var(--global-color-text-main);
+}
+
+.ec-card__stars {
+    display: flex;
+    gap: 2px;
+}
+
+.ec-card__stars i {
+    font-size: 12px;
+    color: #ddd;
+}
+
+.ec-card__star--filled { color: #ffa500 !important; }
+.ec-card__star--half  { color: #ffa500 !important; opacity: .5; }
+
+.ec-card__rating-count { color: #999; }
+
+/* Seller */
+.ec-card__seller {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--global-color-link);
+    text-decoration: none;
+    transition: color .3s ease;
+    margin-top: 0;
+}
+
+.ec-card__seller:hover {
+    color: var(--global-color-link-hover);
+    text-decoration: underline;
+}
+
+/* ── Action buttons (shown on mobile / deal desktop) ── */
+.ec-card__actions {
+    margin-top: 12px;
+}
+
+.ec-card__btn {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .3s ease;
+    outline: none;
+    box-sizing: border-box;
+    border: none;
+}
+
+.ec-card__btn--cart {
+    background: var(--global-color-warning);
+    color: var(--global-color-text-main);
+    border: none;
+}
+
+.ec-card__btn--cart:hover { opacity: .9; }
+
+.ec-card__btn--select {
+    background: transparent;
+    color: var(--global-color-text-main);
+    border: 1px solid var(--global-color-text-main);
+}
+
+.ec-card__btn--select:hover,
+.ec-card__btn--select:active,
+.ec-card__btn--select:focus {
+    background: var(--global-color-text-main);
+    color: var(--global-color-text-on-dark);
+}
+
+/* ── Floating actions (offer/standard desktop) ── */
+.ec-card__float {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 20;
+}
+
+.ec-card__float-capsule {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: transparent;
+    border-radius: 50px;
+    padding: 0;
+    border: 1px solid transparent;
+    transition: all .4s cubic-bezier(.4,0,.2,1);
+    justify-content: flex-end;
+}
+
+.ec-card__float-capsule.active,
+.ec-card__float-capsule:hover {
+    background: var(--global-color-site-bg, #f5f5f5);
+    border-color: var(--global-color-primary-border);
+    padding: 4px;
+    gap: 4px;
+}
+
+/* Only show on hover for true pointer devices */
+@media (hover: hover) and (pointer: fine) {
+    .ec-card__float-capsule:hover .ec-card__float-btn {
+        display: flex !important;
+        opacity: 1 !important;
+        transform: scale(1) !important;
+    }
+    .ec-card__float-capsule:hover .ec-card__toggle-icon { transform: rotate(90deg) !important; }
+    .ec-card__float-capsule:hover .ec-card__toggle-h    { opacity: 0 !important; }
+}
+
+.ec-card__float-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--global-color-text-main);
+    border: none;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity .3s ease, transform .3s ease;
+    flex-shrink: 0;
+    opacity: 0;
+    transform: scale(0);
+}
+
+.ec-card__float-capsule.active .ec-card__float-btn {
+    display: flex;
+    opacity: 1;
+    transform: scale(1);
+}
+
+.ec-card__float-btn:hover {
+    border: 1px solid var(--global-color-text-body);
+}
+
+.ec-card__float-btn i { font-size: 14px; }
+
+.ec-card__float-toggle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--global-color-warning);
+    color: var(--global-color-text-main);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .3s ease;
+    flex-shrink: 0;
+}
+
+.ec-card__toggle-icon {
+    width: 14px;
+    height: 14px;
+    position: relative;
+    display: inline-block;
+    transition: transform .4s cubic-bezier(.4,0,.2,1);
+}
+
+.ec-card__toggle-line {
+    position: absolute;
+    background: currentColor;
+    border-radius: 1px;
+    transition: all .4s cubic-bezier(.4,0,.2,1);
+}
+
+.ec-card__toggle-h {
+    width: 14px; height: 2px;
+    top: 50%; left: 0; margin-top: -1px;
+    opacity: 1;
+}
+
+.ec-card__toggle-v {
+    width: 2px; height: 14px;
+    left: 50%; top: 0; margin-left: -1px;
+    opacity: 1;
+}
+
+.ec-card__float-capsule.active .ec-card__toggle-icon { transform: rotate(90deg); }
+.ec-card__float-capsule.active .ec-card__toggle-h    { opacity: 0; }
+
+/* ============================================================
+   OFFER layout (ec-card--offer)
+   Desktop: floating actions, no bottom button
+   Mobile ≤480px: horizontal card, show bottom button
+   ============================================================ */
+
+.ec-card--offer .ec-card__actions { display: none; }
+
+/* ============================================================
+   STANDARD layout (ec-card--standard)
+   Same as offer
+   ============================================================ */
+
+.ec-card--standard .ec-card__actions { display: none; }
+
+/* ============================================================
+   DEAL layout (ec-card--deal)
+   Desktop: no floating actions, always show bottom button
+   Mobile ≤480px: horizontal card, show bottom button
+   ============================================================ */
+
+.ec-card--deal .ec-card__float    { display: none !important; }
+.ec-card--deal .ec-card__actions  { display: block; }
+
+.ec-card--deal .ec-card__price-amount {
+    font-size: 22px;
+}
+
+/* ============================================================
+   RESPONSIVE — tablet (481px – 768px) floating btn size
+   ============================================================ */
+
+@media (min-width: 481px) and (max-width: 768px) {
+    .ec-card__float-btn,
+    .ec-card__float-toggle {
+        width: 18px;
+        height: 18px;
+    }
+    .ec-card__float-btn i { font-size: 9px; }
+    .ec-card__float-capsule.active { padding: 2px; gap: 2px; }
+}
+
+/* ============================================================
+   RESPONSIVE — mobile ≤480px
+   All layouts: hide floating, show bottom button, horizontal
+   ============================================================ */
+
+@media (max-width: 480px) {
+    /* Show bottom button for offer & standard on mobile */
+    .ec-card--offer .ec-card__actions,
+    .ec-card--standard .ec-card__actions {
+        display: block !important;
+        margin-top: 6px;
     }
 
-    .ps-block--offers .ps-product:hover,
-    .ps-block--offers .ps-product--offer:hover {
-        border-color: transparent !important;
-    }
-
-    .ps-block--offers .ps-product,
-    .ps-block--offers .ps-product--offer,
-    .ps-product--offer {
-        background: transparent !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        position: relative;
-    }
-
-    /* Card Link Overlay */
-    .ps-product--offer .ps-product__card-link {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 1;
-        cursor: pointer;
-    }
-
-    .ps-product--offer .ps-product__thumbnail,
-    .ps-product--offer .ps-product__title,
-    .ps-product--offer .ps-product__rating,
-    .ps-product--offer .ps-product__seller,
-    .ps-product--offer .ps-product__badges {
-        position: relative;
-        z-index: 2;
-    }
-
-    /* Thumbnail */
-    .ps-product--offer .ps-product__thumbnail {
-        padding:7px;
-        background:var(--global-color-card-bg);
-        border-radius:7px;
-        position: relative;
-        margin-bottom: 5px;
-        border: none !important;
-        outline: none !important;
-    }
-
-    .ps-product--offer .ps-product__thumbnail a {
-        display: block;
-        outline: none !important;
-        border: none !important;
-    }
-
-    .ps-product--offer .ps-product__thumbnail img {
-        width: 100%;
-        height: auto;
-        border-radius: 4px;
-        outline: none !important;
-        border: none !important;
-    }
-
-    /* Product Container */
-    .ps-product--offer .ps-product__container {
-        padding: 0;
-        margin: 0;
-        border: none !important;
-        outline: none !important;
-    }
-
-    .ps-product--offer .ps-product__content {
-        padding: 0;
-        margin: 0;
-        border: none !important;
-        outline: none !important;
-    }
-
-    /* Discount & Regular Price Row */
-    .ps-product--offer .ps-product__price-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 5px;
-    }
-
-    /* Sale Duration Line */
-    .ps-product--offer .ps-product__sale-duration {
-        width: fit-content;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        margin-bottom: 5px;
-        font-size: 10px;
-        line-height: 1.2;
-        position: relative;
-        z-index: 100;
-    }
-
-    .ps-product--offer .ps-product__sale-duration .duration-text {
-        color: #565959;
-        font-weight: 400;
-    }
-
-    .ps-product--offer .ps-product__sale-duration.limited-time .duration-text {
-        color: #565959;
-        font-weight: 400;
-    }
-
-    .ps-product--offer .ps-product__sale-duration .info-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 11px;
-        height: 11px;
-        border: 1px solid var(--global-color-text-subtle);
-        border-radius: 50%;
-        position: relative;
-        cursor: help;
-        flex-shrink: 0;
-        margin-left: 2px;
-        padding: 4px;
-    }
-
-    .ps-product--offer .ps-product__sale-duration .info-icon i {
-        font-size: 7px;
-        color: var(--global-color-text-subtle);
-        font-weight: 600;
-        font-style: normal;
-        line-height: 1;
-    }
-
-    .ps-product--offer .ps-product__sale-duration .info-icon i::before {
-        content: 'i';
-        font-family: Georgia, serif;
-        font-weight: 600;
-        font-style: normal;
-    }
-
-    /* Tooltip Styles */
-    .ps-product--offer .ps-product__sale-duration .info-icon::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #fff;
-        color: #0F1111;
-        padding: 8px 12px;
-        border-radius: 8px;
-        border: 1px solid #D5D9D9;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 2px rgba(0, 0, 0, 0.08);
-        font-size: 10px;
-        white-space: normal;
-        width: 180px;
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transition: opacity 0.15s ease, visibility 0.15s ease;
-        z-index: 9999;
-        line-height: 1.4;
-        font-weight: 400;
-        text-align: left;
-    }
-
-    .ps-product--offer .ps-product__sale-duration .info-icon::before {
-        content: '';
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        border: 6px solid transparent;
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transition: opacity 0.15s ease, visibility 0.15s ease;
-        z-index: 10000;
-    }
-
-    /* Tooltip positioning - show above by default */
-    .ps-product--offer .ps-product__sale-duration .info-icon::after {
-        bottom: calc(100% + 8px);
-    }
-
-    .ps-product--offer .ps-product__sale-duration .info-icon::before {
-        bottom: calc(100% + 2px);
-        border-top-color: #fff;
-        filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.05));
-    }
-
-    .ps-product--offer .ps-product__sale-duration .info-icon:hover::after,
-    .ps-product--offer .ps-product__sale-duration .info-icon:hover::before {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .ps-product--offer .ps-product__discount-badge {
-        display: inline-block;
-        background: var(--global-color-success);
-        color: #fff;
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .ps-product--offer .ps-product__regular-price {
-        font-size: 13px;
-        color: var(--global-color-text-muted);
-        opacity: 0.7;
-    }
-
-    /* Sale Price & Sold Count Row */
-    .ps-product--offer .ps-product__sale-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-
-    .ps-product--offer .ps-product__price {
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .ps-product--offer .ps-product__price-amount {
-        font-size: 18px !important;
-        font-weight: 400 !important;
-        color: var(--global-color-alert) !important;
-    }
-
-    .ps-product--offer .ps-product__sold-count {
-        font-size: 11px !important;
-        color: var(--global-color-text-muted) !important;
-        white-space: nowrap;
-        margin-left: 4px;
-    }
-
-    /* Product Title */
-    .ps-product.ps-product--offer .ps-product__title,
-    .ps-product--offer .ps-product__title {
-        font-size: 13px;
-        font-weight: 400;
-        color: var(--global-color-text-main);
-        text-decoration: none;
-        display: -webkit-box !important;
-        -webkit-line-clamp: 3 !important;
-        -webkit-box-orient: vertical !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        margin-bottom: 10px;
-        line-height: 1.4 !important;
-        max-height: none !important;
-        padding: 0 !important;
-        word-break: break-word;
-        transition: color 0.3s ease;
-    }
-
-    .ps-product--offer .ps-product__title:hover {
-        color: var(--global-color-alert-text);
-    }
-
-    /* Rating Widget */
-    .ps-product--offer .ps-product__rating {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 6px;
-        font-size: 12px;
-        text-decoration: none;
-        color: inherit;
-        width: fit-content;
-        transition: opacity 0.3s ease;
-    }
-
-    .ps-product--offer .ps-product__rating:hover {
-        opacity: 0.8;
-    }
-
-    .ps-product--offer .ps-product__rating .rating-number {
-        font-weight: 700;
-        color: var(--global-color-text-main);
-        margin-left: 0;
-    }
-
-    .ps-product--offer .ps-product__rating .rating-stars {
-        display: flex;
-        gap: 2px;
-    }
-
-    .ps-product--offer .ps-product__rating .rating-stars i {
-        font-size: 12px;
-        color: #ddd;
-    }
-
-    .ps-product--offer .ps-product__rating .rating-stars i.filled {
-        color: #ffa500;
-    }
-
-    .ps-product--offer .ps-product__rating .rating-stars i.half-filled {
-        color: #ffa500;
-        opacity: 0.5;
-    }
-
-    .ps-product--offer .ps-product__rating .rating-count {
-        color: #999;
-    }
-
-    /* Seller Information */
-    .ps-product--offer .ps-product__seller {
-        margin-top: 0;
-        font-size: 12px;
-        display: inline-block;
-        color: var(--global-color-link);
-        text-decoration: none;
-        cursor: pointer;
-        transition: color 0.3s ease;
-    }
-
-    .ps-product--offer .ps-product__seller:hover {
-        color: var(--global-color-link-hover);
-        text-decoration: underline;
-    }
-
-    /* Badges */
-    .ps-product--offer .ps-product__badges {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 5;
-    }
-
-    .ps-product--offer .ps-product__badge {
-        background: var(--global-color-primary);
-        color: var(--global-color-text-on-dark);
-        padding: 5px 10px;
-        border-radius: 3px;
-        font-size: 11px;
-        font-weight: 600;
-        display: inline-block;
-        margin-bottom: 5px;
-    }
-
-    .ps-product--offer .ps-product__badge.out-stock {
-        background: var(--global-color-alert);
-    }
-
-    /* Mobile Button - Hidden on desktop */
-    .ps-product__mobile-button {
-        display: none;
-    }
-
-    /* Action Buttons - Hidden on desktop for offers */
-    .ps-product--offer .ps-product__actions {
+    /* Hide floating actions on mobile for all layouts */
+    .ec-card--offer .ec-card__float,
+    .ec-card--standard .ec-card__float {
         display: none !important;
     }
 
-    /* Floating Action Button */
-    .ps-product--offer .ps-product__floating-actions {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        z-index: 20 !important;
-    }
-
-    .ps-product--offer .ps-floating-actions-capsule {
-        display: flex;
-        align-items: center;
-        gap: 0;
-        background: transparent;
-        border-radius: 50px;
-        padding: 0;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        justify-content: flex-end;
-        border: 1px solid transparent;
-        width: auto;
-    }
-
-    /* When active, show the capsule background */
-    .ps-product--offer .ps-floating-actions-capsule.active {
-        background: var(--global-color-site-bg, #f5f5f5);
-        border: 1px solid var(--global-color-primary-border);
-        padding: 4px;
-        gap: 4px;
-    }
-
-    /* Desktop hover - show on hover (only on devices with hover capability) */
-    @media (hover: hover) and (pointer: fine) {
-        .ps-product--offer .ps-floating-actions-capsule:hover {
-            background: var(--global-color-site-bg, #f5f5f5);
-            border: 1px solid var(--global-color-primary-border);
-            padding: 4px;
-            gap: 4px;
-        }
-        
-        .ps-product--offer .ps-floating-actions-capsule:hover .ps-floating-action {
-            display: flex !important;
-            opacity: 1 !important;
-            transform: scale(1) !important;
-        }
-        
-        .ps-product--offer .ps-floating-actions-capsule:hover .ps-toggle-icon {
-            transform: rotate(90deg) !important;
-        }
-        
-        .ps-product--offer .ps-floating-actions-capsule:hover .ps-toggle-horizontal {
-            opacity: 0 !important;
-        }
-        
-        .ps-product--offer .ps-floating-actions-capsule:hover .ps-toggle-vertical {
-            opacity: 1 !important;
-        }
-    }
-
-    /* Mobile - active class behavior (only on touch devices) */
-    @media (hover: none) or (pointer: coarse) {
-        .ps-product--offer .ps-floating-actions-capsule.active .ps-floating-action {
-            display: flex !important;
-        }
-    }
-
-    /* Mobile responsive - make everything smaller to fit */
-    @media (max-width: 768px) {
-        .ps-product--offer .ps-product__floating-actions {
-            right: 3.5px;
-            bottom: 7px;
-        }
-
-        .ps-product--offer .ps-floating-actions-capsule.active {
-            padding: 1px;
-            gap: 0px;
-        }
-
-        .ps-product--offer .ps-floating-action {
-            width: 14px;
-            height: 14px;
-            margin: 0 -1px;
-        }
-
-        .ps-product--offer .ps-floating-action:first-child {
-            margin-left: 0;
-        }
-
-        .ps-product--offer .ps-floating-action i {
-            font-size: 7px;
-        }
-
-        /* Disable staggered animation on mobile */
-        .ps-product--offer .ps-floating-actions-capsule.active .ps-floating-action {
-            transition: opacity 0.3s ease 0s, transform 0.3s ease 0s !important;
-        }
-
-        .ps-product--offer .ps-floating-toggle {
-            width: 14px;
-            height: 14px;
-            margin: 0 0 0 -1px;
-        }
-
-        .ps-product--offer .ps-toggle-icon {
-            width: 5px;
-            height: 5px;
-        }
-
-        .ps-product--offer .ps-toggle-horizontal {
-            width: 5px;
-            height: 1px;
-            margin-top: -0.5px;
-        }
-
-        .ps-product--offer .ps-toggle-vertical {
-            width: 1px;
-            height: 5px;
-            margin-left: -0.5px;
-        }
-
-        .ps-product--offer .ps-toggle-minus {
-            width: 5px;
-            height: 1px;
-            margin-top: -0.5px;
-            display: none !important;
-            opacity: 0 !important;
-        }
-    }
-
-    /* Hide action buttons by default */
-    .ps-product--offer .ps-floating-action {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: transparent;
-        color: var(--global-color-text-main);
-        border: none;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: opacity 0.3s ease 0s, transform 0.3s ease 0s;
-        flex-shrink: 0;
-        opacity: 0;
-        transform: scale(0);
-        position: relative;
-    }
-
-    /* Show action buttons when active */
-    .ps-product--offer .ps-floating-actions-capsule.active .ps-floating-action {
-        display: flex;
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    /* Staggered animation for each button */
-    .ps-product--offer .ps-floating-actions-capsule.active .ps-floating-action:nth-child(1) {
-        transition: opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s;
-    }
-    .ps-product--offer .ps-floating-actions-capsule.active .ps-floating-action:nth-child(2) {
-        transition: opacity 0.3s ease 0.15s, transform 0.3s ease 0.15s;
-    }
-    .ps-product--offer .ps-floating-actions-capsule.active .ps-floating-action:nth-child(3) {
-        transition: opacity 0.3s ease 0.2s, transform 0.3s ease 0.2s;
-    }
-    .ps-product--offer .ps-floating-actions-capsule.active .ps-floating-action:nth-child(4) {
-        transition: opacity 0.3s ease 0.25s, transform 0.3s ease 0.25s;
-    }
-
-    .ps-product--offer .ps-floating-action:hover {
-        border: 1px solid var(--global-color-text-body);
-    }
-
-    .ps-product--offer .ps-floating-action i {
-        font-size: 14px;
-    }
-
-    /* Loading state for action buttons */
-    .ps-product--offer .ps-floating-action.button-loading {
-        pointer-events: none;
-        position: relative;
-    }
-
-    .ps-product--offer .ps-floating-action.button-loading i {
-        opacity: 0.3;
-    }
-
-    .ps-product--offer .ps-floating-action.button-loading::after {
-        content: '';
-        position: absolute;
-        width: 16px;
-        height: 16px;
-        border: 2px solid var(--global-color-text-main);
-        border-top-color: transparent;
-        border-radius: 50%;
-        animation: floatingButtonSpin 0.6s linear infinite;
-    }
-
-    @keyframes floatingButtonSpin {
-        to { transform: rotate(360deg); }
-    }
-
-    /* Toggle button - always visible */
-    .ps-product--offer .ps-floating-toggle {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: var(--global-color-warning);
-        color: var(--global-color-text-main);
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        flex-shrink: 0;
-        position: relative;
-        z-index: 1;
-        overflow: visible;
-    }
-
-    .ps-product--offer .ps-toggle-icon {
-        width: 14px;
-        height: 14px;
-        position: relative;
-        display: inline-block;
-        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .ps-product--offer .ps-toggle-line {
-        position: absolute;
-        background-color: currentColor;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: 1px;
-    }
-
-    .ps-product--offer .ps-toggle-horizontal {
-        width: 14px;
-        height: 2px;
-        top: 50%;
-        left: 0;
-        margin-top: -1px;
-        opacity: 1;
-    }
-
-    .ps-product--offer .ps-toggle-vertical {
-        width: 2px;
-        height: 14px;
-        left: 50%;
-        top: 0;
-        margin-left: -1px;
-        opacity: 1;
-    }
-
-    /* When active, rotate and swap lines */
-    .ps-product--offer .ps-floating-actions-capsule.active .ps-toggle-icon {
-        transform: rotate(90deg);
-    }
-
-    /* Hide the horizontal line (becomes vertical after rotation) */
-    .ps-product--offer .ps-floating-actions-capsule.active .ps-toggle-horizontal {
-        opacity: 0;
-    }
-
-    /* Keep the vertical line (becomes horizontal after rotation) */
-    .ps-product--offer .ps-floating-actions-capsule.active .ps-toggle-vertical {
-        opacity: 1;
-    }
-
-    /* Hide the extra minus line - not needed */
-    .ps-product--offer .ps-floating-actions-capsule.active .ps-toggle-minus {
-        opacity: 0;
-    }
-
-    /* Responsive Styles */
-    @media (max-width: 892px) {
-        .ps-product--offer {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .ps-product--offer .ps-product__thumbnail {
-            margin-bottom: 5px;
-        }
-
-        .ps-product.ps-product--offer .ps-product__title,
-        .ps-product--offer .ps-product__title {
-            font-size: 12px;
-            margin-bottom: 8px;
-            display: -webkit-box !important;
-            -webkit-line-clamp: 3 !important;
-            -webkit-box-orient: vertical !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            line-height: 1.4 !important;
-            max-height: none !important;
-            padding: 0 !important;
-            word-break: break-word;
-        }
-
-        .ps-product--offer .ps-product__price-amount {
-            font-size: 17px !important;
-        }
-
-        .ps-product--offer .ps-product__seller {
-            margin-top: auto;
-        }
-    }
-
-    @media (max-width: 480px) {
-        /* Each product card on mobile: horizontal flex layout */
-        .ps-product--offer {
-            display: flex !important;
-            flex-direction: row !important;
-            gap: 0 !important;
-            align-items: stretch !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-
-        /* Thumbnail: left side - full height with centered image */
-        .ps-product--offer .ps-product__thumbnail {
-            width: 130px !important;
-            flex-shrink: 0 !important;
-            margin: 0 !important;
-            padding: 6px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            background: var(--global-color-card-bg) !important;
-            border-radius: 8px 0 0 8px !important;
-        }
-
-        .ps-product--offer .ps-product__thumbnail a {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-        .ps-product--offer .ps-product__thumbnail img {
-            width: 100% !important;
-            height: auto !important;
-            border-radius: 3px !important;
-            object-fit: contain !important;
-        }
-
-        /* Info: right side (contains button) - flexible width with border */
-        .ps-product--offer .ps-product__container {
-            flex: 1 !important;
-            padding: 8px 10px !important;
-            margin: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            min-width: 0 !important;
-            border: 1px solid var(--global-color-primary-border) !important;
-            border-left: none !important;
-            border-radius: 0 8px 8px 0 !important;
-            background: transparent !important;
-        }
-
-        .ps-product--offer .ps-product__content {
-            padding: 0 !important;
-            margin: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            height: 100% !important;
-        }
-
-        /* Hide floating actions on mobile - show button instead */
-        .ps-product--offer .ps-product__floating-actions {
-            display: none !important;
-        }
-
-        /* Show action buttons on mobile */
-        .ps-product--offer .ps-product__actions {
-            display: block !important;
-            margin-top: 6px !important;
-        }
-
-        /* Style buttons for mobile */
-        .ps-product--offer .ps-btn {
-            width: 100% !important;
-            padding: 7px 12px !important;
-            border-radius: 16px !important;
-            font-size: 11px !important;
-            font-weight: 500 !important;
-            cursor: pointer !important;
-            position: relative !important;
-            z-index: 50 !important;
-            text-align: center !important;
-            text-decoration: none !important;
-            display: block !important;
-            transition: all 0.3s ease !important;
-            border: none !important;
-        }
-
-        /* Add to Cart button */
-        .ps-product--offer .ps-btn.add-to-cart-button {
-            background: var(--global-color-warning) !important;
-            color: var(--global-color-text-main) !important;
-        }
-
-        .ps-product--offer .ps-btn.add-to-cart-button:hover {
-            opacity: 0.9 !important;
-        }
-
-        /* Select Options button */
-        .ps-product--offer .ps-btn:not(.add-to-cart-button) {
-            background: transparent !important;
-            color: var(--global-color-text-main) !important;
-            border: 1px solid var(--global-color-text-main) !important;
-        }
-
-        .ps-product--offer .ps-btn:not(.add-to-cart-button):hover {
-            background: var(--global-color-text-main) !important;
-            color: var(--global-color-text-on-dark) !important;
-        }
-
-        /* Adjust text sizes for mobile */
-        .ps-product.ps-product--offer .ps-product__title,
-        .ps-product--offer .ps-product__title {
-            font-size: 11px !important;
-            line-height: 1.4 !important;
-            margin-bottom: 4px !important;
-            max-height: none !important;
-            min-height: auto !important;
-            padding: 0 !important;
-        }
-
-        .ps-product--offer .ps-product__price-amount {
-            font-size: 15px !important;
-        }
-
-        .ps-product--offer .ps-product__sold-count {
-            font-size: 9px !important;
-        }
-
-        .ps-product--offer .ps-product__rating {
-            font-size: 9px !important;
-            margin-bottom: 3px !important;
-        }
-
-        .ps-product--offer .ps-product__rating .rating-stars i {
-            font-size: 9px !important;
-        }
-
-        .ps-product--offer .ps-product__seller {
-            font-size: 9px !important;
-        }
-
-        .ps-product--offer .ps-product__sale-duration {
-            font-size: 8px !important;
-        }
-
-        .ps-product--offer .ps-product__discount-badge {
-            font-size: 9px !important;
-            padding: 1px 4px !important;
-        }
-
-        .ps-product--offer .ps-product__regular-price {
-            font-size: 10px !important;
-        }
-
-        .ps-product--offer .ps-product__price-row {
-            margin-bottom: 3px !important;
-        }
-
-        .ps-product--offer .ps-product__sale-row {
-            margin-bottom: 4px !important;
-        }
-
-        /* Badge styling on mobile */
-        .ps-product--offer .ps-product__badge {
-            padding: 2px 7px !important;
-        }
-    }
-
-/* ── DEAL LAYOUT ──────────────────────────────────────────── */
-/* Deal Product Base Styles */
-    .ps-deal-of-day .ps-product,
-    .ps-deal-of-day .ps-product--deal {
-        border: 1px solid transparent !important;
-    }
-
-    .ps-deal-of-day .ps-product:hover,
-    .ps-deal-of-day .ps-product--deal:hover {
-        border-color: transparent !important;
-    }
-
-    .ps-block--deal-of-day .ps-product,
-    .ps-block--deal-of-day .ps-product--deal,
-    .ps-product--deal {
-        background: transparent !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        position: relative;
-    }
-
-    /* Card Link Overlay */
-    .ps-product--deal .ps-product__card-link {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 1;
-        cursor: pointer;
-    }
-
-    .ps-product--deal .ps-product__thumbnail,
-    .ps-product--deal .ps-product__title,
-    .ps-product--deal .ps-product__rating,
-    .ps-product--deal .ps-product__actions,
-    .ps-product--deal .ps-product__badges {
-        position: relative;
-        z-index: 2;
-    }
-
-    /* Thumbnail */
-    .ps-product--deal .ps-product__thumbnail {
-        padding:7px;
-        background:var(--global-color-card-bg);
-        border-radius:7px;
-        position: relative;
-        margin-bottom: 5px;
-        border: none !important;
-        outline: none !important;
-    }
-
-    .ps-product--deal .ps-product__thumbnail a {
-        display: block;
-        outline: none !important;
-        border: none !important;
-    }
-
-    .ps-product--deal .ps-product__thumbnail img {
-        width: 100%;
-        height: auto;
-        border-radius: 4px;
-        outline: none !important;
-        border: none !important;
-    }
-
-    /* Product Container */
-    .ps-product--deal .ps-product__container {
-        padding: 0;
-        margin: 0;
-        border: none !important;
-        outline: none !important;
-    }
-
-    .ps-product--deal .ps-product__content {
-        padding: 0;
-        margin: 0;
-        border: none !important;
-        outline: none !important;
-    }
-
-    /* Discount & Regular Price Row */
-    .ps-product--deal .ps-product__price-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 5px;
-    }
-
-    /* Sale Duration Line */
-    .ps-product--deal .ps-product__sale-duration {
-        width: fit-content;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        margin-bottom: 5px;
-        font-size: 10px;
-        line-height: 1.2;
-        position: relative;
-        z-index: 3;
-    }
-
-    .ps-product--deal .ps-product__sale-duration .duration-text {
-        color: #565959;
-        font-weight: 400;
-    }
-
-    .ps-product--deal .ps-product__sale-duration.limited-time .duration-text {
-        color: #565959;
-        font-weight: 400;
-    }
-
-    .ps-product--deal .ps-product__sale-duration .info-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 11px;
-        height: 11px;
-        border: 1px solid var(--global-color-text-subtle);
-        border-radius: 50%;
-        position: relative;
-        cursor: help;
-        flex-shrink: 0;
-        margin-left: 2px;
-        padding: 4px;
-    }
-
-    .ps-product--deal .ps-product__sale-duration .info-icon i {
-        font-size: 7px;
-        color: var(--global-color-text-subtle);
-        font-weight: 600;
-        font-style: normal;
-        line-height: 1;
-    }
-
-    .ps-product--deal .ps-product__sale-duration .info-icon i::before {
-        content: 'i';
-        font-family: Georgia, serif;
-        font-weight: 600;
-        font-style: normal;
-    }
-
-    /* Tooltip Styles */
-    .ps-product--deal .ps-product__sale-duration .info-icon::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #fff;
-        color: #0F1111;
-        padding: 8px 12px;
-        border-radius: 8px;
-        border: 1px solid #D5D9D9;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 2px rgba(0, 0, 0, 0.08);
-        font-size: 10px;
-        white-space: normal;
-        width: 180px;
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transition: opacity 0.15s ease, visibility 0.15s ease;
-        z-index: 9999;
-        line-height: 1.4;
-        font-weight: 400;
-        text-align: left;
-    }
-
-    .ps-product--deal .ps-product__sale-duration .info-icon::before {
-        content: '';
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        border: 6px solid transparent;
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transition: opacity 0.15s ease, visibility 0.15s ease;
-        z-index: 10000;
-    }
-
-    /* Tooltip positioning - show above by default */
-    .ps-product--deal .ps-product__sale-duration .info-icon::after {
-        bottom: calc(100% + 8px);
-    }
-
-    .ps-product--deal .ps-product__sale-duration .info-icon::before {
-        bottom: calc(100% + 2px);
-        border-top-color: #fff;
-        filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.05));
-    }
-
-    .ps-product--deal .ps-product__sale-duration .info-icon:hover::after,
-    .ps-product--deal .ps-product__sale-duration .info-icon:hover::before {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .ps-product--deal .ps-product__discount-badge {
-        display: inline-block;
-        background: var(--global-color-success);
-        color: #fff;
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .ps-product--deal .ps-product__regular-price {
-        font-size: 13px;
-        color: var(--global-color-text-muted);
-        opacity: 0.7;
-    }
-
-    /* Sale Price & Sold Count Row */
-    .ps-product--deal .ps-product__sale-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-
-    .ps-product--deal .ps-product__price {
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .ps-product--deal .ps-product__price-amount {
-        font-size: 22px !important;
-        font-weight: 400 !important;
-        color: var(--global-color-alert) !important;
-    }
-
-    .ps-product--deal .ps-product__sold-count {
+    /* Mobile button sizing */
+    .ec-card--offer .ec-card__btn,
+    .ec-card--standard .ec-card__btn,
+    .ec-card--deal .ec-card__btn {
+        padding: 7px 12px !important;
+        border-radius: 16px !important;
         font-size: 11px !important;
-        color: var(--global-color-text-muted) !important;
-        white-space: nowrap;
-        margin-left: 4px;
     }
 
-    /* Product Title */
-    .ps-product--deal .ps-product__title {
-        font-size: 13px;
-        font-weight: 400;
-        color: var(--global-color-text-main);
-        text-decoration: none;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin-bottom: 10px;
-        line-height: 1.4;
-        max-height: calc(1.4em * 2);
-        word-break: break-word;
-        transition: color 0.3s ease;
+    /* Horizontal card layout */
+    .ec-card--offer,
+    .ec-card--deal,
+    .ec-card--standard {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 0 !important;
+        align-items: stretch !important;
+        margin-bottom: 12px !important;
     }
 
-    .ps-product--deal .ps-product__title:hover {
-        color: var(--global-color-alert-text);
+    /* Thumbnail — left side */
+    .ec-card--offer .ec-card__thumb,
+    .ec-card--deal .ec-card__thumb,
+    .ec-card--standard .ec-card__thumb {
+        width: 130px !important;
+        flex-shrink: 0 !important;
+        margin-bottom: 0 !important;
+        border-radius: 8px 0 0 8px !important;
+        padding: 6px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
-    /* Rating Widget */
-    .ps-product--deal .ps-product__rating {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 12px;
-        font-size: 12px;
-        text-decoration: none;
-        color: inherit;
-        width: fit-content;
-        transition: opacity 0.3s ease;
-    }
-
-    .ps-product--deal .ps-product__rating:hover {
-        opacity: 0.8;
-    }
-
-    .ps-product--deal .ps-product__rating .rating-number {
-        font-weight: 700;
-        color: var(--global-color-text-main);
-        margin-left: 0;
-    }
-
-    .ps-product--deal .ps-product__rating .rating-stars {
-        display: flex;
-        gap: 2px;
-    }
-
-    .ps-product--deal .ps-product__rating .rating-stars i {
-        font-size: 12px;
-        color: #ddd;
-    }
-
-    .ps-product--deal .ps-product__rating .rating-stars i.filled {
-        color: #ffa500;
-    }
-
-    .ps-product--deal .ps-product__rating .rating-stars i.half-filled {
-        color: #ffa500;
-        opacity: 0.5;
-    }
-
-    .ps-product--deal .ps-product__rating .rating-count {
-        color: #999;
-    }
-
-    /* Action Button */
-    .ps-product--deal .ps-product__actions {
-        margin-top: 12px;
-        background: transparent;
+    .ec-card--offer .ec-card__thumb a,
+    .ec-card--deal .ec-card__thumb a,
+    .ec-card--standard .ec-card__thumb a {
+        display: flex !important;
+        align-items: center !important;
         width: 100% !important;
-        max-width: 100% !important;
     }
 
-    /* Add to Cart button - warning background */
-    .ps-product--deal .ps-btn.add-to-cart-button {
-        width: 100%;
-        padding: 10px 15px;
-        background: var(--global-color-warning);
-        color: var(--global-color-text-main);
-        border: none;
-        border-radius: 50px;
-        font-size: 14px;
-        font-weight: 600;
-        text-align: center;
-        text-decoration: none;
-        display: block;
-        transition: all 0.3s ease;
+    .ec-card--offer .ec-card__thumb img,
+    .ec-card--deal .ec-card__thumb img,
+    .ec-card--standard .ec-card__thumb img {
+        object-fit: contain !important;
+        border-radius: 3px !important;
     }
 
-    .ps-product--deal .ps-btn.add-to-cart-button:hover {
-        opacity: 0.9;
-    }
-
-    /* Select Options button - bordered style */
-    .ps-product--deal .ps-btn:not(.add-to-cart-button) {
-        width: 100%;
-        padding: 10px 15px;
-        background: transparent;
-        color: var(--global-color-text-main);
-        border: 1px solid var(--global-color-text-main);
-        border-radius: 50px;
-        font-size: 14px;
-        font-weight: 600;
-        text-align: center;
-        text-decoration: none;
-        display: block;
-        transition: all 0.3s ease;
-    }
-
-    .ps-product--deal .ps-btn:not(.add-to-cart-button):hover {
-        background: var(--global-color-text-main);
-        color: var(--global-color-text-on-dark);
-    }
-
-    /* Badges */
-    .ps-product--deal .ps-product__badges {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 5;
-    }
-
-    .ps-product--deal .ps-product__badge {
-        background: var(--global-color-primary);
-        color: var(--global-color-text-on-dark);
-        padding: 5px 10px;
-        border-radius: 3px;
-        font-size: 11px;
-        font-weight: 600;
-        display: inline-block;
-        margin-bottom: 5px;
-    }
-
-    .ps-product--deal .ps-product__badge.out-stock {
-        background: var(--global-color-alert);
-    }
-
-    /* Responsive Styles */
-    @media (max-width: 892px) {
-        .ps-product--deal {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .ps-product--deal .ps-product__thumbnail {
-            margin-bottom: 5px;
-        }
-
-        .ps-product--deal .ps-product__title {
-            font-size: 12px;
-            margin-bottom: 8px;
-        }
-
-        .ps-product--deal .ps-product__price-amount {
-            font-size: 19px !important;
-        }
-
-        .ps-product--deal .ps-product__actions {
-            margin-top: auto;
-        }
-
-        .ps-product--deal .ps-btn.add-to-cart-button {
-            padding: 8px 12px;
-            font-size: 13px;
-        }
-
-        .ps-product--deal .ps-btn:not(.add-to-cart-button) {
-            padding: 8px 12px;
-            font-size: 13px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        /* Each deal product on mobile: horizontal flex layout (same as offers) */
-        .ps-product--deal {
-            display: flex !important;
-            flex-direction: row !important;
-            gap: 0 !important;
-            align-items: stretch !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-
-        /* Thumbnail: left side - full height with centered image */
-        .ps-product--deal .ps-product__thumbnail {
-            width: 130px !important;
-            flex-shrink: 0 !important;
-            margin: 0 !important;
-            padding: 6px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            background: var(--global-color-card-bg) !important;
-            border-radius: 8px 0 0 8px !important;
-        }
-
-        .ps-product--deal .ps-product__thumbnail a {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-        .ps-product--deal .ps-product__thumbnail img {
-            width: 100% !important;
-            height: auto !important;
-            border-radius: 3px !important;
-            object-fit: contain !important;
-        }
-
-        /* Info: right side with border */
-        .ps-product--deal .ps-product__container {
-            flex: 1 !important;
-            padding: 8px 10px !important;
-            margin: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            min-width: 0 !important;
-            border: 1px solid var(--global-color-primary-border) !important;
-            border-left: none !important;
-            border-radius: 0 8px 8px 0 !important;
-            background: transparent !important;
-        }
-
-        .ps-product--deal .ps-product__content {
-            padding: 0 !important;
-            margin: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            height: 100% !important;
-        }
-
-        /* Adjust text sizes for mobile */
-        .ps-product.ps-product--deal .ps-product__title,
-        .ps-product--deal .ps-product__title {
-            font-size: 11px !important;
-            line-height: 1.4 !important;
-            margin-bottom: 4px !important;
-            max-height: calc(1.4em * 3) !important;
-            min-height: auto !important;
-            padding: 0 !important;
-            display: -webkit-box !important;
-            -webkit-line-clamp: 3 !important;
-            -webkit-box-orient: vertical !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-        }
-
-        .ps-product--deal .ps-product__price-amount {
-            font-size: 15px !important;
-        }
-
-        .ps-product--deal .ps-product__sold-count {
-            font-size: 9px !important;
-        }
-
-        .ps-product--deal .ps-product__rating {
-            font-size: 9px !important;
-            margin-bottom: 3px !important;
-        }
-
-        .ps-product--deal .ps-product__rating .rating-stars i {
-            font-size: 9px !important;
-        }
-
-        .ps-product--deal .ps-product__sale-duration {
-            font-size: 8px !important;
-        }
-
-        .ps-product--deal .ps-product__discount-badge {
-            font-size: 9px !important;
-            padding: 1px 4px !important;
-        }
-
-        .ps-product--deal .ps-product__regular-price {
-            font-size: 10px !important;
-        }
-
-        .ps-product--deal .ps-product__price-row {
-            margin-bottom: 3px !important;
-        }
-
-        .ps-product--deal .ps-product__sale-row {
-            margin-bottom: 4px !important;
-        }
-
-        /* Button inside the right container */
-        .ps-product--deal .ps-product__actions {
-            margin-top: 6px !important;
-        }
-
-        .ps-product--deal .ps-btn.add-to-cart-button {
-            font-size: 11px !important;
-            padding: 7px 12px !important;
-            border-radius: 16px !important;
-        }
-
-        .ps-product--deal .ps-btn:not(.add-to-cart-button) {
-            font-size: 11px !important;
-            padding: 7px 12px !important;
-            border-radius: 16px !important;
-        }
-
-        /* Badge styling on mobile */
-        .ps-product--deal .ps-product__badge {
-            padding: 2px 7px !important;
-        }
-    }
-
-/* ── STANDARD LAYOUT (same as offer) ─────────────────────── */
-">
-    /* Offer Product Base Styles */
-    .ps-block--standard .ps-product,
-    .ps-block--standard .ps-product--standard {
-        border: 1px solid transparent !important;
-    }
-
-    .ps-block--standard .ps-product:hover,
-    .ps-block--standard .ps-product--standard:hover {
-        border-color: transparent !important;
-    }
-
-    .ps-block--standard .ps-product,
-    .ps-block--standard .ps-product--standard,
-    .ps-product--standard {
+    /* Body — right side */
+    .ec-card--offer .ec-card__body,
+    .ec-card--deal .ec-card__body,
+    .ec-card--standard .ec-card__body {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        min-width: 0 !important;
+        border: 1px solid var(--global-color-primary-border) !important;
+        border-left: none !important;
+        border-radius: 0 8px 8px 0 !important;
+        padding: 8px 10px !important;
         background: transparent !important;
+    }
+
+    .ec-card--offer .ec-card__content,
+    .ec-card--deal .ec-card__content,
+    .ec-card--standard .ec-card__content {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
         padding: 0 !important;
-        margin: 0 !important;
-        position: relative;
     }
 
-    /* Card Link Overlay */
-    .ps-product--standard .ps-product__card-link {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 1;
-        cursor: pointer;
-    }
-
-    .ps-product--standard .ps-product__thumbnail,
-    .ps-product--standard .ps-product__title,
-    .ps-product--standard .ps-product__rating,
-    .ps-product--standard .ps-product__seller,
-    .ps-product--standard .ps-product__badges {
-        position: relative;
-        z-index: 2;
-    }
-
-    /* Thumbnail */
-    .ps-product--standard .ps-product__thumbnail {
-        padding:7px;
-        background:var(--global-color-card-bg);
-        border-radius:7px;
-        position: relative;
-        margin-bottom: 5px;
-        border: none !important;
-        outline: none !important;
-    }
-
-    .ps-product--standard .ps-product__thumbnail a {
-        display: block;
-        outline: none !important;
-        border: none !important;
-    }
-
-    .ps-product--standard .ps-product__thumbnail img {
-        width: 100%;
-        height: auto;
-        border-radius: 4px;
-        outline: none !important;
-        border: none !important;
-    }
-
-    /* Product Container */
-    .ps-product--standard .ps-product__container {
-        padding: 0;
-        margin: 0;
-        border: none !important;
-        outline: none !important;
-    }
-
-    .ps-product--standard .ps-product__content {
-        padding: 0;
-        margin: 0;
-        border: none !important;
-        outline: none !important;
-    }
-
-    /* Discount & Regular Price Row */
-    .ps-product--standard .ps-product__price-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 5px;
-    }
-
-    /* Sale Duration Line */
-    .ps-product--standard .ps-product__sale-duration {
-        width: fit-content;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        margin-bottom: 5px;
-        font-size: 10px;
-        line-height: 1.2;
-        position: relative;
-        z-index: 100;
-    }
-
-    .ps-product--standard .ps-product__sale-duration .duration-text {
-        color: #565959;
-        font-weight: 400;
-    }
-
-    .ps-product--standard .ps-product__sale-duration.limited-time .duration-text {
-        color: #565959;
-        font-weight: 400;
-    }
-
-    .ps-product--standard .ps-product__sale-duration .info-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 11px;
-        height: 11px;
-        border: 1px solid var(--global-color-text-subtle);
-        border-radius: 50%;
-        position: relative;
-        cursor: help;
-        flex-shrink: 0;
-        margin-left: 2px;
-        padding: 4px;
-    }
-
-    .ps-product--standard .ps-product__sale-duration .info-icon i {
-        font-size: 7px;
-        color: var(--global-color-text-subtle);
-        font-weight: 600;
-        font-style: normal;
-        line-height: 1;
-    }
-
-    .ps-product--standard .ps-product__sale-duration .info-icon i::before {
-        content: 'i';
-        font-family: Georgia, serif;
-        font-weight: 600;
-        font-style: normal;
-    }
-
-    /* Tooltip Styles */
-    .ps-product--standard .ps-product__sale-duration .info-icon::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #fff;
-        color: #0F1111;
-        padding: 8px 12px;
-        border-radius: 8px;
-        border: 1px solid #D5D9D9;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 2px rgba(0, 0, 0, 0.08);
-        font-size: 10px;
-        white-space: normal;
-        width: 180px;
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transition: opacity 0.15s ease, visibility 0.15s ease;
-        z-index: 9999;
-        line-height: 1.4;
-        font-weight: 400;
-        text-align: left;
-    }
-
-    .ps-product--standard .ps-product__sale-duration .info-icon::before {
-        content: '';
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        border: 6px solid transparent;
-        opacity: 0;
-        visibility: hidden;
-        pointer-events: none;
-        transition: opacity 0.15s ease, visibility 0.15s ease;
-        z-index: 10000;
-    }
-
-    /* Tooltip positioning - show above by default */
-    .ps-product--standard .ps-product__sale-duration .info-icon::after {
-        bottom: calc(100% + 8px);
-    }
-
-    .ps-product--standard .ps-product__sale-duration .info-icon::before {
-        bottom: calc(100% + 2px);
-        border-top-color: #fff;
-        filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.05));
-    }
-
-    .ps-product--standard .ps-product__sale-duration .info-icon:hover::after,
-    .ps-product--standard .ps-product__sale-duration .info-icon:hover::before {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .ps-product--standard .ps-product__discount-badge {
-        display: inline-block;
-        background: var(--global-color-success);
-        color: #fff;
-        padding: 2px 6px;
-        border-radius: 3px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .ps-product--standard .ps-product__regular-price {
-        font-size: 13px;
-        color: var(--global-color-text-muted);
-        opacity: 0.7;
-    }
-
-    /* Sale Price & Sold Count Row */
-    .ps-product--standard .ps-product__sale-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-
-    .ps-product--standard .ps-product__price {
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .ps-product--standard .ps-product__price-amount {
-        font-size: 18px !important;
-        font-weight: 400 !important;
-        color: var(--global-color-alert) !important;
-    }
-
-    .ps-product--standard .ps-product__sold-count {
+    /* Smaller text on mobile */
+    .ec-card--offer .ec-card__title,
+    .ec-card--deal .ec-card__title,
+    .ec-card--standard .ec-card__title {
         font-size: 11px !important;
-        color: var(--global-color-text-muted) !important;
-        white-space: nowrap;
-        margin-left: 4px;
-    }
-
-    /* Product Title */
-    .ps-product.ps-product--standard .ps-product__title,
-    .ps-product--standard .ps-product__title {
-        font-size: 13px;
-        font-weight: 400;
-        color: var(--global-color-text-main);
-        text-decoration: none;
-        display: -webkit-box !important;
         -webkit-line-clamp: 3 !important;
-        -webkit-box-orient: vertical !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        margin-bottom: 10px;
-        line-height: 1.4 !important;
-        max-height: none !important;
-        padding: 0 !important;
-        word-break: break-word;
-        transition: color 0.3s ease;
+        margin-bottom: 4px !important;
     }
 
-    .ps-product--standard .ps-product__title:hover {
-        color: var(--global-color-alert-text);
+    .ec-card--offer .ec-card__price-amount,
+    .ec-card--standard .ec-card__price-amount {
+        font-size: 15px !important;
     }
 
-    /* Rating Widget */
-    .ps-product--standard .ps-product__rating {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 6px;
-        font-size: 12px;
-        text-decoration: none;
-        color: inherit;
-        width: fit-content;
-        transition: opacity 0.3s ease;
+    .ec-card--deal .ec-card__price-amount {
+        font-size: 15px !important;
     }
 
-    .ps-product--standard .ps-product__rating:hover {
-        opacity: 0.8;
+    .ec-card--offer .ec-card__rating,
+    .ec-card--deal .ec-card__rating,
+    .ec-card--standard .ec-card__rating {
+        font-size: 9px !important;
+        margin-bottom: 3px !important;
     }
 
-    .ps-product--standard .ps-product__rating .rating-number {
-        font-weight: 700;
-        color: var(--global-color-text-main);
-        margin-left: 0;
+    .ec-card--offer .ec-card__stars i,
+    .ec-card--deal .ec-card__stars i,
+    .ec-card--standard .ec-card__stars i {
+        font-size: 9px !important;
     }
 
-    .ps-product--standard .ps-product__rating .rating-stars {
-        display: flex;
-        gap: 2px;
+    .ec-card--offer .ec-card__badge-discount,
+    .ec-card--deal .ec-card__badge-discount,
+    .ec-card--standard .ec-card__badge-discount {
+        font-size: 9px !important;
+        padding: 1px 4px !important;
     }
 
-    .ps-product--standard .ps-product__rating .rating-stars i {
-        font-size: 12px;
-        color: #ddd;
+    .ec-card--offer .ec-card__price-original,
+    .ec-card--deal .ec-card__price-original,
+    .ec-card--standard .ec-card__price-original {
+        font-size: 10px !important;
     }
 
-    .ps-product--standard .ps-product__rating .rating-stars i.filled {
-        color: #ffa500;
+    .ec-card--offer .ec-card__sale-duration,
+    .ec-card--deal .ec-card__sale-duration,
+    .ec-card--standard .ec-card__sale-duration {
+        font-size: 8px !important;
     }
 
-    .ps-product--standard .ps-product__rating .rating-stars i.half-filled {
-        color: #ffa500;
-        opacity: 0.5;
+    .ec-card--offer .ec-card__sold,
+    .ec-card--deal .ec-card__sold,
+    .ec-card--standard .ec-card__sold {
+        font-size: 9px !important;
     }
 
-    .ps-product--standard .ps-product__rating .rating-count {
-        color: #999;
+    .ec-card--offer .ec-card__actions,
+    .ec-card--deal .ec-card__actions,
+    .ec-card--standard .ec-card__actions {
+        margin-top: 6px !important;
     }
-
-    /* Seller Information */
-    .ps-product--standard .ps-product__seller {
-        margin-top: 0;
-        font-size: 12px;
-        display: inline-block;
-        color: var(--global-color-link);
-        text-decoration: none;
-        cursor: pointer;
-        transition: color 0.3s ease;
-    }
-
-    .ps-product--standard .ps-product__seller:hover {
-        color: var(--global-color-link-hover);
-        text-decoration: underline;
-    }
-
-    /* Badges */
-    .ps-product--standard .ps-product__badges {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        z-index: 5;
-    }
-
-    .ps-product--standard .ps-product__badge {
-        background: var(--global-color-primary);
-        color: var(--global-color-text-on-dark);
-        padding: 5px 10px;
-        border-radius: 3px;
-        font-size: 11px;
-        font-weight: 600;
-        display: inline-block;
-        margin-bottom: 5px;
-    }
-
-    .ps-product--standard .ps-product__badge.out-stock {
-        background: var(--global-color-alert);
-    }
-
-    /* Mobile Button - Hidden on desktop */
-    .ps-product__mobile-button {
-        display: none;
-    }
-
-    /* Action Buttons - Hidden on desktop for offers */
-    .ps-product--standard .ps-product__actions {
-        display: none !important;
-    }
-
-    /* Floating Action Button */
-    .ps-product--standard .ps-product__floating-actions {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        z-index: 20 !important;
-    }
-
-    .ps-product--standard .ps-floating-actions-capsule {
-        display: flex;
-        align-items: center;
-        gap: 0;
-        background: transparent;
-        border-radius: 50px;
-        padding: 0;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        justify-content: flex-end;
-        border: 1px solid transparent;
-        width: auto;
-    }
-
-    /* When active, show the capsule background */
-    .ps-product--standard .ps-floating-actions-capsule.active {
-        background: var(--global-color-site-bg, #f5f5f5);
-        border: 1px solid var(--global-color-primary-border);
-        padding: 4px;
-        gap: 4px;
-    }
-
-    /* Desktop hover - show on hover (only on devices with hover capability) */
-    @media (hover: hover) and (pointer: fine) {
-        .ps-product--standard .ps-floating-actions-capsule:hover {
-            background: var(--global-color-site-bg, #f5f5f5);
-            border: 1px solid var(--global-color-primary-border);
-            padding: 4px;
-            gap: 4px;
-        }
-        
-        .ps-product--standard .ps-floating-actions-capsule:hover .ps-floating-action {
-            display: flex !important;
-            opacity: 1 !important;
-            transform: scale(1) !important;
-        }
-        
-        .ps-product--standard .ps-floating-actions-capsule:hover .ps-toggle-icon {
-            transform: rotate(90deg) !important;
-        }
-        
-        .ps-product--standard .ps-floating-actions-capsule:hover .ps-toggle-horizontal {
-            opacity: 0 !important;
-        }
-        
-        .ps-product--standard .ps-floating-actions-capsule:hover .ps-toggle-vertical {
-            opacity: 1 !important;
-        }
-    }
-
-    /* Mobile - active class behavior (only on touch devices) */
-    @media (hover: none) or (pointer: coarse) {
-        .ps-product--standard .ps-floating-actions-capsule.active .ps-floating-action {
-            display: flex !important;
-        }
-    }
-
-    /* Mobile responsive - make everything smaller to fit */
-    @media (max-width: 768px) {
-        .ps-product--standard .ps-product__floating-actions {
-            right: 3.5px;
-            bottom: 7px;
-        }
-
-        .ps-product--standard .ps-floating-actions-capsule.active {
-            padding: 1px;
-            gap: 0px;
-        }
-
-        .ps-product--standard .ps-floating-action {
-            width: 14px;
-            height: 14px;
-            margin: 0 -1px;
-        }
-
-        .ps-product--standard .ps-floating-action:first-child {
-            margin-left: 0;
-        }
-
-        .ps-product--standard .ps-floating-action i {
-            font-size: 7px;
-        }
-
-        /* Disable staggered animation on mobile */
-        .ps-product--standard .ps-floating-actions-capsule.active .ps-floating-action {
-            transition: opacity 0.3s ease 0s, transform 0.3s ease 0s !important;
-        }
-
-        .ps-product--standard .ps-floating-toggle {
-            width: 14px;
-            height: 14px;
-            margin: 0 0 0 -1px;
-        }
-
-        .ps-product--standard .ps-toggle-icon {
-            width: 5px;
-            height: 5px;
-        }
-
-        .ps-product--standard .ps-toggle-horizontal {
-            width: 5px;
-            height: 1px;
-            margin-top: -0.5px;
-        }
-
-        .ps-product--standard .ps-toggle-vertical {
-            width: 1px;
-            height: 5px;
-            margin-left: -0.5px;
-        }
-
-        .ps-product--standard .ps-toggle-minus {
-            width: 5px;
-            height: 1px;
-            margin-top: -0.5px;
-            display: none !important;
-            opacity: 0 !important;
-        }
-    }
-
-    /* Hide action buttons by default */
-    .ps-product--standard .ps-floating-action {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: transparent;
-        color: var(--global-color-text-main);
-        border: none;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: opacity 0.3s ease 0s, transform 0.3s ease 0s;
-        flex-shrink: 0;
-        opacity: 0;
-        transform: scale(0);
-        position: relative;
-    }
-
-    /* Show action buttons when active */
-    .ps-product--standard .ps-floating-actions-capsule.active .ps-floating-action {
-        display: flex;
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    /* Staggered animation for each button */
-    .ps-product--standard .ps-floating-actions-capsule.active .ps-floating-action:nth-child(1) {
-        transition: opacity 0.3s ease 0.1s, transform 0.3s ease 0.1s;
-    }
-    .ps-product--standard .ps-floating-actions-capsule.active .ps-floating-action:nth-child(2) {
-        transition: opacity 0.3s ease 0.15s, transform 0.3s ease 0.15s;
-    }
-    .ps-product--standard .ps-floating-actions-capsule.active .ps-floating-action:nth-child(3) {
-        transition: opacity 0.3s ease 0.2s, transform 0.3s ease 0.2s;
-    }
-    .ps-product--standard .ps-floating-actions-capsule.active .ps-floating-action:nth-child(4) {
-        transition: opacity 0.3s ease 0.25s, transform 0.3s ease 0.25s;
-    }
-
-    .ps-product--standard .ps-floating-action:hover {
-        border: 1px solid var(--global-color-text-body);
-    }
-
-    .ps-product--standard .ps-floating-action i {
-        font-size: 14px;
-    }
-
-    /* Loading state for action buttons */
-    .ps-product--standard .ps-floating-action.button-loading {
-        pointer-events: none;
-        position: relative;
-    }
-
-    .ps-product--standard .ps-floating-action.button-loading i {
-        opacity: 0.3;
-    }
-
-    .ps-product--standard .ps-floating-action.button-loading::after {
-        content: '';
-        position: absolute;
-        width: 16px;
-        height: 16px;
-        border: 2px solid var(--global-color-text-main);
-        border-top-color: transparent;
-        border-radius: 50%;
-        animation: floatingButtonSpin 0.6s linear infinite;
-    }
-
-    @keyframes floatingButtonSpin {
-        to { transform: rotate(360deg); }
-    }
-
-    /* Toggle button - always visible */
-    .ps-product--standard .ps-floating-toggle {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: var(--global-color-warning);
-        color: var(--global-color-text-main);
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        flex-shrink: 0;
-        position: relative;
-        z-index: 1;
-        overflow: visible;
-    }
-
-    .ps-product--standard .ps-toggle-icon {
-        width: 14px;
-        height: 14px;
-        position: relative;
-        display: inline-block;
-        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .ps-product--standard .ps-toggle-line {
-        position: absolute;
-        background-color: currentColor;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        border-radius: 1px;
-    }
-
-    .ps-product--standard .ps-toggle-horizontal {
-        width: 14px;
-        height: 2px;
-        top: 50%;
-        left: 0;
-        margin-top: -1px;
-        opacity: 1;
-    }
-
-    .ps-product--standard .ps-toggle-vertical {
-        width: 2px;
-        height: 14px;
-        left: 50%;
-        top: 0;
-        margin-left: -1px;
-        opacity: 1;
-    }
-
-    /* When active, rotate and swap lines */
-    .ps-product--standard .ps-floating-actions-capsule.active .ps-toggle-icon {
-        transform: rotate(90deg);
-    }
-
-    /* Hide the horizontal line (becomes vertical after rotation) */
-    .ps-product--standard .ps-floating-actions-capsule.active .ps-toggle-horizontal {
-        opacity: 0;
-    }
-
-    /* Keep the vertical line (becomes horizontal after rotation) */
-    .ps-product--standard .ps-floating-actions-capsule.active .ps-toggle-vertical {
-        opacity: 1;
-    }
-
-    /* Hide the extra minus line - not needed */
-    .ps-product--standard .ps-floating-actions-capsule.active .ps-toggle-minus {
-        opacity: 0;
-    }
-
-    /* Responsive Styles */
-    @media (max-width: 892px) {
-        .ps-product--standard {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .ps-product--standard .ps-product__thumbnail {
-            margin-bottom: 5px;
-        }
-
-        .ps-product.ps-product--standard .ps-product__title,
-        .ps-product--standard .ps-product__title {
-            font-size: 12px;
-            margin-bottom: 8px;
-            display: -webkit-box !important;
-            -webkit-line-clamp: 3 !important;
-            -webkit-box-orient: vertical !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            line-height: 1.4 !important;
-            max-height: none !important;
-            padding: 0 !important;
-            word-break: break-word;
-        }
-
-        .ps-product--standard .ps-product__price-amount {
-            font-size: 17px !important;
-        }
-
-        .ps-product--standard .ps-product__seller {
-            margin-top: auto;
-        }
-    }
-
-    @media (max-width: 480px) {
-        /* Each product card on mobile: horizontal flex layout */
-        .ps-product--standard {
-            display: flex !important;
-            flex-direction: row !important;
-            gap: 0 !important;
-            align-items: stretch !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
-
-        /* Thumbnail: left side - full height with centered image */
-        .ps-product--standard .ps-product__thumbnail {
-            width: 130px !important;
-            flex-shrink: 0 !important;
-            margin: 0 !important;
-            padding: 6px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            background: var(--global-color-card-bg) !important;
-            border-radius: 8px 0 0 8px !important;
-        }
-
-        .ps-product--standard .ps-product__thumbnail a {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-        .ps-product--standard .ps-product__thumbnail img {
-            width: 100% !important;
-            height: auto !important;
-            border-radius: 3px !important;
-            object-fit: contain !important;
-        }
-
-        /* Info: right side (contains button) - flexible width with border */
-        .ps-product--standard .ps-product__container {
-            flex: 1 !important;
-            padding: 8px 10px !important;
-            margin: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            min-width: 0 !important;
-            border: 1px solid var(--global-color-primary-border) !important;
-            border-left: none !important;
-            border-radius: 0 8px 8px 0 !important;
-            background: transparent !important;
-        }
-
-        .ps-product--standard .ps-product__content {
-            padding: 0 !important;
-            margin: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            height: 100% !important;
-        }
-
-        /* Hide floating actions on mobile - show button instead */
-        .ps-product--standard .ps-product__floating-actions {
-            display: none !important;
-        }
-
-        /* Show action buttons on mobile */
-        .ps-product--standard .ps-product__actions {
-            display: block !important;
-            margin-top: 6px !important;
-        }
-
-        /* Style buttons for mobile */
-        .ps-product--standard .ps-btn {
-            width: 100% !important;
-            padding: 7px 12px !important;
-            border-radius: 16px !important;
-            font-size: 11px !important;
-            font-weight: 500 !important;
-            cursor: pointer !important;
-            position: relative !important;
-            z-index: 50 !important;
-            text-align: center !important;
-            text-decoration: none !important;
-            display: block !important;
-            transition: all 0.3s ease !important;
-            border: none !important;
-        }
-
-        /* Add to Cart button */
-        .ps-product--standard .ps-btn.add-to-cart-button {
-            background: var(--global-color-warning) !important;
-            color: var(--global-color-text-main) !important;
-        }
-
-        .ps-product--standard .ps-btn.add-to-cart-button:hover {
-            opacity: 0.9 !important;
-        }
-
-        /* Select Options button */
-        .ps-product--standard .ps-btn:not(.add-to-cart-button) {
-            background: transparent !important;
-            color: var(--global-color-text-main) !important;
-            border: 1px solid var(--global-color-text-main) !important;
-        }
-
-        .ps-product--standard .ps-btn:not(.add-to-cart-button):hover {
-            background: var(--global-color-text-main) !important;
-            color: var(--global-color-text-on-dark) !important;
-        }
-
-        /* Adjust text sizes for mobile */
-        .ps-product.ps-product--standard .ps-product__title,
-        .ps-product--standard .ps-product__title {
-            font-size: 11px !important;
-            line-height: 1.4 !important;
-            margin-bottom: 4px !important;
-            max-height: none !important;
-            min-height: auto !important;
-            padding: 0 !important;
-        }
-
-        .ps-product--standard .ps-product__price-amount {
-            font-size: 15px !important;
-        }
-
-        .ps-product--standard .ps-product__sold-count {
-            font-size: 9px !important;
-        }
-
-        .ps-product--standard .ps-product__rating {
-            font-size: 9px !important;
-            margin-bottom: 3px !important;
-        }
-
-        .ps-product--standard .ps-product__rating .rating-stars i {
-            font-size: 9px !important;
-        }
-
-        .ps-product--standard .ps-product__seller {
-            font-size: 9px !important;
-        }
-
-        .ps-product--standard .ps-product__sale-duration {
-            font-size: 8px !important;
-        }
-
-        .ps-product--standard .ps-product__discount-badge {
-            font-size: 9px !important;
-            padding: 1px 4px !important;
-        }
-
-        .ps-product--standard .ps-product__regular-price {
-            font-size: 10px !important;
-        }
-
-        .ps-product--standard .ps-product__price-row {
-            margin-bottom: 3px !important;
-        }
-
-        .ps-product--standard .ps-product__sale-row {
-            margin-bottom: 4px !important;
-        }
-
-        /* Badge styling on mobile */
-        .ps-product--standard .ps-product__badge {
-            padding: 2px 7px !important;
-        }
-    }
-
+}
