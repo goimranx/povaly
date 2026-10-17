@@ -1,15 +1,19 @@
 .ps-footer {
     padding-top: 70px;
 
+    .ps-container {
+        padding: 0 !important;
+    }
+
     &__widgets {
         display: flex;
         flex-flow: row nowrap;
         justify-content: space-between;
-        padding-bottom: 35px;
+        padding: 0 15px 35px 15px;
     }
 
     &__links {
-        padding: 60px 0;
+        padding: 60px 15px;
         border-top: 1px solid #e1e1e1;
 
         p {
@@ -61,7 +65,7 @@
     }
 
     &__copyright {
-        padding: 35px 0;
+        padding: 35px 15px;
         display: flex;
         flex-flow: row nowrap;
         justify-content: space-between;
@@ -106,12 +110,20 @@
 
     @include media('<xs') {
         &__widgets {
+            padding: 0 10px 35px 10px;
+            
             > * {
                 max-width: 50%;
                 flex-basis: 50%;
             }
         }
+        
+        &__links {
+            padding: 60px 10px;
+        }
+        
         &__copyright {
+            padding: 35px 10px;
             flex-flow: row wrap;
             text-align: center;
 
