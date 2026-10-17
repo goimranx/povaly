@@ -110,14 +110,8 @@
     /* Deal and Offers Section */
     .ps-deal-of-day {
         padding: 0 !important;
-        margin-bottom: 15px;
-        background: var(--global-color-site-bg);
-    }
-
-    .ps-deal-of-day .ps-container {
         margin: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+        background: var(--global-color-site-bg);
     }
 
     /* Left Side - Deal of the Day */
