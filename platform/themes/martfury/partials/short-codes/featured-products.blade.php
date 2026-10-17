@@ -31,7 +31,7 @@
     .ps-block--featured {
         border: none;
         border-radius: 0;
-        padding: 10px;
+        padding: 0;
         height: 100%;
     }
 
