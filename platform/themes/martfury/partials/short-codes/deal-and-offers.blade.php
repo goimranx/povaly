@@ -76,7 +76,7 @@
                                      data-owl-auto="false"
                                      data-owl-loop="true"
                                      data-owl-speed="10000"
-                                     data-owl-gap="30"
+                                     data-owl-gap="10"
                                      data-owl-nav="true"
                                      data-owl-dots="false"
                                      data-owl-item="4"
