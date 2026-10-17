@@ -294,87 +294,34 @@
         pointer-events: none;
     }
 
-    /* Responsive Design - Below 768px (sm breakpoint) convert to grid */
-    @media (max-width: 768px) {
-        /* Remove all padding/margin from parent containers on mobile */
-        .ps-deal-of-day {
-            padding: 0 !important;
-            margin-bottom: 0 !important;
-        }
-
-        .ps-deal-of-day .ps-container {
-            padding: 0 !important;
-        }
-
-        .ps-deal-of-day .ps-section__content {
-            padding: 0 !important;
-        }
-
+    /* Responsive Design - Tablet 768px: Stack vertically, keep carousels with 2 items visible */
+    @media (max-width: 768px) and (min-width: 481px) {
+        /* Stack containers vertically */
         .ps-deal-of-day .row {
-            margin: 0 !important;
+            flex-direction: column !important;
         }
 
         .ps-deal-of-day .col-xl-3,
         .ps-deal-of-day .col-xl-9 {
-            padding: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
             margin-bottom: 15px !important;
         }
 
-        /* Convert carousels to grid layout on mobile */
-        .ps-carousel--offers.owl-slider,
-        .ps-carousel--deal.owl-slider {
-            display: grid !important;
-            width: 100% !important;
-            overflow: visible !important;
+        /* Carousels show 2 items on tablet - Owl will handle this via data-owl-item-sm="2" */
+        .ps-block--deal-of-day,
+        .ps-block--offers {
+            padding: 10px;
+            border-radius: 6px;
         }
 
-        /* Remove border and padding from both blocks on mobile */
-        .ps-deal-of-day .ps-block--offers,
-        .ps-deal-of-day .ps-block--deal-of-day,
-        .ps-block--offers,
-        .ps-block--deal-of-day {
-            border: none !important;
-            padding: 0 !important;
-            border-radius: 0 !important;
+        .ps-block--deal-of-day .ps-block__header,
+        .ps-block--offers .ps-block__header {
+            padding-bottom: 10px;
+            margin-bottom: 0;
         }
-
-        .ps-deal-of-day .ps-block--offers .ps-block__header,
-        .ps-deal-of-day .ps-block--deal-of-day .ps-block__header,
-        .ps-block--offers .ps-block__header,
-        .ps-block--deal-of-day .ps-block__header {
-            padding: 0 10px 10px 10px !important;
-            margin-bottom: 0 !important;
-            border-bottom: none !important;
-        }
-
-        .ps-deal-of-day .ps-block--offers .ps-block__content,
-        .ps-deal-of-day .ps-block--deal-of-day .ps-block__content,
-        .ps-block--offers .ps-block__content,
-        .ps-block--deal-of-day .ps-block__content {
-            padding: 0 !important;
-        }
-
-        /* Hide carousel navigation on mobile */
-        .ps-carousel--offers .owl-nav,
-        .ps-carousel--deal .owl-nav,
-        .deal-carousel-hover-nav .owl-nav,
-        .ps-block--deal-of-day .ps-block__nav {
-            display: none !important;
-        }
-
-        /* Deal products grid - 1 column on mobile */
-        .ps-carousel--deal.owl-slider {
-            grid-template-columns: repeat(1, 1fr) !important;
-            gap: 10px;
-            padding: 0;
-            margin: 0;
-        }
-
-        .ps-carousel--deal .owl-stage-outer,
-        .ps-carousel--deal .owl-stage {
-            display: contents !important;
-            transform: none !important;
-            overflow: visible !important;
+    }
         }
 
         .ps-carousel--deal .owl-item {
