@@ -27,10 +27,10 @@
         background: var(--global-color-site-bg);
     }
 
-    /* Featured Block - Same as Offers */
+    /* Featured Block - Same as Offers but without border */
     .ps-block--featured {
-        border: 1px solid var(--global-color-primary-border);
-        border-radius: 6px;
+        border: none;
+        border-radius: 0;
         padding: 10px;
         height: 100%;
     }
