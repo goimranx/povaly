@@ -192,6 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('{{ route('public.ajax.recently-viewed-products') }}')
             .then(response => response.json())
             .then(data => {
+                console.log('Recently viewed response:', data);
                 spinner.classList.add('d-none');
                 
                 if (data.error === false && data.data && data.data.length > 0) {
@@ -199,9 +200,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     gridContainer.innerHTML = data.data;
                     clearButton.classList.remove('d-none');
                     container.style.display = 'block';
+                    console.log('Showing', data.count, 'products');
                 } else {
                     // Hide entire section if no products
                     container.style.display = 'none';
+                    console.log('No products to show. Error:', data.error, 'Message:', data.message);
                 }
             })
             .catch(error => {

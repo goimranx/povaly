@@ -463,6 +463,7 @@ class PublicProductController extends BaseController
                 ->setData([
                     'error' => true,
                     'data' => '',
+                    'message' => 'Feature is disabled',
                 ]);
         }
 
@@ -474,11 +475,11 @@ class PublicProductController extends BaseController
             'with' => EcommerceHelper::withProductEagerLoadingRelations(),
         ];
 
+        $products = collect();
+        
         if (auth('customer')->check()) {
             $products = $productRepository->getProductsRecentlyViewed(auth('customer')->id(), $queryParams);
         } else {
-            $products = collect();
-            
             $itemIds = collect(Cart::instance('recently_viewed')->content())
                 ->sortBy([['updated_at', 'desc']])
                 ->pluck('id')
@@ -505,6 +506,8 @@ class PublicProductController extends BaseController
             ->setData([
                 'error' => false,
                 'data' => $html,
+                'count' => $products ? $products->count() : 0,
+                'is_logged_in' => auth('customer')->check(),
             ]);
     }
 
