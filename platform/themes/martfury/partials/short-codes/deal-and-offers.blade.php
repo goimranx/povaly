@@ -295,6 +295,7 @@
     }
 
     /* Responsive Design - Tablet 768px: Stack vertically, keep carousels with 2 items visible */
+    /* Tablet (481-768px): Stack vertically, carousels show 2 items */
     @media (max-width: 768px) and (min-width: 481px) {
         /* Stack containers vertically */
         .ps-deal-of-day .row {
@@ -322,29 +323,37 @@
             margin-bottom: 0;
         }
     }
-        }
 
-        .ps-carousel--deal .owl-item {
-            position: static !important;
-            width: auto !important;
-            display: block !important;
-            padding: 0 !important;
+    /* Mobile (≤768px): Convert to grid, 2 columns */
+    @media (max-width: 768px) {
+        /* Stack containers vertically */
+        .ps-deal-of-day .row {
+            flex-direction: column !important;
             margin: 0 !important;
-            transform: none !important;
         }
 
-        .ps-carousel--deal .owl-item.cloned {
-            display: none !important;
+        .ps-deal-of-day .col-xl-3,
+        .ps-deal-of-day .col-xl-9 {
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+            padding: 0 !important;
+            margin-bottom: 15px !important;
         }
 
-        /* Offers products grid - 1 column on mobile */
+        /* Convert carousels to grid - 2 columns */
+        .ps-carousel--deal.owl-slider,
         .ps-carousel--offers.owl-slider {
-            grid-template-columns: repeat(1, 1fr) !important;
-            gap: 10px;
-            padding: 0;
-            margin: 0;
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+            width: 100% !important;
+            overflow: visible !important;
         }
 
+        /* Disable Owl functionality */
+        .ps-carousel--deal .owl-stage-outer,
+        .ps-carousel--deal .owl-stage,
         .ps-carousel--offers .owl-stage-outer,
         .ps-carousel--offers .owl-stage {
             display: contents !important;
@@ -352,6 +361,7 @@
             overflow: visible !important;
         }
 
+        .ps-carousel--deal .owl-item,
         .ps-carousel--offers .owl-item {
             position: static !important;
             width: auto !important;
@@ -361,19 +371,27 @@
             transform: none !important;
         }
 
+        .ps-carousel--deal .owl-item.cloned,
         .ps-carousel--offers .owl-item.cloned {
             display: none !important;
         }
 
-        /* Adjust product items for mobile grid */
-        .ec-card--grid,
-        .ec-card--featured {
+        /* Hide navigation */
+        .ps-carousel--offers .owl-nav,
+        .ps-carousel--deal .owl-nav,
+        .ps-block--deal-of-day .ps-block__nav {
+            display: none !important;
+        }
+
+        /* Card adjustments */
+        .ec-card--flyout,
+        .ec-card--inline {
             width: 100% !important;
             height: auto !important;
             margin: 0 !important;
         }
 
-        /* Remove padding and borders from blocks on mobile */
+        /* Block styling */
         .ps-block--deal-of-day,
         .ps-block--offers {
             padding: 0 !important;
@@ -386,7 +404,6 @@
         .ps-block--offers .ps-block__header {
             padding: 0 10px 10px 10px !important;
             margin-bottom: 0 !important;
-            border-bottom: none !important;
         }
 
         .ps-block--deal-of-day .ps-block__content,
@@ -394,43 +411,8 @@
             padding: 0 !important;
         }
 
-        /* Stack deal and offers vertically */
-        .ps-deal-of-day .row > div {
-            margin-bottom: 15px;
-        }
-
-        .ps-deal-of-day .row > div:last-child {
-            margin-bottom: 0;
-        }
-    }
-
-    /* Very small mobile screens - still 2 columns but more compact */
-    @media (max-width: 480px) {
-        .ps-carousel--deal.owl-slider,
-        .ps-carousel--offers.owl-slider {
-            gap: 10px;
-        }
-        
-        .ps-block--offers .ps-block__header,
-        .ps-block--deal-of-day .ps-block__header {
-            padding: 0 10px 10px 10px !important;
-            margin-bottom: 0 !important;
-        }
-
-        .ps-block--deal-of-day .ps-block__header h3,
-        .ps-block--offers .ps-block__header h3 {
-            font-size: 1.55rem;
-        }
-    }
-
-    @media (max-width: 768px) {
         .ps-deal-of-day {
             margin-bottom: 0 !important;
-        }
-
-        .ps-block--offers .ps-block__nav {
-            width: 100%;
-            justify-content: flex-end;
         }
     }
 </style>
