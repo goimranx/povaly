@@ -301,6 +301,14 @@ Theme::registerRoutes(function (): void {
                 'as' => 'public.ajax.recently-viewed-products',
             ]);
 
+            Route::get('ajax/smart-products-test', function() {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Route is working!',
+                    'timestamp' => now()->toDateTimeString(),
+                ]);
+            })->name('public.ajax.smart-products-test');
+            
             Route::get('ajax/smart-products', [
                 'uses' => 'PublicProductController@ajaxGetSmartProducts',
                 'as' => 'public.ajax.smart-products',

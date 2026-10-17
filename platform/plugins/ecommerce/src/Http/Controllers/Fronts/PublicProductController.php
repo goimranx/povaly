@@ -507,44 +507,62 @@ class PublicProductController extends BaseController
 
     public function ajaxGetSmartProducts(Request $request)
     {
-        $request->validate([
-            'category_id' => 'nullable|integer',
-            'page' => 'required|integer|min:1',
-            'per_page' => 'required|integer|min:1|max:50',
-        ]);
-        
-        $service = app('Botble\Ecommerce\Services\Products\SmartProductService');
-        $categoryId = $request->input('category_id') ? (int)$request->input('category_id') : null;
-        $page = (int)$request->input('page');
-        $perPage = (int)$request->input('per_page');
-        $offset = ($page - 1) * $perPage;
-        
-        // Fetch one extra to check if there are more
-        $limit = $offset + $perPage + 1;
-        
-        // Get smart products with combined scoring
-        $products = $service->getSmartProducts($limit, $categoryId);
-        
-        // Slice to get current page
-        $products = $products->slice($offset, $perPage + 1);
-        $hasMore = $products->count() > $perPage;
-        
-        if ($hasMore) {
-            $products = $products->take($perPage);
-        }
-        
-        $html = '';
-        foreach ($products as $product) {
-            $html .= Theme::scope(
-                'partials.product-card-enhanced',
-                ['product' => $product, 'layout' => 'flyout'],
-                'theme.martfury::partials.product-card-enhanced'
-            )->render();
-        }
-        
-        return $this
-            ->httpResponse()
-            ->setData([
+        try {
+            // Log the incoming request
+            Log::info('Smart Products AJAX Request', [
+                'url' => $request->fullUrl(),
+                'params' => $request->all(),
+                'method' => $request->method(),
+            ]);
+            
+            $request->validate([
+                'category_id' => 'nullable|integer',
+                'page' => 'required|integer|min:1',
+                'per_page' => 'required|integer|min:1|max:50',
+            ]);
+            
+            $service = app('Botble\Ecommerce\Services\Products\SmartProductService');
+            $categoryId = $request->input('category_id') ? (int)$request->input('category_id') : null;
+            $page = (int)$request->input('page');
+            $perPage = (int)$request->input('per_page');
+            $offset = ($page - 1) * $perPage;
+            
+            // Fetch one extra to check if there are more
+            $limit = $offset + $perPage + 1;
+            
+            Log::info('Smart Products Fetching', [
+                'categoryId' => $categoryId,
+                'page' => $page,
+                'perPage' => $perPage,
+                'offset' => $offset,
+                'limit' => $limit,
+            ]);
+            
+            // Get smart products with combined scoring
+            $products = $service->getSmartProducts($limit, $categoryId);
+            
+            Log::info('Smart Products Fetched', [
+                'count' => $products->count(),
+            ]);
+            
+            // Slice to get current page
+            $products = $products->slice($offset, $perPage + 1);
+            $hasMore = $products->count() > $perPage;
+            
+            if ($hasMore) {
+                $products = $products->take($perPage);
+            }
+            
+            $html = '';
+            foreach ($products as $product) {
+                $html .= Theme::scope(
+                    'partials.product-card-enhanced',
+                    ['product' => $product, 'layout' => 'flyout'],
+                    'theme.martfury::partials.product-card-enhanced'
+                )->render();
+            }
+            
+            $response = [
                 'success' => true,
                 'data' => [
                     'html' => $html,
@@ -552,7 +570,36 @@ class PublicProductController extends BaseController
                     'currentPage' => $page,
                     'totalShown' => $offset + $products->count(),
                 ],
+            ];
+            
+            Log::info('Smart Products Response', [
+                'hasMore' => $hasMore,
+                'currentPage' => $page,
+                'htmlLength' => strlen($html),
             ]);
+            
+            return $this
+                ->httpResponse()
+                ->setData($response);
+                
+        } catch (\Exception $e) {
+            Log::error('Smart Products AJAX Error', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            return $this
+                ->httpResponse()
+                ->setError()
+                ->setMessage($e->getMessage())
+                ->setData([
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                    'trace' => config('app.debug') ? $e->getTraceAsString() : null,
+                ]);
+        }
     }
 
     protected function ajaxFilterProductsResponse($products, ?ProductCategory $category = null)
