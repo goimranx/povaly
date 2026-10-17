@@ -103,6 +103,11 @@
 
     /* Navigation Arrows - Desktop only (≥768px) */
     @media (min-width: 768px) {
+        /* Add padding to carousel wrapper to leave space for arrows */
+        .ps-carousel--trending {
+            padding: 0 50px;
+        }
+
         .ps-carousel--trending .owl-nav {
             display: block !important;
             position: absolute;
