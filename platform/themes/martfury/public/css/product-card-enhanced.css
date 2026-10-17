@@ -277,7 +277,7 @@
 
 .ec-card__rating-num {
     font-weight: 700;
-    color: #007185;
+    color: var(--global-color-primary);
     font-size: 12px;
 }
 
