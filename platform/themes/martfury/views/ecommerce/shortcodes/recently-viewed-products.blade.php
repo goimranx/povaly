@@ -34,9 +34,9 @@
         <div class="ps-block--recently-viewed">
             <div class="ps-block__header">
                 <h3>{{ $shortcode->title ?: __('Recently Viewed') }}</h3>
-                <button type="button" class="ps-block__clear-history" data-bs-toggle="modal" data-bs-target="#clearHistoryModal">
+                {{-- <button type="button" class="ps-block__clear-history" data-bs-toggle="modal" data-bs-target="#clearHistoryModal">
                     {{ __('Clear History') }}
-                </button>
+                </button> --}}
             </div>
             <div class="ps-block__content">
                 <div class="ps-grid--recently-viewed">
