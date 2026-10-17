@@ -482,7 +482,7 @@
 
     {{-- Override quick-shop to use offcanvas instead of modal --}}
     <script>
-    (function() {
+    jQuery(document).ready(function($) {
         console.log('[OFFCANVAS DEBUG] Quick view/shop override script loaded');
         
         // Override quick-shop modal behavior to use offcanvas
@@ -569,7 +569,7 @@
         // Test quick view on page load
         console.log('[OFFCANVAS DEBUG] Quick view offcanvas element:', $('#product-quickview')[0]);
         console.log('[OFFCANVAS DEBUG] Quick shop offcanvas element:', $('#quick-shop-modal')[0]);
-    })();
+    });
     </script>
 
     <script>
