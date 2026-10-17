@@ -58,10 +58,16 @@
 .ec-card__badges,
 .ec-card__float,
 .ec-card__actions,
-.ec-card__sale-duration,
-.ec-card__info-icon {
+.ec-card__sale-duration {
     position: relative;
     z-index: 20;
+    pointer-events: auto;
+}
+
+/* Info icon needs higher z-index so its tooltip shows above all other elements */
+.ec-card__info-icon {
+    position: relative;
+    z-index: 30;
     pointer-events: auto;
 }
 
