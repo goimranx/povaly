@@ -3463,10 +3463,4 @@ document.addEventListener('DOMContentLoaded', function () {
 {{-- ?v=filectime — same versioning pattern Botble uses for all theme CSS files --}}
 @php $ecCardCssFile = public_path('themes/' . Theme::getPublicThemeName() . '/css/product-card-enhanced.css'); @endphp
 <link rel="stylesheet" href="{{ Theme::asset()->url('css/product-card-enhanced.css') }}?v={{ file_exists($ecCardCssFile) ? filectime($ecCardCssFile) : '1' }}">
-<style>
-    /* Mobile: reduce ps-container padding to 10px */
-    @media (max-width: 767px) {
-        .ps-container { padding-left: 10px !important; padding-right: 10px !important; }
-    }
-</style>
 </head>
