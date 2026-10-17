@@ -141,7 +141,7 @@
 <style>
     /* Container */
     .ps-custom-banner-grid {
-        padding: 20px 0;
+        padding: 10px 0;
         background: var(--global-color-site-bg);
     }
 

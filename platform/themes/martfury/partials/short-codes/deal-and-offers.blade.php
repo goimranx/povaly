@@ -1,4 +1,4 @@
-<div class="ps-deal-of-day" style="margin: 10px 0;">
+<div class="ps-deal-of-day">
     <div class="ps-container">
         <div class="ps-section__content">
             <div class="row">
@@ -110,7 +110,7 @@
     /* Deal and Offers Section */
     .ps-deal-of-day {
         padding: 0 !important;
-        margin: 0 !important;
+        margin: 10px 0 !important;
         background: var(--global-color-site-bg);
     }
 
