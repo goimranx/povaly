@@ -15,6 +15,7 @@ define('LOG_FILE', BASE_DIR . '/storage/logs/github-deploy.log');
 $filesToDeploy = [
     'platform/themes/martfury/public/js/carousel-init.js',
     'platform/themes/martfury/config.php',
+    'platform/themes/martfury/partials/footer.blade.php',
     'bootstrap/app.php',
 ];
 
