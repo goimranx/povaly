@@ -93,8 +93,21 @@ class SystemUpdateController extends Controller
 
             // Step 8b: Publish theme assets (copies platform/themes/*/public/ → public/themes/)
             $output[] = "\n=== Publishing Theme Assets ===";
-            Artisan::call('cms:theme:assets:publish');
-            $output[] = "✓ Theme assets published";
+            try {
+                Artisan::call('cms:theme:assets:publish');
+                $output[] = "✓ Theme assets published via artisan";
+            } catch (\Exception $e) {
+                // Fallback: copy manually if artisan command not available
+                $source = base_path('platform/themes/martfury/public');
+                $dest   = public_path('themes/martfury');
+                if (File::isDirectory($source)) {
+                    File::ensureDirectoryExists($dest);
+                    File::copyDirectory($source, $dest);
+                    $output[] = "✓ Theme assets published via direct copy";
+                } else {
+                    $output[] = "⚠ Theme source directory not found, skipping";
+                }
+            }
 
             // Step 9: Optimize application
             $output[] = "\n=== Optimizing Application ===";
