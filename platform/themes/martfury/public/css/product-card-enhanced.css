@@ -223,7 +223,7 @@
 }
 
 .ec-card__price-amount {
-    font-size: 1.7rem;
+    font-size: 1.45rem;
     font-weight: 400;
     color: var(--global-color-text-body);
 }
@@ -243,7 +243,7 @@
     -webkit-line-clamp: 3 !important;
     -webkit-box-orient: vertical !important;
     overflow: hidden !important;
-    font-size: 1.15rem;
+    font-size: 1rem;
     font-weight: 400;
     color: var(--global-color-text-main);
     text-decoration: none;
@@ -259,14 +259,14 @@
 
 /* Rating wrapper */
 .ec-card__rating-wrapper {
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 }
 
 /* Rating */
 .ec-card__rating {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     font-size: 11px;
     text-decoration: none;
     color: inherit;
@@ -274,6 +274,20 @@
 }
 
 .ec-card__rating:hover { opacity: .8; }
+
+.ec-card__rating-count {
+    color: var(--global-color-link);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+/* View Count */
+.ec-card__view-count {
+    font-size: 11px;
+    color: var(--global-color-text-muted);
+    margin-bottom: 6px;
+    line-height: 1.2;
+}
 
 /* Delivery message */
 .ec-card__delivery {
@@ -302,16 +316,21 @@
 
 .ec-card__stars i {
     font-size: 14px;
-    color: #ddd;
+    color: var(--global-color-primary);
 }
 
-.ec-card__star--filled { color: var(--global-color-primary) !important; }
-.ec-card__star--half  { color: var(--global-color-primary) !important; opacity: .5; }
+.ec-card__star--filled { 
+    color: var(--global-color-primary) !important;
+}
 
-.ec-card__rating-count { 
-    color: var(--global-color-link);
-    font-size: 11px;
-    margin-left: 2px;
+.ec-card__star--half { 
+    color: var(--global-color-primary) !important;
+    opacity: .5;
+}
+
+.ec-card__star--outline {
+    color: var(--global-color-primary) !important;
+    font-weight: 300;
 }
 
 /* Seller */
@@ -651,11 +670,11 @@
 
     .ec-card--flyout .ec-card__price-amount,
     .ec-card--flyout .ec-card__price-amount {
-        font-size: 1.55rem !important;
+        font-size: 1.25rem !important;
     }
 
     .ec-card--inline .ec-card__price-amount {
-        font-size: 1.55rem !important;
+        font-size: 1.25rem !important;
     }
 
     .ec-card--flyout .ec-card__rating,

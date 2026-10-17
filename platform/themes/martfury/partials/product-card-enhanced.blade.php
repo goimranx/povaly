@@ -149,7 +149,7 @@
         <div class="ec-card__body">
             <div class="ec-card__content">
 
-                {{-- Price row --}}
+                {{-- 1. Price row (discount badge + original price) --}}
                 @if ($product->front_sale_price !== $product->price)
                     <div class="ec-card__price-row">
                         <span class="ec-card__badge-discount">{{ $discountPercentage }}</span>
@@ -157,7 +157,7 @@
                     </div>
                 @endif
 
-                {{-- Sale duration --}}
+                {{-- 2. Sale duration --}}
                 @if ($showSaleDuration && $product->front_sale_price !== $product->price && $saleDurationText)
                     <div class="ec-card__sale-duration">
                         <span class="ec-card__duration-text">{{ $saleDurationText }}</span>
@@ -167,20 +167,7 @@
                     </div>
                 @endif
 
-                {{-- Sale price --}}
-                <div class="ec-card__price-sale">
-                    <span class="ec-card__price-amount">{{ format_price($product->front_sale_price !== 0 ? $product->front_sale_price : $product->price) }}</span>
-                    @if ($soldCount > 0)
-                        <span class="ec-card__sold">+{{ number_format($soldCount) }} sold</span>
-                    @endif
-                </div>
-
-                {{-- Title --}}
-                <a class="ec-card__title" href="{{ $product->url }}" title="{{ $product->name }}">
-                    {!! BaseHelper::clean($product->name) !!}
-                </a>
-
-                {{-- Rating --}}
+                {{-- 3. Rating (stars + review count) --}}
                 <div class="ec-card__rating-wrapper">
                     <a href="{{ $product->url }}#tab-reviews" class="ec-card__rating"
                        onclick="sessionStorage.setItem('scrollToReviews','true');">
@@ -192,25 +179,33 @@
                                 @elseif ($i - 0.5 <= $avgRating)
                                     <i class="icon-star ec-card__star--half"></i>
                                 @else
-                                    <i class="icon-star"></i>
+                                    <i class="icon-star ec-card__star--outline"></i>
                                 @endif
                             @endfor
                         </span>
+                        <span class="ec-card__rating-count">{{ number_format($product->reviews_count) }}</span>
                     </a>
-                    <span class="ec-card__rating-count">{{ number_format($product->reviews_count) }} viewed in past month</span>
                 </div>
 
-                {{-- Sale duration info --}}
-                @if ($showSaleDuration && $product->front_sale_price !== $product->price && $saleDurationText)
-                    <div class="ec-card__sale-duration">
-                        <span class="ec-card__duration-text">{{ $saleDurationText }}</span>
-                        <span class="ec-card__info-icon" data-tooltip="{{ $saleDurationTooltip }}">
-                            <i class="icon-information"></i>
-                        </span>
-                    </div>
-                @endif
+                {{-- 4. View Count (separate line) --}}
+                <div class="ec-card__view-count">
+                    {{ number_format($product->reviews_count) }} viewed in past month
+                </div>
 
-                {{-- Delivery Message with Shipping Info --}}
+                {{-- 5. Sale price --}}
+                <div class="ec-card__price-sale">
+                    <span class="ec-card__price-amount">{{ format_price($product->front_sale_price !== 0 ? $product->front_sale_price : $product->price) }}</span>
+                    @if ($soldCount > 0)
+                        <span class="ec-card__sold">+{{ number_format($soldCount) }} sold</span>
+                    @endif
+                </div>
+
+                {{-- 6. Title --}}
+                <a class="ec-card__title" href="{{ $product->url }}" title="{{ $product->name }}">
+                    {!! BaseHelper::clean($product->name) !!}
+                </a>
+
+                {{-- 7. Delivery Info --}}
                 @if (!$product->isOutOfStock())
                     @php
                         $minDays = 5;
@@ -227,6 +222,7 @@
                     @endphp
                     <div class="ec-card__delivery">
                         <div class="ec-card__delivery-date">Get it as soon as <strong>{{ $dayName }}, {{ $monthDay }}</strong></div>
+                        {{-- 8. Delivery Charge --}}
                         <div class="ec-card__delivery-charge">{{ $shippingInfo }}</div>
                     </div>
                 @endif
