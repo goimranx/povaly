@@ -114,11 +114,6 @@
         background: var(--global-color-site-bg);
     }
 
-    .ps-deal-of-day .ps-container {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-    }
-
     /* Left Side - Deal of the Day */
     .ps-block--deal-of-day {
         border: 1px solid var(--global-color-primary-border);
@@ -423,6 +418,12 @@
 
     /* Mobile (≤480px): Single column grid */
     @media (max-width: 480px) {
+        /* Remove ps-container padding for this shortcode at mobile */
+        .ps-deal-of-day .ps-container {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
         .ps-carousel--deal.owl-slider,
         .ps-carousel--offers.owl-slider {
             grid-template-columns: repeat(1, 1fr) !important;
