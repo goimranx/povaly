@@ -33,7 +33,12 @@ class SystemUpdateController extends Controller
             Artisan::call('down', ['--render' => 'errors::503']);
             $output[] = "✓ Maintenance mode enabled";
 
-            // Step 2: Pull latest changes from GitHub
+            // Step 2: Reset local changes and pull from GitHub
+            $output[] = "\n=== Resetting Local Changes ===";
+            $this->executeCommand('git reset --hard HEAD', $returnCode);
+            $this->executeCommand('git clean -fd', $returnCode);
+            $output[] = "✓ Local changes reset";
+            
             $output[] = "\n=== Pulling from GitHub ===";
             $gitOutput = $this->executeCommand('git pull origin ' . env('GITHUB_BRANCH', 'main'), $returnCode);
             $output = array_merge($output, $gitOutput);
