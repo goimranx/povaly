@@ -160,4 +160,12 @@
             grid-template-columns: repeat(1, 1fr) !important;
         }
     }
+
+    /* Tablet (481-767px): Add ps-container padding */
+    @media (min-width: 481px) and (max-width: 767px) {
+        .ps-featured-products .ps-container {
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+        }
+    }
 </style>
