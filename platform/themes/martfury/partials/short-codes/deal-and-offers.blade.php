@@ -127,7 +127,7 @@
         align-items: center;
         justify-content: space-between;
         margin-bottom: 0;
-        padding-bottom: 10px;
+        padding: 0 0 10px 0;
     }
 
     .ps-block--deal-of-day .ps-block__header h3 {
@@ -319,7 +319,7 @@
 
         .ps-block--deal-of-day .ps-block__header,
         .ps-block--offers .ps-block__header {
-            padding-bottom: 10px;
+            padding: 0 0 10px 0;
             margin-bottom: 0;
         }
     }
@@ -400,9 +400,10 @@
             border-radius: 0 !important;
         }
 
+        /* Header padding for mobile ≤768px but >480px */
         .ps-block--deal-of-day .ps-block__header,
         .ps-block--offers .ps-block__header {
-            padding: 0 10px 10px 10px !important;
+            padding: 0 0 10px 0 !important;
             margin-bottom: 0 !important;
         }
 
@@ -422,6 +423,12 @@
         .ps-deal-of-day .ps-container {
             padding-left: 0 !important;
             padding-right: 0 !important;
+        }
+
+        /* Header gets left/right padding at mobile */
+        .ps-block--deal-of-day .ps-block__header,
+        .ps-block--offers .ps-block__header {
+            padding: 0 10px 10px 10px !important;
         }
 
         .ps-carousel--deal.owl-slider,
