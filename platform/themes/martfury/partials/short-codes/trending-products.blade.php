@@ -111,6 +111,7 @@
             right: 0;
             transform: translateY(-50%);
             pointer-events: none;
+            z-index: 10;
         }
 
         .ps-carousel--trending .owl-nav button {
@@ -137,11 +138,11 @@
         }
 
         .ps-carousel--trending .owl-nav .owl-prev {
-            left: -50px;
+            left: 0;
         }
 
         .ps-carousel--trending .owl-nav .owl-next {
-            right: -50px;
+            right: 0;
         }
 
         /* Hide dots on desktop */
