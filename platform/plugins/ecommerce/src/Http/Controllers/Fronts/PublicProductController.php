@@ -513,6 +513,9 @@ class PublicProductController extends BaseController
                 'url' => $request->fullUrl(),
                 'params' => $request->all(),
                 'method' => $request->method(),
+                'ajax' => $request->ajax(),
+                'wantsJson' => $request->wantsJson(),
+                'accept' => $request->header('Accept'),
             ]);
             
             $request->validate([
@@ -578,9 +581,8 @@ class PublicProductController extends BaseController
                 'htmlLength' => strlen($html),
             ]);
             
-            return $this
-                ->httpResponse()
-                ->setData($response);
+            // Return proper JSON response
+            return response()->json($response);
                 
         } catch (\Exception $e) {
             Log::error('Smart Products AJAX Error', [
@@ -590,15 +592,11 @@ class PublicProductController extends BaseController
                 'trace' => $e->getTraceAsString(),
             ]);
             
-            return $this
-                ->httpResponse()
-                ->setError()
-                ->setMessage($e->getMessage())
-                ->setData([
-                    'success' => false,
-                    'error' => $e->getMessage(),
-                    'trace' => config('app.debug') ? $e->getTraceAsString() : null,
-                ]);
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => config('app.debug') ? $e->getTraceAsString() : null,
+            ], 500);
         }
     }
 

@@ -255,7 +255,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('Loading more products from:', url.toString());
         
-        fetch(url)
+        fetch(url, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
             .then(response => {
                 console.log('Response status:', response.status);
                 console.log('Response headers:', response.headers.get('content-type'));
@@ -328,7 +333,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     console.log('Auto-loading products from:', url.toString());
                     
-                    fetch(url)
+                    fetch(url, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
                         .then(response => {
                             console.log('Auto-load response status:', response.status);
                             if (!response.ok) {
