@@ -352,7 +352,7 @@
 .ec-card__float {
     position: absolute;
     bottom: 10px;
-    right: 10px;
+    right: 12px;
     z-index: 20;
 }
 
@@ -432,8 +432,8 @@
 }
 
 .ec-card__toggle-icon {
-    width: 10px;
-    height: 10px;
+    width: 11.5px;
+    height: 11.5px;
     position: relative;
     display: inline-block;
     transition: transform .4s cubic-bezier(.4,0,.2,1);
@@ -447,18 +447,18 @@
 }
 
 .ec-card__toggle-h {
-    width: 10px; height: 2px;
+    width: 11.5px; height: 2px;
     top: 50%; left: 0; margin-top: -1px;
     opacity: 1;
 }
 
 /* Tablet (481-768px): adjust toggle-h position for better centering */
 @media (min-width: 481px) and (max-width: 768px) {
-    .ec-card__toggle-h { left: -40%; }
+    .ec-card__toggle-h { left: -43.5%; }
 }
 
 .ec-card__toggle-v {
-    width: 2px; height: 10px;
+    width: 2px; height: 11.5px;
     left: 50%; top: 0; margin-left: -1px;
     opacity: 1;
 }
