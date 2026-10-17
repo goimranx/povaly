@@ -562,7 +562,7 @@ class PublicProductController extends BaseController
                     'partials.product-card-enhanced',
                     ['product' => $product, 'layout' => 'flyout'],
                     'theme.martfury::partials.product-card-enhanced'
-                )->render();
+                )->content();
             }
             
             $response = [
