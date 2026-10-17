@@ -231,6 +231,9 @@
     font-size: 11px;
     color: var(--global-color-text-muted);
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
 }
 
 /* Title */
