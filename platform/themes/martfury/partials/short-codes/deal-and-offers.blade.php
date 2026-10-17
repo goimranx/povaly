@@ -117,8 +117,8 @@
     /* Left Side - Deal of the Day */
     .ps-block--deal-of-day {
         border: 1px solid var(--global-color-primary-border);
-        border-radius: 4px;
-        padding: 20px;
+        border-radius: 6px;
+        padding: 10px;
         height: 100%;
     }
 
@@ -126,8 +126,8 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
         border-bottom: 1px solid var(--global-color-border);
     }
 
@@ -192,8 +192,8 @@
     /* Right Side - Offers */
     .ps-block--offers {
         border: 1px solid var(--global-color-primary-border);
-        border-radius: 4px;
-        padding: 20px;
+        border-radius: 6px;
+        padding: 10px;
         height: 100%;
     }
 
@@ -201,8 +201,8 @@
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        margin-bottom: 20px;
-        padding: 0;
+        margin-bottom: 10px;
+        padding: 0 0 10px 0;
         border-bottom: 1px solid var(--global-color-border);
         flex-wrap: nowrap;
         gap: 15px;
