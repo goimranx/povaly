@@ -432,8 +432,8 @@
 }
 
 .ec-card__toggle-icon {
-    width: 14px;
-    height: 14px;
+    width: 10px;
+    height: 10px;
     position: relative;
     display: inline-block;
     transition: transform .4s cubic-bezier(.4,0,.2,1);
