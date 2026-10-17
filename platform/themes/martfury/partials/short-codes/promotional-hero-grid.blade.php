@@ -294,7 +294,7 @@
     }
 
     /* Responsive Design */
-    @media (max-width: 1024px) {
+    @media (max-width: 992px) {
         .ps-hero-title {
             font-size: 36px;
         }

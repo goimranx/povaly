@@ -424,7 +424,7 @@
     }
 
     /* Responsive Design */
-    @media (max-width: 1024px) {
+    @media (max-width: 992px) {
         .ps-banner-top-row,
         .ps-banner-bottom-row {
             grid-template-columns: 2fr 1fr;

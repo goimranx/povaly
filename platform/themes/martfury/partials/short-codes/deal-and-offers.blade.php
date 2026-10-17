@@ -294,8 +294,8 @@
         pointer-events: none;
     }
 
-    /* Responsive Design - Below 768px convert to grid (aligns with Owl's sm breakpoint) */
-    @media (max-width: 767px) {
+    /* Responsive Design - Below 768px (sm breakpoint) convert to grid */
+    @media (max-width: 768px) {
         /* Remove all padding/margin from parent containers on mobile */
         .ps-deal-of-day {
             padding: 0 !important;
@@ -476,7 +476,7 @@
         }
     }
 
-    @media (max-width: 767px) {
+    @media (max-width: 768px) {
         .ps-deal-of-day {
             margin-bottom: 0 !important;
         }

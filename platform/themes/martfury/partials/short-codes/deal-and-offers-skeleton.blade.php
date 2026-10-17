@@ -133,7 +133,7 @@
         }
     }
 
-    @media (max-width: 991px) {
+    @media (max-width: 992px) {
         .ps-block--deal-of-day.skeleton-loading {
             margin-bottom: 30px;
         }
