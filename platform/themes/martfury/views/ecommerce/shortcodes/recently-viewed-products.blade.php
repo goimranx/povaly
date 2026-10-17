@@ -1,4 +1,22 @@
 @php
+    // Handle clear request
+    if (request()->has('clear_recently_viewed') && request()->get('clear_recently_viewed') == '1') {
+        if (auth('customer')->check()) {
+            auth('customer')->user()->viewedProducts()->detach();
+        } else {
+            Cart::instance('recently_viewed')->destroy();
+        }
+        
+        // Redirect to remove the query parameter
+        if (request()->ajax()) {
+            echo '<script>window.location.href = window.location.pathname;</script>';
+            exit;
+        } else {
+            header('Location: ' . url()->current());
+            exit;
+        }
+    }
+    
     // Get recently viewed products directly
     $recentlyViewedProducts = collect();
     
@@ -56,24 +74,38 @@
 <div class="modal fade" id="clearHistoryModal" tabindex="-1" aria-labelledby="clearHistoryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form action="{{ route('public.ajax.clear-recently-viewed') }}" method="POST">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title" id="clearHistoryModalLabel">{{ __('Clear Browsing History') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>{{ __('Are you sure you want to clear your recently viewed products history?') }}</p>
-                    <p class="text-muted small mb-0">{{ __('This action cannot be undone.') }}</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                    <button type="submit" class="btn btn-danger">{{ __('Clear History') }}</button>
-                </div>
-            </form>
+            <div class="modal-header">
+                <h5 class="modal-title" id="clearHistoryModalLabel">{{ __('Clear Browsing History') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ __('Are you sure you want to clear your recently viewed products history?') }}</p>
+                <p class="text-muted small mb-0">{{ __('This action cannot be undone.') }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+                <button type="button" class="btn btn-danger" id="confirmClearHistory">{{ __('Clear History') }}</button>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmButton = document.getElementById('confirmClearHistory');
+    
+    if (confirmButton) {
+        confirmButton.addEventListener('click', function() {
+            // Disable button
+            confirmButton.disabled = true;
+            confirmButton.textContent = '{{ __('Clearing...') }}';
+            
+            // Redirect to same page with clear parameter
+            window.location.href = window.location.pathname + '?clear_recently_viewed=1';
+        });
+    }
+});
+</script>
 
 <style>
     /* Recently Viewed Products Section */
