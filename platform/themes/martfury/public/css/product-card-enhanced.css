@@ -277,6 +277,14 @@
     color: var(--global-color-text-main);
 }
 
+/* Delivery message */
+.ec-card__delivery {
+    font-size: 11px;
+    color: var(--global-color-success);
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
 .ec-card__stars {
     display: flex;
     gap: 2px;

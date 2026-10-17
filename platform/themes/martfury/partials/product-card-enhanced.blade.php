@@ -199,6 +199,26 @@
                     <span class="ec-card__rating-count">({{ number_format($product->reviews_count) }})</span>
                 </a>
 
+                {{-- Delivery Message --}}
+                @php
+                    $minDays = 5;
+                    $maxDays = 7;
+                    $deliveryDate = \Carbon\Carbon::now()->addDays(rand($minDays, $maxDays));
+                    $dayName = $deliveryDate->format('l');
+                    $monthDay = $deliveryDate->format('M j');
+                    
+                    // Smart message variations
+                    $messages = [
+                        "Get it as soon as {$dayName}, {$monthDay}",
+                        "Delivery by {$dayName}, {$monthDay}",
+                        "Arrives {$dayName}, {$monthDay}",
+                    ];
+                    $deliveryMessage = $messages[array_rand($messages)];
+                @endphp
+                @if (!$product->isOutOfStock())
+                    <div class="ec-card__delivery">{{ $deliveryMessage }}</div>
+                @endif
+
                 {{-- Seller --}}
                 @if ($showSeller && $store && $store->name)
                     <a href="{{ $store->url }}" class="ec-card__seller">
