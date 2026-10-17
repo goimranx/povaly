@@ -646,3 +646,33 @@
         margin-top: 6px !important;
     }
 }
+
+/* ============================================================
+   LOADING STATE — btn-loading class added by front-ecommerce.js
+   ============================================================ */
+
+.ec-card__btn--cart.btn-loading,
+.ec-card__btn--cart.button-loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+}
+
+.ec-card__btn--cart.btn-loading::after,
+.ec-card__btn--cart.button-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid #fff;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    animation: ec-card-spin .7s linear infinite;
+}
+
+@keyframes ec-card-spin {
+    to { transform: rotate(360deg); }
+}

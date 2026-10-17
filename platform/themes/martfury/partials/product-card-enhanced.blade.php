@@ -126,10 +126,10 @@
                                     <i class="icon-bag2"></i>
                                 </button>
                             @else
-                                <button type="button" class="ec-card__float-btn add-to-cart-button"
+                                <button type="button" class="ec-card__float-btn"
                                         data-id="{{ $product->id }}"
                                         data-url="{{ route('public.cart.add-to-cart') }}"
-                                        {!! EcommerceHelper::jsAttributes('add-to-cart', $product, additional: ['data-bb-toggle' => 'none']) !!}
+                                        {!! EcommerceHelper::jsAttributes('add-to-cart', $product) !!}
                                         title="{{ __('Add To Cart') }}">
                                     <i class="icon-bag2"></i>
                                 </button>
@@ -218,10 +218,10 @@
                                 {{ __('Select Options') }}
                             </button>
                         @else
-                            <button type="button" class="ec-card__btn ec-card__btn--cart add-to-cart-button"
+                            <button type="button" class="ec-card__btn ec-card__btn--cart"
                                     data-id="{{ $product->id }}"
                                     data-url="{{ route('public.cart.add-to-cart') }}"
-                                    {!! EcommerceHelper::jsAttributes('add-to-cart', $product, additional: ['data-bb-toggle' => 'none']) !!}>
+                                    {!! EcommerceHelper::jsAttributes('add-to-cart', $product) !!}>
                                 {{ __('Add to Cart') }}
                             </button>
                         @endif
