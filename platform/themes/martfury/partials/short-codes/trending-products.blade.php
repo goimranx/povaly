@@ -21,7 +21,7 @@
                      data-owl-item-xl="6"
                      data-owl-duration="1000"
                      data-owl-mousedrag="on"
-                     data-owl-smartspeed="800"
+                     data-owl-smartspeed="300"
                      data-owl-freeDrag="false"
                 >
                     @foreach($products as $product)
