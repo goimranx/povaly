@@ -415,6 +415,14 @@
             margin-bottom: 0 !important;
         }
     }
+
+    /* Mobile (≤480px): Single column grid */
+    @media (max-width: 480px) {
+        .ps-carousel--deal.owl-slider,
+        .ps-carousel--offers.owl-slider {
+            grid-template-columns: repeat(1, 1fr) !important;
+        }
+    }
 </style>
 
 <script>
