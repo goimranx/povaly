@@ -3460,6 +3460,9 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 {{-- Product Card Enhanced global styles - loaded on every page so single product page gets them too --}}
+{{-- Phosphor Icons for rating stars (filled, half-filled, regular) --}}
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+
 {{-- ?v=filectime — same versioning pattern Botble uses for all theme CSS files --}}
 @php $ecCardCssFile = public_path('themes/' . Theme::getPublicThemeName() . '/css/product-card-enhanced.css'); @endphp
 <link rel="stylesheet" href="{{ Theme::asset()->url('css/product-card-enhanced.css') }}?v={{ file_exists($ecCardCssFile) ? filectime($ecCardCssFile) : '1' }}">

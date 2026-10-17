@@ -175,11 +175,11 @@
                             @php $avgRating = $product->reviews_count > 0 ? $product->reviews_avg : 0; @endphp
                             @for ($i = 1; $i <= 5; $i++)
                                 @if ($i <= floor($avgRating))
-                                    <i class="icon-star"></i>
+                                    <i class="ph-fill ph-star"></i>
                                 @elseif ($i - 0.5 <= $avgRating)
-                                    <i class="icon-star-half"></i>
+                                    <i class="ph-fill ph-star-half"></i>
                                 @else
-                                    <i class="icon-star-empty"></i>
+                                    <i class="ph ph-star"></i>
                                 @endif
                             @endfor
                         </span>
