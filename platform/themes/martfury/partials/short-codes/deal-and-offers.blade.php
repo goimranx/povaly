@@ -3,7 +3,7 @@
         <div class="ps-section__content">
             <div class="row">
                 {{-- Left Side: Deal of the Day --}}
-                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 col-12">
+                <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
                     <div class="ps-block--deal-of-day">
                         <div class="ps-block__header">
                             <h3>{{ $deal_title }}</h3>
@@ -40,7 +40,7 @@
                                          data-owl-item="1"
                                          data-owl-item-xs="1"
                                          data-owl-item-sm="2"
-                                         data-owl-item-md="1"
+                                         data-owl-item-md="3"
                                          data-owl-item-lg="1"
                                          data-owl-item-xl="1"
                                          data-owl-duration="1000"
@@ -62,7 +62,7 @@
                 </div>
 
                 {{-- Right Side: Offers --}}
-                <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12 col-12">
+                <div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
                     <div class="ps-block--offers">
                         <div class="ps-block__header">
                             <h3>{{ $offers_title }}</h3>
@@ -82,7 +82,7 @@
                                      data-owl-item="4"
                                      data-owl-item-xs="1"
                                      data-owl-item-sm="2"
-                                     data-owl-item-md="2"
+                                     data-owl-item-md="3"
                                      data-owl-item-lg="3"
                                      data-owl-item-xl="4"
                                      data-owl-duration="1000"
