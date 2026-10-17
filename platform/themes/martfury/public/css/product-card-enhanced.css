@@ -551,6 +551,18 @@
     color: var(--global-color-text-on-dark) !important;
 }
 
+/* Standard layout select button hover (desktop) */
+.ps-product.ps-product--standard .ps-enhanced-btn--select {
+    background: transparent !important;
+    color: var(--global-color-text-main) !important;
+    border: 1px solid var(--global-color-text-main) !important;
+}
+
+.ps-product.ps-product--standard .ps-enhanced-btn--select:hover {
+    background: var(--global-color-text-main) !important;
+    color: var(--global-color-text-on-dark) !important;
+}
+
 /* Hide floating actions for deal layout completely */
 .ps-product.ps-product--deal .ps-product__floating-actions {
     display: none !important;

@@ -169,7 +169,7 @@
                                     <i class="icon-bag2"></i>
                                 </button>
                             @else
-                                <button type="button" class="ps-floating-action add-to-cart-button" data-id="{{ $product->id }}" data-url="{{ route('public.cart.add-to-cart') }}" {!! EcommerceHelper::jsAttributes('add-to-cart', $product, additional: ['data-bb-toggle' => 'none']) !!} title="{{ __('Add To Cart') }}">
+                                <button type="button" class="ps-floating-action add-to-cart-button" {!! EcommerceHelper::jsAttributes('add-to-cart', $product) !!} title="{{ __('Add To Cart') }}">
                                     <i class="icon-bag2"></i>
                                 </button>
                             @endif
@@ -256,7 +256,7 @@
                                 {{ __('Select Options') }}
                             </button>
                         @else
-                            <button type="button" class="ps-enhanced-btn ps-enhanced-btn--cart" data-id="{{ $product->id }}" data-url="{{ route('public.cart.add-to-cart') }}" {!! EcommerceHelper::jsAttributes('add-to-cart', $product, additional: ['data-bb-toggle' => 'none']) !!}>
+                            <button type="button" class="ps-enhanced-btn ps-enhanced-btn--cart" {!! EcommerceHelper::jsAttributes('add-to-cart', $product) !!}>
                                 {{ __('Add to Cart') }}
                             </button>
                         @endif
@@ -279,70 +279,6 @@
     function initProductCardHandlers() {
         var $ = window.jQuery;
         if (!$) return;
-
-        // Handler for MOBILE enhanced buttons only (not desktop floating buttons)
-        $(document).on('click', '.ps-enhanced-actions .ps-enhanced-btn--cart', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
-            
-            let _self = $(this);
-
-            _self.prop('disabled', true).addClass('button-loading');
-
-            $.ajax({
-                url: _self.data('url'),
-                method: 'POST',
-                data: {
-                    id: _self.data('id'),
-                },
-                dataType: 'json',
-                success: res => {
-                    _self.prop('disabled', false).removeClass('button-loading').addClass('active');
-
-                    if (res.error) {
-                        if (typeof Theme !== 'undefined' && Theme.showError) {
-                            Theme.showError(res.message);
-                        }
-                        if (res.data && res.data.next_url !== undefined) {
-                            setTimeout(() => {
-                                window.location.href = res.data.next_url;
-                            }, 500);
-                        }
-                        return false;
-                    }
-
-                    if (typeof Theme !== 'undefined' && Theme.showSuccess) {
-                        Theme.showSuccess(res.message);
-                    }
-
-                    if (res.data && res.data.next_url !== undefined) {
-                        window.location.href = res.data.next_url;
-                    } else {
-                        $.ajax({
-                            url: window.siteUrl + '/ajax/cart',
-                            method: 'GET',
-                            success: response => {
-                                if (!response.error) {
-                                    $('.ps-cart--mobile').html(response.data.html);
-                                    $('.btn-shopping-cart span i').text(response.data.count);
-
-                                    if (typeof Theme !== 'undefined' && typeof Theme.lazyLoadInstance !== 'undefined') {
-                                        Theme.lazyLoadInstance.update();
-                                    }
-                                }
-                            },
-                        });
-                    }
-                },
-                error: res => {
-                    _self.prop('disabled', false).removeClass('button-loading');
-                    if (typeof Theme !== 'undefined' && Theme.showError) {
-                        Theme.showError(res.message || res.responseJSON?.message || 'Error adding to cart');
-                    }
-                },
-            });
-        });
 
         // Toggle floating actions on mobile/tablet (touch devices)
         $(document).on('click', '.ps-floating-toggle', function(e) {
