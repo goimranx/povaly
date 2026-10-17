@@ -3460,5 +3460,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 {{-- Product Card Enhanced global styles - loaded on every page so single product page gets them too --}}
-<link rel="stylesheet" href="{{ Theme::asset()->url('css/product-card-enhanced.css') }}">
+{{-- ?v=filectime — same versioning pattern Botble uses for all theme CSS files --}}
+@php $ecCardCssFile = public_path('themes/' . Theme::getPublicThemeName() . '/css/product-card-enhanced.css'); @endphp
+<link rel="stylesheet" href="{{ Theme::asset()->url('css/product-card-enhanced.css') }}?v={{ file_exists($ecCardCssFile) ? filectime($ecCardCssFile) : '1' }}">
 </head>
