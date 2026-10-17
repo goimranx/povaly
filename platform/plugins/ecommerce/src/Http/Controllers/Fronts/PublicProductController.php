@@ -505,6 +505,64 @@ class PublicProductController extends BaseController
             ]);
     }
 
+    public function ajaxGetSmartProducts(Request $request)
+    {
+        $request->validate([
+            'criteria' => 'required|string|in:most_viewed,most_sold,trending,most_wishlisted,best_rated,most_added_to_cart',
+            'category_id' => 'nullable|integer',
+            'page' => 'required|integer|min:1',
+            'per_page' => 'required|integer|min:1|max:50',
+        ]);
+        
+        $service = app('Botble\Ecommerce\Services\Products\SmartProductService');
+        $criteria = $request->input('criteria');
+        $categoryId = $request->input('category_id') ? (int)$request->input('category_id') : null;
+        $page = (int)$request->input('page');
+        $perPage = (int)$request->input('per_page');
+        $offset = ($page - 1) * $perPage;
+        
+        // Fetch one extra to check if there are more
+        $limit = $offset + $perPage + 1;
+        
+        $products = match($criteria) {
+            'most_sold' => $service->getMostSold($limit, $categoryId),
+            'trending' => $service->getTrending($limit, $categoryId, 7),
+            'most_wishlisted' => $service->getMostWishlisted($limit, $categoryId),
+            'best_rated' => $service->getBestRated($limit, $categoryId),
+            'most_added_to_cart' => $service->getMostAddedToCart($limit, $categoryId),
+            default => $service->getMostViewed($limit, $categoryId),
+        };
+        
+        // Slice to get current page
+        $products = $products->slice($offset, $perPage + 1);
+        $hasMore = $products->count() > $perPage;
+        
+        if ($hasMore) {
+            $products = $products->take($perPage);
+        }
+        
+        $html = '';
+        foreach ($products as $product) {
+            $html .= Theme::scope(
+                'partials.product-card-enhanced',
+                ['product' => $product, 'layout' => 'flyout'],
+                'theme.martfury::partials.product-card-enhanced'
+            )->render();
+        }
+        
+        return $this
+            ->httpResponse()
+            ->setData([
+                'success' => true,
+                'data' => [
+                    'html' => $html,
+                    'hasMore' => $hasMore,
+                    'currentPage' => $page,
+                    'totalShown' => $offset + $products->count(),
+                ],
+            ]);
+    }
+
     protected function ajaxFilterProductsResponse($products, ?ProductCategory $category = null)
     {
         return app(HandleFrontPages::class)->ajaxFilterProductsResponse($products, $this->httpResponse(), $category);

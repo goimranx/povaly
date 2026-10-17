@@ -189,6 +189,79 @@ app()->booted(function (): void {
 
         shortcode()->registerLoadingState('product-collections', Theme::getThemeNamespace('partials.short-codes.product-collections-skeleton'));
 
+        add_shortcode('smart-products', __('Smart Products'), __('Smart Products'), function ($shortCode) {
+            $service = app('Botble\Ecommerce\Services\Products\SmartProductService');
+            $criteria = $shortCode->criteria ?: 'most_viewed';
+            $itemsToShow = (int)($shortCode->items_to_show ?: 12);
+            $itemsPerPage = (int)($shortCode->items_per_page ?: 6);
+            $loadMoreType = $shortCode->load_more_type ?: 'button';
+            $categoryId = $shortCode->category_id ? (int)$shortCode->category_id : null;
+            
+            $products = match($criteria) {
+                'most_sold' => $service->getMostSold($itemsToShow, $categoryId),
+                'trending' => $service->getTrending($itemsToShow, $categoryId, 7),
+                'most_wishlisted' => $service->getMostWishlisted($itemsToShow, $categoryId),
+                'best_rated' => $service->getBestRated($itemsToShow, $categoryId),
+                'most_added_to_cart' => $service->getMostAddedToCart($itemsToShow, $categoryId),
+                default => $service->getMostViewed($itemsToShow, $categoryId),
+            };
+            
+            // Only show first page initially
+            $initialProducts = $products->take($itemsPerPage);
+            $hasMore = $products->count() > $itemsPerPage;
+            
+            return Theme::partial('short-codes.smart-products', [
+                'title' => $shortCode->title,
+                'criteria' => $criteria,
+                'products' => $initialProducts,
+                'itemsPerPage' => $itemsPerPage,
+                'loadMoreType' => $loadMoreType,
+                'categoryId' => $categoryId,
+                'hasMore' => $hasMore,
+                'totalItems' => $itemsToShow,
+            ]);
+        });
+
+        shortcode()->setAdminConfig('smart-products', function($attributes) {
+            $categories = ProductCategory::query()->wherePublished()->pluck('name', 'id')->toArray();
+            
+            return ShortcodeForm::createFromArray($attributes)
+                ->withLazyLoading()
+                ->add('title', TextField::class, TextFieldOption::make()
+                    ->label(__('Title'))
+                    ->placeholder(__('Title')))
+                ->add('criteria', SelectField::class, SelectFieldOption::make()
+                    ->label(__('Criteria'))
+                    ->choices([
+                        'most_viewed' => __('Most Viewed'),
+                        'most_sold' => __('Best Sellers'),
+                        'trending' => __('Trending'),
+                        'most_wishlisted' => __('Most Wishlisted'),
+                        'best_rated' => __('Best Rated'),
+                        'most_added_to_cart' => __('Most Added to Cart'),
+                    ])
+                    ->defaultValue('most_viewed'))
+                ->add('items_to_show', NumberField::class, NumberFieldOption::make()
+                    ->label(__('Total items'))
+                    ->defaultValue(12))
+                ->add('items_per_page', NumberField::class, NumberFieldOption::make()
+                    ->label(__('Items per page'))
+                    ->defaultValue(6))
+                ->add('load_more_type', SelectField::class, SelectFieldOption::make()
+                    ->label(__('Load More Type'))
+                    ->choices([
+                        'none' => __('None'),
+                        'button' => __('Load More Button'),
+                        'auto' => __('Auto Load on Scroll'),
+                    ])
+                    ->defaultValue('button'))
+                ->add('category_id', SelectField::class, SelectFieldOption::make()
+                    ->label(__('Category (optional)'))
+                    ->choices(['' => __('All Categories')] + $categories));
+        });
+
+        shortcode()->registerLoadingState('smart-products', Theme::getThemeNamespace('partials.short-codes.smart-products-skeleton'));
+
         add_shortcode(
             'product-category-products',
             __('Product category products'),

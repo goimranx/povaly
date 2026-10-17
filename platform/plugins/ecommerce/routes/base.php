@@ -301,6 +301,11 @@ Theme::registerRoutes(function (): void {
                 'as' => 'public.ajax.recently-viewed-products',
             ]);
 
+            Route::get('ajax/smart-products', [
+                'uses' => 'PublicProductController@ajaxGetSmartProducts',
+                'as' => 'public.ajax.smart-products',
+            ]);
+
             Route::group(['prefix' => 'orders/payment-proof'], function (): void {
                 Route::post('{token}/upload', [GuestPaymentProofController::class, 'upload'])
                     ->name('public.orders.upload-proof-guest');

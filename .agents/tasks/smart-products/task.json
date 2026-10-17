@@ -1,0 +1,7 @@
+{
+  "task_id": "smart-products",
+  "task_description": "Build a sophisticated 'Smart Products' shortcode system with 7 algorithmic criteria (most_viewed, most_sold, trending, most_wishlisted, best_rated, most_added_to_cart, similar_products) for the Laravel Botble multivendor marketplace",
+  "status": "pending",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
+  "blocked_reason": null
+}

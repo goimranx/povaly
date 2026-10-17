@@ -1,0 +1,43 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Register smart-products shortcode with admin configuration (title, criteria dropdown, items_to_show, items_per_page, load_more_type, category filter) and Blade template. Shortcode renders initial products server-side, includes hidden metadata for AJAX pagination. Template matches featured-products.blade.php grid layout (6-column responsive grid, same CSS classes). Uses product-card-enhanced.blade.php partial for each product with layout='flyout'. Load more options: 'button' (Load More button), 'auto' (IntersectionObserver infinite scroll), 'none' (show items_to_show only).",
+  "status": "pending",
+  "steps": [
+    "Open platform/themes/martfury/functions/shortcodes.php",
+    "Add shortcode registration after existing product shortcodes (after 'trending-products' block, before 'flash-sale'): add_shortcode('smart-products', __('Smart Products'), __('Smart Products'), function ($shortCode) { ... })",
+    "In shortcode callback: resolve SmartProductService from container: $service = app('Botble\\Ecommerce\\Services\\Products\\SmartProductService')",
+    "Parse shortcode attributes: $criteria = $shortCode->criteria ?: 'most_viewed', $itemsToShow = (int)$shortCode->items_to_show ?: 12, $itemsPerPage = (int)$shortCode->items_per_page ?: 6, $loadMoreType = $shortCode->load_more_type ?: 'button', $categoryId = $shortCode->category_id ? (int)$shortCode->category_id : null",
+    "Call service method based on criteria: switch($criteria) { case 'most_viewed': $products = $service->getMostViewed($itemsToShow, $categoryId); break; case 'most_sold': ...; case 'trending': $service->getTrending($itemsToShow, $categoryId, 7); etc. }",
+    "Return Theme::partial('short-codes.smart-products', ['title' => $shortCode->title, 'criteria' => $criteria, 'products' => $products, 'itemsPerPage' => $itemsPerPage, 'loadMoreType' => $loadMoreType, 'categoryId' => $categoryId])",
+    "Add admin config via shortcode()->setAdminConfig('smart-products', function($attributes) { return ShortcodeForm::createFromArray($attributes)->withLazyLoading()->add('title', TextField::class, ...)->add('criteria', SelectField::class, SelectFieldOption::make()->label(__('Criteria'))->choices(['most_viewed' => 'Most Viewed', 'most_sold' => 'Best Sellers', 'trending' => 'Trending', 'most_wishlisted' => 'Most Wishlisted', 'best_rated' => 'Best Rated', 'most_added_to_cart' => 'Most Added to Cart', 'similar_products' => 'Similar Products'])->defaultValue('most_viewed'))->add('items_to_show', NumberField::class, NumberFieldOption::make()->label(__('Total items to show'))->defaultValue(12))->add('items_per_page', NumberField::class, NumberFieldOption::make()->label(__('Items per page (for Load More)'))->defaultValue(6))->add('load_more_type', SelectField::class, SelectFieldOption::make()->label(__('Load More Type'))->choices(['none' => 'None', 'button' => 'Load More Button', 'auto' => 'Auto Load (Infinite Scroll)'])->defaultValue('button'))->add('category_id', SelectField::class, SelectFieldOption::make()->label(__('Filter by category (optional)'))->choices(['' => __('All Categories')] + ProductCategory::wherePublished()->pluck('name', 'id')->toArray())); })",
+    "Create platform/themes/martfury/partials/short-codes/smart-products.blade.php",
+    "In Blade template: copy structure from featured-products.blade.php - <div class=\"ps-featured-products\"><div class=\"ps-container\"><div class=\"ps-block--featured\"><div class=\"ps-block__header\"><h3>{{ $title }}</h3></div><div class=\"ps-block__content\"><div class=\"ps-grid--featured js-smart-products-grid\" data-criteria=\"{{ $criteria }}\" data-category-id=\"{{ $categoryId }}\" data-load-more-type=\"{{ $loadMoreType }}\" data-items-per-page=\"{{ $itemsPerPage }}\" data-current-page=\"1\" data-total-shown=\"{{ $products->count() }}\">",
+    "Loop products: @foreach($products as $product) @include('theme.martfury::partials.product-card-enhanced', ['product' => $product, 'layout' => 'flyout']) @endforeach",
+    "After grid close: @if($loadMoreType !== 'none' && $products->count() >= $itemsPerPage)<div class=\"ps-block__footer\"><button type=\"button\" class=\"ps-btn js-load-more-smart-products\">{{ __('Load More Products') }}</button><div class=\"js-load-more-loading\" style=\"display:none; text-align:center; padding:20px;\">{{ __('Loading...') }}</div></div>@endif",
+    "Close all divs",
+    "Reuse existing CSS from featured-products.blade.php - no new styles needed, classes already defined"
+  ],
+  "acceptance_criteria": [
+    "Shortcode 'smart-products' appears in admin shortcode picker",
+    "Admin config form shows all 7 criteria options in dropdown",
+    "Admin config includes items_to_show, items_per_page, load_more_type, category_id fields",
+    "Inserting [smart-products title=\"Top Products\" criteria=\"most_sold\"] renders products on page",
+    "Grid uses ps-grid--featured class and matches featured-products layout exactly",
+    "Each product renders via product-card-enhanced.blade.php with layout='flyout'",
+    "Load More button appears when loadMoreType='button' and products.count >= itemsPerPage",
+    "No Load More button when loadMoreType='none'",
+    "Grid has data attributes: data-criteria, data-category-id, data-load-more-type, data-items-per-page, data-current-page, data-total-shown"
+  ],
+  "verification": [
+    "Visit WordPress/Botble admin, insert [smart-products title=\"Trending Now\" criteria=\"trending\" items_to_show=\"12\" items_per_page=\"6\" load_more_type=\"button\"] into a page",
+    "View page frontend - verify 6 products display in grid matching featured-products layout",
+    "Verify Load More button exists below grid",
+    "Inspect grid element - verify data-criteria=\"trending\", data-items-per-page=\"6\", data-current-page=\"1\"",
+    "Test category filter: insert shortcode with category_id=\"5\" - verify only products from that category appear",
+    "Test load_more_type=\"none\" - verify no Load More button appears",
+    "Responsive test: view on mobile - grid should collapse to 1 column below 480px per featured-products CSS"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
