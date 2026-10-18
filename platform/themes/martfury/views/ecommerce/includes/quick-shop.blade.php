@@ -1,22 +1,75 @@
 @php
-    $hasVideo    = !empty($product->video) && is_array($product->video)
-                   && count(array_filter($product->video, fn($v) => !empty($v['url']))) > 0;
-    $videoList   = $hasVideo ? array_values(array_filter($product->video, fn($v) => !empty($v['url']))) : [];
+    $hasVideo  = !empty($product->video) && is_array($product->video)
+                 && count(array_filter($product->video, fn($v) => !empty($v['url']))) > 0;
+    $videoList = $hasVideo ? array_values(array_filter($product->video, fn($v) => !empty($v['url']))) : [];
 
-    // Fallback chain: variation images → gallery images → featured image → empty
-    if (!empty($productImages)) {
-        $galleryImages = $productImages;
-    } elseif (!empty($product->images)) {
-        $galleryImages = $product->images;
-    } elseif (!empty($product->image)) {
-        $galleryImages = [$product->image];
-    } else {
-        $galleryImages = [];
+    // ── Build the unified image list ──────────────────────────────────
+    // Collect ALL images: product gallery + all variation images, deduplicated
+    $allImages = collect();
+
+    // 1. Product gallery images
+    $galleryBase = !empty($product->images) ? $product->images : [];
+    foreach ($galleryBase as $img) {
+        if ($img) $allImages->push(['src' => $img, 'type' => 'gallery', 'variationId' => null]);
     }
 
-    // Default variation product for price/stock on first load
-    $displayProduct = ($product->has_variation && $productVariation && $productVariation->id !== $product->id)
-        ? $productVariation : $product;
+    // 2. Featured image (if not already in gallery)
+    if (!empty($product->image) && !$allImages->contains('src', $product->image)) {
+        $allImages->prepend(['src' => $product->image, 'type' => 'featured', 'variationId' => null]);
+    }
+
+    // 3. Variation images
+    $variationImageMap = []; // variationId → [startIndex, ...]
+    if ($product->has_variation && isset($productVariations)) {
+        foreach ($productVariations as $pv) {
+            if (!$pv->product || !$pv->product->image) continue;
+            $img = $pv->product->image;
+            if (!$allImages->contains('src', $img)) {
+                $allImages->push(['src' => $img, 'type' => 'variation', 'variationId' => $pv->product_id]);
+            }
+            // Track first index for this variation
+            if (!isset($variationImageMap[$pv->product_id])) {
+                $variationImageMap[$pv->product_id] = $allImages->search(fn($i) => $i['src'] === $img);
+            }
+        }
+    }
+
+    // 4. Fallback placeholder if nothing
+    if ($allImages->isEmpty()) {
+        $allImages->push(['src' => RvMedia::getDefaultImage(), 'type' => 'placeholder', 'variationId' => null]);
+    }
+
+    // ── Determine the default jump index ────────────────────────────
+    // Use the default selected variation's image, or fall back to 0
+    $defaultJumpIndex = 0;
+    $displayProduct   = $product;
+    if ($product->has_variation && $productVariation && $productVariation->id !== $product->id) {
+        $displayProduct = $productVariation;
+        // Find this variation's image in our list
+        foreach ($allImages as $i => $img) {
+            if ($img['variationId'] === $productVariation->id || $img['src'] === $productVariation->image) {
+                $defaultJumpIndex = $i;
+                break;
+            }
+        }
+    }
+
+    // Also use $productImages as the first images if provided (variation-specific images passed by controller)
+    // If controller passed specific images, these should be shown first (they are the selected variation images)
+    if (!empty($productImages)) {
+        // Find first of these images in our allImages list
+        foreach ($productImages as $img) {
+            $found = $allImages->search(fn($i) => $i['src'] === $img);
+            if ($found !== false) {
+                $defaultJumpIndex = $found;
+                break;
+            }
+            // If not found, add at beginning
+            $allImages->prepend(['src' => $img, 'type' => 'variation', 'variationId' => null]);
+            $defaultJumpIndex = 0;
+            break;
+        }
+    }
 
     // Stock text
     $stockText = ''; $stockClass = '';
@@ -28,16 +81,16 @@
         $stockText = __('Out of available stocks');
     }
 
-    // Show pill only if there are videos
     $showPill = $hasVideo;
+    $totalImages = $allImages->count();
 @endphp
 
 <div class="qs-product">
 
     {{-- ── Gallery ─────────────────────────────────────────── --}}
-    <div class="qs-gallery" data-has-video="{{ $hasVideo ? 'true' : 'false' }}">
+    <div class="qs-gallery" data-has-video="{{ $hasVideo ? 'true' : 'false' }}" data-jump="{{ $defaultJumpIndex }}">
 
-        {{-- Mobile header: back + share (desktop hidden via CSS) --}}
+        {{-- Mobile header --}}
         <div class="qs-mobile-header">
             <button type="button" class="qs-mobile-header__btn qs-mobile-close" data-bs-dismiss="offcanvas" aria-label="{{ __('Close') }}">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -58,42 +111,34 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
 
-            {{-- Track: images first, then videos — all always visible --}}
             <div class="qs-track">
-                @foreach ($galleryImages as $img)
-                    <div class="qs-slide qs-slide--image">
-                        <img src="{{ RvMedia::getImageUrl($img) }}" alt="{{ $product->name }}" loading="lazy" />
+                {{-- ALL images in one track --}}
+                @foreach ($allImages as $i => $imgData)
+                    <div class="qs-slide qs-slide--image" data-slide-index="{{ $i }}" data-src="{{ $imgData['src'] }}">
+                        <img src="{{ RvMedia::getImageUrl($imgData['src']) }}" alt="{{ $product->name }}" loading="lazy" />
                     </div>
                 @endforeach
 
+                {{-- Videos after all images --}}
                 @foreach ($videoList as $video)
                     <div class="qs-slide qs-slide--video">
                         @if ($video['provider'] === 'video')
                             @php $ext = pathinfo($video['url'], PATHINFO_EXTENSION) ?: 'mp4'; if($ext === 'mov') $ext = 'mp4'; @endphp
-                            <video controls preload="metadata"
-                                @if(!empty($video['thumbnail'])) poster="{{ $video['thumbnail'] }}" @endif
-                                style="width:100%;height:100%;object-fit:contain;display:block;">
+                            <video controls preload="metadata" @if(!empty($video['thumbnail'])) poster="{{ $video['thumbnail'] }}" @endif style="width:100%;height:100%;object-fit:contain;display:block;">
                                 <source src="{{ $video['url'] }}" type="video/{{ $ext }}">
                             </video>
                         @elseif (in_array($video['provider'], ['youtube', 'vimeo']))
-                            <div class="qs-video-facade"
-                                 data-provider="{{ $video['provider'] }}"
-                                 data-src="{{ $video['url'] }}{{ str_contains($video['url'], '?') ? '&' : '?' }}autoplay=1">
+                            <div class="qs-video-facade" data-provider="{{ $video['provider'] }}" data-src="{{ $video['url'] }}{{ str_contains($video['url'], '?') ? '&' : '?' }}autoplay=1">
                                 @if(!empty($video['thumbnail']))
                                     <img src="{{ $video['thumbnail'] }}" alt="{{ $product->name }}" style="width:100%;height:100%;object-fit:cover;display:block;" />
                                 @else
                                     <div style="width:100%;height:100%;background:#111;"></div>
                                 @endif
-                                <span class="qs-play-btn">
-                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                </span>
+                                <span class="qs-play-btn"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
                             </div>
                         @else
                             <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;background:#000;">
-                                <iframe src="{{ $video['url'] }}" frameborder="0"
-                                        allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"
-                                        allowfullscreen
-                                        style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"></iframe>
+                                <iframe src="{{ $video['url'] }}" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;"></iframe>
                             </div>
                         @endif
                     </div>
@@ -110,8 +155,6 @@
             <button type="button" class="qs-video-zone qs-video-zone--next" aria-label="{{ __('Next') }}">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
-
-            {{-- Desktop pill — only shown when videos exist --}}
             @if ($showPill)
                 <div class="qs-pill qs-pill--desktop">
                     <button type="button" class="qs-pill__btn active" data-tab="images">{{ __('Images') }}</button>
@@ -120,29 +163,29 @@
             @endif
         </div>
 
-        {{-- Thumbnail strip — images + divider + video thumbs, all always visible --}}
+        {{-- Thumbnail strip — ALL images + divider + video thumbs --}}
         <div class="qs-thumbs">
-            @foreach ($galleryImages as $i => $img)
-                <div class="qs-thumb qs-thumb--image {{ $i === 0 ? 'active' : '' }}" data-index="{{ $i }}" data-tab="images">
-                    <img src="{{ RvMedia::getImageUrl($img, 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
+            @foreach ($allImages as $i => $imgData)
+                <div class="qs-thumb qs-thumb--image {{ $i === $defaultJumpIndex ? 'active' : '' }}"
+                     data-slide-index="{{ $i }}" data-src="{{ $imgData['src'] }}"
+                     data-index="{{ $i }}" data-tab="images">
+                    <img src="{{ RvMedia::getImageUrl($imgData['src'], 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
                 </div>
             @endforeach
 
-            @if ($hasVideo && count($galleryImages) > 0)
+            @if ($hasVideo)
                 <div class="qs-thumbs-divider"></div>
+                @foreach ($videoList as $i => $video)
+                    <div class="qs-thumb qs-thumb--video" data-index="{{ $i }}" data-tab="videos"
+                         style="{{ !empty($video['thumbnail']) ? 'background-image:url(' . $video['thumbnail'] . ');background-size:cover;background-position:center;' : '' }}">
+                    </div>
+                @endforeach
             @endif
-
-            @foreach ($videoList as $i => $video)
-                <div class="qs-thumb qs-thumb--video" data-index="{{ $i }}" data-tab="videos"
-                     style="{{ !empty($video['thumbnail']) ? 'background-image:url(' . $video['thumbnail'] . ');background-size:cover;background-position:center;' : '' }}">
-                </div>
-            @endforeach
         </div>
     </div>
 
     {{-- ── Product info ──────────────────────────────────────── --}}
     <div class="qs-info bb-product-detail">
-
         <div class="qs-title-wrap">
             <h3 class="qs-title qs-title--clamped">{!! BaseHelper::clean($product->name) !!}</h3>
             <button type="button" class="qs-title-expand" aria-label="{{ __('Expand title') }}">
@@ -150,11 +193,7 @@
             </button>
         </div>
 
-        {!! Theme::partial('product-price', [
-            'product'           => $displayProduct,
-            'priceWrapperTag'   => 'div',
-            'priceWrapperClass' => 'qs-price',
-        ]) !!}
+        {!! Theme::partial('product-price', ['product' => $displayProduct, 'priceWrapperTag' => 'div', 'priceWrapperClass' => 'qs-price']) !!}
 
         <a href="{{ $product->url }}" class="qs-view-link">{{ __('View full details') }}</a>
 
@@ -170,9 +209,7 @@
         @endif
 
         @if ($product->options()->count() > 0 && isset($product->toArray()['options']))
-            <div class="pr_switch_wrap" id="product-option">
-                {!! render_product_options($product) !!}
-            </div>
+            <div class="pr_switch_wrap" id="product-option">{!! render_product_options($product) !!}</div>
         @endif
 
         <form class="add-to-cart-form" method="POST" action="{{ route('public.cart.add-to-cart') }}" data-bb-toggle="product-form">
@@ -196,6 +233,5 @@
                 </div>
             @endif
         </form>
-
     </div>
 </div>

@@ -1011,7 +1011,14 @@
                 // Sync strip thumbnail
                 var thumbs = Array.from(gallery.querySelectorAll('.qs-thumb'));
                 thumbs.forEach(function(t) {
-                    var match = (t.dataset.tab === g.tab) && (parseInt(t.dataset.index) === g.groupIdx);
+                    var match;
+                    if (t.dataset.slideIndex !== undefined) {
+                        // Image thumb — match by global slide index
+                        match = parseInt(t.dataset.slideIndex) === idx;
+                    } else {
+                        // Video thumb — match by tab + group index
+                        match = (t.dataset.tab === g.tab) && (parseInt(t.dataset.index) === g.groupIdx);
+                    }
                     t.classList.toggle('active', match);
                     if (match) t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                 });
@@ -1053,9 +1060,15 @@
             // Strip thumbnail click → jump to that slide
             Array.from(gallery.querySelectorAll('.qs-thumb')).forEach(function(thumb) {
                 thumb.addEventListener('click', function() {
+                    // Image thumbs have data-slide-index (global index)
+                    if (thumb.dataset.slideIndex !== undefined) {
+                        go(parseInt(thumb.dataset.slideIndex));
+                        return;
+                    }
+                    // Video thumbs: find by tab + index
                     var tab      = thumb.dataset.tab;
                     var groupIdx = parseInt(thumb.dataset.index);
-                    var grp      = (tab === 'videos') ? videoSlides : imageSlides;
+                    var grp      = videoSlides;
                     var slide    = grp[groupIdx];
                     var gIdx     = allSlides.indexOf(slide);
                     if (gIdx >= 0) go(gIdx);
@@ -1118,8 +1131,9 @@
                 });
             }
 
-            // Start at first image slide
-            go(0);
+            // Start: jump to the default variation image (data-jump attribute)
+            var jumpIdx = parseInt(gallery.dataset.jump) || 0;
+            go(jumpIdx);
         }
 
         // ── Qty buttons ───────────────────────────────────────────────────────
@@ -1294,51 +1308,31 @@
         function updateQSGalleryImages(imageUrls) {
             var offcanvas = document.getElementById('quick-shop-modal');
             if (!offcanvas) return;
-            var track  = offcanvas.querySelector('.qs-track');
-            var thumbs = offcanvas.querySelector('.qs-thumbs');
-            if (!track) return;
+            var gallery = offcanvas.querySelector('.qs-gallery');
+            if (!gallery || !gallery._qsGo) return;
 
-            // Remove old image slides
-            Array.from(track.querySelectorAll('.qs-slide--image')).forEach(function(s) { s.remove(); });
+            if (!imageUrls || !imageUrls.length) return;
 
-            // Remove old image thumbs and first divider
-            if (thumbs) {
-                Array.from(thumbs.querySelectorAll('.qs-thumb--image')).forEach(function(t) { t.remove(); });
-                var div = thumbs.querySelector('.qs-thumbs-divider');
-                if (div) div.remove();
-            }
+            // Find the first of these image URLs in the existing track
+            var firstUrl = imageUrls[0];
+            var slides   = Array.from(gallery.querySelectorAll('.qs-slide--image'));
 
-            // Insert new image slides before first video slide
-            var firstVideo = track.querySelector('.qs-slide--video');
-            imageUrls.forEach(function(url, i) {
-                var slide = document.createElement('div');
-                slide.className = 'qs-slide qs-slide--image';
-                slide.innerHTML = '<img src="' + url + '" alt="" loading="lazy" />';
-                if (firstVideo) track.insertBefore(slide, firstVideo);
-                else track.appendChild(slide);
-
-                // Add thumb
-                if (thumbs) {
-                    var thumb = document.createElement('div');
-                    thumb.className = 'qs-thumb qs-thumb--image' + (i === 0 ? ' active' : '');
-                    thumb.dataset.index = i;
-                    thumb.dataset.tab   = 'images';
-                    thumb.innerHTML     = '<img src="' + url + '" alt="" loading="lazy" />';
-                    var firstVidThumb = thumbs.querySelector('.qs-thumb--video');
-                    if (firstVidThumb) thumbs.insertBefore(thumb, firstVidThumb);
-                    else thumbs.appendChild(thumb);
+            for (var i = 0; i < slides.length; i++) {
+                var slideSrc = slides[i].dataset.src || '';
+                // Match by filename (URL may differ in query params)
+                var slideFile = slideSrc.split('/').pop().split('?')[0];
+                var targetFile = firstUrl.split('/').pop().split('?')[0];
+                if (slideSrc === firstUrl || slideFile === targetFile) {
+                    // Jump to this slide's global index
+                    var allSlides = Array.from(gallery.querySelector('.qs-track').querySelectorAll('.qs-slide'));
+                    var globalIdx = allSlides.indexOf(slides[i]);
+                    if (globalIdx >= 0) gallery._qsGo(globalIdx);
+                    return;
                 }
-            });
-
-            // Re-add divider before videos if needed
-            if (thumbs && thumbs.querySelector('.qs-thumb--video') && imageUrls.length > 0) {
-                var newDiv = document.createElement('div');
-                newDiv.className = 'qs-thumbs-divider';
-                thumbs.insertBefore(newDiv, thumbs.querySelector('.qs-thumb--video'));
             }
 
-            // Re-init gallery — will jump to index 0 (first image)
-            initQSGallery(offcanvas);
+            // If not found, just jump to first image
+            gallery._qsGo(0);
         }
 
         // ── Title expand ────────────────────────────────────────────────
