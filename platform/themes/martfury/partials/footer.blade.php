@@ -909,19 +909,7 @@
                 $input.closest('li').addClass('selected');
                 var title = $input.closest('li').data('title') || '';
                 $wrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
-                
-                // Update stock message
-                var stock = $input.closest('li').data('stock');
-                var $stockEl = $(scope).find('.js-qs-stock');
-                if (stock !== '' && stock !== undefined && stock !== null) {
-                    if (stock <= 0) {
-                        $stockEl.text('Out of stock').addClass('qs-stock--out');
-                    } else {
-                        $stockEl.text('Only ' + stock + ' left').removeClass('qs-stock--out');
-                    }
-                } else {
-                    $stockEl.text('').removeClass('qs-stock--out');
-                }
+                // Stock is handled by defaultOnChangeSwatchesSuccess patch
             });
 
             // Grid pagination (2-column pages, 2 rows = 4 per page)
@@ -961,7 +949,56 @@
             });
         }
 
-        // Update gallery images when variation changes inside quick-shop offcanvas
+        // ── Override defaultOnChangeSwatchesSuccess to suppress CMS stock message ─
+        // The CMS updates .number-items-available — we intercept after it runs
+        // and update our .js-qs-stock instead, then blank .number-items-available
+        var _origDefaultOnChange = null;
+
+        function patchSwatchesHandler() {
+            if (window.EcommerceApp && window.EcommerceApp.defaultOnChangeSwatchesSuccess && !window.EcommerceApp._qsPatched) {
+                _origDefaultOnChange = window.EcommerceApp.defaultOnChangeSwatchesSuccess.bind(window.EcommerceApp);
+                window.EcommerceApp.defaultOnChangeSwatchesSuccess = function(response, element) {
+                    // Run the original handler
+                    _origDefaultOnChange(response, element);
+
+                    // Only interfere if we're inside the quick-shop offcanvas
+                    if (!document.getElementById('quick-shop-modal') || !document.getElementById('quick-shop-modal').classList.contains('show')) return;
+
+                    // Blank the CMS stock message immediately
+                    $('#quick-shop-modal .number-items-available').html('').hide();
+
+                    // Now update our stock element
+                    var data = response && response.data ? response.data : null;
+                    if (!data) return;
+                    var $stock = $('#quick-shop-modal .js-qs-stock');
+                    $stock.removeClass('qs-stock--out');
+
+                    if (data.error_message) {
+                        $stock.text('Stock not available').addClass('qs-stock--out');
+                    } else if (data.with_storehouse_management) {
+                        var qty = parseInt(data.quantity) || 0;
+                        if (qty <= 0) {
+                            $stock.text('Stock not available').addClass('qs-stock--out');
+                        } else {
+                            $stock.text('Out of ' + qty.toLocaleString() + ' units');
+                        }
+                    } else if (data.success_message) {
+                        $stock.text('In stock');
+                    } else {
+                        $stock.text('');
+                    }
+                };
+                window.EcommerceApp._qsPatched = true;
+            }
+        }
+
+        // Patch immediately and also after quick-shop opens (EcommerceApp may load late)
+        patchSwatchesHandler();
+        document.getElementById('quick-shop-modal') && document.getElementById('quick-shop-modal').addEventListener('shown.bs.offcanvas', function() {
+            patchSwatchesHandler();
+            // Also blank any existing CMS message
+            $(this).find('.number-items-available').html('').hide();
+        });
         // Hook into product-filter-item change — intercept the variation AJAX response
         $(document).on('change', '#quick-shop-modal .product-filter-item', function() {
             var $input   = $(this);
@@ -1002,28 +1039,7 @@
                     // Update hidden product ID
                     $('#quick-shop-modal .hidden-product-id').val(data.id);
 
-                    // Update stock message
-                    var $stock = $('#quick-shop-modal .js-qs-stock');
-                    if (data.error_message) {
-                        // Out of stock or unavailable
-                        $stock.text('Stock not available').addClass('qs-stock--out');
-                    } else {
-                        $stock.removeClass('qs-stock--out');
-                        var qty = data.quantity !== undefined ? parseInt(data.quantity) : null;
-                        if (qty !== null && data.with_storehouse_management) {
-                            if (qty <= 0) {
-                                $stock.text('Stock not available').addClass('qs-stock--out');
-                            } else {
-                                $stock.text('Out of ' + qty.toLocaleString() + ' units');
-                            }
-                        } else if (data.success_message) {
-                            $stock.text('In stock');
-                        } else if (data.warning_message) {
-                            $stock.text(data.warning_message);
-                        } else {
-                            $stock.text('');
-                        }
-                    }
+                    // Update stock — handled by defaultOnChangeSwatchesSuccess patch above
                 }
             });
         });
