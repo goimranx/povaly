@@ -275,9 +275,12 @@
         transition: color .2s;
     }
     .qs-video-zone:hover { color: #fff; }
-    .qs-video-zone--prev { left: 0; cursor: w-resize; }
-    .qs-video-zone--next { right: 0; cursor: e-resize; }
+    .qs-video-zone--prev { left: 0; cursor: pointer; }
+    .qs-video-zone--next { right: 0; cursor: pointer; }
     .qs-video-zone svg { filter: drop-shadow(0 1px 3px rgba(0,0,0,.5)); }
+    /* Play facade: default cursor so it doesn't look like a link */
+    .qs-video-facade { cursor: default; }
+    .qs-play-btn { cursor: pointer; pointer-events: auto; }
 
     /* Dots - above the pill */
     .qs-dots {
@@ -394,12 +397,12 @@
         object-fit: cover;
         display: block;
     }
-    .qs-var-item__color {
+    /* Color fill when no image — fills the whole thumb like an image would */
+    .qs-var-item__color-fill {
         display: block;
         width: 100%;
         height: 100%;
         min-height: 60px;
-        border-radius: 4px;
     }
     .qs-var-item__price {
         font-size: 11px;
@@ -900,6 +903,63 @@
                     if (nextBtn) nextBtn.style.display = 'none';
                 }
             });
+        }
+
+        // Update gallery images when variation changes inside quick-shop offcanvas
+        // Hook into product-filter-item change — intercept the variation AJAX response
+        $(document).on('change', '#quick-shop-modal .product-filter-item', function() {
+            var $input   = $(this);
+            var $product = $input.closest('.product-attributes');
+            var url      = $product.data('target');
+            if (!url) return;
+
+            // Collect all selected attribute IDs
+            var attrs = {};
+            $product.find('input.product-filter-item:checked').each(function() {
+                var slug = $(this).data('slug');
+                attrs['attributes[' + slug + ']'] = $(this).val();
+            });
+
+            $.ajax({
+                url: url,
+                data: attrs,
+                type: 'GET',
+                success: function(res) {
+                    if (res.error || !res.data) return;
+                    var data = res.data;
+
+                    // Update gallery images
+                    if (data.image_with_sizes && data.image_with_sizes.origin && data.image_with_sizes.origin.length) {
+                        updateQSGalleryImages(data.image_with_sizes.origin);
+                    }
+
+                    // Update hidden product ID
+                    $('#quick-shop-modal .hidden-product-id').val(data.id);
+                }
+            });
+        });
+
+        function updateQSGalleryImages(imageUrls) {
+            var offcanvas = document.getElementById('quick-shop-modal');
+            if (!offcanvas) return;
+            var track = offcanvas.querySelector('.qs-track');
+            if (!track) return;
+
+            // Remove old image slides
+            Array.from(track.querySelectorAll('.qs-slide--image')).forEach(function(s) { s.remove(); });
+
+            // Insert new image slides before first video slide
+            var firstVideo = track.querySelector('.qs-slide--video');
+            imageUrls.forEach(function(url) {
+                var slide = document.createElement('div');
+                slide.className = 'qs-slide qs-slide--image';
+                slide.innerHTML = '<img src="' + url + '" alt="" loading="lazy" />';
+                if (firstVideo) track.insertBefore(slide, firstVideo);
+                else track.appendChild(slide);
+            });
+
+            // Re-init gallery (images tab)
+            initQSGallery(offcanvas);
         }
 
         // Pause ALL media when offcanvas closes
