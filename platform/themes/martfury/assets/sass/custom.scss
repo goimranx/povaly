@@ -3468,3 +3468,22 @@ ul.bb-social-sharing {
         }
     }
 }
+
+
+// Mobile menu icon beside logo
+.navigation--mobile {
+    .navigation__left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        
+        .header__extra--menu {
+            order: -1; // Menu icon comes first
+            margin-right: 0;
+        }
+        
+        .ps-logo {
+            order: 0; // Logo comes second
+        }
+    }
+}
