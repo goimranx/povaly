@@ -3475,11 +3475,16 @@ ul.bb-social-sharing {
     .navigation__left {
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 5px;
         
         .header__extra--menu {
             order: -1; // Menu icon comes first
             margin-right: 0;
+            
+            // Right-align the hamburger lines (SVG)
+            svg.mobile-menu-icon {
+                transform: scaleX(-1); // Flip horizontally to right-align the lines
+            }
         }
         
         .ps-logo {
