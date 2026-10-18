@@ -495,6 +495,10 @@
     }
     .qs-color-item.selected:hover,
     .qs-color-item:has(input:checked):hover { outline-width: 1px; }
+
+    /* Always hide CMS default stock message — we use .js-qs-stock */
+    #quick-shop-modal .number-items-available { display: none !important; }
+
     .qs-info {
         padding: 20px 24px 24px;
         position: relative;
@@ -1001,19 +1005,24 @@
                     // Update stock message
                     var $stock = $('#quick-shop-modal .js-qs-stock');
                     if (data.error_message) {
-                        $stock.text(data.error_message).addClass('qs-stock--out');
-                    } else if (data.success_message) {
-                        // Convert "X products available" → "Out of X units"
-                        var qty = data.quantity || 0;
-                        if (qty > 0) {
-                            $stock.text('Out of ' + qty.toLocaleString() + ' units').removeClass('qs-stock--out');
-                        } else {
-                            $stock.text(data.success_message).removeClass('qs-stock--out');
-                        }
-                    } else if (data.warning_message) {
-                        $stock.text(data.warning_message).removeClass('qs-stock--out');
+                        // Out of stock or unavailable
+                        $stock.text('Stock not available').addClass('qs-stock--out');
                     } else {
-                        $stock.text('').removeClass('qs-stock--out');
+                        $stock.removeClass('qs-stock--out');
+                        var qty = data.quantity !== undefined ? parseInt(data.quantity) : null;
+                        if (qty !== null && data.with_storehouse_management) {
+                            if (qty <= 0) {
+                                $stock.text('Stock not available').addClass('qs-stock--out');
+                            } else {
+                                $stock.text('Out of ' + qty.toLocaleString() + ' units');
+                            }
+                        } else if (data.success_message) {
+                            $stock.text('In stock');
+                        } else if (data.warning_message) {
+                            $stock.text(data.warning_message);
+                        } else {
+                            $stock.text('');
+                        }
                     }
                 }
             });

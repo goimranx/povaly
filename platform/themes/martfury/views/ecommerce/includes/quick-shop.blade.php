@@ -3,14 +3,22 @@
     $videoList = $hasVideo ? array_values(array_filter($product->video, fn($v) => !empty($v['url']))) : [];
     $galleryImages = !empty($productImages) ? $productImages : ($product->images ?? []);
 
+    // Use default variation for initial price/stock if product has variations
+    $displayProduct = ($product->has_variation && $productVariation && $productVariation->id !== $product->id)
+        ? $productVariation
+        : $product;
+
     // Stock text for initial render
-    $stockText = '';
+    $stockText  = '';
     $stockClass = '';
-    if ($product->isOutOfStock()) {
-        $stockText  = __('Out of stock');
+    if ($displayProduct->isOutOfStock()) {
+        $stockText  = __('Stock not available');
         $stockClass = 'qs-stock--out';
-    } elseif ($product->with_storehouse_management && $product->quantity > 0) {
-        $stockText  = __('Out of :qty units', ['qty' => number_format($product->quantity)]);
+    } elseif ($displayProduct->with_storehouse_management && $displayProduct->quantity > 0) {
+        $stockText  = __('Out of :qty units', ['qty' => number_format($displayProduct->quantity)]);
+        $stockClass = '';
+    } elseif (!$displayProduct->with_storehouse_management) {
+        $stockText  = __('In stock');
         $stockClass = '';
     }
 @endphp
@@ -87,9 +95,9 @@
         {{-- Title — h3 for SEO (h1 is the product page title) --}}
         <h3 class="qs-title">{!! BaseHelper::clean($product->name) !!}</h3>
 
-        {{-- Price --}}
+        {{-- Price — uses default variation price on first load --}}
         {!! Theme::partial('product-price', [
-            'product'           => $product,
+            'product'           => $displayProduct,
             'priceWrapperTag'   => 'div',
             'priceWrapperClass' => 'qs-price',
         ]) !!}
@@ -103,8 +111,8 @@
                     'referenceProduct' => $referenceProduct ?? null,
                 ]) !!}
             </div>
-            {{-- Hide the default number-items-available since we use .js-qs-stock instead --}}
-            <div class="number-items-available" style="display:none;"></div>
+            {{-- Hide the default number-items-available — we use .js-qs-stock instead --}}
+            <div class="number-items-available" style="display:none !important;"></div>
         @endif
 
         @if ($product->options()->count() > 0 && isset($product->toArray()['options']))
@@ -116,7 +124,7 @@
         <form class="add-to-cart-form" method="POST" action="{{ route('public.cart.add-to-cart') }}" data-bb-toggle="product-form">
             @csrf
             <input type="hidden" name="id" class="hidden-product-id"
-                   value="{{ ($product->is_variation || !$product->defaultVariation->product_id) ? $product->id : $product->defaultVariation->product_id }}" />
+                   value="{{ $displayProduct->id }}" />
 
             {{-- Quantity + Stock --}}
             <div class="qs-qty-row">
