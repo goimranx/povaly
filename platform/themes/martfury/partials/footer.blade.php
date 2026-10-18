@@ -275,8 +275,8 @@
         transition: color .2s;
     }
     .qs-video-zone:hover { color: #fff; }
-    .qs-video-zone--prev { left: 0; }
-    .qs-video-zone--next { right: 0; }
+    .qs-video-zone--prev { left: 0; cursor: w-resize; }
+    .qs-video-zone--next { right: 0; cursor: e-resize; }
     .qs-video-zone svg { filter: drop-shadow(0 1px 3px rgba(0,0,0,.5)); }
 
     /* Dots - above the pill */
