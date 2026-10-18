@@ -1,10 +1,5 @@
 @php
-    Theme::set('stickyHeader', 'false');
-    Theme::set('topHeader', Theme::partial('header-product-page', compact('product')));
-    Theme::set('bottomFooter', Theme::partial('footer-product-page', compact('product')));
     Theme::set('pageId', 'product-page');
-    Theme::set('headerMobile', Theme::partial('header-mobile-product'));
-    Theme::set('showBottomBarMenu', false);
 @endphp
 
 <div class="ps-page--product">
