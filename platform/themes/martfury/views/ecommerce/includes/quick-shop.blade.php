@@ -29,11 +29,16 @@
             <button type="button" class="qs-mobile-header__btn qs-mobile-close" data-bs-dismiss="offcanvas" aria-label="{{ __('Close') }}">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-            @if ($hasVideo)
+            @if ($hasVideo || $product->has_variation)
                 {{-- Mobile: pill sits here (top-center) via absolute positioning --}}
                 <div class="qs-pill qs-pill--mobile-top">
                     <button type="button" class="qs-pill__btn active" data-tab="images">{{ __('Images') }}</button>
-                    <button type="button" class="qs-pill__btn" data-tab="videos">{{ __('Videos') }}</button>
+                    @if ($hasVideo)
+                        <button type="button" class="qs-pill__btn" data-tab="videos">{{ __('Videos') }}</button>
+                    @endif
+                    @if ($product->has_variation)
+                        <button type="button" class="qs-pill__btn" data-tab="styles">{{ __('Style') }}</button>
+                    @endif
                 </div>
             @endif
             <button type="button" class="qs-mobile-header__btn qs-share-btn" aria-label="{{ __('Share') }}" data-url="{{ $product->url }}" data-title="{{ $product->name }}">
@@ -83,6 +88,49 @@
                         @endif
                     </div>
                 @endforeach
+
+                {{-- Style slide — all variation color thumbnails in a grid --}}
+                @if ($product->has_variation && isset($productVariations) && $productVariations->isNotEmpty())
+                    @php
+                        // Collect all visual (color) attribute sets
+                        $styleItems = collect();
+                        foreach ($productVariations as $pv) {
+                            if (!$pv->product) continue;
+                            $imgUrl = $pv->product->image ? RvMedia::getImageUrl($pv->product->image, 'medium') : null;
+                            // Get the first visual attribute for this variation (color name)
+                            $colorAttr = $pv->productAttributes->first(function($attr) {
+                                return $attr->productAttributeSet && $attr->productAttributeSet->display_layout === 'visual';
+                            });
+                            if (!$colorAttr) $colorAttr = $pv->productAttributes->first();
+                            if ($imgUrl || $colorAttr) {
+                                $styleItems->push([
+                                    'img'   => $imgUrl,
+                                    'color' => $colorAttr ? ($colorAttr->color ?: null) : null,
+                                    'name'  => $colorAttr ? $colorAttr->title : '',
+                                ]);
+                            }
+                        }
+                        $styleItems = $styleItems->unique('name')->values();
+                    @endphp
+                    @if ($styleItems->isNotEmpty())
+                        <div class="qs-slide qs-slide--style" style="display:none;">
+                            <div class="qs-style-grid">
+                                @foreach ($styleItems as $item)
+                                    <div class="qs-style-item">
+                                        @if ($item['img'])
+                                            <img src="{{ $item['img'] }}" alt="{{ $item['name'] }}" loading="lazy" />
+                                        @elseif ($item['color'])
+                                            <div class="qs-style-item__color" style="background-color: {{ $item['color'] }};"></div>
+                                        @else
+                                            <div class="qs-style-item__color" style="background:#eee;"></div>
+                                        @endif
+                                        <span class="qs-style-item__name">{{ $item['name'] }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+                @endif
             </div>
             <button type="button" class="qs-arrow qs-arrow--next" aria-label="{{ __('Next') }}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -99,7 +147,16 @@
                 <div class="qs-pill qs-pill--desktop">
                     <button type="button" class="qs-pill__btn active" data-tab="images">{{ __('Images') }}</button>
                     <button type="button" class="qs-pill__btn" data-tab="videos">{{ __('Videos') }}</button>
+                    <button type="button" class="qs-pill__btn" data-tab="styles">{{ __('Style') }}</button>
                 </div>
+            @else
+                {{-- Even without video, show Style tab if product has variations --}}
+                @if ($product->has_variation)
+                    <div class="qs-pill qs-pill--desktop">
+                        <button type="button" class="qs-pill__btn active" data-tab="images">{{ __('Images') }}</button>
+                        <button type="button" class="qs-pill__btn" data-tab="styles">{{ __('Style') }}</button>
+                    </div>
+                @endif
             @endif
         </div>
 

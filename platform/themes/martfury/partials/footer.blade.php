@@ -426,7 +426,48 @@
         text-shadow: 0 1px 3px rgba(0,0,0,.5);
     }
 
-    /* ── Z-index: offcanvas above everything (bottom bar, scroll-to-top) ── */
+    /* ── Style tab grid ── */
+    .qs-slide--style {
+        overflow-y: auto;
+        align-items: flex-start;
+        padding: 12px;
+        background: var(--global-color-site-bg, #f8f8f8);
+    }
+    .qs-style-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        width: 100%;
+    }
+    .qs-style-item {
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+        background: #fff;
+        aspect-ratio: 1;
+        cursor: pointer;
+    }
+    .qs-style-item img,
+    .qs-style-item__color {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .qs-style-item__name {
+        position: absolute;
+        bottom: 0; right: 0;
+        background: rgba(0,0,0,0.55);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 500;
+        padding: 2px 6px;
+        border-radius: 4px 0 0 0;
+        white-space: nowrap;
+        max-width: 90%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
     .offcanvas-backdrop { z-index: 10100 !important; }
     .offcanvas           { z-index: 10110 !important; }
     .qs-close-btn        { z-index: 10115 !important; }
@@ -950,16 +991,22 @@
             function setTab(tab) {
                 stopAllMedia();
 
-                const show = tab === 'videos' ? videoSlides : imageSlides;
-                const hide = tab === 'videos' ? imageSlides : videoSlides;
+                const imageSlidesList = Array.from(gallery.querySelectorAll('.qs-slide--image'));
+                const videoSlidesList = Array.from(gallery.querySelectorAll('.qs-slide--video'));
+                const styleSlidesList = Array.from(gallery.querySelectorAll('.qs-slide--style'));
 
-                hide.forEach(function(s) { s.style.display = 'none'; });
+                const show = tab === 'videos' ? videoSlidesList
+                           : tab === 'styles' ? styleSlidesList
+                           : imageSlidesList;
+                const hideAll = [...imageSlidesList, ...videoSlidesList, ...styleSlidesList].filter(s => !show.includes(s));
+
+                hideAll.forEach(function(s) { s.style.display = 'none'; });
                 show.forEach(function(s) { s.style.display = ''; });
                 active = show;
                 idx = 0;
                 buildDots();
 
-                // Show only this tab's thumbnails
+                // Show only this tab's thumbnails (style tab has no thumbs)
                 Array.from(gallery.querySelectorAll('.qs-thumb')).forEach(function(t) {
                     t.style.display = (t.dataset.tab === tab) ? '' : 'none';
                 });
