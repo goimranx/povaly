@@ -115,456 +115,322 @@
 
     @include(Theme::getThemeNamespace('views.ecommerce.includes.quick-shop-modal'))
 
-    {{-- Inline CSS for Quick View & Quick Shop Offcanvas --}}
+    {{-- Inline CSS for Quick Shop Offcanvas --}}
     @once
     <style>
-    /**
-     * Quick View & Quick Shop Offcanvas Styles
-     * Converts modal to side drawer similar to product details page
-     */
-
-    /* Offcanvas Base Styling */
-    #product-quickview.offcanvas,
-    #quick-shop-modal.offcanvas {
-        width: 600px !important;
+    /* ── Offcanvas shell ─────────────────────────────────────────── */
+    .qs-offcanvas {
+        width: 560px !important;
         max-width: 90vw;
+        padding: 0 !important;
+        overflow: hidden;
+    }
+    .qs-body {
+        padding: 0 !important;
+        overflow-y: auto;
+        height: 100%;
     }
 
+    /* ── Close button – floats outside the panel ─────────────────── */
+    .qs-close-btn {
+        position: fixed;
+        top: 14px;
+        right: calc(560px + 12px); /* just left of panel */
+        z-index: 1060;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #fff;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,.2);
+        color: #333;
+        transition: background .2s, opacity .2s;
+        opacity: 0;
+        pointer-events: none;
+    }
+    .qs-offcanvas.show .qs-close-btn,
+    .qs-offcanvas.showing .qs-close-btn {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .qs-close-btn:hover { background: #f5f5f5; }
+
     @media (max-width: 768px) {
-        #product-quickview.offcanvas,
-        #quick-shop-modal.offcanvas {
+        .qs-offcanvas {
             width: 100% !important;
             max-width: 100vw;
         }
+        .qs-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            left: auto;
+            background: rgba(255,255,255,.92);
+            box-shadow: 0 1px 4px rgba(0,0,0,.15);
+            opacity: 1;
+            pointer-events: auto;
+        }
     }
 
-    /* Offcanvas Header with Title */
-    #product-quickview .offcanvas-header,
-    #quick-shop-modal .offcanvas-header {
-        padding: 20px 24px;
-        border-bottom: none;
-        background: #fff;
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-    }
-
-    #product-quickview .offcanvas-title,
-    #quick-shop-modal .offcanvas-title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #0F1111;
-        margin: 0;
-    }
-
-    #product-quickview .btn-close,
-    #quick-shop-modal .btn-close {
-        width: 32px;
-        height: 32px;
-        background-size: 16px;
-        opacity: 0.6;
-        transition: opacity 0.2s ease;
-    }
-
-    #product-quickview .btn-close:hover,
-    #quick-shop-modal .btn-close:hover {
-        opacity: 1;
-    }
-
-    /* Offcanvas Body */
-    #product-quickview .offcanvas-body,
-    #quick-shop-modal .offcanvas-body {
-        padding: 24px;
-        overflow-y: auto;
-        background: #fff;
-    }
-
-    /* Product Content Styling */
-    #product-quickview .ps-product--detail,
-    #quick-shop-modal .ps-product--detail {
-        background: transparent;
-        border: none;
-        box-shadow: none;
-        margin: 0;
-        padding: 0;
-    }
-
-    /* Quick View Product Header */
-    #product-quickview .ps-product__header {
+    /* ── Product wrapper ──────────────────────────────────────────── */
+    .qs-product {
         display: flex;
         flex-direction: column;
-        gap: 20px;
     }
 
-    #product-quickview .ps-product__thumbnail {
+    /* ── Gallery ──────────────────────────────────────────────────── */
+    .qs-gallery {
+        position: relative;
+        background: #f8f8f8;
+    }
+    .qs-gallery__viewport {
+        position: relative;
+        overflow: hidden;
         width: 100%;
-        margin-bottom: 20px;
+        height: 380px;
     }
-
-    #product-quickview .ps-product__thumbnail img {
+    @media (max-width: 576px) {
+        .qs-gallery__viewport { height: 280px; }
+    }
+    .qs-track {
+        display: flex;
+        height: 100%;
+        transition: transform 0.3s ease;
+        will-change: transform;
+    }
+    .qs-slide {
+        min-width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .qs-slide img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+    .qs-slide--video {
+        background: #000;
+        align-items: stretch;
+    }
+    .qs-video-facade {
+        position: relative;
         width: 100%;
-        height: auto;
-        border-radius: 8px;
+        height: 100%;
+        cursor: pointer;
+    }
+    .qs-video-facade img { width:100%; height:100%; object-fit:cover; display:block; }
+    .qs-play-btn {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%,-50%);
+        width: 60px; height: 60px;
+        background: rgba(255,255,255,.9);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: #333;
+        box-shadow: 0 4px 20px rgba(0,0,0,.25);
+        transition: background .2s;
+    }
+    .qs-video-facade:hover .qs-play-btn { background: #fff; }
+
+    /* Arrows */
+    .qs-arrow {
+        position: absolute;
+        top: 50%; transform: translateY(-50%);
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.88);
+        border: none;
+        cursor: pointer;
+        z-index: 10;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,.15);
+        transition: background .2s, opacity .2s;
+        color: #222;
+    }
+    .qs-arrow:hover { background: #fff; }
+    .qs-arrow:disabled { opacity: .3; cursor: not-allowed; }
+    .qs-arrow--prev { left: 10px; }
+    .qs-arrow--next { right: 10px; }
+
+    /* Dots */
+    .qs-dots {
+        position: absolute;
+        bottom: 10px; left: 0; right: 0;
+        display: flex; justify-content: center; gap: 6px;
+        pointer-events: none;
+    }
+    .qs-dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.55);
+        transition: background .2s, transform .2s;
+        pointer-events: auto;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+    .qs-dot.active {
+        background: #fff;
+        transform: scale(1.3);
     }
 
-    #product-quickview .ps-product__info h1 {
-        font-size: 20px;
+    /* Images / Videos pill */
+    .qs-pill {
+        display: flex;
+        justify-content: center;
+        padding: 10px 0 8px;
+        gap: 4px;
+    }
+    .qs-pill__btn {
+        padding: 5px 20px;
+        border-radius: 20px;
+        border: 1px solid #d0d0d0;
+        background: #fff;
+        font-size: 13px;
+        font-weight: 500;
+        color: #555;
+        cursor: pointer;
+        transition: all .2s;
+    }
+    .qs-pill__btn.active {
+        background: #222;
+        color: #fff;
+        border-color: #222;
+    }
+
+    /* ── Info section ─────────────────────────────────────────────── */
+    .qs-info {
+        padding: 20px 24px 24px;
+        position: relative;
+    }
+    @media (max-width: 576px) {
+        .qs-info { padding: 16px; }
+    }
+    .qs-title {
+        font-size: 17px;
         font-weight: 600;
-        margin-bottom: 12px;
         line-height: 1.4;
+        margin: 0 0 10px;
+        color: #111;
     }
-
-    #product-quickview .ps-product__info h1 a {
-        color: #0F1111;
-        text-decoration: none;
-    }
-
-    #product-quickview .ps-product__info h1 a:hover {
-        color: #C7511F;
-    }
-
-    /* Price Styling */
-    #product-quickview .ps-product__price,
-    #quick-shop-modal .ps-product__price {
-        margin-bottom: 16px;
-    }
-
-    #product-quickview .ps-product__price h4,
-    #quick-shop-modal .ps-product__price h4 {
-        font-size: 24px;
+    .qs-price { margin-bottom: 14px; }
+    .qs-price h4, .qs-price .ps-product__price-sale {
+        font-size: 22px;
         font-weight: 700;
         color: #B12704;
         margin: 0;
     }
 
-    /* Description */
-    #product-quickview .ps-product__desc {
-        margin-bottom: 16px;
-        font-size: 14px;
-        line-height: 1.6;
-        color: #565959;
-    }
-
-    /* Variation Swatches */
-    #product-quickview .pr_switch_wrap,
-    #quick-shop-modal .pr_switch_wrap {
-        margin-bottom: 16px;
-    }
-
-    /* Add to Cart Form */
-    #product-quickview .add-to-cart-form,
-    #quick-shop-modal .add-to-cart-form {
-        margin-top: 20px;
-    }
-
-    #product-quickview .ps-product__shopping,
-    #quick-shop-modal .ps-product__shopping {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    /* Quantity Input */
-    #product-quickview figure,
-    #quick-shop-modal figure {
-        margin: 0;
-    }
-
-    #product-quickview figcaption,
-    #quick-shop-modal figcaption {
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: #0F1111;
-    }
-
-    #product-quickview .form-group--number,
-    #quick-shop-modal .form-group--number {
+    /* Qty row */
+    .qs-qty-row {
         display: flex;
         align-items: center;
-        border: 1px solid #D5D9D9;
-        border-radius: 8px;
+        gap: 12px;
+        margin: 16px 0;
+    }
+    .qs-qty-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #222;
+        white-space: nowrap;
+    }
+    .qs-qty {
+        display: flex;
+        align-items: center;
+        border: 1px solid #ccc;
+        border-radius: 6px;
         overflow: hidden;
         width: fit-content;
     }
-
-    #product-quickview .form-group--number button,
-    #quick-shop-modal .form-group--number button {
-        width: 40px;
-        height: 40px;
+    .qs-qty__btn {
+        width: 36px; height: 36px;
         border: none;
-        background: #F0F2F2;
-        color: #0F1111;
-        cursor: pointer;
-        transition: background 0.2s ease;
-    }
-
-    #product-quickview .form-group--number button:hover,
-    #quick-shop-modal .form-group--number button:hover {
-        background: #E3E6E6;
-    }
-
-    #product-quickview .form-group--number input,
-    #quick-shop-modal .form-group--number input {
-        width: 60px;
-        height: 40px;
-        border: none;
-        text-align: center;
-        font-size: 16px;
-        font-weight: 600;
-        background: #fff;
-    }
-
-    /* Action Buttons */
-    #product-quickview .ps-product__actions,
-    #quick-shop-modal .ps-product__actions {
-        display: flex;
-        gap: 12px;
-        margin-top: 16px;
-    }
-
-    #product-quickview .ps-btn,
-    #quick-shop-modal .ps-btn {
-        flex: 1;
-        padding: 12px 24px;
-        font-size: 14px;
-        font-weight: 600;
-        border-radius: 8px;
-        border: 1px solid;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        text-align: center;
-    }
-
-    #product-quickview .ps-btn--black,
-    #quick-shop-modal .ps-btn--black {
-        background: #FFD814;
-        border-color: #FCD200;
-        color: #0F1111;
-    }
-
-    #product-quickview .ps-btn--black:hover,
-    #quick-shop-modal .ps-btn--black:hover {
-        background: #F7CA00;
-        border-color: #F2C200;
-    }
-
-    #product-quickview .ps-btn:not(.ps-btn--black),
-    #quick-shop-modal .ps-btn:not(.ps-btn--black) {
-        background: #FFA41C;
-        border-color: #FF8F00;
-        color: #0F1111;
-    }
-
-    #product-quickview .ps-btn:not(.ps-btn--black):hover,
-    #quick-shop-modal .ps-btn:not(.ps-btn--black):hover {
-        background: #FA8900;
-        border-color: #E77600;
-    }
-
-    /* Wishlist & Compare Actions */
-    #product-quickview .ps-product__shopping .ps-product__actions,
-    #quick-shop-modal .ps-product__shopping .ps-product__actions {
-        margin-top: 0;
-        justify-content: flex-start;
-    }
-
-    #product-quickview .ps-product__shopping .ps-product__actions a,
-    #quick-shop-modal .ps-product__shopping .ps-product__actions a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border: 1px solid #D5D9D9;
-        border-radius: 8px;
-        color: #565959;
-        transition: all 0.2s ease;
-        text-decoration: none;
-    }
-
-    #product-quickview .ps-product__shopping .ps-product__actions a:hover,
-    #quick-shop-modal .ps-product__shopping .ps-product__actions a:hover {
-        border-color: #0F1111;
-        color: #0F1111;
-    }
-
-    /* View Full Details Link */
-    #product-quickview .ps-product__specification,
-    #quick-shop-modal .ps-product__specification {
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid #e5e5e5;
-    }
-
-    #product-quickview .ps-product__specification .report,
-    #quick-shop-modal .ps-product__specification .report,
-    #product-quickview .btn-link,
-    #quick-shop-modal .btn-link {
-        color: #007185;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 400;
-        transition: color 0.2s ease, text-decoration 0.2s ease;
-    }
-
-    #product-quickview .ps-product__specification .report:hover,
-    #quick-shop-modal .ps-product__specification .report:hover,
-    #product-quickview .btn-link:hover,
-    #quick-shop-modal .btn-link:hover {
-        color: #C7511F;
-        text-decoration: underline;
-    }
-
-    /* Backdrop */
-    .offcanvas-backdrop {
-        background-color: rgba(0, 0, 0, 0.5);
-    }
-
-    /* Loading State */
-    #product-quickview .loading-spinner,
-    #quick-shop-modal .loading-spinner {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 200px;
-    }
-
-    /* Mobile Responsive */
-    @media (max-width: 576px) {
-        #product-quickview .offcanvas-header,
-        #quick-shop-modal .offcanvas-header {
-            padding: 16px;
-        }
-        
-        #product-quickview .offcanvas-body,
-        #quick-shop-modal .offcanvas-body {
-            padding: 16px;
-        }
-        
-        #product-quickview .offcanvas-title,
-        #quick-shop-modal .offcanvas-title {
-            font-size: 18px;
-        }
-        
-        #product-quickview .ps-product__info h1,
-        #quick-shop-modal .ps-product__info h1 {
-            font-size: 18px;
-        }
-        
-        #product-quickview .ps-product__actions,
-        #quick-shop-modal .ps-product__actions {
-            flex-direction: column;
-        }
-        
-        #product-quickview .ps-btn,
-        #quick-shop-modal .ps-btn {
-            width: 100%;
-        }
-    }
-
-    /* Smooth Animations */
-    .offcanvas.offcanvas-end {
-        transition: transform 0.3s ease-in-out;
-    }
-
-    .offcanvas.show {
-        transform: translateX(0);
-    }
-
-    /* Hide old modal styles if any */
-    #product-quickview.modal,
-    #quick-shop-modal.modal {
-        display: none !important;
-    }
-
-    /* Quick Shop Gallery - image carousel with arrows + video toggle */
-    .qs-gallery {
-        margin-bottom: 20px;
-    }
-    .qs-gallery__viewport {
-        position: relative;
-        overflow: hidden;
-        border-radius: 8px;
         background: #f5f5f5;
-    }
-    .qs-gallery__track {
-        display: flex;
-        transition: transform 0.3s ease;
-    }
-    .qs-gallery__slide {
-        min-width: 100%;
-        height: 400px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .qs-gallery__slide img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-    }
-    .qs-gallery__slide--video {
-        background: #000;
-    }
-    .qs-gallery__arrow {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 40px;
-        height: 40px;
-        border: none;
-        border-radius: 50%;
-        background: rgba(255,255,255,.9);
+        font-size: 18px; font-weight: 400;
         color: #333;
-        font-size: 16px;
         cursor: pointer;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,.15);
         transition: background .2s;
+        display: flex; align-items: center; justify-content: center;
+        line-height: 1;
     }
-    .qs-gallery__arrow:hover {
-        background: #fff;
-    }
-    .qs-gallery__arrow--prev { left: 10px; }
-    .qs-gallery__arrow--next { right: 10px; }
-    .qs-gallery__arrow:disabled {
-        opacity: 0.3;
-        cursor: not-allowed;
-    }
-    .qs-gallery__pill {
-        display: flex;
-        justify-content: center;
-        gap: 4px;
-        margin-top: 12px;
-        background: #f0f0f0;
-        border-radius: 20px;
-        padding: 3px;
-        width: fit-content;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .qs-gallery__pill-btn {
+    .qs-qty__btn:hover { background: #e8e8e8; }
+    .qs-qty__input {
+        width: 50px; height: 36px;
         border: none;
-        background: transparent;
-        padding: 6px 18px;
-        border-radius: 18px;
-        font-size: 13px;
-        font-weight: 500;
-        color: #666;
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        text-align: center;
+        font-size: 15px;
+        font-weight: 600;
+        background: #fff;
+        -moz-appearance: textfield;
+    }
+    .qs-qty__input::-webkit-inner-spin-button,
+    .qs-qty__input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    /* Action buttons */
+    .qs-actions {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+    .qs-btn {
+        flex: 1;
+        padding: 11px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: 1px solid transparent;
         cursor: pointer;
+        text-align: center;
         transition: all .2s;
     }
-    .qs-gallery__pill-btn.active {
-        background: #fff;
-        color: #333;
-        box-shadow: 0 1px 4px rgba(0,0,0,.1);
+    .qs-btn--cart {
+        background: #FFD814;
+        border-color: #FCD200;
+        color: #111;
     }
-    .qs-info { padding-top: 10px; }
-    .qs-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; line-height: 1.3; }
+    .qs-btn--cart:hover { background: #f0c800; }
+    .qs-btn--buy {
+        background: #FFA41C;
+        border-color: #FF8F00;
+        color: #111;
+    }
+    .qs-btn--buy:hover { background: #f09600; }
+    .qs-btn:disabled { opacity: .5; cursor: not-allowed; }
+    @media (max-width: 420px) {
+        .qs-actions { flex-direction: column; }
+    }
+
+    /* View link */
+    .qs-view-link {
+        font-size: 13px;
+        color: #007185;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .qs-view-link:hover { color: #C7511F; text-decoration: underline; }
+
+    /* Quick view (product-quickview) basic resets */
+    #product-quickview.offcanvas {
+        width: 560px !important;
+        max-width: 90vw;
+    }
+    #product-quickview .offcanvas-header { border-bottom: none; }
+    #product-quickview .offcanvas-body { padding: 20px 24px; overflow-y: auto; }
+
+    @media (max-width: 768px) {
+        #product-quickview.offcanvas { width: 100% !important; max-width: 100vw; }
+    }
     </style>
     @endonce
 
@@ -585,124 +451,144 @@
         'use strict';
 
         // ── Helpers ──────────────────────────────────────────────────────────
-        function getOrCreateOffcanvas(el) {
-            if (typeof bootstrap === 'undefined' || !bootstrap.Offcanvas) return null;
+        function bsOffcanvas(el) {
+            if (!el || typeof bootstrap === 'undefined') return null;
             return bootstrap.Offcanvas.getInstance(el) || new bootstrap.Offcanvas(el, { backdrop: true, scroll: false });
         }
 
-        function showOffcanvas(id) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const instance = getOrCreateOffcanvas(el);
-            if (instance) instance.show();
-        }
-
-        function hideOffcanvas(id) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const instance = bootstrap.Offcanvas.getInstance(el);
-            if (instance) instance.hide();
-        }
-
-        // ── Quick Shop Click Handler ──────────────────────────────────────────
+        // ── Quick Shop Click ──────────────────────────────────────────────────
         $(document).on('click', '[data-bb-toggle="quick-shop"]', function(e) {
             e.preventDefault();
             e.stopImmediatePropagation();
 
-            const $btn      = $(this);
-            const url       = $btn.data('url');
-            const $offcanvas = $('#quick-shop-modal');
+            const url      = $(this).data('url');
+            const offcanvasEl = document.getElementById('quick-shop-modal');
+            if (!url || !offcanvasEl) return;
 
-            if (!url) return;
+            const $content = $('#quick-shop-modal .quick-shop-content');
 
-            // Reset content + show offcanvas with spinner
-            $offcanvas.find('.quick-shop-content')
-                .html('<div style="display:flex;align-items:center;justify-content:center;height:200px;"><div class="ps-loading"><div class="ps-loading__spinner"></div></div></div>');
-            $offcanvas.find('.offcanvas-title').text('Loading...');
-            showOffcanvas('quick-shop-modal');
+            // Show spinner, then open
+            $content.html(
+                '<div style="display:flex;align-items:center;justify-content:center;min-height:300px;">' +
+                '<div class="ps-loading"><div class="ps-loading__spinner"></div></div></div>'
+            );
+            bsOffcanvas(offcanvasEl).show();
 
             $.ajax({
                 url:  url,
                 type: 'GET',
-                success: function(response) {
-                    if (response.error) {
-                        $offcanvas.find('.quick-shop-content').html('<p class="text-danger p-4">' + (response.message || 'Error') + '</p>');
+                success: function(res) {
+                    if (res.error) {
+                        $content.html('<p class="p-4 text-danger">' + (res.message || 'Error') + '</p>');
                         return;
                     }
-
-                    $offcanvas.find('.quick-shop-content').html(response.data);
-
-                    // Update title
-                    const name = $offcanvas.find('.qs-title').first().text().trim();
-                    $offcanvas.find('.offcanvas-title').text(name.length > 50 ? name.substring(0, 50) + '…' : name || 'Product Details');
-
-                    // Init gallery
-                    initQSGallery($offcanvas[0]);
-
-                    // Dispatch so other scripts can re-init (swatches, qty, etc.)
-                    document.dispatchEvent(new CustomEvent('ecommerce.quick-shop.completed', { detail: { element: $btn[0], modal: $offcanvas } }));
+                    $content.html(res.data);
+                    initQSGallery(offcanvasEl);
+                    initQSQty(offcanvasEl);
+                    document.dispatchEvent(new CustomEvent('ecommerce.quick-shop.completed', {
+                        detail: { element: offcanvasEl, modal: $('#quick-shop-modal') }
+                    }));
                 },
                 error: function() {
-                    $offcanvas.find('.quick-shop-content').html('<p class="text-danger p-4">Failed to load product.</p>');
-                },
-                complete: function() {
-                    $btn.removeClass('loading');
+                    $content.html('<p class="p-4 text-danger">Failed to load product.</p>');
                 }
             });
         });
 
-        // ── Gallery Carousel ─────────────────────────────────────────────────
+        // ── Gallery ───────────────────────────────────────────────────────────
         function initQSGallery(scope) {
-            const gallery  = scope.querySelector('.qs-gallery');
+            const gallery = scope.querySelector('.qs-gallery');
             if (!gallery) return;
 
-            const track    = gallery.querySelector('.qs-gallery__track');
-            const slides   = Array.from(gallery.querySelectorAll('.qs-gallery__slide'));
-            const prevBtn  = gallery.querySelector('.qs-gallery__arrow--prev');
-            const nextBtn  = gallery.querySelector('.qs-gallery__arrow--next');
-            const pillBtns = Array.from(gallery.querySelectorAll('.qs-gallery__pill-btn'));
+            const track    = gallery.querySelector('.qs-track');
+            const dotsEl   = gallery.querySelector('.qs-dots');
+            if (!track) return;
 
-            if (!track || !slides.length) return;
+            const imageSlides = Array.from(gallery.querySelectorAll('.qs-slide--image'));
+            const videoSlides = Array.from(gallery.querySelectorAll('.qs-slide--video'));
+            const prevBtn     = gallery.querySelector('.qs-arrow--prev');
+            const nextBtn     = gallery.querySelector('.qs-arrow--next');
+            const pillBtns    = Array.from(gallery.querySelectorAll('.qs-pill__btn'));
 
-            let visibleSlides = slides.slice(); // default: all (images)
-            let current       = 0;
+            let active = [];  // currently visible slides
+            let idx    = 0;
 
-            function render() {
-                track.style.transform = 'translateX(-' + (current * 100) + '%)';
-                if (prevBtn) prevBtn.disabled = current === 0;
-                if (nextBtn) nextBtn.disabled = current >= visibleSlides.length - 1;
+            function buildDots() {
+                if (!dotsEl) return;
+                dotsEl.innerHTML = '';
+                if (active.length <= 1) return;
+                active.forEach(function(_, i) {
+                    const d = document.createElement('button');
+                    d.className = 'qs-dot' + (i === 0 ? ' active' : '');
+                    d.addEventListener('click', function() { go(i); });
+                    dotsEl.appendChild(d);
+                });
             }
 
-            function setTab(tab) {
-                const imageSlides = slides.filter(s => s.classList.contains('qs-slide--image'));
-                const videoSlides = slides.filter(s => s.classList.contains('qs-slide--video'));
-
-                if (tab === 'videos') {
-                    visibleSlides = videoSlides;
-                    imageSlides.forEach(s => s.style.display = 'none');
-                    videoSlides.forEach(s => s.style.display = '');
-                } else {
-                    visibleSlides = imageSlides;
-                    videoSlides.forEach(s => s.style.display = 'none');
-                    imageSlides.forEach(s => s.style.display = '');
+            function render() {
+                track.style.transform = 'translateX(-' + (idx * 100) + '%)';
+                if (prevBtn) prevBtn.disabled = idx === 0;
+                if (nextBtn) nextBtn.disabled = idx >= active.length - 1;
+                if (dotsEl) {
+                    Array.from(dotsEl.querySelectorAll('.qs-dot')).forEach(function(d, i) {
+                        d.classList.toggle('active', i === idx);
+                    });
                 }
-                current = 0;
+            }
+
+            function go(n) { idx = n; render(); }
+
+            function setTab(tab) {
+                const show = tab === 'videos' ? videoSlides : imageSlides;
+                const hide = tab === 'videos' ? imageSlides : videoSlides;
+
+                // Detach hidden slides from flex flow without removing
+                hide.forEach(function(s) { s.style.display = 'none'; });
+                show.forEach(function(s) { s.style.display = ''; });
+                active = show;
+                idx = 0;
+                buildDots();
                 render();
             }
 
-            if (prevBtn) prevBtn.addEventListener('click', function() { if (current > 0) { current--; render(); } });
-            if (nextBtn) nextBtn.addEventListener('click', function() { if (current < visibleSlides.length - 1) { current++; render(); } });
+            if (prevBtn) prevBtn.addEventListener('click', function() { if (idx > 0) go(idx - 1); });
+            if (nextBtn) nextBtn.addEventListener('click', function() { if (idx < active.length - 1) go(idx + 1); });
 
             pillBtns.forEach(function(btn) {
                 btn.addEventListener('click', function() {
-                    pillBtns.forEach(b => b.classList.remove('active'));
+                    pillBtns.forEach(function(b) { b.classList.remove('active'); });
                     btn.classList.add('active');
                     setTab(btn.dataset.tab);
                 });
             });
 
-            // Default: images tab
+            // YouTube / Vimeo facade → inject iframe on click
+            gallery.querySelectorAll('.qs-video-facade').forEach(function(facade) {
+                facade.addEventListener('click', function() {
+                    const src = facade.dataset.src;
+                    if (!src) return;
+                    const iframe = document.createElement('iframe');
+                    iframe.src = src;
+                    iframe.frameBorder = '0';
+                    iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+                    iframe.allowFullscreen = true;
+                    iframe.style.cssText = 'width:100%;height:100%;border:0;display:block;';
+                    facade.replaceWith(iframe);
+                });
+            });
+
             setTab('images');
+        }
+
+        // ── Qty buttons ───────────────────────────────────────────────────────
+        function initQSQty(scope) {
+            $(scope).on('click', '.qs-qty__btn.up', function() {
+                var $inp = $(this).siblings('.qs-qty__input');
+                $inp.val(Math.max(1, parseInt($inp.val() || 1) + 1));
+            }).on('click', '.qs-qty__btn.down', function() {
+                var $inp = $(this).siblings('.qs-qty__input');
+                $inp.val(Math.max(1, parseInt($inp.val() || 1) - 1));
+            });
         }
 
     })(jQuery);
