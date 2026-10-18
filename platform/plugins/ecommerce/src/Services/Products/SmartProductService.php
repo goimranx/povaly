@@ -36,18 +36,15 @@ class SmartProductService
         $weights = array_merge($defaultWeights, $weights);
         $daysAgo = now()->subDays(7)->format('Y-m-d H:i:s');
         
-        // Build base query using raw SQL to avoid MySQL strict mode issues
+        // Build base query - use DB::raw for string comparisons to avoid strict mode issues
         $query = DB::table('ec_products')
-            ->where('ec_products.status', 'published')
-            ->where('ec_products.is_variation', 0);
+            ->whereRaw("ec_products.status = 'published'")
+            ->whereRaw("ec_products.is_variation = 0");
         
         // Multivendor filtering
         if (is_plugin_active('marketplace')) {
             $query->leftJoin('mp_stores', 'ec_products.store_id', '=', 'mp_stores.id')
-                ->where(function($q) {
-                    $q->where('mp_stores.status', 'published')
-                      ->orWhereNull('mp_stores.id');
-                });
+                ->whereRaw("(`mp_stores`.`status` = 'published' OR `mp_stores`.`id` IS NULL)");
         }
         
         // Category filtering
@@ -91,16 +88,17 @@ class SmartProductService
             GROUP BY product_id
         ) as recent_view_counts'), 'ec_products.id', '=', 'recent_view_counts.product_id');
         
-        // Calculate combined score
+        // Calculate combined score using ANY_VALUE() for non-aggregated columns
+        // to satisfy MySQL ONLY_FULL_GROUP_BY mode
         $query->select(
             'ec_products.id',
             DB::raw(sprintf('(
-                (COALESCE(ec_products.views, 0) * %f) +
+                (COALESCE(ANY_VALUE(ec_products.views), 0) * %f) +
                 (COALESCE(sales.total_sold, 0) * %f) +
                 (COALESCE(recent_view_counts.recent_view_count, 0) * %f) +
                 (COALESCE(recent_sales.recent_sold, 0) * %f) +
                 (COALESCE(wishlists.wishlist_count, 0) * %f) +
-                (COALESCE(ec_products.reviews_avg * LOG(COALESCE(ec_products.reviews_count, 0) + 1), 0) * %f)
+                (COALESCE(ANY_VALUE(ec_products.reviews_avg) * LOG(COALESCE(ANY_VALUE(ec_products.reviews_count), 0) + 1), 0) * %f)
             ) as smart_score',
                 $weights['views'],
                 $weights['sales'],
