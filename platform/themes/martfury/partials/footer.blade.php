@@ -354,8 +354,8 @@
         margin-bottom: 8px;
         font-size: 13px;
     }
-    .qs-swatch__set-name { font-weight: 700; color: #111; }
-    .qs-swatch__selected-val { color: #111; font-weight: 400; }
+    .qs-swatch__set-name { font-weight: 700; color: var(--global-color-text-main, #0D1B2A); }
+    .qs-swatch__selected-val { color: var(--global-color-text-body, #2E3D52); font-weight: 400; }
 
     /* Grid wrapper */
     .qs-var-grid-wrap {
@@ -420,13 +420,13 @@
     .qs-var-item__price-sale {
         font-size: 11px;
         font-weight: 700;
-        color: #111;
+        color: var(--global-color-text-body, #2E3D52);
         line-height: 1.3;
         display: block;
     }
     .qs-var-item__price-orig {
         font-size: 10px;
-        color: #767676;
+        color: var(--global-color-text-muted, #767676);
         line-height: 1.2;
         display: block;
         text-decoration: line-through;
@@ -502,19 +502,29 @@
     @media (max-width: 576px) {
         .qs-info { padding: 16px; }
     }
+    /* h3 not h1 — SEO safe */
     .qs-title {
-        font-size: 17px;
+        font-size: 16px;
         font-weight: 600;
         line-height: 1.4;
         margin: 0 0 10px;
-        color: #111;
+        color: var(--global-color-text-main, #0D1B2A);
     }
-    .qs-price { margin-bottom: 14px; }
-    .qs-price h4, .qs-price .ps-product__price-sale {
-        font-size: 22px;
+    /* Price — text-body color, original muted */
+    .qs-price { margin-bottom: 12px; }
+    .qs-price h4,
+    .qs-price [data-bb-value="product-price"],
+    .qs-price .ps-product__price-sale {
+        font-size: 20px;
         font-weight: 700;
-        color: #B12704;
+        color: var(--global-color-text-body, #2E3D52) !important;
         margin: 0;
+    }
+    .qs-price [data-bb-value="product-original-price"],
+    .qs-price del {
+        color: var(--global-color-text-muted, #767676) !important;
+        font-size: 13px !important;
+        font-weight: 400 !important;
     }
 
     /* Qty row */
@@ -528,12 +538,13 @@
     .qs-qty-label {
         font-size: 13px;
         font-weight: 600;
-        color: #222;
+        color: var(--global-color-text-main, #0D1B2A);
         white-space: nowrap;
     }
+    /* Stock — color-body */
     .qs-stock {
         font-size: 12px;
-        color: #c45500;
+        color: var(--global-color-text-body, #2E3D52);
         font-weight: 500;
         white-space: nowrap;
     }
@@ -543,7 +554,7 @@
     .qs-qty {
         display: flex;
         align-items: center;
-        border: 1px solid #ccc;
+        border: 1px solid var(--global-color-primary-border, #ccc);
         border-radius: 6px;
         overflow: hidden;
         width: fit-content;
@@ -553,7 +564,7 @@
         border: none;
         background: #f5f5f5;
         font-size: 18px; font-weight: 400;
-        color: #333;
+        color: var(--global-color-text-main, #0D1B2A);
         cursor: pointer;
         transition: background .2s;
         display: flex; align-items: center; justify-content: center;
@@ -563,8 +574,8 @@
     .qs-qty__input {
         width: 50px; height: 36px;
         border: none;
-        border-left: 1px solid #ccc;
-        border-right: 1px solid #ccc;
+        border-left: 1px solid var(--global-color-primary-border, #ccc);
+        border-right: 1px solid var(--global-color-primary-border, #ccc);
         text-align: center;
         font-size: 15px;
         font-weight: 600;
@@ -591,18 +602,20 @@
         text-align: center;
         transition: all .2s;
     }
+    /* Add to cart — warning bg, text-main */
     .qs-btn--cart {
-        background: #FFD814;
-        border-color: #FCD200;
-        color: #111;
+        background: var(--global-color-warning, #FBB13C);
+        border-color: var(--global-color-warning, #FBB13C);
+        color: var(--global-color-text-main, #0D1B2A);
     }
-    .qs-btn--cart:hover { background: #f0c800; }
+    .qs-btn--cart:hover { filter: brightness(0.92); }
+    /* Buy now — primary bg, text-main */
     .qs-btn--buy {
-        background: #FFA41C;
-        border-color: #FF8F00;
-        color: #111;
+        background: var(--global-color-primary, #FF642C);
+        border-color: var(--global-color-primary, #FF642C);
+        color: var(--global-color-text-main, #0D1B2A);
     }
-    .qs-btn--buy:hover { background: #f09600; }
+    .qs-btn--buy:hover { filter: brightness(0.9); }
     .qs-btn:disabled { opacity: .5; cursor: not-allowed; }
     @media (max-width: 420px) {
         .qs-actions { flex-direction: column; }
@@ -990,7 +1003,13 @@
                     if (data.error_message) {
                         $stock.text(data.error_message).addClass('qs-stock--out');
                     } else if (data.success_message) {
-                        $stock.text(data.success_message).removeClass('qs-stock--out');
+                        // Convert "X products available" → "Out of X units"
+                        var qty = data.quantity || 0;
+                        if (qty > 0) {
+                            $stock.text('Out of ' + qty.toLocaleString() + ' units').removeClass('qs-stock--out');
+                        } else {
+                            $stock.text(data.success_message).removeClass('qs-stock--out');
+                        }
                     } else if (data.warning_message) {
                         $stock.text(data.warning_message).removeClass('qs-stock--out');
                     } else {
