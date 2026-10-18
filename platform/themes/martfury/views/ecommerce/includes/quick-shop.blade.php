@@ -160,17 +160,52 @@
             @endif
         </div>
 
-        {{-- Thumbnail strip — shows only current tab's thumbs --}}
+        {{-- Thumbnail strip — all thumbs unified with group dividers --}}
         <div class="qs-thumbs">
+            {{-- Image thumbs --}}
             @foreach ($galleryImages as $i => $img)
                 <div class="qs-thumb qs-thumb--image {{ $i === 0 ? 'active' : '' }}" data-index="{{ $i }}" data-tab="images">
                     <img src="{{ RvMedia::getImageUrl($img, 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
                 </div>
             @endforeach
+
+            {{-- Divider before videos --}}
+            @if ($hasVideo && count($galleryImages) > 0)
+                <div class="qs-thumbs-divider"></div>
+            @endif
+
+            {{-- Video thumbs --}}
             @foreach ($videoList as $i => $video)
-                <div class="qs-thumb qs-thumb--video" data-index="{{ $i }}" data-tab="videos" style="display:none;{{ !empty($video['thumbnail']) ? 'background-image:url(' . $video['thumbnail'] . ');background-size:cover;background-position:center;' : '' }}">
+                <div class="qs-thumb qs-thumb--video" data-index="{{ $i }}" data-tab="videos"
+                     style="{{ !empty($video['thumbnail']) ? 'background-image:url(' . $video['thumbnail'] . ');background-size:cover;background-position:center;' : '' }}">
                 </div>
             @endforeach
+
+            {{-- Divider before styles --}}
+            @if ($product->has_variation && (count($galleryImages) > 0 || $hasVideo))
+                <div class="qs-thumbs-divider"></div>
+            @endif
+
+            {{-- Style thumbs (variation images) --}}
+            @if ($product->has_variation && isset($productVariations))
+                @php $styleIdx = 0; $addedNames = []; @endphp
+                @foreach ($productVariations as $pv)
+                    @if (!$pv->product) @continue @endif
+                    @php
+                        $colorAttr = $pv->productAttributes->first(fn($a) => $a->productAttributeSet && $a->productAttributeSet->display_layout === 'visual');
+                        if (!$colorAttr) $colorAttr = $pv->productAttributes->first();
+                        $name = $colorAttr ? $colorAttr->title : '';
+                        if (in_array($name, $addedNames)) continue;
+                        $addedNames[] = $name;
+                        $thumbImg = $pv->product->image ? RvMedia::getImageUrl($pv->product->image, 'thumb') : null;
+                        $bgColor  = ($colorAttr && $colorAttr->color) ? $colorAttr->color : '#ccc';
+                    @endphp
+                    <div class="qs-thumb qs-thumb--style" data-index="{{ $styleIdx }}" data-tab="styles"
+                         @if($thumbImg) style="background-image:url({{ $thumbImg }});background-size:cover;background-position:center;" @else style="background-color:{{ $bgColor }};" @endif>
+                    </div>
+                    @php $styleIdx++; @endphp
+                @endforeach
+            @endif
         </div>
     </div>
 

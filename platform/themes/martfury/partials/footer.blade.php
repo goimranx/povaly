@@ -468,6 +468,58 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    /* Thumbnail divider between groups */
+    .qs-thumbs-divider {
+        flex-shrink: 0;
+        width: 1px;
+        height: 52px;
+        background: #ddd;
+        margin: 0 4px;
+        align-self: center;
+    }
+
+    /* ── Style grid ── */
+    .qs-slide--style {
+        overflow-y: auto;
+        align-items: flex-start;
+        padding: 12px;
+        background: var(--global-color-site-bg, #f8f8f8);
+    }
+    .qs-style-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        width: 100%;
+    }
+    .qs-style-item {
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid #e0e0e0;
+        background: #fff;
+        aspect-ratio: 1;
+    }
+    .qs-style-item img,
+    .qs-style-item__color {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .qs-style-item__name {
+        position: absolute;
+        bottom: 0; right: 0;
+        background: rgba(0,0,0,0.55);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 500;
+        padding: 2px 6px;
+        border-radius: 4px 0 0 0;
+        white-space: nowrap;
+        max-width: 90%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
     .offcanvas-backdrop { z-index: 10100 !important; }
     .offcanvas           { z-index: 10110 !important; }
     .qs-close-btn        { z-index: 10115 !important; }
@@ -891,92 +943,99 @@
             const gallery = scope.querySelector('.qs-gallery');
             if (!gallery) return;
 
-            const track    = gallery.querySelector('.qs-track');
-            const dotsEl   = gallery.querySelector('.qs-dots');
+            const track   = gallery.querySelector('.qs-track');
+            const dotsEl  = gallery.querySelector('.qs-dots');
             if (!track) return;
 
+            // All slides in one unified list — no hiding by tab
             const imageSlides = Array.from(gallery.querySelectorAll('.qs-slide--image'));
             const videoSlides = Array.from(gallery.querySelectorAll('.qs-slide--video'));
-            const prevBtn     = gallery.querySelector('.qs-arrow--prev');
-            const nextBtn     = gallery.querySelector('.qs-arrow--next');
-            // Collect pill buttons from both mobile-top and desktop pills
-            const pillBtns    = Array.from(scope.querySelectorAll('.qs-pill__btn'));
-            const videoPrev   = gallery.querySelector('.qs-video-zone--prev');
-            const videoNext   = gallery.querySelector('.qs-video-zone--next');
+            const styleSlides = Array.from(gallery.querySelectorAll('.qs-slide--style'));
 
-            let active = [];  // currently visible slides
-            let idx    = 0;
+            // Make ALL slides visible and part of the track
+            [...imageSlides, ...videoSlides, ...styleSlides].forEach(function(s) { s.style.display = ''; });
 
-            function buildDots() {
-                if (!dotsEl) return;
-                dotsEl.innerHTML = '';
-                if (active.length <= 1) return;
-                active.forEach(function(_, i) {
-                    const d = document.createElement('button');
-                    d.className = 'qs-dot' + (i === 0 ? ' active' : '');
-                    d.addEventListener('click', function() { go(i); });
-                    dotsEl.appendChild(d);
-                });
+            const allSlides = Array.from(track.querySelectorAll('.qs-slide'));
+            const total     = allSlides.length;
+
+            // Pill buttons from both mobile and desktop
+            const pillBtns = Array.from(scope.querySelectorAll('.qs-pill__btn'));
+
+            const prevBtn  = gallery.querySelector('.qs-arrow--prev');
+            const nextBtn  = gallery.querySelector('.qs-arrow--next');
+            const videoPrev = gallery.querySelector('.qs-video-zone--prev');
+            const videoNext = gallery.querySelector('.qs-video-zone--next');
+            const viewport  = gallery.querySelector('.qs-gallery__viewport');
+
+            let idx = 0;
+
+            // Map global slide index → group info
+            function getSlideGroup(n) {
+                var s = allSlides[n];
+                if (!s) return { tab: 'images', groupIdx: 0, groupTotal: imageSlides.length };
+                if (s.classList.contains('qs-slide--video'))  return { tab: 'videos', groupIdx: videoSlides.indexOf(s), groupTotal: videoSlides.length };
+                if (s.classList.contains('qs-slide--style'))  return { tab: 'styles', groupIdx: styleSlides.indexOf(s), groupTotal: styleSlides.length };
+                return { tab: 'images', groupIdx: imageSlides.indexOf(s), groupTotal: imageSlides.length };
+            }
+
+            function firstIndexOf(tab) {
+                for (var i = 0; i < allSlides.length; i++) {
+                    var s = allSlides[i];
+                    if (tab === 'images' && s.classList.contains('qs-slide--image')) return i;
+                    if (tab === 'videos' && s.classList.contains('qs-slide--video')) return i;
+                    if (tab === 'styles' && s.classList.contains('qs-slide--style')) return i;
+                }
+                return 0;
             }
 
             function render() {
                 track.style.transform = 'translateX(-' + (idx * 100) + '%)';
                 if (prevBtn) prevBtn.disabled = idx === 0;
-                if (nextBtn) nextBtn.disabled = idx >= active.length - 1;
-                // Video zones: update visibility based on position
-                if (videoPrev) videoPrev.style.display = (active === videoSlides && idx > 0) ? 'flex' : 'none';
-                if (videoNext) videoNext.style.display = (active === videoSlides && idx < active.length - 1) ? 'flex' : 'none';
-                // Update dot indicators
-                if (dotsEl) {
-                    Array.from(dotsEl.querySelectorAll('.qs-dot')).forEach(function(d, i) {
-                        d.classList.toggle('active', i === idx);
-                    });
-                }
-                // Update pill button counters
-                updatePillCounters();
-                // Update active thumbnail
-                updateActiveThumbnail();
-            }
+                if (nextBtn) nextBtn.disabled = idx >= total - 1;
 
-            function updatePillCounters() {
+                var g = getSlideGroup(idx);
+
+                // Video nav zones
+                if (videoPrev) videoPrev.style.display = (g.tab === 'videos' && g.groupIdx > 0) ? 'flex' : 'none';
+                if (videoNext) videoNext.style.display = (g.tab === 'videos' && g.groupIdx < g.groupTotal - 1) ? 'flex' : 'none';
+
+                // Pill active + counters
+                var labelMap = { images: 'Image', videos: 'Video', styles: 'Style' };
                 pillBtns.forEach(function(btn) {
-                    var tab  = btn.dataset.tab;
-                    var list = tab === 'videos' ? videoSlides : imageSlides;
-                    var total = list.length;
-                    var label = tab === 'images' ? 'Image' : 'Video';
-                    if (total <= 1) {
-                        btn.textContent = label + (total === 0 ? '' : '');
+                    var tab = btn.dataset.tab;
+                    btn.classList.toggle('active', tab === g.tab);
+                    var groupSlides = tab === 'videos' ? videoSlides : tab === 'styles' ? styleSlides : imageSlides;
+                    var label = labelMap[tab] || tab;
+                    if (groupSlides.length <= 1) {
+                        btn.textContent = label;
                     } else {
-                        var current = (active === list) ? idx + 1 : 1;
-                        btn.textContent = label + ' ' + current + '/' + total;
+                        var pos = (tab === g.tab) ? g.groupIdx + 1 : 1;
+                        btn.textContent = label + ' ' + pos + '/' + groupSlides.length;
                     }
                 });
-            }
 
-            function updateActiveThumbnail() {
-                var currentTab = (active === videoSlides) ? 'videos' : 'images';
+                // Dots (optional — for small count)
+                if (dotsEl) {
+                    dotsEl.innerHTML = '';
+                }
+
+                // Sync strip thumbnail
                 Array.from(gallery.querySelectorAll('.qs-thumb')).forEach(function(t) {
-                    var matches = t.dataset.tab === currentTab && parseInt(t.dataset.index) === idx;
-                    t.classList.toggle('active', matches);
-                    if (matches) {
-                        // Scroll thumbnail into view
+                    var tTab = t.dataset.tab;
+                    var tIdx = parseInt(t.dataset.index);
+                    var match = tTab === g.tab && tIdx === g.groupIdx;
+                    t.classList.toggle('active', match);
+                    if (match) {
                         t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                     }
                 });
             }
 
-            // Stop ALL media in the entire gallery — pause only, don't destroy
             function stopAllMedia() {
-                gallery.querySelectorAll('video').forEach(function(v) {
-                    v.pause();
-                    // Don't reset currentTime — user may want to resume from same position
-                });
+                gallery.querySelectorAll('video').forEach(function(v) { v.pause(); });
                 gallery.querySelectorAll('iframe').forEach(function(f) {
-                    // Use postMessage API to pause — doesn't destroy the iframe
                     try {
-                        // YouTube
                         f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                        // Vimeo
                         f.contentWindow.postMessage('{"method":"pause"}', '*');
                     } catch(e) {}
                 });
@@ -984,149 +1043,74 @@
 
             function go(n) {
                 stopAllMedia();
-                idx = n;
+                idx = Math.max(0, Math.min(n, total - 1));
                 render();
             }
 
-            function setTab(tab) {
-                stopAllMedia();
+            // Arrow buttons
+            if (prevBtn) prevBtn.addEventListener('click', function() { go(idx - 1); });
+            if (nextBtn) nextBtn.addEventListener('click', function() { go(idx + 1); });
 
-                const imageSlidesList = Array.from(gallery.querySelectorAll('.qs-slide--image'));
-                const videoSlidesList = Array.from(gallery.querySelectorAll('.qs-slide--video'));
-                const styleSlidesList = Array.from(gallery.querySelectorAll('.qs-slide--style'));
+            // Video nav zones (within video group)
+            if (videoPrev) videoPrev.addEventListener('click', function() { go(idx - 1); });
+            if (videoNext) videoNext.addEventListener('click', function() { go(idx + 1); });
 
-                const show = tab === 'videos' ? videoSlidesList
-                           : tab === 'styles' ? styleSlidesList
-                           : imageSlidesList;
-                const hideAll = [...imageSlidesList, ...videoSlidesList, ...styleSlidesList].filter(s => !show.includes(s));
-
-                hideAll.forEach(function(s) { s.style.display = 'none'; });
-                show.forEach(function(s) { s.style.display = ''; });
-                active = show;
-                idx = 0;
-                buildDots();
-
-                // Show only this tab's thumbnails (style tab has no thumbs)
-                Array.from(gallery.querySelectorAll('.qs-thumb')).forEach(function(t) {
-                    t.style.display = (t.dataset.tab === tab) ? '' : 'none';
+            // Pill tab buttons → jump to first of that group
+            pillBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    go(firstIndexOf(btn.dataset.tab));
                 });
+            });
 
-                // Sync all pill buttons (both mobile-top and desktop)
-                Array.from(gallery.closest('.qs-product') ? gallery.closest('.qs-product').querySelectorAll('.qs-pill__btn') : []).forEach(function(b) {
-                    b.classList.toggle('active', b.dataset.tab === tab);
+            // Strip thumbnail click → go to that slide
+            Array.from(gallery.querySelectorAll('.qs-thumb')).forEach(function(thumb) {
+                thumb.addEventListener('click', function() {
+                    var tab = thumb.dataset.tab;
+                    var groupIdx = parseInt(thumb.dataset.index);
+                    // Find global idx for this tab + groupIdx
+                    var targetSlides = tab === 'videos' ? videoSlides : tab === 'styles' ? styleSlides : imageSlides;
+                    var targetSlide  = targetSlides[groupIdx];
+                    var globalIdx    = allSlides.indexOf(targetSlide);
+                    if (globalIdx >= 0) go(globalIdx);
                 });
+            });
 
-                render();
-            }
-
-            if (prevBtn) prevBtn.addEventListener('click', function() { if (idx > 0) go(idx - 1); });
-            if (nextBtn) nextBtn.addEventListener('click', function() { if (idx < active.length - 1) go(idx + 1); });
-            if (videoPrev) videoPrev.addEventListener('click', function() { if (idx > 0) go(idx - 1); });
-            if (videoNext) videoNext.addEventListener('click', function() { if (idx < active.length - 1) go(idx + 1); });
-
-            // ── Swipe / drag support (mouse + touch) ─────────────────────────
-            var dragStartX = 0;
-            var dragDelta  = 0;
-            var isDragging = false;
-            var THRESHOLD  = 50; // px to trigger slide change
-
-            function onDragStart(x) {
-                dragStartX = x;
-                isDragging = true;
-                track.classList.add('dragging');
-            }
+            // Swipe / drag
+            var dragStartX = 0, dragDelta = 0, isDragging = false;
+            var THRESHOLD = 50;
+            function onDragStart(x) { dragStartX = x; isDragging = true; track.classList.add('dragging'); }
             function onDragMove(x) {
                 if (!isDragging) return;
                 dragDelta = x - dragStartX;
-                var base = -(idx * 100);
-                var offset = (dragDelta / viewport.offsetWidth) * 100;
-                track.style.transform = 'translateX(calc(' + base + '% + ' + dragDelta + 'px))';
+                track.style.transform = 'translateX(calc(-' + (idx * 100) + '% + ' + dragDelta + 'px))';
             }
             function onDragEnd() {
                 if (!isDragging) return;
                 isDragging = false;
                 track.classList.remove('dragging');
-                if (dragDelta < -THRESHOLD && idx < active.length - 1) go(idx + 1);
+                if (dragDelta < -THRESHOLD && idx < total - 1) go(idx + 1);
                 else if (dragDelta > THRESHOLD && idx > 0) go(idx - 1);
-                else render(); // snap back
+                else render();
                 dragDelta = 0;
             }
-
-            var viewport = gallery.querySelector('.qs-gallery__viewport');
-
-            // Mouse
-            viewport.addEventListener('mousedown',  function(e) { onDragStart(e.clientX); });
-            window.addEventListener('mousemove',    function(e) { onDragMove(e.clientX); });
-            window.addEventListener('mouseup',      function()  { onDragEnd(); });
-
-            // Touch
-            viewport.addEventListener('touchstart', function(e) { onDragStart(e.touches[0].clientX); }, { passive: true });
-            viewport.addEventListener('touchmove',  function(e) { onDragMove(e.touches[0].clientX); },  { passive: true });
-            viewport.addEventListener('touchend',   function()  { onDragEnd(); });
-
-            pillBtns.forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    pillBtns.forEach(function(b) { b.classList.remove('active'); });
-                    btn.classList.add('active');
-                    setTab(btn.dataset.tab);
-                });
-            });
-
-            // Thumbnail click → go to that slide/tab
-            gallery.querySelectorAll('.qs-thumb').forEach(function(thumb) {
-                thumb.addEventListener('click', function() {
-                    var tab   = thumb.dataset.tab;
-                    var index = parseInt(thumb.dataset.index);
-                    // Switch tab if needed
-                    if (tab === 'videos' && active !== videoSlides) {
-                        pillBtns.forEach(function(b) { b.classList.remove('active'); });
-                        var videoBtn = gallery.querySelector('.qs-pill__btn[data-tab="videos"]');
-                        if (videoBtn) videoBtn.classList.add('active');
-                        setTab('videos');
-                    } else if (tab === 'images' && active !== imageSlides) {
-                        pillBtns.forEach(function(b) { b.classList.remove('active'); });
-                        var imgBtn = gallery.querySelector('.qs-pill__btn[data-tab="images"]');
-                        if (imgBtn) imgBtn.classList.add('active');
-                        setTab('images');
-                    }
-                    go(index);
-                });
-            });
-
-            // Share button
-            var shareBtn = gallery.closest('.qs-product') ? gallery.closest('.qs-product').parentElement.querySelector('.qs-share-btn') : null;
-            if (!shareBtn) shareBtn = document.querySelector('#quick-shop-modal .qs-share-btn');
-            if (shareBtn) {
-                shareBtn.addEventListener('click', function() {
-                    var url   = shareBtn.dataset.url || window.location.href;
-                    var title = shareBtn.dataset.title || document.title;
-                    if (navigator.share) {
-                        navigator.share({ title: title, url: url }).catch(function() {});
-                    } else {
-                        // Fallback: copy to clipboard
-                        navigator.clipboard && navigator.clipboard.writeText(url).then(function() {
-                            alert('Link copied!');
-                        });
-                    }
-                });
+            if (viewport) {
+                viewport.addEventListener('mousedown',  function(e) { onDragStart(e.clientX); });
+                window.addEventListener('mousemove',    function(e) { onDragMove(e.clientX); });
+                window.addEventListener('mouseup',      function()  { onDragEnd(); });
+                viewport.addEventListener('touchstart', function(e) { onDragStart(e.touches[0].clientX); }, { passive: true });
+                viewport.addEventListener('touchmove',  function(e) { onDragMove(e.touches[0].clientX); },  { passive: true });
+                viewport.addEventListener('touchend',   function()  { onDragEnd(); });
             }
 
-            // YouTube / Vimeo facade → inject iframe on click
+            // YouTube / Vimeo facade
             gallery.querySelectorAll('.qs-video-facade').forEach(function(facade) {
                 facade.addEventListener('click', function() {
                     var src = facade.dataset.src;
                     if (!src) return;
-                    // Stop all other media first
                     stopAllMedia();
-                    
-                    // Add JS API params so postMessage pause works
-                    var separator = src.indexOf('?') !== -1 ? '&' : '?';
-                    if (facade.dataset.provider === 'youtube' && src.indexOf('enablejsapi') === -1) {
-                        src += separator + 'enablejsapi=1';
-                    } else if (facade.dataset.provider === 'vimeo' && src.indexOf('api=1') === -1) {
-                        src += separator + 'api=1';
-                    }
-                    
+                    var sep = src.indexOf('?') !== -1 ? '&' : '?';
+                    if (facade.dataset.provider === 'youtube' && src.indexOf('enablejsapi') === -1) src += sep + 'enablejsapi=1';
+                    else if (facade.dataset.provider === 'vimeo' && src.indexOf('api=1') === -1) src += sep + 'api=1';
                     var iframe = document.createElement('iframe');
                     iframe.src = src;
                     iframe.frameBorder = '0';
@@ -1137,7 +1121,22 @@
                 });
             });
 
-            setTab('images');
+            // Share button
+            var shareBtn = document.querySelector('#quick-shop-modal .qs-share-btn');
+            if (shareBtn) {
+                shareBtn.addEventListener('click', function() {
+                    var url   = shareBtn.dataset.url || window.location.href;
+                    var title = shareBtn.dataset.title || document.title;
+                    if (navigator.share) {
+                        navigator.share({ title: title, url: url }).catch(function() {});
+                    } else {
+                        navigator.clipboard && navigator.clipboard.writeText(url).then(function() { alert('Link copied!'); });
+                    }
+                });
+            }
+
+            // Init at first slide
+            go(0);
         }
 
         // ── Qty buttons ───────────────────────────────────────────────────────
