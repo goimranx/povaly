@@ -540,32 +540,34 @@
                 }
             }
 
+            // Stop ALL media in the entire gallery (nuclear approach)
+            function stopAllMedia() {
+                gallery.querySelectorAll('video').forEach(function(v) {
+                    v.pause();
+                    v.currentTime = 0;
+                });
+                gallery.querySelectorAll('iframe').forEach(function(f) {
+                    // Blank the src completely — this is the only reliable way to stop iframe media
+                    var src = f.getAttribute('src');
+                    f.setAttribute('src', '');
+                    // Store original src so it can be restored if needed
+                    f.setAttribute('data-src-backup', src || '');
+                });
+            }
+
             function go(n) {
-                // Stop any playing media on current slide before switching
-                stopMedia(active[idx]);
+                stopAllMedia();
                 idx = n;
                 render();
             }
 
-            function stopMedia(slide) {
-                if (!slide) return;
-                // Stop HTML5 video
-                const video = slide.querySelector('video');
-                if (video) { video.pause(); video.currentTime = 0; }
-                // Stop YouTube/Vimeo iframe (remove src to stop)
-                const iframe = slide.querySelector('iframe');
-                if (iframe) { iframe.src = iframe.src; } // reload stops playback
-            }
-
             function setTab(tab) {
-                // Stop media on current slide before switching tab
-                if (active[idx]) stopMedia(active[idx]);
+                stopAllMedia();
 
                 const show = tab === 'videos' ? videoSlides : imageSlides;
                 const hide = tab === 'videos' ? imageSlides : videoSlides;
 
-                // Stop all media in hidden slides
-                hide.forEach(function(s) { stopMedia(s); s.style.display = 'none'; });
+                hide.forEach(function(s) { s.style.display = 'none'; });
                 show.forEach(function(s) { s.style.display = ''; });
                 active = show;
                 idx = 0;
@@ -587,9 +589,11 @@
             // YouTube / Vimeo facade → inject iframe on click
             gallery.querySelectorAll('.qs-video-facade').forEach(function(facade) {
                 facade.addEventListener('click', function() {
-                    const src = facade.dataset.src;
+                    var src = facade.dataset.src;
                     if (!src) return;
-                    const iframe = document.createElement('iframe');
+                    // Stop all other media first
+                    stopAllMedia();
+                    var iframe = document.createElement('iframe');
                     iframe.src = src;
                     iframe.frameBorder = '0';
                     iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
@@ -613,10 +617,15 @@
             });
         }
 
-        // Stop all media when offcanvas closes
+        // Stop ALL media when offcanvas closes
         document.getElementById('quick-shop-modal') && document.getElementById('quick-shop-modal').addEventListener('hide.bs.offcanvas', function() {
-            this.querySelectorAll('video').forEach(function(v) { v.pause(); v.currentTime = 0; });
-            this.querySelectorAll('iframe').forEach(function(f) { f.src = f.src; });
+            this.querySelectorAll('video').forEach(function(v) {
+                v.pause();
+                v.currentTime = 0;
+            });
+            this.querySelectorAll('iframe').forEach(function(f) {
+                f.setAttribute('src', ''); // blank src - only reliable way to stop iframe
+            });
         });
 
     })(jQuery);
