@@ -972,8 +972,30 @@
                         updateQSGalleryImages(data.image_with_sizes.origin);
                     }
 
+                    // Update price
+                    if (data.display_sale_price) {
+                        $('#quick-shop-modal [data-bb-value="product-price"]').text(data.display_sale_price);
+                    }
+                    if (data.sale_price !== data.price) {
+                        $('#quick-shop-modal [data-bb-value="product-original-price"]').text(data.display_price).closest('span').show();
+                    } else {
+                        $('#quick-shop-modal [data-bb-value="product-original-price"]').closest('span').hide();
+                    }
+
                     // Update hidden product ID
                     $('#quick-shop-modal .hidden-product-id').val(data.id);
+
+                    // Update stock message
+                    var $stock = $('#quick-shop-modal .js-qs-stock');
+                    if (data.error_message) {
+                        $stock.text(data.error_message).addClass('qs-stock--out');
+                    } else if (data.success_message) {
+                        $stock.text(data.success_message).removeClass('qs-stock--out');
+                    } else if (data.warning_message) {
+                        $stock.text(data.warning_message).removeClass('qs-stock--out');
+                    } else {
+                        $stock.text('').removeClass('qs-stock--out');
+                    }
                 }
             });
         });

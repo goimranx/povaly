@@ -94,7 +94,7 @@
     </div>
 
     {{-- ── Product info ──────────────────────────────────────── --}}
-    <div class="qs-info">
+    <div class="qs-info bb-product-detail">
 
         <h2 class="qs-title">{!! BaseHelper::clean($product->name) !!}</h2>
 
