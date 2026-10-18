@@ -8,16 +8,16 @@
             <button type="button" class="qs-gallery__arrow qs-gallery__arrow--prev" aria-label="Previous image">
                 <i class="icon-chevron-left"></i>
             </button>
-            <div class="qs-gallery__slider">
+            <div class="qs-gallery__track">
                 @foreach ($productImages as $img)
-                    <div class="qs-gallery__slide qs-gallery__slide--image">
+                    <div class="qs-gallery__slide qs-slide--image">
                         <img src="{{ RvMedia::getImageUrl($img) }}" alt="{{ $product->name }}" />
                     </div>
                 @endforeach
                 @if ($hasVideo)
                     @foreach ($product->video as $video)
                         @if (!empty($video['url']))
-                            <div class="qs-gallery__slide qs-gallery__slide--video">
+                            <div class="qs-gallery__slide qs-slide--video">
                                 @if ($video['provider'] === 'video')
                                     <video controls preload="metadata" poster="{{ $video['thumbnail'] ?? '' }}" style="width:100%;height:100%;object-fit:contain;">
                                         <source src="{{ $video['url'] }}" type="video/mp4">

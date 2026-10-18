@@ -488,7 +488,7 @@
         border-radius: 8px;
         background: #f5f5f5;
     }
-    .qs-gallery__slider {
+    .qs-gallery__track {
         display: flex;
         transition: transform 0.3s ease;
     }
@@ -579,182 +579,133 @@
 
     {!! Theme::footer() !!}
 
-    {{-- Override quick-shop to use offcanvas instead of modal --}}
+    {{-- Quick Shop Offcanvas Handler --}}
     <script>
-    jQuery(document).ready(function($) {
-        // Override quick-shop modal behavior to use offcanvas
+    (function($) {
+        'use strict';
+
+        // ── Helpers ──────────────────────────────────────────────────────────
+        function getOrCreateOffcanvas(el) {
+            if (typeof bootstrap === 'undefined' || !bootstrap.Offcanvas) return null;
+            return bootstrap.Offcanvas.getInstance(el) || new bootstrap.Offcanvas(el, { backdrop: true, scroll: false });
+        }
+
+        function showOffcanvas(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const instance = getOrCreateOffcanvas(el);
+            if (instance) instance.show();
+        }
+
+        function hideOffcanvas(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const instance = bootstrap.Offcanvas.getInstance(el);
+            if (instance) instance.hide();
+        }
+
+        // ── Quick Shop Click Handler ──────────────────────────────────────────
         $(document).on('click', '[data-bb-toggle="quick-shop"]', function(e) {
             e.preventDefault();
-            e.stopPropagation();
-            
-            const $btn = $(this);
+            e.stopImmediatePropagation();
+
+            const $btn      = $(this);
+            const url       = $btn.data('url');
             const $offcanvas = $('#quick-shop-modal');
-            const url = $btn.data('url');
-            
-            if (!url) {
-                return;
-            }
-            
+
+            if (!url) return;
+
+            // Reset content + show offcanvas with spinner
+            $offcanvas.find('.quick-shop-content')
+                .html('<div style="display:flex;align-items:center;justify-content:center;height:200px;"><div class="ps-loading"><div class="ps-loading__spinner"></div></div></div>');
+            $offcanvas.find('.offcanvas-title').text('Loading...');
+            showOffcanvas('quick-shop-modal');
+
             $.ajax({
-                url: url,
+                url:  url,
                 type: 'GET',
-                beforeSend: function() {
-                    $btn.addClass('loading');
-                    $offcanvas.find('.quick-shop-content').html('<div class="loading-spinner" style="padding: 40px; text-align: center;"><i class="icon-spinner"></i> Loading...</div>');
-                },
                 success: function(response) {
                     if (response.error) {
-                        alert(response.message || 'Error loading product');
+                        $offcanvas.find('.quick-shop-content').html('<p class="text-danger p-4">' + (response.message || 'Error') + '</p>');
                         return;
                     }
-                    
-                    // Insert content
+
                     $offcanvas.find('.quick-shop-content').html(response.data);
-                    
-                    // Update title with product name
-                    setTimeout(function() {
-                        const productName = $offcanvas.find('.qs-title').first().text();
-                        if (productName) {
-                            $offcanvas.find('.offcanvas-title').text(productName.substring(0, 50) + (productName.length > 50 ? '...' : ''));
-                        }
-                        
-                        // Init gallery carousel
-                        initQSGallery();
-                    }, 100);
-                    
-                    // Dispatch event
-                    document.dispatchEvent(new CustomEvent('ecommerce.quick-shop.loaded', {
-                        detail: { element: $btn[0] }
-                    }));
-                    
-                    // Show offcanvas after content is loaded
-                    try {
-                        if (typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
-                            let offcanvasInstance = bootstrap.Offcanvas.getInstance($offcanvas[0]);
-                            if (!offcanvasInstance) {
-                                offcanvasInstance = new bootstrap.Offcanvas($offcanvas[0]);
-                            }
-                            offcanvasInstance.show();
-                        }
-                    } catch(error) {}
+
+                    // Update title
+                    const name = $offcanvas.find('.qs-title').first().text().trim();
+                    $offcanvas.find('.offcanvas-title').text(name.length > 50 ? name.substring(0, 50) + '…' : name || 'Product Details');
+
+                    // Init gallery
+                    initQSGallery($offcanvas[0]);
+
+                    // Dispatch so other scripts can re-init (swatches, qty, etc.)
+                    document.dispatchEvent(new CustomEvent('ecommerce.quick-shop.completed', { detail: { element: $btn[0], modal: $offcanvas } }));
                 },
-                error: function(xhr) {
-                    alert('Failed to load product details');
+                error: function() {
+                    $offcanvas.find('.quick-shop-content').html('<p class="text-danger p-4">Failed to load product.</p>');
                 },
                 complete: function() {
                     $btn.removeClass('loading');
                 }
             });
         });
-        
-        // Gallery carousel + video/image toggle
-        function initQSGallery() {
-            const $gallery = $('.qs-gallery');
-            if (!$gallery.length) return;
-            
-            const $slider = $gallery.find('.qs-gallery__slider');
-            const $slides = $slider.find('.qs-gallery__slide');
-            const $prevBtn = $gallery.find('.qs-gallery__arrow--prev');
-            const $nextBtn = $gallery.find('.qs-gallery__arrow--next');
-            const $pillBtns = $gallery.find('.qs-gallery__pill-btn');
-            
-            let currentSlide = 0;
-            const totalImageSlides = $slides.filter('.qs-gallery__slide--image').length;
-            const totalVideoSlides = $slides.filter('.qs-gallery__slide--video').length;
-            
-            function goToSlide(index) {
-                currentSlide = index;
-                $slider.css('transform', 'translateX(-' + (index * 100) + '%)');
-                $prevBtn.prop('disabled', index === 0);
-                $nextBtn.prop('disabled', index === $slides.length - 1);
+
+        // ── Gallery Carousel ─────────────────────────────────────────────────
+        function initQSGallery(scope) {
+            const gallery  = scope.querySelector('.qs-gallery');
+            if (!gallery) return;
+
+            const track    = gallery.querySelector('.qs-gallery__track');
+            const slides   = Array.from(gallery.querySelectorAll('.qs-gallery__slide'));
+            const prevBtn  = gallery.querySelector('.qs-gallery__arrow--prev');
+            const nextBtn  = gallery.querySelector('.qs-gallery__arrow--next');
+            const pillBtns = Array.from(gallery.querySelectorAll('.qs-gallery__pill-btn'));
+
+            if (!track || !slides.length) return;
+
+            let visibleSlides = slides.slice(); // default: all (images)
+            let current       = 0;
+
+            function render() {
+                track.style.transform = 'translateX(-' + (current * 100) + '%)';
+                if (prevBtn) prevBtn.disabled = current === 0;
+                if (nextBtn) nextBtn.disabled = current >= visibleSlides.length - 1;
             }
-            
-            // Show only images or videos based on pill toggle
-            function showTab(tab) {
-                if (tab === 'images') {
-                    $slides.filter('.qs-gallery__slide--image').show();
-                    $slides.filter('.qs-gallery__slide--video').hide();
-                    goToSlide(0);
+
+            function setTab(tab) {
+                const imageSlides = slides.filter(s => s.classList.contains('qs-slide--image'));
+                const videoSlides = slides.filter(s => s.classList.contains('qs-slide--video'));
+
+                if (tab === 'videos') {
+                    visibleSlides = videoSlides;
+                    imageSlides.forEach(s => s.style.display = 'none');
+                    videoSlides.forEach(s => s.style.display = '');
                 } else {
-                    $slides.filter('.qs-gallery__slide--image').hide();
-                    $slides.filter('.qs-gallery__slide--video').show();
-                    goToSlide(0);
+                    visibleSlides = imageSlides;
+                    videoSlides.forEach(s => s.style.display = 'none');
+                    imageSlides.forEach(s => s.style.display = '');
                 }
-                // Recount visible slides for arrow disabled state
-                const $visible = $slides.filter(':visible');
-                $prevBtn.prop('disabled', true);
-                $nextBtn.prop('disabled', $visible.length <= 1);
+                current = 0;
+                render();
             }
-            
-            $prevBtn.on('click', function() {
-                // Find previous visible slide
-                for (let i = currentSlide - 1; i >= 0; i--) {
-                    if ($($slides[i]).is(':visible')) { goToSlide(i); return; }
-                }
+
+            if (prevBtn) prevBtn.addEventListener('click', function() { if (current > 0) { current--; render(); } });
+            if (nextBtn) nextBtn.addEventListener('click', function() { if (current < visibleSlides.length - 1) { current++; render(); } });
+
+            pillBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    pillBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    setTab(btn.dataset.tab);
+                });
             });
-            
-            $nextBtn.on('click', function() {
-                for (let i = currentSlide + 1; i < $slides.length; i++) {
-                    if ($($slides[i]).is(':visible')) { goToSlide(i); return; }
-                }
-            });
-            
-            $pillBtns.on('click', function() {
-                $pillBtns.removeClass('active');
-                $(this).addClass('active');
-                showTab($(this).data('tab'));
-            });
-            
-            // Initialize
-            showTab('images');
+
+            // Default: images tab
+            setTab('images');
         }
-        
-        // Close offcanvas on backdrop click and ensure close button works
-        function closeOffcanvas(elementId) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            try {
-                if (typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
-                    const instance = bootstrap.Offcanvas.getInstance(el) || new bootstrap.Offcanvas(el);
-                    instance.hide();
-                }
-            } catch(e) {}
-        }
-        
-        // Close on backdrop/overlay click
-        document.addEventListener('click', function(e) {
-            if (e.target.classList && (e.target.classList.contains('offcanvas-backdrop') || 
-                e.target.classList.contains('modal-backdrop') ||
-                e.target.classList.contains('offcanvas-body'))) {
-                if (e.target.closest('#quick-shop-modal') || e.target.closest('#product-quickview')) {
-                    // Clicked inside the offcanvas body, don't close
-                    if (e.target.classList.contains('offcanvas-body')) return;
-                }
-                closeOffcanvas('quick-shop-modal');
-                closeOffcanvas('product-quickview');
-            }
-        });
-        
-        // Also close on Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeOffcanvas('quick-shop-modal');
-                closeOffcanvas('product-quickview');
-            }
-        });
-        
-        // Ensure close buttons work
-        document.addEventListener('click', function(e) {
-            const closeBtn = e.target.closest('[data-bs-dismiss="offcanvas"]');
-            if (closeBtn) {
-                const offcanvas = closeBtn.closest('.offcanvas');
-                if (offcanvas) {
-                    e.preventDefault();
-                    closeOffcanvas(offcanvas.id);
-                }
-            }
-        });
-    });
+
+    })(jQuery);
     </script>
 
     <script>
