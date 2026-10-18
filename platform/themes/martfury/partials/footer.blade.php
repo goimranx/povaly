@@ -540,18 +540,20 @@
                 }
             }
 
-            // Stop ALL media in the entire gallery (nuclear approach)
+            // Stop ALL media in the entire gallery — pause only, don't destroy
             function stopAllMedia() {
                 gallery.querySelectorAll('video').forEach(function(v) {
                     v.pause();
-                    v.currentTime = 0;
+                    // Don't reset currentTime — user may want to resume from same position
                 });
                 gallery.querySelectorAll('iframe').forEach(function(f) {
-                    // Blank the src completely — this is the only reliable way to stop iframe media
-                    var src = f.getAttribute('src');
-                    f.setAttribute('src', '');
-                    // Store original src so it can be restored if needed
-                    f.setAttribute('data-src-backup', src || '');
+                    // Use postMessage API to pause — doesn't destroy the iframe
+                    try {
+                        // YouTube
+                        f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                        // Vimeo
+                        f.contentWindow.postMessage('{"method":"pause"}', '*');
+                    } catch(e) {}
                 });
             }
 
@@ -593,6 +595,15 @@
                     if (!src) return;
                     // Stop all other media first
                     stopAllMedia();
+                    
+                    // Add JS API params so postMessage pause works
+                    var separator = src.indexOf('?') !== -1 ? '&' : '?';
+                    if (facade.dataset.provider === 'youtube' && src.indexOf('enablejsapi') === -1) {
+                        src += separator + 'enablejsapi=1';
+                    } else if (facade.dataset.provider === 'vimeo' && src.indexOf('api=1') === -1) {
+                        src += separator + 'api=1';
+                    }
+                    
                     var iframe = document.createElement('iframe');
                     iframe.src = src;
                     iframe.frameBorder = '0';
@@ -617,14 +628,14 @@
             });
         }
 
-        // Stop ALL media when offcanvas closes
+        // Pause ALL media when offcanvas closes
         document.getElementById('quick-shop-modal') && document.getElementById('quick-shop-modal').addEventListener('hide.bs.offcanvas', function() {
-            this.querySelectorAll('video').forEach(function(v) {
-                v.pause();
-                v.currentTime = 0;
-            });
+            this.querySelectorAll('video').forEach(function(v) { v.pause(); });
             this.querySelectorAll('iframe').forEach(function(f) {
-                f.setAttribute('src', ''); // blank src - only reliable way to stop iframe
+                try {
+                    f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                    f.contentWindow.postMessage('{"method":"pause"}', '*');
+                } catch(e) {}
             });
         });
 
