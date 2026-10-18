@@ -3402,3 +3402,69 @@ ul.bb-social-sharing {
         flex-shrink: 0;
     }
 }
+
+
+// Mobile search design (below 1199px) - Header and Sidebar
+@media (max-width: 1199px) {
+    // Header mobile search
+    .ps-search--mobile .ps-form--search-mobile,
+    // Sidebar search
+    #search-sidebar .ps-form--search-mobile {
+        .form-group--nest {
+            position: relative;
+            
+            input.form-control {
+                border-radius: 5px !important;
+                padding-right: 50px !important;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .spinner-icon {
+                position: absolute !important;
+                right: 45px !important;
+                top: 50% !important;
+                transform: translateY(-50%) !important;
+                z-index: 3 !important;
+                display: none;
+                
+                &.active {
+                    display: block !important;
+                    z-index: 9999 !important;
+                }
+            }
+            
+            button[type="submit"] {
+                position: absolute !important;
+                right: 0 !important;
+                top: 0 !important;
+                height: 100% !important;
+                border-radius: 5px !important;
+                padding: 0 15px !important;
+                z-index: 2 !important;
+                border: none !important;
+            }
+            
+            // When search is active/focused
+            &.active,
+            &:focus-within {
+                input.form-control,
+                .spinner-icon,
+                button[type="submit"] {
+                    z-index: 9999 !important;
+                }
+            }
+            
+            // Flyout search results
+            .ps-panel--search-result {
+                position: absolute !important;
+                top: 100% !important;
+                left: 0 !important;
+                right: 0 !important;
+                padding-top: 10px !important;
+                margin-top: -10px !important;
+                z-index: 9998 !important;
+            }
+        }
+    }
+}
