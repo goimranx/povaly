@@ -59,13 +59,28 @@ class QuickShopController extends BaseController
 
         [$productImages, $productVariation, $selectedAttrs] = EcommerceHelper::getProductVariationInfo($product);
 
+        // Load ALL variations with their product images so the blade can build the full image strip
+        $productVariations = null;
+        if ($product->has_variation) {
+            $productVariations = \Botble\Ecommerce\Models\ProductVariation::query()
+                ->where('configurable_product_id', $product->getKey())
+                ->with([
+                    'product:id,image,images,stock_status,quantity,with_storehouse_management,allow_checkout_when_out_of_stock,price,sale_price,sale_type,start_date,end_date',
+                    'productAttributes',
+                    'productAttributes.productAttributeSet',
+                ])
+                ->select('id', 'product_id', 'configurable_product_id', 'is_default')
+                ->get();
+        }
+
         $data = apply_filters('ecommerce_quick_shop_data', [
-            'product' => $product,
-            'productImages' => $productImages,
-            'productVariation' => $productVariation,
-            'selectedAttrs' => $selectedAttrs,
-            'referenceProduct' => $referenceProduct,
-            'saleType' => $saleType,
+            'product'           => $product,
+            'productImages'     => $productImages,
+            'productVariation'  => $productVariation,
+            'productVariations' => $productVariations,
+            'selectedAttrs'     => $selectedAttrs,
+            'referenceProduct'  => $referenceProduct,
+            'saleType'          => $saleType,
         ]);
 
         $view = apply_filters('ecommerce_quick_shop_template', $this->getQuickShopTemplate());

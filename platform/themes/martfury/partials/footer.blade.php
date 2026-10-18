@@ -1331,8 +1331,8 @@
                 }
             }
 
-            // If not found, just jump to first image
-            gallery._qsGo(0);
+            // If not found in strip — do nothing, keep current position
+            // (variation images will be present once Bug 1 fix is deployed)
         }
 
         // ── Title expand ────────────────────────────────────────────────

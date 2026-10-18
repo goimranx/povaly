@@ -18,18 +18,30 @@
         $allImages->prepend(['src' => $product->image, 'type' => 'featured', 'variationId' => null]);
     }
 
-    // 3. Variation images
-    $variationImageMap = []; // variationId → [startIndex, ...]
-    if ($product->has_variation && isset($productVariations)) {
+    // 3. All variation images (featured + gallery for each variation), deduplicated
+    $variationImageMap = []; // product_id → first index in $allImages
+    if ($product->has_variation && isset($productVariations) && $productVariations) {
         foreach ($productVariations as $pv) {
-            if (!$pv->product || !$pv->product->image) continue;
-            $img = $pv->product->image;
-            if (!$allImages->contains('src', $img)) {
-                $allImages->push(['src' => $img, 'type' => 'variation', 'variationId' => $pv->product_id]);
+            if (!$pv->product) continue;
+            $varImages = [];
+            // Featured image first
+            if (!empty($pv->product->image)) $varImages[] = $pv->product->image;
+            // Gallery images
+            if (!empty($pv->product->images) && is_array($pv->product->images)) {
+                foreach ($pv->product->images as $vi) {
+                    if ($vi && !in_array($vi, $varImages)) $varImages[] = $vi;
+                }
             }
-            // Track first index for this variation
-            if (!isset($variationImageMap[$pv->product_id])) {
-                $variationImageMap[$pv->product_id] = $allImages->search(fn($i) => $i['src'] === $img);
+            foreach ($varImages as $img) {
+                if (!$allImages->contains('src', $img)) {
+                    $idx = $allImages->count();
+                    $allImages->push(['src' => $img, 'type' => 'variation', 'variationId' => $pv->product_id]);
+                    if (!isset($variationImageMap[$pv->product_id])) {
+                        $variationImageMap[$pv->product_id] = $idx;
+                    }
+                } elseif (!isset($variationImageMap[$pv->product_id])) {
+                    $variationImageMap[$pv->product_id] = $allImages->search(fn($i) => $i['src'] === $img);
+                }
             }
         }
     }
