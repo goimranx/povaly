@@ -18,7 +18,7 @@
         $stockText  = __('Out of :qty units', ['qty' => number_format($displayProduct->quantity)]);
         $stockClass = '';
     } elseif (!$displayProduct->with_storehouse_management) {
-        $stockText  = __('In stock');
+        $stockText  = __('Out of available stocks');
         $stockClass = '';
     }
 @endphp

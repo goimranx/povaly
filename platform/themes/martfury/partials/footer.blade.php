@@ -982,10 +982,10 @@
                         } else {
                             $stock.text('Out of ' + qty.toLocaleString() + ' units');
                         }
-                    } else if (data.success_message) {
-                        $stock.text('In stock');
+                    } else if (data.success_message || data.success_message === '') {
+                        $stock.text('Out of available stocks');
                     } else {
-                        $stock.text('');
+                        $stock.text('Out of available stocks');
                     }
                 };
                 window.EcommerceApp._qsPatched = true;
