@@ -1,6 +1,9 @@
 @php
     $hasVideo = !empty($product->video) && is_array($product->video) && count(array_filter($product->video, fn($v) => !empty($v['url']))) > 0;
     $videoList = $hasVideo ? array_values(array_filter($product->video, fn($v) => !empty($v['url']))) : [];
+    
+    // Ensure we have images - fall back to product images if variation images empty
+    $galleryImages = !empty($productImages) ? $productImages : ($product->images ?? []);
 @endphp
 
 <div class="qs-product">
@@ -18,7 +21,7 @@
 
             {{-- Track --}}
             <div class="qs-track">
-                @foreach ($productImages as $img)
+                @foreach ($galleryImages as $img)
                     <div class="qs-slide qs-slide--image">
                         <img src="{{ RvMedia::getImageUrl($img) }}" alt="{{ $product->name }}" loading="lazy" />
                     </div>

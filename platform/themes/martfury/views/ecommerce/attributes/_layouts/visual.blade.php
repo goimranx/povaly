@@ -33,7 +33,22 @@
                         @php
                             $isDisabled  = $variationInfo->where('id', $attribute->id)->isEmpty();
                             $isSelected  = $selected->where('id', $attribute->id)->isNotEmpty();
-                            $imgUrl      = $attribute->getAttributeImageUrl($set, $productVariations);
+                            
+                            // Get image: first try variation product image directly (regardless of use_image_from_product_variation flag),
+                            // then fall back to attribute's own image
+                            $imgUrl = null;
+                            foreach ($productVariations as $pv) {
+                                $pvAttr = $pv->productAttributes->where('attribute_set_id', $set->id)->first();
+                                if ($pvAttr && $pvAttr->id == $attribute->id) {
+                                    if ($pv->product && $pv->product->image) {
+                                        $imgUrl = RvMedia::getImageUrl($pv->product->image, 'thumb');
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!$imgUrl && $attribute->image) {
+                                $imgUrl = RvMedia::getImageUrl($attribute->image, 'thumb');
+                            }
 
                             // Get price for this variation
                             $varPrice = null;
