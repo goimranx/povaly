@@ -1,44 +1,51 @@
 @php
-    $hasVideo = !empty($product->video) && is_array($product->video) && count(array_filter($product->video, fn($v) => !empty($v['url']))) > 0;
-    $videoList = $hasVideo ? array_values(array_filter($product->video, fn($v) => !empty($v['url']))) : [];
-    $galleryImages = !empty($productImages) ? $productImages : ($product->images ?? []);
+    $hasVideo    = !empty($product->video) && is_array($product->video)
+                   && count(array_filter($product->video, fn($v) => !empty($v['url']))) > 0;
+    $videoList   = $hasVideo ? array_values(array_filter($product->video, fn($v) => !empty($v['url']))) : [];
 
-    $displayProduct = ($product->has_variation && $productVariation && $productVariation->id !== $product->id)
-        ? $productVariation
-        : $product;
-
-    $stockText  = '';
-    $stockClass = '';
-    if ($displayProduct->isOutOfStock()) {
-        $stockText  = __('Stock not available');
-        $stockClass = 'qs-stock--out';
-    } elseif ($displayProduct->with_storehouse_management && $displayProduct->quantity > 0) {
-        $stockText  = __('Out of :qty units', ['qty' => number_format($displayProduct->quantity)]);
-    } elseif (!$displayProduct->with_storehouse_management) {
-        $stockText  = __('Out of available stocks');
+    // Fallback chain: variation images → gallery images → featured image → empty
+    if (!empty($productImages)) {
+        $galleryImages = $productImages;
+    } elseif (!empty($product->images)) {
+        $galleryImages = $product->images;
+    } elseif (!empty($product->image)) {
+        $galleryImages = [$product->image];
+    } else {
+        $galleryImages = [];
     }
+
+    // Default variation product for price/stock on first load
+    $displayProduct = ($product->has_variation && $productVariation && $productVariation->id !== $product->id)
+        ? $productVariation : $product;
+
+    // Stock text
+    $stockText = ''; $stockClass = '';
+    if ($displayProduct->isOutOfStock()) {
+        $stockText = __('Stock not available'); $stockClass = 'qs-stock--out';
+    } elseif ($displayProduct->with_storehouse_management && $displayProduct->quantity > 0) {
+        $stockText = __('Out of :qty units', ['qty' => number_format($displayProduct->quantity)]);
+    } elseif (!$displayProduct->with_storehouse_management) {
+        $stockText = __('Out of available stocks');
+    }
+
+    // Show pill only if there are videos
+    $showPill = $hasVideo;
 @endphp
 
 <div class="qs-product">
 
-    {{-- ── Gallery ───────────────────────────────────────────── --}}
+    {{-- ── Gallery ─────────────────────────────────────────── --}}
     <div class="qs-gallery" data-has-video="{{ $hasVideo ? 'true' : 'false' }}">
 
-        {{-- Mobile header: back (close) + share — hidden on desktop via CSS --}}
+        {{-- Mobile header: back + share (desktop hidden via CSS) --}}
         <div class="qs-mobile-header">
             <button type="button" class="qs-mobile-header__btn qs-mobile-close" data-bs-dismiss="offcanvas" aria-label="{{ __('Close') }}">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-            @if ($hasVideo || $product->has_variation)
-                {{-- Mobile: pill sits here (top-center) via absolute positioning --}}
+            @if ($showPill)
                 <div class="qs-pill qs-pill--mobile-top">
                     <button type="button" class="qs-pill__btn active" data-tab="images">{{ __('Images') }}</button>
-                    @if ($hasVideo)
-                        <button type="button" class="qs-pill__btn" data-tab="videos">{{ __('Videos') }}</button>
-                    @endif
-                    @if ($product->has_variation)
-                        <button type="button" class="qs-pill__btn" data-tab="styles">{{ __('Style') }}</button>
-                    @endif
+                    <button type="button" class="qs-pill__btn" data-tab="videos">{{ __('Videos') }}</button>
                 </div>
             @endif
             <button type="button" class="qs-mobile-header__btn qs-share-btn" aria-label="{{ __('Share') }}" data-url="{{ $product->url }}" data-title="{{ $product->name }}">
@@ -50,14 +57,17 @@
             <button type="button" class="qs-arrow qs-arrow--prev" aria-label="{{ __('Previous') }}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
+
+            {{-- Track: images first, then videos — all always visible --}}
             <div class="qs-track">
                 @foreach ($galleryImages as $img)
                     <div class="qs-slide qs-slide--image">
                         <img src="{{ RvMedia::getImageUrl($img) }}" alt="{{ $product->name }}" loading="lazy" />
                     </div>
                 @endforeach
+
                 @foreach ($videoList as $video)
-                    <div class="qs-slide qs-slide--video" style="display:none;">
+                    <div class="qs-slide qs-slide--video">
                         @if ($video['provider'] === 'video')
                             @php $ext = pathinfo($video['url'], PATHINFO_EXTENSION) ?: 'mp4'; if($ext === 'mov') $ext = 'mp4'; @endphp
                             <video controls preload="metadata"
@@ -88,50 +98,8 @@
                         @endif
                     </div>
                 @endforeach
-
-                {{-- Style slide — all variation color thumbnails in a grid --}}
-                @if ($product->has_variation && isset($productVariations) && $productVariations->isNotEmpty())
-                    @php
-                        // Collect all visual (color) attribute sets
-                        $styleItems = collect();
-                        foreach ($productVariations as $pv) {
-                            if (!$pv->product) continue;
-                            $imgUrl = $pv->product->image ? RvMedia::getImageUrl($pv->product->image, 'medium') : null;
-                            // Get the first visual attribute for this variation (color name)
-                            $colorAttr = $pv->productAttributes->first(function($attr) {
-                                return $attr->productAttributeSet && $attr->productAttributeSet->display_layout === 'visual';
-                            });
-                            if (!$colorAttr) $colorAttr = $pv->productAttributes->first();
-                            if ($imgUrl || $colorAttr) {
-                                $styleItems->push([
-                                    'img'   => $imgUrl,
-                                    'color' => $colorAttr ? ($colorAttr->color ?: null) : null,
-                                    'name'  => $colorAttr ? $colorAttr->title : '',
-                                ]);
-                            }
-                        }
-                        $styleItems = $styleItems->unique('name')->values();
-                    @endphp
-                    @if ($styleItems->isNotEmpty())
-                        <div class="qs-slide qs-slide--style" style="display:none;">
-                            <div class="qs-style-grid">
-                                @foreach ($styleItems as $item)
-                                    <div class="qs-style-item">
-                                        @if ($item['img'])
-                                            <img src="{{ $item['img'] }}" alt="{{ $item['name'] }}" loading="lazy" />
-                                        @elseif ($item['color'])
-                                            <div class="qs-style-item__color" style="background-color: {{ $item['color'] }};"></div>
-                                        @else
-                                            <div class="qs-style-item__color" style="background:#eee;"></div>
-                                        @endif
-                                        <span class="qs-style-item__name">{{ $item['name'] }}</span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                @endif
             </div>
+
             <button type="button" class="qs-arrow qs-arrow--next" aria-label="{{ __('Next') }}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
@@ -142,77 +110,39 @@
             <button type="button" class="qs-video-zone qs-video-zone--next" aria-label="{{ __('Next') }}">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
-            {{-- Desktop pill — bottom center, hidden on mobile --}}
-            @if ($hasVideo)
+
+            {{-- Desktop pill — only shown when videos exist --}}
+            @if ($showPill)
                 <div class="qs-pill qs-pill--desktop">
                     <button type="button" class="qs-pill__btn active" data-tab="images">{{ __('Images') }}</button>
                     <button type="button" class="qs-pill__btn" data-tab="videos">{{ __('Videos') }}</button>
-                    <button type="button" class="qs-pill__btn" data-tab="styles">{{ __('Style') }}</button>
                 </div>
-            @else
-                {{-- Even without video, show Style tab if product has variations --}}
-                @if ($product->has_variation)
-                    <div class="qs-pill qs-pill--desktop">
-                        <button type="button" class="qs-pill__btn active" data-tab="images">{{ __('Images') }}</button>
-                        <button type="button" class="qs-pill__btn" data-tab="styles">{{ __('Style') }}</button>
-                    </div>
-                @endif
             @endif
         </div>
 
-        {{-- Thumbnail strip — all thumbs unified with group dividers --}}
+        {{-- Thumbnail strip — images + divider + video thumbs, all always visible --}}
         <div class="qs-thumbs">
-            {{-- Image thumbs --}}
             @foreach ($galleryImages as $i => $img)
                 <div class="qs-thumb qs-thumb--image {{ $i === 0 ? 'active' : '' }}" data-index="{{ $i }}" data-tab="images">
                     <img src="{{ RvMedia::getImageUrl($img, 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
                 </div>
             @endforeach
 
-            {{-- Divider before videos --}}
             @if ($hasVideo && count($galleryImages) > 0)
                 <div class="qs-thumbs-divider"></div>
             @endif
 
-            {{-- Video thumbs --}}
             @foreach ($videoList as $i => $video)
                 <div class="qs-thumb qs-thumb--video" data-index="{{ $i }}" data-tab="videos"
                      style="{{ !empty($video['thumbnail']) ? 'background-image:url(' . $video['thumbnail'] . ');background-size:cover;background-position:center;' : '' }}">
                 </div>
             @endforeach
-
-            {{-- Divider before styles --}}
-            @if ($product->has_variation && (count($galleryImages) > 0 || $hasVideo))
-                <div class="qs-thumbs-divider"></div>
-            @endif
-
-            {{-- Style thumbs (variation images) --}}
-            @if ($product->has_variation && isset($productVariations))
-                @php $styleIdx = 0; $addedNames = []; @endphp
-                @foreach ($productVariations as $pv)
-                    @if (!$pv->product) @continue @endif
-                    @php
-                        $colorAttr = $pv->productAttributes->first(fn($a) => $a->productAttributeSet && $a->productAttributeSet->display_layout === 'visual');
-                        if (!$colorAttr) $colorAttr = $pv->productAttributes->first();
-                        $name = $colorAttr ? $colorAttr->title : '';
-                        if (in_array($name, $addedNames)) continue;
-                        $addedNames[] = $name;
-                        $thumbImg = $pv->product->image ? RvMedia::getImageUrl($pv->product->image, 'thumb') : null;
-                        $bgColor  = ($colorAttr && $colorAttr->color) ? $colorAttr->color : '#ccc';
-                    @endphp
-                    <div class="qs-thumb qs-thumb--style" data-index="{{ $styleIdx }}" data-tab="styles"
-                         @if($thumbImg) style="background-image:url({{ $thumbImg }});background-size:cover;background-position:center;" @else style="background-color:{{ $bgColor }};" @endif>
-                    </div>
-                    @php $styleIdx++; @endphp
-                @endforeach
-            @endif
         </div>
     </div>
 
     {{-- ── Product info ──────────────────────────────────────── --}}
     <div class="qs-info bb-product-detail">
 
-        {{-- Title — 2-line clamp with expand chevron --}}
         <div class="qs-title-wrap">
             <h3 class="qs-title qs-title--clamped">{!! BaseHelper::clean($product->name) !!}</h3>
             <button type="button" class="qs-title-expand" aria-label="{{ __('Expand title') }}">
@@ -220,17 +150,14 @@
             </button>
         </div>
 
-        {{-- Price --}}
         {!! Theme::partial('product-price', [
             'product'           => $displayProduct,
             'priceWrapperTag'   => 'div',
             'priceWrapperClass' => 'qs-price',
         ]) !!}
 
-        {{-- View full details — above variations --}}
         <a href="{{ $product->url }}" class="qs-view-link">{{ __('View full details') }}</a>
 
-        {{-- Variations --}}
         @if ($product->has_variation)
             <div class="pr_switch_wrap">
                 {!! render_product_swatches($product, [

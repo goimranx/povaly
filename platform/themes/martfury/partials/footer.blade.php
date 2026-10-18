@@ -944,46 +944,41 @@
             if (!gallery) return;
 
             const track   = gallery.querySelector('.qs-track');
-            const dotsEl  = gallery.querySelector('.qs-dots');
             if (!track) return;
 
-            // All slides in one unified list — no hiding by tab
+            // All slides — images first, then videos. All visible always.
             const imageSlides = Array.from(gallery.querySelectorAll('.qs-slide--image'));
             const videoSlides = Array.from(gallery.querySelectorAll('.qs-slide--video'));
-            const styleSlides = Array.from(gallery.querySelectorAll('.qs-slide--style'));
+            const allSlides   = Array.from(track.querySelectorAll('.qs-slide'));
+            const total       = allSlides.length;
 
-            // Make ALL slides visible and part of the track
-            [...imageSlides, ...videoSlides, ...styleSlides].forEach(function(s) { s.style.display = ''; });
+            // Make all slides visible
+            allSlides.forEach(function(s) { s.style.display = ''; });
 
-            const allSlides = Array.from(track.querySelectorAll('.qs-slide'));
-            const total     = allSlides.length;
-
-            // Pill buttons from both mobile and desktop
-            const pillBtns = Array.from(scope.querySelectorAll('.qs-pill__btn'));
-
-            const prevBtn  = gallery.querySelector('.qs-arrow--prev');
-            const nextBtn  = gallery.querySelector('.qs-arrow--next');
+            const pillBtns  = Array.from(scope.querySelectorAll('.qs-pill__btn'));
+            const prevBtn   = gallery.querySelector('.qs-arrow--prev');
+            const nextBtn   = gallery.querySelector('.qs-arrow--next');
             const videoPrev = gallery.querySelector('.qs-video-zone--prev');
             const videoNext = gallery.querySelector('.qs-video-zone--next');
             const viewport  = gallery.querySelector('.qs-gallery__viewport');
 
             let idx = 0;
 
-            // Map global slide index → group info
-            function getSlideGroup(n) {
+            // Get group info for any global slide index
+            function getGroup(n) {
                 var s = allSlides[n];
                 if (!s) return { tab: 'images', groupIdx: 0, groupTotal: imageSlides.length };
-                if (s.classList.contains('qs-slide--video'))  return { tab: 'videos', groupIdx: videoSlides.indexOf(s), groupTotal: videoSlides.length };
-                if (s.classList.contains('qs-slide--style'))  return { tab: 'styles', groupIdx: styleSlides.indexOf(s), groupTotal: styleSlides.length };
+                if (s.classList.contains('qs-slide--video')) {
+                    return { tab: 'videos', groupIdx: videoSlides.indexOf(s), groupTotal: videoSlides.length };
+                }
                 return { tab: 'images', groupIdx: imageSlides.indexOf(s), groupTotal: imageSlides.length };
             }
 
-            function firstIndexOf(tab) {
+            // First global index of a tab group
+            function firstOf(tab) {
                 for (var i = 0; i < allSlides.length; i++) {
-                    var s = allSlides[i];
-                    if (tab === 'images' && s.classList.contains('qs-slide--image')) return i;
-                    if (tab === 'videos' && s.classList.contains('qs-slide--video')) return i;
-                    if (tab === 'styles' && s.classList.contains('qs-slide--style')) return i;
+                    if (tab === 'images' && allSlides[i].classList.contains('qs-slide--image')) return i;
+                    if (tab === 'videos' && allSlides[i].classList.contains('qs-slide--video')) return i;
                 }
                 return 0;
             }
@@ -993,41 +988,32 @@
                 if (prevBtn) prevBtn.disabled = idx === 0;
                 if (nextBtn) nextBtn.disabled = idx >= total - 1;
 
-                var g = getSlideGroup(idx);
+                var g = getGroup(idx);
 
                 // Video nav zones
                 if (videoPrev) videoPrev.style.display = (g.tab === 'videos' && g.groupIdx > 0) ? 'flex' : 'none';
                 if (videoNext) videoNext.style.display = (g.tab === 'videos' && g.groupIdx < g.groupTotal - 1) ? 'flex' : 'none';
 
                 // Pill active + counters
-                var labelMap = { images: 'Image', videos: 'Video', styles: 'Style' };
                 pillBtns.forEach(function(btn) {
                     var tab = btn.dataset.tab;
                     btn.classList.toggle('active', tab === g.tab);
-                    var groupSlides = tab === 'videos' ? videoSlides : tab === 'styles' ? styleSlides : imageSlides;
-                    var label = labelMap[tab] || tab;
-                    if (groupSlides.length <= 1) {
+                    var grp = (tab === 'videos') ? videoSlides : imageSlides;
+                    var label = (tab === 'videos') ? 'Video' : 'Image';
+                    if (grp.length <= 1) {
                         btn.textContent = label;
                     } else {
                         var pos = (tab === g.tab) ? g.groupIdx + 1 : 1;
-                        btn.textContent = label + ' ' + pos + '/' + groupSlides.length;
+                        btn.textContent = label + ' ' + pos + '/' + grp.length;
                     }
                 });
 
-                // Dots (optional — for small count)
-                if (dotsEl) {
-                    dotsEl.innerHTML = '';
-                }
-
                 // Sync strip thumbnail
-                Array.from(gallery.querySelectorAll('.qs-thumb')).forEach(function(t) {
-                    var tTab = t.dataset.tab;
-                    var tIdx = parseInt(t.dataset.index);
-                    var match = tTab === g.tab && tIdx === g.groupIdx;
+                var thumbs = Array.from(gallery.querySelectorAll('.qs-thumb'));
+                thumbs.forEach(function(t) {
+                    var match = (t.dataset.tab === g.tab) && (parseInt(t.dataset.index) === g.groupIdx);
                     t.classList.toggle('active', match);
-                    if (match) {
-                        t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                    }
+                    if (match) t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
                 });
             }
 
@@ -1047,37 +1033,37 @@
                 render();
             }
 
+            // Expose go() so variation change can jump to image 0
+            gallery._qsGo = go;
+            gallery._qsFirstOf = firstOf;
+
             // Arrow buttons
             if (prevBtn) prevBtn.addEventListener('click', function() { go(idx - 1); });
             if (nextBtn) nextBtn.addEventListener('click', function() { go(idx + 1); });
-
-            // Video nav zones (within video group)
             if (videoPrev) videoPrev.addEventListener('click', function() { go(idx - 1); });
             if (videoNext) videoNext.addEventListener('click', function() { go(idx + 1); });
 
             // Pill tab buttons → jump to first of that group
             pillBtns.forEach(function(btn) {
                 btn.addEventListener('click', function() {
-                    go(firstIndexOf(btn.dataset.tab));
+                    go(firstOf(btn.dataset.tab));
                 });
             });
 
-            // Strip thumbnail click → go to that slide
+            // Strip thumbnail click → jump to that slide
             Array.from(gallery.querySelectorAll('.qs-thumb')).forEach(function(thumb) {
                 thumb.addEventListener('click', function() {
-                    var tab = thumb.dataset.tab;
+                    var tab      = thumb.dataset.tab;
                     var groupIdx = parseInt(thumb.dataset.index);
-                    // Find global idx for this tab + groupIdx
-                    var targetSlides = tab === 'videos' ? videoSlides : tab === 'styles' ? styleSlides : imageSlides;
-                    var targetSlide  = targetSlides[groupIdx];
-                    var globalIdx    = allSlides.indexOf(targetSlide);
-                    if (globalIdx >= 0) go(globalIdx);
+                    var grp      = (tab === 'videos') ? videoSlides : imageSlides;
+                    var slide    = grp[groupIdx];
+                    var gIdx     = allSlides.indexOf(slide);
+                    if (gIdx >= 0) go(gIdx);
                 });
             });
 
             // Swipe / drag
-            var dragStartX = 0, dragDelta = 0, isDragging = false;
-            var THRESHOLD = 50;
+            var dragStartX = 0, dragDelta = 0, isDragging = false, THRESHOLD = 50;
             function onDragStart(x) { dragStartX = x; isDragging = true; track.classList.add('dragging'); }
             function onDragMove(x) {
                 if (!isDragging) return;
@@ -1102,7 +1088,7 @@
                 viewport.addEventListener('touchend',   function()  { onDragEnd(); });
             }
 
-            // YouTube / Vimeo facade
+            // YouTube/Vimeo facade
             gallery.querySelectorAll('.qs-video-facade').forEach(function(facade) {
                 facade.addEventListener('click', function() {
                     var src = facade.dataset.src;
@@ -1112,8 +1098,7 @@
                     if (facade.dataset.provider === 'youtube' && src.indexOf('enablejsapi') === -1) src += sep + 'enablejsapi=1';
                     else if (facade.dataset.provider === 'vimeo' && src.indexOf('api=1') === -1) src += sep + 'api=1';
                     var iframe = document.createElement('iframe');
-                    iframe.src = src;
-                    iframe.frameBorder = '0';
+                    iframe.src = src; iframe.frameBorder = '0';
                     iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
                     iframe.allowFullscreen = true;
                     iframe.style.cssText = 'width:100%;height:100%;border:0;display:block;';
@@ -1123,19 +1108,17 @@
 
             // Share button
             var shareBtn = document.querySelector('#quick-shop-modal .qs-share-btn');
-            if (shareBtn) {
+            if (shareBtn && !shareBtn._qsBound) {
+                shareBtn._qsBound = true;
                 shareBtn.addEventListener('click', function() {
-                    var url   = shareBtn.dataset.url || window.location.href;
+                    var url = shareBtn.dataset.url || window.location.href;
                     var title = shareBtn.dataset.title || document.title;
-                    if (navigator.share) {
-                        navigator.share({ title: title, url: url }).catch(function() {});
-                    } else {
-                        navigator.clipboard && navigator.clipboard.writeText(url).then(function() { alert('Link copied!'); });
-                    }
+                    if (navigator.share) navigator.share({ title: title, url: url }).catch(function() {});
+                    else navigator.clipboard && navigator.clipboard.writeText(url).then(function() { alert('Link copied!'); });
                 });
             }
 
-            // Init at first slide
+            // Start at first image slide
             go(0);
         }
 
@@ -1311,23 +1294,50 @@
         function updateQSGalleryImages(imageUrls) {
             var offcanvas = document.getElementById('quick-shop-modal');
             if (!offcanvas) return;
-            var track = offcanvas.querySelector('.qs-track');
+            var track  = offcanvas.querySelector('.qs-track');
+            var thumbs = offcanvas.querySelector('.qs-thumbs');
             if (!track) return;
 
             // Remove old image slides
             Array.from(track.querySelectorAll('.qs-slide--image')).forEach(function(s) { s.remove(); });
 
+            // Remove old image thumbs and first divider
+            if (thumbs) {
+                Array.from(thumbs.querySelectorAll('.qs-thumb--image')).forEach(function(t) { t.remove(); });
+                var div = thumbs.querySelector('.qs-thumbs-divider');
+                if (div) div.remove();
+            }
+
             // Insert new image slides before first video slide
             var firstVideo = track.querySelector('.qs-slide--video');
-            imageUrls.forEach(function(url) {
+            imageUrls.forEach(function(url, i) {
                 var slide = document.createElement('div');
                 slide.className = 'qs-slide qs-slide--image';
                 slide.innerHTML = '<img src="' + url + '" alt="" loading="lazy" />';
                 if (firstVideo) track.insertBefore(slide, firstVideo);
                 else track.appendChild(slide);
+
+                // Add thumb
+                if (thumbs) {
+                    var thumb = document.createElement('div');
+                    thumb.className = 'qs-thumb qs-thumb--image' + (i === 0 ? ' active' : '');
+                    thumb.dataset.index = i;
+                    thumb.dataset.tab   = 'images';
+                    thumb.innerHTML     = '<img src="' + url + '" alt="" loading="lazy" />';
+                    var firstVidThumb = thumbs.querySelector('.qs-thumb--video');
+                    if (firstVidThumb) thumbs.insertBefore(thumb, firstVidThumb);
+                    else thumbs.appendChild(thumb);
+                }
             });
 
-            // Re-init gallery (images tab)
+            // Re-add divider before videos if needed
+            if (thumbs && thumbs.querySelector('.qs-thumb--video') && imageUrls.length > 0) {
+                var newDiv = document.createElement('div');
+                newDiv.className = 'qs-thumbs-divider';
+                thumbs.insertBefore(newDiv, thumbs.querySelector('.qs-thumb--video'));
+            }
+
+            // Re-init gallery — will jump to index 0 (first image)
             initQSGallery(offcanvas);
         }
 
