@@ -40,7 +40,8 @@
                             @checked($isSelected)
                             class="product-filter-item"
                             @if($isDisabled) disabled @endif
-                        >{{ $attribute->title }}</label>
+                        >{{ $attribute->title }}
+                    </label>
                 </li>
             @endforeach
         </ul>

@@ -708,7 +708,7 @@
         cursor: pointer;
         border: 1px solid #d0d0d0;
         border-radius: 4px;
-        padding: 5px 12px;
+        padding: 0;
         font-size: 13px;
         font-weight: 500;
         background: #fff;
@@ -716,7 +716,15 @@
         transition: border-color .15s, outline .15s;
         overflow: hidden;
     }
-    .qs-color-item label { cursor: pointer; margin: 0; display: block; }
+    /* Label fills the entire li — whole box is clickable */
+    .qs-color-item label {
+        cursor: pointer;
+        margin: 0;
+        display: block;
+        width: 100%;
+        padding: 5px 12px;
+        user-select: none;
+    }
     .qs-color-item input[type="radio"] { display: none; }
     /* Hover */
     .qs-color-item:not(.disabled):hover { border-color: var(--global-color-link, #007bff); }
@@ -1182,6 +1190,16 @@
                                || $wrap.find('input:checked').closest('li').data('title')
                                || $wrap.find('.qs-swatch__selected-val').data('default') || '';
                 $wrap.find('.qs-swatch__selected-val').text(selected);
+            });
+
+            // Clicking anywhere on the li triggers the radio inside it
+            $(scope).on('click', '.qs-color-item', function(e) {
+                if ($(e.target).is('input')) return; // already handled
+                var $radio = $(this).find('input[type="radio"]');
+                if ($radio.prop('disabled')) return;
+                $radio.prop('checked', true).trigger('change');
+                // Also trigger label click for change-product-swatches.js
+                $(this).find('label').trigger('click');
             });
 
             // When a swatch is selected, update selected class + label + stock + variation prices
