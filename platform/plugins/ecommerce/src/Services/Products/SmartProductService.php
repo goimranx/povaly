@@ -34,9 +34,9 @@ class SmartProductService
         ];
         
         $weights = array_merge($defaultWeights, $weights);
-        $daysAgo = now()->subDays(7);
+        $daysAgo = now()->subDays(7)->format('Y-m-d H:i:s');
         
-        // Build base query
+        // Build base query using raw SQL to avoid MySQL strict mode issues
         $query = DB::table('ec_products')
             ->where('ec_products.status', 'published')
             ->where('ec_products.is_variation', 0);
@@ -56,26 +56,22 @@ class SmartProductService
                 ->where('ec_product_categories.category_id', $categoryId);
         }
         
-        // Join all data sources for scoring
+        // Join all data sources for scoring using DB::raw with properly bound values
         $query
             // All time sales
             ->leftJoin(DB::raw('(
-                SELECT 
-                    op.product_id,
-                    SUM(op.qty) as total_sold
+                SELECT op.product_id, SUM(op.qty) as total_sold
                 FROM ec_order_product op
                 INNER JOIN ec_orders o ON op.order_id = o.id
-                WHERE o.status = "completed"
+                WHERE o.status = \'completed\'
                 GROUP BY op.product_id
             ) as sales'), 'ec_products.id', '=', 'sales.product_id')
             // Recent sales (trending)
             ->leftJoin(DB::raw('(
-                SELECT 
-                    op.product_id,
-                    SUM(op.qty) as recent_sold
+                SELECT op.product_id, SUM(op.qty) as recent_sold
                 FROM ec_order_product op
                 INNER JOIN ec_orders o ON op.order_id = o.id
-                WHERE o.status = "completed" AND o.created_at >= "' . $daysAgo->format('Y-m-d H:i:s') . '"
+                WHERE o.status = \'completed\' AND o.created_at >= \'' . $daysAgo . '\'
                 GROUP BY op.product_id
             ) as recent_sales'), 'ec_products.id', '=', 'recent_sales.product_id')
             // Wishlists count
@@ -87,15 +83,13 @@ class SmartProductService
                 GROUP BY product_id
             ) as wishlists'), 'ec_products.id', '=', 'wishlists.product_id');
         
-        // First, get recent views count per product
-        $recentViewsSubquery = DB::table('ec_product_views')
-            ->select('product_id', DB::raw('COUNT(*) as recent_view_count'))
-            ->where('date', '>=', $daysAgo)
-            ->groupBy('product_id');
-        
-        // Now join it as a subquery
-        $query->leftJoin(DB::raw("({$recentViewsSubquery->toSql()}) as recent_view_counts"), 'ec_products.id', '=', 'recent_view_counts.product_id')
-            ->mergeBindings($recentViewsSubquery);
+        // First, get recent views count per product (using raw to avoid binding issues)
+        $query->leftJoin(DB::raw('(
+            SELECT product_id, COUNT(*) as recent_view_count
+            FROM ec_product_views
+            WHERE date >= \'' . $daysAgo . '\'
+            GROUP BY product_id
+        ) as recent_view_counts'), 'ec_products.id', '=', 'recent_view_counts.product_id');
         
         // Calculate combined score
         $query->select(
