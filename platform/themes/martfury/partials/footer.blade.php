@@ -190,13 +190,17 @@
     .qs-gallery {
         position: relative;
         background: #f8f8f8;
+        flex-shrink: 0;
     }
     .qs-gallery__viewport {
         position: relative;
         overflow: hidden;
         width: 100%;
         height: 380px;
+        cursor: grab;
+        user-select: none;
     }
+    .qs-gallery__viewport:active { cursor: grabbing; }
     @media (max-width: 576px) {
         .qs-gallery__viewport { height: 280px; }
     }
@@ -205,6 +209,9 @@
         height: 100%;
         transition: transform 0.3s ease;
         will-change: transform;
+    }
+    .qs-track.dragging {
+        transition: none; /* no animation while dragging */
     }
     .qs-slide {
         min-width: 100%;
@@ -215,10 +222,11 @@
         overflow: hidden;
     }
     .qs-slide img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
         display: block;
+        pointer-events: none; /* prevent img drag interfering */
     }
     .qs-slide--video {
         background: #000;
@@ -236,46 +244,30 @@
         top: 50%; left: 50%;
         transform: translate(-50%,-50%);
         width: 60px; height: 60px;
-        background: rgba(255,255,255,.9);
+        background: rgba(255,255,255,0.9);
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         color: #333;
         box-shadow: 0 4px 20px rgba(0,0,0,.25);
         transition: background .2s;
+        pointer-events: none;
     }
     .qs-video-facade:hover .qs-play-btn { background: #fff; }
 
-    /* Arrows */
-    .qs-arrow {
-        position: absolute;
-        top: 50%; transform: translateY(-50%);
-        width: 36px; height: 36px;
-        border-radius: 50%;
-        background: rgba(255,255,255,.88);
-        border: none;
-        cursor: pointer;
-        z-index: 10;
-        display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 2px 6px rgba(0,0,0,.15);
-        transition: background .2s, opacity .2s;
-        color: #222;
-    }
-    .qs-arrow:hover { background: #fff; }
-    .qs-arrow:disabled { opacity: .3; cursor: not-allowed; }
-    .qs-arrow--prev { left: 10px; }
-    .qs-arrow--next { right: 10px; }
+    /* Remove arrows entirely */
+    .qs-arrow { display: none !important; }
 
     /* Dots */
     .qs-dots {
         position: absolute;
         bottom: 10px; left: 0; right: 0;
-        display: flex; justify-content: center; gap: 6px;
+        display: flex; justify-content: center; gap: 5px;
         pointer-events: none;
     }
     .qs-dot {
-        width: 7px; height: 7px;
+        width: 6px; height: 6px;
         border-radius: 50%;
-        background: rgba(255,255,255,.55);
+        background: rgba(255,255,255,0.5);
         transition: background .2s, transform .2s;
         pointer-events: auto;
         border: none;
@@ -284,31 +276,38 @@
     }
     .qs-dot.active {
         background: #fff;
-        transform: scale(1.3);
+        transform: scale(1.4);
     }
 
     /* Images / Videos pill */
     .qs-pill {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
         display: flex;
-        justify-content: center;
-        padding: 10px 0 8px;
-        gap: 4px;
+        gap: 2px;
+        background: rgba(0,0,0,0.45);
+        backdrop-filter: blur(4px);
+        border-radius: 20px;
+        padding: 3px;
     }
     .qs-pill__btn {
-        padding: 5px 20px;
-        border-radius: 20px;
-        border: 1px solid #d0d0d0;
-        background: #fff;
-        font-size: 13px;
+        padding: 4px 16px;
+        border-radius: 16px;
+        border: none;
+        background: transparent;
+        font-size: 12px;
         font-weight: 500;
-        color: #555;
+        color: rgba(255,255,255,0.8);
         cursor: pointer;
         transition: all .2s;
+        white-space: nowrap;
     }
     .qs-pill__btn.active {
-        background: #222;
-        color: #fff;
-        border-color: #222;
+        background: var(--global-color-site-bg, #fff);
+        color: #222;
     }
 
     /* ── Info section ─────────────────────────────────────────────── */
@@ -579,6 +578,46 @@
 
             if (prevBtn) prevBtn.addEventListener('click', function() { if (idx > 0) go(idx - 1); });
             if (nextBtn) nextBtn.addEventListener('click', function() { if (idx < active.length - 1) go(idx + 1); });
+
+            // ── Swipe / drag support (mouse + touch) ─────────────────────────
+            var dragStartX = 0;
+            var dragDelta  = 0;
+            var isDragging = false;
+            var THRESHOLD  = 50; // px to trigger slide change
+
+            function onDragStart(x) {
+                dragStartX = x;
+                isDragging = true;
+                track.classList.add('dragging');
+            }
+            function onDragMove(x) {
+                if (!isDragging) return;
+                dragDelta = x - dragStartX;
+                var base = -(idx * 100);
+                var offset = (dragDelta / viewport.offsetWidth) * 100;
+                track.style.transform = 'translateX(calc(' + base + '% + ' + dragDelta + 'px))';
+            }
+            function onDragEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                track.classList.remove('dragging');
+                if (dragDelta < -THRESHOLD && idx < active.length - 1) go(idx + 1);
+                else if (dragDelta > THRESHOLD && idx > 0) go(idx - 1);
+                else render(); // snap back
+                dragDelta = 0;
+            }
+
+            var viewport = gallery.querySelector('.qs-gallery__viewport');
+
+            // Mouse
+            viewport.addEventListener('mousedown',  function(e) { onDragStart(e.clientX); });
+            window.addEventListener('mousemove',    function(e) { onDragMove(e.clientX); });
+            window.addEventListener('mouseup',      function()  { onDragEnd(); });
+
+            // Touch
+            viewport.addEventListener('touchstart', function(e) { onDragStart(e.touches[0].clientX); }, { passive: true });
+            viewport.addEventListener('touchmove',  function(e) { onDragMove(e.touches[0].clientX); },  { passive: true });
+            viewport.addEventListener('touchend',   function()  { onDragEnd(); });
 
             pillBtns.forEach(function(btn) {
                 btn.addEventListener('click', function() {

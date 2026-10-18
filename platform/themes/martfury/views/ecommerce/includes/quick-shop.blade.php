@@ -11,7 +11,7 @@
         {{-- Viewport --}}
         <div class="qs-gallery__viewport">
 
-            {{-- Prev arrow --}}
+            {{-- Prev arrow (hidden via CSS, kept for JS compatibility) --}}
             <button type="button" class="qs-arrow qs-arrow--prev" aria-label="{{ __('Previous') }}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
@@ -63,22 +63,23 @@
                 @endforeach
             </div>
 
-            {{-- Next arrow --}}
+            {{-- Next arrow (hidden via CSS, kept for JS compatibility) --}}
             <button type="button" class="qs-arrow qs-arrow--next" aria-label="{{ __('Next') }}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
 
             {{-- Dot indicators --}}
             <div class="qs-dots"></div>
+
+            {{-- Images / Videos pill overlaid on gallery --}}
+            @if ($hasVideo)
+                <div class="qs-pill">
+                    <button type="button" class="qs-pill__btn active" data-tab="images">{{ __('Images') }}</button>
+                    <button type="button" class="qs-pill__btn" data-tab="videos">{{ __('Videos') }}</button>
+                </div>
+            @endif
         </div>
 
-        {{-- Images / Videos pill — only when product has videos --}}
-        @if ($hasVideo)
-            <div class="qs-pill">
-                <button type="button" class="qs-pill__btn active" data-tab="images">{{ __('Images') }}</button>
-                <button type="button" class="qs-pill__btn" data-tab="videos">{{ __('Videos') }}</button>
-            </div>
-        @endif
     </div>
 
     {{-- ── Product info ──────────────────────────────────────── --}}
