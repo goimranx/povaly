@@ -1207,16 +1207,7 @@
                                || $wrap.find('.qs-swatch__selected-val').data('default') || '';
                 $wrap.find('.qs-swatch__selected-val').text(selected);
             });
-
-            // Clicking anywhere on the li triggers the radio inside it
-            $(scope).on('click', '.qs-color-item', function(e) {
-                if ($(e.target).is('input')) return; // already handled
-                var $radio = $(this).find('input[type="radio"]');
-                if ($radio.prop('disabled')) return;
-                $radio.prop('checked', true).trigger('change');
-                // Also trigger label click for change-product-swatches.js
-                $(this).find('label').trigger('click');
-            });
+            // NO custom click handler needed — label fills entire li, native click works
 
             // When a swatch is selected, update selected class + label + stock + variation prices
             $(scope).on('change', '.product-filter-item', function() {
@@ -1316,50 +1307,32 @@
             // Also blank any existing CMS message
             $(this).find('.number-items-available').html('').hide();
         });
-        // Hook into product-filter-item change — intercept the variation AJAX response
-        $(document).on('change', '#quick-shop-modal .product-filter-item', function() {
-            var $input   = $(this);
-            var $product = $input.closest('.product-attributes');
-            var url      = $product.data('target');
-            if (!url) return;
+        // Hook into CMS variation change success via the official hook
+        // change-product-swatches.js already fires AJAX — we just listen to the result
+        window.onChangeSwatchesSuccess = function(response, element) {
+            // Only act inside the quick-shop offcanvas
+            if (!document.getElementById('quick-shop-modal') || !document.getElementById('quick-shop-modal').classList.contains('show')) return;
+            var data = response && response.data ? response.data : null;
+            if (!data) return;
 
-            // Collect all selected attribute IDs
-            var attrs = {};
-            $product.find('input.product-filter-item:checked').each(function() {
-                var slug = $(this).data('slug');
-                attrs['attributes[' + slug + ']'] = $(this).val();
-            });
+            // Update gallery images
+            if (data.image_with_sizes && data.image_with_sizes.origin && data.image_with_sizes.origin.length) {
+                updateQSGalleryImages(data.image_with_sizes.origin);
+            }
 
-            $.ajax({
-                url: url,
-                data: attrs,
-                type: 'GET',
-                success: function(res) {
-                    if (res.error || !res.data) return;
-                    var data = res.data;
+            // Update price display
+            if (data.display_sale_price) {
+                $('#quick-shop-modal [data-bb-value="product-price"]').text(data.display_sale_price);
+            }
+            if (data.sale_price !== data.price) {
+                $('#quick-shop-modal [data-bb-value="product-original-price"]').text(data.display_price).closest('span').show();
+            } else {
+                $('#quick-shop-modal [data-bb-value="product-original-price"]').closest('span').hide();
+            }
 
-                    // Update gallery images
-                    if (data.image_with_sizes && data.image_with_sizes.origin && data.image_with_sizes.origin.length) {
-                        updateQSGalleryImages(data.image_with_sizes.origin);
-                    }
-
-                    // Update price
-                    if (data.display_sale_price) {
-                        $('#quick-shop-modal [data-bb-value="product-price"]').text(data.display_sale_price);
-                    }
-                    if (data.sale_price !== data.price) {
-                        $('#quick-shop-modal [data-bb-value="product-original-price"]').text(data.display_price).closest('span').show();
-                    } else {
-                        $('#quick-shop-modal [data-bb-value="product-original-price"]').closest('span').hide();
-                    }
-
-                    // Update hidden product ID
-                    $('#quick-shop-modal .hidden-product-id').val(data.id);
-
-                    // Update stock — handled by defaultOnChangeSwatchesSuccess patch above
-                }
-            });
-        });
+            // Update hidden product ID
+            $('#quick-shop-modal .hidden-product-id').val(data.id);
+        };
 
         function updateQSGalleryImages(imageUrls) {
             var offcanvas = document.getElementById('quick-shop-modal');
