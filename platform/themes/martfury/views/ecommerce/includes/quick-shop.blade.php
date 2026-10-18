@@ -52,34 +52,33 @@
     }
 
     // ── Determine the default jump index ────────────────────────────
-    // Use the default selected variation's image, or fall back to 0
     $defaultJumpIndex = 0;
     $displayProduct   = $product;
+
     if ($product->has_variation && $productVariation && $productVariation->id !== $product->id) {
         $displayProduct = $productVariation;
-        // Find this variation's image in our list
-        foreach ($allImages as $i => $img) {
-            if ($img['variationId'] === $productVariation->id || $img['src'] === $productVariation->image) {
-                $defaultJumpIndex = $i;
-                break;
+
+        // Strategy 1: use variationImageMap by product_id
+        if (isset($variationImageMap[$productVariation->id])) {
+            $defaultJumpIndex = $variationImageMap[$productVariation->id];
+        }
+        // Strategy 2: match by image src regardless of type
+        elseif (!empty($productVariation->image)) {
+            $found = $allImages->search(fn($i) => $i['src'] === $productVariation->image);
+            if ($found !== false) $defaultJumpIndex = $found;
+        }
+        // Strategy 3: use $productImages (controller-provided variation images)
+        elseif (!empty($productImages)) {
+            foreach ($productImages as $img) {
+                $found = $allImages->search(fn($i) => $i['src'] === $img);
+                if ($found !== false) { $defaultJumpIndex = $found; break; }
             }
         }
-    }
-
-    // Also use $productImages as the first images if provided (variation-specific images passed by controller)
-    // If controller passed specific images, these should be shown first (they are the selected variation images)
-    if (!empty($productImages)) {
-        // Find first of these images in our allImages list
+    } elseif (!empty($productImages) && $productImages !== ($product->images ?? [])) {
+        // Product has no variation but controller passed specific images — find first
         foreach ($productImages as $img) {
             $found = $allImages->search(fn($i) => $i['src'] === $img);
-            if ($found !== false) {
-                $defaultJumpIndex = $found;
-                break;
-            }
-            // If not found, add at beginning
-            $allImages->prepend(['src' => $img, 'type' => 'variation', 'variationId' => null]);
-            $defaultJumpIndex = 0;
-            break;
+            if ($found !== false) { $defaultJumpIndex = $found; break; }
         }
     }
 
