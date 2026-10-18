@@ -3488,3 +3488,22 @@ ul.bb-social-sharing {
         }
     }
 }
+
+
+// Mobile header and sidebar headers - use secondary-mid background (below 1199px)
+@media (max-width: 1199px) {
+    // Mobile header
+    .header--mobile .navigation--mobile {
+        background-color: var(--global-color-secondary-mid) !important;
+    }
+    
+    // Sidebar headers (cart, search, menu, etc.)
+    .ps-panel--sidebar .ps-panel__header {
+        background-color: var(--global-color-secondary-mid) !important;
+    }
+    
+    // Navigation mobile product (bottom bar if exists)
+    .navigation--mobile-product {
+        background-color: var(--global-color-secondary-mid) !important;
+    }
+}
