@@ -684,20 +684,26 @@
         text-align: center;
         transition: all .2s;
     }
-    /* Add to cart — warning bg, text-main */
+    /* Add to cart — uses Ecommerce theme option colors */
     .qs-btn--cart {
-        background: var(--global-color-warning, #FBB13C);
-        border-color: var(--global-color-warning, #FBB13C);
-        color: var(--global-color-text-main, #0D1B2A);
+        background: var(--ec-btn-cart-bg, #FFD814);
+        border-color: var(--ec-btn-cart-bg, #FFD814);
+        color: var(--ec-btn-cart-text, #111111);
     }
-    .qs-btn--cart:hover { filter: brightness(0.92); }
-    /* Buy now — primary bg, text-main */
+    .qs-btn--cart:hover {
+        background: var(--ec-btn-cart-bg-hover, #f0c800);
+        border-color: var(--ec-btn-cart-bg-hover, #f0c800);
+    }
+    /* Buy now — uses Ecommerce theme option colors */
     .qs-btn--buy {
-        background: var(--global-color-primary, #FF642C);
-        border-color: var(--global-color-primary, #FF642C);
-        color: var(--global-color-text-main, #0D1B2A);
+        background: var(--ec-btn-buy-bg, #FFA41C);
+        border-color: var(--ec-btn-buy-bg, #FFA41C);
+        color: var(--ec-btn-buy-text, #111111);
     }
-    .qs-btn--buy:hover { filter: brightness(0.9); }
+    .qs-btn--buy:hover {
+        background: var(--ec-btn-buy-bg-hover, #f09600);
+        border-color: var(--ec-btn-buy-bg-hover, #f09600);
+    }
     .qs-btn:disabled { opacity: .5; cursor: not-allowed; }
     @media (max-width: 420px) {
         .qs-actions { flex-direction: column; }

@@ -129,6 +129,22 @@ app('events')->listen(RenderingThemeOptionSettings::class, function (): void {
         ->setField(['id' => 'global_color_link_subtle',    'section_id' => $sc, 'type' => 'customColor', 'label' => __('Link Subtle'),           'attributes' => ['name' => 'global_color_link_subtle',    'value' => '#FFF3EC']])
         ->setField($mk('gs_l3', 0))
 
+        // ── ECOMMERCE BUTTONS ──
+        ->setField($st('global_ecommerce', 'Ecommerce', 0))
+        ->setField($mk('gs_ec_mk', 0))
+        ->setField(['id' => 'ec_btn_cart_bg',       'section_id' => $sc, 'type' => 'customColor', 'label' => __('Add to Cart Background'),       'attributes' => ['name' => 'ec_btn_cart_bg',       'value' => '#FFD814']])
+        ->setField($mk('gs_ec1', 0))
+        ->setField(['id' => 'ec_btn_cart_bg_hover', 'section_id' => $sc, 'type' => 'customColor', 'label' => __('Add to Cart Hover Background'), 'attributes' => ['name' => 'ec_btn_cart_bg_hover', 'value' => '#f0c800']])
+        ->setField($mk('gs_ec2', 0))
+        ->setField(['id' => 'ec_btn_cart_text',     'section_id' => $sc, 'type' => 'customColor', 'label' => __('Add to Cart Text Color'),       'attributes' => ['name' => 'ec_btn_cart_text',     'value' => '#111111']])
+        ->setField($mk('gs_ec3', 0))
+        ->setField(['id' => 'ec_btn_buy_bg',        'section_id' => $sc, 'type' => 'customColor', 'label' => __('Buy Now Background'),           'attributes' => ['name' => 'ec_btn_buy_bg',        'value' => '#FFA41C']])
+        ->setField($mk('gs_ec4', 0))
+        ->setField(['id' => 'ec_btn_buy_bg_hover',  'section_id' => $sc, 'type' => 'customColor', 'label' => __('Buy Now Hover Background'),     'attributes' => ['name' => 'ec_btn_buy_bg_hover',  'value' => '#f09600']])
+        ->setField($mk('gs_ec5', 0))
+        ->setField(['id' => 'ec_btn_buy_text',      'section_id' => $sc, 'type' => 'customColor', 'label' => __('Buy Now Text Color'),           'attributes' => ['name' => 'ec_btn_buy_text',      'value' => '#111111']])
+        ->setField($mk('gs_ec6', 0))
+
         // TAB 1 — Top Bar (Container)
         ->setField(['id' => 'header_topbar_padding',          'section_id' => $sc, 'type' => 'spacingControl', 'label' => __('Padding'),           'attributes' => ['name' => 'header_topbar_padding', 'value' => '{"top":"7","right":"0","bottom":"7","left":"0","unit":"px","linked":false}']])
         ->setField($mk('t1_m1', 1))

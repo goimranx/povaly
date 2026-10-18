@@ -56,6 +56,14 @@
             --global-color-link-hover:     {{theme_option('global_color_link_hover', '#1dbff5')}};
             --global-color-link-subtle:    {{theme_option('global_color_link_subtle', '#FFF3EC')}};
 
+            /* ══ ECOMMERCE BUTTONS ══ */
+            --ec-btn-cart-bg:       {{theme_option('ec_btn_cart_bg', '#FFD814')}};
+            --ec-btn-cart-bg-hover: {{theme_option('ec_btn_cart_bg_hover', '#f0c800')}};
+            --ec-btn-cart-text:     {{theme_option('ec_btn_cart_text', '#111111')}};
+            --ec-btn-buy-bg:        {{theme_option('ec_btn_buy_bg', '#FFA41C')}};
+            --ec-btn-buy-bg-hover:  {{theme_option('ec_btn_buy_bg_hover', '#f09600')}};
+            --ec-btn-buy-text:      {{theme_option('ec_btn_buy_text', '#111111')}};
+
             /* ═══════════════════════════════════════════════════════════════ */
             /*              EXISTING THEME OPTIONS                             */
             /* ═══════════════════════════════════════════════════════════════ */
