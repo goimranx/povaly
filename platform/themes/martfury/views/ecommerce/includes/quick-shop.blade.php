@@ -3,12 +3,10 @@
     $videoList = $hasVideo ? array_values(array_filter($product->video, fn($v) => !empty($v['url']))) : [];
     $galleryImages = !empty($productImages) ? $productImages : ($product->images ?? []);
 
-    // Use default variation for initial price/stock if product has variations
     $displayProduct = ($product->has_variation && $productVariation && $productVariation->id !== $product->id)
         ? $productVariation
         : $product;
 
-    // Stock text for initial render
     $stockText  = '';
     $stockClass = '';
     if ($displayProduct->isOutOfStock()) {
@@ -16,10 +14,8 @@
         $stockClass = 'qs-stock--out';
     } elseif ($displayProduct->with_storehouse_management && $displayProduct->quantity > 0) {
         $stockText  = __('Out of :qty units', ['qty' => number_format($displayProduct->quantity)]);
-        $stockClass = '';
     } elseif (!$displayProduct->with_storehouse_management) {
         $stockText  = __('Out of available stocks');
-        $stockClass = '';
     }
 @endphp
 
@@ -27,11 +23,19 @@
 
     {{-- ── Gallery ───────────────────────────────────────────── --}}
     <div class="qs-gallery" data-has-video="{{ $hasVideo ? 'true' : 'false' }}">
-        {{-- Mobile header: back (close) + share --}}
+
+        {{-- Mobile header: back (close) + share — hidden on desktop via CSS --}}
         <div class="qs-mobile-header">
             <button type="button" class="qs-mobile-header__btn qs-mobile-close" data-bs-dismiss="offcanvas" aria-label="{{ __('Close') }}">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
+            @if ($hasVideo)
+                {{-- Mobile: pill sits here (top-center) via absolute positioning --}}
+                <div class="qs-pill qs-pill--mobile-top">
+                    <button type="button" class="qs-pill__btn active" data-tab="images">{{ __('Images') }}</button>
+                    <button type="button" class="qs-pill__btn" data-tab="videos">{{ __('Videos') }}</button>
+                </div>
+            @endif
             <button type="button" class="qs-mobile-header__btn qs-share-btn" aria-label="{{ __('Share') }}" data-url="{{ $product->url }}" data-title="{{ $product->name }}">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             </button>
@@ -90,41 +94,49 @@
             <button type="button" class="qs-video-zone qs-video-zone--next" aria-label="{{ __('Next') }}">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
+            {{-- Desktop pill — bottom center, hidden on mobile --}}
             @if ($hasVideo)
-                <div class="qs-pill">
+                <div class="qs-pill qs-pill--desktop">
                     <button type="button" class="qs-pill__btn active" data-tab="images">{{ __('Images') }}</button>
                     <button type="button" class="qs-pill__btn" data-tab="videos">{{ __('Videos') }}</button>
                 </div>
             @endif
         </div>
-    </div>
 
-    {{-- Thumbnail strip --}}
-    <div class="qs-thumbs">
-        @foreach ($galleryImages as $i => $img)
-            <div class="qs-thumb {{ $i === 0 ? 'active' : '' }}" data-index="{{ $i }}" data-tab="images">
-                <img src="{{ RvMedia::getImageUrl($img, 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
-            </div>
-        @endforeach
-        @foreach ($videoList as $i => $video)
-            <div class="qs-thumb qs-thumb--video" data-index="{{ $i }}" data-tab="videos"
-                 style="{{ !empty($video['thumbnail']) ? 'background-image:url(' . $video['thumbnail'] . ');background-size:cover;background-position:center;' : '' }}">
-            </div>
-        @endforeach
+        {{-- Thumbnail strip — shows only current tab's thumbs --}}
+        <div class="qs-thumbs">
+            @foreach ($galleryImages as $i => $img)
+                <div class="qs-thumb qs-thumb--image {{ $i === 0 ? 'active' : '' }}" data-index="{{ $i }}" data-tab="images">
+                    <img src="{{ RvMedia::getImageUrl($img, 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
+                </div>
+            @endforeach
+            @foreach ($videoList as $i => $video)
+                <div class="qs-thumb qs-thumb--video" data-index="{{ $i }}" data-tab="videos" style="display:none;{{ !empty($video['thumbnail']) ? 'background-image:url(' . $video['thumbnail'] . ');background-size:cover;background-position:center;' : '' }}">
+                </div>
+            @endforeach
+        </div>
     </div>
 
     {{-- ── Product info ──────────────────────────────────────── --}}
     <div class="qs-info bb-product-detail">
 
-        {{-- Title — h3 for SEO (h1 is the product page title) --}}
-        <h3 class="qs-title">{!! BaseHelper::clean($product->name) !!}</h3>
+        {{-- Title — 2-line clamp with expand chevron --}}
+        <div class="qs-title-wrap">
+            <h3 class="qs-title qs-title--clamped">{!! BaseHelper::clean($product->name) !!}</h3>
+            <button type="button" class="qs-title-expand" aria-label="{{ __('Expand title') }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+        </div>
 
-        {{-- Price — uses default variation price on first load --}}
+        {{-- Price --}}
         {!! Theme::partial('product-price', [
             'product'           => $displayProduct,
             'priceWrapperTag'   => 'div',
             'priceWrapperClass' => 'qs-price',
         ]) !!}
+
+        {{-- View full details — above variations --}}
+        <a href="{{ $product->url }}" class="qs-view-link">{{ __('View full details') }}</a>
 
         {{-- Variations --}}
         @if ($product->has_variation)
@@ -135,7 +147,6 @@
                     'referenceProduct' => $referenceProduct ?? null,
                 ]) !!}
             </div>
-            {{-- Hide the default number-items-available — we use .js-qs-stock instead --}}
             <div class="number-items-available" style="display:none !important;"></div>
         @endif
 
@@ -147,10 +158,7 @@
 
         <form class="add-to-cart-form" method="POST" action="{{ route('public.cart.add-to-cart') }}" data-bb-toggle="product-form">
             @csrf
-            <input type="hidden" name="id" class="hidden-product-id"
-                   value="{{ $displayProduct->id }}" />
-
-            {{-- Quantity + Stock --}}
+            <input type="hidden" name="id" class="hidden-product-id" value="{{ $displayProduct->id }}" />
             <div class="qs-qty-row">
                 <span class="qs-qty-label">{{ __('Quantity') }}</span>
                 <div class="qs-qty">
@@ -160,22 +168,15 @@
                 </div>
                 <span class="qs-stock js-qs-stock {{ $stockClass }}">{{ $stockText }}</span>
             </div>
-
             @if (EcommerceHelper::isCartEnabled())
                 <div class="qs-actions">
-                    <button class="qs-btn qs-btn--cart" type="submit" name="add-to-cart" @disabled($product->isOutOfStock())>
-                        {{ __('Add to cart') }}
-                    </button>
+                    <button class="qs-btn qs-btn--cart" type="submit" name="add-to-cart" @disabled($product->isOutOfStock())>{{ __('Add to cart') }}</button>
                     @if (EcommerceHelper::isQuickBuyButtonEnabled())
-                        <button class="qs-btn qs-btn--buy" type="submit" name="checkout" @disabled($product->isOutOfStock())>
-                            {{ __('Buy Now') }}
-                        </button>
+                        <button class="qs-btn qs-btn--buy" type="submit" name="checkout" @disabled($product->isOutOfStock())>{{ __('Buy Now') }}</button>
                     @endif
                 </div>
             @endif
         </form>
-
-        <a href="{{ $product->url }}" class="qs-view-link">{{ __('View full details') }}</a>
 
     </div>
 </div>

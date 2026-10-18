@@ -364,10 +364,24 @@
         flex-shrink: 0;
     }
     .qs-mobile-header__btn:hover { background: rgba(0,0,0,0.65); }
+    /* Desktop: hide mobile header, show desktop close button */
+    .qs-close-btn { display: flex; }
     @media (max-width: 768px) {
         .qs-mobile-header { display: flex; }
-        /* On mobile, pill moves up a bit to not overlap thumbnails */
-        .qs-pill { bottom: 68px; }
+        /* Hide desktop close button on mobile */
+        .qs-close-btn { display: none !important; }
+        /* On mobile, desktop pill hidden */
+        .qs-pill--desktop { display: none !important; }
+        /* Mobile pill inside header — reset positioning */
+        .qs-pill--mobile-top {
+            position: static !important;
+            transform: none !important;
+            bottom: auto !important;
+        }
+    }
+    @media (min-width: 769px) {
+        /* Desktop: hide mobile-only pill */
+        .qs-pill--mobile-top { display: none !important; }
     }
 
     /* ── Thumbnail strip ── */
@@ -390,7 +404,7 @@
         transition: border-color .15s;
         background: #f0f0f0;
     }
-    .qs-thumb img, .qs-thumb video {
+    .qs-thumb img {
         width: 100%; height: 100%;
         object-fit: cover;
         display: block;
@@ -416,6 +430,48 @@
     .offcanvas-backdrop { z-index: 10100 !important; }
     .offcanvas           { z-index: 10110 !important; }
     .qs-close-btn        { z-index: 10115 !important; }
+
+    /* ── Title clamp + expand ── */
+    .qs-title-wrap {
+        position: relative;
+        margin-bottom: 6px;
+    }
+    .qs-title--clamped {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .qs-title--expanded { -webkit-line-clamp: unset !important; overflow: visible !important; }
+    .qs-title-expand {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px; height: 20px;
+        background: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        color: #555;
+        vertical-align: middle;
+        margin-left: 4px;
+        transition: transform .2s;
+        flex-shrink: 0;
+    }
+    .qs-title-expand.expanded svg { transform: rotate(180deg); }
+
+    /* ── View full details link — link color + hover underline ── */
+    .qs-view-link {
+        font-size: 13px;
+        color: var(--global-color-link, #007bff);
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 12px;
+    }
+    .qs-view-link:hover {
+        color: var(--global-color-link-hover, #1dbff5);
+        text-decoration: underline;
+    }
 
     /* ── Override plugin's front-ecommerce.css swatch styles inside quick-shop ── */
     #quick-shop-modal .bb-product-attribute-swatch-list.visual-swatch .bb-product-attribute-swatch-item,
@@ -709,13 +765,7 @@
         .qs-actions { flex-direction: column; }
     }
 
-    /* View link */
-    .qs-view-link {
-        font-size: 13px;
-        color: #007185;
-        text-decoration: none;
-        display: inline-block;
-    }
+    /* View link - now above variations, handled in title section */
     .qs-view-link:hover { color: #C7511F; text-decoration: underline; }
 
     /* Quick view (product-quickview) basic resets */
@@ -784,6 +834,7 @@
                     initQSGallery(offcanvasEl);
                     initQSQty(offcanvasEl);
                     initQSSwatches(offcanvasEl);
+                    initQSTitleExpand(offcanvasEl);
                     document.dispatchEvent(new CustomEvent('ecommerce.quick-shop.completed', {
                         detail: { element: offcanvasEl, modal: $('#quick-shop-modal') }
                     }));
@@ -807,7 +858,8 @@
             const videoSlides = Array.from(gallery.querySelectorAll('.qs-slide--video'));
             const prevBtn     = gallery.querySelector('.qs-arrow--prev');
             const nextBtn     = gallery.querySelector('.qs-arrow--next');
-            const pillBtns    = Array.from(gallery.querySelectorAll('.qs-pill__btn'));
+            // Collect pill buttons from both mobile-top and desktop pills
+            const pillBtns    = Array.from(scope.querySelectorAll('.qs-pill__btn'));
             const videoPrev   = gallery.querySelector('.qs-video-zone--prev');
             const videoNext   = gallery.querySelector('.qs-video-zone--next');
 
@@ -906,6 +958,17 @@
                 active = show;
                 idx = 0;
                 buildDots();
+
+                // Show only this tab's thumbnails
+                Array.from(gallery.querySelectorAll('.qs-thumb')).forEach(function(t) {
+                    t.style.display = (t.dataset.tab === tab) ? '' : 'none';
+                });
+
+                // Sync all pill buttons (both mobile-top and desktop)
+                Array.from(gallery.closest('.qs-product') ? gallery.closest('.qs-product').querySelectorAll('.qs-pill__btn') : []).forEach(function(b) {
+                    b.classList.toggle('active', b.dataset.tab === tab);
+                });
+
                 render();
             }
 
@@ -1220,6 +1283,24 @@
 
             // Re-init gallery (images tab)
             initQSGallery(offcanvas);
+        }
+
+        // ── Title expand ────────────────────────────────────────────────
+        function initQSTitleExpand(scope) {
+            var btn   = scope.querySelector('.qs-title-expand');
+            var title = scope.querySelector('.qs-title--clamped');
+            if (!btn || !title) return;
+
+            // Only show expand button if title is actually clamped
+            if (title.scrollHeight <= title.clientHeight + 2) {
+                btn.style.display = 'none';
+                return;
+            }
+
+            btn.addEventListener('click', function() {
+                var expanded = title.classList.toggle('qs-title--expanded');
+                btn.classList.toggle('expanded', expanded);
+            });
         }
 
         // Pause ALL media when offcanvas closes
