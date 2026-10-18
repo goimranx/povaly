@@ -647,6 +647,11 @@
         })
 
         $(document).on('click', '.js-quick-view-button', event => {
+            // If the button has quick-shop data, let the quick-shop handler take over
+            if (event.currentTarget.hasAttribute('data-bb-toggle') &&
+                event.currentTarget.getAttribute('data-bb-toggle') === 'quick-shop') {
+                return; // quick-shop handler in front-ecommerce.js will handle this
+            }
             event.preventDefault()
             let _self = $(event.currentTarget)
             _self.addClass('button-loading')

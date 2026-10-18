@@ -97,7 +97,13 @@
                 <div class="ec-card__float">
                     <div class="ec-card__float-capsule">
                         <button type="button" class="ec-card__float-btn js-quick-view-button"
-                                data-url="{{ route('public.ajax.quick-view', $product->id) }}"
+                                @if($product->has_variation)
+                                    data-bb-toggle="quick-shop"
+                                    data-url="{{ route('public.ajax.quick-shop', $product->slug) }}"
+                                    {!! EcommerceHelper::jsAttributes('quick-shop', $product) !!}
+                                @else
+                                    data-url="{{ route('public.ajax.quick-view', $product->id) }}"
+                                @endif
                                 title="{{ __('Quick View') }}">
                             <i class="icon-eye"></i>
                         </button>
