@@ -220,7 +220,7 @@
         }
         .header--mobile,
         .header .ps-search--mobile {
-            background-color: var(--global-color-secondary, #0D1B2A) !important;
+            background-color: var(--global-color-secondary-mid, #243B53) !important;
         }
         /* Mobile header padding — override the hardcoded padding:10px 30px */
         .header--mobile .navigation--mobile {
@@ -907,7 +907,7 @@
         
         /* Sidebar menu header */
         .ps-panel--sidebar .ps-panel__header {
-            background-color: var(--global-color-secondary, #0D1B2A) !important;
+            background-color: var(--global-color-secondary-mid, #243B53) !important;
             color: var(--global-color-text-on-dark, #F4F9FD) !important;
             display: flex !important;
             align-items: center !important;
