@@ -336,7 +336,146 @@
         color: #222;
     }
 
-    /* ── Info section ─────────────────────────────────────────────── */
+    /* ── Variation swatches ───────────────────────────────────────── */
+    .qs-swatch-wrap { margin-bottom: 14px; }
+
+    .qs-swatch__label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    .qs-swatch__set-name { font-weight: 600; color: #222; }
+    .qs-swatch__selected-val { color: #555; font-weight: 400; }
+
+    /* Image variation grid */
+    .qs-var-grid-wrap {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        position: relative;
+    }
+    .qs-var-grid__viewport {
+        overflow: hidden;
+        flex: 1;
+    }
+    .qs-var-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        list-style: none;
+        padding: 0; margin: 0;
+        transition: transform 0.3s ease;
+    }
+    .qs-var-item {
+        cursor: pointer;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        transition: border-color .2s;
+        background: #f5f5f5;
+    }
+    .qs-var-item label {
+        cursor: pointer;
+        display: block;
+        margin: 0;
+    }
+    .qs-var-item input[type="radio"] { display: none; }
+    .qs-var-item__thumb {
+        width: 100%;
+        aspect-ratio: 1;
+        overflow: hidden;
+        border-radius: 4px;
+    }
+    .qs-var-item__thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .qs-var-item__color {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: 60px;
+        border-radius: 4px;
+    }
+    .qs-var-item__price {
+        font-size: 11px;
+        font-weight: 600;
+        color: #222;
+        text-align: center;
+        padding: 4px 4px 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    /* Hover */
+    .qs-var-item:not(.disabled):hover {
+        border-color: var(--global-color-link, #007bff);
+    }
+    /* Selected */
+    .qs-var-item.selected,
+    .qs-var-item:has(input:checked) {
+        border-color: var(--global-color-link, #007bff);
+        outline: 3px solid var(--global-color-link, #007bff);
+        outline-offset: 1px;
+    }
+    /* Selected + hover → 2px outline */
+    .qs-var-item.selected:hover,
+    .qs-var-item:has(input:checked):hover {
+        outline-width: 2px;
+    }
+    /* Disabled */
+    .qs-var-item.disabled {
+        opacity: .45;
+        cursor: not-allowed;
+    }
+
+    /* Grid pagination arrows */
+    .qs-var-grid__arrow {
+        flex-shrink: 0;
+        width: 26px; height: 26px;
+        border-radius: 50%;
+        border: 1px solid #ddd;
+        background: #fff;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        color: #444;
+        transition: background .2s, border-color .2s;
+        box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .qs-var-grid__arrow:hover { background: #f5f5f5; border-color: #bbb; }
+    .qs-var-grid__arrow:disabled { opacity: .3; cursor: not-allowed; }
+
+    /* Color-only swatches (no images) */
+    .qs-color-list {
+        display: flex; flex-wrap: wrap; gap: 8px;
+        list-style: none; padding: 0; margin: 0;
+    }
+    .qs-color-item {
+        cursor: pointer;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        transition: border-color .2s, outline .2s;
+    }
+    .qs-color-item label { cursor: pointer; margin: 0; }
+    .qs-color-item input[type="radio"] { display: none; }
+    .qs-color-swatch {
+        display: block;
+        width: 30px; height: 30px;
+        border-radius: 50%;
+    }
+    .qs-color-item:not(.disabled):hover { border-color: var(--global-color-link, #007bff); }
+    .qs-color-item.selected,
+    .qs-color-item:has(input:checked) {
+        border-color: var(--global-color-link, #007bff);
+        outline: 3px solid var(--global-color-link, #007bff);
+        outline-offset: 1px;
+    }
+    .qs-color-item.selected:hover,
+    .qs-color-item:has(input:checked):hover { outline-width: 2px; }
     .qs-info {
         padding: 20px 24px 24px;
         position: relative;
@@ -514,6 +653,7 @@
                     $content.html(res.data);
                     initQSGallery(offcanvasEl);
                     initQSQty(offcanvasEl);
+                    initQSSwatches(offcanvasEl);
                     document.dispatchEvent(new CustomEvent('ecommerce.quick-shop.completed', {
                         detail: { element: offcanvasEl, modal: $('#quick-shop-modal') }
                     }));
@@ -697,6 +837,68 @@
             }).on('click', '.qs-qty__btn.down', function() {
                 var $inp = $(this).siblings('.qs-qty__input');
                 $inp.val(Math.max(1, parseInt($inp.val() || 1) - 1));
+            });
+        }
+
+        // ── Variation grid pagination + hover label ───────────────────────
+        function initQSSwatches(scope) {
+            // Hover: update selected label beside attribute name
+            $(scope).on('mouseenter', '.qs-var-item, .qs-color-item', function() {
+                var title = $(this).data('title');
+                var $label = $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val');
+                $label.text(title);
+            }).on('mouseleave', '.qs-var-item, .qs-color-item', function() {
+                var $wrap = $(this).closest('.qs-swatch-wrap');
+                var selected = $wrap.find('.qs-var-item.selected, .qs-color-item.selected').first().data('title')
+                               || $wrap.find('input:checked').closest('li').data('title')
+                               || $wrap.find('.qs-swatch__selected-val').data('default') || '';
+                $wrap.find('.qs-swatch__selected-val').text(selected);
+            });
+
+            // When a swatch is selected, update selected class + label
+            $(scope).on('change', '.product-filter-item', function() {
+                var $input = $(this);
+                var $wrap  = $input.closest('.qs-swatch-wrap');
+                $wrap.find('.qs-var-item, .qs-color-item').removeClass('selected');
+                $input.closest('li').addClass('selected');
+                var title = $input.closest('li').data('title') || '';
+                $wrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
+            });
+
+            // Grid pagination (2-column pages, 2 rows = 4 per page)
+            scope.querySelectorAll('.qs-var-grid-wrap').forEach(function(wrap) {
+                var grid    = wrap.querySelector('.qs-var-grid');
+                var prevBtn = wrap.querySelector('.qs-var-grid__arrow--prev');
+                var nextBtn = wrap.querySelector('.qs-var-grid__arrow--next');
+                if (!grid) return;
+
+                var items      = Array.from(grid.querySelectorAll('.qs-var-item'));
+                var pageSize   = 4;
+                var page       = 0;
+                var totalPages = Math.ceil(items.length / pageSize);
+
+                // Find selected item page
+                var selectedIdx = items.findIndex(function(i) { return i.classList.contains('selected'); });
+                var startPage   = selectedIdx >= 0 ? Math.floor(selectedIdx / pageSize) : 0;
+
+                function showPage(p) {
+                    page = Math.max(0, Math.min(p, totalPages - 1));
+                    items.forEach(function(item, i) {
+                        item.style.display = (i >= page * pageSize && i < (page + 1) * pageSize) ? '' : 'none';
+                    });
+                    if (prevBtn) prevBtn.style.display = page > 0 ? 'flex' : 'none';
+                    if (nextBtn) nextBtn.style.display = page < totalPages - 1 ? 'flex' : 'none';
+                }
+
+                if (prevBtn) prevBtn.addEventListener('click', function() { showPage(page - 1); });
+                if (nextBtn) nextBtn.addEventListener('click', function() { showPage(page + 1); });
+
+                if (items.length > pageSize) {
+                    showPage(startPage);
+                } else {
+                    if (prevBtn) prevBtn.style.display = 'none';
+                    if (nextBtn) nextBtn.style.display = 'none';
+                }
             });
         }
 
