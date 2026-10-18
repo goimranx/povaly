@@ -53,21 +53,45 @@
                             // Get prices for this variation
                             $varPrice = null;
                             $varOriginalPrice = null;
+                            $varStock = null;
                             foreach ($productVariations as $pv) {
                                 $pvAttr = $pv->productAttributes->where('attribute_set_id', $set->id)->first();
                                 if ($pvAttr && $pvAttr->id == $attribute->id && $pv->product) {
-                                    $varPrice = $pv->product->front_sale_price ?? $pv->product->price;
-                                    $varOriginalPrice = ($pv->product->front_sale_price && $pv->product->front_sale_price < $pv->product->price)
-                                        ? $pv->product->price
+                                    $pvProduct = $pv->product;
+                                    // Use front_sale_price if set, else price, else fall back to parent product price
+                                    $pvSalePrice = $pvProduct->front_sale_price ?? $pvProduct->price ?? null;
+                                    $pvBasePrice = $pvProduct->price ?? null;
+                                    
+                                    if ($pvSalePrice && $pvSalePrice > 0) {
+                                        $varPrice = $pvSalePrice;
+                                    } elseif ($pvBasePrice && $pvBasePrice > 0) {
+                                        $varPrice = $pvBasePrice;
+                                    } else {
+                                        // Fall back to parent product price
+                                        $varPrice = $product->front_sale_price ?? $product->price;
+                                    }
+                                    
+                                    $varOriginalPrice = ($pvBasePrice && $pvSalePrice && $pvSalePrice < $pvBasePrice)
+                                        ? $pvBasePrice
                                         : null;
+                                    
+                                    // Get stock for this variation
+                                    if ($pvProduct->with_storehouse_management) {
+                                        $varStock = $pvProduct->quantity;
+                                    }
                                     break;
                                 }
+                            }
+                            // Final fallback: use parent product price
+                            if (!$varPrice || $varPrice <= 0) {
+                                $varPrice = $product->front_sale_price ?? $product->price;
                             }
                         @endphp
                         <li class="qs-var-item bb-product-attribute-swatch-item attribute-swatch-item {{ $isDisabled ? 'disabled' : '' }} {{ $isSelected ? 'selected' : '' }}"
                             data-slug="{{ $attribute->slug }}"
                             data-id="{{ $attribute->id }}"
                             data-title="{{ $attribute->title }}"
+                            data-stock="{{ $varStock !== null ? $varStock : '' }}"
                             @if($isDisabled) data-bs-toggle="tooltip" data-bs-title="{{ __('Not available') }}" @endif>
                             <label>
                                 <input type="radio"

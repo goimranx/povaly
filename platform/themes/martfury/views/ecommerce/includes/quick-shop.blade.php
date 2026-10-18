@@ -134,11 +134,14 @@
                     <input type="number" name="qty" class="qs-qty__input qty-input" value="1" min="1" />
                     <button type="button" class="qs-qty__btn up" aria-label="{{ __('Increase') }}">+</button>
                 </div>
-                @if (!$product->isOutOfStock() && $product->with_storehouse_management && $product->quantity > 0)
-                    <span class="qs-stock">{{ __('Only :qty left', ['qty' => $product->quantity]) }}</span>
-                @elseif ($product->isOutOfStock())
-                    <span class="qs-stock qs-stock--out">{{ __('Out of stock') }}</span>
-                @endif
+                {{-- Stock message — updated by JS when variation changes --}}
+                <span class="qs-stock js-qs-stock">
+                    @if ($product->isOutOfStock())
+                        {{ __('Out of stock') }}
+                    @elseif ($product->with_storehouse_management && $product->quantity > 0)
+                        {{ __('Only :qty left', ['qty' => $product->quantity]) }}
+                    @endif
+                </span>
             </div>
 
             @if (EcommerceHelper::isCartEnabled())

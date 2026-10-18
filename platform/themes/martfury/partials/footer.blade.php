@@ -339,7 +339,12 @@
         color: #222;
     }
 
-    /* ── Variation swatches ───────────────────────────────────────── */
+    /* ── Override plugin's front-ecommerce.css swatch styles inside quick-shop ── */
+    #quick-shop-modal .bb-product-attribute-swatch-list.visual-swatch .bb-product-attribute-swatch-item,
+    #quick-shop-modal .qs-var-item {
+        border-radius: 4px !important;
+        box-shadow: none !important;
+    }
     .qs-swatch-wrap { margin-bottom: 12px; }
 
     .qs-swatch__label {
@@ -879,7 +884,7 @@
                 $wrap.find('.qs-swatch__selected-val').text(selected);
             });
 
-            // When a swatch is selected, update selected class + label
+            // When a swatch is selected, update selected class + label + stock
             $(scope).on('change', '.product-filter-item', function() {
                 var $input = $(this);
                 var $wrap  = $input.closest('.qs-swatch-wrap');
@@ -887,6 +892,19 @@
                 $input.closest('li').addClass('selected');
                 var title = $input.closest('li').data('title') || '';
                 $wrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
+                
+                // Update stock message
+                var stock = $input.closest('li').data('stock');
+                var $stockEl = $(scope).find('.js-qs-stock');
+                if (stock !== '' && stock !== undefined && stock !== null) {
+                    if (stock <= 0) {
+                        $stockEl.text('Out of stock').addClass('qs-stock--out');
+                    } else {
+                        $stockEl.text('Only ' + stock + ' left').removeClass('qs-stock--out');
+                    }
+                } else {
+                    $stockEl.text('').removeClass('qs-stock--out');
+                }
             });
 
             // Grid pagination (2-column pages, 2 rows = 4 per page)
