@@ -142,7 +142,7 @@
     #product-quickview .offcanvas-header,
     #quick-shop-modal .offcanvas-header {
         padding: 20px 24px;
-        border-bottom: 1px solid #e5e5e5;
+        border-bottom: none;
         background: #fff;
         position: sticky;
         top: 0;
@@ -477,6 +477,94 @@
     #quick-shop-modal.modal {
         display: none !important;
     }
+
+    /* Quick Shop Gallery - image carousel with arrows + video toggle */
+    .qs-gallery {
+        margin-bottom: 20px;
+    }
+    .qs-gallery__viewport {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #f5f5f5;
+    }
+    .qs-gallery__slider {
+        display: flex;
+        transition: transform 0.3s ease;
+    }
+    .qs-gallery__slide {
+        min-width: 100%;
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .qs-gallery__slide img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    .qs-gallery__slide--video {
+        background: #000;
+    }
+    .qs-gallery__arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255,255,255,.9);
+        color: #333;
+        font-size: 16px;
+        cursor: pointer;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,.15);
+        transition: background .2s;
+    }
+    .qs-gallery__arrow:hover {
+        background: #fff;
+    }
+    .qs-gallery__arrow--prev { left: 10px; }
+    .qs-gallery__arrow--next { right: 10px; }
+    .qs-gallery__arrow:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+    .qs-gallery__pill {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+        margin-top: 12px;
+        background: #f0f0f0;
+        border-radius: 20px;
+        padding: 3px;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .qs-gallery__pill-btn {
+        border: none;
+        background: transparent;
+        padding: 6px 18px;
+        border-radius: 18px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #666;
+        cursor: pointer;
+        transition: all .2s;
+    }
+    .qs-gallery__pill-btn.active {
+        background: #fff;
+        color: #333;
+        box-shadow: 0 1px 4px rgba(0,0,0,.1);
+    }
+    .qs-info { padding-top: 10px; }
+    .qs-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; line-height: 1.3; }
     </style>
     @endonce
 
@@ -512,7 +600,7 @@
                 type: 'GET',
                 beforeSend: function() {
                     $btn.addClass('loading');
-                    $offcanvas.find('.modal-body').html('<div class="loading-spinner" style="padding: 40px; text-align: center;"><i class="icon-spinner"></i> Loading...</div>');
+                    $offcanvas.find('.quick-shop-content').html('<div class="loading-spinner" style="padding: 40px; text-align: center;"><i class="icon-spinner"></i> Loading...</div>');
                 },
                 success: function(response) {
                     if (response.error) {
@@ -521,9 +609,25 @@
                     }
                     
                     // Insert content
-                    $offcanvas.find('.modal-body').html(response.data);
+                    $offcanvas.find('.quick-shop-content').html(response.data);
                     
-                    // Try to show offcanvas using Bootstrap 5 API
+                    // Update title with product name
+                    setTimeout(function() {
+                        const productName = $offcanvas.find('.qs-title').first().text();
+                        if (productName) {
+                            $offcanvas.find('.offcanvas-title').text(productName.substring(0, 50) + (productName.length > 50 ? '...' : ''));
+                        }
+                        
+                        // Init gallery carousel
+                        initQSGallery();
+                    }, 100);
+                    
+                    // Dispatch event
+                    document.dispatchEvent(new CustomEvent('ecommerce.quick-shop.loaded', {
+                        detail: { element: $btn[0] }
+                    }));
+                    
+                    // Show offcanvas after content is loaded
                     try {
                         if (typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
                             let offcanvasInstance = bootstrap.Offcanvas.getInstance($offcanvas[0]);
@@ -531,26 +635,8 @@
                                 offcanvasInstance = new bootstrap.Offcanvas($offcanvas[0]);
                             }
                             offcanvasInstance.show();
-                        } else {
-                            $offcanvas.addClass('show');
-                            $('body').append('<div class="offcanvas-backdrop fade show"></div>');
                         }
-                    } catch(error) {
-                        // silently handle
-                    }
-                    
-                    // Update title if product name is available
-                    setTimeout(function() {
-                        const productName = $offcanvas.find('h1').first().text();
-                        if (productName) {
-                            $offcanvas.find('.offcanvas-title').text(productName.substring(0, 40) + (productName.length > 40 ? '...' : ''));
-                        }
-                    }, 100);
-                    
-                    // Dispatch event
-                    document.dispatchEvent(new CustomEvent('ecommerce.quick-shop.loaded', {
-                        detail: { element: $btn[0] }
-                    }));
+                    } catch(error) {}
                 },
                 error: function(xhr) {
                     alert('Failed to load product details');
@@ -560,6 +646,68 @@
                 }
             });
         });
+        
+        // Gallery carousel + video/image toggle
+        function initQSGallery() {
+            const $gallery = $('.qs-gallery');
+            if (!$gallery.length) return;
+            
+            const $slider = $gallery.find('.qs-gallery__slider');
+            const $slides = $slider.find('.qs-gallery__slide');
+            const $prevBtn = $gallery.find('.qs-gallery__arrow--prev');
+            const $nextBtn = $gallery.find('.qs-gallery__arrow--next');
+            const $pillBtns = $gallery.find('.qs-gallery__pill-btn');
+            
+            let currentSlide = 0;
+            const totalImageSlides = $slides.filter('.qs-gallery__slide--image').length;
+            const totalVideoSlides = $slides.filter('.qs-gallery__slide--video').length;
+            
+            function goToSlide(index) {
+                currentSlide = index;
+                $slider.css('transform', 'translateX(-' + (index * 100) + '%)');
+                $prevBtn.prop('disabled', index === 0);
+                $nextBtn.prop('disabled', index === $slides.length - 1);
+            }
+            
+            // Show only images or videos based on pill toggle
+            function showTab(tab) {
+                if (tab === 'images') {
+                    $slides.filter('.qs-gallery__slide--image').show();
+                    $slides.filter('.qs-gallery__slide--video').hide();
+                    goToSlide(0);
+                } else {
+                    $slides.filter('.qs-gallery__slide--image').hide();
+                    $slides.filter('.qs-gallery__slide--video').show();
+                    goToSlide(0);
+                }
+                // Recount visible slides for arrow disabled state
+                const $visible = $slides.filter(':visible');
+                $prevBtn.prop('disabled', true);
+                $nextBtn.prop('disabled', $visible.length <= 1);
+            }
+            
+            $prevBtn.on('click', function() {
+                // Find previous visible slide
+                for (let i = currentSlide - 1; i >= 0; i--) {
+                    if ($($slides[i]).is(':visible')) { goToSlide(i); return; }
+                }
+            });
+            
+            $nextBtn.on('click', function() {
+                for (let i = currentSlide + 1; i < $slides.length; i++) {
+                    if ($($slides[i]).is(':visible')) { goToSlide(i); return; }
+                }
+            });
+            
+            $pillBtns.on('click', function() {
+                $pillBtns.removeClass('active');
+                $(this).addClass('active');
+                showTab($(this).data('tab'));
+            });
+            
+            // Initialize
+            showTab('images');
+        }
         
         // Close offcanvas on backdrop click and ensure close button works
         function closeOffcanvas(elementId) {
