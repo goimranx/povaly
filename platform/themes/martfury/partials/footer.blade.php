@@ -676,11 +676,16 @@
     .qs-var-item:has(input:checked):hover {
         outline-width: 1px;
     }
-    /* Disabled */
+    /* Disabled — dashed outline, still clickable */
     .qs-var-item.disabled {
-        opacity: .4;
-        cursor: not-allowed;
-        pointer-events: none;
+        opacity: .55;
+        cursor: pointer;
+        outline: 1px dashed #aaa !important;
+        border-color: #d0d0d0 !important;
+    }
+    .qs-var-item.disabled:hover {
+        outline: 1px dashed var(--global-color-link, #007bff) !important;
+        border-color: var(--global-color-link, #007bff) !important;
     }
 
     /* Pagination arrows */
@@ -738,12 +743,16 @@
     }
     .qs-color-item.selected:hover,
     .qs-color-item:has(input:checked):hover { outline-width: 1px; }
-    /* Disabled */
+    /* Disabled — dashed outline, still clickable, no strikethrough */
     .qs-color-item.disabled {
-        opacity: .4;
-        cursor: not-allowed;
-        pointer-events: none;
-        text-decoration: line-through;
+        opacity: .55;
+        cursor: pointer;
+        outline: 1px dashed #aaa !important;
+        border-color: #d0d0d0 !important;
+    }
+    .qs-color-item.disabled:hover {
+        outline: 1px dashed var(--global-color-link, #007bff) !important;
+        border-color: var(--global-color-link, #007bff) !important;
     }
 
     /* Always hide CMS default stock message — we use .js-qs-stock */

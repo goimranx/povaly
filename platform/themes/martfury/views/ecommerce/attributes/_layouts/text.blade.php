@@ -39,7 +39,6 @@
                             value="{{ $attribute->id }}"
                             @checked($isSelected)
                             class="product-filter-item"
-                            @if($isDisabled) disabled @endif
                         >{{ $attribute->title }}
                     </label>
                 </li>

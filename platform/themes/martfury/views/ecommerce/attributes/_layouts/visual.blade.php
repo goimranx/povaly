@@ -100,8 +100,7 @@
                                        @if(!empty($referenceProduct)) data-reference-product="{{ $referenceProduct->slug }}" @endif
                                        value="{{ $attribute->id }}"
                                        @checked($isSelected)
-                                       class="product-filter-item"
-                                       @if($isDisabled) disabled @endif>
+                                       class="product-filter-item">
 
                                 <div class="qs-var-item__thumb">
                                     @if($imgUrl)
