@@ -560,6 +560,52 @@
                 }
             });
         });
+        
+        // Close offcanvas on backdrop click and ensure close button works
+        function closeOffcanvas(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            try {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
+                    const instance = bootstrap.Offcanvas.getInstance(el) || new bootstrap.Offcanvas(el);
+                    instance.hide();
+                }
+            } catch(e) {}
+        }
+        
+        // Close on backdrop/overlay click
+        document.addEventListener('click', function(e) {
+            if (e.target.classList && (e.target.classList.contains('offcanvas-backdrop') || 
+                e.target.classList.contains('modal-backdrop') ||
+                e.target.classList.contains('offcanvas-body'))) {
+                if (e.target.closest('#quick-shop-modal') || e.target.closest('#product-quickview')) {
+                    // Clicked inside the offcanvas body, don't close
+                    if (e.target.classList.contains('offcanvas-body')) return;
+                }
+                closeOffcanvas('quick-shop-modal');
+                closeOffcanvas('product-quickview');
+            }
+        });
+        
+        // Also close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeOffcanvas('quick-shop-modal');
+                closeOffcanvas('product-quickview');
+            }
+        });
+        
+        // Ensure close buttons work
+        document.addEventListener('click', function(e) {
+            const closeBtn = e.target.closest('[data-bs-dismiss="offcanvas"]');
+            if (closeBtn) {
+                const offcanvas = closeBtn.closest('.offcanvas');
+                if (offcanvas) {
+                    e.preventDefault();
+                    closeOffcanvas(offcanvas.id);
+                }
+            }
+        });
     });
     </script>
 
