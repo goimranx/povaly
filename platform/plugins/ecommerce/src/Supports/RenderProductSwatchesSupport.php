@@ -33,7 +33,7 @@ class RenderProductSwatchesSupport
         ], $params);
 
         $product = $this->product;
-        $cacheKey = 'product_variations_' . $product->getKey();
+        $cacheKey = 'product_variations_v2_' . $product->getKey();
 
         $data = Cache::remember($cacheKey, 1800, function () use ($product) {
             $attributeSets = $product->productAttributeSets()->oldest('order')->latest()->get();
@@ -41,7 +41,7 @@ class RenderProductSwatchesSupport
 
             $productVariations = ProductVariation::query()
                 ->where('configurable_product_id', $product->getKey())
-                ->with(['product:id,stock_status,quantity,with_storehouse_management,allow_checkout_when_out_of_stock,images'])
+                ->with(['product:id,stock_status,quantity,with_storehouse_management,allow_checkout_when_out_of_stock,images,price,sale_price,sale_type,start_date,end_date'])
                 ->select('id', 'product_id', 'configurable_product_id', 'is_default')
                 ->get();
 
