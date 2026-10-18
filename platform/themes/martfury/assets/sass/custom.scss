@@ -3480,11 +3480,7 @@ ul.bb-social-sharing {
         .header__extra--menu {
             order: -1; // Menu icon comes first
             margin-right: 0;
-            
-            // Right-align the hamburger lines (SVG)
-            svg.mobile-menu-icon {
-                transform: scaleX(-1); // Flip horizontally to right-align the lines
-            }
+            padding-top: 5px; // Align vertically with logo
         }
         
         .ps-logo {
