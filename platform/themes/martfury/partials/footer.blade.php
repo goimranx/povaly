@@ -574,6 +574,13 @@
         border-radius: 4px !important;
         box-shadow: none !important;
     }
+    /* Override plugin disabled pointer-events — keep clickable */
+    #quick-shop-modal .bb-product-attribute-swatch-item.disabled,
+    #quick-shop-modal .qs-var-item.disabled,
+    #quick-shop-modal .qs-color-item.disabled {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }
     .qs-swatch-wrap { margin-bottom: 12px; }
 
     .qs-swatch__label {
@@ -676,16 +683,16 @@
     .qs-var-item:has(input:checked):hover {
         outline-width: 1px;
     }
-    /* Disabled — dashed outline, still clickable */
+    /* Disabled — dashed border, still clickable */
     .qs-var-item.disabled {
         opacity: .55;
         cursor: pointer;
-        outline: 1px dashed #aaa !important;
-        border-color: #d0d0d0 !important;
+        border: 1px dashed #aaa !important;
+        outline: none !important;
     }
     .qs-var-item.disabled:hover {
-        outline: 1px dashed var(--global-color-link, #007bff) !important;
-        border-color: var(--global-color-link, #007bff) !important;
+        border: 1px dashed var(--global-color-link, #007bff) !important;
+        outline: none !important;
     }
 
     /* Pagination arrows */
@@ -743,16 +750,16 @@
     }
     .qs-color-item.selected:hover,
     .qs-color-item:has(input:checked):hover { outline-width: 1px; }
-    /* Disabled — dashed outline, still clickable, no strikethrough */
+    /* Disabled — dashed border, still clickable, no strikethrough */
     .qs-color-item.disabled {
         opacity: .55;
         cursor: pointer;
-        outline: 1px dashed #aaa !important;
-        border-color: #d0d0d0 !important;
+        border: 1px dashed #aaa !important;
+        outline: none !important;
     }
     .qs-color-item.disabled:hover {
-        outline: 1px dashed var(--global-color-link, #007bff) !important;
-        border-color: var(--global-color-link, #007bff) !important;
+        border: 1px dashed var(--global-color-link, #007bff) !important;
+        outline: none !important;
     }
 
     /* Always hide CMS default stock message — we use .js-qs-stock */
