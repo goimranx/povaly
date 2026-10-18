@@ -526,9 +526,9 @@
 
     /* ── Title clamp + expand ── */
     .qs-title-wrap {
-        position: relative;
         margin-bottom: 6px;
     }
+    /* Title and chevron on same line — chevron always at end */
     .qs-title--clamped {
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -540,17 +540,19 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 20px; height: 20px;
+        width: 18px; height: 18px;
         background: none;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        border: none;
+        border-radius: 3px;
         cursor: pointer;
-        color: #555;
+        color: #888;
         vertical-align: middle;
-        margin-left: 4px;
-        transition: transform .2s;
+        margin-left: 3px;
+        padding: 0;
+        transition: color .15s, transform .2s;
         flex-shrink: 0;
     }
+    .qs-title-expand:hover { color: #444; }
     .qs-title-expand.expanded svg { transform: rotate(180deg); }
 
     /* ── View full details link — link color + hover underline ── */
@@ -697,31 +699,44 @@
     .qs-var-grid__arrow:hover { background: #f0f0f0; }
     .qs-var-grid__arrow:disabled { opacity: .3; cursor: not-allowed; }
 
-    /* Color-only swatches (text attributes like Size) */
+    /* Color-only swatches (text attributes like Size) — same states as image swatches */
     .qs-color-list {
         display: flex; flex-wrap: wrap; gap: 6px;
         list-style: none; padding: 0; margin: 0;
     }
     .qs-color-item {
         cursor: pointer;
-        border: 1px solid #ccc;
+        border: 1px solid #d0d0d0;
         border-radius: 4px;
-        padding: 4px 10px;
+        padding: 5px 12px;
         font-size: 13px;
+        font-weight: 500;
         background: #fff;
-        transition: border-color .15s;
+        color: var(--global-color-text-body, #2E3D52);
+        transition: border-color .15s, outline .15s;
+        overflow: hidden;
     }
-    .qs-color-item label { cursor: pointer; margin: 0; }
+    .qs-color-item label { cursor: pointer; margin: 0; display: block; }
     .qs-color-item input[type="radio"] { display: none; }
+    /* Hover */
     .qs-color-item:not(.disabled):hover { border-color: var(--global-color-link, #007bff); }
+    /* Selected */
     .qs-color-item.selected,
     .qs-color-item:has(input:checked) {
         border: 2px solid var(--global-color-link, #007bff);
         outline: 2px solid var(--global-color-link, #007bff);
         outline-offset: 0;
+        background: #fff;
     }
     .qs-color-item.selected:hover,
     .qs-color-item:has(input:checked):hover { outline-width: 1px; }
+    /* Disabled */
+    .qs-color-item.disabled {
+        opacity: .4;
+        cursor: not-allowed;
+        pointer-events: none;
+        text-decoration: line-through;
+    }
 
     /* Always hide CMS default stock message — we use .js-qs-stock */
     #quick-shop-modal .number-items-available { display: none !important; }
@@ -1075,9 +1090,16 @@
                 });
             });
 
-            // Swipe / drag
+            // Swipe / drag — skip if target is video, iframe or interactive element
             var dragStartX = 0, dragDelta = 0, isDragging = false, THRESHOLD = 50;
-            function onDragStart(x) { dragStartX = x; isDragging = true; track.classList.add('dragging'); }
+            function onDragStart(x, target) {
+                // Don't hijack video controls, iframes, buttons, or links
+                if (!target) return;
+                var tag = target.tagName.toLowerCase();
+                if (tag === 'video' || tag === 'iframe' || tag === 'button' || tag === 'a' || tag === 'input') return;
+                if (target.closest('video') || target.closest('iframe') || target.closest('.qs-video-zone') || target.closest('.qs-pill')) return;
+                dragStartX = x; isDragging = true; track.classList.add('dragging');
+            }
             function onDragMove(x) {
                 if (!isDragging) return;
                 dragDelta = x - dragStartX;
@@ -1093,10 +1115,10 @@
                 dragDelta = 0;
             }
             if (viewport) {
-                viewport.addEventListener('mousedown',  function(e) { onDragStart(e.clientX); });
+                viewport.addEventListener('mousedown',  function(e) { onDragStart(e.clientX, e.target); });
                 window.addEventListener('mousemove',    function(e) { onDragMove(e.clientX); });
                 window.addEventListener('mouseup',      function()  { onDragEnd(); });
-                viewport.addEventListener('touchstart', function(e) { onDragStart(e.touches[0].clientX); }, { passive: true });
+                viewport.addEventListener('touchstart', function(e) { onDragStart(e.touches[0].clientX, e.target); }, { passive: true });
                 viewport.addEventListener('touchmove',  function(e) { onDragMove(e.touches[0].clientX); },  { passive: true });
                 viewport.addEventListener('touchend',   function()  { onDragEnd(); });
             }
@@ -1162,7 +1184,7 @@
                 $wrap.find('.qs-swatch__selected-val').text(selected);
             });
 
-            // When a swatch is selected, update selected class + label + stock
+            // When a swatch is selected, update selected class + label + stock + variation prices
             $(scope).on('change', '.product-filter-item', function() {
                 var $input = $(this);
                 var $wrap  = $input.closest('.qs-swatch-wrap');
@@ -1170,7 +1192,7 @@
                 $input.closest('li').addClass('selected');
                 var title = $input.closest('li').data('title') || '';
                 $wrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
-                // Stock is handled by defaultOnChangeSwatchesSuccess patch
+                // Stock + price handled by defaultOnChangeSwatchesSuccess patch
             });
 
             // Grid pagination (2-column pages, 2 rows = 4 per page)
