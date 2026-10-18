@@ -119,9 +119,7 @@
     @once
     <style>
     /* ── Fix Bootstrap offcanvas/backdrop z-index to be above header (1050) ── */
-    .offcanvas-backdrop { z-index: 1055 !important; }
-    .offcanvas           { z-index: 1060 !important; }
-    .qs-close-btn        { z-index: 1065 !important; }
+    /* Note: final values set in thumbnail/mobile section above */
     /* ── Offcanvas shell ─────────────────────────────────────────── */
     .qs-offcanvas {
         width: 560px !important;
@@ -308,7 +306,7 @@
         transform: scale(1.4);
     }
 
-    /* Images / Videos pill */
+    /* Images / Videos pill — with counter */
     .qs-pill {
         position: absolute;
         bottom: 12px;
@@ -323,7 +321,7 @@
         padding: 3px;
     }
     .qs-pill__btn {
-        padding: 4px 16px;
+        padding: 4px 14px;
         border-radius: 16px;
         border: none;
         background: transparent;
@@ -333,11 +331,91 @@
         cursor: pointer;
         transition: all .2s;
         white-space: nowrap;
+        min-width: 60px;
+        text-align: center;
     }
     .qs-pill__btn.active {
         background: var(--global-color-site-bg, #fff);
         color: #222;
     }
+
+    /* ── Mobile header (close + share) — visible only on mobile ── */
+    .qs-mobile-header {
+        display: none;
+        position: absolute;
+        top: 10px;
+        left: 0; right: 0;
+        z-index: 20;
+        padding: 0 12px;
+        justify-content: space-between;
+        align-items: center;
+        pointer-events: none;
+    }
+    .qs-mobile-header__btn {
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.45);
+        backdrop-filter: blur(4px);
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        pointer-events: auto;
+        flex-shrink: 0;
+    }
+    .qs-mobile-header__btn:hover { background: rgba(0,0,0,0.65); }
+    @media (max-width: 768px) {
+        .qs-mobile-header { display: flex; }
+        /* On mobile, pill moves up a bit to not overlap thumbnails */
+        .qs-pill { bottom: 68px; }
+    }
+
+    /* ── Thumbnail strip ── */
+    .qs-thumbs {
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding: 8px 12px;
+        background: var(--global-color-site-bg, #fff);
+        scrollbar-width: none;
+    }
+    .qs-thumbs::-webkit-scrollbar { display: none; }
+    .qs-thumb {
+        flex-shrink: 0;
+        width: 52px; height: 52px;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: border-color .15s;
+        background: #f0f0f0;
+    }
+    .qs-thumb img, .qs-thumb video {
+        width: 100%; height: 100%;
+        object-fit: cover;
+        display: block;
+        pointer-events: none;
+    }
+    .qs-thumb.active { border-color: var(--global-color-link, #007bff); }
+    .qs-thumb:hover:not(.active) { border-color: #aaa; }
+    .qs-thumb--video {
+        position: relative;
+        background: #111;
+    }
+    .qs-thumb--video::after {
+        content: '▶';
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%,-50%);
+        font-size: 14px;
+        color: #fff;
+        text-shadow: 0 1px 3px rgba(0,0,0,.5);
+    }
+
+    /* ── Z-index: offcanvas above everything (bottom bar, scroll-to-top) ── */
+    .offcanvas-backdrop { z-index: 10100 !important; }
+    .offcanvas           { z-index: 10110 !important; }
+    .qs-close-btn        { z-index: 10115 !important; }
 
     /* ── Override plugin's front-ecommerce.css swatch styles inside quick-shop ── */
     #quick-shop-modal .bb-product-attribute-swatch-list.visual-swatch .bb-product-attribute-swatch-item,
@@ -749,11 +827,43 @@
                 // Video zones: update visibility based on position
                 if (videoPrev) videoPrev.style.display = (active === videoSlides && idx > 0) ? 'flex' : 'none';
                 if (videoNext) videoNext.style.display = (active === videoSlides && idx < active.length - 1) ? 'flex' : 'none';
+                // Update dot indicators
                 if (dotsEl) {
                     Array.from(dotsEl.querySelectorAll('.qs-dot')).forEach(function(d, i) {
                         d.classList.toggle('active', i === idx);
                     });
                 }
+                // Update pill button counters
+                updatePillCounters();
+                // Update active thumbnail
+                updateActiveThumbnail();
+            }
+
+            function updatePillCounters() {
+                pillBtns.forEach(function(btn) {
+                    var tab  = btn.dataset.tab;
+                    var list = tab === 'videos' ? videoSlides : imageSlides;
+                    var total = list.length;
+                    var label = tab === 'images' ? 'Image' : 'Video';
+                    if (total <= 1) {
+                        btn.textContent = label + (total === 0 ? '' : '');
+                    } else {
+                        var current = (active === list) ? idx + 1 : 1;
+                        btn.textContent = label + ' ' + current + '/' + total;
+                    }
+                });
+            }
+
+            function updateActiveThumbnail() {
+                var currentTab = (active === videoSlides) ? 'videos' : 'images';
+                Array.from(gallery.querySelectorAll('.qs-thumb')).forEach(function(t) {
+                    var matches = t.dataset.tab === currentTab && parseInt(t.dataset.index) === idx;
+                    t.classList.toggle('active', matches);
+                    if (matches) {
+                        // Scroll thumbnail into view
+                        t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                    }
+                });
             }
 
             // Stop ALL media in the entire gallery — pause only, don't destroy
@@ -845,6 +955,45 @@
                     setTab(btn.dataset.tab);
                 });
             });
+
+            // Thumbnail click → go to that slide/tab
+            gallery.querySelectorAll('.qs-thumb').forEach(function(thumb) {
+                thumb.addEventListener('click', function() {
+                    var tab   = thumb.dataset.tab;
+                    var index = parseInt(thumb.dataset.index);
+                    // Switch tab if needed
+                    if (tab === 'videos' && active !== videoSlides) {
+                        pillBtns.forEach(function(b) { b.classList.remove('active'); });
+                        var videoBtn = gallery.querySelector('.qs-pill__btn[data-tab="videos"]');
+                        if (videoBtn) videoBtn.classList.add('active');
+                        setTab('videos');
+                    } else if (tab === 'images' && active !== imageSlides) {
+                        pillBtns.forEach(function(b) { b.classList.remove('active'); });
+                        var imgBtn = gallery.querySelector('.qs-pill__btn[data-tab="images"]');
+                        if (imgBtn) imgBtn.classList.add('active');
+                        setTab('images');
+                    }
+                    go(index);
+                });
+            });
+
+            // Share button
+            var shareBtn = gallery.closest('.qs-product') ? gallery.closest('.qs-product').parentElement.querySelector('.qs-share-btn') : null;
+            if (!shareBtn) shareBtn = document.querySelector('#quick-shop-modal .qs-share-btn');
+            if (shareBtn) {
+                shareBtn.addEventListener('click', function() {
+                    var url   = shareBtn.dataset.url || window.location.href;
+                    var title = shareBtn.dataset.title || document.title;
+                    if (navigator.share) {
+                        navigator.share({ title: title, url: url }).catch(function() {});
+                    } else {
+                        // Fallback: copy to clipboard
+                        navigator.clipboard && navigator.clipboard.writeText(url).then(function() {
+                            alert('Link copied!');
+                        });
+                    }
+                });
+            }
 
             // YouTube / Vimeo facade → inject iframe on click
             gallery.querySelectorAll('.qs-video-facade').forEach(function(facade) {

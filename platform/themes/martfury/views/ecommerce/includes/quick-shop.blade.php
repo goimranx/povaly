@@ -27,6 +27,16 @@
 
     {{-- ── Gallery ───────────────────────────────────────────── --}}
     <div class="qs-gallery" data-has-video="{{ $hasVideo ? 'true' : 'false' }}">
+        {{-- Mobile header: back (close) + share --}}
+        <div class="qs-mobile-header">
+            <button type="button" class="qs-mobile-header__btn qs-mobile-close" data-bs-dismiss="offcanvas" aria-label="{{ __('Close') }}">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button type="button" class="qs-mobile-header__btn qs-share-btn" aria-label="{{ __('Share') }}" data-url="{{ $product->url }}" data-title="{{ $product->name }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </button>
+        </div>
+
         <div class="qs-gallery__viewport">
             <button type="button" class="qs-arrow qs-arrow--prev" aria-label="{{ __('Previous') }}">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -87,6 +97,20 @@
                 </div>
             @endif
         </div>
+    </div>
+
+    {{-- Thumbnail strip --}}
+    <div class="qs-thumbs">
+        @foreach ($galleryImages as $i => $img)
+            <div class="qs-thumb {{ $i === 0 ? 'active' : '' }}" data-index="{{ $i }}" data-tab="images">
+                <img src="{{ RvMedia::getImageUrl($img, 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
+            </div>
+        @endforeach
+        @foreach ($videoList as $i => $video)
+            <div class="qs-thumb qs-thumb--video" data-index="{{ $i }}" data-tab="videos"
+                 style="{{ !empty($video['thumbnail']) ? 'background-image:url(' . $video['thumbnail'] . ');background-size:cover;background-position:center;' : '' }}">
+            </div>
+        @endforeach
     </div>
 
     {{-- ── Product info ──────────────────────────────────────── --}}
