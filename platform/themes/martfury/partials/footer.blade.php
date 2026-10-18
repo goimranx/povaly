@@ -224,9 +224,10 @@
     .qs-slide img {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
         display: block;
-        pointer-events: none; /* prevent img drag interfering */
+        pointer-events: none;
+        background: #f8f8f8;
     }
     .qs-slide--video {
         background: #000;
@@ -254,15 +255,40 @@
     }
     .qs-video-facade:hover .qs-play-btn { background: #fff; }
 
-    /* Remove arrows entirely */
+    /* Remove arrows from image slides, keep for video via click zones */
     .qs-arrow { display: none !important; }
 
-    /* Dots */
+    /* Video click zones - full height, 45px wide, show arrow icon only */
+    .qs-video-zone {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 45px;
+        z-index: 8;
+        display: none; /* shown only in video tab via JS */
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        color: rgba(255,255,255,0.85);
+        transition: color .2s;
+    }
+    .qs-video-zone:hover { color: #fff; }
+    .qs-video-zone--prev { left: 0; }
+    .qs-video-zone--next { right: 0; }
+    .qs-video-zone svg { filter: drop-shadow(0 1px 3px rgba(0,0,0,.5)); }
+
+    /* Dots - above the pill */
     .qs-dots {
         position: absolute;
-        bottom: 10px; left: 0; right: 0;
+        bottom: 46px; left: 0; right: 0;
         display: flex; justify-content: center; gap: 5px;
         pointer-events: none;
+    }
+    /* When no pill (no video), dots go back to bottom */
+    .qs-gallery[data-has-video="false"] .qs-dots {
+        bottom: 10px;
     }
     .qs-dot {
         width: 6px; height: 6px;
@@ -512,6 +538,8 @@
             const prevBtn     = gallery.querySelector('.qs-arrow--prev');
             const nextBtn     = gallery.querySelector('.qs-arrow--next');
             const pillBtns    = Array.from(gallery.querySelectorAll('.qs-pill__btn'));
+            const videoPrev   = gallery.querySelector('.qs-video-zone--prev');
+            const videoNext   = gallery.querySelector('.qs-video-zone--next');
 
             let active = [];  // currently visible slides
             let idx    = 0;
@@ -532,6 +560,9 @@
                 track.style.transform = 'translateX(-' + (idx * 100) + '%)';
                 if (prevBtn) prevBtn.disabled = idx === 0;
                 if (nextBtn) nextBtn.disabled = idx >= active.length - 1;
+                // Video zones: update visibility based on position
+                if (videoPrev) videoPrev.style.display = (active === videoSlides && idx > 0) ? 'flex' : 'none';
+                if (videoNext) videoNext.style.display = (active === videoSlides && idx < active.length - 1) ? 'flex' : 'none';
                 if (dotsEl) {
                     Array.from(dotsEl.querySelectorAll('.qs-dot')).forEach(function(d, i) {
                         d.classList.toggle('active', i === idx);
@@ -578,6 +609,8 @@
 
             if (prevBtn) prevBtn.addEventListener('click', function() { if (idx > 0) go(idx - 1); });
             if (nextBtn) nextBtn.addEventListener('click', function() { if (idx < active.length - 1) go(idx + 1); });
+            if (videoPrev) videoPrev.addEventListener('click', function() { if (idx > 0) go(idx - 1); });
+            if (videoNext) videoNext.addEventListener('click', function() { if (idx < active.length - 1) go(idx + 1); });
 
             // ── Swipe / drag support (mouse + touch) ─────────────────────────
             var dragStartX = 0;
