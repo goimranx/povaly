@@ -105,7 +105,7 @@ class SmartProductService
             LIMIT " . ($limit * 2) . "
         ";
 
-        $rows = DB::select(DB::raw($sql));
+        $rows = DB::select($sql);
 
         $productIds = array_column($rows, 'id');
 
