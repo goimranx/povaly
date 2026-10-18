@@ -126,7 +126,7 @@
             <input type="hidden" name="id" class="hidden-product-id"
                    value="{{ ($product->is_variation || !$product->defaultVariation->product_id) ? $product->id : $product->defaultVariation->product_id }}" />
 
-            {{-- Quantity --}}
+            {{-- Quantity + Stock --}}
             <div class="qs-qty-row">
                 <span class="qs-qty-label">{{ __('Quantity') }}</span>
                 <div class="qs-qty">
@@ -134,6 +134,11 @@
                     <input type="number" name="qty" class="qs-qty__input qty-input" value="1" min="1" />
                     <button type="button" class="qs-qty__btn up" aria-label="{{ __('Increase') }}">+</button>
                 </div>
+                @if (!$product->isOutOfStock() && $product->with_storehouse_management && $product->quantity > 0)
+                    <span class="qs-stock">{{ __('Only :qty left', ['qty' => $product->quantity]) }}</span>
+                @elseif ($product->isOutOfStock())
+                    <span class="qs-stock qs-stock--out">{{ __('Out of stock') }}</span>
+                @endif
             </div>
 
             @if (EcommerceHelper::isCartEnabled())

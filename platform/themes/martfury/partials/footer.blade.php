@@ -340,56 +340,58 @@
     }
 
     /* ── Variation swatches ───────────────────────────────────────── */
-    .qs-swatch-wrap { margin-bottom: 14px; }
+    .qs-swatch-wrap { margin-bottom: 12px; }
 
     .qs-swatch__label {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
         margin-bottom: 8px;
-        font-size: 14px;
+        font-size: 13px;
     }
-    .qs-swatch__set-name { font-weight: 600; color: #222; }
-    .qs-swatch__selected-val { color: #555; font-weight: 400; }
+    .qs-swatch__set-name { font-weight: 700; color: #111; }
+    .qs-swatch__selected-val { color: #111; font-weight: 400; }
 
-    /* Image variation grid */
+    /* Grid wrapper */
     .qs-var-grid-wrap {
         display: flex;
         align-items: center;
-        gap: 6px;
-        position: relative;
+        gap: 4px;
     }
-    .qs-var-grid__viewport {
-        overflow: hidden;
-        flex: 1;
-    }
+    .qs-var-grid__viewport { overflow: hidden; flex: 1; }
+
+    /* The grid — 5 items per row like Amazon */
     .qs-var-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         gap: 6px;
         list-style: none;
         padding: 0; margin: 0;
-        transition: transform 0.3s ease;
     }
+
+    /* Each item */
     .qs-var-item {
         cursor: pointer;
-        border-radius: 6px;
+        border-radius: 4px;
+        border: 1px solid #d0d0d0;
+        background: #fff;
+        transition: border-color .15s, outline .15s;
         overflow: hidden;
-        border: 2px solid transparent;
-        transition: border-color .2s;
-        background: #f5f5f5;
     }
     .qs-var-item label {
         cursor: pointer;
         display: block;
         margin: 0;
+        padding: 0;
     }
     .qs-var-item input[type="radio"] { display: none; }
+
+    /* Thumbnail - square, fills width */
     .qs-var-item__thumb {
         width: 100%;
         aspect-ratio: 1;
         overflow: hidden;
-        border-radius: 4px;
+        background: #f0f0f0;
     }
     .qs-var-item__thumb img {
         width: 100%;
@@ -397,88 +399,97 @@
         object-fit: cover;
         display: block;
     }
-    /* Color fill when no image — fills the whole thumb like an image would */
     .qs-var-item__color-fill {
         display: block;
         width: 100%;
         height: 100%;
-        min-height: 60px;
     }
+
+    /* Price below thumbnail */
     .qs-var-item__price {
-        font-size: 11px;
-        font-weight: 600;
-        color: #222;
-        text-align: center;
-        padding: 4px 4px 3px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        padding: 3px 4px 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
     }
+    .qs-var-item__price-sale {
+        font-size: 11px;
+        font-weight: 700;
+        color: #111;
+        line-height: 1.3;
+        display: block;
+    }
+    .qs-var-item__price-orig {
+        font-size: 10px;
+        color: #767676;
+        line-height: 1.2;
+        display: block;
+        text-decoration: line-through;
+    }
+
     /* Hover */
     .qs-var-item:not(.disabled):hover {
         border-color: var(--global-color-link, #007bff);
     }
-    /* Selected */
+    /* Selected — 2px blue border + subtle outline */
     .qs-var-item.selected,
     .qs-var-item:has(input:checked) {
-        border-color: var(--global-color-link, #007bff);
-        outline: 3px solid var(--global-color-link, #007bff);
-        outline-offset: 1px;
+        border: 2px solid var(--global-color-link, #007bff);
+        outline: 2px solid var(--global-color-link, #007bff);
+        outline-offset: 0px;
     }
-    /* Selected + hover → 2px outline */
     .qs-var-item.selected:hover,
     .qs-var-item:has(input:checked):hover {
-        outline-width: 2px;
+        outline-width: 1px;
     }
     /* Disabled */
     .qs-var-item.disabled {
-        opacity: .45;
+        opacity: .4;
         cursor: not-allowed;
+        pointer-events: none;
     }
 
-    /* Grid pagination arrows */
+    /* Pagination arrows */
     .qs-var-grid__arrow {
         flex-shrink: 0;
-        width: 26px; height: 26px;
+        width: 24px; height: 24px;
         border-radius: 50%;
-        border: 1px solid #ddd;
+        border: 1px solid #ccc;
         background: #fff;
         cursor: pointer;
         display: flex; align-items: center; justify-content: center;
         color: #444;
-        transition: background .2s, border-color .2s;
-        box-shadow: 0 1px 3px rgba(0,0,0,.08);
+        transition: background .15s;
+        box-shadow: 0 1px 2px rgba(0,0,0,.08);
     }
-    .qs-var-grid__arrow:hover { background: #f5f5f5; border-color: #bbb; }
+    .qs-var-grid__arrow:hover { background: #f0f0f0; }
     .qs-var-grid__arrow:disabled { opacity: .3; cursor: not-allowed; }
 
-    /* Color-only swatches (no images) */
+    /* Color-only swatches (text attributes like Size) */
     .qs-color-list {
-        display: flex; flex-wrap: wrap; gap: 8px;
+        display: flex; flex-wrap: wrap; gap: 6px;
         list-style: none; padding: 0; margin: 0;
     }
     .qs-color-item {
         cursor: pointer;
-        border-radius: 50%;
-        border: 2px solid transparent;
-        transition: border-color .2s, outline .2s;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 4px 10px;
+        font-size: 13px;
+        background: #fff;
+        transition: border-color .15s;
     }
     .qs-color-item label { cursor: pointer; margin: 0; }
     .qs-color-item input[type="radio"] { display: none; }
-    .qs-color-swatch {
-        display: block;
-        width: 30px; height: 30px;
-        border-radius: 50%;
-    }
     .qs-color-item:not(.disabled):hover { border-color: var(--global-color-link, #007bff); }
     .qs-color-item.selected,
     .qs-color-item:has(input:checked) {
-        border-color: var(--global-color-link, #007bff);
-        outline: 3px solid var(--global-color-link, #007bff);
-        outline-offset: 1px;
+        border: 2px solid var(--global-color-link, #007bff);
+        outline: 2px solid var(--global-color-link, #007bff);
+        outline-offset: 0;
     }
     .qs-color-item.selected:hover,
-    .qs-color-item:has(input:checked):hover { outline-width: 2px; }
+    .qs-color-item:has(input:checked):hover { outline-width: 1px; }
     .qs-info {
         padding: 20px 24px 24px;
         position: relative;
@@ -505,14 +516,24 @@
     .qs-qty-row {
         display: flex;
         align-items: center;
-        gap: 12px;
-        margin: 16px 0;
+        gap: 10px;
+        margin: 14px 0;
+        flex-wrap: wrap;
     }
     .qs-qty-label {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
         color: #222;
         white-space: nowrap;
+    }
+    .qs-stock {
+        font-size: 12px;
+        color: #c45500;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+    .qs-stock--out {
+        color: #cc0000;
     }
     .qs-qty {
         display: flex;
@@ -876,7 +897,7 @@
                 if (!grid) return;
 
                 var items      = Array.from(grid.querySelectorAll('.qs-var-item'));
-                var pageSize   = 4;
+                var pageSize   = 10; // 5 columns × 2 rows
                 var page       = 0;
                 var totalPages = Math.ceil(items.length / pageSize);
 

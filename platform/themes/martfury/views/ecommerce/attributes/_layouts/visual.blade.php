@@ -50,12 +50,16 @@
                                 $imgUrl = RvMedia::getImageUrl($attribute->image, 'thumb');
                             }
 
-                            // Get price for this variation
+                            // Get prices for this variation
                             $varPrice = null;
+                            $varOriginalPrice = null;
                             foreach ($productVariations as $pv) {
                                 $pvAttr = $pv->productAttributes->where('attribute_set_id', $set->id)->first();
                                 if ($pvAttr && $pvAttr->id == $attribute->id && $pv->product) {
                                     $varPrice = $pv->product->front_sale_price ?? $pv->product->price;
+                                    $varOriginalPrice = ($pv->product->front_sale_price && $pv->product->front_sale_price < $pv->product->price)
+                                        ? $pv->product->price
+                                        : null;
                                     break;
                                 }
                             }
@@ -86,7 +90,12 @@
                                 </div>
 
                                 @if($varPrice !== null)
-                                    <div class="qs-var-item__price">{{ format_price($varPrice) }}</div>
+                                    <div class="qs-var-item__price">
+                                        <span class="qs-var-item__price-sale">{{ format_price($varPrice) }}</span>
+                                        @if($varOriginalPrice)
+                                            <del class="qs-var-item__price-orig">{{ format_price($varOriginalPrice) }}</del>
+                                        @endif
+                                    </div>
                                 @endif
                             </label>
                         </li>
