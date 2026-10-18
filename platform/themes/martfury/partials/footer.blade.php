@@ -118,6 +118,10 @@
     {{-- Inline CSS for Quick Shop Offcanvas --}}
     @once
     <style>
+    /* ── Fix Bootstrap offcanvas/backdrop z-index to be above header (1050) ── */
+    .offcanvas-backdrop { z-index: 1055 !important; }
+    .offcanvas           { z-index: 1060 !important; }
+    .qs-close-btn        { z-index: 1065 !important; }
     /* ── Offcanvas shell ─────────────────────────────────────────── */
     .qs-offcanvas {
         width: 560px !important;
@@ -536,14 +540,32 @@
                 }
             }
 
-            function go(n) { idx = n; render(); }
+            function go(n) {
+                // Stop any playing media on current slide before switching
+                stopMedia(active[idx]);
+                idx = n;
+                render();
+            }
+
+            function stopMedia(slide) {
+                if (!slide) return;
+                // Stop HTML5 video
+                const video = slide.querySelector('video');
+                if (video) { video.pause(); video.currentTime = 0; }
+                // Stop YouTube/Vimeo iframe (remove src to stop)
+                const iframe = slide.querySelector('iframe');
+                if (iframe) { iframe.src = iframe.src; } // reload stops playback
+            }
 
             function setTab(tab) {
+                // Stop media on current slide before switching tab
+                if (active[idx]) stopMedia(active[idx]);
+
                 const show = tab === 'videos' ? videoSlides : imageSlides;
                 const hide = tab === 'videos' ? imageSlides : videoSlides;
 
-                // Detach hidden slides from flex flow without removing
-                hide.forEach(function(s) { s.style.display = 'none'; });
+                // Stop all media in hidden slides
+                hide.forEach(function(s) { stopMedia(s); s.style.display = 'none'; });
                 show.forEach(function(s) { s.style.display = ''; });
                 active = show;
                 idx = 0;
@@ -590,6 +612,12 @@
                 $inp.val(Math.max(1, parseInt($inp.val() || 1) - 1));
             });
         }
+
+        // Stop all media when offcanvas closes
+        document.getElementById('quick-shop-modal') && document.getElementById('quick-shop-modal').addEventListener('hide.bs.offcanvas', function() {
+            this.querySelectorAll('video').forEach(function(v) { v.pause(); v.currentTime = 0; });
+            this.querySelectorAll('iframe').forEach(function(f) { f.src = f.src; });
+        });
 
     })(jQuery);
     </script>
