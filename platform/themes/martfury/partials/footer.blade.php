@@ -1317,22 +1317,44 @@
             try { priceMap = JSON.parse($container.attr('data-variation-prices') || 'null'); } catch(e) {}
 
             if (priceMap && priceMap.length) {
-                // Currently selected text attr IDs (size etc)
-                var checkedTextIds = [];
-                $container.find('.attribute-swatches-wrapper[data-type="text"] input:checked').each(function() {
-                    checkedTextIds.push(parseInt($(this).val()));
+                // Get selected attribute IDs from the RESPONSE (more reliable than DOM at this point)
+                // data.selected_attributes = [{id, slug, set_slug, ...}] or data.attributes = [id, id]
+                var selectedAttrIds = [];
+                if (data.attributes && Array.isArray(data.attributes)) {
+                    // CMS returns selected attribute IDs directly
+                    data.attributes.forEach(function(id) { selectedAttrIds.push(parseInt(id)); });
+                } else {
+                    // Fallback: read from DOM
+                    $container.find('input.product-filter-item:checked').each(function() {
+                        selectedAttrIds.push(parseInt($(this).val()));
+                    });
+                }
+
+                // Get currently checked visual (color) attr IDs — exclude these from "other" attrs
+                // because we loop over each color swatch independently
+                var visualAttrIds = [];
+                $container.find('.attribute-swatches-wrapper[data-type="visual"] input').each(function() {
+                    visualAttrIds.push(parseInt($(this).val()));
                 });
 
-                // Color swatches (visual): hide if no match, update price if match
+                // Non-color selected attrs (size etc) = selected minus all visual attrs
+                var nonVisualSelected = selectedAttrIds.filter(function(id) {
+                    return visualAttrIds.indexOf(id) === -1;
+                });
+
+                // Color swatches: show/hide and update price
                 $container.find('.attribute-swatches-wrapper[data-type="visual"] .qs-var-item').each(function() {
                     var $item  = $(this);
-                    var attrId = parseInt($item.data('id'));
+                    var colorId = parseInt($item.data('id'));
                     var matched = null;
 
+                    // Find variation that has this color AND all non-color selected attrs
                     for (var i = 0; i < priceMap.length; i++) {
                         var pv = priceMap[i];
-                        if (pv.attrs.indexOf(attrId) === -1) continue;
-                        var allMatch = checkedTextIds.every(function(id) { return pv.attrs.indexOf(id) !== -1; });
+                        if (pv.attrs.indexOf(colorId) === -1) continue;
+                        var allMatch = nonVisualSelected.every(function(id) {
+                            return pv.attrs.indexOf(id) !== -1;
+                        });
                         if (allMatch) { matched = pv; break; }
                     }
 
