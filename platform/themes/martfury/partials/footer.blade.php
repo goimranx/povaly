@@ -1305,7 +1305,7 @@
             // Update hidden product ID
             $('#quick-shop-modal .hidden-product-id').val(data.id);
 
-            // Update per-variation-item prices using variation price map
+            // Update per-variation-item prices AND hide/show based on availability
             var $container = $('#quick-shop-modal .product-attribute-swatches');
             var priceMap = null;
             try { priceMap = JSON.parse($container.attr('data-variation-prices') || 'null'); } catch(e) {}
@@ -1317,26 +1317,67 @@
                     checkedIds.push(parseInt($(this).val()));
                 });
 
-                // Update each color swatch price to match the selected size
+                // Update each color swatch: price + show/hide based on availability
                 $container.find('.qs-var-item').each(function() {
                     var $item  = $(this);
                     var attrId = parseInt($item.data('id'));
                     var matched = null;
+
                     for (var i = 0; i < priceMap.length; i++) {
                         var pv = priceMap[i];
                         if (pv.attrs.indexOf(attrId) === -1) continue;
+                        // Must match ALL currently selected text attrs
                         var allMatch = true;
                         for (var j = 0; j < checkedIds.length; j++) {
                             if (pv.attrs.indexOf(checkedIds[j]) === -1) { allMatch = false; break; }
                         }
                         if (allMatch) { matched = pv; break; }
                     }
+
                     if (matched) {
+                        // Show and update price
+                        $item.show();
                         var html = '<span class="qs-var-item__price-sale">' + matched.price_fmt + '</span>';
                         if (matched.orig_fmt) html += '<del class="qs-var-item__price-orig">' + matched.orig_fmt + '</del>';
                         $item.find('.qs-var-item__price').html(html);
+                        // Mark available/unavailable
+                        if (!matched.available) {
+                            $item.addClass('disabled');
+                        } else {
+                            $item.removeClass('disabled');
+                        }
+                    } else {
+                        // No variation exists for this color + current size → hide it
+                        $item.hide();
                     }
                 });
+
+                // Also update text swatches (size) availability based on selected colors
+                var checkedColorIds = [];
+                $container.find('.attribute-swatches-wrapper[data-type="visual"] input:checked').each(function() {
+                    checkedColorIds.push(parseInt($(this).val()));
+                });
+                if (checkedColorIds.length) {
+                    $container.find('.qs-color-item').each(function() {
+                        var $item  = $(this);
+                        var attrId = parseInt($item.data('id'));
+                        var hasMatch = false;
+                        for (var i = 0; i < priceMap.length; i++) {
+                            var pv = priceMap[i];
+                            if (pv.attrs.indexOf(attrId) === -1) continue;
+                            var colorMatch = false;
+                            for (var j = 0; j < checkedColorIds.length; j++) {
+                                if (pv.attrs.indexOf(checkedColorIds[j]) !== -1) { colorMatch = true; break; }
+                            }
+                            if (colorMatch && pv.available) { hasMatch = true; break; }
+                        }
+                        if (!hasMatch) {
+                            $item.addClass('disabled');
+                        } else {
+                            $item.removeClass('disabled');
+                        }
+                    });
+                }
             }
         };
 
