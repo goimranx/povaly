@@ -26,6 +26,7 @@
     class="product-attributes product-attribute-swatches"
     id="product-attributes-{{ $product->id }}"
     data-target="{{ route('public.web.get-variation-by-attributes', $product->getKey()) }}"
+    data-update-url="false"
     data-variation-prices="{{ htmlspecialchars(json_encode($variationPriceMap), ENT_QUOTES) }}"
 >
     @php

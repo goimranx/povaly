@@ -1262,22 +1262,29 @@
             });
         }
 
-        // ── Hook into variation AJAX via ajaxComplete — runs after CMS processes response ──
-        // We can't use window.onChangeSwatchesSuccess directly because main.js wraps it at
-        // document.ready time (before footer scripts run), breaking the chain.
-        // Instead listen for the completed variation AJAX request URL pattern.
-        $(document).ajaxComplete(function(event, xhr, settings) {
-            // Only care about variation AJAX calls
-            if (!settings.url || settings.url.indexOf('/product-variation/') === -1) return;
-            // Only when quick-shop is open
-            var offcanvasEl = document.getElementById('quick-shop-modal');
-            if (!offcanvasEl || !offcanvasEl.classList.contains('show')) return;
+        // ── Hook into variation AJAX ──
+        // change-product-swatches.js calls window.onChangeSwatchesSuccess after each response
+        // BUT main.js wraps it at document.ready capturing undefined originalOnChangeSwatchesSuccess
+        // Solution: override AFTER main.js document.ready fires using setTimeout(0)
+        setTimeout(function() {
+            var _prevSuccess = window.onChangeSwatchesSuccess;
+            window.onChangeSwatchesSuccess = function(response, element) {
+                // Call previous handler (main.js wrapper which calls its own logic)
+                if (_prevSuccess && typeof _prevSuccess === 'function') {
+                    _prevSuccess(response, element);
+                }
 
-            var response = null;
-            try { response = JSON.parse(xhr.responseText); } catch(e) { return; }
-            var data = response && response.data ? response.data : null;
-            if (!data) return;
+                // Only act inside the quick-shop offcanvas
+                var offcanvasEl = document.getElementById('quick-shop-modal');
+                if (!offcanvasEl || !offcanvasEl.classList.contains('show')) return;
+                var data = response && response.data ? response.data : null;
+                if (!data) return;
 
+                qsHandleVariationResponse(data);
+            };
+        }, 0);
+
+        function qsHandleVariationResponse(data) {
             // Hide CMS stock message, use our own
             $('#quick-shop-modal .number-items-available').html('').hide();
 
@@ -1302,7 +1309,7 @@
                 updateQSGalleryImages(data.image_with_sizes.origin);
             }
 
-            // Update main price
+            // Update main price (CMS also does this via defaultOnChangeSwatchesSuccess — belt+braces)
             if (data.display_sale_price) {
                 $('#quick-shop-modal [data-bb-value="product-price"]').text(data.display_sale_price);
             }
@@ -1322,18 +1329,16 @@
 
             if (priceMap && priceMap.length) {
                 // Get selected attribute IDs from response's selected_attributes
-                // The response uses 'selected_attributes' array of {id, slug, set_slug, set_id}
                 var selectedAttrIds = [];
                 if (data.selected_attributes && Array.isArray(data.selected_attributes)) {
                     data.selected_attributes.forEach(function(a) { selectedAttrIds.push(parseInt(a.id)); });
                 } else {
-                    // Fallback: read from DOM
                     $container.find('input.product-filter-item:checked').each(function() {
                         selectedAttrIds.push(parseInt($(this).val()));
                     });
                 }
 
-                // Collect all visual (color) attr IDs from the DOM swatches
+                // All visual (color) attr IDs
                 var visualAttrIds = [];
                 $container.find('.attribute-swatches-wrapper[data-type="visual"] input').each(function() {
                     visualAttrIds.push(parseInt($(this).val()));
@@ -1371,7 +1376,7 @@
                     }
                 });
             }
-        });
+        }
 
         function updateQSGalleryImages(imageUrls) {
             var offcanvas = document.getElementById('quick-shop-modal');
