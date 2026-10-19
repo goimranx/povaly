@@ -629,9 +629,10 @@
     .qs-var-grid {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
-        gap: 6px;
+        gap: 8px;
         list-style: none;
-        padding: 0; margin: 0;
+        padding: 2px;
+        margin: 0;
     }
 
     /* Each item */
@@ -692,20 +693,24 @@
         text-decoration: line-through;
     }
 
-    /* Hover */
+    /* Hover - 2px total (1px border + 1px outline) */
     .qs-var-item:not(.disabled):hover {
         border-color: var(--global-color-link, #007bff);
+        outline: 1px solid var(--global-color-link, #007bff);
+        outline-offset: 0px;
     }
-    /* Selected — 2px blue border + outline */
+    /* Selected — 3px total (2px border + 1px outline) */
     .qs-var-item.selected,
     .qs-var-item:has(input:checked) {
         border: 2px solid var(--global-color-link, #007bff);
-        outline: 2px solid var(--global-color-link, #007bff);
+        outline: 1px solid var(--global-color-link, #007bff);
         outline-offset: 0px;
     }
     .qs-var-item.selected:hover,
     .qs-var-item:has(input:checked):hover {
-        outline-width: 1px;
+        /* Keep same on hover when selected */
+        border: 2px solid var(--global-color-link, #007bff);
+        outline: 1px solid var(--global-color-link, #007bff);
     }
     /* Disabled — diagonal strikethrough, dashed border normally */
     .qs-var-item.disabled {
@@ -951,8 +956,36 @@
     /* Action buttons */
     .qs-actions {
         display: flex;
+        align-items: center;
         gap: 10px;
         margin-bottom: 16px;
+    }
+    .qs-store-link {
+        flex-shrink: 0;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #d0d0d0;
+        border-radius: 8px;
+        background: #fff;
+        color: var(--global-color-text-body, #2E3D52);
+        text-decoration: none;
+        transition: all .2s;
+    }
+    .qs-store-link:hover {
+        border-color: var(--global-color-link, #007bff);
+        background: #f8f9fa;
+        color: var(--global-color-link, #007bff);
+    }
+    .qs-store-link i {
+        font-size: 18px;
+    }
+    .qs-buttons-wrap {
+        display: flex;
+        gap: 10px;
+        flex: 1;
     }
     .qs-btn {
         flex: 1;
@@ -986,8 +1019,21 @@
         border-color: var(--ec-btn-buy-bg-hover, #f09600);
     }
     .qs-btn:disabled { opacity: .5; cursor: not-allowed; }
-    @media (max-width: 420px) {
-        .qs-actions { flex-direction: column; }
+    
+    @media (max-width: 767px) {
+        .qs-actions {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 12px 16px;
+            margin: 0 -16px -16px;
+            border-top: 1px solid #e0e0e0;
+            z-index: 10;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+        }
+        .qs-buttons-wrap { flex-direction: column; }
     }
 
     /* Quick view (product-quickview) basic resets */

@@ -240,10 +240,17 @@
             </div>
             @if (EcommerceHelper::isCartEnabled())
                 <div class="qs-actions">
-                    <button class="qs-btn qs-btn--cart" type="submit" name="add-to-cart" @disabled($product->isOutOfStock())>{{ __('Add to cart') }}</button>
-                    @if (EcommerceHelper::isQuickBuyButtonEnabled())
-                        <button class="qs-btn qs-btn--buy" type="submit" name="checkout" @disabled($product->isOutOfStock())>{{ __('Buy Now') }}</button>
+                    @if ($product->store_id && $product->store)
+                        <a href="{{ $product->store->url }}" class="qs-store-link" title="{{ __('Visit Store: :store', ['store' => $product->store->name]) }}">
+                            <i class="icon-store"></i>
+                        </a>
                     @endif
+                    <div class="qs-buttons-wrap">
+                        <button class="qs-btn qs-btn--cart" type="submit" name="add-to-cart" @disabled($product->isOutOfStock())>{{ __('Add to cart') }}</button>
+                        @if (EcommerceHelper::isQuickBuyButtonEnabled())
+                            <button class="qs-btn qs-btn--buy" type="submit" name="checkout" @disabled($product->isOutOfStock())>{{ __('Buy Now') }}</button>
+                        @endif
+                    </div>
                 </div>
             @endif
         </form>
