@@ -1258,13 +1258,19 @@
             });
         }
 
-        // ── Remove the brittle patchSwatchesHandler and use window.onChangeSwatchesSuccess only ──
-        // Stock message is handled via CSS (number-items-available is hidden) + window.onChangeSwatchesSuccess below
-        // Hook into CMS variation change success via the official hook
-        window.onChangeSwatchesSuccess = function(response, element) {
-            // Only act inside the quick-shop offcanvas
+        // ── Hook into variation AJAX via ajaxComplete — runs after CMS processes response ──
+        // We can't use window.onChangeSwatchesSuccess directly because main.js wraps it at
+        // document.ready time (before footer scripts run), breaking the chain.
+        // Instead listen for the completed variation AJAX request URL pattern.
+        $(document).ajaxComplete(function(event, xhr, settings) {
+            // Only care about variation AJAX calls
+            if (!settings.url || settings.url.indexOf('/product-variation/') === -1) return;
+            // Only when quick-shop is open
             var offcanvasEl = document.getElementById('quick-shop-modal');
             if (!offcanvasEl || !offcanvasEl.classList.contains('show')) return;
+
+            var response = null;
+            try { response = JSON.parse(xhr.responseText); } catch(e) { return; }
             var data = response && response.data ? response.data : null;
             if (!data) return;
 
@@ -1292,7 +1298,7 @@
                 updateQSGalleryImages(data.image_with_sizes.origin);
             }
 
-            // Update price display
+            // Update main price
             if (data.display_sale_price) {
                 $('#quick-shop-modal [data-bb-value="product-price"]').text(data.display_sale_price);
             }
@@ -1305,19 +1311,19 @@
             // Update hidden product ID
             $('#quick-shop-modal .hidden-product-id').val(data.id);
 
-            // Update per-variation-item prices AND hide/show based on availability
+            // ── Update color swatches using variation price map ──
             var $container = $('#quick-shop-modal .product-attribute-swatches');
             var priceMap = null;
             try { priceMap = JSON.parse($container.attr('data-variation-prices') || 'null'); } catch(e) {}
 
             if (priceMap && priceMap.length) {
-                // Get currently checked text attribute IDs (size etc)
+                // Currently selected text attr IDs (size etc)
                 var checkedTextIds = [];
                 $container.find('.attribute-swatches-wrapper[data-type="text"] input:checked').each(function() {
                     checkedTextIds.push(parseInt($(this).val()));
                 });
 
-                // ── Color swatches (visual): hide if no match for selected sizes, update price ──
+                // Color swatches (visual): hide if no match, update price if match
                 $container.find('.attribute-swatches-wrapper[data-type="visual"] .qs-var-item').each(function() {
                     var $item  = $(this);
                     var attrId = parseInt($item.data('id'));
@@ -1326,27 +1332,23 @@
                     for (var i = 0; i < priceMap.length; i++) {
                         var pv = priceMap[i];
                         if (pv.attrs.indexOf(attrId) === -1) continue;
-                        // Must match ALL currently selected text attrs
                         var allMatch = checkedTextIds.every(function(id) { return pv.attrs.indexOf(id) !== -1; });
                         if (allMatch) { matched = pv; break; }
                     }
 
                     if (matched) {
                         $item.show();
-                        // Update price
                         var html = '<span class="qs-var-item__price-sale">' + matched.price_fmt + '</span>';
                         if (matched.orig_fmt) html += '<del class="qs-var-item__price-orig">' + matched.orig_fmt + '</del>';
                         $item.find('.qs-var-item__price').html(html);
-                        // Available/out of stock
                         if (!matched.available) $item.addClass('disabled');
                         else $item.removeClass('disabled');
                     } else {
-                        // No variation for this color + current size combination → hide it
                         $item.hide();
                     }
                 });
             }
-        };
+        });
 
         function updateQSGalleryImages(imageUrls) {
             var offcanvas = document.getElementById('quick-shop-modal');
