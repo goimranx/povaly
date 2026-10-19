@@ -33,7 +33,7 @@ class RenderProductSwatchesSupport
         ], $params);
 
         $product = $this->product;
-        $cacheKey = 'product_variations_v2_' . $product->getKey();
+        $cacheKey = 'product_variations_v3_' . $product->getKey();
 
         $data = Cache::remember($cacheKey, 1800, function () use ($product) {
             $attributeSets = $product->productAttributeSets()->oldest('order')->latest()->get();

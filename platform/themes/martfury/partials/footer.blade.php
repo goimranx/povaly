@@ -577,7 +577,8 @@
     /* Override plugin disabled pointer-events — keep clickable */
     #quick-shop-modal .bb-product-attribute-swatch-item.disabled,
     #quick-shop-modal .qs-var-item.disabled,
-    #quick-shop-modal .qs-color-item.disabled {
+    #quick-shop-modal .qs-color-item.disabled,
+    .bb-product-attribute-swatch-list .bb-product-attribute-swatch-item.disabled {
         pointer-events: auto !important;
         cursor: pointer !important;
     }
@@ -1257,63 +1258,34 @@
             });
         }
 
-        // ── Override defaultOnChangeSwatchesSuccess to suppress CMS stock message ─
-        // The CMS updates .number-items-available — we intercept after it runs
-        // and update our .js-qs-stock instead, then blank .number-items-available
-        var _origDefaultOnChange = null;
-
-        function patchSwatchesHandler() {
-            if (window.EcommerceApp && window.EcommerceApp.defaultOnChangeSwatchesSuccess && !window.EcommerceApp._qsPatched) {
-                _origDefaultOnChange = window.EcommerceApp.defaultOnChangeSwatchesSuccess.bind(window.EcommerceApp);
-                window.EcommerceApp.defaultOnChangeSwatchesSuccess = function(response, element) {
-                    // Run the original handler
-                    _origDefaultOnChange(response, element);
-
-                    // Only interfere if we're inside the quick-shop offcanvas
-                    if (!document.getElementById('quick-shop-modal') || !document.getElementById('quick-shop-modal').classList.contains('show')) return;
-
-                    // Blank the CMS stock message immediately
-                    $('#quick-shop-modal .number-items-available').html('').hide();
-
-                    // Now update our stock element
-                    var data = response && response.data ? response.data : null;
-                    if (!data) return;
-                    var $stock = $('#quick-shop-modal .js-qs-stock');
-                    $stock.removeClass('qs-stock--out');
-
-                    if (data.error_message) {
-                        $stock.text('Stock not available').addClass('qs-stock--out');
-                    } else if (data.with_storehouse_management) {
-                        var qty = parseInt(data.quantity) || 0;
-                        if (qty <= 0) {
-                            $stock.text('Stock not available').addClass('qs-stock--out');
-                        } else {
-                            $stock.text('Out of ' + qty.toLocaleString() + ' units');
-                        }
-                    } else if (data.success_message || data.success_message === '') {
-                        $stock.text('Out of available stocks');
-                    } else {
-                        $stock.text('Out of available stocks');
-                    }
-                };
-                window.EcommerceApp._qsPatched = true;
-            }
-        }
-
-        // Patch immediately and also after quick-shop opens (EcommerceApp may load late)
-        patchSwatchesHandler();
-        document.getElementById('quick-shop-modal') && document.getElementById('quick-shop-modal').addEventListener('shown.bs.offcanvas', function() {
-            patchSwatchesHandler();
-            // Also blank any existing CMS message
-            $(this).find('.number-items-available').html('').hide();
-        });
+        // ── Remove the brittle patchSwatchesHandler and use window.onChangeSwatchesSuccess only ──
+        // Stock message is handled via CSS (number-items-available is hidden) + window.onChangeSwatchesSuccess below
         // Hook into CMS variation change success via the official hook
-        // change-product-swatches.js already fires AJAX — we just listen to the result
         window.onChangeSwatchesSuccess = function(response, element) {
             // Only act inside the quick-shop offcanvas
-            if (!document.getElementById('quick-shop-modal') || !document.getElementById('quick-shop-modal').classList.contains('show')) return;
+            var offcanvasEl = document.getElementById('quick-shop-modal');
+            if (!offcanvasEl || !offcanvasEl.classList.contains('show')) return;
             var data = response && response.data ? response.data : null;
             if (!data) return;
+
+            // Hide CMS stock message, use our own
+            $('#quick-shop-modal .number-items-available').html('').hide();
+
+            // Update stock
+            var $stock = $('#quick-shop-modal .js-qs-stock');
+            $stock.removeClass('qs-stock--out');
+            if (data.error_message) {
+                $stock.text('Stock not available').addClass('qs-stock--out');
+            } else if (data.with_storehouse_management) {
+                var qty = parseInt(data.quantity) || 0;
+                if (qty <= 0) {
+                    $stock.text('Stock not available').addClass('qs-stock--out');
+                } else {
+                    $stock.text('Out of ' + qty.toLocaleString() + ' units');
+                }
+            } else {
+                $stock.text('Out of available stocks');
+            }
 
             // Update gallery images
             if (data.image_with_sizes && data.image_with_sizes.origin && data.image_with_sizes.origin.length) {
@@ -1333,44 +1305,36 @@
             // Update hidden product ID
             $('#quick-shop-modal .hidden-product-id').val(data.id);
 
-            // Update per-variation-item prices using the variation price map
-            // stored in data-variation-prices on the .product-attribute-swatches container
+            // Update per-variation-item prices using variation price map
             var $container = $('#quick-shop-modal .product-attribute-swatches');
             var priceMap = null;
             try { priceMap = JSON.parse($container.attr('data-variation-prices') || 'null'); } catch(e) {}
 
             if (priceMap && priceMap.length) {
-                // Get currently checked attribute IDs (excluding the visual/color set)
+                // Get currently checked text attribute IDs (size etc)
                 var checkedIds = [];
                 $container.find('.attribute-swatches-wrapper[data-type="text"] input:checked').each(function() {
                     checkedIds.push(parseInt($(this).val()));
                 });
 
-                // For each visual swatch item, find matching variation and update price
+                // Update each color swatch price to match the selected size
                 $container.find('.qs-var-item').each(function() {
-                    var $item     = $(this);
-                    var attrId    = parseInt($item.data('id'));
-                    var matchedPV = null;
-
-                    // Find a variation that contains this color attr AND all currently selected text attrs
+                    var $item  = $(this);
+                    var attrId = parseInt($item.data('id'));
+                    var matched = null;
                     for (var i = 0; i < priceMap.length; i++) {
                         var pv = priceMap[i];
                         if (pv.attrs.indexOf(attrId) === -1) continue;
-                        // Check if all currently selected text attrs are in this variation
                         var allMatch = true;
                         for (var j = 0; j < checkedIds.length; j++) {
                             if (pv.attrs.indexOf(checkedIds[j]) === -1) { allMatch = false; break; }
                         }
-                        if (allMatch) { matchedPV = pv; break; }
+                        if (allMatch) { matched = pv; break; }
                     }
-
-                    if (matchedPV) {
-                        var $priceEl = $item.find('.qs-var-item__price');
-                        var html = '<span class="qs-var-item__price-sale">' + matchedPV.price_fmt + '</span>';
-                        if (matchedPV.orig_fmt) {
-                            html += '<del class="qs-var-item__price-orig">' + matchedPV.orig_fmt + '</del>';
-                        }
-                        $priceEl.html(html);
+                    if (matched) {
+                        var html = '<span class="qs-var-item__price-sale">' + matched.price_fmt + '</span>';
+                        if (matched.orig_fmt) html += '<del class="qs-var-item__price-orig">' + matched.orig_fmt + '</del>';
+                        $item.find('.qs-var-item__price').html(html);
                     }
                 });
             }
