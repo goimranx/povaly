@@ -1041,7 +1041,7 @@
         
         /* Info container needs padding-bottom for fixed button bar space */
         .qs-info {
-            padding-bottom: 75px !important;
+            padding-bottom: 80px !important;
         }
         
         .qs-actions {
@@ -1050,9 +1050,9 @@
             left: 0;
             right: 0;
             background: #fff;
-            padding: 8px 16px;
+            padding: 10px 16px;
             margin: 0;
-            border-top: 1px solid var(--global-color-primary, #007bff);
+            border-top: 1px solid var(--global-color-primary-border, #007bff);
             z-index: 10;
             gap: 8px;
             align-items: stretch;
@@ -1064,7 +1064,7 @@
             font-size: 20px;
         }
         .qs-btn {
-            padding: 8px 12px;
+            padding: 10px 12px;
         }
     }
 
