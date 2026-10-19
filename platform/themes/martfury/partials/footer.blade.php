@@ -695,7 +695,7 @@
     .qs-var-item:not(.disabled):hover {
         border-color: var(--global-color-link, #007bff);
     }
-    /* Selected — 2px blue border + subtle outline */
+    /* Selected — 2px blue border + outline */
     .qs-var-item.selected,
     .qs-var-item:has(input:checked) {
         border: 2px solid var(--global-color-link, #007bff);
@@ -706,16 +706,25 @@
     .qs-var-item:has(input:checked):hover {
         outline-width: 1px;
     }
-    /* Disabled — diagonal strikethrough over the thumbnail, dashed border */
+    /* Disabled — diagonal strikethrough, dashed border normally */
     .qs-var-item.disabled {
         opacity: .65;
         cursor: pointer;
-        border: 1px solid #bbb !important;
+        border: 1px dashed #bbb !important;
         outline: none !important;
     }
+    /* Disabled hover — same ring as selected but dashed */
     .qs-var-item.disabled:hover {
-        border: 1px solid var(--global-color-link, #007bff) !important;
-        outline: none !important;
+        border: 1px dashed var(--global-color-link, #007bff) !important;
+        outline: 2px solid var(--global-color-link, #007bff) !important;
+        outline-offset: 0px !important;
+    }
+    /* Disabled selected (user clicked it) — full ring like normal selected */
+    .qs-var-item.disabled.selected,
+    .qs-var-item.disabled:has(input:checked) {
+        border: 2px solid var(--global-color-link, #007bff) !important;
+        outline: 2px solid var(--global-color-link, #007bff) !important;
+        outline-offset: 0px !important;
     }
     /* Diagonal strikethrough line over the thumbnail */
     .qs-var-item.disabled .qs-var-item__thumb {
@@ -795,16 +804,25 @@
     }
     .qs-color-item.selected:hover,
     .qs-color-item:has(input:checked):hover { outline-width: 1px; }
-    /* Disabled — dashed border, still clickable, no strikethrough */
+    /* Disabled — dashed border, still clickable */
     .qs-color-item.disabled {
         opacity: .55;
         cursor: pointer;
         border: 1px dashed #aaa !important;
         outline: none !important;
     }
+    /* Disabled hover — show full ring like normal hover */
     .qs-color-item.disabled:hover {
         border: 1px dashed var(--global-color-link, #007bff) !important;
-        outline: none !important;
+        outline: 2px solid var(--global-color-link, #007bff) !important;
+        outline-offset: 0 !important;
+    }
+    /* Disabled selected — full ring */
+    .qs-color-item.disabled.selected,
+    .qs-color-item.disabled:has(input:checked) {
+        border: 2px solid var(--global-color-link, #007bff) !important;
+        outline: 2px solid var(--global-color-link, #007bff) !important;
+        outline-offset: 0 !important;
     }
 
     /* Always hide CMS default stock message — we use .js-qs-stock */
@@ -825,7 +843,7 @@
         margin: 0 0 10px;
         color: var(--global-color-text-main, #0D1B2A);
     }
-    /* Price — text-body color, original muted */
+    /* Price block — sale price large, % badge inline, no strikethrough */
     .qs-price { margin-bottom: 12px; }
     .qs-price h4,
     .qs-price [data-bb-value="product-price"],
@@ -835,11 +853,23 @@
         color: var(--global-color-text-body, #2E3D52) !important;
         margin: 0;
     }
+    /* Hide the strikethrough original price — we replace it with a % badge */
     .qs-price [data-bb-value="product-original-price"],
-    .qs-price del {
-        color: var(--global-color-text-muted, #767676) !important;
-        font-size: 13px !important;
-        font-weight: 400 !important;
+    .qs-price del,
+    .qs-price small { display: none !important; }
+    /* % discount badge injected by JS */
+    .qs-price-badge {
+        display: inline-flex;
+        align-items: center;
+        background: var(--global-color-link, #007bff);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 4px;
+        margin-left: 8px;
+        vertical-align: middle;
+        letter-spacing: 0.02em;
     }
 
     /* Qty row */
@@ -1005,10 +1035,35 @@
                         return;
                     }
                     $content.html(res.data);
+                    // Reset last-clicked state for each new product load
+                    _qsLastClickedAttrId   = null;
+                    _qsLastClickedAttrType = null;
                     initQSGallery(offcanvasEl);
                     initQSQty(offcanvasEl);
                     initQSSwatches(offcanvasEl);
                     initQSTitleExpand(offcanvasEl);
+                    // Inject % discount badge on initial render
+                    (function() {
+                        var $modal = $('#quick-shop-modal');
+                        $modal.find('.qs-price-badge').remove();
+                        // Read price values from hidden data attributes set by the partial
+                        var $priceEl = $modal.find('[data-bb-value="product-price"]');
+                        var $origEl  = $modal.find('[data-bb-value="product-original-price"]');
+                        if ($origEl.length && $origEl.closest('span').is(':visible') || $origEl.text().trim()) {
+                            // Parse raw numeric values from data attrs if available, else skip
+                            // We rely on the .sale class on the wrapper to detect a sale
+                            if ($modal.find('.qs-price.sale').length) {
+                                var origText = $origEl.text().replace(/[^\d.]/g, '');
+                                var saleText = $priceEl.text().replace(/[^\d.]/g, '');
+                                var origVal  = parseFloat(origText);
+                                var saleVal  = parseFloat(saleText);
+                                if (origVal > 0 && saleVal > 0 && saleVal < origVal) {
+                                    var pct = Math.round((1 - saleVal / origVal) * 100);
+                                    if (pct > 0) $priceEl.after('<span class="qs-price-badge">-' + pct + '%</span>');
+                                }
+                            }
+                        }
+                    })();
                     // Initial swatch visibility pass — apply show/hide + price based on
                     // whatever non-visual attributes are already selected on render
                     initQSVisualSwatchVisibility(offcanvasEl);
@@ -1409,6 +1464,14 @@
                 // Visible = not display:none
                 var visArr = allArr.filter(function(el) { return el.style.display !== 'none'; });
 
+                // If nothing is visible, restore all and bail — don't hide everything
+                if (visArr.length === 0) {
+                    allArr.forEach(function(el) { el.style.display = ''; });
+                    if (prevBtn) prevBtn.style.display = 'none';
+                    if (nextBtn) nextBtn.style.display = 'none';
+                    return;
+                }
+
                 var totalPages = Math.ceil(visArr.length / pageSize);
 
                 // Page that contains selected item
@@ -1418,9 +1481,7 @@
                 var page = selIdx >= 0 ? Math.floor(selIdx / pageSize) : 0;
 
                 // Hide all, re-show current page of visible items
-                allArr.forEach(function(el) {
-                    if (el.style.display !== 'none') el.style.display = 'none';
-                });
+                allArr.forEach(function(el) { el.style.display = 'none'; });
                 visArr.forEach(function(el, i) {
                     if (i >= page * pageSize && i < (page + 1) * pageSize) el.style.display = '';
                 });
@@ -1446,11 +1507,16 @@
 
         // ── Variation grid pagination + hover label ───────────────────────
         function initQSSwatches(scope) {
+            var $scope = $(scope);
+            // Remove any previously-bound QS swatch handlers before re-binding
+            // (prevents listener accumulation across multiple product opens)
+            $scope.off('.qs-swatches');
+
             // Hover: show attr title beside set name
-            $(scope).on('mouseenter', '.qs-var-item, .qs-color-item', function() {
+            $scope.on('mouseenter.qs-swatches', '.qs-var-item, .qs-color-item', function() {
                 var $label = $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val');
                 $label.text($(this).data('title') || '');
-            }).on('mouseleave', '.qs-var-item, .qs-color-item', function() {
+            }).on('mouseleave.qs-swatches', '.qs-var-item, .qs-color-item', function() {
                 var $wrap = $(this).closest('.qs-swatch-wrap');
                 var cur = $wrap.find('.selected').first().data('title')
                        || $wrap.find('input:checked').closest('li').data('title')
@@ -1459,7 +1525,7 @@
             });
 
             // On click: record which attr was clicked and its type BEFORE AJAX fires
-            $(scope).on('click', '.qs-var-item label, .qs-color-item label', function() {
+            $scope.on('click.qs-swatches', '.qs-var-item label, .qs-color-item label', function() {
                 var $li   = $(this).closest('.qs-var-item, .qs-color-item');
                 var $wrap = $(this).closest('.attribute-swatches-wrapper');
                 _qsLastClickedAttrId   = parseInt($li.data('id'));
@@ -1467,7 +1533,7 @@
             });
 
             // On selection: update .selected class + label text
-            $(scope).on('change', '.product-filter-item', function() {
+            $scope.on('change.qs-swatches', '.product-filter-item', function() {
                 var $wrap = $(this).closest('.qs-swatch-wrap');
                 $wrap.find('.qs-var-item, .qs-color-item').removeClass('selected');
                 $(this).closest('li').addClass('selected');
@@ -1476,7 +1542,7 @@
             });
 
             // Arrow pagination — uses state stored by qsUpdateSwatches
-            $(scope).on('click', '.qs-var-grid__arrow--prev, .qs-var-grid__arrow--next', function() {
+            $scope.on('click.qs-swatches', '.qs-var-grid__arrow--prev, .qs-var-grid__arrow--next', function() {
                 var wrap = $(this).closest('.qs-var-grid-wrap')[0];
                 if (!wrap || !wrap._qsVisItems) return;
 
@@ -1552,14 +1618,18 @@
                 updateQSGalleryImages(data.image_with_sizes.origin);
             }
 
-            // Update main price (CMS also does this via defaultOnChangeSwatchesSuccess — belt+braces)
+            // Update main price + % discount badge
             if (data.display_sale_price) {
                 $('#quick-shop-modal [data-bb-value="product-price"]').text(data.display_sale_price);
             }
-            if (data.sale_price !== data.price) {
-                $('#quick-shop-modal [data-bb-value="product-original-price"]').text(data.display_price).closest('span').show();
-            } else {
-                $('#quick-shop-modal [data-bb-value="product-original-price"]').closest('span').hide();
+            // Remove old badge first
+            $('#quick-shop-modal .qs-price-badge').remove();
+            if (data.sale_price !== undefined && data.price !== undefined && data.sale_price < data.price && data.price > 0) {
+                var pct = Math.round((1 - data.sale_price / data.price) * 100);
+                if (pct > 0) {
+                    var $priceSpan = $('#quick-shop-modal [data-bb-value="product-price"]');
+                    $priceSpan.after('<span class="qs-price-badge">-' + pct + '%</span>');
+                }
             }
 
             // Update hidden product ID
