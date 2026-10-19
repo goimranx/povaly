@@ -855,6 +855,11 @@
         flex-wrap: wrap;
         gap: 12px;
     }
+    .qs-price.sale {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
     .qs-price h4,
     .qs-price [data-bb-value="product-price"],
     .qs-price .ps-product__price-sale {
@@ -877,7 +882,7 @@
         color: #fff;
         font-size: 11px;
         font-weight: 700;
-        padding: 5px 7px;
+        padding: 6px 5px;
         border-radius: 4px;
         line-height: 1;
         letter-spacing: 0.02em;
@@ -1421,16 +1426,9 @@
                         var t = $(this).data('title') || '';
                         $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(t).attr('data-default', t);
                     });
-                } else {
-                    // Disabled item: apply .selected for visual feedback, but don't add to nonVisualSelected
-                    // (this keeps visuals visible, prevents hide/show logic from triggering)
-                    $clickedItem.each(function() {
-                        $(this).closest('.qs-swatch-wrap').find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected');
-                        $(this).addClass('selected');
-                        var t = $(this).data('title') || '';
-                        $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(t).attr('data-default', t);
-                    });
                 }
+                // If disabled: do nothing — nonVisualSelected stays as-is (from DOM only),
+                // visuals stay visible, Step 3 won't trigger (nothing hides), CMS handles state.
             }
 
             // ── Rule A: update text / dropdown swatches based on visual selection ──
