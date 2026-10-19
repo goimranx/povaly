@@ -1557,9 +1557,10 @@
             // auto-select the best available visual item so the user
             // is never left with no visual selected after picking a non-visual (size/material/style/etc).
             // Priority (for DISABLED non-visual clicks):
-            //   1) Find available non-visuals that have this disabled non-visual enabled
-            //   2) Use that available non-visual's last paired visual
-            //   3) Fallback to general visual preference or first available
+            //   1) Visual last paired with THIS disabled non-visual (most recent for this item)
+            //   2) Visual paired with available non-visuals (fallback if #1 doesn't exist)
+            //   3) General visual preference
+            //   4) First available
             // Priority (for AVAILABLE non-visual clicks): first available
             $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function() {
                 var $attrWrap  = $(this);
@@ -1587,31 +1588,42 @@
                 if (wasDisabledClick) {
                     var disabledNonVisualId = nonVisualSelected.length > 0 ? nonVisualSelected[0] : null;
                     
-                    // Find other non-visual attributes that are available (not disabled)
-                    // These are the ones that have the disabled non-visual available
-                    var availableNonVisualIds = [];
-                    $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
-                        var $wrap = $(this);
-                        var $availableItems = $wrap.find('.qs-color-item:not(.disabled), .bb-product-attribute-swatch-item:not(.disabled):not(.qs-var-item)');
-                        $availableItems.each(function() {
-                            var id = parseInt($(this).data('id'));
-                            if (!isNaN(id) && id !== disabledNonVisualId) {
-                                availableNonVisualIds.push(id);
-                            }
-                        });
-                    });
+                    // FIRST: Check if the disabled non-visual itself has a pairing (most recent for this item)
+                    if (disabledNonVisualId && _qsNonVisualToVisual[disabledNonVisualId]) {
+                        var rememberedVisualId = _qsNonVisualToVisual[disabledNonVisualId];
+                        $preferred = $visAvail.filter('[data-id="' + rememberedVisualId + '"]');
+                        if (!$preferred.length) {
+                            $preferred = $visAll.filter('[data-id="' + rememberedVisualId + '"]');
+                        }
+                    }
                     
-                    // Check memory for these available non-visuals to find their paired visuals
-                    for (var i = 0; i < availableNonVisualIds.length; i++) {
-                        var availNonVisId = availableNonVisualIds[i];
-                        var pairedVisualId = _qsNonVisualToVisual[availNonVisId];
-                        if (pairedVisualId) {
-                            // Check if this visual is available now
-                            $preferred = $visAvail.filter('[data-id="' + pairedVisualId + '"]');
-                            if ($preferred.length) break; // Found a good match
-                            // Try even if disabled
-                            $preferred = $visAll.filter('[data-id="' + pairedVisualId + '"]');
-                            if ($preferred.length) break;
+                    // SECOND: If disabled non-visual has no pairing, check available non-visuals
+                    if (!$preferred.length) {
+                        // Find other non-visual attributes that are available (not disabled)
+                        var availableNonVisualIds = [];
+                        $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
+                            var $wrap = $(this);
+                            var $availableItems = $wrap.find('.qs-color-item:not(.disabled), .bb-product-attribute-swatch-item:not(.disabled):not(.qs-var-item)');
+                            $availableItems.each(function() {
+                                var id = parseInt($(this).data('id'));
+                                if (!isNaN(id) && id !== disabledNonVisualId) {
+                                    availableNonVisualIds.push(id);
+                                }
+                            });
+                        });
+                        
+                        // Check memory for these available non-visuals to find their paired visuals
+                        for (var i = 0; i < availableNonVisualIds.length; i++) {
+                            var availNonVisId = availableNonVisualIds[i];
+                            var pairedVisualId = _qsNonVisualToVisual[availNonVisId];
+                            if (pairedVisualId) {
+                                // Check if this visual is available now
+                                $preferred = $visAvail.filter('[data-id="' + pairedVisualId + '"]');
+                                if ($preferred.length) break; // Found a good match
+                                // Try even if disabled
+                                $preferred = $visAll.filter('[data-id="' + pairedVisualId + '"]');
+                                if ($preferred.length) break;
+                            }
                         }
                     }
                     
