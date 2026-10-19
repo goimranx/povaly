@@ -638,12 +638,12 @@
         margin: 0;
     }
 
-    /* Each item - always has outline (transparent by default) */
+    /* Each item - always has 1px border + 2px outline (transparent by default) */
     .qs-var-item {
         cursor: pointer;
         border-radius: 4px;
         border: 1px solid #d0d0d0;
-        outline: 1px solid transparent;
+        outline: 2px solid transparent;
         outline-offset: 0px;
         background: #fff;
         transition: border-color .15s, outline-color .15s;
@@ -698,42 +698,42 @@
         text-decoration: line-through;
     }
 
-    /* Hover - 1px border only, outline stays transparent */
+    /* Hover - change border color, outline stays transparent */
     .qs-var-item:not(.disabled):hover {
-        border: 1px solid var(--global-color-link, #007bff);
+        border-color: var(--global-color-link, #007bff);
         outline-color: transparent;
     }
-    /* Selected — change border to 2px and outline to blue */
+    /* Selected — change both border and outline to blue */
     .qs-var-item.selected,
     .qs-var-item:has(input:checked) {
-        border: 2px solid var(--global-color-link, #007bff);
+        border-color: var(--global-color-link, #007bff);
         outline-color: var(--global-color-link, #007bff);
     }
     .qs-var-item.selected:hover,
     .qs-var-item:has(input:checked):hover {
         /* Keep same on hover when selected */
-        border: 2px solid var(--global-color-link, #007bff);
+        border-color: var(--global-color-link, #007bff);
         outline-color: var(--global-color-link, #007bff);
     }
     /* Disabled — diagonal strikethrough, dashed border normally */
     .qs-var-item.disabled {
         opacity: .55;
         cursor: pointer;
-        border: 1px dashed #bbb !important;
-        outline-color: transparent !important;
+        border: 1px dashed #bbb;
+        outline-color: transparent;
     }
     /* Disabled hover — same border change as normal hover, no extra outline weight */
     .qs-var-item.disabled:hover {
         opacity: 1;
-        border: 1px dashed var(--global-color-link, #007bff) !important;
-        outline-color: transparent !important;
+        border-color: var(--global-color-link, #007bff);
+        outline-color: transparent;
     }
     /* Disabled selected — full ring like normal selected, full opacity */
     .qs-var-item.disabled.selected,
     .qs-var-item.disabled:has(input:checked) {
         opacity: 1;
-        border: 2px solid var(--global-color-link, #007bff) !important;
-        outline-color: var(--global-color-link, #007bff) !important;
+        border-color: var(--global-color-link, #007bff);
+        outline-color: var(--global-color-link, #007bff);
     }
     /* Diagonal strikethrough line over the thumbnail */
     .qs-var-item.disabled .qs-var-item__thumb {
@@ -782,7 +782,7 @@
     .qs-color-item {
         cursor: pointer;
         border: 1px solid #d0d0d0;
-        outline: 1px solid transparent;
+        outline: 2px solid transparent;
         outline-offset: 0;
         border-radius: 4px;
         padding: 0;
@@ -803,42 +803,42 @@
         user-select: none;
     }
     .qs-color-item input[type="radio"] { display: none; }
-    /* Hover - 1px border only, outline stays transparent */
+    /* Hover - change border color, outline stays transparent */
     .qs-color-item:not(.disabled):hover { 
-        border: 1px solid var(--global-color-link, #007bff);
+        border-color: var(--global-color-link, #007bff);
         outline-color: transparent;
     }
-    /* Selected - change border to 2px and outline to blue */
+    /* Selected - change both border and outline to blue */
     .qs-color-item.selected,
     .qs-color-item:has(input:checked) {
-        border: 2px solid var(--global-color-link, #007bff);
+        border-color: var(--global-color-link, #007bff);
         outline-color: var(--global-color-link, #007bff);
         background: #fff;
     }
     .qs-color-item.selected:hover,
     .qs-color-item:has(input:checked):hover { 
-        border: 2px solid var(--global-color-link, #007bff);
+        border-color: var(--global-color-link, #007bff);
         outline-color: var(--global-color-link, #007bff);
     }
     /* Disabled — dashed border, still clickable */
     .qs-color-item.disabled {
         opacity: .55;
         cursor: pointer;
-        border: 1px dashed #aaa !important;
-        outline-color: transparent !important;
+        border: 1px dashed #aaa;
+        outline-color: transparent;
     }
     /* Disabled hover — match normal hover weight, restore opacity */
     .qs-color-item.disabled:hover {
         opacity: 1;
-        border: 1px dashed var(--global-color-link, #007bff) !important;
-        outline-color: transparent !important;
+        border-color: var(--global-color-link, #007bff);
+        outline-color: transparent;
     }
     /* Disabled selected — full ring, full opacity */
     .qs-color-item.disabled.selected,
     .qs-color-item.disabled:has(input:checked) {
         opacity: 1;
-        border: 2px solid var(--global-color-link, #007bff) !important;
-        outline-color: var(--global-color-link, #007bff) !important;
+        border-color: var(--global-color-link, #007bff);
+        outline-color: var(--global-color-link, #007bff);
     }
 
     /* Always hide CMS default stock message — we use .js-qs-stock */
