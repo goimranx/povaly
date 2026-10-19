@@ -625,10 +625,10 @@
     }
     .qs-var-grid__viewport { overflow: hidden; flex: 1; }
 
-    /* The grid — 5 items per row like Amazon */
+    /* The grid — 6 items per row for desktop */
     .qs-var-grid {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(6, 1fr);
         gap: 8px;
         list-style: none;
         padding: 2px;
