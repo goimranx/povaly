@@ -1419,10 +1419,18 @@
                     '.bb-product-attribute-swatch-item[data-id="' + _qsLastClickedAttrId + '"]:not(.qs-var-item)'
                 );
                 $clickedItem.each(function() {
-                    $(this).closest('.qs-swatch-wrap').find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected');
+                    var $wrap = $(this).closest('.qs-swatch-wrap');
+                    $wrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected');
                     $(this).addClass('selected');
                     var t = $(this).data('title') || '';
-                    $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(t).attr('data-default', t);
+                    $wrap.find('.qs-swatch__selected-val').text(t).attr('data-default', t);
+                    
+                    // Also force-check the radio/checkbox even if disabled, so CMS AJAX includes it
+                    var $input = $(this).find('input.product-filter-item');
+                    if ($input.length) {
+                        $wrap.find('input.product-filter-item').prop('checked', false);
+                        $input.prop('disabled', false).prop('checked', true);
+                    }
                 });
             }
 
@@ -1541,8 +1549,9 @@
             // ── Step 3: If the currently-selected visual item just got hidden,
             // auto-select the best available visual item so the user
             // is never left with no color selected after picking a size.
-            // Priority: 1) last user-chosen color for this set (if still visible+available)
-            //           2) first visible+available  3) first visible (fallback)
+            // Priority: 1) last color user chose for THIS SIZE (if still visible+available)
+            //           2) last user-chosen color for this set (if still visible+available)
+            //           3) first visible+available  4) first visible (fallback)
             $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function() {
                 var $attrWrap  = $(this);
                 var $allItems  = $attrWrap.find('.qs-var-item');
@@ -1560,14 +1569,27 @@
                     return this.style.display !== 'none';
                 });
 
-                // Try remembered user pick first
+                // Find which non-visual attr is currently selected (the size that triggered this)
+                var currentNonVisualId = nonVisualSelected.length > 0 ? nonVisualSelected[0] : null;
+                
+                // Try remembered visual for THIS specific non-visual first (e.g., Blue for size M)
                 var $preferred = $();
-                var rememberedId = setSlug ? _qsUserPick[setSlug] : null;
-                if (rememberedId) {
-                    // Must be visible — available preferred, disabled acceptable
-                    $preferred = $visAvail.filter('[data-id="' + rememberedId + '"]');
+                if (currentNonVisualId && _qsNonVisualToVisual[currentNonVisualId]) {
+                    var rememberedVisualId = _qsNonVisualToVisual[currentNonVisualId];
+                    $preferred = $visAvail.filter('[data-id="' + rememberedVisualId + '"]');
                     if (!$preferred.length) {
-                        $preferred = $visAll.filter('[data-id="' + rememberedId + '"]');
+                        $preferred = $visAll.filter('[data-id="' + rememberedVisualId + '"]');
+                    }
+                }
+                
+                // Fallback: try general remembered user pick for this visual set
+                if (!$preferred.length) {
+                    var rememberedId = setSlug ? _qsUserPick[setSlug] : null;
+                    if (rememberedId) {
+                        $preferred = $visAvail.filter('[data-id="' + rememberedId + '"]');
+                        if (!$preferred.length) {
+                            $preferred = $visAll.filter('[data-id="' + rememberedId + '"]');
+                        }
                     }
                 }
 
@@ -1589,6 +1611,11 @@
                 _qsLastClickedAttrId   = parseInt($target.data('id'));
                 _qsLastClickedAttrType = 'visual';
                 // Note: do NOT update _qsUserPick here — this is an auto-select, not a user choice
+                
+                // Remember this visual for this non-visual (e.g., size M → Black)
+                if (currentNonVisualId) {
+                    _qsNonVisualToVisual[currentNonVisualId] = parseInt($target.data('id'));
+                }
 
                 // Trigger CMS AJAX with auto-select flag so our change handler doesn't interfere
                 $radio[0]._qsAutoSelect = true;
@@ -1608,6 +1635,11 @@
         // Key = attribute-set slug, value = attr id (int).
         // Consulted by Step 3 so returning to a size re-picks the color the user had chosen.
         var _qsUserPick = {}; // { 'color': 3, 'size': 7, ... }
+        
+        // Memory of which visual was selected for each non-visual choice
+        // Key = nonvisual attr id, value = visual attr id
+        // E.g. { 5: 3 } means "when size M (id=5) was selected, color was Black (id=3)"
+        var _qsNonVisualToVisual = {}; // { sizeId: colorId, ... }
 
         // ── Variation grid pagination + hover label ───────────────────────
         function initQSSwatches(scope) {
@@ -1642,6 +1674,18 @@
 
                 // Record as user's deliberate choice for this attribute set
                 if (setSlug) _qsUserPick[setSlug] = attrId;
+                
+                // If clicking a non-visual (e.g., size), remember which visual is currently selected
+                if (!isVisual) {
+                    var $visualWrap = $scope.find('.attribute-swatches-wrapper[data-type="visual"]').first();
+                    var $selectedVisual = $visualWrap.find('.qs-var-item.selected, .qs-var-item:has(input:checked)').first();
+                    if ($selectedVisual.length) {
+                        var visualId = parseInt($selectedVisual.data('id'));
+                        if (!isNaN(visualId)) {
+                            _qsNonVisualToVisual[attrId] = visualId;
+                        }
+                    }
+                }
             });
 
             // On selection: update .selected class + label text
