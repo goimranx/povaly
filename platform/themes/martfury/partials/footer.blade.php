@@ -696,9 +696,9 @@
         text-decoration: line-through;
     }
 
-    /* Hover - 2px total (1px border + 1px outline) */
+    /* Hover - 1px border only */
     .qs-var-item:not(.disabled):hover {
-        border: 2px solid var(--global-color-link, #007bff);
+        border: 1px solid var(--global-color-link, #007bff);
     }
     /* Selected — 3px total (2px border + 1px outline) */
     .qs-var-item.selected,
@@ -970,7 +970,7 @@
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
         gap: 3px;
         padding: 8px 12px;
@@ -1037,14 +1037,20 @@
             grid-template-columns: repeat(5, 1fr);
         }
         
+        /* Info container needs overflow for sticky to work properly */
+        .qs-info {
+            overflow: visible;
+            padding-bottom: 0;
+        }
+        
         .qs-actions {
             position: sticky;
             bottom: 0;
             left: 0;
             right: 0;
             background: #fff;
-            padding: 10px 16px 10px;
-            margin: 0 -16px 0;
+            padding: 10px 16px;
+            margin: 16px -16px 0;
             border-top: 1px solid var(--global-color-border-strong, #ccc);
             z-index: 10;
             gap: 8px;
@@ -1058,11 +1064,6 @@
         }
         .qs-btn {
             padding: 10px 12px;
-        }
-        
-        /* Remove bottom padding from info on mobile to prevent huge space */
-        .qs-info {
-            padding-bottom: 0 !important;
         }
     }
 
