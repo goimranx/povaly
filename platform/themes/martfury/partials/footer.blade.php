@@ -1557,9 +1557,10 @@
             // auto-select the best available visual item so the user
             // is never left with no visual selected after picking a non-visual (size/material/style/etc).
             // Priority (for DISABLED non-visual clicks):
-            //   1) Check currently selected AVAILABLE non-visuals' pairings (e.g., L→Brown)
-            //   2) General visual preference
-            //   3) First available
+            //   1) Use THIS disabled non-visual's own pairing (e.g., M→Blue + M→300G)
+            //   2) Also try to select other non-visuals that were paired (restore full combo)
+            //   3) General visual preference
+            //   4) First available
             // Priority (for AVAILABLE non-visual clicks): first available
             $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function() {
                 var $attrWrap  = $(this);
@@ -1587,34 +1588,37 @@
                 if (wasDisabledClick) {
                     var disabledNonVisualId = nonVisualSelected.length > 0 ? nonVisualSelected[0] : null;
                     
-                    // Find currently selected AVAILABLE non-visuals (not the disabled one we just clicked)
-                    // Use THEIR pairings to determine which visual to select
-                    var availableNonVisualIds = [];
-                    $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
-                        var $wrap = $(this);
-                        // Find checked inputs that are NOT disabled
-                        var $checkedInput = $wrap.find('input.product-filter-item:checked');
-                        if ($checkedInput.length) {
-                            var checkedId = parseInt($checkedInput.val());
-                            var $checkedItem = $wrap.find('[data-id="' + checkedId + '"]');
-                            // Only include if it's available (not disabled) and not the one we just clicked
-                            if (!isNaN(checkedId) && checkedId !== disabledNonVisualId && !$checkedItem.hasClass('disabled')) {
-                                availableNonVisualIds.push(checkedId);
-                            }
+                    // Check if this disabled non-visual has its own pairing (e.g., M→Blue)
+                    if (disabledNonVisualId && _qsNonVisualToVisual[disabledNonVisualId]) {
+                        var rememberedVisualId = _qsNonVisualToVisual[disabledNonVisualId];
+                        $preferred = $visAvail.filter('[data-id="' + rememberedVisualId + '"]');
+                        if (!$preferred.length) {
+                            $preferred = $visAll.filter('[data-id="' + rememberedVisualId + '"]');
                         }
-                    });
-                    
-                    // Check memory for these available non-visuals to find their paired visuals
-                    for (var i = 0; i < availableNonVisualIds.length; i++) {
-                        var availNonVisId = availableNonVisualIds[i];
-                        var pairedVisualId = _qsNonVisualToVisual[availNonVisId];
-                        if (pairedVisualId) {
-                            // Check if this visual is available now
-                            $preferred = $visAvail.filter('[data-id="' + pairedVisualId + '"]');
-                            if ($preferred.length) break; // Found a good match
-                            // Try even if disabled
-                            $preferred = $visAll.filter('[data-id="' + pairedVisualId + '"]');
-                            if ($preferred.length) break;
+                        
+                        // Also try to select the other non-visuals that were paired with this one (e.g., M→300G)
+                        if ($preferred.length && _qsNonVisualToNonVisuals[disabledNonVisualId]) {
+                            var otherNonVisualIds = _qsNonVisualToNonVisuals[disabledNonVisualId];
+                            for (var i = 0; i < otherNonVisualIds.length; i++) {
+                                var otherId = otherNonVisualIds[i];
+                                // Find this non-visual's wrapper and try to select it
+                                $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
+                                    var $nvWrap = $(this);
+                                    var $item = $nvWrap.find('[data-id="' + otherId + '"]');
+                                    if ($item.length && !$item.hasClass('disabled')) {
+                                        // Click it to select
+                                        var $radio = $item.find('input.product-filter-item');
+                                        if ($radio.length) {
+                                            $nvWrap.find('input.product-filter-item').prop('checked', false);
+                                            $radio.prop('checked', true);
+                                            $nvWrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected');
+                                            $item.addClass('selected');
+                                            var title = $item.data('title') || '';
+                                            $nvWrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
+                                        }
+                                    }
+                                });
+                            }
                         }
                     }
                     
@@ -1685,6 +1689,11 @@
         // E.g. { 5: 3 } means "when size M (id=5) was selected, color Black (id=3) was paired"
         // Works for any product attributes: size→color, material→finish, style→pattern, etc.
         var _qsNonVisualToVisual = {}; // { nonVisualId: visualId, ... }
+        
+        // Memory of which OTHER non-visuals were selected with each non-visual
+        // Key = nonvisual attr id, value = array of other non-visual attr ids
+        // E.g. { 5: [10] } means "when size M (id=5) was selected, weight 300G (id=10) was also selected"
+        var _qsNonVisualToNonVisuals = {}; // { nonVisualId: [otherNonVisualIds], ... }
 
         // ── Variation grid pagination + hover label ───────────────────────
         function initQSSwatches(scope) {
@@ -1722,7 +1731,7 @@
                 
                 if (!isVisual) {
                     // If clicking ANY non-visual (size/material/style/text/dropdown), remember which visual is currently selected
-                    // This way when user later clicks this non-visual again (even if it becomes disabled), we restore their choice
+                    // AND remember which OTHER non-visuals are selected
                     var $visualWrap = $scope.find('.attribute-swatches-wrapper[data-type="visual"]').first();
                     var $selectedVisual = $visualWrap.find('.qs-var-item.selected, .qs-var-item:has(input:checked)').first();
                     if ($selectedVisual.length) {
@@ -1731,6 +1740,20 @@
                             _qsNonVisualToVisual[attrId] = visualId;
                         }
                     }
+                    
+                    // Remember other non-visuals selected at the same time
+                    var otherNonVisuals = [];
+                    $scope.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
+                        var $nvWrap = $(this);
+                        var $checkedInput = $nvWrap.find('input.product-filter-item:checked');
+                        if ($checkedInput.length) {
+                            var checkedId = parseInt($checkedInput.val());
+                            if (!isNaN(checkedId) && checkedId !== attrId) {
+                                otherNonVisuals.push(checkedId);
+                            }
+                        }
+                    });
+                    _qsNonVisualToNonVisuals[attrId] = otherNonVisuals;
                 } else {
                     // If clicking a visual, update memory for all currently selected non-visuals
                     // E.g., M is selected, user clicks Brown → update M→Brown pairing
