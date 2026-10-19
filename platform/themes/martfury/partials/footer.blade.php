@@ -1729,9 +1729,9 @@
                 // Record as user's deliberate choice for this attribute set
                 if (setSlug) _qsUserPick[setSlug] = attrId;
                 
-                // If clicking ANY non-visual (size/material/style/text/dropdown), remember which visual is currently selected
-                // This way when user later clicks this non-visual again (even if it becomes disabled), we restore their choice
                 if (!isVisual) {
+                    // If clicking ANY non-visual (size/material/style/text/dropdown), remember which visual is currently selected
+                    // This way when user later clicks this non-visual again (even if it becomes disabled), we restore their choice
                     var $visualWrap = $scope.find('.attribute-swatches-wrapper[data-type="visual"]').first();
                     var $selectedVisual = $visualWrap.find('.qs-var-item.selected, .qs-var-item:has(input:checked)').first();
                     if ($selectedVisual.length) {
@@ -1740,6 +1740,19 @@
                             _qsNonVisualToVisual[attrId] = visualId;
                         }
                     }
+                } else {
+                    // If clicking a visual, update memory for all currently selected non-visuals
+                    // E.g., M is selected, user clicks Brown → update M→Brown pairing
+                    $scope.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
+                        var $nvWrap = $(this);
+                        var $selectedNonVisual = $nvWrap.find('.qs-color-item.selected, .bb-product-attribute-swatch-item.selected:not(.qs-var-item), .qs-color-item:has(input:checked), .bb-product-attribute-swatch-item:has(input:checked):not(.qs-var-item)').first();
+                        if ($selectedNonVisual.length) {
+                            var nonVisualId = parseInt($selectedNonVisual.data('id'));
+                            if (!isNaN(nonVisualId)) {
+                                _qsNonVisualToVisual[nonVisualId] = attrId;
+                            }
+                        }
+                    });
                 }
             });
 
