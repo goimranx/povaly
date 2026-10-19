@@ -1426,9 +1426,17 @@
                         var t = $(this).data('title') || '';
                         $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(t).attr('data-default', t);
                     });
+                } else {
+                    // Disabled text/dropdown clicked: hide current visual to trigger Step 3 auto-select
+                    // This ensures user gets first available visual when clicking unavailable size
+                    $container.find('.attribute-swatches-wrapper[data-type="visual"] .qs-var-item.selected, .attribute-swatches-wrapper[data-type="visual"] .qs-var-item:has(input:checked)').each(function() {
+                        this.style.display = 'none';
+                    });
+                    // Now run qsUpdateSwatches — Step 3 will detect hidden selection and auto-select first available
+                    qsUpdateSwatches($container[0]);
                 }
-                // If disabled: do nothing — nonVisualSelected stays as-is (from DOM only),
-                // visuals stay visible, Step 3 won't trigger (nothing hides), CMS handles state.
+                // nonVisualSelected stays as-is (from DOM only),
+                // Step 3 handles auto-select, CMS AJAX resolves final state.
             }
 
             // ── Rule A: update text / dropdown swatches based on visual selection ──
