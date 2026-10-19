@@ -964,7 +964,7 @@
     /* Action buttons */
     .qs-actions {
         display: flex;
-        align-items: stretch;
+        align-items: center;
         gap: 10px;
         margin-bottom: 16px;
     }
@@ -1055,7 +1055,7 @@
             border-top: 1px solid var(--global-color-primary-border, #007bff);
             z-index: 10;
             gap: 8px;
-            align-items: stretch;
+            align-items: center;
         }
         .qs-store-link {
             padding: 6px 10px;
