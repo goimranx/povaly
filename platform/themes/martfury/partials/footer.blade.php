@@ -1557,10 +1557,9 @@
             // auto-select the best available visual item so the user
             // is never left with no visual selected after picking a non-visual (size/material/style/etc).
             // Priority (for DISABLED non-visual clicks):
-            //   1) Visual last paired with THIS disabled non-visual (most recent for this item)
-            //   2) Visual paired with available non-visuals (fallback if #1 doesn't exist)
-            //   3) General visual preference
-            //   4) First available
+            //   1) Check currently selected AVAILABLE non-visuals' pairings (e.g., L→Brown)
+            //   2) General visual preference
+            //   3) First available
             // Priority (for AVAILABLE non-visual clicks): first available
             $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function() {
                 var $attrWrap  = $(this);
@@ -1588,42 +1587,34 @@
                 if (wasDisabledClick) {
                     var disabledNonVisualId = nonVisualSelected.length > 0 ? nonVisualSelected[0] : null;
                     
-                    // FIRST: Check if the disabled non-visual itself has a pairing (most recent for this item)
-                    if (disabledNonVisualId && _qsNonVisualToVisual[disabledNonVisualId]) {
-                        var rememberedVisualId = _qsNonVisualToVisual[disabledNonVisualId];
-                        $preferred = $visAvail.filter('[data-id="' + rememberedVisualId + '"]');
-                        if (!$preferred.length) {
-                            $preferred = $visAll.filter('[data-id="' + rememberedVisualId + '"]');
-                        }
-                    }
-                    
-                    // SECOND: If disabled non-visual has no pairing, check available non-visuals
-                    if (!$preferred.length) {
-                        // Find other non-visual attributes that are available (not disabled)
-                        var availableNonVisualIds = [];
-                        $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
-                            var $wrap = $(this);
-                            var $availableItems = $wrap.find('.qs-color-item:not(.disabled), .bb-product-attribute-swatch-item:not(.disabled):not(.qs-var-item)');
-                            $availableItems.each(function() {
-                                var id = parseInt($(this).data('id'));
-                                if (!isNaN(id) && id !== disabledNonVisualId) {
-                                    availableNonVisualIds.push(id);
-                                }
-                            });
-                        });
-                        
-                        // Check memory for these available non-visuals to find their paired visuals
-                        for (var i = 0; i < availableNonVisualIds.length; i++) {
-                            var availNonVisId = availableNonVisualIds[i];
-                            var pairedVisualId = _qsNonVisualToVisual[availNonVisId];
-                            if (pairedVisualId) {
-                                // Check if this visual is available now
-                                $preferred = $visAvail.filter('[data-id="' + pairedVisualId + '"]');
-                                if ($preferred.length) break; // Found a good match
-                                // Try even if disabled
-                                $preferred = $visAll.filter('[data-id="' + pairedVisualId + '"]');
-                                if ($preferred.length) break;
+                    // Find currently selected AVAILABLE non-visuals (not the disabled one we just clicked)
+                    // Use THEIR pairings to determine which visual to select
+                    var availableNonVisualIds = [];
+                    $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
+                        var $wrap = $(this);
+                        // Find checked inputs that are NOT disabled
+                        var $checkedInput = $wrap.find('input.product-filter-item:checked');
+                        if ($checkedInput.length) {
+                            var checkedId = parseInt($checkedInput.val());
+                            var $checkedItem = $wrap.find('[data-id="' + checkedId + '"]');
+                            // Only include if it's available (not disabled) and not the one we just clicked
+                            if (!isNaN(checkedId) && checkedId !== disabledNonVisualId && !$checkedItem.hasClass('disabled')) {
+                                availableNonVisualIds.push(checkedId);
                             }
+                        }
+                    });
+                    
+                    // Check memory for these available non-visuals to find their paired visuals
+                    for (var i = 0; i < availableNonVisualIds.length; i++) {
+                        var availNonVisId = availableNonVisualIds[i];
+                        var pairedVisualId = _qsNonVisualToVisual[availNonVisId];
+                        if (pairedVisualId) {
+                            // Check if this visual is available now
+                            $preferred = $visAvail.filter('[data-id="' + pairedVisualId + '"]');
+                            if ($preferred.length) break; // Found a good match
+                            // Try even if disabled
+                            $preferred = $visAll.filter('[data-id="' + pairedVisualId + '"]');
+                            if ($preferred.length) break;
                         }
                     }
                     
