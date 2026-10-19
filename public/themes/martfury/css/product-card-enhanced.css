@@ -810,12 +810,13 @@
     padding: 0;
     background: #fff;
     overflow: hidden;
+    height: 33px;
 }
 
 .ec-card__qty-btn {
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -823,21 +824,38 @@
     border: none;
     cursor: pointer;
     color: var(--global-color-text-main);
-    transition: background .2s;
+    transition: border-color .2s;
     font-size: 16px;
     padding: 0;
 }
 
 .ec-card__qty-btn:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: none;
+}
+
+.ec-card__qty-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .ec-card__qty-btn--minus {
-    border-right: 2px solid var(--global-color-warning);
+    border-right: 2px solid transparent;
+    transition: border-color .2s;
+}
+
+.ec-card__qty-btn--minus:hover:not(:disabled),
+.ec-card__qty-btn--minus:active:not(:disabled) {
+    border-right-color: var(--global-color-warning);
 }
 
 .ec-card__qty-btn--plus {
-    border-left: 2px solid var(--global-color-warning);
+    border-left: 2px solid transparent;
+    transition: border-color .2s;
+}
+
+.ec-card__qty-btn--plus:hover:not(:disabled),
+.ec-card__qty-btn--plus:active:not(:disabled) {
+    border-left-color: var(--global-color-warning);
 }
 
 .ec-card__qty-text {
