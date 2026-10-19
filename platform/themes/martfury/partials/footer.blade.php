@@ -1039,20 +1039,20 @@
             grid-template-columns: repeat(5, 1fr);
         }
         
-        /* Info container needs padding-bottom for sticky button bar space */
+        /* Info container needs padding-bottom for fixed button bar space */
         .qs-info {
-            padding-bottom: 80px !important;
+            padding-bottom: 75px !important;
         }
         
         .qs-actions {
-            position: sticky;
+            position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background: #fff;
-            padding: 10px 16px;
-            margin: 0 -16px -80px;
-            border-top: 1px solid var(--global-color-border-strong, #ccc);
+            padding: 8px 16px;
+            margin: 0;
+            border-top: 1px solid var(--global-color-primary, #007bff);
             z-index: 10;
             gap: 8px;
             align-items: stretch;
@@ -1064,7 +1064,7 @@
             font-size: 20px;
         }
         .qs-btn {
-            padding: 10px 12px;
+            padding: 8px 12px;
         }
     }
 

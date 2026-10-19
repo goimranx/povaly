@@ -249,7 +249,7 @@
                     <div class="qs-buttons-wrap">
                         <button class="qs-btn qs-btn--cart" type="submit" name="add-to-cart" @disabled($product->isOutOfStock())>{{ __('Add to cart') }}</button>
                         @if (EcommerceHelper::isQuickBuyButtonEnabled())
-                            <button class="qs-btn qs-btn--buy" type="submit" name="checkout" @disabled($product->isOutOfStock())>{{ __('Buy Now') }}</button>
+                            <button class="qs-btn qs-btn--buy" type="submit" name="checkout" @disabled($product->isOutOfStock())>{{ __('Order now') }}</button>
                         @endif
                     </div>
                 </div>
