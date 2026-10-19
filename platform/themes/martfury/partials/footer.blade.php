@@ -527,30 +527,34 @@
     /* ── Title clamp + expand ── */
     .qs-title-wrap {
         margin-bottom: 6px;
+        position: relative;
     }
-    /* Title and chevron on same line — chevron always at end */
     .qs-title--clamped {
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        padding-right: 20px; /* space for chevron */
     }
-    .qs-title--expanded { -webkit-line-clamp: unset !important; overflow: visible !important; }
+    .qs-title--expanded {
+        -webkit-line-clamp: unset !important;
+        overflow: visible !important;
+        padding-right: 20px;
+    }
+    /* Chevron positioned at bottom-right of the clamped area */
     .qs-title-expand {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        position: absolute;
+        bottom: 0;
+        right: 0;
         width: 18px; height: 18px;
-        background: none;
+        background: var(--global-color-site-bg, #fff);
         border: none;
-        border-radius: 3px;
         cursor: pointer;
         color: #888;
-        vertical-align: middle;
-        margin-left: 3px;
         padding: 0;
-        transition: color .15s, transform .2s;
-        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        transition: color .15s;
+        line-height: 1;
     }
     .qs-title-expand:hover { color: #444; }
     .qs-title-expand.expanded svg { transform: rotate(180deg); }
@@ -1317,12 +1321,11 @@
             try { priceMap = JSON.parse($container.attr('data-variation-prices') || 'null'); } catch(e) {}
 
             if (priceMap && priceMap.length) {
-                // Get selected attribute IDs from the RESPONSE (more reliable than DOM at this point)
-                // data.selected_attributes = [{id, slug, set_slug, ...}] or data.attributes = [id, id]
+                // Get selected attribute IDs from response's selected_attributes
+                // The response uses 'selected_attributes' array of {id, slug, set_slug, set_id}
                 var selectedAttrIds = [];
-                if (data.attributes && Array.isArray(data.attributes)) {
-                    // CMS returns selected attribute IDs directly
-                    data.attributes.forEach(function(id) { selectedAttrIds.push(parseInt(id)); });
+                if (data.selected_attributes && Array.isArray(data.selected_attributes)) {
+                    data.selected_attributes.forEach(function(a) { selectedAttrIds.push(parseInt(a.id)); });
                 } else {
                     // Fallback: read from DOM
                     $container.find('input.product-filter-item:checked').each(function() {
@@ -1330,25 +1333,23 @@
                     });
                 }
 
-                // Get currently checked visual (color) attr IDs — exclude these from "other" attrs
-                // because we loop over each color swatch independently
+                // Collect all visual (color) attr IDs from the DOM swatches
                 var visualAttrIds = [];
                 $container.find('.attribute-swatches-wrapper[data-type="visual"] input').each(function() {
                     visualAttrIds.push(parseInt($(this).val()));
                 });
 
-                // Non-color selected attrs (size etc) = selected minus all visual attrs
+                // Non-color selected attrs (size etc)
                 var nonVisualSelected = selectedAttrIds.filter(function(id) {
                     return visualAttrIds.indexOf(id) === -1;
                 });
 
                 // Color swatches: show/hide and update price
                 $container.find('.attribute-swatches-wrapper[data-type="visual"] .qs-var-item').each(function() {
-                    var $item  = $(this);
+                    var $item   = $(this);
                     var colorId = parseInt($item.data('id'));
                     var matched = null;
 
-                    // Find variation that has this color AND all non-color selected attrs
                     for (var i = 0; i < priceMap.length; i++) {
                         var pv = priceMap[i];
                         if (pv.attrs.indexOf(colorId) === -1) continue;
