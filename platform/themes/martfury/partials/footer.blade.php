@@ -1406,37 +1406,24 @@
                 }
                 if (!isNaN(val) && val > 0) nonVisualSelected.push(val);
             });
-            // Only honour _qsLastClickedAttrId for nonvisual if the item is NOT disabled.
-            // This preserves the hide-visual behaviour for valid size selections while
-            // preventing it from triggering on disabled (unavailable) text swatches.
+            // Only honour _qsLastClickedAttrId for nonvisual - regardless of disabled state.
+            // Even if disabled, user clicked it intentionally, so respect their choice:
+            // add to nonVisualSelected → hide incompatible visuals → Step 3 auto-selects available visual.
             if (_qsLastClickedAttrType === 'nonvisual' && _qsLastClickedAttrId &&
                 nonVisualSelected.indexOf(_qsLastClickedAttrId) === -1) {
-                // Check if the last-clicked item is actually disabled
+                // Add clicked item to selection array
+                nonVisualSelected.push(_qsLastClickedAttrId);
+                // Force .selected class so it looks active (even if CMS didn't check the radio)
                 var $clickedItem = $container.find(
                     '.qs-color-item[data-id="' + _qsLastClickedAttrId + '"], ' +
                     '.bb-product-attribute-swatch-item[data-id="' + _qsLastClickedAttrId + '"]:not(.qs-var-item)'
                 );
-                var isDisabledItem = $clickedItem.hasClass('disabled');
-                if (!isDisabledItem) {
-                    // Valid (available) item that got unchecked by CMS — honour it
-                    nonVisualSelected.push(_qsLastClickedAttrId);
-                    $clickedItem.each(function() {
-                        $(this).closest('.qs-swatch-wrap').find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected');
-                        $(this).addClass('selected');
-                        var t = $(this).data('title') || '';
-                        $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(t).attr('data-default', t);
-                    });
-                } else {
-                    // Disabled text/dropdown clicked: hide current visual to trigger Step 3 auto-select
-                    // This ensures user gets first available visual when clicking unavailable size
-                    $container.find('.attribute-swatches-wrapper[data-type="visual"] .qs-var-item.selected, .attribute-swatches-wrapper[data-type="visual"] .qs-var-item:has(input:checked)').each(function() {
-                        this.style.display = 'none';
-                    });
-                    // Now run qsUpdateSwatches — Step 3 will detect hidden selection and auto-select first available
-                    qsUpdateSwatches($container[0]);
-                }
-                // nonVisualSelected stays as-is (from DOM only),
-                // Step 3 handles auto-select, CMS AJAX resolves final state.
+                $clickedItem.each(function() {
+                    $(this).closest('.qs-swatch-wrap').find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected');
+                    $(this).addClass('selected');
+                    var t = $(this).data('title') || '';
+                    $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(t).attr('data-default', t);
+                });
             }
 
             // ── Rule A: update text / dropdown swatches based on visual selection ──
