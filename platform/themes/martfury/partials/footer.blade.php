@@ -846,14 +846,14 @@
         margin: 0 0 10px;
         color: var(--global-color-text-main, #0D1B2A);
     }
-    /* Price block — sale price large + % badge on same line, vertically centred */
+    /* Price block — % badge LEFT, sale price RIGHT, same row, vertically centred */
     .qs-price { margin-bottom: 12px; }
     .qs-price > div,
     .qs-price > p {
         display: flex !important;
         align-items: center !important;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 8px;
     }
     .qs-price h4,
     .qs-price [data-bb-value="product-price"],
@@ -864,11 +864,11 @@
         margin: 0;
         line-height: 1;
     }
-    /* Hide the strikethrough original price — replaced with % badge */
+    /* Hide strikethrough original price — replaced with % badge */
     .qs-price [data-bb-value="product-original-price"],
     .qs-price del,
     .qs-price small { display: none !important; }
-    /* % discount badge — same line, vertically centred with price */
+    /* % badge — appears to the LEFT of the price */
     .qs-price-badge {
         display: inline-flex;
         align-items: center;
@@ -877,11 +877,12 @@
         color: #fff;
         font-size: 11px;
         font-weight: 700;
-        padding: 3px 7px;
+        padding: 5px 7px;
         border-radius: 4px;
         line-height: 1;
         letter-spacing: 0.02em;
         flex-shrink: 0;
+        order: -1; /* always renders before the price span */
     }
 
     /* Qty row */
@@ -1072,7 +1073,7 @@
                                 var saleVal  = parseFloat(saleText);
                                 if (origVal > 0 && saleVal > 0 && saleVal < origVal) {
                                     var pct = Math.round((1 - saleVal / origVal) * 100);
-                                    if (pct > 0) $priceEl.after('<span class="qs-price-badge">-' + pct + '%</span>');
+                                    if (pct > 0) $priceEl.before('<span class="qs-price-badge">-' + pct + '%</span>');
                                 }
                             }
                         }
@@ -1383,8 +1384,12 @@
                 visualSelected.push(_qsLastClickedAttrId);
             }
 
-            // Collect selected non-visual (text / dropdown) attr IDs
-            // Use checked inputs AND the last-clicked id if it was nonvisual
+            // Collect selected non-visual (text / dropdown) attr IDs — DOM only.
+            // We intentionally do NOT fall back to _qsLastClickedAttrId for nonvisual here.
+            // If the user clicked a disabled text swatch, the server won't have checked it,
+            // so forcing it in causes all visuals to hide leaving nothing selected.
+            // Instead, Step 3 auto-select handles the "disabled text clicked" case by
+            // keeping the current visual and letting the CMS resolve the best combo.
             var nonVisualSelected = [];
             $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
                 var $wrap = $(this);
@@ -1396,17 +1401,29 @@
                 }
                 if (!isNaN(val) && val > 0) nonVisualSelected.push(val);
             });
-            // If last click was nonvisual and got unchecked by CMS, still honour it
+            // Only honour _qsLastClickedAttrId for nonvisual if the item is NOT disabled.
+            // This preserves the hide-visual behaviour for valid size selections while
+            // preventing it from triggering on disabled (unavailable) text swatches.
             if (_qsLastClickedAttrType === 'nonvisual' && _qsLastClickedAttrId &&
                 nonVisualSelected.indexOf(_qsLastClickedAttrId) === -1) {
-                nonVisualSelected.push(_qsLastClickedAttrId);
-                // Also force the .selected class onto that item so it looks active
-                $container.find('.qs-color-item[data-id="' + _qsLastClickedAttrId + '"], .bb-product-attribute-swatch-item[data-id="' + _qsLastClickedAttrId + '"]:not(.qs-var-item)').each(function() {
-                    $(this).closest('.qs-swatch-wrap').find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected');
-                    $(this).addClass('selected');
-                    var title = $(this).data('title') || '';
-                    $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(title).attr('data-default', title);
-                });
+                // Check if the last-clicked item is actually disabled
+                var $clickedItem = $container.find(
+                    '.qs-color-item[data-id="' + _qsLastClickedAttrId + '"], ' +
+                    '.bb-product-attribute-swatch-item[data-id="' + _qsLastClickedAttrId + '"]:not(.qs-var-item)'
+                );
+                var isDisabledItem = $clickedItem.hasClass('disabled');
+                if (!isDisabledItem) {
+                    // Valid (available) item that got unchecked by CMS — honour it
+                    nonVisualSelected.push(_qsLastClickedAttrId);
+                    $clickedItem.each(function() {
+                        $(this).closest('.qs-swatch-wrap').find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected');
+                        $(this).addClass('selected');
+                        var t = $(this).data('title') || '';
+                        $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(t).attr('data-default', t);
+                    });
+                }
+                // If disabled: do nothing — nonVisualSelected stays as-is (from DOM only),
+                // visuals stay visible, Step 3 won't trigger (nothing hides), CMS handles state.
             }
 
             // ── Rule A: update text / dropdown swatches based on visual selection ──
@@ -1725,7 +1742,7 @@
                 var pct = Math.round((1 - data.sale_price / data.price) * 100);
                 if (pct > 0) {
                     var $priceSpan = $('#quick-shop-modal [data-bb-value="product-price"]');
-                    $priceSpan.after('<span class="qs-price-badge">-' + pct + '%</span>');
+                    $priceSpan.before('<span class="qs-price-badge">-' + pct + '%</span>');
                 }
             }
 
