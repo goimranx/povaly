@@ -1765,6 +1765,29 @@
                 $(this).closest('li').addClass('selected');
                 var title = $(this).closest('li').data('title') || '';
                 $wrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
+                
+                // Also update memory: if this is a visual change, update all selected non-visuals
+                var $changedItem = $(this).closest('.qs-var-item, .qs-color-item');
+                var $attrWrap = $(this).closest('.attribute-swatches-wrapper');
+                var isVisual = $attrWrap.data('type') === 'visual';
+                
+                if (isVisual) {
+                    var visualId = parseInt($changedItem.data('id'));
+                    if (!isNaN(visualId)) {
+                        // Find all selected non-visuals and update their memory
+                        $scope.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
+                            var $nvWrap = $(this);
+                            // Check for checked inputs (more reliable after change event)
+                            var $checkedInput = $nvWrap.find('input.product-filter-item:checked');
+                            if ($checkedInput.length) {
+                                var nonVisualId = parseInt($checkedInput.val());
+                                if (!isNaN(nonVisualId)) {
+                                    _qsNonVisualToVisual[nonVisualId] = visualId;
+                                }
+                            }
+                        });
+                    }
+                }
             });
 
             // Arrow pagination — uses state stored by qsUpdateSwatches
