@@ -243,6 +243,7 @@
                     @if ($product->store_id && $product->store)
                         <a href="{{ $product->store->url }}" class="qs-store-link" title="{{ __('Visit Store: :store', ['store' => $product->store->name]) }}">
                             <i class="icon-store"></i>
+                            <span class="qs-store-link-text">{{ __('Store') }}</span>
                         </a>
                     @endif
                     <div class="qs-buttons-wrap">

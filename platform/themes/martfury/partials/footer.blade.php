@@ -426,7 +426,10 @@
     .qs-thumb--video {
         position: relative;
         background: #111;
+        border: 2px solid transparent;
     }
+    .qs-thumb--video.active { border-color: var(--global-color-link, #007bff); }
+    .qs-thumb--video:hover:not(.active) { border-color: #aaa; }
     .qs-thumb--video::after {
         content: '▶';
         position: absolute;
@@ -695,9 +698,7 @@
 
     /* Hover - 2px total (1px border + 1px outline) */
     .qs-var-item:not(.disabled):hover {
-        border-color: var(--global-color-link, #007bff);
-        outline: 1px solid var(--global-color-link, #007bff);
-        outline-offset: 0px;
+        border: 2px solid var(--global-color-link, #007bff);
     }
     /* Selected — 3px total (2px border + 1px outline) */
     .qs-var-item.selected,
@@ -799,18 +800,23 @@
         user-select: none;
     }
     .qs-color-item input[type="radio"] { display: none; }
-    /* Hover */
-    .qs-color-item:not(.disabled):hover { border-color: var(--global-color-link, #007bff); }
-    /* Selected */
+    /* Hover - 2px border total */
+    .qs-color-item:not(.disabled):hover { 
+        border: 2px solid var(--global-color-link, #007bff);
+    }
+    /* Selected - 3px total (2px border + 1px outline) */
     .qs-color-item.selected,
     .qs-color-item:has(input:checked) {
         border: 2px solid var(--global-color-link, #007bff);
-        outline: 2px solid var(--global-color-link, #007bff);
+        outline: 1px solid var(--global-color-link, #007bff);
         outline-offset: 0;
         background: #fff;
     }
     .qs-color-item.selected:hover,
-    .qs-color-item:has(input:checked):hover { outline-width: 1px; }
+    .qs-color-item:has(input:checked):hover { 
+        border: 2px solid var(--global-color-link, #007bff);
+        outline: 1px solid var(--global-color-link, #007bff);
+    }
     /* Disabled — dashed border, still clickable */
     .qs-color-item.disabled {
         opacity: .55;
@@ -956,17 +962,18 @@
     /* Action buttons */
     .qs-actions {
         display: flex;
-        align-items: center;
+        align-items: stretch;
         gap: 10px;
         margin-bottom: 16px;
     }
     .qs-store-link {
         flex-shrink: 0;
-        width: 42px;
-        height: 42px;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 2px;
+        padding: 6px 10px;
         border: 1px solid #d0d0d0;
         border-radius: 8px;
         background: #fff;
@@ -982,6 +989,11 @@
     .qs-store-link i {
         font-size: 18px;
     }
+    .qs-store-link-text {
+        font-size: 10px;
+        font-weight: 500;
+        line-height: 1;
+    }
     .qs-buttons-wrap {
         display: flex;
         gap: 10px;
@@ -989,10 +1001,10 @@
     }
     .qs-btn {
         flex: 1;
-        padding: 8px 20px;
+        padding: 10px 16px;
         font-size: 14px;
         font-weight: 600;
-        border-radius: 20px;
+        border-radius: 8px;
         border: 1px solid transparent;
         cursor: pointer;
         text-align: center;
@@ -1029,17 +1041,16 @@
             background: #fff;
             padding: 10px 16px;
             margin: 0 -16px -16px;
-            border-top: 1px solid var(--global-color-primary, #007bff);
+            border-top: 1px solid var(--global-color-border-strong, #ccc);
             z-index: 10;
             gap: 8px;
+            align-items: stretch;
         }
         .qs-store-link {
-            border: none;
-            border-radius: 50%;
-            padding: 0;
+            padding: 4px 8px;
         }
         .qs-btn {
-            padding: 8px 16px;
+            padding: 10px 12px;
         }
     }
 
