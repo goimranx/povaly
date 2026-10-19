@@ -230,6 +230,7 @@
     .qs-slide--video {
         background: #000;
         align-items: stretch;
+        position: relative; /* needed for iframe overlay positioning */
     }
     .qs-video-facade {
         position: relative;
@@ -708,20 +709,21 @@
     }
     /* Disabled — diagonal strikethrough, dashed border normally */
     .qs-var-item.disabled {
-        opacity: .65;
+        opacity: .55;
         cursor: pointer;
         border: 1px dashed #bbb !important;
         outline: none !important;
     }
-    /* Disabled hover — same ring as selected but dashed */
+    /* Disabled hover — same border change as normal hover, no extra outline weight */
     .qs-var-item.disabled:hover {
+        opacity: 1;
         border: 1px dashed var(--global-color-link, #007bff) !important;
-        outline: 2px solid var(--global-color-link, #007bff) !important;
-        outline-offset: 0px !important;
+        outline: none !important;
     }
-    /* Disabled selected (user clicked it) — full ring like normal selected */
+    /* Disabled selected — full ring like normal selected, full opacity */
     .qs-var-item.disabled.selected,
     .qs-var-item.disabled:has(input:checked) {
+        opacity: 1;
         border: 2px solid var(--global-color-link, #007bff) !important;
         outline: 2px solid var(--global-color-link, #007bff) !important;
         outline-offset: 0px !important;
@@ -811,15 +813,16 @@
         border: 1px dashed #aaa !important;
         outline: none !important;
     }
-    /* Disabled hover — show full ring like normal hover */
+    /* Disabled hover — match normal hover weight, restore opacity */
     .qs-color-item.disabled:hover {
+        opacity: 1;
         border: 1px dashed var(--global-color-link, #007bff) !important;
-        outline: 2px solid var(--global-color-link, #007bff) !important;
-        outline-offset: 0 !important;
+        outline: none !important;
     }
-    /* Disabled selected — full ring */
+    /* Disabled selected — full ring, full opacity */
     .qs-color-item.disabled.selected,
     .qs-color-item.disabled:has(input:checked) {
+        opacity: 1;
         border: 2px solid var(--global-color-link, #007bff) !important;
         outline: 2px solid var(--global-color-link, #007bff) !important;
         outline-offset: 0 !important;
@@ -843,8 +846,15 @@
         margin: 0 0 10px;
         color: var(--global-color-text-main, #0D1B2A);
     }
-    /* Price block — sale price large, % badge inline, no strikethrough */
+    /* Price block — sale price large + % badge on same line, vertically centred */
     .qs-price { margin-bottom: 12px; }
+    .qs-price > div,
+    .qs-price > p {
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
     .qs-price h4,
     .qs-price [data-bb-value="product-price"],
     .qs-price .ps-product__price-sale {
@@ -852,24 +862,26 @@
         font-weight: 700;
         color: var(--global-color-text-body, #2E3D52) !important;
         margin: 0;
+        line-height: 1;
     }
-    /* Hide the strikethrough original price — we replace it with a % badge */
+    /* Hide the strikethrough original price — replaced with % badge */
     .qs-price [data-bb-value="product-original-price"],
     .qs-price del,
     .qs-price small { display: none !important; }
-    /* % discount badge injected by JS */
+    /* % discount badge — same line, vertically centred with price */
     .qs-price-badge {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         background: var(--global-color-link, #007bff);
         color: #fff;
         font-size: 11px;
         font-weight: 700;
-        padding: 2px 7px;
+        padding: 3px 7px;
         border-radius: 4px;
-        margin-left: 8px;
-        vertical-align: middle;
+        line-height: 1;
         letter-spacing: 0.02em;
+        flex-shrink: 0;
     }
 
     /* Qty row */
@@ -1167,11 +1179,15 @@
 
             function stopAllMedia() {
                 gallery.querySelectorAll('video').forEach(function(v) { v.pause(); });
-                gallery.querySelectorAll('iframe').forEach(function(f) {
-                    try {
-                        f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                        f.contentWindow.postMessage('{"method":"pause"}', '*');
-                    } catch(e) {}
+                // Remove injected iframes and restore the facade so re-clicking works
+                gallery.querySelectorAll('.qs-video-iframe-overlay').forEach(function(iframe) {
+                    var facade = iframe._qsFacade;
+                    if (facade) {
+                        iframe.parentNode.removeChild(iframe);
+                        facade.style.display = '';
+                    } else {
+                        iframe.parentNode.removeChild(iframe);
+                    }
                 });
             }
 
@@ -1249,7 +1265,7 @@
                 viewport.addEventListener('touchend',   function()  { onDragEnd(); });
             }
 
-            // YouTube/Vimeo facade
+            // YouTube/Vimeo facade — overlay iframe on top, keep facade so re-click works
             gallery.querySelectorAll('.qs-video-facade').forEach(function(facade) {
                 facade.addEventListener('click', function() {
                     var src = facade.dataset.src;
@@ -1258,12 +1274,19 @@
                     var sep = src.indexOf('?') !== -1 ? '&' : '?';
                     if (facade.dataset.provider === 'youtube' && src.indexOf('enablejsapi') === -1) src += sep + 'enablejsapi=1';
                     else if (facade.dataset.provider === 'vimeo' && src.indexOf('api=1') === -1) src += sep + 'api=1';
+
                     var iframe = document.createElement('iframe');
-                    iframe.src = src; iframe.frameBorder = '0';
+                    iframe.src = src;
+                    iframe.frameBorder = '0';
                     iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
                     iframe.allowFullscreen = true;
-                    iframe.style.cssText = 'width:100%;height:100%;border:0;display:block;';
-                    facade.replaceWith(iframe);
+                    iframe.className = 'qs-video-iframe-overlay';
+                    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;display:block;z-index:2;';
+                    iframe._qsFacade = facade;
+
+                    // Hide facade, insert iframe as sibling inside the slide
+                    facade.style.display = 'none';
+                    facade.parentNode.appendChild(iframe);
                 });
             });
 
@@ -1699,14 +1722,17 @@
             });
         }
 
-        // Pause ALL media when offcanvas closes
+        // Pause ALL media when offcanvas closes — remove iframe overlays, restore facades
         document.getElementById('quick-shop-modal') && document.getElementById('quick-shop-modal').addEventListener('hide.bs.offcanvas', function() {
             this.querySelectorAll('video').forEach(function(v) { v.pause(); });
-            this.querySelectorAll('iframe').forEach(function(f) {
-                try {
-                    f.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                    f.contentWindow.postMessage('{"method":"pause"}', '*');
-                } catch(e) {}
+            this.querySelectorAll('.qs-video-iframe-overlay').forEach(function(iframe) {
+                var facade = iframe._qsFacade;
+                if (facade) {
+                    iframe.parentNode.removeChild(iframe);
+                    facade.style.display = '';
+                } else {
+                    iframe.parentNode.removeChild(iframe);
+                }
             });
         });
 
