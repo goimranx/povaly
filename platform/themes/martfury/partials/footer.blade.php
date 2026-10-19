@@ -1275,14 +1275,37 @@
             try { priceMap = JSON.parse($container.attr('data-variation-prices') || 'null'); } catch(e) {}
             if (!priceMap || !priceMap.length) return;
 
+            // ── Step 0: re-sync .selected class from actual radio/checkbox state ──
+            // The CMS may have unchecked inputs (unavailable attr) without updating classes,
+            // so we drive .selected purely from the input checked state.
+            $container.find('.attribute-swatches-wrapper').each(function() {
+                $(this).find('.qs-var-item, .qs-color-item, .bb-product-attribute-swatch-item').each(function() {
+                    var $li = $(this);
+                    var checked = $li.find('input.product-filter-item:checked').length > 0;
+                    $li.toggleClass('selected', checked);
+                    // Also sync the label text for this swatch set
+                    if (checked) {
+                        var title = $li.data('title') || '';
+                        $li.closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(title).attr('data-default', title);
+                    }
+                });
+            });
+
             // Collect selected visual attr IDs
+            // Use checked inputs AND the last-clicked id if it was visual
             var visualSelected = [];
             $container.find('.attribute-swatches-wrapper[data-type="visual"] input.product-filter-item:checked').each(function() {
                 var v = parseInt($(this).val());
                 if (!isNaN(v) && v > 0) visualSelected.push(v);
             });
+            // If last click was visual and got unchecked by CMS, still honour it
+            if (_qsLastClickedAttrType === 'visual' && _qsLastClickedAttrId &&
+                visualSelected.indexOf(_qsLastClickedAttrId) === -1) {
+                visualSelected.push(_qsLastClickedAttrId);
+            }
 
             // Collect selected non-visual (text / dropdown) attr IDs
+            // Use checked inputs AND the last-clicked id if it was nonvisual
             var nonVisualSelected = [];
             $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
                 var $wrap = $(this);
@@ -1294,6 +1317,18 @@
                 }
                 if (!isNaN(val) && val > 0) nonVisualSelected.push(val);
             });
+            // If last click was nonvisual and got unchecked by CMS, still honour it
+            if (_qsLastClickedAttrType === 'nonvisual' && _qsLastClickedAttrId &&
+                nonVisualSelected.indexOf(_qsLastClickedAttrId) === -1) {
+                nonVisualSelected.push(_qsLastClickedAttrId);
+                // Also force the .selected class onto that item so it looks active
+                $container.find('.qs-color-item[data-id="' + _qsLastClickedAttrId + '"], .bb-product-attribute-swatch-item[data-id="' + _qsLastClickedAttrId + '"]:not(.qs-var-item)').each(function() {
+                    $(this).closest('.qs-swatch-wrap').find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected');
+                    $(this).addClass('selected');
+                    var title = $(this).data('title') || '';
+                    $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(title).attr('data-default', title);
+                });
+            }
 
             // ── Rule A: update text / dropdown swatches based on visual selection ──
             if (visualSelected.length > 0) {
@@ -1405,6 +1440,10 @@
         // Alias so the two call-sites (initQSVisualSwatchVisibility + qsHandleVariationResponse) still work
         function initQSVisualSwatchVisibility(scope) { qsUpdateSwatches(scope); }
 
+        // Track the last swatch the user intentionally clicked (before AJAX may uncheck it)
+        var _qsLastClickedAttrId   = null;
+        var _qsLastClickedAttrType = null; // 'visual' | 'nonvisual'
+
         // ── Variation grid pagination + hover label ───────────────────────
         function initQSSwatches(scope) {
             // Hover: show attr title beside set name
@@ -1419,6 +1458,14 @@
                 $wrap.find('.qs-swatch__selected-val').text(cur);
             });
 
+            // On click: record which attr was clicked and its type BEFORE AJAX fires
+            $(scope).on('click', '.qs-var-item label, .qs-color-item label', function() {
+                var $li   = $(this).closest('.qs-var-item, .qs-color-item');
+                var $wrap = $(this).closest('.attribute-swatches-wrapper');
+                _qsLastClickedAttrId   = parseInt($li.data('id'));
+                _qsLastClickedAttrType = $wrap.data('type') === 'visual' ? 'visual' : 'nonvisual';
+            });
+
             // On selection: update .selected class + label text
             $(scope).on('change', '.product-filter-item', function() {
                 var $wrap = $(this).closest('.qs-swatch-wrap');
@@ -1426,7 +1473,6 @@
                 $(this).closest('li').addClass('selected');
                 var title = $(this).closest('li').data('title') || '';
                 $wrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
-                // qsUpdateSwatches is called via qsHandleVariationResponse from the AJAX hook
             });
 
             // Arrow pagination — uses state stored by qsUpdateSwatches
@@ -1457,13 +1503,12 @@
         }
 
         // ── Hook into variation AJAX ──
-        // change-product-swatches.js calls window.onChangeSwatchesSuccess after each response
-        // BUT main.js wraps it at document.ready capturing undefined originalOnChangeSwatchesSuccess
-        // Solution: override AFTER main.js document.ready fires using setTimeout(0)
+        // Runs AFTER defaultOnChangeSwatchesSuccess (which resets .disabled + unavailableAttributeIds).
+        // We use setTimeout(fn, 0) to defer past any synchronous CMS post-processing.
         setTimeout(function() {
             var _prevSuccess = window.onChangeSwatchesSuccess;
             window.onChangeSwatchesSuccess = function(response, element) {
-                // Call previous handler (main.js wrapper which calls its own logic)
+                // Call previous handler first (main.js wrapper → its own logic)
                 if (_prevSuccess && typeof _prevSuccess === 'function') {
                     _prevSuccess(response, element);
                 }
@@ -1474,7 +1519,11 @@
                 var data = response && response.data ? response.data : null;
                 if (!data) return;
 
-                qsHandleVariationResponse(data);
+                // Defer so we always run AFTER defaultOnChangeSwatchesSuccess finishes
+                // its own .disabled reset / unavailable re-apply pass
+                setTimeout(function() {
+                    qsHandleVariationResponse(data);
+                }, 0);
             };
         }, 0);
 
