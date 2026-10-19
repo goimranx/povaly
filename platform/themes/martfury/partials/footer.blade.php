@@ -1520,7 +1520,6 @@
                 if (prevBtn) prevBtn.style.display = page > 0 ? 'flex' : 'none';
                 if (nextBtn) nextBtn.style.display = (totalPages > 1 && page < totalPages - 1) ? 'flex' : 'none';
             });
-        }
 
             // ── Step 3: If the currently-selected visual item just got hidden,
             // auto-select the best available visual item so the user
