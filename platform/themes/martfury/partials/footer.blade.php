@@ -586,7 +586,7 @@
         transition: opacity .15s, color .15s;
     }
     .qs-view-link:hover {
-        color: #C7511F;
+        color: var(--global-color-link-hover, #0056b3);
         text-decoration: underline;
         opacity: 1;
     }
@@ -989,10 +989,10 @@
     }
     .qs-btn {
         flex: 1;
-        padding: 11px 16px;
+        padding: 8px 20px;
         font-size: 14px;
         font-weight: 600;
-        border-radius: 8px;
+        border-radius: 20px;
         border: 1px solid transparent;
         cursor: pointer;
         text-align: center;
@@ -1027,13 +1027,20 @@
             left: 0;
             right: 0;
             background: #fff;
-            padding: 12px 16px;
+            padding: 10px 16px;
             margin: 0 -16px -16px;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid var(--global-color-primary, #007bff);
             z-index: 10;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            gap: 8px;
         }
-        .qs-buttons-wrap { flex-direction: column; }
+        .qs-store-link {
+            border: none;
+            border-radius: 50%;
+            padding: 0;
+        }
+        .qs-btn {
+            padding: 8px 16px;
+        }
     }
 
     /* Quick view (product-quickview) basic resets */
