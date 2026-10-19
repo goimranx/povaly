@@ -410,7 +410,7 @@
         width: 52px; height: 52px;
         border-radius: 4px;
         overflow: hidden;
-        border: 2px solid #d0d0d0;
+        border: 2px solid var(--global-color-primary-border, #007bff);
         cursor: pointer;
         transition: border-color .15s;
         background: #f0f0f0;
@@ -426,7 +426,7 @@
     .qs-thumb--video {
         position: relative;
         background: #111;
-        border: 2px solid #d0d0d0;
+        border: 2px solid var(--global-color-primary-border, #007bff);
     }
     .qs-thumb--video.active { border-color: var(--global-color-link, #007bff); }
     .qs-thumb--video:hover:not(.active) { border-color: #aaa; }
