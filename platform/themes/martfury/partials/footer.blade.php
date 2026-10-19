@@ -1039,10 +1039,9 @@
             grid-template-columns: repeat(5, 1fr);
         }
         
-        /* Info container needs overflow for sticky to work properly */
+        /* Info container needs padding-bottom for sticky button bar space */
         .qs-info {
-            overflow: visible;
-            padding-bottom: 0;
+            padding-bottom: 80px !important;
         }
         
         .qs-actions {
@@ -1052,7 +1051,7 @@
             right: 0;
             background: #fff;
             padding: 10px 16px;
-            margin: 16px -16px 0;
+            margin: 0 -16px -80px;
             border-top: 1px solid var(--global-color-border-strong, #ccc);
             z-index: 10;
             gap: 8px;
