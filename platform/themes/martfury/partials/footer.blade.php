@@ -345,7 +345,7 @@
         position: absolute;
         top: 10px;
         left: 0; right: 0;
-        z-index: 20;
+        z-index: 25; /* above viewport (z-index: auto) and dots (z-index: 10) */
         padding: 0 12px;
         justify-content: space-between;
         align-items: center;
@@ -362,6 +362,8 @@
         display: flex; align-items: center; justify-content: center;
         pointer-events: auto;
         flex-shrink: 0;
+        position: relative;
+        z-index: 26;
     }
     .qs-mobile-header__btn:hover { background: rgba(0,0,0,0.65); }
     /* Desktop: hide mobile header, show desktop close button */
@@ -372,11 +374,19 @@
         .qs-close-btn { display: none !important; }
         /* On mobile, desktop pill hidden */
         .qs-pill--desktop { display: none !important; }
-        /* Mobile pill inside header — reset positioning */
+        /* Mobile pill inside header — reset positioning, keep pill styles, enable clicks */
         .qs-pill--mobile-top {
             position: static !important;
             transform: none !important;
             bottom: auto !important;
+            pointer-events: auto !important;
+            z-index: 26;
+        }
+        /* Pill buttons inside mobile header must be tappable */
+        .qs-pill--mobile-top .qs-pill__btn {
+            pointer-events: auto !important;
+            -webkit-tap-highlight-color: rgba(255,255,255,0.15);
+            touch-action: manipulation;
         }
     }
     @media (min-width: 769px) {
@@ -559,17 +569,25 @@
     .qs-title-expand:hover { color: #444; }
     .qs-title-expand.expanded svg { transform: rotate(180deg); }
 
-    /* ── View full details link — link color + hover underline ── */
+    /* ── "View full details" — above title, right-aligned, small ── */
+    .qs-above-title {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 4px;
+    }
     .qs-view-link {
-        font-size: 13px;
+        font-size: 11px;
         color: var(--global-color-link, #007bff);
         text-decoration: none;
-        display: inline-block;
-        margin-bottom: 12px;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+        opacity: 0.8;
+        transition: opacity .15s, color .15s;
     }
     .qs-view-link:hover {
-        color: var(--global-color-link-hover, #1dbff5);
+        color: #C7511F;
         text-decoration: underline;
+        opacity: 1;
     }
 
     /* ── Override plugin's front-ecommerce.css swatch styles inside quick-shop ── */
@@ -902,9 +920,6 @@
         .qs-actions { flex-direction: column; }
     }
 
-    /* View link - now above variations, handled in title section */
-    .qs-view-link:hover { color: #C7511F; text-decoration: underline; }
-
     /* Quick view (product-quickview) basic resets */
     #product-quickview.offcanvas {
         width: 560px !important;
@@ -1044,14 +1059,16 @@
                 // Pill active + counters
                 pillBtns.forEach(function(btn) {
                     var tab = btn.dataset.tab;
-                    btn.classList.toggle('active', tab === g.tab);
-                    var grp = (tab === 'videos') ? videoSlides : imageSlides;
-                    var label = (tab === 'videos') ? 'Video' : 'Image';
-                    if (grp.length <= 1) {
-                        btn.textContent = label;
+                    var isActive = tab === g.tab;
+                    btn.classList.toggle('active', isActive);
+                    var grp   = (tab === 'videos') ? videoSlides : imageSlides;
+                    var label = (tab === 'videos') ? 'Videos' : 'Images';
+                    if (isActive && grp.length > 1) {
+                        // Active tab: show counter
+                        btn.textContent = label + ' ' + (g.groupIdx + 1) + '/' + grp.length;
                     } else {
-                        var pos = (tab === g.tab) ? g.groupIdx + 1 : 1;
-                        btn.textContent = label + ' ' + pos + '/' + grp.length;
+                        // Inactive tab: label only, no counter
+                        btn.textContent = label;
                     }
                 });
 
@@ -1201,18 +1218,23 @@
             });
         }
 
-        // ── Initial visual swatch visibility (on offcanvas open) ─────────────
-        // Runs once after content renders to hide/show color swatches + update
-        // their prices based on whatever text/dropdown attrs are already selected.
-        function initQSVisualSwatchVisibility(scope) {
+        // ── Shared: apply visual swatch filter + rebuild pagination ────────
+        // Called on initial open AND after every variation AJAX response.
+        // Reads non-visual selected attrs from DOM, hides/shows color swatches
+        // by checking against the variation price map, then rebuilds pagination
+        // so hidden items don't occupy page slots.
+        function applyVisualSwatchFilter(scope) {
             var $container = $(scope).find('.product-attribute-swatches');
+            if (!$container.length) $container = $(scope);
+            if (!$container.hasClass('product-attribute-swatches')) {
+                $container = $container.find('.product-attribute-swatches');
+            }
             if (!$container.length) return;
 
             var priceMap = null;
             try { priceMap = JSON.parse($container.attr('data-variation-prices') || 'null'); } catch(e) {}
-            if (!priceMap || !priceMap.length) return;
 
-            // Collect non-visual selected attrs
+            // Collect non-visual selected attr IDs from live DOM
             var nonVisualSelected = [];
             $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
                 var $wrap = $(this);
@@ -1225,36 +1247,100 @@
                 if (!isNaN(val) && val > 0) nonVisualSelected.push(val);
             });
 
-            $container.find('.attribute-swatches-wrapper[data-type="visual"] .qs-var-item').each(function() {
-                var $item   = $(this);
-                var colorId = parseInt($item.data('id'));
-                var matched = null;
+            // For each visual swatch grid, apply show/hide + price, then rebuild pagination
+            $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function() {
+                var $attrWrap = $(this);
+                var $allItems = $attrWrap.find('.qs-var-item');
+                if (!$allItems.length) return;
 
-                for (var i = 0; i < priceMap.length; i++) {
-                    var pv = priceMap[i];
-                    if (pv.attrs.indexOf(colorId) === -1) continue;
-                    var allMatch = nonVisualSelected.every(function(id) {
-                        return pv.attrs.indexOf(id) !== -1;
-                    });
-                    if (allMatch) { matched = pv; break; }
-                }
+                // Step 1: Show/hide items and update prices
+                $allItems.each(function() {
+                    var $item   = $(this);
+                    var colorId = parseInt($item.data('id'));
+                    var matched = null;
 
-                if (matched) {
-                    $item.css('display', '');
-                    var html = '<span class="qs-var-item__price-sale">' + matched.price_fmt + '</span>';
-                    if (matched.orig_fmt) html += '<del class="qs-var-item__price-orig">' + matched.orig_fmt + '</del>';
-                    $item.find('.qs-var-item__price').html(html);
-                    if (nonVisualSelected.length > 0 && !matched.available) {
-                        $item.addClass('disabled');
-                    } else {
-                        $item.removeClass('disabled');
+                    if (priceMap && priceMap.length) {
+                        for (var i = 0; i < priceMap.length; i++) {
+                            var pv = priceMap[i];
+                            if (pv.attrs.indexOf(colorId) === -1) continue;
+                            var allMatch = nonVisualSelected.length === 0 || nonVisualSelected.every(function(id) {
+                                return pv.attrs.indexOf(id) !== -1;
+                            });
+                            if (allMatch) { matched = pv; break; }
+                        }
                     }
-                } else if (nonVisualSelected.length > 0) {
-                    $item.css('display', 'none');
-                } else {
-                    $item.css('display', '');
-                }
+
+                    if (matched) {
+                        $item[0].style.display = '';
+                        var priceHtml = '<span class="qs-var-item__price-sale">' + matched.price_fmt + '</span>';
+                        if (matched.orig_fmt) priceHtml += '<del class="qs-var-item__price-orig">' + matched.orig_fmt + '</del>';
+                        $item.find('.qs-var-item__price').html(priceHtml);
+                        if (nonVisualSelected.length > 0 && !matched.available) {
+                            $item.addClass('disabled');
+                        } else {
+                            $item.removeClass('disabled');
+                        }
+                    } else if (nonVisualSelected.length > 0) {
+                        // A size is selected but no variation for this color+size
+                        $item[0].style.display = 'none';
+                    } else {
+                        // Nothing selected — show all
+                        $item[0].style.display = '';
+                    }
+                });
+
+                // Step 2: Rebuild pagination from currently visible items only
+                var $gridWrap = $attrWrap.find('.qs-var-grid-wrap');
+                if (!$gridWrap.length) return;
+                var prevBtn = $gridWrap[0].querySelector('.qs-var-grid__arrow--prev');
+                var nextBtn = $gridWrap[0].querySelector('.qs-var-grid__arrow--next');
+                var pageSize = 10;
+
+                // Visible items = those NOT display:none
+                var visibleItems = $allItems.filter(function() {
+                    return this.style.display !== 'none';
+                }).toArray();
+
+                var totalPages = Math.ceil(visibleItems.length / pageSize);
+
+                // Find which page the currently-selected item is on
+                var selectedVis = visibleItems.findIndex(function(el) {
+                    return el.classList.contains('selected') || el.querySelector('input:checked');
+                });
+                var page = selectedVis >= 0 ? Math.floor(selectedVis / pageSize) : 0;
+
+                // Hide ALL items first, then show page
+                $allItems.each(function() {
+                    if (this.style.display !== 'none') {
+                        // was visible — reset to hidden temporarily
+                        this.dataset.qsVisible = '1';
+                        this.style.display = 'none';
+                    } else {
+                        this.dataset.qsVisible = '0';
+                    }
+                });
+                // Show only the current page of visible items
+                visibleItems.forEach(function(el, i) {
+                    if (i >= page * pageSize && i < (page + 1) * pageSize) {
+                        el.style.display = '';
+                    }
+                });
+
+                // Store state on the wrap element so arrow clicks can navigate
+                $gridWrap[0]._qsPage      = page;
+                $gridWrap[0]._qsTotalPages = totalPages;
+                $gridWrap[0]._qsVisItems  = visibleItems;
+                $gridWrap[0]._qsAllItems  = $allItems.toArray();
+                $gridWrap[0]._qsPageSize  = pageSize;
+
+                if (prevBtn) prevBtn.style.display = page > 0 ? 'flex' : 'none';
+                if (nextBtn) nextBtn.style.display = totalPages > 1 && page < totalPages - 1 ? 'flex' : 'none';
             });
+        }
+
+        // ── Initial visual swatch visibility (on offcanvas open) ─────────────
+        function initQSVisualSwatchVisibility(scope) {
+            applyVisualSwatchFilter(scope);
         }
 
         // ── Variation grid pagination + hover label ───────────────────────
@@ -1271,9 +1357,8 @@
                                || $wrap.find('.qs-swatch__selected-val').data('default') || '';
                 $wrap.find('.qs-swatch__selected-val').text(selected);
             });
-            // NO custom click handler needed — label fills entire li, native click works
 
-            // When a swatch is selected, update selected class + label + stock + variation prices
+            // When a swatch is selected, update selected class + label
             $(scope).on('change', '.product-filter-item', function() {
                 var $input = $(this);
                 var $wrap  = $input.closest('.qs-swatch-wrap');
@@ -1281,43 +1366,33 @@
                 $input.closest('li').addClass('selected');
                 var title = $input.closest('li').data('title') || '';
                 $wrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
-                // Stock + price handled by defaultOnChangeSwatchesSuccess patch
             });
 
-            // Grid pagination (2-column pages, 2 rows = 4 per page)
-            scope.querySelectorAll('.qs-var-grid-wrap').forEach(function(wrap) {
-                var grid    = wrap.querySelector('.qs-var-grid');
+            // Grid pagination arrow clicks — delegate to stored state on wrap element
+            $(scope).on('click', '.qs-var-grid__arrow--prev, .qs-var-grid__arrow--next', function() {
+                var wrap = $(this).closest('.qs-var-grid-wrap')[0];
+                if (!wrap || !wrap._qsVisItems) return;
+
+                var visItems   = wrap._qsVisItems;
+                var allItems   = wrap._qsAllItems;
+                var pageSize   = wrap._qsPageSize || 10;
+                var totalPages = wrap._qsTotalPages || 1;
+                var page       = wrap._qsPage || 0;
+
+                var isPrev = this.classList.contains('qs-var-grid__arrow--prev');
+                page = isPrev ? Math.max(0, page - 1) : Math.min(totalPages - 1, page + 1);
+                wrap._qsPage = page;
+
+                // Hide all, show current page of visible items
+                allItems.forEach(function(el) { el.style.display = 'none'; });
+                visItems.forEach(function(el, i) {
+                    if (i >= page * pageSize && i < (page + 1) * pageSize) el.style.display = '';
+                });
+
                 var prevBtn = wrap.querySelector('.qs-var-grid__arrow--prev');
                 var nextBtn = wrap.querySelector('.qs-var-grid__arrow--next');
-                if (!grid) return;
-
-                var items      = Array.from(grid.querySelectorAll('.qs-var-item'));
-                var pageSize   = 10; // 5 columns × 2 rows
-                var page       = 0;
-                var totalPages = Math.ceil(items.length / pageSize);
-
-                // Find selected item page
-                var selectedIdx = items.findIndex(function(i) { return i.classList.contains('selected'); });
-                var startPage   = selectedIdx >= 0 ? Math.floor(selectedIdx / pageSize) : 0;
-
-                function showPage(p) {
-                    page = Math.max(0, Math.min(p, totalPages - 1));
-                    items.forEach(function(item, i) {
-                        item.style.display = (i >= page * pageSize && i < (page + 1) * pageSize) ? '' : 'none';
-                    });
-                    if (prevBtn) prevBtn.style.display = page > 0 ? 'flex' : 'none';
-                    if (nextBtn) nextBtn.style.display = page < totalPages - 1 ? 'flex' : 'none';
-                }
-
-                if (prevBtn) prevBtn.addEventListener('click', function() { showPage(page - 1); });
-                if (nextBtn) nextBtn.addEventListener('click', function() { showPage(page + 1); });
-
-                if (items.length > pageSize) {
-                    showPage(startPage);
-                } else {
-                    if (prevBtn) prevBtn.style.display = 'none';
-                    if (nextBtn) nextBtn.style.display = 'none';
-                }
+                if (prevBtn) prevBtn.style.display = page > 0 ? 'flex' : 'none';
+                if (nextBtn) nextBtn.style.display = page < totalPages - 1 ? 'flex' : 'none';
             });
         }
 
@@ -1381,91 +1456,8 @@
             // Update hidden product ID
             $('#quick-shop-modal .hidden-product-id').val(data.id);
 
-            // ── Update color swatches using variation price map ──
-            var $container = $('#quick-shop-modal .product-attribute-swatches');
-            var priceMap = null;
-            try { priceMap = JSON.parse($container.attr('data-variation-prices') || 'null'); } catch(e) {}
-
-            if (priceMap && priceMap.length) {
-                // Collect all visual (color) attribute IDs from the DOM
-                var visualAttrIds = [];
-                $container.find('.attribute-swatches-wrapper[data-type="visual"] input').each(function() {
-                    visualAttrIds.push(parseInt($(this).val()));
-                });
-
-                // Collect currently checked IDs from non-visual (text/dropdown) swatches only.
-                // We intentionally read from the live DOM rather than data.selected_attributes
-                // because the AJAX response reflects the resolved variation which may contain a
-                // color attr ID — we only want the non-visual selection the user made.
-                var nonVisualSelected = [];
-                $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
-                    var $wrap = $(this);
-                    var val;
-                    if ($wrap.data('type') === 'dropdown') {
-                        val = parseInt($wrap.find('select').val());
-                    } else {
-                        val = parseInt($wrap.find('input.product-filter-item:checked').val());
-                    }
-                    if (!isNaN(val) && val > 0) nonVisualSelected.push(val);
-                });
-
-                // For each visual swatch item, find a variation that contains this color
-                // AND all of the currently selected non-visual attrs.
-                // If nonVisualSelected is empty (nothing chosen yet), show all colors with
-                // their base price (first variation that contains this color).
-                $container.find('.attribute-swatches-wrapper[data-type="visual"] .qs-var-item').each(function() {
-                    var $item   = $(this);
-                    var colorId = parseInt($item.data('id'));
-                    var matched = null;
-
-                    for (var i = 0; i < priceMap.length; i++) {
-                        var pv = priceMap[i];
-                        // This variation must include the color
-                        if (pv.attrs.indexOf(colorId) === -1) continue;
-                        // AND every selected non-visual attr
-                        var allMatch = nonVisualSelected.every(function(id) {
-                            return pv.attrs.indexOf(id) !== -1;
-                        });
-                        if (allMatch) { matched = pv; break; }
-                    }
-
-                    if (matched) {
-                        $item.css('display', ''); // restore (show)
-                        var html = '<span class="qs-var-item__price-sale">' + matched.price_fmt + '</span>';
-                        if (matched.orig_fmt) html += '<del class="qs-var-item__price-orig">' + matched.orig_fmt + '</del>';
-                        $item.find('.qs-var-item__price').html(html);
-                        // Availability: mark disabled only when non-visual attrs are selected
-                        // and the matched variation is out of stock
-                        if (nonVisualSelected.length > 0 && !matched.available) {
-                            $item.addClass('disabled');
-                        } else {
-                            $item.removeClass('disabled');
-                        }
-                    } else if (nonVisualSelected.length > 0) {
-                        // A size/text is selected but no variation exists for this color + size
-                        $item.css('display', 'none');
-                    } else {
-                        // Nothing selected yet — keep visible
-                        $item.css('display', '');
-                    }
-                });
-
-                // Re-run pagination so hidden items don't count as a page slot
-                var $gridWrap = $container.find('.qs-var-grid-wrap');
-                $gridWrap.each(function() {
-                    var items = Array.from(this.querySelectorAll('.qs-var-item:not([style*="display: none"]):not([style*="display:none"])'));
-                    var prevBtn = this.querySelector('.qs-var-grid__arrow--prev');
-                    var nextBtn = this.querySelector('.qs-var-grid__arrow--next');
-                    var pageSize = 10;
-                    var totalPages = Math.ceil(items.length / pageSize);
-                    // Reset to page 0 showing first pageSize items
-                    items.forEach(function(item, i) {
-                        item.style.display = i < pageSize ? '' : 'none';
-                    });
-                    if (prevBtn) prevBtn.style.display = 'none';
-                    if (nextBtn) nextBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-                });
-            }
+            // ── Update visual swatches: hide/show + prices based on current selection ──
+            applyVisualSwatchFilter(document.getElementById('quick-shop-modal'));
         }
 
         function updateQSGalleryImages(imageUrls) {

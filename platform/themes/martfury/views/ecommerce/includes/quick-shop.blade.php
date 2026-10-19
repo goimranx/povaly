@@ -197,6 +197,11 @@
 
     {{-- ── Product info ──────────────────────────────────────── --}}
     <div class="qs-info bb-product-detail">
+        {{-- "View full details" above title, aligned right --}}
+        <div class="qs-above-title">
+            <a href="{{ $product->url }}" class="qs-view-link">{{ __('View full details') }}</a>
+        </div>
+
         <div class="qs-title-wrap">
             <h3 class="qs-title qs-title--clamped">{!! BaseHelper::clean($product->name) !!}</h3>
             <button type="button" class="qs-title-expand" aria-label="{{ __('Expand title') }}">
@@ -205,8 +210,6 @@
         </div>
 
         {!! Theme::partial('product-price', ['product' => $displayProduct, 'priceWrapperTag' => 'div', 'priceWrapperClass' => 'qs-price']) !!}
-
-        <a href="{{ $product->url }}" class="qs-view-link">{{ __('View full details') }}</a>
 
         @if ($product->has_variation)
             <div class="pr_switch_wrap">
