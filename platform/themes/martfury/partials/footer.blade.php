@@ -972,6 +972,9 @@
                     initQSQty(offcanvasEl);
                     initQSSwatches(offcanvasEl);
                     initQSTitleExpand(offcanvasEl);
+                    // Initial swatch visibility pass — apply show/hide + price based on
+                    // whatever non-visual attributes are already selected on render
+                    initQSVisualSwatchVisibility(offcanvasEl);
                     document.dispatchEvent(new CustomEvent('ecommerce.quick-shop.completed', {
                         detail: { element: $(offcanvasEl), modal: $('#quick-shop-modal') }
                     }));
@@ -1198,6 +1201,62 @@
             });
         }
 
+        // ── Initial visual swatch visibility (on offcanvas open) ─────────────
+        // Runs once after content renders to hide/show color swatches + update
+        // their prices based on whatever text/dropdown attrs are already selected.
+        function initQSVisualSwatchVisibility(scope) {
+            var $container = $(scope).find('.product-attribute-swatches');
+            if (!$container.length) return;
+
+            var priceMap = null;
+            try { priceMap = JSON.parse($container.attr('data-variation-prices') || 'null'); } catch(e) {}
+            if (!priceMap || !priceMap.length) return;
+
+            // Collect non-visual selected attrs
+            var nonVisualSelected = [];
+            $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
+                var $wrap = $(this);
+                var val;
+                if ($wrap.data('type') === 'dropdown') {
+                    val = parseInt($wrap.find('select').val());
+                } else {
+                    val = parseInt($wrap.find('input.product-filter-item:checked').val());
+                }
+                if (!isNaN(val) && val > 0) nonVisualSelected.push(val);
+            });
+
+            $container.find('.attribute-swatches-wrapper[data-type="visual"] .qs-var-item').each(function() {
+                var $item   = $(this);
+                var colorId = parseInt($item.data('id'));
+                var matched = null;
+
+                for (var i = 0; i < priceMap.length; i++) {
+                    var pv = priceMap[i];
+                    if (pv.attrs.indexOf(colorId) === -1) continue;
+                    var allMatch = nonVisualSelected.every(function(id) {
+                        return pv.attrs.indexOf(id) !== -1;
+                    });
+                    if (allMatch) { matched = pv; break; }
+                }
+
+                if (matched) {
+                    $item.css('display', '');
+                    var html = '<span class="qs-var-item__price-sale">' + matched.price_fmt + '</span>';
+                    if (matched.orig_fmt) html += '<del class="qs-var-item__price-orig">' + matched.orig_fmt + '</del>';
+                    $item.find('.qs-var-item__price').html(html);
+                    if (nonVisualSelected.length > 0 && !matched.available) {
+                        $item.addClass('disabled');
+                    } else {
+                        $item.removeClass('disabled');
+                    }
+                } else if (nonVisualSelected.length > 0) {
+                    $item.css('display', 'none');
+                } else {
+                    $item.css('display', '');
+                }
+            });
+        }
+
         // ── Variation grid pagination + hover label ───────────────────────
         function initQSSwatches(scope) {
             // Hover: update selected label beside attribute name
@@ -1328,28 +1387,32 @@
             try { priceMap = JSON.parse($container.attr('data-variation-prices') || 'null'); } catch(e) {}
 
             if (priceMap && priceMap.length) {
-                // Get selected attribute IDs from response's selected_attributes
-                var selectedAttrIds = [];
-                if (data.selected_attributes && Array.isArray(data.selected_attributes)) {
-                    data.selected_attributes.forEach(function(a) { selectedAttrIds.push(parseInt(a.id)); });
-                } else {
-                    $container.find('input.product-filter-item:checked').each(function() {
-                        selectedAttrIds.push(parseInt($(this).val()));
-                    });
-                }
-
-                // All visual (color) attr IDs
+                // Collect all visual (color) attribute IDs from the DOM
                 var visualAttrIds = [];
                 $container.find('.attribute-swatches-wrapper[data-type="visual"] input').each(function() {
                     visualAttrIds.push(parseInt($(this).val()));
                 });
 
-                // Non-color selected attrs (size etc)
-                var nonVisualSelected = selectedAttrIds.filter(function(id) {
-                    return visualAttrIds.indexOf(id) === -1;
+                // Collect currently checked IDs from non-visual (text/dropdown) swatches only.
+                // We intentionally read from the live DOM rather than data.selected_attributes
+                // because the AJAX response reflects the resolved variation which may contain a
+                // color attr ID — we only want the non-visual selection the user made.
+                var nonVisualSelected = [];
+                $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
+                    var $wrap = $(this);
+                    var val;
+                    if ($wrap.data('type') === 'dropdown') {
+                        val = parseInt($wrap.find('select').val());
+                    } else {
+                        val = parseInt($wrap.find('input.product-filter-item:checked').val());
+                    }
+                    if (!isNaN(val) && val > 0) nonVisualSelected.push(val);
                 });
 
-                // Color swatches: show/hide and update price
+                // For each visual swatch item, find a variation that contains this color
+                // AND all of the currently selected non-visual attrs.
+                // If nonVisualSelected is empty (nothing chosen yet), show all colors with
+                // their base price (first variation that contains this color).
                 $container.find('.attribute-swatches-wrapper[data-type="visual"] .qs-var-item').each(function() {
                     var $item   = $(this);
                     var colorId = parseInt($item.data('id'));
@@ -1357,7 +1420,9 @@
 
                     for (var i = 0; i < priceMap.length; i++) {
                         var pv = priceMap[i];
+                        // This variation must include the color
                         if (pv.attrs.indexOf(colorId) === -1) continue;
+                        // AND every selected non-visual attr
                         var allMatch = nonVisualSelected.every(function(id) {
                             return pv.attrs.indexOf(id) !== -1;
                         });
@@ -1365,15 +1430,40 @@
                     }
 
                     if (matched) {
-                        $item.show();
+                        $item.css('display', ''); // restore (show)
                         var html = '<span class="qs-var-item__price-sale">' + matched.price_fmt + '</span>';
                         if (matched.orig_fmt) html += '<del class="qs-var-item__price-orig">' + matched.orig_fmt + '</del>';
                         $item.find('.qs-var-item__price').html(html);
-                        if (!matched.available) $item.addClass('disabled');
-                        else $item.removeClass('disabled');
+                        // Availability: mark disabled only when non-visual attrs are selected
+                        // and the matched variation is out of stock
+                        if (nonVisualSelected.length > 0 && !matched.available) {
+                            $item.addClass('disabled');
+                        } else {
+                            $item.removeClass('disabled');
+                        }
+                    } else if (nonVisualSelected.length > 0) {
+                        // A size/text is selected but no variation exists for this color + size
+                        $item.css('display', 'none');
                     } else {
-                        $item.hide();
+                        // Nothing selected yet — keep visible
+                        $item.css('display', '');
                     }
+                });
+
+                // Re-run pagination so hidden items don't count as a page slot
+                var $gridWrap = $container.find('.qs-var-grid-wrap');
+                $gridWrap.each(function() {
+                    var items = Array.from(this.querySelectorAll('.qs-var-item:not([style*="display: none"]):not([style*="display:none"])'));
+                    var prevBtn = this.querySelector('.qs-var-grid__arrow--prev');
+                    var nextBtn = this.querySelector('.qs-var-grid__arrow--next');
+                    var pageSize = 10;
+                    var totalPages = Math.ceil(items.length / pageSize);
+                    // Reset to page 0 showing first pageSize items
+                    items.forEach(function(item, i) {
+                        item.style.display = i < pageSize ? '' : 'none';
+                    });
+                    if (prevBtn) prevBtn.style.display = 'none';
+                    if (nextBtn) nextBtn.style.display = totalPages > 1 ? 'flex' : 'none';
                 });
             }
         }
@@ -1420,9 +1510,21 @@
                 return;
             }
 
-            btn.addEventListener('click', function() {
+            function toggleExpand() {
                 var expanded = title.classList.toggle('qs-title--expanded');
                 btn.classList.toggle('expanded', expanded);
+            }
+
+            // Chevron button click
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleExpand();
+            });
+
+            // Clicking the title text itself also toggles expand/collapse
+            title.style.cursor = 'pointer';
+            title.addEventListener('click', function() {
+                toggleExpand();
             });
         }
 
