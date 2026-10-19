@@ -220,10 +220,35 @@
         @if (Theme::get('showBottomBarMenu', true))
             <div class="navigation--list" @if(theme_option('bottom_bar_menu_show_text', 'yes') != 'yes')data-hide-text="true"@endif style="--bottom-bar-menu-text-font-size: {{ theme_option('bottom_bar_menu_text_font_size', 14) }}px;">
                 <div class="navigation__content">
-                    <a class="navigation__item bb-nav-toggle ps-toggle--sidebar" href="#cart-mobile" data-open-icon="icon-bag2" data-open-text="{{ __('Cart') }}" data-close-text="{{ __('Close') }}"><i class="icon-bag2"></i><span> {{ __('Cart') }}</span></a>
-                    <a class="navigation__item bb-nav-toggle ps-toggle--sidebar" href="#navigation-mobile" data-open-icon="icon-list4" data-open-text="{{ __('Categories') }}" data-close-text="{{ __('Close') }}"><i class="icon-list4"></i><span> {{ __('Categories') }}</span></a>
+                    {{-- Smart first item: Logo on homepage, Home icon on other pages, Back to top when scrolled --}}
+                    @php
+                        $isHomePage = request()->is('/') || request()->is(app()->getLocale());
+                    @endphp
+                    <a class="navigation__item navigation__item--smart" 
+                       href="{{ $isHomePage ? 'javascript:void(0)' : route('public.index') }}" 
+                       data-home-page="{{ $isHomePage ? 'true' : 'false' }}"
+                       id="bb-smart-nav">
+                        @if($isHomePage)
+                            <span class="bb-logo-wrap">
+                                @if(theme_option('logo'))
+                                    <img src="{{ RvMedia::getImageUrl(theme_option('logo')) }}" alt="{{ theme_option('site_title') }}" class="bb-logo-img">
+                                @else
+                                    <i class="icon-home"></i>
+                                @endif
+                            </span>
+                        @else
+                            <i class="icon-home"></i><span>{{ __('Home') }}</span>
+                        @endif
+                    </a>
+                    
+                    {{-- Search --}}
                     <a class="navigation__item bb-nav-toggle ps-toggle--sidebar" href="#search-sidebar" data-open-icon="icon-magnifier" data-open-text="{{ __('Search') }}" data-close-text="{{ __('Close') }}"><i class="icon-magnifier"></i><span> {{ __('Search') }}</span></a>
-                    <a class="navigation__item" href="{{ auth('customer')->check() ? route('customer.overview') : route('customer.login') }}"><i class="icon-user"></i><span> {{ __('Account') }}</span></a>
+                    
+                    {{-- Cart --}}
+                    <a class="navigation__item bb-nav-toggle ps-toggle--sidebar" href="#cart-mobile" data-open-icon="icon-bag2" data-open-text="{{ __('Cart') }}" data-close-text="{{ __('Close') }}"><i class="icon-bag2"></i><span> {{ __('Cart') }}</span></a>
+                    
+                    {{-- Account (Me) --}}
+                    <a class="navigation__item" href="{{ auth('customer')->check() ? route('customer.overview') : route('customer.login') }}"><i class="icon-user"></i><span> {{ __('Me') }}</span></a>
                 </div>
             </div>
         @endif

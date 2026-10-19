@@ -873,6 +873,29 @@
         .navigation--list .navigation__item span { font-size: var(--bottom-bar-font-size) !important; color: var(--global-color-text-body, #2E3D52) !important; transition: color 0.3s ease !important; }
         .navigation--list .navigation__item i { color: var(--global-color-text-body, #2E3D52) !important; transition: color 0.3s ease !important; }
         
+        /* Smart navigation item - Logo/Home/Back to top */
+        .navigation__item--smart .bb-logo-wrap {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, 
+                rgba(var(--global-color-primary-rgb, 255, 100, 44), 0.15) 0%, 
+                rgba(var(--global-color-warning-rgb, 251, 177, 60), 0.05) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1.5px solid rgba(var(--global-color-primary-rgb, 255, 100, 44), 0.2);
+        }
+        .navigation__item--smart .bb-logo-img {
+            width: 75%;
+            height: 75%;
+            object-fit: contain;
+        }
+        .navigation__item--smart.show-arrow i::before {
+            content: "\e93a"; /* arrow-up icon */
+        }
+        
         /* Bottom bar hover state */
         .navigation--list .navigation__item:hover,
         .navigation--list .navigation__item:hover i,
@@ -2709,6 +2732,59 @@ document.addEventListener('DOMContentLoaded', function () {
         var closeText = el.getAttribute('data-close-text');
         if (icon) icon.className = 'icon-cross';
         if (text && closeText) text.textContent = ' ' + closeText;
+    }
+    
+    // ── Smart navigation: Logo/Home/Back to top ─────────────────────────
+    var smartNav = document.getElementById('bb-smart-nav');
+    if (smartNav) {
+        var isHomePage = smartNav.getAttribute('data-home-page') === 'true';
+        var scrollThreshold = 300;
+        
+        if (isHomePage) {
+            // On homepage: show logo initially, switch to arrow when scrolled
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > scrollThreshold) {
+                    if (!smartNav.classList.contains('show-arrow')) {
+                        smartNav.classList.add('show-arrow');
+                        smartNav.href = 'javascript:void(0)';
+                        // Replace logo with arrow icon
+                        var logoWrap = smartNav.querySelector('.bb-logo-wrap');
+                        if (logoWrap) {
+                            logoWrap.innerHTML = '<i class="icon-chevron-up"></i>';
+                            logoWrap.style.background = 'none';
+                            logoWrap.style.border = 'none';
+                        }
+                    }
+                } else {
+                    if (smartNav.classList.contains('show-arrow')) {
+                        smartNav.classList.remove('show-arrow');
+                        smartNav.href = 'javascript:void(0)';
+                        // Restore logo
+                        location.reload();
+                    }
+                }
+            });
+            
+            smartNav.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (smartNav.classList.contains('show-arrow')) {
+                    // Scroll to top
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Hide existing back to top button
+                    var backToTop = document.querySelector('.ps-back-top');
+                    if (backToTop) backToTop.style.display = 'none';
+                } else {
+                    // Reload page when logo clicked
+                    location.reload();
+                }
+            });
+            
+            // Hide the default back-to-top button on mobile
+            var backToTop = document.querySelector('.ps-back-top');
+            if (backToTop && window.innerWidth < 768) {
+                backToTop.style.display = 'none';
+            }
+        }
     }
 
     toggles.forEach(function (toggle) {
