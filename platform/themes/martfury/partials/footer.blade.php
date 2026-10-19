@@ -482,9 +482,9 @@
     /* Thumbnail divider between groups */
     .qs-thumbs-divider {
         flex-shrink: 0;
-        width: 1px;
-        height: 52px;
-        background: #ddd;
+        width: 1.5px;
+        height: 26px;
+        background: var(--global-color-border-strong, #ccc);
         margin: 0 4px;
         align-self: center;
     }
