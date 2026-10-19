@@ -1419,8 +1419,8 @@
                     '.bb-product-attribute-swatch-item[data-id="' + _qsLastClickedAttrId + '"]:not(.qs-var-item)'
                 );
                 
-                // Check if this is a disabled item
-                var isDisabledSize = $clickedItem.hasClass('disabled');
+                // Check if this was a disabled item
+                var isDisabledNonVisual = $clickedItem.hasClass('disabled');
                 
                 $clickedItem.each(function() {
                     var $wrap = $(this).closest('.qs-swatch-wrap');
@@ -1437,8 +1437,8 @@
                     }
                 });
                 
-                // Mark if this was a disabled size click - Step 3 will use memory for disabled only
-                $container[0]._qsLastSizeWasDisabled = isDisabledSize;
+                // Mark if this was a disabled non-visual click - Step 3 will use memory for disabled only
+                $container[0]._qsLastNonVisualWasDisabled = isDisabledNonVisual;
             }
 
             // ── Rule A: update text / dropdown swatches based on visual selection ──
@@ -1555,10 +1555,10 @@
 
             // ── Step 3: If the currently-selected visual item just got hidden,
             // auto-select the best available visual item so the user
-            // is never left with no color selected after picking a size.
-            // Priority (for DISABLED size clicks only):
-            //   1) color last used with THIS disabled size  2) general color preference  3) first available
-            // Priority (for AVAILABLE size clicks): keep current color if possible, else first available
+            // is never left with no visual selected after picking a non-visual (size/material/style/etc).
+            // Priority (for DISABLED non-visual clicks only):
+            //   1) visual last used with THIS non-visual  2) general visual preference  3) first available
+            // Priority (for AVAILABLE non-visual clicks): keep current visual if possible, else first available
             $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function() {
                 var $attrWrap  = $(this);
                 var $allItems  = $attrWrap.find('.qs-var-item');
@@ -1576,8 +1576,8 @@
                     return this.style.display !== 'none';
                 });
 
-                // Check if this was triggered by a disabled size click
-                var wasDisabledClick = $container[0]._qsLastSizeWasDisabled || false;
+                // Check if this was triggered by a disabled non-visual click
+                var wasDisabledClick = $container[0]._qsLastNonVisualWasDisabled || false;
                 
                 var $preferred = $();
                 
@@ -1636,7 +1636,7 @@
                 }
                 
                 // Clear the flag
-                $container[0]._qsLastSizeWasDisabled = false;
+                $container[0]._qsLastNonVisualWasDisabled = false;
 
                 // Trigger CMS AJAX with auto-select flag so our change handler doesn't interfere
                 $radio[0]._qsAutoSelect = true;
@@ -1659,8 +1659,9 @@
         
         // Memory of which visual was selected for each non-visual choice
         // Key = nonvisual attr id, value = visual attr id
-        // E.g. { 5: 3 } means "when size M (id=5) was selected, color was Black (id=3)"
-        var _qsNonVisualToVisual = {}; // { sizeId: colorId, ... }
+        // E.g. { 5: 3 } means "when size M (id=5) was selected, color Black (id=3) was paired"
+        // Works for any product attributes: size→color, material→finish, style→pattern, etc.
+        var _qsNonVisualToVisual = {}; // { nonVisualId: visualId, ... }
 
         // ── Variation grid pagination + hover label ───────────────────────
         function initQSSwatches(scope) {
@@ -1696,9 +1697,9 @@
                 // Record as user's deliberate choice for this attribute set
                 if (setSlug) _qsUserPick[setSlug] = attrId;
                 
-                // If clicking a DISABLED non-visual (e.g., unavailable size), remember current visual
-                // so we can restore it when user clicks this size again later
-                if (!isVisual && $li.hasClass('disabled')) {
+                // If clicking ANY non-visual (size/material/style/text/dropdown), remember which visual is currently selected
+                // This way when user later clicks this non-visual again (even if it becomes disabled), we restore their choice
+                if (!isVisual) {
                     var $visualWrap = $scope.find('.attribute-swatches-wrapper[data-type="visual"]').first();
                     var $selectedVisual = $visualWrap.find('.qs-var-item.selected, .qs-var-item:has(input:checked)').first();
                     if ($selectedVisual.length) {
