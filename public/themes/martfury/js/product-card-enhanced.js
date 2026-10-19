@@ -120,20 +120,26 @@
             method: 'GET',
             dataType: 'json',
             success: function(cartResponse) {
+                console.log('Cart response:', cartResponse);
+                
                 var cartItem = null;
                 if (cartResponse && cartResponse.data && cartResponse.data.items) {
+                    // Try multiple ID fields that might exist
                     cartItem = cartResponse.data.items.find(function(item) {
-                        return parseInt(item.id) === parseInt(productId);
+                        var itemId = item.id || item.product_id || (item.options && item.options.id);
+                        return parseInt(itemId) === parseInt(productId);
                     });
                 }
                 
                 if (!cartItem) {
                     console.error('Cart item not found for product', productId);
+                    console.log('Available cart items:', cartResponse.data.items);
                     $control.find('.ec-card__qty-btn').prop('disabled', false);
                     return;
                 }
                 
                 var rowId = cartItem.rowId;
+                console.log('Found rowId:', rowId, 'for product:', productId);
                 
                 // Update via cart update endpoint
                 $.ajax({
@@ -148,6 +154,8 @@
                     },
                     dataType: 'json',
                     success: function(response) {
+                        console.log('Cart updated successfully', response);
+                        
                         // Update quantity text
                         $qtyText.text(newQty + ' at cart');
                         
@@ -167,14 +175,14 @@
                         $control.find('.ec-card__qty-btn').prop('disabled', false);
                     },
                     error: function(xhr) {
-                        console.error('Failed to update cart quantity', xhr);
+                        console.error('Failed to update cart quantity', xhr.responseText);
                         // Re-enable buttons
                         $control.find('.ec-card__qty-btn').prop('disabled', false);
                     }
                 });
             },
             error: function(xhr) {
-                console.error('Failed to get cart data', xhr);
+                console.error('Failed to get cart data', xhr.responseText);
                 $control.find('.ec-card__qty-btn').prop('disabled', false);
             }
         });
@@ -189,25 +197,60 @@
             method: 'GET',
             dataType: 'json',
             success: function(cartResponse) {
+                console.log('Cart response for remove:', cartResponse);
+                
                 var cartItem = null;
                 if (cartResponse && cartResponse.data && cartResponse.data.items) {
+                    // Try multiple ID fields
                     cartItem = cartResponse.data.items.find(function(item) {
-                        return parseInt(item.id) === parseInt(productId);
+                        var itemId = item.id || item.product_id || (item.options && item.options.id);
+                        return parseInt(itemId) === parseInt(productId);
                     });
                 }
                 
                 if (!cartItem) {
-                    console.error('Cart item not found');
+                    console.error('Cart item not found for removal', productId);
+                    console.log('Available cart items:', cartResponse.data.items);
                     $control.find('.ec-card__qty-btn').prop('disabled', false);
                     return;
                 }
+                
+                console.log('Removing cart item with rowId:', cartItem.rowId);
                 
                 $.ajax({
                     url: '/cart/remove/' + cartItem.rowId,
                     method: 'GET',
                     dataType: 'json',
                     success: function(response) {
+                        console.log('Item removed successfully', response);
+                        
                         // Transform back to "Add to Cart" button
+                        var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
+                            'data-id="' + productId + '" ' +
+                            'data-url="/ajax/cart/add-to-cart" ' +
+                            'data-show-toast-on-success="false" ' +
+                            'data-bb-toggle="add-to-cart">' +
+                            'Add to Cart</button>';
+                        
+                        $actions.html(btnHtml);
+                        
+                        // Update mini-cart
+                        if (typeof window.loadCart === 'function') {
+                            window.loadCart();
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error('Failed to remove from cart', xhr.responseText);
+                        $control.find('.ec-card__qty-btn').prop('disabled', false);
+                    }
+                });
+            },
+            error: function(xhr) {
+                console.error('Failed to get cart data', xhr.responseText);
+                $control.find('.ec-card__qty-btn').prop('disabled', false);
+            }
+        });
+    }
                         var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
                             'data-id="' + productId + '" ' +
                             'data-url="/ajax/cart/add-to-cart" ' +
@@ -271,11 +314,19 @@
             method: 'GET',
             dataType: 'json',
             success: function(cartResponse) {
+                console.log('Syncing cart state:', cartResponse);
+                
                 if (cartResponse && cartResponse.data && cartResponse.data.items) {
                     var cartItems = {};
                     cartResponse.data.items.forEach(function(item) {
-                        cartItems[item.id] = parseInt(item.qty);
+                        // Try multiple ID fields
+                        var itemId = item.id || item.product_id || (item.options && item.options.id);
+                        if (itemId) {
+                            cartItems[itemId] = parseInt(item.qty);
+                        }
                     });
+                    
+                    console.log('Cart items map:', cartItems);
                     
                     // Update all enhanced cards
                     $('.ec-card__btn--cart').each(function() {
@@ -284,6 +335,7 @@
                         
                         if (cartItems[productId]) {
                             // Product is in cart, show quantity control
+                            console.log('Transforming button for product', productId, 'qty:', cartItems[productId]);
                             transformToQuantityControl(productId, cartItems[productId]);
                         }
                     });
@@ -306,6 +358,7 @@
                             }
                         } else {
                             // Product removed from cart, show button
+                            console.log('Resetting button for product', productId);
                             var $actions = $control.closest('.ec-card__actions');
                             var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
                                 'data-id="' + productId + '" ' +
@@ -319,7 +372,7 @@
                 }
             },
             error: function(xhr) {
-                console.error('Failed to sync cart state', xhr);
+                console.error('Failed to sync cart state', xhr.responseText);
             }
         });
     }
