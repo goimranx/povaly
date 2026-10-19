@@ -410,7 +410,7 @@
         width: 52px; height: 52px;
         border-radius: 4px;
         overflow: hidden;
-        border: 2px solid transparent;
+        border: 2px solid #d0d0d0;
         cursor: pointer;
         transition: border-color .15s;
         background: #f0f0f0;
@@ -426,7 +426,7 @@
     .qs-thumb--video {
         position: relative;
         background: #111;
-        border: 2px solid transparent;
+        border: 2px solid #d0d0d0;
     }
     .qs-thumb--video.active { border-color: var(--global-color-link, #007bff); }
     .qs-thumb--video:hover:not(.active) { border-color: #aaa; }
@@ -800,9 +800,9 @@
         user-select: none;
     }
     .qs-color-item input[type="radio"] { display: none; }
-    /* Hover - 2px border total */
+    /* Hover - 1px border only */
     .qs-color-item:not(.disabled):hover { 
-        border: 2px solid var(--global-color-link, #007bff);
+        border: 1px solid var(--global-color-link, #007bff);
     }
     /* Selected - 3px total (2px border + 1px outline) */
     .qs-color-item.selected,
