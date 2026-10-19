@@ -1050,6 +1050,7 @@
                     // Reset last-clicked state for each new product load
                     _qsLastClickedAttrId   = null;
                     _qsLastClickedAttrType = null;
+                    _qsUserPick            = {}; // clear per-set memory for new product
                     initQSGallery(offcanvasEl);
                     initQSQty(offcanvasEl);
                     initQSSwatches(offcanvasEl);
@@ -1522,50 +1523,58 @@
         }
 
             // ── Step 3: If the currently-selected visual item just got hidden,
-            // auto-select the first visible+available visual item so the user
+            // auto-select the best available visual item so the user
             // is never left with no color selected after picking a size.
+            // Priority: 1) last user-chosen color for this set (if still visible+available)
+            //           2) first visible+available  3) first visible (fallback)
             $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function() {
-                var $attrWrap   = $(this);
-                var $allItems   = $attrWrap.find('.qs-var-item');
-                var $selItem    = $allItems.filter('.selected, :has(input:checked)').first();
+                var $attrWrap  = $(this);
+                var $allItems  = $attrWrap.find('.qs-var-item');
+                var $selItem   = $allItems.filter('.selected, :has(input:checked)').first();
+                var setSlug    = $attrWrap.data('slug') || '';
 
                 // Is the currently selected item hidden?
                 var selHidden = $selItem.length && $selItem[0].style.display === 'none';
                 if (!selHidden) return; // nothing to do
 
-                // Find first visible, non-disabled item
-                var $first = $allItems.filter(function() {
+                var $visAvail = $allItems.filter(function() {
                     return this.style.display !== 'none' && !$(this).hasClass('disabled');
-                }).first();
+                });
+                var $visAll = $allItems.filter(function() {
+                    return this.style.display !== 'none';
+                });
 
-                // Fall back to first visible even if disabled
-                if (!$first.length) {
-                    $first = $allItems.filter(function() {
-                        return this.style.display !== 'none';
-                    }).first();
+                // Try remembered user pick first
+                var $preferred = $();
+                var rememberedId = setSlug ? _qsUserPick[setSlug] : null;
+                if (rememberedId) {
+                    // Must be visible — available preferred, disabled acceptable
+                    $preferred = $visAvail.filter('[data-id="' + rememberedId + '"]');
+                    if (!$preferred.length) {
+                        $preferred = $visAll.filter('[data-id="' + rememberedId + '"]');
+                    }
                 }
 
-                if (!$first.length) return;
+                var $target = $preferred.length ? $preferred : ($visAvail.length ? $visAvail.first() : $visAll.first());
+                if (!$target.length) return;
 
-                // Deselect previous
+                // Deselect previous, select target
                 $allItems.removeClass('selected');
                 $attrWrap.find('input.product-filter-item').prop('checked', false);
-
-                // Select new one
-                $first.addClass('selected');
-                var $radio = $first.find('input.product-filter-item');
+                $target.addClass('selected');
+                var $radio = $target.find('input.product-filter-item');
                 $radio.prop('checked', true);
 
                 // Update label
-                var title = $first.data('title') || '';
+                var title = $target.data('title') || '';
                 $attrWrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
 
-                // Update _qsLastClickedAttrId so the AJAX cycle stays consistent
-                _qsLastClickedAttrId   = parseInt($first.data('id'));
+                // Keep _qsLastClickedAttrId in sync (type stays 'visual')
+                _qsLastClickedAttrId   = parseInt($target.data('id'));
                 _qsLastClickedAttrType = 'visual';
+                // Note: do NOT update _qsUserPick here — this is an auto-select, not a user choice
 
-                // Trigger the CMS AJAX variation lookup with the new selection.
-                // Set a flag so our own change handler doesn't immediately undo the .selected we just set.
+                // Trigger CMS AJAX with auto-select flag so our change handler doesn't interfere
                 $radio[0]._qsAutoSelect = true;
                 $radio.trigger('change');
                 setTimeout(function() { if ($radio[0]) $radio[0]._qsAutoSelect = false; }, 100);
@@ -1578,6 +1587,11 @@
         // Track the last swatch the user intentionally clicked (before AJAX may uncheck it)
         var _qsLastClickedAttrId   = null;
         var _qsLastClickedAttrType = null; // 'visual' | 'nonvisual'
+
+        // Per-set memory of the last attr the user MANUALLY chose (not auto-selected).
+        // Key = attribute-set slug, value = attr id (int).
+        // Consulted by Step 3 so returning to a size re-picks the color the user had chosen.
+        var _qsUserPick = {}; // { 'color': 3, 'size': 7, ... }
 
         // ── Variation grid pagination + hover label ───────────────────────
         function initQSSwatches(scope) {
@@ -1598,12 +1612,20 @@
                 $wrap.find('.qs-swatch__selected-val').text(cur);
             });
 
-            // On click: record which attr was clicked and its type BEFORE AJAX fires
+            // On click: record which attr was clicked and its type BEFORE AJAX fires,
+            // and save to per-set user-pick memory (only for genuine user clicks).
             $scope.on('click.qs-swatches', '.qs-var-item label, .qs-color-item label', function() {
                 var $li   = $(this).closest('.qs-var-item, .qs-color-item');
                 var $wrap = $(this).closest('.attribute-swatches-wrapper');
-                _qsLastClickedAttrId   = parseInt($li.data('id'));
-                _qsLastClickedAttrType = $wrap.data('type') === 'visual' ? 'visual' : 'nonvisual';
+                var attrId   = parseInt($li.data('id'));
+                var setSlug  = $wrap.data('slug') || '';
+                var isVisual = $wrap.data('type') === 'visual';
+
+                _qsLastClickedAttrId   = attrId;
+                _qsLastClickedAttrType = isVisual ? 'visual' : 'nonvisual';
+
+                // Record as user's deliberate choice for this attribute set
+                if (setSlug) _qsUserPick[setSlug] = attrId;
             });
 
             // On selection: update .selected class + label text
