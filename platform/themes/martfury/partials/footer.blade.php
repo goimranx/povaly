@@ -853,7 +853,7 @@
         display: flex !important;
         align-items: center !important;
         flex-wrap: wrap;
-        gap: 8px;
+        gap: 12px;
     }
     .qs-price h4,
     .qs-price [data-bb-value="product-price"],
@@ -1421,9 +1421,16 @@
                         var t = $(this).data('title') || '';
                         $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(t).attr('data-default', t);
                     });
+                } else {
+                    // Disabled item: apply .selected for visual feedback, but don't add to nonVisualSelected
+                    // (this keeps visuals visible, prevents hide/show logic from triggering)
+                    $clickedItem.each(function() {
+                        $(this).closest('.qs-swatch-wrap').find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected');
+                        $(this).addClass('selected');
+                        var t = $(this).data('title') || '';
+                        $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(t).attr('data-default', t);
+                    });
                 }
-                // If disabled: do nothing — nonVisualSelected stays as-is (from DOM only),
-                // visuals stay visible, Step 3 won't trigger (nothing hides), CMS handles state.
             }
 
             // ── Rule A: update text / dropdown swatches based on visual selection ──
