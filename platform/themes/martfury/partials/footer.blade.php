@@ -1521,6 +1521,57 @@
             });
         }
 
+            // ── Step 3: If the currently-selected visual item just got hidden,
+            // auto-select the first visible+available visual item so the user
+            // is never left with no color selected after picking a size.
+            $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function() {
+                var $attrWrap   = $(this);
+                var $allItems   = $attrWrap.find('.qs-var-item');
+                var $selItem    = $allItems.filter('.selected, :has(input:checked)').first();
+
+                // Is the currently selected item hidden?
+                var selHidden = $selItem.length && $selItem[0].style.display === 'none';
+                if (!selHidden) return; // nothing to do
+
+                // Find first visible, non-disabled item
+                var $first = $allItems.filter(function() {
+                    return this.style.display !== 'none' && !$(this).hasClass('disabled');
+                }).first();
+
+                // Fall back to first visible even if disabled
+                if (!$first.length) {
+                    $first = $allItems.filter(function() {
+                        return this.style.display !== 'none';
+                    }).first();
+                }
+
+                if (!$first.length) return;
+
+                // Deselect previous
+                $allItems.removeClass('selected');
+                $attrWrap.find('input.product-filter-item').prop('checked', false);
+
+                // Select new one
+                $first.addClass('selected');
+                var $radio = $first.find('input.product-filter-item');
+                $radio.prop('checked', true);
+
+                // Update label
+                var title = $first.data('title') || '';
+                $attrWrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
+
+                // Update _qsLastClickedAttrId so the AJAX cycle stays consistent
+                _qsLastClickedAttrId   = parseInt($first.data('id'));
+                _qsLastClickedAttrType = 'visual';
+
+                // Trigger the CMS AJAX variation lookup with the new selection.
+                // Set a flag so our own change handler doesn't immediately undo the .selected we just set.
+                $radio[0]._qsAutoSelect = true;
+                $radio.trigger('change');
+                setTimeout(function() { if ($radio[0]) $radio[0]._qsAutoSelect = false; }, 100);
+            });
+        }
+
         // Alias so the two call-sites (initQSVisualSwatchVisibility + qsHandleVariationResponse) still work
         function initQSVisualSwatchVisibility(scope) { qsUpdateSwatches(scope); }
 
@@ -1557,6 +1608,8 @@
 
             // On selection: update .selected class + label text
             $scope.on('change.qs-swatches', '.product-filter-item', function() {
+                // Skip if this change was triggered programmatically by auto-select
+                if (this._qsAutoSelect) return;
                 var $wrap = $(this).closest('.qs-swatch-wrap');
                 $wrap.find('.qs-var-item, .qs-color-item').removeClass('selected');
                 $(this).closest('li').addClass('selected');
