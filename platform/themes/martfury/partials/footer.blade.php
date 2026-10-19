@@ -1332,6 +1332,48 @@
 
             // Update hidden product ID
             $('#quick-shop-modal .hidden-product-id').val(data.id);
+
+            // Update per-variation-item prices using the variation price map
+            // stored in data-variation-prices on the .product-attribute-swatches container
+            var $container = $('#quick-shop-modal .product-attribute-swatches');
+            var priceMap = null;
+            try { priceMap = JSON.parse($container.attr('data-variation-prices') || 'null'); } catch(e) {}
+
+            if (priceMap && priceMap.length) {
+                // Get currently checked attribute IDs (excluding the visual/color set)
+                var checkedIds = [];
+                $container.find('.attribute-swatches-wrapper[data-type="text"] input:checked').each(function() {
+                    checkedIds.push(parseInt($(this).val()));
+                });
+
+                // For each visual swatch item, find matching variation and update price
+                $container.find('.qs-var-item').each(function() {
+                    var $item     = $(this);
+                    var attrId    = parseInt($item.data('id'));
+                    var matchedPV = null;
+
+                    // Find a variation that contains this color attr AND all currently selected text attrs
+                    for (var i = 0; i < priceMap.length; i++) {
+                        var pv = priceMap[i];
+                        if (pv.attrs.indexOf(attrId) === -1) continue;
+                        // Check if all currently selected text attrs are in this variation
+                        var allMatch = true;
+                        for (var j = 0; j < checkedIds.length; j++) {
+                            if (pv.attrs.indexOf(checkedIds[j]) === -1) { allMatch = false; break; }
+                        }
+                        if (allMatch) { matchedPV = pv; break; }
+                    }
+
+                    if (matchedPV) {
+                        var $priceEl = $item.find('.qs-var-item__price');
+                        var html = '<span class="qs-var-item__price-sale">' + matchedPV.price_fmt + '</span>';
+                        if (matchedPV.orig_fmt) {
+                            html += '<del class="qs-var-item__price-orig">' + matchedPV.orig_fmt + '</del>';
+                        }
+                        $priceEl.html(html);
+                    }
+                });
+            }
         };
 
         function updateQSGalleryImages(imageUrls) {
