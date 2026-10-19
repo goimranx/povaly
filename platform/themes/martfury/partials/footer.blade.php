@@ -970,11 +970,11 @@
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
-        gap: 2px;
-        padding: 6px 10px;
-        border: 1px solid #d0d0d0;
+        gap: 3px;
+        padding: 8px 12px;
+        border: none;
         border-radius: 8px;
         background: #fff;
         color: var(--global-color-text-body, #2E3D52);
@@ -982,12 +982,11 @@
         transition: all .2s;
     }
     .qs-store-link:hover {
-        border-color: var(--global-color-link, #007bff);
         background: #f8f9fa;
         color: var(--global-color-link, #007bff);
     }
     .qs-store-link i {
-        font-size: 18px;
+        font-size: 22px;
     }
     .qs-store-link-text {
         font-size: 10px;
@@ -1033,24 +1032,37 @@
     .qs-btn:disabled { opacity: .5; cursor: not-allowed; }
     
     @media (max-width: 767px) {
+        /* Change visual swatch grid to 5 columns on mobile */
+        .qs-var-grid {
+            grid-template-columns: repeat(5, 1fr);
+        }
+        
         .qs-actions {
             position: sticky;
             bottom: 0;
             left: 0;
             right: 0;
             background: #fff;
-            padding: 10px 16px;
-            margin: 0 -16px -16px;
+            padding: 10px 16px 10px;
+            margin: 0 -16px 0;
             border-top: 1px solid var(--global-color-border-strong, #ccc);
             z-index: 10;
             gap: 8px;
             align-items: stretch;
         }
         .qs-store-link {
-            padding: 4px 8px;
+            padding: 6px 10px;
+        }
+        .qs-store-link i {
+            font-size: 20px;
         }
         .qs-btn {
             padding: 10px 12px;
+        }
+        
+        /* Remove bottom padding from info on mobile to prevent huge space */
+        .qs-info {
+            padding-bottom: 0 !important;
         }
     }
 
