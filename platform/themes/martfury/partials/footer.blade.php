@@ -1418,6 +1418,10 @@
                     '.qs-color-item[data-id="' + _qsLastClickedAttrId + '"], ' +
                     '.bb-product-attribute-swatch-item[data-id="' + _qsLastClickedAttrId + '"]:not(.qs-var-item)'
                 );
+                
+                // Check if this is a disabled item
+                var isDisabledSize = $clickedItem.hasClass('disabled');
+                
                 $clickedItem.each(function() {
                     var $wrap = $(this).closest('.qs-swatch-wrap');
                     $wrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected');
@@ -1432,6 +1436,9 @@
                         $input.prop('disabled', false).prop('checked', true);
                     }
                 });
+                
+                // Mark if this was a disabled size click - Step 3 will use memory for disabled only
+                $container[0]._qsLastSizeWasDisabled = isDisabledSize;
             }
 
             // ── Rule A: update text / dropdown swatches based on visual selection ──
@@ -1549,9 +1556,9 @@
             // ── Step 3: If the currently-selected visual item just got hidden,
             // auto-select the best available visual item so the user
             // is never left with no color selected after picking a size.
-            // Priority: 1) last color user chose for THIS SIZE (if still visible+available)
-            //           2) last user-chosen color for this set (if still visible+available)
-            //           3) first visible+available  4) first visible (fallback)
+            // Priority (for DISABLED size clicks only):
+            //   1) color last used with THIS disabled size  2) general color preference  3) first available
+            // Priority (for AVAILABLE size clicks): keep current color if possible, else first available
             $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function() {
                 var $attrWrap  = $(this);
                 var $allItems  = $attrWrap.find('.qs-var-item');
@@ -1569,29 +1576,37 @@
                     return this.style.display !== 'none';
                 });
 
-                // Find which non-visual attr is currently selected (the size that triggered this)
-                var currentNonVisualId = nonVisualSelected.length > 0 ? nonVisualSelected[0] : null;
+                // Check if this was triggered by a disabled size click
+                var wasDisabledClick = $container[0]._qsLastSizeWasDisabled || false;
                 
-                // Try remembered visual for THIS specific non-visual first (e.g., Blue for size M)
                 var $preferred = $();
-                if (currentNonVisualId && _qsNonVisualToVisual[currentNonVisualId]) {
-                    var rememberedVisualId = _qsNonVisualToVisual[currentNonVisualId];
-                    $preferred = $visAvail.filter('[data-id="' + rememberedVisualId + '"]');
-                    if (!$preferred.length) {
-                        $preferred = $visAll.filter('[data-id="' + rememberedVisualId + '"]');
-                    }
-                }
                 
-                // Fallback: try general remembered user pick for this visual set
-                if (!$preferred.length) {
-                    var rememberedId = setSlug ? _qsUserPick[setSlug] : null;
-                    if (rememberedId) {
-                        $preferred = $visAvail.filter('[data-id="' + rememberedId + '"]');
+                // Only use size-to-color memory for DISABLED size clicks
+                if (wasDisabledClick) {
+                    // Find which non-visual attr is currently selected (the disabled size that triggered this)
+                    var currentNonVisualId = nonVisualSelected.length > 0 ? nonVisualSelected[0] : null;
+                    
+                    // Try remembered visual for THIS specific non-visual first (e.g., Blue for disabled size M)
+                    if (currentNonVisualId && _qsNonVisualToVisual[currentNonVisualId]) {
+                        var rememberedVisualId = _qsNonVisualToVisual[currentNonVisualId];
+                        $preferred = $visAvail.filter('[data-id="' + rememberedVisualId + '"]');
                         if (!$preferred.length) {
-                            $preferred = $visAll.filter('[data-id="' + rememberedId + '"]');
+                            $preferred = $visAll.filter('[data-id="' + rememberedVisualId + '"]');
+                        }
+                    }
+                    
+                    // Fallback: try general remembered user pick for this visual set
+                    if (!$preferred.length) {
+                        var rememberedId = setSlug ? _qsUserPick[setSlug] : null;
+                        if (rememberedId) {
+                            $preferred = $visAvail.filter('[data-id="' + rememberedId + '"]');
+                            if (!$preferred.length) {
+                                $preferred = $visAll.filter('[data-id="' + rememberedId + '"]');
+                            }
                         }
                     }
                 }
+                // For available size clicks: just pick first available (current color is hidden so can't keep it)
 
                 var $target = $preferred.length ? $preferred : ($visAvail.length ? $visAvail.first() : $visAll.first());
                 if (!$target.length) return;
@@ -1612,10 +1627,16 @@
                 _qsLastClickedAttrType = 'visual';
                 // Note: do NOT update _qsUserPick here — this is an auto-select, not a user choice
                 
-                // Remember this visual for this non-visual (e.g., size M → Black)
-                if (currentNonVisualId) {
-                    _qsNonVisualToVisual[currentNonVisualId] = parseInt($target.data('id'));
+                // Remember this visual for this non-visual ONLY if it was a disabled click
+                if (wasDisabledClick) {
+                    var currentNonVisualId = nonVisualSelected.length > 0 ? nonVisualSelected[0] : null;
+                    if (currentNonVisualId) {
+                        _qsNonVisualToVisual[currentNonVisualId] = parseInt($target.data('id'));
+                    }
                 }
+                
+                // Clear the flag
+                $container[0]._qsLastSizeWasDisabled = false;
 
                 // Trigger CMS AJAX with auto-select flag so our change handler doesn't interfere
                 $radio[0]._qsAutoSelect = true;
@@ -1675,8 +1696,9 @@
                 // Record as user's deliberate choice for this attribute set
                 if (setSlug) _qsUserPick[setSlug] = attrId;
                 
-                // If clicking a non-visual (e.g., size), remember which visual is currently selected
-                if (!isVisual) {
+                // If clicking a DISABLED non-visual (e.g., unavailable size), remember current visual
+                // so we can restore it when user clicks this size again later
+                if (!isVisual && $li.hasClass('disabled')) {
                     var $visualWrap = $scope.find('.attribute-swatches-wrapper[data-type="visual"]').first();
                     var $selectedVisual = $visualWrap.find('.qs-var-item.selected, .qs-var-item:has(input:checked)').first();
                     if ($selectedVisual.length) {
