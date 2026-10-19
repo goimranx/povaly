@@ -706,16 +706,38 @@
     .qs-var-item:has(input:checked):hover {
         outline-width: 1px;
     }
-    /* Disabled — dashed border, still clickable */
+    /* Disabled — diagonal strikethrough over the thumbnail, dashed border */
     .qs-var-item.disabled {
-        opacity: .55;
+        opacity: .65;
         cursor: pointer;
-        border: 1px dashed #aaa !important;
+        border: 1px solid #bbb !important;
         outline: none !important;
     }
     .qs-var-item.disabled:hover {
-        border: 1px dashed var(--global-color-link, #007bff) !important;
+        border: 1px solid var(--global-color-link, #007bff) !important;
         outline: none !important;
+    }
+    /* Diagonal strikethrough line over the thumbnail */
+    .qs-var-item.disabled .qs-var-item__thumb {
+        position: relative;
+    }
+    .qs-var-item.disabled .qs-var-item__thumb::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            to top right,
+            transparent calc(50% - 0.5px),
+            rgba(180,0,0,0.55) calc(50% - 0.5px),
+            rgba(180,0,0,0.55) calc(50% + 0.5px),
+            transparent calc(50% + 0.5px)
+        );
+        pointer-events: none;
+    }
+    /* Price on disabled swatches — muted */
+    .qs-var-item.disabled .qs-var-item__price-sale {
+        color: var(--global-color-text-muted, #767676) !important;
+        text-decoration: line-through;
     }
 
     /* Pagination arrows */
@@ -1218,23 +1240,49 @@
             });
         }
 
-        // ── Shared: apply visual swatch filter + rebuild pagination ────────
-        // Called on initial open AND after every variation AJAX response.
-        // Reads non-visual selected attrs from DOM, hides/shows color swatches
-        // by checking against the variation price map, then rebuilds pagination
-        // so hidden items don't occupy page slots.
-        function applyVisualSwatchFilter(scope) {
+        // ─────────────────────────────────────────────────────────────────────
+        // qsUpdateSwatches(scope)
+        //
+        // Central function. Called on open AND after every AJAX variation response.
+        //
+        // Rules (per user spec):
+        //   A) Visual selected → text/dropdown:
+        //      - Text/dropdown items that have a variation containing the selected
+        //        visual attr → NORMAL (enabled)
+        //      - Text/dropdown items with no matching variation → DASHED DISABLED
+        //        but remain VISIBLE and CLICKABLE
+        //
+        //   B) Text/dropdown selected → visual:
+        //      - Visual items that have a variation containing the selected text/
+        //        dropdown attr → VISIBLE, with the price for that combination
+        //      - Visual items with NO matching variation → HIDDEN (display:none)
+        //
+        //   C) Price on each visible visual swatch:
+        //      - Shows the price of the variation that matches BOTH the color AND
+        //        any currently-selected text/dropdown attr.
+        //      - If no text/dropdown selected, shows the cheapest variation for
+        //        that color (first match).
+        //
+        //   D) Nothing selected: all swatches shown/enabled, prices are each
+        //      color's first (default) variation price.
+        // ─────────────────────────────────────────────────────────────────────
+        function qsUpdateSwatches(scope) {
             var $container = $(scope).find('.product-attribute-swatches');
-            if (!$container.length) $container = $(scope);
-            if (!$container.hasClass('product-attribute-swatches')) {
-                $container = $container.find('.product-attribute-swatches');
-            }
             if (!$container.length) return;
 
+            // Parse price map once
             var priceMap = null;
             try { priceMap = JSON.parse($container.attr('data-variation-prices') || 'null'); } catch(e) {}
+            if (!priceMap || !priceMap.length) return;
 
-            // Collect non-visual selected attr IDs from live DOM
+            // Collect selected visual attr IDs
+            var visualSelected = [];
+            $container.find('.attribute-swatches-wrapper[data-type="visual"] input.product-filter-item:checked').each(function() {
+                var v = parseInt($(this).val());
+                if (!isNaN(v) && v > 0) visualSelected.push(v);
+            });
+
+            // Collect selected non-visual (text / dropdown) attr IDs
             var nonVisualSelected = [];
             $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
                 var $wrap = $(this);
@@ -1247,145 +1295,157 @@
                 if (!isNaN(val) && val > 0) nonVisualSelected.push(val);
             });
 
-            // For each visual swatch grid, apply show/hide + price, then rebuild pagination
+            // ── Rule A: update text / dropdown swatches based on visual selection ──
+            if (visualSelected.length > 0) {
+                $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
+                    var $wrap = $(this);
+                    $wrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').each(function() {
+                        var $item  = $(this);
+                        var itemId = parseInt($item.data('id'));
+                        // Does any variation contain BOTH this text attr AND ALL selected visuals?
+                        var hasMatch = priceMap.some(function(pv) {
+                            if (pv.attrs.indexOf(itemId) === -1) return false;
+                            return visualSelected.every(function(vid) { return pv.attrs.indexOf(vid) !== -1; });
+                        });
+                        if (hasMatch) {
+                            $item.removeClass('disabled');
+                            $item.css('display', '');
+                        } else {
+                            // Keep visible + clickable, just mark disabled
+                            $item.addClass('disabled');
+                            $item.css('display', '');
+                        }
+                    });
+                });
+            } else {
+                // No visual selected — restore all text/dropdown items to their server-rendered state
+                // (the CMS already marks truly-impossible ones disabled via variationInfo)
+                // We don't touch them here — leave as rendered.
+            }
+
+            // ── Rule B & C: update visual swatches based on text/dropdown selection ──
             $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function() {
                 var $attrWrap = $(this);
                 var $allItems = $attrWrap.find('.qs-var-item');
                 if (!$allItems.length) return;
 
-                // Step 1: Show/hide items and update prices
                 $allItems.each(function() {
                     var $item   = $(this);
                     var colorId = parseInt($item.data('id'));
-                    var matched = null;
 
-                    if (priceMap && priceMap.length) {
-                        for (var i = 0; i < priceMap.length; i++) {
-                            var pv = priceMap[i];
-                            if (pv.attrs.indexOf(colorId) === -1) continue;
-                            var allMatch = nonVisualSelected.length === 0 || nonVisualSelected.every(function(id) {
-                                return pv.attrs.indexOf(id) !== -1;
-                            });
-                            if (allMatch) { matched = pv; break; }
-                        }
+                    // Find best matching variation for this color + all selected non-visual attrs
+                    var matched = null;
+                    for (var i = 0; i < priceMap.length; i++) {
+                        var pv = priceMap[i];
+                        if (pv.attrs.indexOf(colorId) === -1) continue;
+                        var fits = nonVisualSelected.length === 0 ||
+                                   nonVisualSelected.every(function(id) { return pv.attrs.indexOf(id) !== -1; });
+                        if (fits) { matched = pv; break; }
                     }
 
                     if (matched) {
+                        // Show this color
                         $item[0].style.display = '';
-                        var priceHtml = '<span class="qs-var-item__price-sale">' + matched.price_fmt + '</span>';
-                        if (matched.orig_fmt) priceHtml += '<del class="qs-var-item__price-orig">' + matched.orig_fmt + '</del>';
-                        $item.find('.qs-var-item__price').html(priceHtml);
-                        if (nonVisualSelected.length > 0 && !matched.available) {
+                        // Update price
+                        var ph = '<span class="qs-var-item__price-sale">' + matched.price_fmt + '</span>';
+                        if (matched.orig_fmt) ph += '<del class="qs-var-item__price-orig">' + matched.orig_fmt + '</del>';
+                        $item.find('.qs-var-item__price').html(ph);
+                        // Availability
+                        if (!matched.available) {
                             $item.addClass('disabled');
                         } else {
                             $item.removeClass('disabled');
                         }
-                    } else if (nonVisualSelected.length > 0) {
-                        // A size is selected but no variation for this color+size
-                        $item[0].style.display = 'none';
                     } else {
-                        // Nothing selected — show all
-                        $item[0].style.display = '';
+                        // No variation for this color + selected size — HIDE it
+                        $item[0].style.display = 'none';
                     }
                 });
 
-                // Step 2: Rebuild pagination from currently visible items only
+                // Rebuild pagination for this grid (only visible items count)
                 var $gridWrap = $attrWrap.find('.qs-var-grid-wrap');
                 if (!$gridWrap.length) return;
-                var prevBtn = $gridWrap[0].querySelector('.qs-var-grid__arrow--prev');
-                var nextBtn = $gridWrap[0].querySelector('.qs-var-grid__arrow--next');
-                var pageSize = 10;
 
-                // Visible items = those NOT display:none
-                var visibleItems = $allItems.filter(function() {
-                    return this.style.display !== 'none';
-                }).toArray();
+                var prevBtn    = $gridWrap[0].querySelector('.qs-var-grid__arrow--prev');
+                var nextBtn    = $gridWrap[0].querySelector('.qs-var-grid__arrow--next');
+                var pageSize   = 10;
+                var allArr     = $allItems.toArray();
 
-                var totalPages = Math.ceil(visibleItems.length / pageSize);
+                // Visible = not display:none
+                var visArr = allArr.filter(function(el) { return el.style.display !== 'none'; });
 
-                // Find which page the currently-selected item is on
-                var selectedVis = visibleItems.findIndex(function(el) {
-                    return el.classList.contains('selected') || el.querySelector('input:checked');
+                var totalPages = Math.ceil(visArr.length / pageSize);
+
+                // Page that contains selected item
+                var selIdx = visArr.findIndex(function(el) {
+                    return el.classList.contains('selected') || !!el.querySelector('input:checked');
                 });
-                var page = selectedVis >= 0 ? Math.floor(selectedVis / pageSize) : 0;
+                var page = selIdx >= 0 ? Math.floor(selIdx / pageSize) : 0;
 
-                // Hide ALL items first, then show page
-                $allItems.each(function() {
-                    if (this.style.display !== 'none') {
-                        // was visible — reset to hidden temporarily
-                        this.dataset.qsVisible = '1';
-                        this.style.display = 'none';
-                    } else {
-                        this.dataset.qsVisible = '0';
-                    }
+                // Hide all, re-show current page of visible items
+                allArr.forEach(function(el) {
+                    if (el.style.display !== 'none') el.style.display = 'none';
                 });
-                // Show only the current page of visible items
-                visibleItems.forEach(function(el, i) {
-                    if (i >= page * pageSize && i < (page + 1) * pageSize) {
-                        el.style.display = '';
-                    }
+                visArr.forEach(function(el, i) {
+                    if (i >= page * pageSize && i < (page + 1) * pageSize) el.style.display = '';
                 });
 
-                // Store state on the wrap element so arrow clicks can navigate
-                $gridWrap[0]._qsPage      = page;
-                $gridWrap[0]._qsTotalPages = totalPages;
-                $gridWrap[0]._qsVisItems  = visibleItems;
-                $gridWrap[0]._qsAllItems  = $allItems.toArray();
-                $gridWrap[0]._qsPageSize  = pageSize;
+                // Persist state for arrow navigation
+                $gridWrap[0]._qsPage       = page;
+                $gridWrap[0]._qsTotalPages  = totalPages;
+                $gridWrap[0]._qsVisItems    = visArr;
+                $gridWrap[0]._qsAllItems    = allArr;
+                $gridWrap[0]._qsPageSize    = pageSize;
 
                 if (prevBtn) prevBtn.style.display = page > 0 ? 'flex' : 'none';
-                if (nextBtn) nextBtn.style.display = totalPages > 1 && page < totalPages - 1 ? 'flex' : 'none';
+                if (nextBtn) nextBtn.style.display = (totalPages > 1 && page < totalPages - 1) ? 'flex' : 'none';
             });
         }
 
-        // ── Initial visual swatch visibility (on offcanvas open) ─────────────
-        function initQSVisualSwatchVisibility(scope) {
-            applyVisualSwatchFilter(scope);
-        }
+        // Alias so the two call-sites (initQSVisualSwatchVisibility + qsHandleVariationResponse) still work
+        function initQSVisualSwatchVisibility(scope) { qsUpdateSwatches(scope); }
 
         // ── Variation grid pagination + hover label ───────────────────────
         function initQSSwatches(scope) {
-            // Hover: update selected label beside attribute name
+            // Hover: show attr title beside set name
             $(scope).on('mouseenter', '.qs-var-item, .qs-color-item', function() {
-                var title = $(this).data('title');
                 var $label = $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val');
-                $label.text(title);
+                $label.text($(this).data('title') || '');
             }).on('mouseleave', '.qs-var-item, .qs-color-item', function() {
                 var $wrap = $(this).closest('.qs-swatch-wrap');
-                var selected = $wrap.find('.qs-var-item.selected, .qs-color-item.selected').first().data('title')
-                               || $wrap.find('input:checked').closest('li').data('title')
-                               || $wrap.find('.qs-swatch__selected-val').data('default') || '';
-                $wrap.find('.qs-swatch__selected-val').text(selected);
+                var cur = $wrap.find('.selected').first().data('title')
+                       || $wrap.find('input:checked').closest('li').data('title')
+                       || $wrap.find('.qs-swatch__selected-val').data('default') || '';
+                $wrap.find('.qs-swatch__selected-val').text(cur);
             });
 
-            // When a swatch is selected, update selected class + label
+            // On selection: update .selected class + label text
             $(scope).on('change', '.product-filter-item', function() {
-                var $input = $(this);
-                var $wrap  = $input.closest('.qs-swatch-wrap');
+                var $wrap = $(this).closest('.qs-swatch-wrap');
                 $wrap.find('.qs-var-item, .qs-color-item').removeClass('selected');
-                $input.closest('li').addClass('selected');
-                var title = $input.closest('li').data('title') || '';
+                $(this).closest('li').addClass('selected');
+                var title = $(this).closest('li').data('title') || '';
                 $wrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
+                // qsUpdateSwatches is called via qsHandleVariationResponse from the AJAX hook
             });
 
-            // Grid pagination arrow clicks — delegate to stored state on wrap element
+            // Arrow pagination — uses state stored by qsUpdateSwatches
             $(scope).on('click', '.qs-var-grid__arrow--prev, .qs-var-grid__arrow--next', function() {
                 var wrap = $(this).closest('.qs-var-grid-wrap')[0];
                 if (!wrap || !wrap._qsVisItems) return;
 
-                var visItems   = wrap._qsVisItems;
-                var allItems   = wrap._qsAllItems;
-                var pageSize   = wrap._qsPageSize || 10;
-                var totalPages = wrap._qsTotalPages || 1;
+                var isPrev     = this.classList.contains('qs-var-grid__arrow--prev');
                 var page       = wrap._qsPage || 0;
+                var totalPages = wrap._qsTotalPages || 1;
+                var visArr     = wrap._qsVisItems;
+                var allArr     = wrap._qsAllItems;
+                var pageSize   = wrap._qsPageSize || 10;
 
-                var isPrev = this.classList.contains('qs-var-grid__arrow--prev');
                 page = isPrev ? Math.max(0, page - 1) : Math.min(totalPages - 1, page + 1);
                 wrap._qsPage = page;
 
-                // Hide all, show current page of visible items
-                allItems.forEach(function(el) { el.style.display = 'none'; });
-                visItems.forEach(function(el, i) {
+                allArr.forEach(function(el) { el.style.display = 'none'; });
+                visArr.forEach(function(el, i) {
                     if (i >= page * pageSize && i < (page + 1) * pageSize) el.style.display = '';
                 });
 
@@ -1456,8 +1516,8 @@
             // Update hidden product ID
             $('#quick-shop-modal .hidden-product-id').val(data.id);
 
-            // ── Update visual swatches: hide/show + prices based on current selection ──
-            applyVisualSwatchFilter(document.getElementById('quick-shop-modal'));
+            // ── Update swatches: hide/show visuals + disable text/dropdown based on selection ──
+            qsUpdateSwatches(document.getElementById('quick-shop-modal'));
         }
 
         function updateQSGalleryImages(imageUrls) {
