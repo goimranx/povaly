@@ -969,7 +969,7 @@
                     initQSSwatches(offcanvasEl);
                     initQSTitleExpand(offcanvasEl);
                     document.dispatchEvent(new CustomEvent('ecommerce.quick-shop.completed', {
-                        detail: { element: offcanvasEl, modal: $('#quick-shop-modal') }
+                        detail: { element: $(offcanvasEl), modal: $('#quick-shop-modal') }
                     }));
                 },
                 error: function() {
@@ -1312,13 +1312,13 @@
 
             if (priceMap && priceMap.length) {
                 // Get currently checked text attribute IDs (size etc)
-                var checkedIds = [];
+                var checkedTextIds = [];
                 $container.find('.attribute-swatches-wrapper[data-type="text"] input:checked').each(function() {
-                    checkedIds.push(parseInt($(this).val()));
+                    checkedTextIds.push(parseInt($(this).val()));
                 });
 
-                // Update each color swatch: price + show/hide based on availability
-                $container.find('.qs-var-item').each(function() {
+                // ── Color swatches (visual): hide if no match for selected sizes, update price ──
+                $container.find('.attribute-swatches-wrapper[data-type="visual"] .qs-var-item').each(function() {
                     var $item  = $(this);
                     var attrId = parseInt($item.data('id'));
                     var matched = null;
@@ -1327,57 +1327,24 @@
                         var pv = priceMap[i];
                         if (pv.attrs.indexOf(attrId) === -1) continue;
                         // Must match ALL currently selected text attrs
-                        var allMatch = true;
-                        for (var j = 0; j < checkedIds.length; j++) {
-                            if (pv.attrs.indexOf(checkedIds[j]) === -1) { allMatch = false; break; }
-                        }
+                        var allMatch = checkedTextIds.every(function(id) { return pv.attrs.indexOf(id) !== -1; });
                         if (allMatch) { matched = pv; break; }
                     }
 
                     if (matched) {
-                        // Show and update price
                         $item.show();
+                        // Update price
                         var html = '<span class="qs-var-item__price-sale">' + matched.price_fmt + '</span>';
                         if (matched.orig_fmt) html += '<del class="qs-var-item__price-orig">' + matched.orig_fmt + '</del>';
                         $item.find('.qs-var-item__price').html(html);
-                        // Mark available/unavailable
-                        if (!matched.available) {
-                            $item.addClass('disabled');
-                        } else {
-                            $item.removeClass('disabled');
-                        }
+                        // Available/out of stock
+                        if (!matched.available) $item.addClass('disabled');
+                        else $item.removeClass('disabled');
                     } else {
-                        // No variation exists for this color + current size → hide it
+                        // No variation for this color + current size combination → hide it
                         $item.hide();
                     }
                 });
-
-                // Also update text swatches (size) availability based on selected colors
-                var checkedColorIds = [];
-                $container.find('.attribute-swatches-wrapper[data-type="visual"] input:checked').each(function() {
-                    checkedColorIds.push(parseInt($(this).val()));
-                });
-                if (checkedColorIds.length) {
-                    $container.find('.qs-color-item').each(function() {
-                        var $item  = $(this);
-                        var attrId = parseInt($item.data('id'));
-                        var hasMatch = false;
-                        for (var i = 0; i < priceMap.length; i++) {
-                            var pv = priceMap[i];
-                            if (pv.attrs.indexOf(attrId) === -1) continue;
-                            var colorMatch = false;
-                            for (var j = 0; j < checkedColorIds.length; j++) {
-                                if (pv.attrs.indexOf(checkedColorIds[j]) !== -1) { colorMatch = true; break; }
-                            }
-                            if (colorMatch && pv.available) { hasMatch = true; break; }
-                        }
-                        if (!hasMatch) {
-                            $item.addClass('disabled');
-                        } else {
-                            $item.removeClass('disabled');
-                        }
-                    });
-                }
             }
         };
 
