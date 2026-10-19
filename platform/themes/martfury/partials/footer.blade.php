@@ -1064,7 +1064,7 @@
             font-size: 24px;
         }
         .qs-btn {
-            padding: 10px 12px;
+            padding: 9px 12px;
         }
     }
 
