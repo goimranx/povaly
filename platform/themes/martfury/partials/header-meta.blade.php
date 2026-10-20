@@ -4251,7 +4251,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var quickViewObserver = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
             if (mutation.addedNodes.length) {
-                initQuickViewGalleryIntegration();
+                setTimeout(initQuickViewGalleryIntegration, 500);
             }
         });
     });
@@ -4264,7 +4264,10 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Initialize gallery integration
     function initQuickViewGalleryIntegration() {
-        var galleryImages = document.querySelectorAll('.bb-quick-view-gallery-images .item img');
+        var galleryContainer = document.querySelector('.bb-quick-view-gallery-images');
+        if (!galleryContainer) return;
+        
+        var galleryImages = galleryContainer.querySelectorAll('.item img');
         if (galleryImages.length === 0) return;
         
         // Get product data
@@ -4277,16 +4280,49 @@ document.addEventListener('DOMContentLoaded', function () {
             imageUrls.push(img.src);
         });
         
-        // Add click handler to each image
+        // Track drag vs click
+        var isDragging = false;
+        var startX = 0;
+        var startY = 0;
+        
+        // Add click handler to each image with drag detection
         galleryImages.forEach(function(img, index) {
-            img.style.cursor = 'pointer';
-            img.addEventListener('click', function(e) {
+            var imgItem = img.closest('.item');
+            if (!imgItem) return;
+            
+            imgItem.style.cursor = 'pointer';
+            
+            // Mouse down - record position
+            imgItem.addEventListener('mousedown', function(e) {
+                isDragging = false;
+                startX = e.clientX;
+                startY = e.clientY;
+            });
+            
+            // Mouse move - detect drag
+            imgItem.addEventListener('mousemove', function(e) {
+                if (e.buttons === 1) { // Left mouse button is pressed
+                    var deltaX = Math.abs(e.clientX - startX);
+                    var deltaY = Math.abs(e.clientY - startY);
+                    if (deltaX > 5 || deltaY > 5) {
+                        isDragging = true;
+                    }
+                }
+            });
+            
+            // Click - only if not dragging
+            imgItem.addEventListener('click', function(e) {
+                if (isDragging) {
+                    isDragging = false;
+                    return;
+                }
+                
                 e.preventDefault();
                 e.stopPropagation();
                 
                 // Close the quick view offcanvas first
                 var quickViewOffcanvas = document.getElementById('product-quickview');
-                if (quickViewOffcanvas) {
+                if (quickViewOffcanvas && typeof bootstrap !== 'undefined') {
                     var bsOffcanvas = bootstrap.Offcanvas.getInstance(quickViewOffcanvas);
                     if (bsOffcanvas) {
                         bsOffcanvas.hide();
@@ -4303,11 +4339,54 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                 }, 300);
             });
+            
+            // Touch events for mobile
+            var touchStartX = 0;
+            var touchStartY = 0;
+            
+            imgItem.addEventListener('touchstart', function(e) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            });
+            
+            imgItem.addEventListener('touchend', function(e) {
+                var touchEndX = e.changedTouches[0].clientX;
+                var touchEndY = e.changedTouches[0].clientY;
+                var deltaX = Math.abs(touchEndX - touchStartX);
+                var deltaY = Math.abs(touchEndY - touchStartY);
+                
+                // If movement is small, treat as tap
+                if (deltaX < 10 && deltaY < 10) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    var quickViewOffcanvas = document.getElementById('product-quickview');
+                    if (quickViewOffcanvas && typeof bootstrap !== 'undefined') {
+                        var bsOffcanvas = bootstrap.Offcanvas.getInstance(quickViewOffcanvas);
+                        if (bsOffcanvas) {
+                            bsOffcanvas.hide();
+                        }
+                    }
+                    
+                    setTimeout(function() {
+                        openProductLightbox({
+                            name: productName,
+                            images: imageUrls,
+                            currentIndex: index
+                        });
+                    }, 300);
+                }
+            });
         });
     }
     
+    // Listen for the quick view initialized event
+    document.addEventListener('ecommerce.quick-view.initialized', function() {
+        setTimeout(initQuickViewGalleryIntegration, 500);
+    });
+    
     // Also check on page load
-    setTimeout(initQuickViewGalleryIntegration, 500);
+    setTimeout(initQuickViewGalleryIntegration, 1000);
 })();
 </script>
 {{-- Product Card Enhanced global styles - loaded on every page so single product page gets them too --}}
