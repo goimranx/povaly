@@ -908,15 +908,6 @@
     margin: 0;
 }
 
-/* Prevent pull-to-refresh interfering with scroll */
-body {
-    overscroll-behavior-y: contain;
-}
-
-.ec-card {
-    overscroll-behavior: contain;
-}
-
 .ec-card__qty-btn i {
     font-size: 16px;
     line-height: 1;
