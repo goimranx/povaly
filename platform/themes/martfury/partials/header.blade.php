@@ -227,6 +227,7 @@
                     <a class="navigation__item navigation__item--smart" 
                        href="{{ $isHomePage ? 'javascript:void(0)' : route('public.index') }}" 
                        data-home-page="{{ $isHomePage ? 'true' : 'false' }}"
+                       data-logo-img="{{ theme_option('logo') ? RvMedia::getImageUrl(theme_option('logo')) : '' }}"
                        id="bb-smart-nav">
                         @if($isHomePage)
                             <span class="bb-logo-wrap">

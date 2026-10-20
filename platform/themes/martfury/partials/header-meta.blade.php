@@ -2759,8 +2759,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (smartNav.classList.contains('show-arrow')) {
                         smartNav.classList.remove('show-arrow');
                         smartNav.href = 'javascript:void(0)';
-                        // Restore logo
-                        location.reload();
+                        // Restore logo without reloading
+                        var logoWrap = smartNav.querySelector('.bb-logo-wrap');
+                        if (logoWrap) {
+                            // Restore logo image
+                            var logoImg = smartNav.getAttribute('data-logo-img');
+                            if (logoImg) {
+                                logoWrap.innerHTML = '<img src="' + logoImg + '" alt="Logo" />';
+                                logoWrap.style.background = '';
+                                logoWrap.style.border = '';
+                            }
+                        }
                     }
                 }
             });
