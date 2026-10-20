@@ -323,26 +323,57 @@
             url: '/ajax/cart',
             method: 'GET',
             success: function(cartResponse) {
-                console.log('Syncing cart state with HTML parsing');
+                console.log('=== CART SYNC START ===');
+                console.log('Cart response:', cartResponse);
                 
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
                     console.log('No cart HTML available');
                     return;
                 }
                 
+                // Log the actual HTML content
+                console.log('Cart HTML length:', cartResponse.data.html.length);
+                console.log('Cart HTML (first 500 chars):', cartResponse.data.html.substring(0, 500));
+                
                 var $html = $(cartResponse.data.html);
+                console.log('Parsed jQuery elements:', $html.length);
+                
+                // Log all elements with any data attribute
+                console.log('=== All elements with data attributes ===');
+                $html.find('*').filter(function() {
+                    return Object.keys(this.dataset).length > 0;
+                }).each(function() {
+                    console.log('Element:', this.tagName, 'Data:', this.dataset, 'HTML:', this.outerHTML.substring(0, 100));
+                });
+                
+                // Log all input elements
+                console.log('=== All input elements ===');
+                $html.find('input').each(function() {
+                    console.log('Input:', this.name, 'Value:', this.value, 'Type:', this.type);
+                });
+                
+                // Log all links
+                console.log('=== All links ===');
+                $html.find('a').each(function() {
+                    console.log('Link:', this.href, 'Text:', $(this).text().trim());
+                });
+                
                 var cartItems = {};
                 
                 // Parse the cart HTML to extract product IDs and quantities
-                // Look for input[name="items[...][qty]"] or data-id attributes
+                // Look for data-id attributes
                 $html.find('[data-id]').each(function() {
                     var $el = $(this);
                     var productId = $el.data('id');
+                    console.log('Found element with data-id:', productId, $el[0]);
+                    
                     if (productId) {
-                        // Find qty in the same container
-                        var $container = $el.closest('li, tr, .ps-product');
-                        var $qtyInput = $container.find('input[name*="[qty]"], .qty-input, input.qty');
+                        // Find qty in the same container or nearby
+                        var $container = $el.closest('li, tr, .ps-product, .ps-cart__product');
+                        var $qtyInput = $container.find('input[name*="[qty]"], .qty-input, input.qty, input[type="number"]');
                         var qty = $qtyInput.length ? parseInt($qtyInput.val()) : 1;
+                        
+                        console.log('Product:', productId, 'Qty input found:', $qtyInput.length, 'Qty value:', qty);
                         
                         if (qty > 0) {
                             cartItems[productId] = qty;
@@ -350,12 +381,16 @@
                     }
                 });
                 
-                console.log('Cart items found:', cartItems);
+                console.log('Cart items parsed:', cartItems);
+                console.log('Number of products in cart:', Object.keys(cartItems).length);
+                console.log('=== CART SYNC PARSING COMPLETE ===');
                 
                 // Update all enhanced cards
                 $('.ec-card__btn--cart').each(function() {
                     var $btn = $(this);
                     var productId = $btn.data('id');
+                    
+                    console.log('Checking button for product:', productId, 'In cart?', !!cartItems[productId]);
                     
                     if (cartItems[productId]) {
                         // Product is in cart, show quantity control
