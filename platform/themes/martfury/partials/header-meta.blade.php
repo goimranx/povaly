@@ -4093,10 +4093,19 @@ document.addEventListener('DOMContentLoaded', function () {
         currentProduct = productData;
         productTitle.textContent = productData.name || 'Product';
         
-        // Set main image
+        // Set main image (use currentIndex if provided, otherwise 0)
+        var startIndex = productData.currentIndex || 0;
         if (productData.images && productData.images.length > 0) {
-            mainImage.src = productData.images[0];
-            loadThumbnails(productData.images);
+            mainImage.src = productData.images[startIndex];
+            loadThumbnails(productData.images, startIndex);
+        }
+        
+        // Set variations if provided
+        var variationsContainer = document.getElementById('lightbox-product-variations');
+        if (productData.variations && variationsContainer) {
+            variationsContainer.innerHTML = productData.variations;
+        } else if (variationsContainer) {
+            variationsContainer.innerHTML = '';
         }
         
         // Show lightbox
@@ -4139,11 +4148,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     
     // Load thumbnails
-    function loadThumbnails(images) {
+    function loadThumbnails(images, activeIndex) {
+        if (typeof activeIndex === 'undefined') activeIndex = 0;
+        
         thumbnailsContainer.innerHTML = '';
         images.forEach(function(img, index) {
             var thumb = document.createElement('div');
-            thumb.className = 'product-lightbox-thumbnail' + (index === 0 ? ' active' : '');
+            thumb.className = 'product-lightbox-thumbnail' + (index === activeIndex ? ' active' : '');
             thumb.innerHTML = '<img src="' + img + '" alt="Thumbnail ' + (index + 1) + '">';
             thumb.addEventListener('click', function() {
                 selectThumbnail(index);
@@ -4234,6 +4245,69 @@ document.addEventListener('DOMContentLoaded', function () {
             selectThumbnail(newIndex);
         }
     }
+    
+    // ── INTEGRATE WITH QUICK VIEW GALLERY ──────────────────────────────
+    // Watch for quick view offcanvas to be loaded
+    var quickViewObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length) {
+                initQuickViewGalleryIntegration();
+            }
+        });
+    });
+    
+    // Observe the quick view offcanvas body
+    var quickViewBody = document.querySelector('#product-quickview .offcanvas-body');
+    if (quickViewBody) {
+        quickViewObserver.observe(quickViewBody, { childList: true, subtree: true });
+    }
+    
+    // Initialize gallery integration
+    function initQuickViewGalleryIntegration() {
+        var galleryImages = document.querySelectorAll('.bb-quick-view-gallery-images .item img');
+        if (galleryImages.length === 0) return;
+        
+        // Get product data
+        var productTitle = document.querySelector('#product-quickview .ps-product__info h1 a');
+        var productName = productTitle ? productTitle.textContent.trim() : 'Product';
+        
+        // Collect all image URLs
+        var imageUrls = [];
+        galleryImages.forEach(function(img) {
+            imageUrls.push(img.src);
+        });
+        
+        // Add click handler to each image
+        galleryImages.forEach(function(img, index) {
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Close the quick view offcanvas first
+                var quickViewOffcanvas = document.getElementById('product-quickview');
+                if (quickViewOffcanvas) {
+                    var bsOffcanvas = bootstrap.Offcanvas.getInstance(quickViewOffcanvas);
+                    if (bsOffcanvas) {
+                        bsOffcanvas.hide();
+                    }
+                }
+                
+                // Small delay to let offcanvas close animation start
+                setTimeout(function() {
+                    // Open lightbox with product data
+                    openProductLightbox({
+                        name: productName,
+                        images: imageUrls,
+                        currentIndex: index
+                    });
+                }, 300);
+            });
+        });
+    }
+    
+    // Also check on page load
+    setTimeout(initQuickViewGalleryIntegration, 500);
 })();
 </script>
 {{-- Product Card Enhanced global styles - loaded on every page so single product page gets them too --}}
