@@ -894,16 +894,40 @@
             margin: 0 !important;
             padding: 0 !important;
         }
-        /* Force fixed positioning on mobile - prevent address bar interference */
-        @supports (-webkit-touch-callout: none) {
-            /* iOS Safari */
+        
+        /* CRITICAL: Fix for real mobile devices - use fixed viewport units */
+        @media (max-width: 1199px) {
             nav.navigation--mobile-product,
             .navigation--mobile-product {
-                position: fixed !important;
+                /* Use fixed viewport height that doesn't change with address bar */
                 bottom: 0 !important;
-                bottom: env(safe-area-inset-bottom, 0) !important;
+                position: fixed !important;
+                /* Prevent browser from repositioning on scroll */
+                -webkit-overflow-scrolling: auto !important;
+            }
+            
+            /* iOS specific fix */
+            @supports (-webkit-touch-callout: none) {
+                nav.navigation--mobile-product,
+                .navigation--mobile-product {
+                    /* Use safe area inset for iOS notch */
+                    bottom: env(safe-area-inset-bottom, 0) !important;
+                    /* Disable elastic scrolling effect */
+                    -webkit-overflow-scrolling: auto !important;
+                }
+            }
+            
+            /* Android Chrome specific fix */
+            @supports not (-webkit-touch-callout: none) {
+                nav.navigation--mobile-product,
+                .navigation--mobile-product {
+                    /* Force GPU rendering to prevent reflow */
+                    transform: translateZ(0) !important;
+                    -webkit-transform: translateZ(0) !important;
+                }
             }
         }
+        
         /* Prevent ANY transform classes from moving the bar */
         nav.navigation--mobile-product.navigation--pin,
         nav.navigation--mobile-product.navigation--unpin,
@@ -2866,29 +2890,59 @@ document.addEventListener('DOMContentLoaded', function () {
     // ── FORCE LOCK BOTTOM BAR POSITION (prevent any JS from moving it) ─────
     var bottomBar = document.querySelector('.navigation--mobile-product');
     if (bottomBar) {
+        // Calculate the actual bottom position once
+        var calculateBottom = function() {
+            // Always stick to viewport bottom, not document bottom
+            return 0;
+        };
+        
         // Force remove any transforms or animations
         var lockPosition = function() {
+            var bottomValue = calculateBottom();
             bottomBar.style.setProperty('position', 'fixed', 'important');
-            bottomBar.style.setProperty('bottom', '0', 'important');
+            bottomBar.style.setProperty('bottom', bottomValue + 'px', 'important');
+            bottomBar.style.setProperty('left', '0', 'important');
+            bottomBar.style.setProperty('right', '0', 'important');
             bottomBar.style.setProperty('transform', 'translate3d(0, 0, 0)', 'important');
+            bottomBar.style.setProperty('-webkit-transform', 'translate3d(0, 0, 0)', 'important');
             bottomBar.style.setProperty('transition', 'none', 'important');
+            bottomBar.style.setProperty('-webkit-transition', 'none', 'important');
         };
         
         // Lock immediately
         lockPosition();
         
-        // Re-lock on any scroll event (in case some JS tries to change it)
-        var lockTimeout;
+        // Re-lock on scroll (mobile address bar hide/show)
+        var scrollLockTimeout;
+        var lastScrollY = window.scrollY;
         window.addEventListener('scroll', function() {
-            if (lockTimeout) clearTimeout(lockTimeout);
-            lockTimeout = setTimeout(lockPosition, 10);
+            // Only re-lock if scroll position actually changed
+            if (Math.abs(window.scrollY - lastScrollY) > 5) {
+                lastScrollY = window.scrollY;
+                lockPosition();
+            }
+            
+            if (scrollLockTimeout) clearTimeout(scrollLockTimeout);
+            scrollLockTimeout = setTimeout(lockPosition, 50);
+        }, { passive: true });
+        
+        // Re-lock on resize (orientation change, keyboard open/close)
+        var resizeLockTimeout;
+        window.addEventListener('resize', function() {
+            if (resizeLockTimeout) clearTimeout(resizeLockTimeout);
+            resizeLockTimeout = setTimeout(lockPosition, 50);
         }, { passive: true });
         
         // Watch for any attribute/style changes and force lock
-        new MutationObserver(lockPosition).observe(bottomBar, {
+        new MutationObserver(function() {
+            lockPosition();
+        }).observe(bottomBar, {
             attributes: true,
             attributeFilter: ['style', 'class']
         });
+        
+        // Force lock on page visibility change (tab switch)
+        document.addEventListener('visibilitychange', lockPosition);
     }
     
     // ── Bottom bar toggle swap (Search / Cart / Categories) ─────────────
