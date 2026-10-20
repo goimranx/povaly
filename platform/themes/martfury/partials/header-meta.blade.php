@@ -867,7 +867,7 @@
         .header .ps-block--user-header .ps-block__right a { color: var(--global-color-text-on-dark) !important; }
         .header .ps-block--user-header .ps-block__right a:hover { color: var(--global-color-warning) !important; }
 
-        /* Bottom bar - Fixed positioning to prevent bouncing */
+        /* Bottom bar - Fixed positioning (NOT sticky) */
         nav.navigation--mobile-product,
         .navigation--mobile-product {
             position: fixed !important;
@@ -875,14 +875,10 @@
             left: 0 !important;
             right: 0 !important;
             width: 100% !important;
-            height: 56px !important;
-            min-height: 56px !important;
-            max-height: 56px !important;
             transform: translate3d(0, 0, 0) !important;
             -webkit-transform: translate3d(0, 0, 0) !important;
             transition: none !important;
             z-index: 10002 !important;
-            box-shadow: 0 -1px 3px rgba(0,0,0,0.08) !important;
         }
         nav.navigation--mobile-product.navigation--pin,
         nav.navigation--mobile-product.navigation--unpin,
@@ -893,20 +889,24 @@
         }
         
         .navigation--list { 
-            background: var(--global-color-site-bg, #F4F9FD); 
-            border-top-color: var(--global-color-primary-border, #FFB399); 
-            padding-left: 15px !important; 
-            padding-right: 15px !important;
-            height: 56px !important;
+            background: var(--global-color-site-bg, #F4F9FD) !important;
+            border-top: 1px solid var(--global-color-primary-border, #FFB399) !important;
+            padding: 5px 20px !important;
             display: flex !important;
             align-items: center !important;
+            justify-content: space-between !important;
+        }
+        .navigation--list .navigation__content {
+            width: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
         }
         .navigation--list .navigation__item { 
-            flex: 0 !important; 
+            flex: 0 !important;
             min-width: fit-content !important; 
             color: var(--global-color-text-body, #2E3D52) !important; 
             transition: color 0.3s ease !important;
-            height: 56px !important;
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
@@ -927,35 +927,43 @@
             line-height: 1 !important;
         }
         
-        /* Smart navigation item - Logo/Home/Back to top */
+        /* Smart navigation item - Logo with gradient background */
         .navigation__item--smart {
-            height: 56px !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
         }
         .navigation__item--smart .bb-logo-wrap {
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            width: 40px !important;
+            height: 40px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: linear-gradient(135deg, 
+                var(--global-color-primary, #FF642C) 0%, 
+                var(--global-color-warning, #FBB13C) 100%) !important;
+            background: linear-gradient(135deg, 
+                var(--global-color-primary, #FF642C) 85%, 
+                var(--global-color-warning, #FBB13C) 100%) !important;
+            border-radius: 8px !important;
+            padding: 3px !important;
+            overflow: hidden !important;
         }
         .navigation__item--smart .bb-logo-img {
-            max-width: 48px;
-            max-height: 32px;
-            width: auto;
-            height: auto;
-            object-fit: contain;
+            max-width: 34px !important;
+            max-height: 34px !important;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: contain !important;
         }
         .navigation__item--smart .bb-logo-wrap i {
-            font-size: 24px;
-            color: var(--global-color-text-body, #2E3D52);
+            font-size: 22px !important;
+            color: #FFFFFF !important;
         }
         .navigation__item--smart.show-arrow .bb-logo-wrap {
-            background: none;
-            border: none;
+            background: linear-gradient(135deg, 
+                var(--global-color-primary, #FF642C) 85%, 
+                var(--global-color-warning, #FBB13C) 100%) !important;
         }
         
         /* Bottom bar hover state */
@@ -2800,7 +2808,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var smartNav = document.getElementById('bb-smart-nav');
     if (smartNav) {
         var isHomePage = smartNav.getAttribute('data-home-page') === 'true';
-        var scrollThreshold = 300;
+        var scrollThreshold = 500;
         
         if (isHomePage) {
             // On homepage: show logo initially, switch to arrow when scrolled
@@ -2813,8 +2821,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         var logoWrap = smartNav.querySelector('.bb-logo-wrap');
                         if (logoWrap) {
                             logoWrap.innerHTML = '<i class="icon-arrow-up"></i>';
-                            logoWrap.style.background = 'none';
-                            logoWrap.style.border = 'none';
                         }
                     }
                 } else {
@@ -2829,8 +2835,8 @@ document.addEventListener('DOMContentLoaded', function () {
                             var logoImg = smartNav.getAttribute('data-logo-img');
                             if (logoImg) {
                                 logoWrap.innerHTML = '<img src="' + logoImg + '" alt="Logo" class="bb-logo-img" />';
-                                logoWrap.style.background = '';
-                                logoWrap.style.border = '';
+                            } else {
+                                logoWrap.innerHTML = '<i class="icon-home"></i>';
                             }
                         }
                     }
