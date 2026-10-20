@@ -113,14 +113,18 @@
             newQty = currentQty + 1;
         }
         
-        // OPTIMISTIC UPDATE: Update UI immediately
-        $qtyInput.val(newQty);
-        var $minusBtn = $control.find('.ec-card__qty-btn--minus');
-        if (newQty === 1) {
-            $minusBtn.html('<i class="ph ph-trash"></i>');
-        } else {
-            $minusBtn.html('<i class="ph ph-minus"></i>');
-        }
+        // OPTIMISTIC UPDATE: Update UI immediately on ALL controls for this product (including carousel clones)
+        $('.ec-card__qty-control[data-id="' + productId + '"]').each(function() {
+            var $ctrl = $(this);
+            $ctrl.find('.ec-card__qty-input').val(newQty);
+            
+            var $minusBtn = $ctrl.find('.ec-card__qty-btn--minus');
+            if (newQty === 1) {
+                $minusBtn.html('<i class="ph ph-trash"></i>');
+            } else {
+                $minusBtn.html('<i class="ph ph-minus"></i>');
+            }
+        });
         
         // Sync to server in background
         updateCartQuantity(productId, newQty, $control);
@@ -136,16 +140,20 @@
         // Ensure minimum qty is 1
         if (newQty < 1) {
             newQty = 1;
-            $input.val(1);
         }
         
-        // Update icon based on new quantity
-        var $minusBtn = $control.find('.ec-card__qty-btn--minus');
-        if (newQty === 1) {
-            $minusBtn.html('<i class="ph ph-trash"></i>');
-        } else {
-            $minusBtn.html('<i class="ph ph-minus"></i>');
-        }
+        // Update all controls for this product (including carousel clones)
+        $('.ec-card__qty-control[data-id="' + productId + '"]').each(function() {
+            var $ctrl = $(this);
+            $ctrl.find('.ec-card__qty-input').val(newQty);
+            
+            var $minusBtn = $ctrl.find('.ec-card__qty-btn--minus');
+            if (newQty === 1) {
+                $minusBtn.html('<i class="ph ph-trash"></i>');
+            } else {
+                $minusBtn.html('<i class="ph ph-minus"></i>');
+            }
+        });
         
         updateCartQuantity(productId, newQty, $control);
     });
@@ -163,10 +171,13 @@
             // Up arrow - increase
             e.preventDefault();
             newQty = currentQty + 1;
-            $input.val(newQty);
             
-            var $minusBtn = $control.find('.ec-card__qty-btn--minus');
-            $minusBtn.html('<i class="ph ph-minus"></i>');
+            // Update all controls for this product
+            $('.ec-card__qty-control[data-id="' + productId + '"]').each(function() {
+                var $ctrl = $(this);
+                $ctrl.find('.ec-card__qty-input').val(newQty);
+                $ctrl.find('.ec-card__qty-btn--minus').html('<i class="ph ph-minus"></i>');
+            });
             
             updateCartQuantity(productId, newQty, $control);
         } else if (e.which === 40) {
@@ -174,14 +185,19 @@
             e.preventDefault();
             if (currentQty > 1) {
                 newQty = currentQty - 1;
-                $input.val(newQty);
                 
-                var $minusBtn = $control.find('.ec-card__qty-btn--minus');
-                if (newQty === 1) {
-                    $minusBtn.html('<i class="ph ph-trash"></i>');
-                } else {
-                    $minusBtn.html('<i class="ph ph-minus"></i>');
-                }
+                // Update all controls for this product
+                $('.ec-card__qty-control[data-id="' + productId + '"]').each(function() {
+                    var $ctrl = $(this);
+                    $ctrl.find('.ec-card__qty-input').val(newQty);
+                    
+                    var $minusBtn = $ctrl.find('.ec-card__qty-btn--minus');
+                    if (newQty === 1) {
+                        $minusBtn.html('<i class="ph ph-trash"></i>');
+                    } else {
+                        $minusBtn.html('<i class="ph ph-minus"></i>');
+                    }
+                });
                 
                 updateCartQuantity(productId, newQty, $control);
             }
