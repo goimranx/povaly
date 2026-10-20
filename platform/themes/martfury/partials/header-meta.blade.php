@@ -979,6 +979,7 @@
             border-radius: 50% !important;
             padding: 7px !important;
             overflow: hidden !important;
+            transition: all 0.3s ease !important;
         }
         .navigation__item--smart .bb-logo-img {
             max-width: 26px !important;
@@ -986,15 +987,57 @@
             width: 100% !important;
             height: 100% !important;
             object-fit: contain !important;
+            transition: all 0.3s ease !important;
         }
         .navigation__item--smart .bb-logo-wrap i {
             font-size: 22px !important;
-            color: #FFFFFF !important;
+            color: var(--global-color-text-on-dark, #F4F9FD) !important;
+            transition: all 0.3s ease !important;
         }
+        
+        /* Arrow icon animation when it appears */
         .navigation__item--smart.show-arrow .bb-logo-wrap {
             background: linear-gradient(135deg, 
                 var(--global-color-primary, #FF642C) 85%, 
                 var(--global-color-warning, #FBB13C) 100%) !important;
+        }
+        .navigation__item--smart.show-arrow .bb-logo-wrap i {
+            animation: arrowBounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+        }
+        
+        /* Smooth bounce animation for arrow */
+        @keyframes arrowBounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) translateY(10px);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.1) translateY(-2px);
+            }
+            70% {
+                transform: scale(0.95) translateY(1px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        /* Logo fade out animation when switching to arrow */
+        .navigation__item--smart .bb-logo-img.fade-out {
+            animation: logoFadeOut 0.3s ease-out !important;
+        }
+        
+        @keyframes logoFadeOut {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
         }
         
         /* Bottom bar hover state */
@@ -2881,10 +2924,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (!smartNav.classList.contains('show-arrow')) {
                         smartNav.classList.add('show-arrow');
                         smartNav.href = 'javascript:void(0)';
-                        // Replace logo with arrow icon
+                        // Add fade-out animation to logo, then replace with arrow
                         var logoWrap = smartNav.querySelector('.bb-logo-wrap');
                         if (logoWrap) {
-                            logoWrap.innerHTML = '<i class="icon-arrow-up"></i>';
+                            var logoImg = logoWrap.querySelector('.bb-logo-img');
+                            if (logoImg) {
+                                logoImg.classList.add('fade-out');
+                                setTimeout(function() {
+                                    logoWrap.innerHTML = '<i class="icon-arrow-up"></i>';
+                                }, 300); // Wait for fade-out animation
+                            } else {
+                                // No logo image, replace immediately
+                                logoWrap.innerHTML = '<i class="icon-arrow-up"></i>';
+                            }
                         }
                     }
                 } else {
