@@ -135,11 +135,12 @@
         var $input = $(this);
         var $control = $input.closest('.ec-card__qty-control');
         var productId = $control.data('id');
-        var newQty = parseInt($input.val()) || 1;
+        var newQty = parseInt($input.val()) || 0;
         
-        // Ensure minimum qty is 1
-        if (newQty < 1) {
-            newQty = 1;
+        // If 0 or less, remove from cart
+        if (newQty <= 0) {
+            removeFromCart(productId, $control);
+            return;
         }
         
         // Update all controls for this product (including carousel clones)
@@ -366,7 +367,7 @@
                         var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
                             'data-id="' + productId + '" ' +
                             (productSlug ? 'data-slug="' + productSlug + '" ' : '') +
-                            'data-url="/ajax/cart/add-to-cart" ' +
+                            'data-url="/cart/add-to-cart" ' +
                             'data-show-toast-on-success="false" ' +
                             'data-bb-toggle="add-to-cart">' +
                             'Add to Cart</button>';
@@ -405,7 +406,7 @@
                 var $actions = $control.closest('.ec-card__actions');
                 var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
                     'data-id="' + productId + '" ' +
-                    'data-url="/ajax/cart/add-to-cart" ' +
+                    'data-url="/cart/add-to-cart" ' +
                     'data-show-toast-on-success="false" ' +
                     'data-bb-toggle="add-to-cart">' +
                     'Add to Cart</button>';
@@ -514,7 +515,7 @@
                         var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
                             'data-id="' + productId + '" ' +
                             (productSlug ? 'data-slug="' + productSlug + '" ' : '') +
-                            'data-url="/ajax/cart/add-to-cart" ' +
+                            'data-url="/cart/add-to-cart" ' +
                             'data-show-toast-on-success="false" ' +
                             'data-bb-toggle="add-to-cart">' +
                             'Add to Cart</button>';
