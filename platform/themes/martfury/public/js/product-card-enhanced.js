@@ -65,13 +65,17 @@
 
         var $actions = $btn.closest('.ec-card__actions');
         
+        // Store the slug before replacing the button
+        var productSlug = $btn.data('slug');
+        
         // Create quantity control HTML with editable input and text
         var iconLeft = quantity === 1 
             ? '<i class="ph ph-trash"></i>' 
             : '<i class="ph ph-minus"></i>';
         
         var controlHtml = 
-            '<div class="ec-card__qty-control" data-id="' + productId + '">' +
+            '<div class="ec-card__qty-control" data-id="' + productId + '"' + 
+            (productSlug ? ' data-slug="' + productSlug + '"' : '') + '>' +
                 '<button type="button" class="ec-card__qty-btn ec-card__qty-btn--minus" data-action="decrease">' + iconLeft + '</button>' +
                 '<div class="ec-card__qty-display">' +
                     '<input type="number" class="ec-card__qty-input" value="' + quantity + '" min="1" />' +
@@ -132,9 +136,8 @@
     function updateCartQuantity(productId, newQty, $control) {
         $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', true);
         
-        // Get slug from the card
-        var $card = $control.closest('.ec-card');
-        var productSlug = $card.find('[data-slug]').data('slug');
+        // Get slug from the control itself (stored when transformed)
+        var productSlug = $control.data('slug');
         
         // Get cart to find the rowId
         $.ajax({
@@ -232,9 +235,8 @@
     function removeFromCart(productId, $control) {
         var $actions = $control.closest('.ec-card__actions');
         
-        // Get slug from the card
-        var $card = $control.closest('.ec-card');
-        var productSlug = $card.find('[data-slug]').data('slug');
+        // Get slug from the control itself
+        var productSlug = $control.data('slug');
         
         // Get cart to find the remove URL
         $.ajax({
