@@ -89,7 +89,7 @@ return [
             $theme->asset()->container('footer')->usePath()
                 ->add('backend', 'js/backend.js', ['jquery'], [], $version);
             $theme->asset()->container('footer')->usePath()
-                ->add('product-card-enhanced', 'js/product-card-enhanced.js', ['jquery', 'main'], [], $version);
+                ->add('product-card-enhanced', 'js/product-card-enhanced.js', ['jquery', 'main'], [], $version . '.cart-fix');
 
             if (function_exists('shortcode')) {
                 $theme->composer([
