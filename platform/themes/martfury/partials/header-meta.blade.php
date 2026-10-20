@@ -4247,26 +4247,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     // ── INTEGRATE WITH QUICK VIEW GALLERY ──────────────────────────────
-    // Initialize gallery integration properly with Slick events
-    function initQuickViewGalleryIntegration() {
-        var galleryContainer = document.querySelector('.bb-quick-view-gallery-images');
-        if (!galleryContainer) return;
-        
-        var $gallery = $(galleryContainer);
-        if (!$gallery.length) return;
-        
-        // Get product data
-        var productTitle = document.querySelector('#product-quickview .ps-product__info h1 a');
-        var productName = productTitle ? productTitle.textContent.trim() : 'Product';
-        
-        // Wait for Slick to be initialized
-        if (!$gallery.hasClass('slick-initialized')) {
-            // Not initialized yet, wait a bit
-            setTimeout(initQuickViewGalleryIntegration, 200);
+    // Professional integration with Slick slider
+    window.initProductLightboxForQuickView = function() {
+        var $gallery = $('.bb-quick-view-gallery-images');
+        if (!$gallery.length || !$gallery.hasClass('slick-initialized')) {
             return;
         }
         
-        // Collect all image URLs from slides
+        // Get product name
+        var productName = $('#product-quickview .ps-product__info h1 a').text().trim() || 'Product';
+        
+        // Collect all image URLs (exclude cloned slides)
         var imageUrls = [];
         $gallery.find('.slick-slide:not(.slick-cloned) img').each(function() {
             imageUrls.push($(this).attr('src'));
@@ -4274,85 +4265,56 @@ document.addEventListener('DOMContentLoaded', function () {
         
         if (imageUrls.length === 0) return;
         
-        // Remove any existing click handlers to avoid duplicates
-        $gallery.off('click.lightbox');
+        // Remove previous handlers
+        $gallery.off('click.productLightbox');
         
-        // Add click handler using Slick's afterChange event to know current slide
-        var currentSlideIndex = $gallery.slick('slickCurrentSlide');
+        // Add click handler with proper drag detection
+        var isDragging = false;
         
-        // On slide change, update current index
-        $gallery.on('afterChange', function(event, slick, currentSlide) {
-            currentSlideIndex = currentSlide;
+        $gallery.on('mousedown touchstart', function() {
+            isDragging = false;
         });
         
-        // Click handler on the gallery container
-        $gallery.on('click.lightbox', '.slick-slide:not(.slick-cloned)', function(e) {
-            // Check if this was a drag/swipe
-            if ($gallery.hasClass('dragging')) {
+        $gallery.on('mousemove touchmove', function() {
+            isDragging = true;
+        });
+        
+        $gallery.on('click.productLightbox', function(e) {
+            if (isDragging) {
+                isDragging = false;
                 return;
             }
             
-            e.preventDefault();
-            e.stopPropagation();
+            var currentIndex = $gallery.slick('slickCurrentSlide');
             
-            // Get the clicked slide index
-            var $slide = $(this);
-            var clickedIndex = $slide.data('slick-index');
-            
-            // If data-slick-index is not available, use current slide
-            if (typeof clickedIndex === 'undefined') {
-                clickedIndex = currentSlideIndex;
-            }
-            
-            // Close the quick view offcanvas first
-            var quickViewOffcanvas = document.getElementById('product-quickview');
-            if (quickViewOffcanvas && typeof bootstrap !== 'undefined') {
-                var bsOffcanvas = bootstrap.Offcanvas.getInstance(quickViewOffcanvas);
-                if (bsOffcanvas) {
-                    bsOffcanvas.hide();
+            // Close quick view
+            var offcanvasEl = document.getElementById('product-quickview');
+            if (offcanvasEl && typeof bootstrap !== 'undefined') {
+                var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
+                if (offcanvas) {
+                    offcanvas.hide();
                 }
             }
             
-            // Open lightbox
+            // Open lightbox after short delay
             setTimeout(function() {
                 openProductLightbox({
                     name: productName,
                     images: imageUrls,
-                    currentIndex: clickedIndex
+                    currentIndex: currentIndex
                 });
-            }, 300);
+            }, 250);
         });
-        
-        // Track dragging state
-        $gallery.on('beforeChange', function() {
-            $gallery.addClass('dragging');
-        });
-        
-        $gallery.on('afterChange', function() {
-            setTimeout(function() {
-                $gallery.removeClass('dragging');
-            }, 100);
-        });
-    }
+    };
     
-    // Listen for the quick view initialized event (from main.js)
-    document.addEventListener('ecommerce.quick-view.initialized', function() {
-        setTimeout(initQuickViewGalleryIntegration, 600);
-    });
-    
-    // Also try on MutationObserver
-    var quickViewObserver = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.addedNodes.length) {
-                setTimeout(initQuickViewGalleryIntegration, 600);
+    // Hook into the quick view initialized event
+    $(document).on('ecommerce.quick-view.initialized', function() {
+        setTimeout(function() {
+            if (typeof window.initProductLightboxForQuickView === 'function') {
+                window.initProductLightboxForQuickView();
             }
-        });
+        }, 800);
     });
-    
-    var quickViewBody = document.querySelector('#product-quickview .offcanvas-body');
-    if (quickViewBody) {
-        quickViewObserver.observe(quickViewBody, { childList: true });
-    }
 })();
 </script>
 {{-- Product Card Enhanced global styles - loaded on every page so single product page gets them too --}}
