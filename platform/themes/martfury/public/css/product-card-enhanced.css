@@ -858,14 +858,26 @@
     border-left-color: var(--global-color-warning);
 }
 
-.ec-card__qty-text {
+.ec-card__qty-input {
     flex: 1;
     text-align: center;
     font-size: 13px;
     font-weight: 500;
     color: var(--global-color-text-main);
+    border: none;
+    background: transparent;
+    outline: none;
     padding: 0 8px;
     white-space: nowrap;
+    min-width: 0;
+    -moz-appearance: textfield; /* Firefox */
+}
+
+/* Hide spinner buttons in Chrome, Safari, Edge */
+.ec-card__qty-input::-webkit-outer-spin-button,
+.ec-card__qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .ec-card__qty-btn i {

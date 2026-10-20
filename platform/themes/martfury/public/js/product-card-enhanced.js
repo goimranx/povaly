@@ -65,7 +65,7 @@
 
         var $actions = $btn.closest('.ec-card__actions');
         
-        // Create quantity control HTML
+        // Create quantity control HTML with editable input
         var iconLeft = quantity === 1 
             ? '<i class="ph ph-trash"></i>' 
             : '<i class="ph ph-minus"></i>';
@@ -73,7 +73,7 @@
         var controlHtml = 
             '<div class="ec-card__qty-control" data-id="' + productId + '">' +
                 '<button type="button" class="ec-card__qty-btn ec-card__qty-btn--minus" data-action="decrease">' + iconLeft + '</button>' +
-                '<span class="ec-card__qty-text">' + quantity + ' at cart</span>' +
+                '<input type="number" class="ec-card__qty-input" value="' + quantity + '" min="1" />' +
                 '<button type="button" class="ec-card__qty-btn ec-card__qty-btn--plus" data-action="increase"><i class="ph ph-plus"></i></button>' +
             '</div>';
         
@@ -82,6 +82,7 @@
 
     // ── Quantity Control Click Handlers ───────────────────────────────────
     
+    // Handle +/- button clicks
     $(document).on('click', '.ec-card__qty-btn', function (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -90,124 +91,144 @@
         var $control = $btn.closest('.ec-card__qty-control');
         var productId = $control.data('id');
         var action = $btn.data('action');
-        var $qtyText = $control.find('.ec-card__qty-text');
-        var currentQty = parseInt($qtyText.text().match(/\d+/)[0]);
-        
-        // Disable buttons during operation
-        $control.find('.ec-card__qty-btn').prop('disabled', true);
+        var $qtyInput = $control.find('.ec-card__qty-input');
+        var currentQty = parseInt($qtyInput.val()) || 1;
         
         if (action === 'decrease') {
             if (currentQty === 1) {
-                // Remove from cart
                 removeFromCart(productId, $control);
             } else {
-                // Decrease quantity
                 updateCartQuantity(productId, currentQty - 1, $control);
             }
         } else if (action === 'increase') {
-            // Increase quantity
             updateCartQuantity(productId, currentQty + 1, $control);
         }
     });
-
-    function updateCartQuantity(productId, newQty, $control) {
-        var $qtyText = $control.find('.ec-card__qty-text');
-        var $minusBtn = $control.find('.ec-card__qty-btn--minus');
+    
+    // Handle direct input change
+    $(document).on('change', '.ec-card__qty-input', function(e) {
+        var $input = $(this);
+        var $control = $input.closest('.ec-card__qty-control');
+        var productId = $control.data('id');
+        var newQty = parseInt($input.val()) || 1;
         
-        // Use Laravel's Cart session directly by parsing the mini-cart HTML
-        // Or use the cart count endpoint and try to get rowId from data attributes
-        
-        // For now, let's use a simpler approach: add/remove items to change quantity
-        var currentQty = parseInt($qtyText.text().match(/\d+/)[0]);
-        var diff = newQty - currentQty;
-        
-        if (diff === 0) {
-            $control.find('.ec-card__qty-btn').prop('disabled', false);
-            return;
+        // Ensure minimum qty is 1
+        if (newQty < 1) {
+            newQty = 1;
+            $input.val(1);
         }
         
-        // We'll add the product multiple times or use the update endpoint with product ID
-        // Let's try posting directly to cart update with product ID
+        updateCartQuantity(productId, newQty, $control);
+    });
+    
+    // Handle input blur to update if changed
+    $(document).on('blur', '.ec-card__qty-input', function(e) {
+        $(this).trigger('change');
+    });
+
+    function updateCartQuantity(productId, newQty, $control) {
+        $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', true);
+        
+        // Get cart to find the rowId
         $.ajax({
-            url: '/cart/update',
-            method: 'POST',
-            data: {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                id: productId,
-                qty: newQty
-            },
-            dataType: 'json',
-            success: function(response) {
-                // Update quantity text
-                $qtyText.text(newQty + ' at cart');
-                
-                // Update icon (trash vs minus)
-                if (newQty === 1) {
-                    $minusBtn.html('<i class="ph ph-trash"></i>');
-                } else {
-                    $minusBtn.html('<i class="ph ph-minus"></i>');
+            url: '/ajax/cart',
+            method: 'GET',
+            success: function(cartResponse) {
+                if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
+                    console.error('No cart HTML available');
+                    $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', false);
+                    return;
                 }
                 
-                // Update mini-cart
-                if (typeof window.loadCart === 'function') {
-                    window.loadCart();
+                var $html = $(cartResponse.data.html);
+                var rowId = null;
+                var productSlug = null;
+                
+                // Get slug from card
+                var $card = $control.closest('.ec-card');
+                var $slugElement = $card.find('[data-slug]');
+                if ($slugElement.length) {
+                    productSlug = $slugElement.data('slug');
                 }
                 
-                // Re-enable buttons
-                $control.find('.ec-card__qty-btn').prop('disabled', false);
+                // Find the cart item by matching product URL
+                $html.find('.ps-product--cart-mobile').each(function() {
+                    var $item = $(this);
+                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    
+                    if (!$productLink.length) return;
+                    
+                    var productUrl = $productLink.attr('href');
+                    var urlParts = productUrl.split('/products/');
+                    if (urlParts.length < 2) return;
+                    
+                    var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    
+                    if (productIdentifier == productId || productIdentifier == productSlug) {
+                        // Extract rowId from remove URL
+                        var $removeLink = $item.find('.ps-product__remove[data-url]');
+                        var removeUrl = $removeLink.data('url') || $removeLink.attr('data-url');
+                        if (removeUrl) {
+                            // URL format: /cart/remove/a855706bc817b0c0edcef8af347f0b93
+                            var parts = removeUrl.split('/cart/remove/');
+                            if (parts.length > 1) {
+                                rowId = parts[1];
+                            }
+                        }
+                        return false; // break
+                    }
+                });
+                
+                if (!rowId) {
+                    console.error('Could not find rowId for product', productId);
+                    $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', false);
+                    return;
+                }
+                
+                // Update cart using proper format
+                $.ajax({
+                    url: '/cart/update',
+                    method: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        items: [{
+                            rowId: rowId,
+                            values: {
+                                qty: newQty
+                            }
+                        }]
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        // Update UI
+                        var $qtyInput = $control.find('.ec-card__qty-input');
+                        $qtyInput.val(newQty);
+                        
+                        var $minusBtn = $control.find('.ec-card__qty-btn--minus');
+                        if (newQty === 1) {
+                            $minusBtn.html('<i class="ph ph-trash"></i>');
+                        } else {
+                            $minusBtn.html('<i class="ph ph-minus"></i>');
+                        }
+                        
+                        // Update mini-cart
+                        if (typeof window.loadCart === 'function') {
+                            window.loadCart();
+                        }
+                        
+                        $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', false);
+                    },
+                    error: function(xhr) {
+                        console.error('Failed to update cart', xhr.responseText);
+                        $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', false);
+                    }
+                });
             },
             error: function(xhr) {
-                console.error('Failed to update cart quantity', xhr.responseText);
-                // Try alternative: remove and re-add
-                if (diff < 0) {
-                    // Decrease by removing and re-adding
-                    removeAndReAdd(productId, newQty, $control);
-                } else {
-                    // Increase by adding more
-                    addMore(productId, diff, $control, newQty);
-                }
+                console.error('Failed to get cart', xhr.responseText);
+                $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', false);
             }
         });
-    }
-    
-    function addMore(productId, qty, $control, targetQty) {
-        $.ajax({
-            url: '/ajax/cart/add-to-cart',
-            method: 'POST',
-            data: {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                id: productId,
-                qty: qty
-            },
-            dataType: 'json',
-            success: function(response) {
-                var $qtyText = $control.find('.ec-card__qty-text');
-                $qtyText.text(targetQty + ' at cart');
-                
-                var $minusBtn = $control.find('.ec-card__qty-btn--minus');
-                if (targetQty === 1) {
-                    $minusBtn.html('<i class="ph ph-trash"></i>');
-                } else {
-                    $minusBtn.html('<i class="ph ph-minus"></i>');
-                }
-                
-                if (typeof window.loadCart === 'function') {
-                    window.loadCart();
-                }
-                
-                $control.find('.ec-card__qty-btn').prop('disabled', false);
-            },
-            error: function(xhr) {
-                console.error('Failed to add more', xhr.responseText);
-                $control.find('.ec-card__qty-btn').prop('disabled', false);
-            }
-        });
-    }
-    
-    function removeAndReAdd(productId, newQty, $control) {
-        // This is complex without rowId, for now just refresh the page or show message
-        console.error('Cannot decrease quantity without rowId - need to implement cart item lookup');
-        $control.find('.ec-card__qty-btn').prop('disabled', false);
     }
 
     function removeFromCart(productId, $control) {
@@ -405,7 +426,7 @@
                     
                     if (cartItem && cartItem.qty) {
                         var qty = cartItem.qty;
-                        $control.find('.ec-card__qty-text').text(qty + ' at cart');
+                        $control.find('.ec-card__qty-input').val(qty);
                         
                         var $minusBtn = $control.find('.ec-card__qty-btn--minus');
                         if (qty === 1) {
