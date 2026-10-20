@@ -65,7 +65,7 @@
 
         var $actions = $btn.closest('.ec-card__actions');
         
-        // Create quantity control HTML with editable input
+        // Create quantity control HTML with editable input and text
         var iconLeft = quantity === 1 
             ? '<i class="ph ph-trash"></i>' 
             : '<i class="ph ph-minus"></i>';
@@ -73,7 +73,10 @@
         var controlHtml = 
             '<div class="ec-card__qty-control" data-id="' + productId + '">' +
                 '<button type="button" class="ec-card__qty-btn ec-card__qty-btn--minus" data-action="decrease">' + iconLeft + '</button>' +
-                '<input type="number" class="ec-card__qty-input" value="' + quantity + '" min="1" />' +
+                '<div class="ec-card__qty-display">' +
+                    '<input type="number" class="ec-card__qty-input" value="' + quantity + '" min="1" />' +
+                    '<span class="ec-card__qty-label">at cart</span>' +
+                '</div>' +
                 '<button type="button" class="ec-card__qty-btn ec-card__qty-btn--plus" data-action="increase"><i class="ph ph-plus"></i></button>' +
             '</div>';
         
@@ -186,18 +189,16 @@
                 }
                 
                 // Update cart using proper format
+                // Format: items[0][rowId]=xxx&items[0][values][qty]=2
+                var formData = {};
+                formData['_token'] = $('meta[name="csrf-token"]').attr('content');
+                formData['items[0][rowId]'] = rowId;
+                formData['items[0][values][qty]'] = newQty;
+                
                 $.ajax({
                     url: '/cart/update',
                     method: 'POST',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        items: [{
-                            rowId: rowId,
-                            values: {
-                                qty: newQty
-                            }
-                        }]
-                    },
+                    data: formData,
                     dataType: 'json',
                     success: function(response) {
                         // Update UI

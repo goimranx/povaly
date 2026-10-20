@@ -858,19 +858,34 @@
     border-left-color: var(--global-color-warning);
 }
 
-.ec-card__qty-input {
+.ec-card__qty-display {
     flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.ec-card__qty-input {
+    width: 30px;
     text-align: center;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--global-color-text-main);
     border: none;
     background: transparent;
     outline: none;
-    padding: 0 8px;
-    white-space: nowrap;
+    padding: 0;
     min-width: 0;
     -moz-appearance: textfield; /* Firefox */
+}
+
+.ec-card__qty-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--global-color-text-muted);
+    white-space: nowrap;
 }
 
 /* Hide spinner buttons in Chrome, Safari, Edge */
