@@ -842,11 +842,6 @@
     cursor: wait;
 }
 
-/* Updating state - subtle visual feedback without opacity change */
-.ec-card__qty-control.ec-updating {
-    pointer-events: none;
-}
-
 .ec-card__qty-btn--minus {
     border-right: 2px solid transparent;
     transition: border-color .2s;

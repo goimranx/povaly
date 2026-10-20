@@ -201,26 +201,19 @@
         var $input = $(this).find('.ec-card__qty-input');
         $input.focus().select();
     });
-
-    // Debounce timer for cart updates
-    var updateTimers = {};
     
+    // Prevent drag/swipe on quantity control (for carousels)
+    $(document).on('mousedown touchstart', '.ec-card__qty-control', function(e) {
+        e.stopPropagation();
+    });
+    
+    $(document).on('click', '.ec-card__qty-control', function(e) {
+        e.stopPropagation();
+    });
+
     function updateCartQuantity(productId, newQty, $control) {
-        // Prevent multiple simultaneous updates
-        if ($control.hasClass('ec-updating')) {
-            // Queue this update - clear previous timer and set new one
-            if (updateTimers[productId]) {
-                clearTimeout(updateTimers[productId]);
-            }
-            
-            updateTimers[productId] = setTimeout(function() {
-                delete updateTimers[productId];
-                updateCartQuantity(productId, newQty, $control);
-            }, 300);
-            return;
-        }
-        
-        $control.addClass('ec-updating');
+        // Allow multiple simultaneous updates for instant feel
+        // Each click creates its own request
         
         // Get slug from the control itself (stored when transformed)
         var productSlug = $control.data('slug');
@@ -232,7 +225,6 @@
             success: function(cartResponse) {
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
                     console.error('No cart HTML available');
-                    $control.removeClass('ec-updating');
                     return;
                 }
                 
@@ -270,7 +262,6 @@
                 
                 if (!rowId) {
                     console.error('Could not find rowId for product', productId, 'slug:', productSlug);
-                    $control.removeClass('ec-updating');
                     return;
                 }
                 
@@ -291,29 +282,21 @@
                         if (typeof window.loadCart === 'function') {
                             window.loadCart();
                         }
-                        
-                        $control.removeClass('ec-updating');
                     },
                     error: function(xhr) {
                         console.error('Failed to update cart', xhr.responseText);
                         // On error, sync from server to get correct state
                         syncCartState();
-                        $control.removeClass('ec-updating');
                     }
                 });
             },
             error: function(xhr) {
                 console.error('Failed to get cart', xhr.responseText);
-                $control.removeClass('ec-updating');
             }
         });
     }
 
     function removeFromCart(productId, $control) {
-        // Prevent multiple clicks
-        if ($control.hasClass('ec-updating')) return;
-        $control.addClass('ec-updating');
-        
         var $actions = $control.closest('.ec-card__actions');
         
         // Get slug from the control itself
@@ -326,7 +309,6 @@
             success: function(cartResponse) {
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
                     console.error('No cart HTML available for remove operation');
-                    $control.removeClass('ec-updating');
                     return;
                 }
                 
@@ -356,7 +338,6 @@
                 
                 if (!removeUrl) {
                     console.error('Remove link not found for product', productId, 'slug:', productSlug);
-                    $control.removeClass('ec-updating');
                     return;
                 }
                 
@@ -383,13 +364,11 @@
                     },
                     error: function(xhr) {
                         console.error('Failed to remove from cart', xhr.responseText);
-                        $control.removeClass('ec-updating');
                     }
                 });
             },
             error: function(xhr) {
                 console.error('Failed to get cart HTML', xhr.responseText);
-                $control.removeClass('ec-updating');
             }
         });
     }
