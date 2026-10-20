@@ -251,32 +251,6 @@
             }
         });
     }
-                        var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
-                            'data-id="' + productId + '" ' +
-                            'data-url="/ajax/cart/add-to-cart" ' +
-                            'data-show-toast-on-success="false" ' +
-                            'data-bb-toggle="add-to-cart">' +
-                            'Add to Cart</button>';
-                        
-                        $actions.html(btnHtml);
-                        
-                        // Update mini-cart
-                        if (typeof window.loadCart === 'function') {
-                            window.loadCart();
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('Failed to remove from cart', xhr);
-                        $control.find('.ec-card__qty-btn').prop('disabled', false);
-                    }
-                });
-            },
-            error: function(xhr) {
-                console.error('Failed to get cart data', xhr);
-                $control.find('.ec-card__qty-btn').prop('disabled', false);
-            }
-        });
-    }
 
     // ── Initialize: Check cart state on page load ─────────────────────────
     // Sync with cart on page load
