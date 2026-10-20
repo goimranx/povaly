@@ -369,7 +369,7 @@
         </div>
 
 {{-- Product Lightbox Modal --}}
-<div id="product-lightbox-modal" class="product-lightbox-overlay" style="display: none;">
+<div id="product-lightbox-modal" class="product-lightbox-overlay" style="display: none !important;">
     <div class="product-lightbox-container">
         {{-- Header --}}
         <div class="product-lightbox-header">
