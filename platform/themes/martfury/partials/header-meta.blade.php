@@ -1026,7 +1026,13 @@
                 var(--global-color-warning, #FBB13C) 100%) !important;
         }
         .navigation__item--smart.show-arrow .bb-logo-wrap i {
+            color: var(--global-color-text-on-dark, #F4F9FD) !important;
             animation: arrowBounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+        }
+        
+        /* Ensure icon-arrow-up specifically gets the right color */
+        .navigation__item--smart .bb-logo-wrap i.icon-arrow-up {
+            color: var(--global-color-text-on-dark, #F4F9FD) !important;
         }
         
         /* Smooth bounce animation for arrow */
@@ -2982,14 +2988,26 @@ document.addEventListener('DOMContentLoaded', function () {
                         var logoWrap = smartNav.querySelector('.bb-logo-wrap');
                         if (logoWrap) {
                             var logoImg = logoWrap.querySelector('.bb-logo-img');
+                            // Get the text-on-dark color from CSS variable
+                            var textOnDarkColor = getComputedStyle(document.documentElement)
+                                .getPropertyValue('--global-color-text-on-dark').trim() || '#F4F9FD';
+                            
                             if (logoImg) {
                                 logoImg.classList.add('fade-out');
                                 setTimeout(function() {
-                                    logoWrap.innerHTML = '<i class="icon-arrow-up"></i>';
+                                    var arrowIcon = document.createElement('i');
+                                    arrowIcon.className = 'icon-arrow-up';
+                                    arrowIcon.style.color = textOnDarkColor;
+                                    logoWrap.innerHTML = '';
+                                    logoWrap.appendChild(arrowIcon);
                                 }, 300); // Wait for fade-out animation
                             } else {
                                 // No logo image, replace immediately
-                                logoWrap.innerHTML = '<i class="icon-arrow-up"></i>';
+                                var arrowIcon = document.createElement('i');
+                                arrowIcon.className = 'icon-arrow-up';
+                                arrowIcon.style.color = textOnDarkColor;
+                                logoWrap.innerHTML = '';
+                                logoWrap.appendChild(arrowIcon);
                             }
                         }
                     }
