@@ -4247,146 +4247,112 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     // ── INTEGRATE WITH QUICK VIEW GALLERY ──────────────────────────────
-    // Watch for quick view offcanvas to be loaded
-    var quickViewObserver = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.addedNodes.length) {
-                setTimeout(initQuickViewGalleryIntegration, 500);
-            }
-        });
-    });
-    
-    // Observe the quick view offcanvas body
-    var quickViewBody = document.querySelector('#product-quickview .offcanvas-body');
-    if (quickViewBody) {
-        quickViewObserver.observe(quickViewBody, { childList: true, subtree: true });
-    }
-    
-    // Initialize gallery integration
+    // Initialize gallery integration properly with Slick events
     function initQuickViewGalleryIntegration() {
         var galleryContainer = document.querySelector('.bb-quick-view-gallery-images');
         if (!galleryContainer) return;
         
-        var galleryImages = galleryContainer.querySelectorAll('.item img');
-        if (galleryImages.length === 0) return;
+        var $gallery = $(galleryContainer);
+        if (!$gallery.length) return;
         
         // Get product data
         var productTitle = document.querySelector('#product-quickview .ps-product__info h1 a');
         var productName = productTitle ? productTitle.textContent.trim() : 'Product';
         
-        // Collect all image URLs
+        // Wait for Slick to be initialized
+        if (!$gallery.hasClass('slick-initialized')) {
+            // Not initialized yet, wait a bit
+            setTimeout(initQuickViewGalleryIntegration, 200);
+            return;
+        }
+        
+        // Collect all image URLs from slides
         var imageUrls = [];
-        galleryImages.forEach(function(img) {
-            imageUrls.push(img.src);
+        $gallery.find('.slick-slide:not(.slick-cloned) img').each(function() {
+            imageUrls.push($(this).attr('src'));
         });
         
-        // Track drag vs click
-        var isDragging = false;
-        var startX = 0;
-        var startY = 0;
+        if (imageUrls.length === 0) return;
         
-        // Add click handler to each image with drag detection
-        galleryImages.forEach(function(img, index) {
-            var imgItem = img.closest('.item');
-            if (!imgItem) return;
+        // Remove any existing click handlers to avoid duplicates
+        $gallery.off('click.lightbox');
+        
+        // Add click handler using Slick's afterChange event to know current slide
+        var currentSlideIndex = $gallery.slick('slickCurrentSlide');
+        
+        // On slide change, update current index
+        $gallery.on('afterChange', function(event, slick, currentSlide) {
+            currentSlideIndex = currentSlide;
+        });
+        
+        // Click handler on the gallery container
+        $gallery.on('click.lightbox', '.slick-slide:not(.slick-cloned)', function(e) {
+            // Check if this was a drag/swipe
+            if ($gallery.hasClass('dragging')) {
+                return;
+            }
             
-            imgItem.style.cursor = 'pointer';
+            e.preventDefault();
+            e.stopPropagation();
             
-            // Mouse down - record position
-            imgItem.addEventListener('mousedown', function(e) {
-                isDragging = false;
-                startX = e.clientX;
-                startY = e.clientY;
-            });
+            // Get the clicked slide index
+            var $slide = $(this);
+            var clickedIndex = $slide.data('slick-index');
             
-            // Mouse move - detect drag
-            imgItem.addEventListener('mousemove', function(e) {
-                if (e.buttons === 1) { // Left mouse button is pressed
-                    var deltaX = Math.abs(e.clientX - startX);
-                    var deltaY = Math.abs(e.clientY - startY);
-                    if (deltaX > 5 || deltaY > 5) {
-                        isDragging = true;
-                    }
+            // If data-slick-index is not available, use current slide
+            if (typeof clickedIndex === 'undefined') {
+                clickedIndex = currentSlideIndex;
+            }
+            
+            // Close the quick view offcanvas first
+            var quickViewOffcanvas = document.getElementById('product-quickview');
+            if (quickViewOffcanvas && typeof bootstrap !== 'undefined') {
+                var bsOffcanvas = bootstrap.Offcanvas.getInstance(quickViewOffcanvas);
+                if (bsOffcanvas) {
+                    bsOffcanvas.hide();
                 }
-            });
+            }
             
-            // Click - only if not dragging
-            imgItem.addEventListener('click', function(e) {
-                if (isDragging) {
-                    isDragging = false;
-                    return;
-                }
-                
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Close the quick view offcanvas first
-                var quickViewOffcanvas = document.getElementById('product-quickview');
-                if (quickViewOffcanvas && typeof bootstrap !== 'undefined') {
-                    var bsOffcanvas = bootstrap.Offcanvas.getInstance(quickViewOffcanvas);
-                    if (bsOffcanvas) {
-                        bsOffcanvas.hide();
-                    }
-                }
-                
-                // Small delay to let offcanvas close animation start
-                setTimeout(function() {
-                    // Open lightbox with product data
-                    openProductLightbox({
-                        name: productName,
-                        images: imageUrls,
-                        currentIndex: index
-                    });
-                }, 300);
-            });
-            
-            // Touch events for mobile
-            var touchStartX = 0;
-            var touchStartY = 0;
-            
-            imgItem.addEventListener('touchstart', function(e) {
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY;
-            });
-            
-            imgItem.addEventListener('touchend', function(e) {
-                var touchEndX = e.changedTouches[0].clientX;
-                var touchEndY = e.changedTouches[0].clientY;
-                var deltaX = Math.abs(touchEndX - touchStartX);
-                var deltaY = Math.abs(touchEndY - touchStartY);
-                
-                // If movement is small, treat as tap
-                if (deltaX < 10 && deltaY < 10) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    var quickViewOffcanvas = document.getElementById('product-quickview');
-                    if (quickViewOffcanvas && typeof bootstrap !== 'undefined') {
-                        var bsOffcanvas = bootstrap.Offcanvas.getInstance(quickViewOffcanvas);
-                        if (bsOffcanvas) {
-                            bsOffcanvas.hide();
-                        }
-                    }
-                    
-                    setTimeout(function() {
-                        openProductLightbox({
-                            name: productName,
-                            images: imageUrls,
-                            currentIndex: index
-                        });
-                    }, 300);
-                }
-            });
+            // Open lightbox
+            setTimeout(function() {
+                openProductLightbox({
+                    name: productName,
+                    images: imageUrls,
+                    currentIndex: clickedIndex
+                });
+            }, 300);
+        });
+        
+        // Track dragging state
+        $gallery.on('beforeChange', function() {
+            $gallery.addClass('dragging');
+        });
+        
+        $gallery.on('afterChange', function() {
+            setTimeout(function() {
+                $gallery.removeClass('dragging');
+            }, 100);
         });
     }
     
-    // Listen for the quick view initialized event
+    // Listen for the quick view initialized event (from main.js)
     document.addEventListener('ecommerce.quick-view.initialized', function() {
-        setTimeout(initQuickViewGalleryIntegration, 500);
+        setTimeout(initQuickViewGalleryIntegration, 600);
     });
     
-    // Also check on page load
-    setTimeout(initQuickViewGalleryIntegration, 1000);
+    // Also try on MutationObserver
+    var quickViewObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length) {
+                setTimeout(initQuickViewGalleryIntegration, 600);
+            }
+        });
+    });
+    
+    var quickViewBody = document.querySelector('#product-quickview .offcanvas-body');
+    if (quickViewBody) {
+        quickViewObserver.observe(quickViewBody, { childList: true });
+    }
 })();
 </script>
 {{-- Product Card Enhanced global styles - loaded on every page so single product page gets them too --}}
