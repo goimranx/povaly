@@ -367,3 +367,53 @@
                 </ul>
             </div>
         </div>
+
+{{-- Product Lightbox Modal --}}
+<div id="product-lightbox-modal" class="product-lightbox-overlay" style="display: none;">
+    <div class="product-lightbox-container">
+        {{-- Header --}}
+        <div class="product-lightbox-header">
+            <div class="product-lightbox-tabs">
+                <button class="product-lightbox-tab active" data-tab="images">IMAGES</button>
+                <button class="product-lightbox-tab" data-tab="videos">VIDEOS</button>
+            </div>
+            <button class="product-lightbox-close" aria-label="Close">
+                <i class="icon-cross"></i>
+            </button>
+        </div>
+        
+        {{-- Body --}}
+        <div class="product-lightbox-body">
+            {{-- Left: Main Display (64%) --}}
+            <div class="product-lightbox-main">
+                <div class="product-lightbox-display" id="lightbox-images-content">
+                    <div class="product-lightbox-image-wrapper">
+                        <img src="" alt="" class="product-lightbox-main-image" id="lightbox-main-image">
+                        <div class="product-lightbox-zoom-icon">
+                            <i class="icon-magnifier-add"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-lightbox-display" id="lightbox-videos-content" style="display: none;">
+                    <div class="product-lightbox-video-wrapper">
+                        <p>Video content will be displayed here</p>
+                    </div>
+                </div>
+            </div>
+            
+            {{-- Right: Info & Thumbnails (35%) --}}
+            <div class="product-lightbox-sidebar">
+                <div class="product-lightbox-info">
+                    <h3 class="product-lightbox-title" id="lightbox-product-title">Product Title</h3>
+                    <div class="product-lightbox-variations" id="lightbox-product-variations">
+                        {{-- Variations will be inserted here --}}
+                    </div>
+                </div>
+                
+                <div class="product-lightbox-thumbnails" id="lightbox-thumbnails">
+                    {{-- Thumbnails will be inserted here --}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
