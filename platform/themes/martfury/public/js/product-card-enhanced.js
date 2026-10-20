@@ -215,43 +215,50 @@
     function removeFromCart(productId, $control) {
         var $actions = $control.closest('.ec-card__actions');
         
-        // We need to find the cart item by product ID
-        // Since /ajax/cart doesn't return items, we'll need to query the cart page or use a different approach
-        // For now, let's try to remove by making a request to find it first
-        
-        // Alternative: use the cart HTML to find the remove link
+        // Get cart to find the remove URL
         $.ajax({
             url: '/ajax/cart',
             method: 'GET',
             success: function(cartResponse) {
-                console.log('Cart HTML response:', cartResponse);
-                
-                // Parse HTML to find remove link for this product
-                var $html = $(cartResponse.data.html);
-                var $removeLink = null;
-                
-                // Find the remove link - check for data-url attribute
-                $html.find('[data-url*="/cart/remove/"]').each(function() {
-                    var $link = $(this);
-                    // Check if this link belongs to our product
-                    // We need to check the product in the same row/container
-                    var $container = $link.closest('li, tr, .ps-product');
-                    var productLink = $container.find('a[href*="' + productId + '"]');
-                    
-                    if (productLink.length > 0 || $container.find('[data-id="' + productId + '"]').length > 0) {
-                        $removeLink = $link;
-                        return false; // break
-                    }
-                });
-                
-                if (!$removeLink || !$removeLink.length) {
-                    console.error('Remove link not found in cart HTML for product', productId);
+                if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
+                    console.error('No cart HTML available for remove operation');
                     $control.find('.ec-card__qty-btn').prop('disabled', false);
                     return;
                 }
                 
-                var removeUrl = $removeLink.data('url') || $removeLink.attr('href');
-                console.log('Found remove URL:', removeUrl);
+                var $html = $(cartResponse.data.html);
+                var removeUrl = null;
+                
+                // Parse cart items to find remove URL
+                $html.find('.ps-product--cart-mobile').each(function() {
+                    var $item = $(this);
+                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    
+                    if (!$productLink.length) return;
+                    
+                    var productUrl = $productLink.attr('href');
+                    var urlParts = productUrl.split('/products/');
+                    if (urlParts.length < 2) return;
+                    
+                    var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    
+                    // Check if this matches our product
+                    if (productIdentifier == productId || 
+                        productIdentifier.indexOf(productId) > -1 || 
+                        productIdentifier.endsWith('-' + productId)) {
+                        
+                        var $removeLink = $item.find('.ps-product__remove[data-url]');
+                        removeUrl = $removeLink.data('url') || $removeLink.attr('data-url');
+                        console.log('Found remove URL for product', productId, ':', removeUrl);
+                        return false; // break
+                    }
+                });
+                
+                if (!removeUrl) {
+                    console.error('Remove link not found in cart HTML for product', productId);
+                    $control.find('.ec-card__qty-btn').prop('disabled', false);
+                    return;
+                }
                 
                 $.ajax({
                     url: removeUrl,
@@ -338,46 +345,54 @@
                 var $html = $(cartResponse.data.html);
                 console.log('Parsed jQuery elements:', $html.length);
                 
-                // Log all elements with any data attribute
-                console.log('=== All elements with data attributes ===');
-                $html.find('*').filter(function() {
-                    return Object.keys(this.dataset).length > 0;
-                }).each(function() {
-                    console.log('Element:', this.tagName, 'Data:', this.dataset, 'HTML:', this.outerHTML.substring(0, 100));
-                });
-                
-                // Log all input elements
-                console.log('=== All input elements ===');
-                $html.find('input').each(function() {
-                    console.log('Input:', this.name, 'Value:', this.value, 'Type:', this.type);
-                });
-                
-                // Log all links
-                console.log('=== All links ===');
-                $html.find('a').each(function() {
-                    console.log('Link:', this.href, 'Text:', $(this).text().trim());
-                });
-                
                 var cartItems = {};
                 
-                // Parse the cart HTML to extract product IDs and quantities
-                // Look for data-id attributes
-                $html.find('[data-id]').each(function() {
-                    var $el = $(this);
-                    var productId = $el.data('id');
-                    console.log('Found element with data-id:', productId, $el[0]);
+                // Parse cart items by finding product containers
+                // Each cart item is in a .ps-product--cart-mobile div
+                $html.find('.ps-product--cart-mobile').each(function() {
+                    var $item = $(this);
                     
-                    if (productId) {
-                        // Find qty in the same container or nearby
-                        var $container = $el.closest('li, tr, .ps-product, .ps-cart__product');
-                        var $qtyInput = $container.find('input[name*="[qty]"], .qty-input, input.qty, input[type="number"]');
-                        var qty = $qtyInput.length ? parseInt($qtyInput.val()) : 1;
-                        
-                        console.log('Product:', productId, 'Qty input found:', $qtyInput.length, 'Qty value:', qty);
-                        
-                        if (qty > 0) {
-                            cartItems[productId] = qty;
-                        }
+                    // Find the product link to extract product ID or slug
+                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    
+                    if (!$productLink.length) {
+                        console.log('No product link found in cart item');
+                        return; // continue
+                    }
+                    
+                    var productUrl = $productLink.attr('href');
+                    console.log('Product URL:', productUrl);
+                    
+                    // Try to extract product ID from URL or use the slug
+                    // URL format: https://povaly.com/products/demo-product or /products/136
+                    var urlParts = productUrl.split('/products/');
+                    if (urlParts.length < 2) {
+                        console.log('Could not parse product URL:', productUrl);
+                        return;
+                    }
+                    
+                    var productIdentifier = urlParts[1].replace(/\/$/, ''); // Remove trailing slash
+                    console.log('Product identifier from URL:', productIdentifier);
+                    
+                    // Find quantity in the text "X x" format
+                    var $qtyText = $item.find('.ps-product__content p small .d-inline-block');
+                    var qtyMatch = $qtyText.text().trim().match(/^(\d+)\s*x$/);
+                    var qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
+                    
+                    console.log('Product quantity:', qty);
+                    
+                    // Find remove link to store rowId for later use
+                    var $removeLink = $item.find('.ps-product__remove[data-url]');
+                    var removeUrl = $removeLink.data('url') || $removeLink.attr('data-url');
+                    
+                    console.log('Remove URL:', removeUrl);
+                    
+                    if (productIdentifier && qty > 0) {
+                        cartItems[productIdentifier] = {
+                            qty: qty,
+                            removeUrl: removeUrl
+                        };
+                        console.log('Added to cart items:', productIdentifier, cartItems[productIdentifier]);
                     }
                 });
                 
@@ -390,12 +405,31 @@
                     var $btn = $(this);
                     var productId = $btn.data('id');
                     
-                    console.log('Checking button for product:', productId, 'In cart?', !!cartItems[productId]);
+                    if (!productId) return;
                     
-                    if (cartItems[productId]) {
+                    console.log('Checking button for product:', productId);
+                    
+                    // Try to match product ID with cart items (could be ID or slug)
+                    var cartItem = cartItems[productId];
+                    
+                    // If not found by ID, try to find by checking if the product ID appears in any cart item key
+                    if (!cartItem) {
+                        for (var key in cartItems) {
+                            // Check if URL slug ends with product ID (e.g., /products/product-name-136)
+                            if (key.indexOf(productId) > -1 || key.endsWith('-' + productId)) {
+                                cartItem = cartItems[key];
+                                console.log('Found match by slug:', key);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    console.log('Cart item for product', productId, ':', cartItem);
+                    
+                    if (cartItem && cartItem.qty) {
                         // Product is in cart, show quantity control
-                        console.log('Transforming button for product', productId, 'qty:', cartItems[productId]);
-                        transformToQuantityControl(productId, cartItems[productId]);
+                        console.log('Transforming button for product', productId, 'qty:', cartItem.qty);
+                        transformToQuantityControl(productId, cartItem.qty);
                     }
                 });
                 
@@ -404,9 +438,23 @@
                     var $control = $(this);
                     var productId = $control.data('id');
                     
-                    if (cartItems[productId]) {
+                    if (!productId) return;
+                    
+                    var cartItem = cartItems[productId];
+                    
+                    // Try slug match
+                    if (!cartItem) {
+                        for (var key in cartItems) {
+                            if (key.indexOf(productId) > -1 || key.endsWith('-' + productId)) {
+                                cartItem = cartItems[key];
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (cartItem && cartItem.qty) {
                         // Update quantity
-                        var qty = cartItems[productId];
+                        var qty = cartItem.qty;
                         $control.find('.ec-card__qty-text').text(qty + ' at cart');
                         
                         var $minusBtn = $control.find('.ec-card__qty-btn--minus');
