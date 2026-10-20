@@ -404,31 +404,20 @@
                 $('.ec-card__btn--cart').each(function() {
                     var $btn = $(this);
                     var productId = $btn.data('id');
+                    var productSlug = $btn.data('slug');
                     
-                    if (!productId) return;
+                    if (!productId && !productSlug) return;
                     
-                    console.log('Checking button for product:', productId);
+                    console.log('Checking button - ID:', productId, 'Slug:', productSlug);
                     
-                    // Try to match product ID with cart items (could be ID or slug)
-                    var cartItem = cartItems[productId];
+                    // Try to find cart item by slug first (most reliable), then by ID
+                    var cartItem = cartItems[productSlug] || cartItems[productId];
                     
-                    // If not found by ID, try to find by checking if the product ID appears in any cart item key
-                    if (!cartItem) {
-                        for (var key in cartItems) {
-                            // Check if URL slug ends with product ID (e.g., /products/product-name-136)
-                            if (key.indexOf(productId) > -1 || key.endsWith('-' + productId)) {
-                                cartItem = cartItems[key];
-                                console.log('Found match by slug:', key);
-                                break;
-                            }
-                        }
-                    }
-                    
-                    console.log('Cart item for product', productId, ':', cartItem);
+                    console.log('Cart item found:', !!cartItem, cartItem);
                     
                     if (cartItem && cartItem.qty) {
                         // Product is in cart, show quantity control
-                        console.log('Transforming button for product', productId, 'qty:', cartItem.qty);
+                        console.log('Transforming button - ID:', productId, 'Qty:', cartItem.qty);
                         transformToQuantityControl(productId, cartItem.qty);
                     }
                 });
@@ -440,17 +429,21 @@
                     
                     if (!productId) return;
                     
-                    var cartItem = cartItems[productId];
+                    // Find the original button to get its slug
+                    var $actions = $control.closest('.ec-card__actions');
+                    var $card = $actions.closest('.ec-card');
+                    var $originalLink = $card.find('a[href*="/products/"]').first();
+                    var productSlug = null;
                     
-                    // Try slug match
-                    if (!cartItem) {
-                        for (var key in cartItems) {
-                            if (key.indexOf(productId) > -1 || key.endsWith('-' + productId)) {
-                                cartItem = cartItems[key];
-                                break;
-                            }
+                    if ($originalLink.length) {
+                        var href = $originalLink.attr('href');
+                        var parts = href.split('/products/');
+                        if (parts.length > 1) {
+                            productSlug = parts[1].replace(/\/$/, '');
                         }
                     }
+                    
+                    var cartItem = cartItems[productSlug] || cartItems[productId];
                     
                     if (cartItem && cartItem.qty) {
                         // Update quantity
@@ -466,9 +459,9 @@
                     } else {
                         // Product removed from cart, show button
                         console.log('Resetting button for product', productId);
-                        var $actions = $control.closest('.ec-card__actions');
                         var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
                             'data-id="' + productId + '" ' +
+                            (productSlug ? 'data-slug="' + productSlug + '" ' : '') +
                             'data-url="/ajax/cart/add-to-cart" ' +
                             'data-show-toast-on-success="false" ' +
                             'data-bb-toggle="add-to-cart">' +

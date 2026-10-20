@@ -287,6 +287,7 @@
                         @else
                             <button type="button" class="ec-card__btn ec-card__btn--cart"
                                     data-id="{{ $product->id }}"
+                                    data-slug="{{ $product->slug }}"
                                     data-url="{{ route('public.cart.add-to-cart') }}"
                                     data-show-toast-on-success="false"
                                     {!! EcommerceHelper::jsAttributes('add-to-cart', $product) !!}>
