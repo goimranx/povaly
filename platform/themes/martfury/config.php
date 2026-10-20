@@ -88,8 +88,9 @@ return [
                 ->add('carousel-init', 'js/carousel-init.js', ['jquery', 'owl-carousel-js'], [], $version);
             $theme->asset()->container('footer')->usePath()
                 ->add('backend', 'js/backend.js', ['jquery'], [], $version);
+            // Use timestamp for cache busting instead of version
             $theme->asset()->container('footer')->usePath()
-                ->add('product-card-enhanced', 'js/product-card-enhanced.js', ['jquery', 'main'], [], $version . '.cart-fix');
+                ->add('product-card-enhanced', 'js/product-card-enhanced.js', ['jquery', 'main'], [], time());
 
             if (function_exists('shortcode')) {
                 $theme->composer([
