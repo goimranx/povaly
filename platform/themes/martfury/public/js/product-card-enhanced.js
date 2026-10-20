@@ -100,16 +100,30 @@
         var action = $btn.data('action');
         var $qtyInput = $control.find('.ec-card__qty-input');
         var currentQty = parseInt($qtyInput.val()) || 1;
+        var newQty = currentQty;
         
         if (action === 'decrease') {
             if (currentQty === 1) {
                 removeFromCart(productId, $control);
+                return;
             } else {
-                updateCartQuantity(productId, currentQty - 1, $control);
+                newQty = currentQty - 1;
             }
         } else if (action === 'increase') {
-            updateCartQuantity(productId, currentQty + 1, $control);
+            newQty = currentQty + 1;
         }
+        
+        // OPTIMISTIC UPDATE: Update UI immediately
+        $qtyInput.val(newQty);
+        var $minusBtn = $control.find('.ec-card__qty-btn--minus');
+        if (newQty === 1) {
+            $minusBtn.html('<i class="ph ph-trash"></i>');
+        } else {
+            $minusBtn.html('<i class="ph ph-minus"></i>');
+        }
+        
+        // Sync to server in background
+        updateCartQuantity(productId, newQty, $control);
     });
     
     // Handle direct input change
@@ -125,7 +139,53 @@
             $input.val(1);
         }
         
+        // Update icon based on new quantity
+        var $minusBtn = $control.find('.ec-card__qty-btn--minus');
+        if (newQty === 1) {
+            $minusBtn.html('<i class="ph ph-trash"></i>');
+        } else {
+            $minusBtn.html('<i class="ph ph-minus"></i>');
+        }
+        
         updateCartQuantity(productId, newQty, $control);
+    });
+    
+    // Handle keyboard up/down arrows
+    $(document).on('keydown', '.ec-card__qty-input', function(e) {
+        var $input = $(this);
+        var $control = $input.closest('.ec-card__qty-control');
+        var productId = $control.data('id');
+        var currentQty = parseInt($input.val()) || 1;
+        var newQty = currentQty;
+        
+        // Up arrow (38) or Down arrow (40)
+        if (e.which === 38) {
+            // Up arrow - increase
+            e.preventDefault();
+            newQty = currentQty + 1;
+            $input.val(newQty);
+            
+            var $minusBtn = $control.find('.ec-card__qty-btn--minus');
+            $minusBtn.html('<i class="ph ph-minus"></i>');
+            
+            updateCartQuantity(productId, newQty, $control);
+        } else if (e.which === 40) {
+            // Down arrow - decrease
+            e.preventDefault();
+            if (currentQty > 1) {
+                newQty = currentQty - 1;
+                $input.val(newQty);
+                
+                var $minusBtn = $control.find('.ec-card__qty-btn--minus');
+                if (newQty === 1) {
+                    $minusBtn.html('<i class="ph ph-trash"></i>');
+                } else {
+                    $minusBtn.html('<i class="ph ph-minus"></i>');
+                }
+                
+                updateCartQuantity(productId, newQty, $control);
+            }
+        }
     });
     
     // Handle input blur to update if changed
@@ -142,9 +202,24 @@
         $input.focus().select();
     });
 
+    // Debounce timer for cart updates
+    var updateTimers = {};
+    
     function updateCartQuantity(productId, newQty, $control) {
-        // Prevent multiple clicks without visual feedback
-        if ($control.hasClass('ec-updating')) return;
+        // Prevent multiple simultaneous updates
+        if ($control.hasClass('ec-updating')) {
+            // Queue this update - clear previous timer and set new one
+            if (updateTimers[productId]) {
+                clearTimeout(updateTimers[productId]);
+            }
+            
+            updateTimers[productId] = setTimeout(function() {
+                delete updateTimers[productId];
+                updateCartQuantity(productId, newQty, $control);
+            }, 300);
+            return;
+        }
+        
         $control.addClass('ec-updating');
         
         // Get slug from the control itself (stored when transformed)
@@ -212,18 +287,7 @@
                     data: formData,
                     dataType: 'json',
                     success: function(response) {
-                        // Update UI
-                        var $qtyInput = $control.find('.ec-card__qty-input');
-                        $qtyInput.val(newQty);
-                        
-                        var $minusBtn = $control.find('.ec-card__qty-btn--minus');
-                        if (newQty === 1) {
-                            $minusBtn.html('<i class="ph ph-trash"></i>');
-                        } else {
-                            $minusBtn.html('<i class="ph ph-minus"></i>');
-                        }
-                        
-                        // Update mini-cart
+                        // UI already updated optimistically, just update mini-cart
                         if (typeof window.loadCart === 'function') {
                             window.loadCart();
                         }
@@ -232,6 +296,8 @@
                     },
                     error: function(xhr) {
                         console.error('Failed to update cart', xhr.responseText);
+                        // On error, sync from server to get correct state
+                        syncCartState();
                         $control.removeClass('ec-updating');
                     }
                 });
