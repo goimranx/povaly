@@ -132,9 +132,20 @@
     $(document).on('blur', '.ec-card__qty-input', function(e) {
         $(this).trigger('change');
     });
+    
+    // Make entire display area clickable to focus input
+    $(document).on('click', '.ec-card__qty-display', function(e) {
+        // Don't focus if already clicking the input
+        if ($(e.target).hasClass('ec-card__qty-input')) return;
+        
+        var $input = $(this).find('.ec-card__qty-input');
+        $input.focus().select();
+    });
 
     function updateCartQuantity(productId, newQty, $control) {
-        $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', true);
+        // Prevent multiple clicks without visual feedback
+        if ($control.hasClass('ec-updating')) return;
+        $control.addClass('ec-updating');
         
         // Get slug from the control itself (stored when transformed)
         var productSlug = $control.data('slug');
@@ -146,7 +157,7 @@
             success: function(cartResponse) {
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
                     console.error('No cart HTML available');
-                    $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', false);
+                    $control.removeClass('ec-updating');
                     return;
                 }
                 
@@ -184,7 +195,7 @@
                 
                 if (!rowId) {
                     console.error('Could not find rowId for product', productId, 'slug:', productSlug);
-                    $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', false);
+                    $control.removeClass('ec-updating');
                     return;
                 }
                 
@@ -217,22 +228,26 @@
                             window.loadCart();
                         }
                         
-                        $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', false);
+                        $control.removeClass('ec-updating');
                     },
                     error: function(xhr) {
                         console.error('Failed to update cart', xhr.responseText);
-                        $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', false);
+                        $control.removeClass('ec-updating');
                     }
                 });
             },
             error: function(xhr) {
                 console.error('Failed to get cart', xhr.responseText);
-                $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', false);
+                $control.removeClass('ec-updating');
             }
         });
     }
 
     function removeFromCart(productId, $control) {
+        // Prevent multiple clicks
+        if ($control.hasClass('ec-updating')) return;
+        $control.addClass('ec-updating');
+        
         var $actions = $control.closest('.ec-card__actions');
         
         // Get slug from the control itself
@@ -245,7 +260,7 @@
             success: function(cartResponse) {
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
                     console.error('No cart HTML available for remove operation');
-                    $control.find('.ec-card__qty-btn').prop('disabled', false);
+                    $control.removeClass('ec-updating');
                     return;
                 }
                 
@@ -275,7 +290,7 @@
                 
                 if (!removeUrl) {
                     console.error('Remove link not found for product', productId, 'slug:', productSlug);
-                    $control.find('.ec-card__qty-btn').prop('disabled', false);
+                    $control.removeClass('ec-updating');
                     return;
                 }
                 
@@ -302,13 +317,13 @@
                     },
                     error: function(xhr) {
                         console.error('Failed to remove from cart', xhr.responseText);
-                        $control.find('.ec-card__qty-btn').prop('disabled', false);
+                        $control.removeClass('ec-updating');
                     }
                 });
             },
             error: function(xhr) {
                 console.error('Failed to get cart HTML', xhr.responseText);
-                $control.find('.ec-card__qty-btn').prop('disabled', false);
+                $control.removeClass('ec-updating');
             }
         });
     }

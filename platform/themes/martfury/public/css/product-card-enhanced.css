@@ -834,14 +834,17 @@
 }
 
 .ec-card__qty-btn:disabled {
-    opacity: 0.6;
     cursor: wait;
     pointer-events: none;
 }
 
 .ec-card__qty-input:disabled {
-    opacity: 0.6;
     cursor: wait;
+}
+
+/* Updating state - subtle visual feedback without opacity change */
+.ec-card__qty-control.ec-updating {
+    pointer-events: none;
 }
 
 .ec-card__qty-btn--minus {
@@ -871,6 +874,8 @@
     justify-content: center;
     gap: 4px;
     min-width: 0;
+    cursor: text;
+    padding: 2px 4px;
 }
 
 .ec-card__qty-input {
@@ -884,6 +889,7 @@
     outline: none;
     padding: 0;
     min-width: 0;
+    line-height: 1;
     -moz-appearance: textfield; /* Firefox */
 }
 
@@ -892,6 +898,7 @@
     font-weight: 400;
     color: var(--global-color-text-muted);
     white-space: nowrap;
+    line-height: 1;
 }
 
 /* Hide spinner buttons in Chrome, Safari, Edge */
@@ -899,6 +906,15 @@
 .ec-card__qty-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+/* Prevent pull-to-refresh interfering with scroll */
+body {
+    overscroll-behavior-y: contain;
+}
+
+.ec-card {
+    overscroll-behavior: contain;
 }
 
 .ec-card__qty-btn i {
