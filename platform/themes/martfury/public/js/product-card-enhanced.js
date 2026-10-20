@@ -333,7 +333,7 @@
                 
                 // Log the actual HTML content
                 console.log('Cart HTML length:', cartResponse.data.html.length);
-                console.log('Cart HTML (first 500 chars):', cartResponse.data.html.substring(0, 500));
+                console.log('Cart HTML (full):', cartResponse.data.html);
                 
                 var $html = $(cartResponse.data.html);
                 console.log('Parsed jQuery elements:', $html.length);
