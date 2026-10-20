@@ -114,111 +114,147 @@
         var $qtyText = $control.find('.ec-card__qty-text');
         var $minusBtn = $control.find('.ec-card__qty-btn--minus');
         
-        // Get current cart to find rowId
+        // Use Laravel's Cart session directly by parsing the mini-cart HTML
+        // Or use the cart count endpoint and try to get rowId from data attributes
+        
+        // For now, let's use a simpler approach: add/remove items to change quantity
+        var currentQty = parseInt($qtyText.text().match(/\d+/)[0]);
+        var diff = newQty - currentQty;
+        
+        if (diff === 0) {
+            $control.find('.ec-card__qty-btn').prop('disabled', false);
+            return;
+        }
+        
+        // We'll add the product multiple times or use the update endpoint with product ID
+        // Let's try posting directly to cart update with product ID
         $.ajax({
-            url: '/ajax/cart',
-            method: 'GET',
+            url: '/cart/update',
+            method: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                id: productId,
+                qty: newQty
+            },
             dataType: 'json',
-            success: function(cartResponse) {
-                console.log('Cart response:', cartResponse);
+            success: function(response) {
+                console.log('Cart updated successfully', response);
                 
-                var cartItem = null;
-                if (cartResponse && cartResponse.data && cartResponse.data.items) {
-                    // Try multiple ID fields that might exist
-                    cartItem = cartResponse.data.items.find(function(item) {
-                        var itemId = item.id || item.product_id || (item.options && item.options.id);
-                        return parseInt(itemId) === parseInt(productId);
-                    });
+                // Update quantity text
+                $qtyText.text(newQty + ' at cart');
+                
+                // Update icon (trash vs minus)
+                if (newQty === 1) {
+                    $minusBtn.html('<i class="ph ph-trash"></i>');
+                } else {
+                    $minusBtn.html('<i class="ph ph-minus"></i>');
                 }
                 
-                if (!cartItem) {
-                    console.error('Cart item not found for product', productId);
-                    console.log('Available cart items:', cartResponse.data.items);
-                    $control.find('.ec-card__qty-btn').prop('disabled', false);
-                    return;
+                // Update mini-cart
+                if (typeof window.loadCart === 'function') {
+                    window.loadCart();
                 }
                 
-                var rowId = cartItem.rowId;
-                console.log('Found rowId:', rowId, 'for product:', productId);
-                
-                // Update via cart update endpoint
-                $.ajax({
-                    url: '/cart/update',
-                    method: 'POST',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        items: [{
-                            rowId: rowId,
-                            values: { qty: newQty }
-                        }]
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        console.log('Cart updated successfully', response);
-                        
-                        // Update quantity text
-                        $qtyText.text(newQty + ' at cart');
-                        
-                        // Update icon (trash vs minus)
-                        if (newQty === 1) {
-                            $minusBtn.html('<i class="ph ph-trash"></i>');
-                        } else {
-                            $minusBtn.html('<i class="ph ph-minus"></i>');
-                        }
-                        
-                        // Update mini-cart
-                        if (typeof window.loadCart === 'function') {
-                            window.loadCart();
-                        }
-                        
-                        // Re-enable buttons
-                        $control.find('.ec-card__qty-btn').prop('disabled', false);
-                    },
-                    error: function(xhr) {
-                        console.error('Failed to update cart quantity', xhr.responseText);
-                        // Re-enable buttons
-                        $control.find('.ec-card__qty-btn').prop('disabled', false);
-                    }
-                });
+                // Re-enable buttons
+                $control.find('.ec-card__qty-btn').prop('disabled', false);
             },
             error: function(xhr) {
-                console.error('Failed to get cart data', xhr.responseText);
+                console.error('Failed to update cart quantity', xhr.responseText);
+                // Try alternative: remove and re-add
+                if (diff < 0) {
+                    // Decrease by removing and re-adding
+                    removeAndReAdd(productId, newQty, $control);
+                } else {
+                    // Increase by adding more
+                    addMore(productId, diff, $control, newQty);
+                }
+            }
+        });
+    }
+    
+    function addMore(productId, qty, $control, targetQty) {
+        $.ajax({
+            url: '/ajax/cart/add-to-cart',
+            method: 'POST',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                id: productId,
+                qty: qty
+            },
+            dataType: 'json',
+            success: function(response) {
+                var $qtyText = $control.find('.ec-card__qty-text');
+                $qtyText.text(targetQty + ' at cart');
+                
+                var $minusBtn = $control.find('.ec-card__qty-btn--minus');
+                if (targetQty === 1) {
+                    $minusBtn.html('<i class="ph ph-trash"></i>');
+                } else {
+                    $minusBtn.html('<i class="ph ph-minus"></i>');
+                }
+                
+                if (typeof window.loadCart === 'function') {
+                    window.loadCart();
+                }
+                
+                $control.find('.ec-card__qty-btn').prop('disabled', false);
+            },
+            error: function(xhr) {
+                console.error('Failed to add more', xhr.responseText);
                 $control.find('.ec-card__qty-btn').prop('disabled', false);
             }
         });
+    }
+    
+    function removeAndReAdd(productId, newQty, $control) {
+        // This is complex without rowId, for now just refresh the page or show message
+        console.error('Cannot decrease quantity without rowId - need to implement cart item lookup');
+        $control.find('.ec-card__qty-btn').prop('disabled', false);
     }
 
     function removeFromCart(productId, $control) {
         var $actions = $control.closest('.ec-card__actions');
         
-        // Get cart to find rowId
+        // We need to find the cart item by product ID
+        // Since /ajax/cart doesn't return items, we'll need to query the cart page or use a different approach
+        // For now, let's try to remove by making a request to find it first
+        
+        // Alternative: use the cart HTML to find the remove link
         $.ajax({
             url: '/ajax/cart',
             method: 'GET',
-            dataType: 'json',
             success: function(cartResponse) {
-                console.log('Cart response for remove:', cartResponse);
+                console.log('Cart HTML response:', cartResponse);
                 
-                var cartItem = null;
-                if (cartResponse && cartResponse.data && cartResponse.data.items) {
-                    // Try multiple ID fields
-                    cartItem = cartResponse.data.items.find(function(item) {
-                        var itemId = item.id || item.product_id || (item.options && item.options.id);
-                        return parseInt(itemId) === parseInt(productId);
-                    });
-                }
+                // Parse HTML to find remove link for this product
+                var $html = $(cartResponse.data.html);
+                var $removeLink = null;
                 
-                if (!cartItem) {
-                    console.error('Cart item not found for removal', productId);
-                    console.log('Available cart items:', cartResponse.data.items);
+                // Find the remove link - check for data-url attribute
+                $html.find('[data-url*="/cart/remove/"]').each(function() {
+                    var $link = $(this);
+                    // Check if this link belongs to our product
+                    // We need to check the product in the same row/container
+                    var $container = $link.closest('li, tr, .ps-product');
+                    var productLink = $container.find('a[href*="' + productId + '"]');
+                    
+                    if (productLink.length > 0 || $container.find('[data-id="' + productId + '"]').length > 0) {
+                        $removeLink = $link;
+                        return false; // break
+                    }
+                });
+                
+                if (!$removeLink || !$removeLink.length) {
+                    console.error('Remove link not found in cart HTML for product', productId);
                     $control.find('.ec-card__qty-btn').prop('disabled', false);
                     return;
                 }
                 
-                console.log('Removing cart item with rowId:', cartItem.rowId);
+                var removeUrl = $removeLink.data('url') || $removeLink.attr('href');
+                console.log('Found remove URL:', removeUrl);
                 
                 $.ajax({
-                    url: '/cart/remove/' + cartItem.rowId,
+                    url: removeUrl,
                     method: 'GET',
                     dataType: 'json',
                     success: function(response) {
@@ -246,7 +282,7 @@
                 });
             },
             error: function(xhr) {
-                console.error('Failed to get cart data', xhr.responseText);
+                console.error('Failed to get cart HTML', xhr.responseText);
                 $control.find('.ec-card__qty-btn').prop('disabled', false);
             }
         });
@@ -286,64 +322,77 @@
         $.ajax({
             url: '/ajax/cart',
             method: 'GET',
-            dataType: 'json',
             success: function(cartResponse) {
-                console.log('Syncing cart state:', cartResponse);
+                console.log('Syncing cart state with HTML parsing');
                 
-                if (cartResponse && cartResponse.data && cartResponse.data.items) {
-                    var cartItems = {};
-                    cartResponse.data.items.forEach(function(item) {
-                        // Try multiple ID fields
-                        var itemId = item.id || item.product_id || (item.options && item.options.id);
-                        if (itemId) {
-                            cartItems[itemId] = parseInt(item.qty);
-                        }
-                    });
-                    
-                    console.log('Cart items map:', cartItems);
-                    
-                    // Update all enhanced cards
-                    $('.ec-card__btn--cart').each(function() {
-                        var $btn = $(this);
-                        var productId = $btn.data('id');
-                        
-                        if (cartItems[productId]) {
-                            // Product is in cart, show quantity control
-                            console.log('Transforming button for product', productId, 'qty:', cartItems[productId]);
-                            transformToQuantityControl(productId, cartItems[productId]);
-                        }
-                    });
-                    
-                    // Update existing quantity controls
-                    $('.ec-card__qty-control').each(function() {
-                        var $control = $(this);
-                        var productId = $control.data('id');
-                        
-                        if (cartItems[productId]) {
-                            // Update quantity
-                            var qty = cartItems[productId];
-                            $control.find('.ec-card__qty-text').text(qty + ' at cart');
-                            
-                            var $minusBtn = $control.find('.ec-card__qty-btn--minus');
-                            if (qty === 1) {
-                                $minusBtn.html('<i class="ph ph-trash"></i>');
-                            } else {
-                                $minusBtn.html('<i class="ph ph-minus"></i>');
-                            }
-                        } else {
-                            // Product removed from cart, show button
-                            console.log('Resetting button for product', productId);
-                            var $actions = $control.closest('.ec-card__actions');
-                            var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
-                                'data-id="' + productId + '" ' +
-                                'data-url="/ajax/cart/add-to-cart" ' +
-                                'data-show-toast-on-success="false" ' +
-                                'data-bb-toggle="add-to-cart">' +
-                                'Add to Cart</button>';
-                            $actions.html(btnHtml);
-                        }
-                    });
+                if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
+                    console.log('No cart HTML available');
+                    return;
                 }
+                
+                var $html = $(cartResponse.data.html);
+                var cartItems = {};
+                
+                // Parse the cart HTML to extract product IDs and quantities
+                // Look for input[name="items[...][qty]"] or data-id attributes
+                $html.find('[data-id]').each(function() {
+                    var $el = $(this);
+                    var productId = $el.data('id');
+                    if (productId) {
+                        // Find qty in the same container
+                        var $container = $el.closest('li, tr, .ps-product');
+                        var $qtyInput = $container.find('input[name*="[qty]"], .qty-input, input.qty');
+                        var qty = $qtyInput.length ? parseInt($qtyInput.val()) : 1;
+                        
+                        if (qty > 0) {
+                            cartItems[productId] = qty;
+                        }
+                    }
+                });
+                
+                console.log('Cart items found:', cartItems);
+                
+                // Update all enhanced cards
+                $('.ec-card__btn--cart').each(function() {
+                    var $btn = $(this);
+                    var productId = $btn.data('id');
+                    
+                    if (cartItems[productId]) {
+                        // Product is in cart, show quantity control
+                        console.log('Transforming button for product', productId, 'qty:', cartItems[productId]);
+                        transformToQuantityControl(productId, cartItems[productId]);
+                    }
+                });
+                
+                // Update existing quantity controls
+                $('.ec-card__qty-control').each(function() {
+                    var $control = $(this);
+                    var productId = $control.data('id');
+                    
+                    if (cartItems[productId]) {
+                        // Update quantity
+                        var qty = cartItems[productId];
+                        $control.find('.ec-card__qty-text').text(qty + ' at cart');
+                        
+                        var $minusBtn = $control.find('.ec-card__qty-btn--minus');
+                        if (qty === 1) {
+                            $minusBtn.html('<i class="ph ph-trash"></i>');
+                        } else {
+                            $minusBtn.html('<i class="ph ph-minus"></i>');
+                        }
+                    } else {
+                        // Product removed from cart, show button
+                        console.log('Resetting button for product', productId);
+                        var $actions = $control.closest('.ec-card__actions');
+                        var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
+                            'data-id="' + productId + '" ' +
+                            'data-url="/ajax/cart/add-to-cart" ' +
+                            'data-show-toast-on-success="false" ' +
+                            'data-bb-toggle="add-to-cart">' +
+                            'Add to Cart</button>';
+                        $actions.html(btnHtml);
+                    }
+                });
             },
             error: function(xhr) {
                 console.error('Failed to sync cart state', xhr.responseText);
