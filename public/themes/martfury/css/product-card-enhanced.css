@@ -834,8 +834,12 @@
 }
 
 .ec-card__qty-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    cursor: wait;
+    pointer-events: none;
+}
+
+.ec-card__qty-input:disabled {
+    cursor: wait;
 }
 
 .ec-card__qty-btn--minus {
@@ -858,14 +862,45 @@
     border-left-color: var(--global-color-warning);
 }
 
-.ec-card__qty-text {
+.ec-card__qty-display {
     flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+    cursor: text;
+    padding: 2px 4px;
+}
+
+.ec-card__qty-input {
+    width: 30px;
     text-align: center;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--global-color-text-main);
-    padding: 0 8px;
+    border: none;
+    background: transparent;
+    outline: none;
+    padding: 0;
+    min-width: 0;
+    line-height: 1;
+    -moz-appearance: textfield; /* Firefox */
+}
+
+.ec-card__qty-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--global-color-text-muted);
     white-space: nowrap;
+    line-height: 1;
+}
+
+/* Hide spinner buttons in Chrome, Safari, Edge */
+.ec-card__qty-input::-webkit-outer-spin-button,
+.ec-card__qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .ec-card__qty-btn i {

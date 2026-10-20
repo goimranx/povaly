@@ -2750,7 +2750,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         // Replace logo with arrow icon
                         var logoWrap = smartNav.querySelector('.bb-logo-wrap');
                         if (logoWrap) {
-                            logoWrap.innerHTML = '<i class="icon-chevron-up"></i>';
+                            logoWrap.innerHTML = '<i class="icon-arrow-up"></i>';
                             logoWrap.style.background = 'none';
                             logoWrap.style.border = 'none';
                         }
@@ -2758,14 +2758,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     if (smartNav.classList.contains('show-arrow')) {
                         smartNav.classList.remove('show-arrow');
-                        smartNav.href = 'javascript:void(0)';
+                        // Update href to homepage
+                        smartNav.href = smartNav.getAttribute('data-homepage-url') || '/';
                         // Restore logo without reloading
                         var logoWrap = smartNav.querySelector('.bb-logo-wrap');
                         if (logoWrap) {
                             // Restore logo image
                             var logoImg = smartNav.getAttribute('data-logo-img');
                             if (logoImg) {
-                                logoWrap.innerHTML = '<img src="' + logoImg + '" alt="Logo" />';
+                                logoWrap.innerHTML = '<img src="' + logoImg + '" alt="Logo" class="bb-logo-img" />';
                                 logoWrap.style.background = '';
                                 logoWrap.style.border = '';
                             }
@@ -2783,8 +2784,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     var backToTop = document.querySelector('.ps-back-top');
                     if (backToTop) backToTop.style.display = 'none';
                 } else {
-                    // Reload page when logo clicked
-                    location.reload();
+                    // Go to homepage
+                    window.location.href = smartNav.getAttribute('data-homepage-url') || '/';
                 }
             });
             

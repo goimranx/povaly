@@ -225,13 +225,16 @@
                         $isHomePage = request()->is('/') || request()->is(app()->getLocale());
                     @endphp
                     <a class="navigation__item navigation__item--smart" 
-                       href="{{ $isHomePage ? 'javascript:void(0)' : route('public.index') }}" 
+                       href="{{ route('public.index') }}" 
                        data-home-page="{{ $isHomePage ? 'true' : 'false' }}"
-                       data-logo-img="{{ theme_option('logo') ? RvMedia::getImageUrl(theme_option('logo')) : '' }}"
+                       data-homepage-url="{{ route('public.index') }}"
+                       data-logo-img="{{ theme_option('bottom_bar_logo') ? RvMedia::getImageUrl(theme_option('bottom_bar_logo')) : (theme_option('logo') ? RvMedia::getImageUrl(theme_option('logo')) : '') }}"
                        id="bb-smart-nav">
                         @if($isHomePage)
                             <span class="bb-logo-wrap">
-                                @if(theme_option('logo'))
+                                @if(theme_option('bottom_bar_logo'))
+                                    <img src="{{ RvMedia::getImageUrl(theme_option('bottom_bar_logo')) }}" alt="{{ theme_option('site_title') }}" class="bb-logo-img">
+                                @elseif(theme_option('logo'))
                                     <img src="{{ RvMedia::getImageUrl(theme_option('logo')) }}" alt="{{ theme_option('site_title') }}" class="bb-logo-img">
                                 @else
                                     <i class="icon-home"></i>

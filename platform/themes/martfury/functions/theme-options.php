@@ -212,6 +212,17 @@ app('events')->listen(RenderingThemeOptionSettings::class, function (): void {
         ->setField($mk('t3_m10', 3))
 
         // TAB 4 — Bottom Bar
+        ->setField([
+            'id' => 'bottom_bar_logo',
+            'section_id' => $sc,
+            'type' => 'mediaImage',
+            'label' => __('Bottom Bar Logo'),
+            'attributes' => [
+                'name' => 'bottom_bar_logo',
+                'value' => null
+            ]
+        ])
+        ->setField($mk('t4_logo', 4))
         ->setField(['id' => 'bottom_bar_background_color',    'section_id' => $sc, 'type' => 'customColor',  'label' => __('Background color'),        'attributes' => ['name' => 'bottom_bar_background_color',    'value' => '#ffffff']])
         ->setField($mk('t4_m1', 4))
         ->setField(['id' => 'bottom_bar_color',               'section_id' => $sc, 'type' => 'customColor',  'label' => __('Icon / text color'),       'attributes' => ['name' => 'bottom_bar_color',               'value' => '#666666']])
