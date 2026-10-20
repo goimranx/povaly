@@ -867,7 +867,7 @@
         .header .ps-block--user-header .ps-block__right a { color: var(--global-color-text-on-dark) !important; }
         .header .ps-block--user-header .ps-block__right a:hover { color: var(--global-color-warning) !important; }
 
-        /* Bottom bar - Fixed positioning (NOT sticky) */
+        /* Bottom bar - TRULY FIXED positioning (no movement on scroll) */
         nav.navigation--mobile-product,
         .navigation--mobile-product {
             position: fixed !important;
@@ -878,12 +878,19 @@
             transform: translate3d(0, 0, 0) !important;
             -webkit-transform: translate3d(0, 0, 0) !important;
             transition: none !important;
+            -webkit-transition: none !important;
+            will-change: auto !important;
             z-index: 10002 !important;
+            backface-visibility: hidden !important;
+            -webkit-backface-visibility: hidden !important;
         }
+        /* Prevent ANY transform classes from moving the bar */
         nav.navigation--mobile-product.navigation--pin,
         nav.navigation--mobile-product.navigation--unpin,
+        nav.navigation--mobile-product.navigation--sticky,
         .navigation--mobile-product.navigation--pin,
-        .navigation--mobile-product.navigation--unpin {
+        .navigation--mobile-product.navigation--unpin,
+        .navigation--mobile-product.navigation--sticky {
             transform: translate3d(0, 0, 0) !important;
             -webkit-transform: translate3d(0, 0, 0) !important;
         }
@@ -927,7 +934,7 @@
             line-height: 1 !important;
         }
         
-        /* Smart navigation item - Logo with gradient background */
+        /* Smart navigation item - Logo with circular gradient background */
         .navigation__item--smart {
             display: flex !important;
             align-items: center !important;
@@ -945,7 +952,7 @@
             background: linear-gradient(135deg, 
                 var(--global-color-primary, #FF642C) 85%, 
                 var(--global-color-warning, #FBB13C) 100%) !important;
-            border-radius: 8px !important;
+            border-radius: 50% !important;
             padding: 3px !important;
             overflow: hidden !important;
         }
