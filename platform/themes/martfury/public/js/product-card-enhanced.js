@@ -138,8 +138,6 @@
             },
             dataType: 'json',
             success: function(response) {
-                console.log('Cart updated successfully', response);
-                
                 // Update quantity text
                 $qtyText.text(newQty + ' at cart');
                 
@@ -242,14 +240,15 @@
                     
                     var productIdentifier = urlParts[1].replace(/\/$/, '');
                     
-                    // Check if this matches our product
-                    if (productIdentifier == productId || 
-                        productIdentifier.indexOf(productId) > -1 || 
-                        productIdentifier.endsWith('-' + productId)) {
-                        
+                    // Check if this matches our product (by slug primarily)
+                    // Also check the button's data-slug if we need to get it from the control
+                    var $card = $control.closest('.ec-card');
+                    var $btn = $card.find('[data-slug]');
+                    var btnSlug = $btn.data('slug');
+                    
+                    if (productIdentifier == productId || productIdentifier == btnSlug) {
                         var $removeLink = $item.find('.ps-product__remove[data-url]');
                         removeUrl = $removeLink.data('url') || $removeLink.attr('data-url');
-                        console.log('Found remove URL for product', productId, ':', removeUrl);
                         return false; // break
                     }
                 });
@@ -265,8 +264,6 @@
                     method: 'GET',
                     dataType: 'json',
                     success: function(response) {
-                        console.log('Item removed successfully', response);
-                        
                         // Transform back to "Add to Cart" button
                         var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
                             'data-id="' + productId + '" ' +
@@ -330,75 +327,42 @@
             url: '/ajax/cart',
             method: 'GET',
             success: function(cartResponse) {
-                console.log('=== CART SYNC START ===');
-                console.log('Cart response:', cartResponse);
-                
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
-                    console.log('No cart HTML available');
                     return;
                 }
                 
-                // Log the actual HTML content
-                console.log('Cart HTML length:', cartResponse.data.html.length);
-                console.log('Cart HTML (full):', cartResponse.data.html);
-                
                 var $html = $(cartResponse.data.html);
-                console.log('Parsed jQuery elements:', $html.length);
-                
                 var cartItems = {};
                 
                 // Parse cart items by finding product containers
-                // Each cart item is in a .ps-product--cart-mobile div
                 $html.find('.ps-product--cart-mobile').each(function() {
                     var $item = $(this);
-                    
-                    // Find the product link to extract product ID or slug
                     var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
                     
-                    if (!$productLink.length) {
-                        console.log('No product link found in cart item');
-                        return; // continue
-                    }
+                    if (!$productLink.length) return;
                     
                     var productUrl = $productLink.attr('href');
-                    console.log('Product URL:', productUrl);
-                    
-                    // Try to extract product ID from URL or use the slug
-                    // URL format: https://povaly.com/products/demo-product or /products/136
                     var urlParts = productUrl.split('/products/');
-                    if (urlParts.length < 2) {
-                        console.log('Could not parse product URL:', productUrl);
-                        return;
-                    }
+                    if (urlParts.length < 2) return;
                     
-                    var productIdentifier = urlParts[1].replace(/\/$/, ''); // Remove trailing slash
-                    console.log('Product identifier from URL:', productIdentifier);
+                    var productIdentifier = urlParts[1].replace(/\/$/, '');
                     
                     // Find quantity in the text "X x" format
                     var $qtyText = $item.find('.ps-product__content p small .d-inline-block');
                     var qtyMatch = $qtyText.text().trim().match(/^(\d+)\s*x$/);
                     var qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
                     
-                    console.log('Product quantity:', qty);
-                    
-                    // Find remove link to store rowId for later use
+                    // Find remove link
                     var $removeLink = $item.find('.ps-product__remove[data-url]');
                     var removeUrl = $removeLink.data('url') || $removeLink.attr('data-url');
-                    
-                    console.log('Remove URL:', removeUrl);
                     
                     if (productIdentifier && qty > 0) {
                         cartItems[productIdentifier] = {
                             qty: qty,
                             removeUrl: removeUrl
                         };
-                        console.log('Added to cart items:', productIdentifier, cartItems[productIdentifier]);
                     }
                 });
-                
-                console.log('Cart items parsed:', cartItems);
-                console.log('Number of products in cart:', Object.keys(cartItems).length);
-                console.log('=== CART SYNC PARSING COMPLETE ===');
                 
                 // Update all enhanced cards
                 $('.ec-card__btn--cart').each(function() {
@@ -408,16 +372,10 @@
                     
                     if (!productId && !productSlug) return;
                     
-                    console.log('Checking button - ID:', productId, 'Slug:', productSlug);
-                    
                     // Try to find cart item by slug first (most reliable), then by ID
                     var cartItem = cartItems[productSlug] || cartItems[productId];
                     
-                    console.log('Cart item found:', !!cartItem, cartItem);
-                    
                     if (cartItem && cartItem.qty) {
-                        // Product is in cart, show quantity control
-                        console.log('Transforming button - ID:', productId, 'Qty:', cartItem.qty);
                         transformToQuantityControl(productId, cartItem.qty);
                     }
                 });
@@ -446,7 +404,6 @@
                     var cartItem = cartItems[productSlug] || cartItems[productId];
                     
                     if (cartItem && cartItem.qty) {
-                        // Update quantity
                         var qty = cartItem.qty;
                         $control.find('.ec-card__qty-text').text(qty + ' at cart');
                         
@@ -457,8 +414,6 @@
                             $minusBtn.html('<i class="ph ph-minus"></i>');
                         }
                     } else {
-                        // Product removed from cart, show button
-                        console.log('Resetting button for product', productId);
                         var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
                             'data-id="' + productId + '" ' +
                             (productSlug ? 'data-slug="' + productSlug + '" ' : '') +
