@@ -867,24 +867,32 @@
         .header .ps-block--user-header .ps-block__right a { color: var(--global-color-text-on-dark) !important; }
         .header .ps-block--user-header .ps-block__right a:hover { color: var(--global-color-warning) !important; }
 
-        /* Bottom bar - TRULY FIXED positioning with mobile viewport fix */
+        /* Bottom bar - ABSOLUTE NUCLEAR OPTION - prevent ANY movement */
         nav.navigation--mobile-product,
-        .navigation--mobile-product {
+        .navigation--mobile-product,
+        nav.navigation--mobile-product[style],
+        .navigation--mobile-product[style] {
             position: fixed !important;
             bottom: 0 !important;
             left: 0 !important;
             right: 0 !important;
+            top: auto !important;
             width: 100% !important;
             transform: translate3d(0, 0, 0) !important;
             -webkit-transform: translate3d(0, 0, 0) !important;
             transition: none !important;
             -webkit-transition: none !important;
+            animation: none !important;
+            -webkit-animation: none !important;
             will-change: auto !important;
             z-index: 10002 !important;
             backface-visibility: hidden !important;
             -webkit-backface-visibility: hidden !important;
             /* Prevent interaction with viewport height changes */
             contain: layout style paint !important;
+            /* Override any inline styles */
+            margin: 0 !important;
+            padding: 0 !important;
         }
         /* Force fixed positioning on mobile - prevent address bar interference */
         @supports (-webkit-touch-callout: none) {
@@ -902,9 +910,13 @@
         nav.navigation--mobile-product.navigation--sticky,
         .navigation--mobile-product.navigation--pin,
         .navigation--mobile-product.navigation--unpin,
-        .navigation--mobile-product.navigation--sticky {
+        .navigation--mobile-product.navigation--sticky,
+        nav.navigation--mobile-product[class*="navigation--"],
+        .navigation--mobile-product[class*="navigation--"] {
             transform: translate3d(0, 0, 0) !important;
             -webkit-transform: translate3d(0, 0, 0) !important;
+            position: fixed !important;
+            bottom: 0 !important;
         }
         
         .navigation--list { 
@@ -1769,8 +1781,13 @@
         #back2top:hover i {
             color: var(--global-color-text-on-dark, #F4F9FD) !important;
         }
-        #back2top.active {
-            bottom: var(--backtotop-bottom) !important;
+        /* Go to Top Button — Hide on mobile (we have bottom bar arrow) */
+        @media (max-width: 1199px) {
+            #back2top,
+            .ps-back-top {
+                display: none !important;
+                visibility: hidden !important;
+            }
         }
 
         /* Footer — driven by theme options */
@@ -2803,6 +2820,34 @@ window.addEventListener('load', function() {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
+    // ── FORCE LOCK BOTTOM BAR POSITION (prevent any JS from moving it) ─────
+    var bottomBar = document.querySelector('.navigation--mobile-product');
+    if (bottomBar) {
+        // Force remove any transforms or animations
+        var lockPosition = function() {
+            bottomBar.style.setProperty('position', 'fixed', 'important');
+            bottomBar.style.setProperty('bottom', '0', 'important');
+            bottomBar.style.setProperty('transform', 'translate3d(0, 0, 0)', 'important');
+            bottomBar.style.setProperty('transition', 'none', 'important');
+        };
+        
+        // Lock immediately
+        lockPosition();
+        
+        // Re-lock on any scroll event (in case some JS tries to change it)
+        var lockTimeout;
+        window.addEventListener('scroll', function() {
+            if (lockTimeout) clearTimeout(lockTimeout);
+            lockTimeout = setTimeout(lockPosition, 10);
+        }, { passive: true });
+        
+        // Watch for any attribute/style changes and force lock
+        new MutationObserver(lockPosition).observe(bottomBar, {
+            attributes: true,
+            attributeFilter: ['style', 'class']
+        });
+    }
+    
     // ── Bottom bar toggle swap (Search / Cart / Categories) ─────────────
     var toggles = document.querySelectorAll('.navigation__item.bb-nav-toggle');
 
