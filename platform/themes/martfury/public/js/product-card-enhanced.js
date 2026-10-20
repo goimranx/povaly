@@ -132,6 +132,10 @@
     function updateCartQuantity(productId, newQty, $control) {
         $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', true);
         
+        // Get slug from the card
+        var $card = $control.closest('.ec-card');
+        var productSlug = $card.find('[data-slug]').data('slug');
+        
         // Get cart to find the rowId
         $.ajax({
             url: '/ajax/cart',
@@ -145,14 +149,6 @@
                 
                 var $html = $(cartResponse.data.html);
                 var rowId = null;
-                var productSlug = null;
-                
-                // Get slug from card
-                var $card = $control.closest('.ec-card');
-                var $slugElement = $card.find('[data-slug]');
-                if ($slugElement.length) {
-                    productSlug = $slugElement.data('slug');
-                }
                 
                 // Find the cart item by matching product URL
                 $html.find('.ps-product--cart-mobile').each(function() {
@@ -167,7 +163,8 @@
                     
                     var productIdentifier = urlParts[1].replace(/\/$/, '');
                     
-                    if (productIdentifier == productId || productIdentifier == productSlug) {
+                    // Match by slug first (most reliable), then by ID
+                    if (productIdentifier == productSlug || productIdentifier == productId) {
                         // Extract rowId from remove URL
                         var $removeLink = $item.find('.ps-product__remove[data-url]');
                         var removeUrl = $removeLink.data('url') || $removeLink.attr('data-url');
@@ -183,7 +180,7 @@
                 });
                 
                 if (!rowId) {
-                    console.error('Could not find rowId for product', productId);
+                    console.error('Could not find rowId for product', productId, 'slug:', productSlug);
                     $control.find('.ec-card__qty-btn, .ec-card__qty-input').prop('disabled', false);
                     return;
                 }
@@ -235,6 +232,10 @@
     function removeFromCart(productId, $control) {
         var $actions = $control.closest('.ec-card__actions');
         
+        // Get slug from the card
+        var $card = $control.closest('.ec-card');
+        var productSlug = $card.find('[data-slug]').data('slug');
+        
         // Get cart to find the remove URL
         $.ajax({
             url: '/ajax/cart',
@@ -262,13 +263,8 @@
                     
                     var productIdentifier = urlParts[1].replace(/\/$/, '');
                     
-                    // Check if this matches our product (by slug primarily)
-                    // Also check the button's data-slug if we need to get it from the control
-                    var $card = $control.closest('.ec-card');
-                    var $btn = $card.find('[data-slug]');
-                    var btnSlug = $btn.data('slug');
-                    
-                    if (productIdentifier == productId || productIdentifier == btnSlug) {
+                    // Match by slug first, then ID
+                    if (productIdentifier == productSlug || productIdentifier == productId) {
                         var $removeLink = $item.find('.ps-product__remove[data-url]');
                         removeUrl = $removeLink.data('url') || $removeLink.attr('data-url');
                         return false; // break
@@ -276,7 +272,7 @@
                 });
                 
                 if (!removeUrl) {
-                    console.error('Remove link not found in cart HTML for product', productId);
+                    console.error('Remove link not found for product', productId, 'slug:', productSlug);
                     $control.find('.ec-card__qty-btn').prop('disabled', false);
                     return;
                 }
@@ -289,6 +285,7 @@
                         // Transform back to "Add to Cart" button
                         var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
                             'data-id="' + productId + '" ' +
+                            (productSlug ? 'data-slug="' + productSlug + '" ' : '') +
                             'data-url="/ajax/cart/add-to-cart" ' +
                             'data-show-toast-on-success="false" ' +
                             'data-bb-toggle="add-to-cart">' +
