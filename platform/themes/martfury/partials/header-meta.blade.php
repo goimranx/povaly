@@ -2225,13 +2225,13 @@
             overflow: hidden;
             position: relative;
             background: #000;
-            border: none; /* No border by default */
-            transition: border 0.2s ease;
+            border: 2px solid transparent; /* Transparent border by default */
+            transition: border-color 0.2s ease;
         }
         
         /* Active item thumbnail gets primary border */
         .video-list-item.active .video-list-item-thumbnail {
-            border: 2px solid var(--global-color-primary, #0D6EFD); /* Primary color border */
+            border-color: var(--global-color-primary, #0D6EFD); /* Primary color border */
         }
         
         .video-list-item-thumbnail img {
@@ -4737,6 +4737,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (thumbnailsContainer) thumbnailsContainer.style.display = 'none';
             if (videoListsContainer) videoListsContainer.style.display = 'block';
             if (productInfo) productInfo.style.display = 'none';
+            
+            // Auto-play first video when switching to Videos tab
+            if (currentProduct && currentProduct.videos && currentProduct.videos.length > 0) {
+                loadVideos(currentProduct.videos, 0); // Load and auto-play first video
+            }
         }
     }
     
@@ -4896,8 +4901,21 @@ document.addEventListener('DOMContentLoaded', function() {
         iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
         iframe.allowFullscreen = true;
         iframe.style.cssText = 'width:100%;height:100%;border:0;display:block;';
+        iframe.id = 'lightbox-youtube-player';
         
         container.appendChild(iframe);
+        
+        // Listen for YouTube player state changes
+        window.addEventListener('message', function(event) {
+            if (event.origin !== 'https://www.youtube.com') return;
+            try {
+                var data = JSON.parse(event.data);
+                // YouTube sends playerState 0 when video ends
+                if (data.event === 'onStateChange' && data.info === 0) {
+                    handleVideoEnded();
+                }
+            } catch (e) {}
+        });
     }
     
     // Create Vimeo player
@@ -4914,8 +4932,21 @@ document.addEventListener('DOMContentLoaded', function() {
         iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
         iframe.allowFullscreen = true;
         iframe.style.cssText = 'width:100%;height:100%;border:0;display:block;';
+        iframe.id = 'lightbox-vimeo-player';
         
         container.appendChild(iframe);
+        
+        // Listen for Vimeo player events
+        window.addEventListener('message', function(event) {
+            if (event.origin !== 'https://player.vimeo.com') return;
+            try {
+                var data = JSON.parse(event.data);
+                // Vimeo sends 'ended' event when video finishes
+                if (data.event === 'ended') {
+                    handleVideoEnded();
+                }
+            } catch (e) {}
+        });
     }
     
     // Create direct video player
@@ -4931,7 +4962,36 @@ document.addEventListener('DOMContentLoaded', function() {
             videoEl.poster = video.poster;
         }
         
+        // Add ended event listener
+        videoEl.addEventListener('ended', function() {
+            handleVideoEnded();
+        });
+        
         container.appendChild(videoEl);
+    }
+    
+    // Handle video ended - play next or show replay option
+    function handleVideoEnded() {
+        if (!currentProduct || !currentProduct.videos) return;
+        
+        var currentIndex = currentProduct.currentVideoIndex || 0;
+        var totalVideos = currentProduct.videos.length;
+        
+        if (currentIndex < totalVideos - 1) {
+            // Play next video
+            setTimeout(function() {
+                loadVideos(currentProduct.videos, currentIndex + 1);
+                updateActiveVideoListItem(currentIndex + 1);
+            }, 1000); // 1 second delay before next video
+        } else {
+            // Last video - show replay option
+            setTimeout(function() {
+                if (confirm('All videos watched. Play again from the beginning?')) {
+                    loadVideos(currentProduct.videos, 0);
+                    updateActiveVideoListItem(0);
+                }
+            }, 1000);
+        }
     }
     
     // Load video lists in sidebar
