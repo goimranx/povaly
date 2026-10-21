@@ -2016,17 +2016,15 @@
             position: relative;
             width: 100%;
             height: 100%;
-            max-width: 100%;
-            max-height: 100%;
             cursor: zoom-in;
             overflow: hidden;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            align-items: flex-start; /* Start from top-left, not center */
+            justify-content: flex-start;
         }
         
         .product-lightbox-image-wrapper.zoomed {
-            cursor: zoom-out; /* zoom-out cursor when zoomed */
+            cursor: zoom-out;
         }
         
         .product-lightbox-main-image {
@@ -2034,6 +2032,7 @@
             max-height: 100%;
             object-fit: contain;
             display: block;
+            margin: auto; /* Center when not zoomed */
         }
         
         .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
@@ -2041,6 +2040,10 @@
             max-height: none;
             width: 200%; /* 2x zoom */
             height: auto;
+            margin: 0; /* Remove auto centering when zoomed */
+            position: absolute;
+            top: 0;
+            left: 0;
         }
         
         .product-lightbox-zoom-icon {
@@ -4263,27 +4266,24 @@ document.addEventListener('DOMContentLoaded', function() {
         var mouseX = e.clientX - container.left;
         var mouseY = e.clientY - container.top;
         
-        // Get image dimensions (when zoomed, it's 200% size)
-        var img = mainImage.getBoundingClientRect();
-        
-        // Calculate how much mouse has moved from center (in percentage)
-        // Center = 0.5, left = 0, right = 1
+        // Mouse position as percentage (0 to 1)
         var percentX = mouseX / container.width;
         var percentY = mouseY / container.height;
         
-        // Calculate maximum pan distance (image size - container size)
-        var maxPanX = (img.width - container.width);
-        var maxPanY = (img.height - container.height);
+        // Get the actual zoomed image size
+        // Width is 200% of container, calculate actual pixel width
+        var zoomedWidth = container.width * 2;
+        var zoomedHeight = container.height * 2;
         
-        // Calculate pan position
-        // When mouse at left (0), show left of image (pan = 0)
-        // When mouse at right (1), show right of image (pan = -maxPanX)
-        var panX = -percentX * maxPanX;
-        var panY = -percentY * maxPanY;
+        // Calculate how much we can pan (zoomed size - container size)
+        var maxPanX = zoomedWidth - container.width;
+        var maxPanY = zoomedHeight - container.height;
         
-        // Clamp to prevent showing beyond image boundaries
-        panX = Math.max(-maxPanX, Math.min(0, panX));
-        panY = Math.max(-maxPanY, Math.min(0, panY));
+        // Calculate pan: map mouse percentage to pan range
+        // Mouse at 0% = show left edge (panX = 0)
+        // Mouse at 100% = show right edge (panX = -maxPanX)
+        var panX = -(percentX * maxPanX);
+        var panY = -(percentY * maxPanY);
         
         // Apply the transform
         mainImage.style.transform = 'translate(' + panX + 'px, ' + panY + 'px)';
