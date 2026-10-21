@@ -2266,7 +2266,7 @@
                 left: 0 !important;
                 right: 0 !important;
                 width: 100% !important;
-                height: 80px !important;
+                height: auto !important;
                 padding: 0 !important;
                 border: none !important;
                 background: transparent !important;
