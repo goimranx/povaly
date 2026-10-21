@@ -2255,8 +2255,8 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            gap: 6px;
+            justify-content: flex-start; /* Align to top */
+            gap: 4px; /* Reduced gap */
             min-width: 0;
         }
         
@@ -2281,8 +2281,7 @@
         }
         
         .video-list-item-uploader i {
-            font-size: 14px;
-            color: #999;
+            display: none; /* Hide icon */
         }
         
         .product-lightbox-image-wrapper {
@@ -4661,8 +4660,38 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Stop all videos (YouTube, Vimeo, direct video)
+    function stopAllVideos() {
+        var videoPlayer = document.getElementById('lightbox-video-player');
+        if (!videoPlayer) return;
+        
+        // Stop YouTube videos
+        var youtubeIframes = videoPlayer.querySelectorAll('iframe[src*="youtube.com"]');
+        youtubeIframes.forEach(function(iframe) {
+            var src = iframe.src;
+            iframe.src = ''; // Clear source to stop
+            iframe.src = src.replace('autoplay=1', 'autoplay=0'); // Reset autoplay
+        });
+        
+        // Stop Vimeo videos
+        var vimeoIframes = videoPlayer.querySelectorAll('iframe[src*="vimeo.com"]');
+        vimeoIframes.forEach(function(iframe) {
+            var src = iframe.src;
+            iframe.src = '';
+            iframe.src = src.replace('autoplay=1', 'autoplay=0');
+        });
+        
+        // Stop direct video elements
+        var videoElements = videoPlayer.querySelectorAll('video');
+        videoElements.forEach(function(video) {
+            video.pause();
+            video.currentTime = 0;
+        });
+    }
+    
     // Close lightbox
     function closeLightbox() {
+        stopAllVideos(); // Stop videos before closing
         lightbox.style.display = 'none';
         document.body.style.overflow = '';
         resetZoom();
@@ -4692,6 +4721,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Show/hide content - both main display AND sidebar
         if (tabName === 'images') {
+            stopAllVideos(); // Stop videos when switching to images tab
             imagesContent.style.display = 'flex';
             videosContent.style.display = 'none';
             
