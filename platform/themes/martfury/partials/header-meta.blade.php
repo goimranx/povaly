@@ -2039,6 +2039,7 @@
             height: auto;
             object-fit: contain;
             margin: auto; /* Center in wrapper */
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
         .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
@@ -2053,6 +2054,7 @@
             width: auto;
             height: auto;
             margin: 0;
+            transition: none; /* Remove transition when zoomed for instant panning */
         }
         
         /* Sidebar - 35% */
@@ -2094,7 +2096,7 @@
         }
         
         .product-lightbox-thumbnail {
-            aspect-ratio: 1;
+            aspect-ratio: 3 / 4;
             border: 2px solid var(--global-color-border-light, #F0D8CB);
             border-radius: 4px;
             overflow: hidden;
@@ -2114,8 +2116,8 @@
         }
         
         .product-lightbox-thumbnail.active {
-            border-color: var(--global-color-link, #13acdf);
-            box-shadow: 0 0 0 2px rgba(19, 172, 223, 0.2);
+            border-color: var(--global-color-warning, #FBB13C);
+            box-shadow: none;
         }
         
         .product-lightbox-thumbnail.active img {
@@ -2275,11 +2277,11 @@
                 -webkit-overflow-scrolling: touch !important;
             }
             
-            /* Each thumbnail - 1:1 ratio, show 7 full + peek of next */
+            /* Each thumbnail - 3:4 ratio, show 7 full + peek of next */
             .product-lightbox-thumbnail {
                 flex: 0 0 calc((100vw - 30px - 12px) / 7.2) !important;
                 width: calc((100vw - 30px - 12px) / 7.2) !important;
-                aspect-ratio: 1 !important;
+                aspect-ratio: 3 / 4 !important;
                 height: auto !important;
                 display: block !important;
             }
@@ -4258,7 +4260,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var currentProduct = null;
     var isZoomed = false;
     var zoomLevel = 2;
-    var hintShown = false; // Track if hint has been shown
     
     // Open lightbox
     window.openProductLightbox = function(productData) {
@@ -4284,10 +4285,9 @@ document.addEventListener('DOMContentLoaded', function() {
         lightbox.style.display = 'flex';
         document.body.style.overflow = 'hidden';
         
-        // Show hint message on mobile (only once per session)
-        if (!hintShown && window.innerWidth <= 767) {
+        // Show hint message on mobile every time lightbox opens
+        if (window.innerWidth <= 767) {
             showHintMessage();
-            hintShown = true;
         }
     };
     
@@ -4400,6 +4400,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var touchMoveY = 0;
     var isPanning = false;
     var hasMoved = false; // Track if user has moved during touch
+    var moveThreshold = 10; // Minimum pixels to consider as movement
     
     imageWrapper.addEventListener('touchstart', function(e) {
         touchStartX = e.touches[0].clientX;
@@ -4413,10 +4414,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tapLength < doubleTapDelay && tapLength > 0) {
             // Double tap detected
             e.preventDefault();
+            
+            // Get tap position relative to image wrapper
+            var rect = imageWrapper.getBoundingClientRect();
+            var tapX = e.touches[0].clientX - rect.left;
+            var tapY = e.touches[0].clientY - rect.top;
+            
             if (isZoomed) {
                 resetZoom();
             } else {
-                zoomIn();
+                zoomInToPoint(tapX, tapY, rect);
             }
             lastTapTime = 0; // Reset to prevent triple tap
         } else {
@@ -4432,7 +4439,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { passive: false });
     
     imageWrapper.addEventListener('touchmove', function(e) {
-        hasMoved = true;
+        // Check if user has moved beyond threshold
+        var deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+        var deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+        
+        if (deltaX > moveThreshold || deltaY > moveThreshold) {
+            hasMoved = true;
+        }
         
         if (isZoomed && isPanning) {
             e.preventDefault();
@@ -4458,17 +4471,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (isPanning) {
             isPanning = false;
-        } else if (!hasMoved) {
-            // Single tap when not zoomed - do nothing (wait for double tap)
-        } else {
-            // Only handle swipe if not zoomed and user has moved
-            var currentTime = new Date().getTime();
-            var timeSinceLastTap = currentTime - lastTapTime;
-            
-            if (!isZoomed && timeSinceLastTap > doubleTapDelay) {
-                handleSwipe();
-            }
+        } else if (hasMoved && !isZoomed) {
+            // Handle swipe only if user moved and not zoomed
+            handleSwipe();
         }
+        
+        // Reset movement flag after a delay
+        setTimeout(function() {
+            hasMoved = false;
+        }, 100);
     }, { passive: true });
     
     function handleSwipe() {
@@ -4531,11 +4542,55 @@ document.addEventListener('DOMContentLoaded', function() {
         imageWrapper.addEventListener('mousemove', handleZoomPan);
     }
     
+    // Zoom in to specific point (for double-tap)
+    function zoomInToPoint(tapX, tapY, rect) {
+        isZoomed = true;
+        imageWrapper.classList.add('zoomed');
+        
+        // Calculate where to focus based on tap position
+        // tapX, tapY are relative to wrapper
+        // Convert to -0.5 to 0.5 range (center = 0)
+        var focusX = (tapX / rect.width) - 0.5;
+        var focusY = (tapY / rect.height) - 0.5;
+        
+        // Get image dimensions after zoom
+        setTimeout(function() {
+            var img = mainImage.getBoundingClientRect();
+            var container = imageWrapper.getBoundingClientRect();
+            
+            // Calculate how much image extends beyond container
+            var overflowX = Math.max(0, img.width - container.width);
+            var overflowY = Math.max(0, img.height - container.height);
+            
+            // Calculate pan position to focus on tapped area
+            var panX = -focusX * overflowX;
+            var panY = -focusY * overflowY;
+            
+            // Clamp to boundaries
+            var maxMoveX = overflowX / 2;
+            var maxMoveY = overflowY / 2;
+            panX = Math.max(-maxMoveX, Math.min(maxMoveX, panX));
+            panY = Math.max(-maxMoveY, Math.min(maxMoveY, panY));
+            
+            // Set current pan position
+            currentPanX = panX;
+            currentPanY = panY;
+            
+            // Apply transform
+            mainImage.style.transform = 'translate(calc(-50% + ' + panX + 'px), calc(-50% + ' + panY + 'px))';
+        }, 50); // Small delay to let zoom transition start
+        
+        // Enable mouse move for panning (desktop)
+        if (window.innerWidth > 767) {
+            imageWrapper.addEventListener('mousemove', handleZoomPan);
+        }
+    }
+    
     // Reset zoom
     function resetZoom() {
         isZoomed = false;
         imageWrapper.classList.remove('zoomed');
-        mainImage.style.transform = 'translate(0, 0)';
+        mainImage.style.transform = '';
         currentPanX = 0;
         currentPanY = 0;
         imageWrapper.removeEventListener('mousemove', handleZoomPan);
