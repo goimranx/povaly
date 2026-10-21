@@ -4454,12 +4454,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Image zoom functionality - Desktop: click to zoom
+    // Image zoom functionality - Desktop: click to zoom INTO clicked area
     imageWrapper.addEventListener('click', function(e) {
         // Only on desktop
         if (window.innerWidth > 767) {
             if (!isZoomed) {
-                zoomIn();
+                // Get click position relative to wrapper
+                var rect = imageWrapper.getBoundingClientRect();
+                var clickX = e.clientX - rect.left;
+                var clickY = e.clientY - rect.top;
+                zoomInToArea(clickX, clickY, rect);
             } else {
                 resetZoom();
             }
@@ -4603,7 +4607,43 @@ document.addEventListener('DOMContentLoaded', function() {
         mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
     }
     
-    // Zoom in - DESKTOP
+    // Zoom in to specific area - DESKTOP
+    function zoomInToArea(clickX, clickY, rect) {
+        isZoomed = true;
+        imageWrapper.classList.add('zoomed');
+        
+        // Calculate click position as percentage from center (-0.5 to 0.5)
+        var clickPercentX = (clickX / rect.width) - 0.5;
+        var clickPercentY = (clickY / rect.height) - 0.5;
+        
+        // Get image dimensions when zoomed (2x)
+        var img = mainImage.getBoundingClientRect();
+        var zoomedWidth = img.width * 2;
+        var zoomedHeight = img.height * 2;
+        
+        // Calculate how much the zoomed image overflows the container
+        var overflowX = zoomedWidth - rect.width;
+        var overflowY = zoomedHeight - rect.height;
+        
+        // Calculate pan offset to center the clicked area
+        // Negative click position (left/top) = move image right/down (positive pan)
+        currentPanX = -clickPercentX * overflowX;
+        currentPanY = -clickPercentY * overflowY;
+        
+        // Clamp to boundaries
+        var maxMoveX = overflowX / 2;
+        var maxMoveY = overflowY / 2;
+        currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, currentPanX));
+        currentPanY = Math.max(-maxMoveY, Math.min(maxMoveY, currentPanY));
+        
+        // Apply transform with pan offset
+        mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
+        
+        // Enable mouse move for panning
+        imageWrapper.addEventListener('mousemove', handleZoomPan);
+    }
+    
+    // Zoom in to center - MOBILE (double-tap)
     function zoomIn() {
         isZoomed = true;
         imageWrapper.classList.add('zoomed');
@@ -4611,8 +4651,6 @@ document.addEventListener('DOMContentLoaded', function() {
         currentPanX = 0;
         currentPanY = 0;
         mainImage.style.transform = 'translate(-50%, -50%)';
-        // Enable mouse move for panning
-        imageWrapper.addEventListener('mousemove', handleZoomPan);
     }
     
     // Reset zoom - DESKTOP & MOBILE
