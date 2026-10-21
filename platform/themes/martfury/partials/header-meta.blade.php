@@ -2158,6 +2158,12 @@
             max-height: 100%;
         }
         
+        /* Hide product info when on videos tab */
+        .product-lightbox-video-lists ~ .product-lightbox-info,
+        #lightbox-video-lists:not([style*="display: none"]) ~ .product-lightbox-info {
+            display: none;
+        }
+        
         .video-list-section {
             margin-bottom: 30px;
         }
@@ -2171,15 +2177,18 @@
             padding: 12px 16px;
             border-radius: 6px;
             margin-bottom: 12px;
+            position: sticky; /* Sticky header */
+            top: 0;
+            z-index: 10;
         }
         
         .video-list-title {
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 400; /* Weight 400 */
             color: #333;
             margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
+            text-transform: none; /* Normal case, not uppercase */
+            letter-spacing: 0;
         }
         
         .video-list-items {
@@ -2193,32 +2202,37 @@
             gap: 12px;
             padding: 10px;
             background: #fff;
-            border: 1px solid #e5e5e5;
+            border: none; /* No border */
             border-radius: 6px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background 0.2s ease;
         }
         
         .video-list-item:hover {
             background: #f8f9fa;
-            border-color: #fcb800;
-            transform: translateX(3px);
+            transform: none; /* No transform */
         }
         
         .video-list-item.active {
-            background: #fff9e6;
-            border-color: #fcb800;
-            border-width: 2px;
+            background: #fff;
+            border: none; /* No border on container */
         }
         
         .video-list-item-thumbnail {
             flex-shrink: 0;
             width: 80px;
-            height: 80px;
+            height: 60px; /* 4:3 ratio (80 x 3/4 = 60) */
             border-radius: 4px;
             overflow: hidden;
             position: relative;
             background: #000;
+            border: 2px solid transparent; /* Transparent border by default */
+            transition: border-color 0.2s ease;
+        }
+        
+        /* Active item thumbnail gets primary border */
+        .video-list-item.active .video-list-item-thumbnail {
+            border-color: var(--global-color-primary, #0D6EFD); /* Primary color border */
         }
         
         .video-list-item-thumbnail img {
@@ -2600,7 +2614,7 @@
             
             .video-list-item-thumbnail {
                 width: 60px !important;
-                height: 60px !important;
+                height: 45px !important; /* 4:3 ratio (60 x 3/4 = 45) */
             }
             
             .video-list-item-title {
@@ -4675,22 +4689,25 @@ document.addEventListener('DOMContentLoaded', function() {
         
         var thumbnailsContainer = document.getElementById('lightbox-thumbnails');
         var videoListsContainer = document.getElementById('lightbox-video-lists');
+        var productInfo = document.querySelector('.product-lightbox-info');
         
         // Show/hide content - both main display AND sidebar
         if (tabName === 'images') {
             imagesContent.style.display = 'flex';
             videosContent.style.display = 'none';
             
-            // Show thumbnails, hide video lists
+            // Show thumbnails, hide video lists, show product info
             if (thumbnailsContainer) thumbnailsContainer.style.display = 'grid';
             if (videoListsContainer) videoListsContainer.style.display = 'none';
+            if (productInfo) productInfo.style.display = 'block';
         } else {
             imagesContent.style.display = 'none';
             videosContent.style.display = 'flex';
             
-            // Hide thumbnails, show video lists
+            // Hide thumbnails, show video lists, hide product info
             if (thumbnailsContainer) thumbnailsContainer.style.display = 'none';
             if (videoListsContainer) videoListsContainer.style.display = 'block';
+            if (productInfo) productInfo.style.display = 'none';
         }
     }
     
