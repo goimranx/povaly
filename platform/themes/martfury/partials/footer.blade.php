@@ -1323,7 +1323,7 @@
 
             // Swipe / drag — skip if target is video, iframe or interactive element
             var dragStartX = 0, dragDelta = 0, isDragging = false, dragMoved = false, THRESHOLD = 50, MOVE_THRESHOLD = 5;
-            function onDragStart(x, target) {
+            function onDragStart(x, target, event) {
                 // Don't hijack video controls, iframes, buttons, or links
                 if (!target) return;
                 var tag = target.tagName.toLowerCase();
@@ -1336,7 +1336,7 @@
                 dragMoved = false;
                 dragDelta = 0;
             }
-            function onDragMove(x) {
+            function onDragMove(x, event) {
                 if (dragStartX === 0) return;
                 
                 var currentDelta = x - dragStartX;
@@ -1349,6 +1349,9 @@
                 }
                 
                 if (!isDragging) return;
+                
+                // Prevent default drag behavior
+                if (event) event.preventDefault();
                 
                 dragDelta = currentDelta;
                 track.style.transform = 'translateX(calc(-' + (idx * 100) + '% + ' + dragDelta + 'px))';
@@ -1372,12 +1375,37 @@
                 }, 50);
             }
             if (viewport) {
-                viewport.addEventListener('mousedown',  function(e) { onDragStart(e.clientX, e.target); });
-                window.addEventListener('mousemove',    function(e) { onDragMove(e.clientX); });
-                window.addEventListener('mouseup',      function()  { onDragEnd(); });
-                viewport.addEventListener('touchstart', function(e) { onDragStart(e.touches[0].clientX, e.target); }, { passive: true });
-                viewport.addEventListener('touchmove',  function(e) { onDragMove(e.touches[0].clientX); },  { passive: true });
-                viewport.addEventListener('touchend',   function()  { onDragEnd(); });
+                viewport.addEventListener('mousedown',  function(e) { 
+                    onDragStart(e.clientX, e.target, e);
+                });
+                viewport.addEventListener('mousemove',    function(e) { 
+                    if (isDragging) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    onDragMove(e.clientX, e); 
+                });
+                viewport.addEventListener('mouseup',      function(e)  { 
+                    onDragEnd(); 
+                });
+                viewport.addEventListener('mouseleave', function() {
+                    // If dragging and mouse leaves viewport, end the drag
+                    if (isDragging) {
+                        onDragEnd();
+                    }
+                });
+                viewport.addEventListener('touchstart', function(e) { 
+                    onDragStart(e.touches[0].clientX, e.target, e); 
+                }, { passive: false });
+                viewport.addEventListener('touchmove',  function(e) { 
+                    if (isDragging) {
+                        e.preventDefault();
+                    }
+                    onDragMove(e.touches[0].clientX, e); 
+                },  { passive: false });
+                viewport.addEventListener('touchend',   function(e)  { 
+                    onDragEnd(); 
+                });
             }
 
             // ── LIGHTBOX: Simple click on image opens lightbox ──
@@ -1453,16 +1481,36 @@
                     var provider = facade.dataset.provider;
                     if (!src) return;
                     
-                    // Collect all videos
-                    var videos = Array.from(gallery.querySelectorAll('.qs-video-facade')).map(function(f, idx) {
-                        return {
+                    // Collect all videos (both facades and direct video elements)
+                    var videos = [];
+                    var clickedVideoIndex = 0;
+                    
+                    // Collect facade videos
+                    gallery.querySelectorAll('.qs-video-facade').forEach(function(f, idx) {
+                        if (f === facade) clickedVideoIndex = videos.length;
+                        videos.push({
                             url: f.dataset.src,
                             provider: f.dataset.provider,
                             thumbnail: f.querySelector('img') ? f.querySelector('img').src : null,
-                            title: 'Product Video ' + (idx + 1),
+                            title: 'Product Video ' + (videos.length + 1),
                             portrait: f.dataset.portrait === 'true',
                             aspectRatio: f.dataset.aspectRatio || '16:9'
-                        };
+                        });
+                    });
+                    
+                    // Collect direct video elements
+                    videoSlides.forEach(function(slide) {
+                        var videoEl = slide.querySelector('video');
+                        if (videoEl && !slide.querySelector('.qs-video-facade')) {
+                            videos.push({
+                                url: videoEl.src || videoEl.querySelector('source')?.src,
+                                provider: 'direct',
+                                thumbnail: videoEl.poster || null,
+                                title: 'Product Video ' + (videos.length + 1),
+                                portrait: videoEl.dataset.portrait === 'true',
+                                aspectRatio: videoEl.dataset.aspectRatio || '16:9'
+                            });
+                        }
                     });
                     
                     // Collect all images for the lightbox
@@ -1482,11 +1530,87 @@
                             images: imageUrls,
                             videos: videos,
                             openTab: 'videos',
-                            currentVideoIndex: videoIdx
+                            currentVideoIndex: clickedVideoIndex
                         });
                         console.log('Video Lightbox: openProductLightbox called');
                     } else {
                         console.error('Video Lightbox: openProductLightbox function NOT FOUND!');
+                    }
+                });
+            });
+            
+            // Direct video elements (MP4, WebM, etc.) — also open lightbox
+            videoSlides.forEach(function(slide, slideIdx) {
+                var videoEl = slide.querySelector('video');
+                // Only handle direct video elements (not facades)
+                if (!videoEl || slide.querySelector('.qs-video-facade')) return;
+                
+                videoEl.addEventListener('click', function(e) {
+                    // Only open if we're not in the middle of dragging
+                    if (dragMoved) {
+                        console.log('Direct Video Lightbox: Click ignored - user was dragging');
+                        return;
+                    }
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Direct Video Lightbox: Direct video clicked, preparing to open...');
+                    
+                    // Collect all videos (both facades and direct video elements)
+                    var videos = [];
+                    var clickedVideoIndex = 0;
+                    
+                    // Collect facade videos first
+                    gallery.querySelectorAll('.qs-video-facade').forEach(function(f) {
+                        videos.push({
+                            url: f.dataset.src,
+                            provider: f.dataset.provider,
+                            thumbnail: f.querySelector('img') ? f.querySelector('img').src : null,
+                            title: 'Product Video ' + (videos.length + 1),
+                            portrait: f.dataset.portrait === 'true',
+                            aspectRatio: f.dataset.aspectRatio || '16:9'
+                        });
+                    });
+                    
+                    // Collect direct video elements
+                    videoSlides.forEach(function(vSlide) {
+                        var vEl = vSlide.querySelector('video');
+                        if (vEl && !vSlide.querySelector('.qs-video-facade')) {
+                            if (vEl === videoEl) clickedVideoIndex = videos.length;
+                            videos.push({
+                                url: vEl.src || vEl.querySelector('source')?.src,
+                                provider: 'direct',
+                                thumbnail: vEl.poster || null,
+                                title: 'Product Video ' + (videos.length + 1),
+                                portrait: vEl.dataset.portrait === 'true',
+                                aspectRatio: vEl.dataset.aspectRatio || '16:9'
+                            });
+                        }
+                    });
+                    
+                    // Collect all images
+                    var imageUrls = imageSlides.map(function(s) {
+                        var img = s.querySelector('img');
+                        return img ? img.src : null;
+                    }).filter(Boolean);
+                    
+                    // Get product name
+                    var productName = scope.querySelector('.qs-title') ? scope.querySelector('.qs-title').textContent.trim() : 'Product';
+                    
+                    // Open lightbox with videos tab active
+                    if (typeof window.openProductLightbox === 'function') {
+                        console.log('Direct Video Lightbox: Opening lightbox with videos tab...');
+                        window.openProductLightbox({
+                            name: productName,
+                            images: imageUrls,
+                            videos: videos,
+                            openTab: 'videos',
+                            currentVideoIndex: clickedVideoIndex
+                        });
+                        console.log('Direct Video Lightbox: openProductLightbox called');
+                    } else {
+                        console.error('Direct Video Lightbox: openProductLightbox function NOT FOUND!');
                     }
                 });
             });
