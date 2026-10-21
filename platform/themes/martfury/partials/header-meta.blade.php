@@ -4667,20 +4667,39 @@ document.addEventListener('DOMContentLoaded', function() {
         mainImage.style.transform = '';
         currentPanX = 0;
         currentPanY = 0;
+        lastMouseX = null;
+        lastMouseY = null;
         imageWrapper.removeEventListener('mousemove', handleZoomPan);
     }
     
     // Handle zoom panning - Amazon style: amplified movement from center
+    var lastMouseX = null;
+    var lastMouseY = null;
+    
     function handleZoomPan(e) {
         if (!isZoomed) return;
         
-        // Get container dimensions and mouse position
+        // Get container dimensions and current mouse position
         var container = imageWrapper.getBoundingClientRect();
         var mouseX = e.clientX - container.left;
         var mouseY = e.clientY - container.top;
         
+        // Initialize last position on first move (preserves click-calculated position)
+        if (lastMouseX === null || lastMouseY === null) {
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+            return; // Don't update transform on first mousemove
+        }
+        
+        // Calculate mouse movement delta
+        var deltaX = mouseX - lastMouseX;
+        var deltaY = mouseY - lastMouseY;
+        
+        // Update last position
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+        
         // Calculate mouse position from center (-0.5 to 0.5)
-        // Center = 0, left edge = -0.5, right edge = 0.5
         var centerX = (mouseX / container.width) - 0.5;
         var centerY = (mouseY / container.height) - 0.5;
         
@@ -4695,21 +4714,23 @@ document.addEventListener('DOMContentLoaded', function() {
         var overflowX = Math.max(0, img.width - container.width);
         var overflowY = Math.max(0, img.height - container.height);
         
-        // Calculate movement: from center (0) to edges
-        // Negative centerX (left) = move image right (positive translateX)
-        // Positive centerX (right) = move image left (negative translateX)
+        // Calculate desired movement based on mouse position from center
         var moveX = -amplifiedX * (overflowX / 2);
         var moveY = -amplifiedY * (overflowY / 2);
         
-        // Clamp to boundaries (don't show beyond image edges)
+        // Clamp to boundaries
         var maxMoveX = overflowX / 2;
         var maxMoveY = overflowY / 2;
         
         moveX = Math.max(-maxMoveX, Math.min(maxMoveX, moveX));
         moveY = Math.max(-maxMoveY, Math.min(maxMoveY, moveY));
         
-        // Apply transform (translate from center position)
-        mainImage.style.transform = 'translate(calc(-50% + ' + moveX + 'px), calc(-50% + ' + moveY + 'px))';
+        // Update current pan position
+        currentPanX = moveX;
+        currentPanY = moveY;
+        
+        // Apply transform
+        mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
     }
     
     // Keyboard shortcuts

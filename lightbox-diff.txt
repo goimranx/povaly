@@ -1,0 +1,475 @@
+diff --git a/platform/themes/martfury/partials/header-meta.blade.php b/platform/themes/martfury/partials/header-meta.blade.php
+index 0acf9e53..de888c45 100644
+--- a/platform/themes/martfury/partials/header-meta.blade.php
++++ b/platform/themes/martfury/partials/header-meta.blade.php
+@@ -2025,6 +2025,7 @@
+             display: flex;
+             align-items: center;
+             justify-content: center;
++            touch-action: none; /* Prevent default touch behaviors */
+         }
+         
+         .product-lightbox-image-wrapper.zoomed {
+@@ -2038,14 +2039,14 @@
+             width: auto;
+             height: auto;
+             object-fit: contain;
+-            margin: auto; /* Center in wrapper */
++            margin: auto;
++            transform-origin: center center;
+         }
+         
+         .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
+-            position: absolute; /* Only absolute when zoomed */
++            position: absolute;
+             top: 50%;
+             left: 50%;
+-            transform: translate(-50%, -50%);
+             max-width: none;
+             max-height: none;
+             min-width: 200%;
+@@ -2094,7 +2095,7 @@
+         }
+         
+         .product-lightbox-thumbnail {
+-            aspect-ratio: 1;
++            aspect-ratio: 3 / 4;
+             border: 2px solid var(--global-color-border-light, #F0D8CB);
+             border-radius: 4px;
+             overflow: hidden;
+@@ -2114,14 +2115,19 @@
+         }
+         
+         .product-lightbox-thumbnail.active {
+-            border-color: var(--global-color-link, #13acdf);
+-            box-shadow: 0 0 0 2px rgba(19, 172, 223, 0.2);
++            border-color: var(--global-color-warning, #FBB13C);
++            box-shadow: none;
+         }
+         
+         .product-lightbox-thumbnail.active img {
+             transform: scale(1.02);
+         }
+         
++        /* Double tap hint message - HIDE on desktop, show only mobile */
++        .product-lightbox-hint {
++            display: none !important;
++        }
++        
+         /* ══════════ TABLET LAYOUT (768px - 1199px) ══════════ */
+         @media (max-width: 1199px) and (min-width: 768px) {
+             .product-lightbox-container {
+@@ -2178,7 +2184,9 @@
+                 right: auto !important;
+                 width: auto !important;
+                 height: auto !important;
+-                background: rgba(255, 255, 255, 0.6) !important;
++                background: rgba(255, 255, 255, 0.7) !important;
++                border: 1px solid rgba(13, 27, 42, 0.15) !important;
++                box-shadow: none !important;
+                 border-radius: 20px !important;
+                 padding: 8px 16px !important;
+                 display: flex !important;
+@@ -2213,9 +2221,9 @@
+                 position: relative !important;
+             }
+             
+-            /* Double tap hint message - above thumbnails */
++            /* Double tap hint message - above thumbnails - MOBILE ONLY */
+             .product-lightbox-hint {
+-                display: none !important;
++                display: block !important; /* Show on mobile */
+                 position: fixed !important;
+                 bottom: 90px !important;
+                 left: 50% !important;
+@@ -2230,6 +2238,7 @@
+                 pointer-events: none !important;
+                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+                 animation: fadeInOut 3s ease-in-out !important;
++                opacity: 0 !important; /* Start hidden, JS will show it */
+             }
+             
+             @keyframes fadeInOut {
+@@ -2271,14 +2280,23 @@
+                 overflow-y: hidden !important;
+                 gap: 2px !important;
+                 align-items: center !important;
++                scroll-behavior: smooth !important;
++                -webkit-overflow-scrolling: touch !important;
+             }
+             
+-            /* Each thumbnail - calculated to show 7.5 images in view */
++            /* Each thumbnail - 3:4 ratio, show 7 full + peek of next */
+             .product-lightbox-thumbnail {
+-                flex: 0 0 calc((100vw - 30px - 13px) / 7.5) !important;
+-                width: calc((100vw - 30px - 13px) / 7.5) !important;
+-                height: 60px !important;
++                flex: 0 0 calc((100vw - 30px - 12px) / 7.2) !important;
++                width: calc((100vw - 30px - 12px) / 7.2) !important;
++                aspect-ratio: 3 / 4 !important;
++                height: auto !important;
+                 display: block !important;
++                border: none !important;
++            }
++            
++            /* Active thumbnail gets warning border on mobile */
++            .product-lightbox-thumbnail.active {
++                border: 2px solid var(--global-color-warning, #FBB13C) !important;
+             }
+         }
+         
+@@ -4255,7 +4273,6 @@ document.addEventListener('DOMContentLoaded', function() {
+     var currentProduct = null;
+     var isZoomed = false;
+     var zoomLevel = 2;
+-    var hintShown = false; // Track if hint has been shown
+     
+     // Open lightbox
+     window.openProductLightbox = function(productData) {
+@@ -4281,21 +4298,20 @@ document.addEventListener('DOMContentLoaded', function() {
+         lightbox.style.display = 'flex';
+         document.body.style.overflow = 'hidden';
+         
+-        // Show hint message on mobile (only once per session)
+-        if (!hintShown && window.innerWidth <= 767) {
++        // Show hint message on mobile every time lightbox opens
++        if (window.innerWidth <= 767) {
+             showHintMessage();
+-            hintShown = true;
+         }
+     };
+     
+-    // Show hint message
++    // Show hint message - Mobile only
+     function showHintMessage() {
+         var hintMessage = document.getElementById('lightbox-hint-message');
+         if (hintMessage) {
+-            hintMessage.style.display = 'block';
+-            // Hide after 3 seconds (animation handles fade)
++            hintMessage.style.opacity = '1';
++            // Hide after 3 seconds
+             setTimeout(function() {
+-                hintMessage.style.display = 'none';
++                hintMessage.style.opacity = '0';
+             }, 3000);
+         }
+     }
+@@ -4350,27 +4366,111 @@ document.addEventListener('DOMContentLoaded', function() {
+         });
+     }
+     
+-    // Select thumbnail
+-    function selectThumbnail(index) {
++    // Select thumbnail with proper swipe animation
++    function selectThumbnail(index, direction) {
+         if (!currentProduct || !currentProduct.images) return;
+         
+-        mainImage.src = currentProduct.images[index];
++        // Swipe animation on mobile - images follow finger movement
++        if (direction && window.innerWidth <= 767) {
++            var wrapper = imageWrapper;
++            var currentImg = mainImage;
++            
++            // Create new image for incoming
++            var newImg = document.createElement('img');
++            newImg.src = currentProduct.images[index];
++            newImg.className = 'product-lightbox-main-image';
++            newImg.style.position = 'absolute';
++            newImg.style.maxWidth = '100%';
++            newImg.style.maxHeight = '100%';
++            newImg.style.width = 'auto';
++            newImg.style.height = 'auto';
++            newImg.style.objectFit = 'contain';
++            newImg.style.top = '50%';
++            newImg.style.left = '50%';
++            
++            // Position current image centered
++            currentImg.style.position = 'absolute';
++            currentImg.style.top = '50%';
++            currentImg.style.left = '50%';
++            currentImg.style.transform = 'translate(-50%, -50%)';
++            
++            // Position new image off-screen based on navigation direction
++            // direction = -1: going to previous (swipe RIGHT), prev comes from LEFT
++            // direction = 1: going to next (swipe LEFT), next comes from RIGHT
++            if (direction < 0) {
++                newImg.style.transform = 'translate(-150%, -50%)'; // Prev starts from left
++            } else {
++                newImg.style.transform = 'translate(50%, -50%)'; // Next starts from right
++            }
++            
++            wrapper.appendChild(newImg);
++            
++            // Animate: slide both images
++            setTimeout(function() {
++                currentImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
++                newImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
++                
++                // Slide out current image
++                if (direction < 0) {
++                    currentImg.style.transform = 'translate(50%, -50%)'; // Current exits right
++                } else {
++                    currentImg.style.transform = 'translate(-150%, -50%)'; // Current exits left
++                }
++                
++                // Slide in new image to center
++                newImg.style.transform = 'translate(-50%, -50%)';
++            }, 10);
++            
++            // Clean up after animation
++            setTimeout(function() {
++                mainImage.src = currentProduct.images[index];
++                mainImage.style.position = '';
++                mainImage.style.top = '';
++                mainImage.style.left = '';
++                mainImage.style.transition = '';
++                mainImage.style.transform = '';
++                wrapper.removeChild(newImg);
++            }, 350);
++        } else {
++            mainImage.src = currentProduct.images[index];
++        }
++        
+         resetZoom();
+         
+         // Update active state
+         var thumbs = thumbnailsContainer.querySelectorAll('.product-lightbox-thumbnail');
+         thumbs.forEach(function(t) { t.classList.remove('active'); });
+-        thumbs[index].classList.add('active');
++        if (thumbs[index]) {
++            thumbs[index].classList.add('active');
++            
++            // Scroll active thumbnail into view on mobile
++            if (window.innerWidth <= 767) {
++                thumbs[index].scrollIntoView({
++                    behavior: 'smooth',
++                    block: 'nearest',
++                    inline: 'center'
++                });
++            }
++        }
+     }
+     
+-    // Image zoom functionality
+-    imageWrapper.addEventListener('click', function(e) {
+-        if (!isZoomed) {
+-            zoomIn();
+-        } else {
+-            resetZoom();
+-        }
+-    });
++    // Image zoom functionality - DESKTOP ONLY (simple click)
++    if (window.innerWidth > 767) {
++        imageWrapper.addEventListener('click', function(e) {
++            if (!isZoomed) {
++                isZoomed = true;
++                imageWrapper.classList.add('zoomed');
++                imageWrapper.addEventListener('mousemove', handleZoomPan);
++            } else {
++                isZoomed = false;
++                imageWrapper.classList.remove('zoomed');
++                mainImage.style.transform = 'translate(-50%, -50%)';
++                currentPanX = 0;
++                currentPanY = 0;
++                imageWrapper.removeEventListener('mousemove', handleZoomPan);
++            }
++        });
++    }
+     
+     // Touch swipe and double-tap functionality for main image
+     var touchStartX = 0;
+@@ -4383,10 +4483,13 @@ document.addEventListener('DOMContentLoaded', function() {
+     var touchMoveX = 0;
+     var touchMoveY = 0;
+     var isPanning = false;
++    var hasMoved = false; // Track if user has moved during touch
++    var moveThreshold = 10; // Minimum pixels to consider as movement
+     
+     imageWrapper.addEventListener('touchstart', function(e) {
+-        touchStartX = e.changedTouches[0].screenX;
+-        touchStartY = e.changedTouches[0].screenY;
++        touchStartX = e.touches[0].clientX;
++        touchStartY = e.touches[0].clientY;
++        hasMoved = false;
+         
+         // Check for double tap
+         var currentTime = new Date().getTime();
+@@ -4395,10 +4498,18 @@ document.addEventListener('DOMContentLoaded', function() {
+         if (tapLength < doubleTapDelay && tapLength > 0) {
+             // Double tap detected
+             e.preventDefault();
++            
++            // Get tap position relative to image wrapper
++            var rect = imageWrapper.getBoundingClientRect();
++            var tapX = e.touches[0].clientX - rect.left;
++            var tapY = e.touches[0].clientY - rect.top;
++            
+             if (isZoomed) {
++                // Zoom out on double tap when zoomed
+                 resetZoom();
+             } else {
+-                zoomIn();
++                // Zoom in to tap point
++                zoomInToPoint(tapX, tapY, rect);
+             }
+             lastTapTime = 0; // Reset to prevent triple tap
+         } else {
+@@ -4414,10 +4525,18 @@ document.addEventListener('DOMContentLoaded', function() {
+     }, { passive: false });
+     
+     imageWrapper.addEventListener('touchmove', function(e) {
++        // Check if user has moved beyond threshold
++        var deltaX = Math.abs(e.touches[0].clientX - touchStartX);
++        var deltaY = Math.abs(e.touches[0].clientY - touchStartY);
++        
++        if (deltaX > moveThreshold || deltaY > moveThreshold) {
++            hasMoved = true;
++        }
++        
+         if (isZoomed && isPanning) {
+             e.preventDefault();
+-            var currentX = e.changedTouches[0].screenX;
+-            var currentY = e.changedTouches[0].screenY;
++            var currentX = e.touches[0].clientX;
++            var currentY = e.touches[0].clientY;
+             
+             // Calculate delta from last position
+             var deltaX = currentX - touchMoveX;
+@@ -4433,20 +4552,20 @@ document.addEventListener('DOMContentLoaded', function() {
+     }, { passive: false });
+     
+     imageWrapper.addEventListener('touchend', function(e) {
+-        touchEndX = e.changedTouches[0].screenX;
+-        touchEndY = e.changedTouches[0].screenY;
++        touchEndX = e.changedTouches[0].clientX;
++        touchEndY = e.changedTouches[0].clientY;
+         
+         if (isPanning) {
+             isPanning = false;
+-        } else {
+-            // Only handle swipe if not zoomed and not double-tapping
+-            var currentTime = new Date().getTime();
+-            var timeSinceLastTap = currentTime - lastTapTime;
+-            
+-            if (!isZoomed && timeSinceLastTap > doubleTapDelay) {
+-                handleSwipe();
+-            }
++        } else if (hasMoved && !isZoomed) {
++            // Handle swipe only if user moved and not zoomed
++            handleSwipe();
+         }
++        
++        // Reset movement flag after a delay
++        setTimeout(function() {
++            hasMoved = false;
++        }, 100);
+     }, { passive: true });
+     
+     function handleSwipe() {
+@@ -4468,13 +4587,20 @@ document.addEventListener('DOMContentLoaded', function() {
+         }
+     }
+     
+-    // Handle touch-based panning when zoomed
++    // Handle touch-based panning when zoomed - FAST like desktop
+     var currentPanX = 0;
+     var currentPanY = 0;
+     
+     function handleTouchPan(deltaX, deltaY) {
+         if (!isZoomed) return;
+         
++        // Temporarily disable transition for smooth real-time panning
++        mainImage.style.transition = 'none';
++        
++        // Amplify movement 2x for faster response (similar to desktop 3x)
++        var amplifiedDeltaX = deltaX * 2;
++        var amplifiedDeltaY = deltaY * 2;
++        
+         // Get container and image dimensions
+         var container = imageWrapper.getBoundingClientRect();
+         var img = mainImage.getBoundingClientRect();
+@@ -4485,9 +4611,9 @@ document.addEventListener('DOMContentLoaded', function() {
+         var maxMoveX = overflowX / 2;
+         var maxMoveY = overflowY / 2;
+         
+-        // Update pan position
+-        currentPanX += deltaX;
+-        currentPanY += deltaY;
++        // Update pan position with amplified delta
++        currentPanX += amplifiedDeltaX;
++        currentPanY += amplifiedDeltaY;
+         
+         // Clamp to boundaries
+         currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, currentPanX));
+@@ -4495,24 +4621,46 @@ document.addEventListener('DOMContentLoaded', function() {
+         
+         // Apply transform
+         mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
++        
++        // Re-enable transition after panning stops
++        setTimeout(function() {
++            if (!isPanning) {
++                mainImage.style.transition = '';
++            }
++        }, 50);
+     }
+     
+-    // Zoom in
+-    function zoomIn() {
++    // Zoom in to tap point - grow smoothly from that point
++    function zoomInToPoint(tapX, tapY, rect) {
+         isZoomed = true;
+         imageWrapper.classList.add('zoomed');
+-        // Enable mouse move for panning
+-        imageWrapper.addEventListener('mousemove', handleZoomPan);
++        
++        // Set transform origin to exact tap coordinates
++        var percentX = (tapX / rect.width) * 100;
++        var percentY = (tapY / rect.height) * 100;
++        mainImage.style.transformOrigin = percentX + '% ' + percentY + '%';
++        mainImage.style.transition = 'transform 0.3s ease';
++        mainImage.style.transform = 'translate(-50%, -50%) scale(2)';
++        
++        // Reset transform-origin after zoom
++        setTimeout(function() {
++            mainImage.style.transformOrigin = 'center center';
++            mainImage.style.transition = '';
++        }, 300);
+     }
+     
+-    // Reset zoom
++    // Reset zoom - zoom out smoothly
+     function resetZoom() {
+         isZoomed = false;
+         imageWrapper.classList.remove('zoomed');
+-        mainImage.style.transform = 'translate(0, 0)';
++        mainImage.style.transition = 'transform 0.3s ease';
++        mainImage.style.transform = 'translate(-50%, -50%)';
+         currentPanX = 0;
+         currentPanY = 0;
+-        imageWrapper.removeEventListener('mousemove', handleZoomPan);
++        
++        setTimeout(function() {
++            mainImage.style.transition = '';
++        }, 300);
+     }
+     
+     // Handle zoom panning - Amazon style: amplified movement from center
+@@ -4570,7 +4718,7 @@ document.addEventListener('DOMContentLoaded', function() {
+         }
+     });
+     
+-    // Navigate thumbnails with keyboard
++    // Navigate thumbnails with keyboard or swipe
+     function navigateThumbnail(direction) {
+         if (!currentProduct || !currentProduct.images) return;
+         
+@@ -4581,7 +4729,7 @@ document.addEventListener('DOMContentLoaded', function() {
+         
+         var newIndex = currentIndex + direction;
+         if (newIndex >= 0 && newIndex < currentProduct.images.length) {
+-            selectThumbnail(newIndex);
++            selectThumbnail(newIndex, direction); // Pass direction for swipe animation
+         }
+     }
+ });
