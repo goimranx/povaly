@@ -4074,9 +4074,14 @@ document.addEventListener('DOMContentLoaded', function () {
 // ═══════════════════════════════════════════════════════════════════
 // PRODUCT LIGHTBOX MODAL
 // ═══════════════════════════════════════════════════════════════════
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
     var lightbox = document.getElementById('product-lightbox-modal');
-    if (!lightbox) return;
+    if (!lightbox) {
+        console.warn('Lightbox: #product-lightbox-modal not found in DOM');
+        return;
+    }
+    
+    console.log('Lightbox: Initializing lightbox modal...');
     
     var mainImage = document.getElementById('lightbox-main-image');
     var imageWrapper = mainImage.parentElement;
@@ -4248,8 +4253,7 @@ document.addEventListener('DOMContentLoaded', function () {
             selectThumbnail(newIndex);
         }
     }
-    
-})();
+});
 </script>
 {{-- Product Card Enhanced global styles - loaded on every page so single product page gets them too --}}
 {{-- Phosphor Icons for rating stars (filled, half-filled, regular) --}}
