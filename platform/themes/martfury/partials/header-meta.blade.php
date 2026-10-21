@@ -2039,7 +2039,7 @@
             height: auto;
             object-fit: contain;
             margin: auto; /* Center in wrapper */
-            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
         .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
@@ -2054,7 +2054,7 @@
             width: auto;
             height: auto;
             margin: 0;
-            transition: none; /* Remove transition when zoomed for instant panning */
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
         /* Sidebar - 35% */
@@ -2180,7 +2180,9 @@
                 right: auto !important;
                 width: auto !important;
                 height: auto !important;
-                background: rgba(255, 255, 255, 0.6) !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+                border: 1px solid rgba(13, 27, 42, 0.1) !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
                 border-radius: 20px !important;
                 padding: 8px 16px !important;
                 display: flex !important;
@@ -4360,10 +4362,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Select thumbnail
-    function selectThumbnail(index) {
+    function selectThumbnail(index, animate) {
         if (!currentProduct || !currentProduct.images) return;
         
-        mainImage.src = currentProduct.images[index];
+        // Optional animation for swipe transitions
+        if (animate && window.innerWidth <= 767) {
+            // Fade out current image
+            mainImage.style.opacity = '0';
+            
+            setTimeout(function() {
+                mainImage.src = currentProduct.images[index];
+                // Fade in new image
+                mainImage.style.opacity = '1';
+            }, 150);
+        } else {
+            mainImage.src = currentProduct.images[index];
+        }
+        
         resetZoom();
         
         // Update active state
@@ -4514,6 +4529,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleTouchPan(deltaX, deltaY) {
         if (!isZoomed) return;
         
+        // Temporarily disable transition for smooth real-time panning
+        mainImage.style.transition = 'none';
+        
         // Amplify movement 2x for faster response (similar to desktop 3x)
         var amplifiedDeltaX = deltaX * 2;
         var amplifiedDeltaY = deltaY * 2;
@@ -4538,6 +4556,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Apply transform
         mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
+        
+        // Re-enable transition after panning stops
+        setTimeout(function() {
+            if (!isPanning) {
+                mainImage.style.transition = '';
+            }
+        }, 50);
     }
     
     // Zoom in
@@ -4550,6 +4575,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Zoom in to specific point (for double-tap)
     function zoomInToPoint(tapX, tapY, rect) {
+        // First, smoothly zoom the image
         isZoomed = true;
         imageWrapper.classList.add('zoomed');
         
@@ -4559,7 +4585,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var focusX = (tapX / rect.width) - 0.5;
         var focusY = (tapY / rect.height) - 0.5;
         
-        // Get image dimensions after zoom
+        // Wait for zoom transition to complete, then pan to focus point
         setTimeout(function() {
             var img = mainImage.getBoundingClientRect();
             var container = imageWrapper.getBoundingClientRect();
@@ -4582,9 +4608,9 @@ document.addEventListener('DOMContentLoaded', function() {
             currentPanX = panX;
             currentPanY = panY;
             
-            // Apply transform
+            // Apply transform smoothly
             mainImage.style.transform = 'translate(calc(-50% + ' + panX + 'px), calc(-50% + ' + panY + 'px))';
-        }, 50); // Small delay to let zoom transition start
+        }, 100); // Wait for zoom animation
         
         // Enable mouse move for panning (desktop)
         if (window.innerWidth > 767) {
@@ -4596,6 +4622,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function resetZoom() {
         isZoomed = false;
         imageWrapper.classList.remove('zoomed');
+        
+        // Smoothly transition back to original state
         mainImage.style.transform = '';
         currentPanX = 0;
         currentPanY = 0;
@@ -4668,7 +4696,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         var newIndex = currentIndex + direction;
         if (newIndex >= 0 && newIndex < currentProduct.images.length) {
-            selectThumbnail(newIndex);
+            selectThumbnail(newIndex, true); // Pass true to enable animation
         }
     }
 });
