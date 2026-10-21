@@ -2057,7 +2057,7 @@
             right: 10px;
             width: 40px;
             height: 40px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.6);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -2069,12 +2069,12 @@
         }
         
         .product-lightbox-image-wrapper:hover .product-lightbox-zoom-icon {
-            background: var(--global-color-warning, #FBB13C);
+            background: rgba(255, 255, 255, 0.8);
             color: var(--global-color-text-main, #0D1B2A);
         }
         
         .product-lightbox-image-wrapper.zoomed .product-lightbox-zoom-icon i::before {
-            content: "\e969"; /* icon-magnifier-remove */
+            content: "\e968"; /* icon-magnifier-remove (zoom out) */
         }
         
         /* Sidebar - 35% */
