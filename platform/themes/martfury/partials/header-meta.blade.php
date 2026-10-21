@@ -2284,6 +2284,12 @@
                 aspect-ratio: 3 / 4 !important;
                 height: auto !important;
                 display: block !important;
+                border: none !important;
+            }
+            
+            /* Active thumbnail gets warning border on mobile */
+            .product-lightbox-thumbnail.active {
+                border: 2px solid var(--global-color-warning, #FBB13C) !important;
             }
         }
         
