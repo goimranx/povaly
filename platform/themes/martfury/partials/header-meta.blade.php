@@ -2213,6 +2213,32 @@
                 position: relative !important;
             }
             
+            /* Double tap hint message - above thumbnails */
+            .product-lightbox-hint {
+                display: none !important;
+                position: fixed !important;
+                bottom: 90px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                background: rgba(255, 255, 255, 0.9) !important;
+                color: var(--global-color-link, #0D6EFD) !important;
+                padding: 8px 16px !important;
+                border-radius: 20px !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+                z-index: 1000 !important;
+                pointer-events: none !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+                animation: fadeInOut 3s ease-in-out !important;
+            }
+            
+            @keyframes fadeInOut {
+                0% { opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { opacity: 0; }
+            }
+            
             /* Keep sidebar for thumbnails but hide info */
             .product-lightbox-sidebar {
                 display: block !important;
@@ -4229,6 +4255,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var currentProduct = null;
     var isZoomed = false;
     var zoomLevel = 2;
+    var hintShown = false; // Track if hint has been shown
     
     // Open lightbox
     window.openProductLightbox = function(productData) {
@@ -4253,7 +4280,25 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show lightbox
         lightbox.style.display = 'flex';
         document.body.style.overflow = 'hidden';
+        
+        // Show hint message on mobile (only once per session)
+        if (!hintShown && window.innerWidth <= 767) {
+            showHintMessage();
+            hintShown = true;
+        }
     };
+    
+    // Show hint message
+    function showHintMessage() {
+        var hintMessage = document.getElementById('lightbox-hint-message');
+        if (hintMessage) {
+            hintMessage.style.display = 'block';
+            // Hide after 3 seconds (animation handles fade)
+            setTimeout(function() {
+                hintMessage.style.display = 'none';
+            }, 3000);
+        }
+    }
     
     // Close lightbox
     function closeLightbox() {

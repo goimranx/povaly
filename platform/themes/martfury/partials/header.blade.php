@@ -388,6 +388,11 @@
         <div class="product-lightbox-body">
             {{-- Left: Main Display (64%) --}}
             <div class="product-lightbox-main">
+                {{-- Double tap hint message (mobile only) --}}
+                <div class="product-lightbox-hint" id="lightbox-hint-message">
+                    Double tap to zoom
+                </div>
+                
                 <div class="product-lightbox-display" id="lightbox-images-content">
                     <div class="product-lightbox-image-wrapper">
                         <img src="" alt="" class="product-lightbox-main-image" id="lightbox-main-image">
