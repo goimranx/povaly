@@ -2126,26 +2126,21 @@
         }
         
         /* ═══════════════════════════════════════════════════════════════ */
-        /*          QUICK VIEW GALLERY - CURSOR OVERRIDE                   */
+        /*          QUICK SHOP GALLERY - CURSOR OVERRIDE                   */
         /* ═══════════════════════════════════════════════════════════════ */
         
-        /* Override Slick's grab cursor with pointer for images */
-        .bb-quick-view-gallery-images.slick-initialized img {
+        /* Override default cursor with pointer for Quick Shop gallery images */
+        .qs-gallery .qs-slide--image img {
             cursor: pointer !important;
         }
         
-        /* Keep grab cursor only for empty areas (not on images) */
-        .bb-quick-view-gallery-images.slick-initialized .slick-track {
+        /* Keep grab cursor for the viewport area (not on images) */
+        .qs-gallery__viewport {
             cursor: grab !important;
         }
         
-        .bb-quick-view-gallery-images.slick-initialized .slick-track:active {
+        .qs-gallery__viewport:active {
             cursor: grabbing !important;
-        }
-        
-        /* But override back to pointer when hovering over images */
-        .bb-quick-view-gallery-images.slick-initialized .slick-slide img:hover {
-            cursor: pointer !important;
         }
 
         /* Footer — driven by theme options */
@@ -4272,23 +4267,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
     
-    // ── INTEGRATE WITH QUICK VIEW GALLERY ──────────────────────────────
-    // Professional integration - allows both dragging AND clicking
-    window.initProductLightboxForQuickView = function() {
-        var $gallery = $('.bb-quick-view-gallery-images');
-        if (!$gallery.length || !$gallery.hasClass('slick-initialized')) {
-            console.warn('Lightbox: Gallery not found or not initialized');
+    // ── INTEGRATE WITH QUICK SHOP GALLERY ──────────────────────────────
+    // Professional integration for Quick Shop modal - allows both dragging AND clicking
+    window.initProductLightboxForQuickShop = function() {
+        var $gallery = $('.qs-gallery');
+        if (!$gallery.length) {
+            console.warn('Lightbox: Quick Shop gallery not found');
             return;
         }
         
-        console.log('Lightbox: Initializing for quick view');
+        console.log('Lightbox: Initializing for Quick Shop');
         
-        // Get product name
-        var productName = $('#product-quickview .ps-product__info h1 a').text().trim() || 'Product';
+        // Get product name from Quick Shop modal
+        var productName = $('#quick-shop-modal .qs-title').text().trim() || 'Product';
         
-        // Collect all image URLs (exclude cloned slides)
+        // Collect all IMAGE URLs (not video slides) from qs-slide elements
         var imageUrls = [];
-        $gallery.find('.slick-slide:not(.slick-cloned) img').each(function() {
+        $gallery.find('.qs-slide--image img').each(function() {
             imageUrls.push($(this).attr('src'));
         });
         
@@ -4299,23 +4294,13 @@ document.addEventListener('DOMContentLoaded', function () {
         // Remove previous handlers to avoid duplicates
         $gallery.off('.productLightbox');
         
-        // Track if user is currently swiping/dragging
-        var isSwipingOrDragging = false;
-        
-        // Listen to Slick's swipe event to set flag
-        $gallery.on('swipe.productLightbox', function(event, slick, direction) {
-            console.log('Lightbox: Swipe detected, direction:', direction);
-            isSwipingOrDragging = true;
-            // Reset flag after a short delay
-            setTimeout(function() {
-                isSwipingOrDragging = false;
-            }, 100);
-        });
-        
-        // Also track mousedown/mousemove to detect manual dragging
+        // Track dragging state
+        var isDragging = false;
         var startX = 0, startY = 0;
-        $gallery.on('mousedown.productLightbox touchstart.productLightbox', function(e) {
-            isSwipingOrDragging = false;
+        
+        // Listen for mousedown/touchstart to track drag start
+        $gallery.on('mousedown.productLightbox touchstart.productLightbox', '.qs-slide--image img', function(e) {
+            isDragging = false;
             if (e.type === 'mousedown') {
                 startX = e.clientX;
                 startY = e.clientY;
@@ -4325,7 +4310,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         
-        $gallery.on('mousemove.productLightbox touchmove.productLightbox', function(e) {
+        // Track mouse/touch movement
+        $(document).on('mousemove.productLightbox touchmove.productLightbox', function(e) {
+            if (startX === 0 && startY === 0) return;
+            
             var currentX, currentY;
             if (e.type === 'mousemove') {
                 currentX = e.clientX;
@@ -4338,35 +4326,44 @@ document.addEventListener('DOMContentLoaded', function () {
             var deltaX = Math.abs(currentX - startX);
             var deltaY = Math.abs(currentY - startY);
             
-            // If moved more than 5px, consider it dragging
-            if (deltaX > 5 || deltaY > 5) {
-                isSwipingOrDragging = true;
+            // If moved more than 10px, consider it dragging
+            if (deltaX > 10 || deltaY > 10) {
+                isDragging = true;
             }
         });
         
-        // Attach click handler directly to images using event delegation
-        $gallery.on('click.productLightbox', 'img', function(e) {
-            console.log('Lightbox: Image clicked, isSwipingOrDragging:', isSwipingOrDragging);
+        // Reset on mouseup
+        $(document).on('mouseup.productLightbox touchend.productLightbox', function() {
+            startX = 0;
+            startY = 0;
+        });
+        
+        // Handle click on images
+        $gallery.on('click.productLightbox', '.qs-slide--image img', function(e) {
+            console.log('Lightbox: Image clicked, isDragging:', isDragging);
             
-            // If user was swiping/dragging, don't open lightbox
-            if (isSwipingOrDragging) {
+            // If user was dragging, don't open lightbox
+            if (isDragging) {
                 console.log('Lightbox: Click ignored (was dragging)');
-                isSwipingOrDragging = false; // Reset for next interaction
+                isDragging = false;
                 return;
             }
             
-            // This was a clean click (not a drag), open lightbox
+            // This was a clean click, open lightbox
             console.log('Lightbox: Opening lightbox');
             e.preventDefault();
             e.stopPropagation();
             
-            var currentIndex = $gallery.slick('slickCurrentSlide');
-            console.log('Lightbox: Current slide index:', currentIndex);
+            // Find which image was clicked by getting its slide index
+            var $clickedSlide = $(this).closest('.qs-slide--image');
+            var slideIndex = $clickedSlide.data('slide-index');
             
-            // Close quick view
-            var offcanvasEl = document.getElementById('product-quickview');
-            if (offcanvasEl && typeof bootstrap !== 'undefined') {
-                var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
+            console.log('Lightbox: Clicked slide index:', slideIndex);
+            
+            // Close Quick Shop modal
+            var quickShopModal = document.getElementById('quick-shop-modal');
+            if (quickShopModal && typeof bootstrap !== 'undefined') {
+                var offcanvas = bootstrap.Offcanvas.getInstance(quickShopModal);
                 if (offcanvas) {
                     offcanvas.hide();
                 }
@@ -4377,21 +4374,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 openProductLightbox({
                     name: productName,
                     images: imageUrls,
-                    currentIndex: currentIndex
+                    currentIndex: slideIndex || 0
                 });
             }, 300);
         });
         
-        console.log('Lightbox: Initialization complete');
+        console.log('Lightbox: Quick Shop initialization complete');
     };
     
-    // Hook into the quick view initialized event
-    $(document).on('ecommerce.quick-view.initialized', function() {
+    // Hook into the Quick Shop completed event
+    $(document).on('ecommerce.quick-shop.completed', function() {
         setTimeout(function() {
-            if (typeof window.initProductLightboxForQuickView === 'function') {
-                window.initProductLightboxForQuickView();
+            if (typeof window.initProductLightboxForQuickShop === 'function') {
+                window.initProductLightboxForQuickShop();
             }
-        }, 800);
+        }, 500);
     });
 })();
 </script>
