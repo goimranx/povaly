@@ -2121,6 +2121,29 @@
                 grid-template-columns: repeat(3, 1fr) !important;
             }
         }
+        
+        /* ═══════════════════════════════════════════════════════════════ */
+        /*          QUICK VIEW GALLERY - CURSOR OVERRIDE                   */
+        /* ═══════════════════════════════════════════════════════════════ */
+        
+        /* Override Slick's grab cursor with pointer for images */
+        .bb-quick-view-gallery-images.slick-initialized img {
+            cursor: pointer !important;
+        }
+        
+        /* Keep grab cursor only for empty areas (not on images) */
+        .bb-quick-view-gallery-images.slick-initialized .slick-track {
+            cursor: grab !important;
+        }
+        
+        .bb-quick-view-gallery-images.slick-initialized .slick-track:active {
+            cursor: grabbing !important;
+        }
+        
+        /* But override back to pointer when hovering over images */
+        .bb-quick-view-gallery-images.slick-initialized .slick-slide img:hover {
+            cursor: pointer !important;
+        }
 
         /* Footer — driven by theme options */
         .ps-footer {
@@ -4303,9 +4326,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }, 300);
         });
-        
-        // Add cursor pointer style to images
-        $gallery.find('img').css('cursor', 'pointer');
     };
     
     // Hook into the quick view initialized event
