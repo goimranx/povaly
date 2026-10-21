@@ -946,9 +946,10 @@
             bottom: 0 !important;
         }
         
-        /* Hide bottom navigation bar on desktop */
+        /* Hide bottom navigation bar on desktop by removing fixed positioning */
         @media (min-width: 1200px) {
             .navigation--list {
+                position: static !important;
                 display: none !important;
             }
         }
