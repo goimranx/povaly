@@ -4255,36 +4255,44 @@ document.addEventListener('DOMContentLoaded', function() {
         imageWrapper.removeEventListener('mousemove', handleZoomPan);
     }
     
-    // Handle zoom panning - move the image based on mouse position
+    // Handle zoom panning - show the exact area under cursor like Amazon
     function handleZoomPan(e) {
         if (!isZoomed) return;
         
         var rect = imageWrapper.getBoundingClientRect();
-        var x = e.clientX - rect.left; // Mouse X position relative to wrapper
-        var y = e.clientY - rect.top;  // Mouse Y position relative to wrapper
+        var mouseX = e.clientX - rect.left; // Mouse X position relative to wrapper
+        var mouseY = e.clientY - rect.top;  // Mouse Y position relative to wrapper
         
-        // Get the actual image dimensions
+        // Get the zoomed image dimensions
         var imgRect = mainImage.getBoundingClientRect();
+        var imgWidth = imgRect.width;
+        var imgHeight = imgRect.height;
         
-        // Calculate percentages (0 to 1) of mouse position
-        var xPercent = x / rect.width;
-        var yPercent = y / rect.height;
+        // Container (viewport) dimensions
+        var viewWidth = rect.width;
+        var viewHeight = rect.height;
         
-        // Calculate the maximum movement range in pixels
-        // When zoomed, image is 200% size, so we can move it by half the excess
-        var maxMoveX = (imgRect.width - rect.width) / 2;
-        var maxMoveY = (imgRect.height - rect.height) / 2;
+        // Calculate what percentage of the container the mouse is at
+        var xPercent = mouseX / viewWidth;
+        var yPercent = mouseY / viewHeight;
         
-        // Calculate movement: map 0-1 mouse position to movement range
-        // Center (0.5) = no movement, edges = max movement
-        var moveX = -(xPercent - 0.5) * 2 * maxMoveX; // Negative because we move opposite to mouse
-        var moveY = -(yPercent - 0.5) * 2 * maxMoveY;
+        // Calculate the target position: center the cursor position
+        // We want to show the image area that's under the cursor
+        var targetX = -(xPercent * imgWidth - mouseX);
+        var targetY = -(yPercent * imgHeight - mouseY);
         
-        // Clamp the movement to prevent showing outside the image
-        moveX = Math.max(-maxMoveX, Math.min(maxMoveX, moveX));
-        moveY = Math.max(-maxMoveY, Math.min(maxMoveY, moveY));
+        // Clamp to boundaries - don't show beyond image edges
+        // Left edge: don't go positive (image shouldn't move right)
+        // Right edge: don't move left more than (imgWidth - viewWidth)
+        var minX = -(imgWidth - viewWidth);
+        var maxX = 0;
+        var minY = -(imgHeight - viewHeight);
+        var maxY = 0;
         
-        mainImage.style.transform = 'translate(' + moveX + 'px, ' + moveY + 'px)';
+        targetX = Math.max(minX, Math.min(maxX, targetX));
+        targetY = Math.max(minY, Math.min(maxY, targetY));
+        
+        mainImage.style.transform = 'translate(' + targetX + 'px, ' + targetY + 'px)';
     }
     
     // Keyboard shortcuts
