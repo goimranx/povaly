@@ -2091,7 +2091,6 @@
         
         .btn-video-like:hover {
             color: var(--global-color-primary, #0D6EFD);
-            transform: scale(1.1);
         }
         
         .btn-video-like.liked {
@@ -2200,7 +2199,7 @@
         .video-list-item {
             display: flex;
             gap: 12px;
-            padding: 10px;
+            padding: 0 10px; /* Horizontal padding only */
             background: #fff;
             border: none; /* No border */
             border-radius: 6px;
