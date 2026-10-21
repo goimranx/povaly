@@ -946,19 +946,11 @@
             bottom: 0 !important;
         }
         
-        /* Hide bottom navigation bar on desktop by removing fixed positioning */
-        @media (min-width: 1200px) {
-            .navigation--list {
-                position: static !important;
-                display: none !important;
-            }
-        }
-        
         .navigation--list { 
             background: var(--global-color-site-bg, #F4F9FD) !important;
             border-top: 1px solid var(--global-color-primary-border, #FFB399) !important;
             padding: 5px 20px !important;
-            display: flex !important;
+            display: flex;
             align-items: center !important;
             justify-content: space-between !important;
         }
