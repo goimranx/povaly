@@ -440,6 +440,40 @@
                 <div class="product-lightbox-thumbnails" id="lightbox-thumbnails">
                     {{-- Thumbnails will be inserted here --}}
                 </div>
+                
+                <div class="product-lightbox-video-lists" id="lightbox-video-lists" style="display: none;">
+                    {{-- Video lists section - shown only on Videos tab --}}
+                    
+                    {{-- This Product Videos --}}
+                    <div class="video-list-section" id="product-videos-section">
+                        <div class="video-list-header">
+                            <h4 class="video-list-title">This Product Videos</h4>
+                        </div>
+                        <div class="video-list-items" id="product-videos-list">
+                            {{-- Product video items will be inserted here --}}
+                        </div>
+                    </div>
+                    
+                    {{-- Related Videos --}}
+                    <div class="video-list-section" id="related-videos-section" style="display: none;">
+                        <div class="video-list-header">
+                            <h4 class="video-list-title">Related This Product Videos</h4>
+                        </div>
+                        <div class="video-list-items" id="related-videos-list">
+                            {{-- Related video items will be inserted here --}}
+                        </div>
+                    </div>
+                    
+                    {{-- Customer Review Videos --}}
+                    <div class="video-list-section" id="review-videos-section" style="display: none;">
+                        <div class="video-list-header">
+                            <h4 class="video-list-title">Customer Review Videos</h4>
+                        </div>
+                        <div class="video-list-items" id="review-videos-list">
+                            {{-- Review video items will be inserted here --}}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
