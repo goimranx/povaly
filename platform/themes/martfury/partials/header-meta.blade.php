@@ -1876,18 +1876,18 @@
             left: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
-            background: rgba(13, 27, 42, 0.85) !important; /* Use global secondary color with transparency */
+            background: rgba(13, 27, 42, 0.65) !important; /* Less opacity - 0.65 instead of 0.85 */
             z-index: 99999 !important; /* Very high to show over offcanvas */
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            padding: 15px !important; /* Reduce padding from 20px to 15px */
+            padding: 15px !important;
         }
         
         .product-lightbox-container {
-            width: 90% !important; /* Increase from 85% to 90% */
-            height: 90% !important; /* Increase from 85% to 90% */
-            max-width: 1400px !important;
+            width: 95% !important; /* Increase from 90% to 95% */
+            height: 85vh !important; /* Use vh instead of % for better control */
+            max-width: 1600px !important;
             background: var(--global-color-site-bg, #F4F9FD) !important;
             border-radius: 8px !important;
             display: flex !important;
