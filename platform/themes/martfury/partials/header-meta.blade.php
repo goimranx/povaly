@@ -4327,6 +4327,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Touch swipe functionality for main image
+    var touchStartX = 0;
+    var touchStartY = 0;
+    var touchEndX = 0;
+    var touchEndY = 0;
+    var minSwipeDistance = 50; // minimum distance for a swipe
+    
+    imageWrapper.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    
+    imageWrapper.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+    }, { passive: true });
+    
+    function handleSwipe() {
+        // Only handle swipe if not zoomed
+        if (isZoomed) return;
+        
+        var deltaX = touchEndX - touchStartX;
+        var deltaY = touchEndY - touchStartY;
+        
+        // Check if horizontal swipe is dominant and exceeds minimum distance
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
+            if (deltaX > 0) {
+                // Swipe right - go to previous image
+                navigateThumbnail(-1);
+            } else {
+                // Swipe left - go to next image
+                navigateThumbnail(1);
+            }
+        }
+    }
+    
     // Zoom in
     function zoomIn() {
         isZoomed = true;
