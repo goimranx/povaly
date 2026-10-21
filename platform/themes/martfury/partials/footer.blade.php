@@ -1384,28 +1384,25 @@
                     
                     console.log('Lightbox: Product name:', productName);
                     
-                    // Close Quick Shop
-                    var offcanvasEl = document.getElementById('quick-shop-modal');
-                    if (offcanvasEl && typeof bootstrap !== 'undefined') {
-                        var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
-                        if (offcanvas) {
-                            console.log('Lightbox: Closing Quick Shop offcanvas...');
-                            offcanvas.hide();
-                        }
-                    }
+                    // Don't close Quick Shop - keep it open behind the lightbox
+                    // var offcanvasEl = document.getElementById('quick-shop-modal');
+                    // if (offcanvasEl && typeof bootstrap !== 'undefined') {
+                    //     var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
+                    //     if (offcanvas) {
+                    //         console.log('Lightbox: Closing Quick Shop offcanvas...');
+                    //         offcanvas.hide();
+                    //     }
+                    // }
                     
-                    // Open lightbox
+                    // Open lightbox immediately (no delay needed)
                     if (typeof window.openProductLightbox === 'function') {
-                        console.log('Lightbox: Opening lightbox in 300ms...');
-                        setTimeout(function() {
-                            console.log('Lightbox: Calling openProductLightbox now');
-                            window.openProductLightbox({
-                                name: productName,
-                                images: imageUrls,
-                                currentIndex: slideIdx
-                            });
-                            console.log('Lightbox: openProductLightbox called');
-                        }, 300);
+                        console.log('Lightbox: Opening lightbox now...');
+                        window.openProductLightbox({
+                            name: productName,
+                            images: imageUrls,
+                            currentIndex: slideIdx
+                        });
+                        console.log('Lightbox: openProductLightbox called');
                     } else {
                         console.error('Lightbox: openProductLightbox function NOT FOUND!');
                     }

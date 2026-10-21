@@ -1876,17 +1876,18 @@
             left: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
-            background: rgba(0, 0, 0, 0.85) !important;
+            background: rgba(13, 27, 42, 0.85) !important; /* Use global secondary color with transparency */
             z-index: 10003 !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            padding: 20px !important;
+            padding: 15px !important; /* Reduce padding from 20px to 15px */
         }
         
         .product-lightbox-container {
-            width: 85% !important;
-            height: 85% !important;
+            width: 90% !important; /* Increase from 85% to 90% */
+            height: 90% !important; /* Increase from 85% to 90% */
+            max-width: 1400px !important;
             background: var(--global-color-site-bg, #F4F9FD) !important;
             border-radius: 8px !important;
             display: flex !important;
@@ -1906,8 +1907,7 @@
         }
         
         .product-lightbox-tabs {
-            display: flex !important;
-            gap: 30px !important;
+            display: none !important; /* Hide tabs - only showing images */
         }
         
         .product-lightbox-tab {
@@ -1944,12 +1944,21 @@
         .product-lightbox-close {
             background: none !important;
             border: none !important;
-            font-size: 24px !important;
+            font-size: 28px !important; /* Increase from 24px */
+            font-weight: bold !important;
             color: var(--global-color-text-body, #2E3D52) !important;
             cursor: pointer !important;
-            padding: 10px !important;
-            transition: color 0.3s ease !important;
+            padding: 0 !important;
             line-height: 1 !important;
+            position: absolute !important;
+            top: 7px !important;
+            right: 7px !important;
+            width: 40px !important;
+            height: 40px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: color 0.3s ease !important;
         }
         
         .product-lightbox-close:hover {
@@ -1979,6 +1988,11 @@
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+        }
+        
+        /* Hide video content - only show images */
+        #lightbox-videos-content {
+            display: none !important;
         }
         
         .product-lightbox-image-wrapper {
