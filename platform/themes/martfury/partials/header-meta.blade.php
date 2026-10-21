@@ -1954,9 +1954,9 @@
             border: none;
             padding: 10px 15px;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 500;
             letter-spacing: 0.5px;
-            color: var(--global-color-text-body, #2E3D52);
+            color: var(--global-color-text-muted, #7A8FA6);
             cursor: pointer;
             position: relative;
             transition: color 0.3s ease;
@@ -1968,6 +1968,7 @@
         
         .product-lightbox-tab.active {
             color: var(--global-color-text-main, #0D1B2A);
+            font-weight: 500;
         }
         
         .product-lightbox-tab.active::after {
@@ -2111,8 +2112,6 @@
             cursor: pointer;
             transition: all 0.3s ease;
             background: var(--global-color-card-bg, #FFFFFF);
-            font-weight: 500;
-            color: var(--global-color-text-muted, #7A8FA6);
         }
         
         .product-lightbox-thumbnail img {
@@ -2128,7 +2127,6 @@
         .product-lightbox-thumbnail.active {
             border-color: var(--global-color-warning, #FBB13C);
             box-shadow: none;
-            font-weight: 500;
         }
         
         .product-lightbox-thumbnail.active img {
