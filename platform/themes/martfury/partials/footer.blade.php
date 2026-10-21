@@ -1321,21 +1321,25 @@
                 });
             });
 
-            // Swipe / drag — skip if target is video, iframe or interactive element
+            // Swipe / drag — MOBILE ONLY (touch events only)
             var dragStartX = 0, dragDelta = 0, isDragging = false, dragMoved = false, THRESHOLD = 50, MOVE_THRESHOLD = 5;
+            
             function onDragStart(x, target, event) {
                 // Don't hijack video controls, iframes, buttons, or links
                 if (!target) return;
                 var tag = target.tagName.toLowerCase();
-                if (tag === 'video' || tag === 'iframe' || tag === 'button' || tag === 'a' || tag === 'input') return;
-                if (target.closest('video') || target.closest('iframe') || target.closest('.qs-video-zone') || target.closest('.qs-pill')) return;
                 
-                // Allow clicks on images and video facades, but prepare for potential drag
+                // Only exclude interactive controls, NOT the video/facade itself
+                if (tag === 'button' || tag === 'a' || tag === 'input') return;
+                if (target.closest('button') || target.closest('a') || target.closest('.qs-pill')) return;
+                
+                // Allow swipe on everything else (images, videos, facades)
                 dragStartX = x; 
-                isDragging = false; // Don't set dragging yet
+                isDragging = false;
                 dragMoved = false;
                 dragDelta = 0;
             }
+            
             function onDragMove(x, event) {
                 if (dragStartX === 0) return;
                 
@@ -1356,6 +1360,7 @@
                 dragDelta = currentDelta;
                 track.style.transform = 'translateX(calc(-' + (idx * 100) + '% + ' + dragDelta + 'px))';
             }
+            
             function onDragEnd() {
                 if (isDragging) {
                     track.classList.remove('dragging');
@@ -1374,35 +1379,20 @@
                     dragMoved = false;
                 }, 50);
             }
+            
+            // MOBILE ONLY: Touch events for swipe
             if (viewport) {
-                viewport.addEventListener('mousedown',  function(e) { 
-                    onDragStart(e.clientX, e.target, e);
-                });
-                viewport.addEventListener('mousemove',    function(e) { 
-                    if (isDragging) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                    onDragMove(e.clientX, e); 
-                });
-                viewport.addEventListener('mouseup',      function(e)  { 
-                    onDragEnd(); 
-                });
-                viewport.addEventListener('mouseleave', function() {
-                    // If dragging and mouse leaves viewport, end the drag
-                    if (isDragging) {
-                        onDragEnd();
-                    }
-                });
                 viewport.addEventListener('touchstart', function(e) { 
                     onDragStart(e.touches[0].clientX, e.target, e); 
                 }, { passive: false });
+                
                 viewport.addEventListener('touchmove',  function(e) { 
                     if (isDragging) {
                         e.preventDefault();
                     }
                     onDragMove(e.touches[0].clientX, e); 
                 },  { passive: false });
+                
                 viewport.addEventListener('touchend',   function(e)  { 
                     onDragEnd(); 
                 });
@@ -1545,7 +1535,8 @@
                 // Only handle direct video elements (not facades)
                 if (!videoEl || slide.querySelector('.qs-video-facade')) return;
                 
-                videoEl.addEventListener('click', function(e) {
+                // Add click handler to the slide wrapper (easier to click than video element)
+                slide.addEventListener('click', function(e) {
                     // Only open if we're not in the middle of dragging
                     if (dragMoved) {
                         console.log('Direct Video Lightbox: Click ignored - user was dragging');
@@ -1577,14 +1568,15 @@
                     videoSlides.forEach(function(vSlide) {
                         var vEl = vSlide.querySelector('video');
                         if (vEl && !vSlide.querySelector('.qs-video-facade')) {
-                            if (vEl === videoEl) clickedVideoIndex = videos.length;
+                            if (vSlide === slide) clickedVideoIndex = videos.length;
+                            var videoSrc = vEl.src || (vEl.querySelector('source') ? vEl.querySelector('source').src : null);
                             videos.push({
-                                url: vEl.src || vEl.querySelector('source')?.src,
+                                url: videoSrc,
                                 provider: 'direct',
                                 thumbnail: vEl.poster || null,
                                 title: 'Product Video ' + (videos.length + 1),
-                                portrait: vEl.dataset.portrait === 'true',
-                                aspectRatio: vEl.dataset.aspectRatio || '16:9'
+                                portrait: vEl.dataset.portrait === 'true' || vEl.getAttribute('data-portrait') === 'true',
+                                aspectRatio: vEl.dataset.aspectRatio || vEl.getAttribute('data-aspect-ratio') || '16:9'
                             });
                         }
                     });
