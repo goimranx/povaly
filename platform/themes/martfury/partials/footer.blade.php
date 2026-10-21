@@ -195,7 +195,7 @@
         overflow: hidden;
         width: 100%;
         height: 380px;
-        cursor: grab;
+        cursor: default; /* Let image pointer cursor show through */
         user-select: none;
     }
     .qs-gallery__viewport:active { cursor: grabbing; }
@@ -227,7 +227,8 @@
         height: 100%;
         object-fit: contain;
         display: block;
-        pointer-events: none;
+        pointer-events: auto; /* Enable clicking for lightbox */
+        cursor: pointer !important; /* Show pointer cursor */
         background: #f8f8f8;
     }
     .qs-slide--video {
