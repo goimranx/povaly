@@ -2182,6 +2182,9 @@
         .ps-footer {
             background: var(--global-color-secondary-soft) !important;
         }
+        .ps-footer__widgets {
+            background: var(--global-color-secondary-mid) !important;
+        }
         /* Footer widget titles */
         .ps-footer .widget-title,
         .ps-footer h4.widget-title {
