@@ -4327,22 +4327,81 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Touch swipe functionality for main image
+    // Touch swipe and double-tap functionality for main image
     var touchStartX = 0;
     var touchStartY = 0;
     var touchEndX = 0;
     var touchEndY = 0;
     var minSwipeDistance = 50; // minimum distance for a swipe
+    var lastTapTime = 0;
+    var doubleTapDelay = 300; // milliseconds
+    var touchMoveX = 0;
+    var touchMoveY = 0;
+    var isPanning = false;
     
     imageWrapper.addEventListener('touchstart', function(e) {
         touchStartX = e.changedTouches[0].screenX;
         touchStartY = e.changedTouches[0].screenY;
-    }, { passive: true });
+        
+        // Check for double tap
+        var currentTime = new Date().getTime();
+        var tapLength = currentTime - lastTapTime;
+        
+        if (tapLength < doubleTapDelay && tapLength > 0) {
+            // Double tap detected
+            e.preventDefault();
+            if (isZoomed) {
+                resetZoom();
+            } else {
+                zoomIn();
+            }
+            lastTapTime = 0; // Reset to prevent triple tap
+        } else {
+            lastTapTime = currentTime;
+        }
+        
+        // Store initial position for panning when zoomed
+        if (isZoomed) {
+            isPanning = true;
+            touchMoveX = touchStartX;
+            touchMoveY = touchStartY;
+        }
+    }, { passive: false });
+    
+    imageWrapper.addEventListener('touchmove', function(e) {
+        if (isZoomed && isPanning) {
+            e.preventDefault();
+            var currentX = e.changedTouches[0].screenX;
+            var currentY = e.changedTouches[0].screenY;
+            
+            // Calculate delta from last position
+            var deltaX = currentX - touchMoveX;
+            var deltaY = currentY - touchMoveY;
+            
+            // Update position
+            touchMoveX = currentX;
+            touchMoveY = currentY;
+            
+            // Apply panning
+            handleTouchPan(deltaX, deltaY);
+        }
+    }, { passive: false });
     
     imageWrapper.addEventListener('touchend', function(e) {
         touchEndX = e.changedTouches[0].screenX;
         touchEndY = e.changedTouches[0].screenY;
-        handleSwipe();
+        
+        if (isPanning) {
+            isPanning = false;
+        } else {
+            // Only handle swipe if not zoomed and not double-tapping
+            var currentTime = new Date().getTime();
+            var timeSinceLastTap = currentTime - lastTapTime;
+            
+            if (!isZoomed && timeSinceLastTap > doubleTapDelay) {
+                handleSwipe();
+            }
+        }
     }, { passive: true });
     
     function handleSwipe() {
@@ -4364,6 +4423,35 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Handle touch-based panning when zoomed
+    var currentPanX = 0;
+    var currentPanY = 0;
+    
+    function handleTouchPan(deltaX, deltaY) {
+        if (!isZoomed) return;
+        
+        // Get container and image dimensions
+        var container = imageWrapper.getBoundingClientRect();
+        var img = mainImage.getBoundingClientRect();
+        
+        // Calculate boundaries
+        var overflowX = Math.max(0, img.width - container.width);
+        var overflowY = Math.max(0, img.height - container.height);
+        var maxMoveX = overflowX / 2;
+        var maxMoveY = overflowY / 2;
+        
+        // Update pan position
+        currentPanX += deltaX;
+        currentPanY += deltaY;
+        
+        // Clamp to boundaries
+        currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, currentPanX));
+        currentPanY = Math.max(-maxMoveY, Math.min(maxMoveY, currentPanY));
+        
+        // Apply transform
+        mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
+    }
+    
     // Zoom in
     function zoomIn() {
         isZoomed = true;
@@ -4377,6 +4465,8 @@ document.addEventListener('DOMContentLoaded', function() {
         isZoomed = false;
         imageWrapper.classList.remove('zoomed');
         mainImage.style.transform = 'translate(0, 0)';
+        currentPanX = 0;
+        currentPanY = 0;
         imageWrapper.removeEventListener('mousemove', handleZoomPan);
     }
     
