@@ -4247,7 +4247,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     // ── INTEGRATE WITH QUICK VIEW GALLERY ──────────────────────────────
-    // Professional integration with Slick slider
+    // Professional integration - allows both dragging AND clicking
     window.initProductLightboxForQuickView = function() {
         var $gallery = $('.bb-quick-view-gallery-images');
         if (!$gallery.length || !$gallery.hasClass('slick-initialized')) {
@@ -4266,24 +4266,58 @@ document.addEventListener('DOMContentLoaded', function () {
         if (imageUrls.length === 0) return;
         
         // Remove previous handlers
-        $gallery.off('click.productLightbox');
+        $gallery.off('mousedown.productLightbox touchstart.productLightbox click.productLightbox');
         
-        // Add click handler with proper drag detection
-        var isDragging = false;
+        // Track mouse position to detect drag vs click
+        var startX = 0;
+        var startY = 0;
+        var hasMoved = false;
         
-        $gallery.on('mousedown touchstart', function() {
-            isDragging = false;
+        $gallery.on('mousedown.productLightbox touchstart.productLightbox', function(e) {
+            hasMoved = false;
+            if (e.type === 'mousedown') {
+                startX = e.clientX;
+                startY = e.clientY;
+            } else if (e.type === 'touchstart' && e.originalEvent.touches.length > 0) {
+                startX = e.originalEvent.touches[0].clientX;
+                startY = e.originalEvent.touches[0].clientY;
+            }
+            
+            // Add temporary mousemove listener
+            $gallery.on('mousemove.productLightboxDrag touchmove.productLightboxDrag', function(moveE) {
+                var currentX, currentY;
+                if (moveE.type === 'mousemove') {
+                    currentX = moveE.clientX;
+                    currentY = moveE.clientY;
+                } else if (moveE.type === 'touchmove' && moveE.originalEvent.touches.length > 0) {
+                    currentX = moveE.originalEvent.touches[0].clientX;
+                    currentY = moveE.originalEvent.touches[0].clientY;
+                }
+                
+                var deltaX = Math.abs(currentX - startX);
+                var deltaY = Math.abs(currentY - startY);
+                
+                // If moved more than 10px, consider it a drag
+                if (deltaX > 10 || deltaY > 10) {
+                    hasMoved = true;
+                }
+            });
         });
         
-        $gallery.on('mousemove touchmove', function() {
-            isDragging = true;
+        $gallery.on('mouseup.productLightbox touchend.productLightbox', function() {
+            // Remove temporary mousemove listener
+            $gallery.off('mousemove.productLightboxDrag touchmove.productLightboxDrag');
         });
         
         $gallery.on('click.productLightbox', function(e) {
-            if (isDragging) {
-                isDragging = false;
+            // If user dragged, don't open lightbox - let Slick handle the slide change
+            if (hasMoved) {
+                hasMoved = false;
                 return;
             }
+            
+            // This was a click (not a drag), open lightbox
+            e.preventDefault();
             
             var currentIndex = $gallery.slick('slickCurrentSlide');
             
@@ -4305,6 +4339,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }, 250);
         });
+        
+        // Add cursor pointer style
+        $gallery.find('.slick-slide').css('cursor', 'pointer');
     };
     
     // Hook into the quick view initialized event
