@@ -4489,9 +4489,16 @@ document.addEventListener('DOMContentLoaded', function() {
     var hasMoved = false;
     var moveThreshold = 10;
     
+    // Drag variables for swipe visual feedback
+    var dragStartX = 0;
+    var dragDelta = 0;
+    var isDragging = false;
+    var DRAG_THRESHOLD = 50;
+    
     imageWrapper.addEventListener('touchstart', function(e) {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
+        dragStartX = touchStartX;
         hasMoved = false;
         
         // Check for double tap
@@ -4508,6 +4515,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 zoomIn();
             }
             lastTapTime = 0;
+            return; // Exit early, no drag
         } else {
             lastTapTime = currentTime;
         }
@@ -4517,33 +4525,49 @@ document.addEventListener('DOMContentLoaded', function() {
             isPanning = true;
             touchMoveX = touchStartX;
             touchMoveY = touchStartY;
+        } else {
+            // Start drag mode for swipe navigation
+            isDragging = true;
         }
     }, { passive: false });
     
     imageWrapper.addEventListener('touchmove', function(e) {
+        var currentX = e.touches[0].clientX;
+        var currentY = e.touches[0].clientY;
+        
         // Check if user has moved beyond threshold
-        var deltaX = Math.abs(e.touches[0].clientX - touchStartX);
-        var deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+        var deltaX = Math.abs(currentX - touchStartX);
+        var deltaY = Math.abs(currentY - touchStartY);
         
         if (deltaX > moveThreshold || deltaY > moveThreshold) {
             hasMoved = true;
         }
         
         if (isZoomed && isPanning) {
+            // Panning zoomed image
             e.preventDefault();
-            var currentX = e.touches[0].clientX;
-            var currentY = e.touches[0].clientY;
             
             // Calculate delta from last position
-            var deltaX = currentX - touchMoveX;
-            var deltaY = currentY - touchMoveY;
+            var moveX = currentX - touchMoveX;
+            var moveY = currentY - touchMoveY;
             
             // Update position
             touchMoveX = currentX;
             touchMoveY = currentY;
             
-            // Apply panning
-            handleTouchPan(deltaX, deltaY);
+            // Apply panning (2x amplified)
+            handleTouchPan(moveX * 2, moveY * 2);
+        } else if (isDragging && !isZoomed) {
+            // Dragging for swipe navigation
+            dragDelta = currentX - dragStartX;
+            
+            // Only apply transform if horizontal swipe is dominant
+            if (Math.abs(dragDelta) > Math.abs(currentY - touchStartY)) {
+                e.preventDefault();
+                // Apply visual feedback: slide image with finger
+                mainImage.style.transition = 'none';
+                mainImage.style.transform = 'translateX(' + dragDelta + 'px)';
+            }
         }
     }, { passive: false });
     
@@ -4553,35 +4577,39 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (isPanning) {
             isPanning = false;
-        } else if (hasMoved && !isZoomed) {
-            // Handle swipe only if user moved and not zoomed
-            handleSwipe();
+        } else if (isDragging && hasMoved && !isZoomed) {
+            // Handle swipe with drag feedback
+            isDragging = false;
+            
+            var deltaX = touchEndX - touchStartX;
+            var deltaY = touchEndY - touchStartY;
+            
+            // Check if horizontal swipe is dominant and exceeds minimum distance
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(dragDelta) > DRAG_THRESHOLD) {
+                if (dragDelta > 0) {
+                    // Swipe right - go to previous image
+                    navigateThumbnail(-1);
+                } else {
+                    // Swipe left - go to next image
+                    navigateThumbnail(1);
+                }
+            } else {
+                // Not enough swipe, snap back
+                mainImage.style.transition = 'transform 0.3s ease';
+                mainImage.style.transform = '';
+            }
+            
+            dragDelta = 0;
         }
+        
+        // Reset drag mode
+        isDragging = false;
         
         // Reset movement flag after a delay
         setTimeout(function() {
             hasMoved = false;
         }, 100);
     }, { passive: true });
-    
-    function handleSwipe() {
-        // Only handle swipe if not zoomed
-        if (isZoomed) return;
-        
-        var deltaX = touchEndX - touchStartX;
-        var deltaY = touchEndY - touchStartY;
-        
-        // Check if horizontal swipe is dominant and exceeds minimum distance
-        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
-            if (deltaX > 0) {
-                // Swipe right - go to previous image
-                navigateThumbnail(-1);
-            } else {
-                // Swipe left - go to next image
-                navigateThumbnail(1);
-            }
-        }
-    }
     
     // Handle touch-based panning when zoomed
     var currentPanX = 0;
@@ -4704,7 +4732,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         var newIndex = currentIndex + direction;
         if (newIndex >= 0 && newIndex < currentProduct.images.length) {
+            // Reset any drag transform before animation
+            mainImage.style.transition = '';
+            mainImage.style.transform = '';
+            
             selectThumbnail(newIndex, direction); // Pass direction for swipe animation
+        } else {
+            // Out of bounds - snap back with animation
+            mainImage.style.transition = 'transform 0.3s ease';
+            mainImage.style.transform = '';
         }
     }
 });
