@@ -3220,9 +3220,25 @@ window.addEventListener('load', function() {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-    // ── FORCE LOCK BOTTOM BAR POSITION (prevent any JS from moving it) ─────
+    // ── FORCE LOCK BOTTOM BAR POSITION (prevent any JS from moving it) - MOBILE ONLY ─────
     var bottomBar = document.querySelector('.navigation--mobile-product');
     if (bottomBar) {
+        // Check if we're on mobile (below 1200px)
+        var isMobile = function() {
+            return window.innerWidth < 1200;
+        };
+        
+        // Hide on desktop, show on mobile
+        var updateVisibility = function() {
+            if (!isMobile()) {
+                bottomBar.style.setProperty('display', 'none', 'important');
+                return false; // Don't proceed with position locking
+            } else {
+                bottomBar.style.setProperty('display', '', ''); // Remove display property on mobile
+                return true; // Proceed with position locking
+            }
+        };
+        
         // Calculate the actual bottom position once
         var calculateBottom = function() {
             // Always stick to viewport bottom, not document bottom
@@ -3231,6 +3247,8 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // Force remove any transforms or animations
         var lockPosition = function() {
+            if (!updateVisibility()) return; // Exit if on desktop
+            
             var bottomValue = calculateBottom();
             bottomBar.style.setProperty('position', 'fixed', 'important');
             bottomBar.style.setProperty('bottom', bottomValue + 'px', 'important');
