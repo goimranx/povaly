@@ -4454,37 +4454,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Image zoom functionality - DESKTOP ONLY (simple click)
-    if (window.innerWidth > 767) {
-        imageWrapper.addEventListener('click', function(e) {
+    // Image zoom functionality - Desktop: click to zoom
+    imageWrapper.addEventListener('click', function(e) {
+        // Only on desktop
+        if (window.innerWidth > 767) {
             if (!isZoomed) {
-                isZoomed = true;
-                imageWrapper.classList.add('zoomed');
-                imageWrapper.addEventListener('mousemove', handleZoomPan);
+                zoomIn();
             } else {
-                isZoomed = false;
-                imageWrapper.classList.remove('zoomed');
-                mainImage.style.transform = 'translate(-50%, -50%)';
-                currentPanX = 0;
-                currentPanY = 0;
-                imageWrapper.removeEventListener('mousemove', handleZoomPan);
+                resetZoom();
             }
-        });
-    }
+        }
+    });
     
-    // Touch swipe and double-tap functionality for main image
+    // Touch swipe and double-tap functionality for main image - MOBILE ONLY
     var touchStartX = 0;
     var touchStartY = 0;
     var touchEndX = 0;
     var touchEndY = 0;
-    var minSwipeDistance = 50; // minimum distance for a swipe
+    var minSwipeDistance = 50;
     var lastTapTime = 0;
-    var doubleTapDelay = 300; // milliseconds
+    var doubleTapDelay = 300;
     var touchMoveX = 0;
     var touchMoveY = 0;
     var isPanning = false;
-    var hasMoved = false; // Track if user has moved during touch
-    var moveThreshold = 10; // Minimum pixels to consider as movement
+    var hasMoved = false;
+    var moveThreshold = 10;
     
     imageWrapper.addEventListener('touchstart', function(e) {
         touchStartX = e.touches[0].clientX;
@@ -4499,19 +4493,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Double tap detected
             e.preventDefault();
             
-            // Get tap position relative to image wrapper
-            var rect = imageWrapper.getBoundingClientRect();
-            var tapX = e.touches[0].clientX - rect.left;
-            var tapY = e.touches[0].clientY - rect.top;
-            
             if (isZoomed) {
-                // Zoom out on double tap when zoomed
                 resetZoom();
             } else {
-                // Zoom in to tap point
-                zoomInToPoint(tapX, tapY, rect);
+                zoomIn();
             }
-            lastTapTime = 0; // Reset to prevent triple tap
+            lastTapTime = 0;
         } else {
             lastTapTime = currentTime;
         }
@@ -4587,19 +4574,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Handle touch-based panning when zoomed - FAST like desktop
+    // Handle touch-based panning when zoomed
     var currentPanX = 0;
     var currentPanY = 0;
     
     function handleTouchPan(deltaX, deltaY) {
         if (!isZoomed) return;
-        
-        // Temporarily disable transition for smooth real-time panning
-        mainImage.style.transition = 'none';
-        
-        // Amplify movement 2x for faster response (similar to desktop 3x)
-        var amplifiedDeltaX = deltaX * 2;
-        var amplifiedDeltaY = deltaY * 2;
         
         // Get container and image dimensions
         var container = imageWrapper.getBoundingClientRect();
@@ -4611,9 +4591,9 @@ document.addEventListener('DOMContentLoaded', function() {
         var maxMoveX = overflowX / 2;
         var maxMoveY = overflowY / 2;
         
-        // Update pan position with amplified delta
-        currentPanX += amplifiedDeltaX;
-        currentPanY += amplifiedDeltaY;
+        // Update pan position
+        currentPanX += deltaX;
+        currentPanY += deltaY;
         
         // Clamp to boundaries
         currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, currentPanX));
@@ -4621,46 +4601,24 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Apply transform
         mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
-        
-        // Re-enable transition after panning stops
-        setTimeout(function() {
-            if (!isPanning) {
-                mainImage.style.transition = '';
-            }
-        }, 50);
     }
     
-    // Zoom in to tap point - grow smoothly from that point
-    function zoomInToPoint(tapX, tapY, rect) {
+    // Zoom in
+    function zoomIn() {
         isZoomed = true;
         imageWrapper.classList.add('zoomed');
-        
-        // Set transform origin to exact tap coordinates
-        var percentX = (tapX / rect.width) * 100;
-        var percentY = (tapY / rect.height) * 100;
-        mainImage.style.transformOrigin = percentX + '% ' + percentY + '%';
-        mainImage.style.transition = 'transform 0.3s ease';
-        mainImage.style.transform = 'translate(-50%, -50%) scale(2)';
-        
-        // Reset transform-origin after zoom
-        setTimeout(function() {
-            mainImage.style.transformOrigin = 'center center';
-            mainImage.style.transition = '';
-        }, 300);
+        // Enable mouse move for panning
+        imageWrapper.addEventListener('mousemove', handleZoomPan);
     }
     
-    // Reset zoom - zoom out smoothly
+    // Reset zoom
     function resetZoom() {
         isZoomed = false;
         imageWrapper.classList.remove('zoomed');
-        mainImage.style.transition = 'transform 0.3s ease';
-        mainImage.style.transform = 'translate(-50%, -50%)';
+        mainImage.style.transform = 'translate(0, 0)';
         currentPanX = 0;
         currentPanY = 0;
-        
-        setTimeout(function() {
-            mainImage.style.transition = '';
-        }, 300);
+        imageWrapper.removeEventListener('mousemove', handleZoomPan);
     }
     
     // Handle zoom panning - Amazon style: amplified movement from center
