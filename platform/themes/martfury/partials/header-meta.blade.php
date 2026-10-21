@@ -4263,16 +4263,28 @@ document.addEventListener('DOMContentLoaded', function() {
         var x = e.clientX - rect.left; // Mouse X position relative to wrapper
         var y = e.clientY - rect.top;  // Mouse Y position relative to wrapper
         
-        // Calculate percentages (0-1)
+        // Get the actual image dimensions
+        var imgRect = mainImage.getBoundingClientRect();
+        
+        // Calculate percentages (0 to 1) of mouse position
         var xPercent = x / rect.width;
         var yPercent = y / rect.height;
         
-        // Calculate how much to move (50% = center, 0% = move right/down, 100% = move left/up)
-        // Since image is 200% width, we can move it 50% of its width
-        var moveX = (0.5 - xPercent) * 50; // Move range: -25% to +25%
-        var moveY = (0.5 - yPercent) * 50; // Move range: -25% to +25%
+        // Calculate the maximum movement range in pixels
+        // When zoomed, image is 200% size, so we can move it by half the excess
+        var maxMoveX = (imgRect.width - rect.width) / 2;
+        var maxMoveY = (imgRect.height - rect.height) / 2;
         
-        mainImage.style.transform = 'translate(' + moveX + '%, ' + moveY + '%)';
+        // Calculate movement: map 0-1 mouse position to movement range
+        // Center (0.5) = no movement, edges = max movement
+        var moveX = -(xPercent - 0.5) * 2 * maxMoveX; // Negative because we move opposite to mouse
+        var moveY = -(yPercent - 0.5) * 2 * maxMoveY;
+        
+        // Clamp the movement to prevent showing outside the image
+        moveX = Math.max(-maxMoveX, Math.min(maxMoveX, moveX));
+        moveY = Math.max(-maxMoveY, Math.min(maxMoveY, moveY));
+        
+        mainImage.style.transform = 'translate(' + moveX + 'px, ' + moveY + 'px)';
     }
     
     // Keyboard shortcuts
