@@ -4603,19 +4603,23 @@ document.addEventListener('DOMContentLoaded', function() {
         mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
     }
     
-    // Zoom in
+    // Zoom in - DESKTOP
     function zoomIn() {
         isZoomed = true;
         imageWrapper.classList.add('zoomed');
+        // Reset pan position and center the image
+        currentPanX = 0;
+        currentPanY = 0;
+        mainImage.style.transform = 'translate(-50%, -50%)';
         // Enable mouse move for panning
         imageWrapper.addEventListener('mousemove', handleZoomPan);
     }
     
-    // Reset zoom
+    // Reset zoom - DESKTOP & MOBILE
     function resetZoom() {
         isZoomed = false;
         imageWrapper.classList.remove('zoomed');
-        mainImage.style.transform = 'translate(0, 0)';
+        mainImage.style.transform = '';
         currentPanX = 0;
         currentPanY = 0;
         imageWrapper.removeEventListener('mousemove', handleZoomPan);
