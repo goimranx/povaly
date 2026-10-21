@@ -2184,9 +2184,9 @@
                 right: auto !important;
                 width: auto !important;
                 height: auto !important;
-                background: rgba(255, 255, 255, 0.95) !important;
-                border: 1px solid rgba(13, 27, 42, 0.1) !important;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+                background: rgba(255, 255, 255, 0.7) !important;
+                border: 1px solid rgba(13, 27, 42, 0.15) !important;
+                box-shadow: none !important;
                 border-radius: 20px !important;
                 padding: 8px 16px !important;
                 display: flex !important;
