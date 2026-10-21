@@ -4459,20 +4459,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Only on desktop
         if (window.innerWidth > 767) {
             if (!isZoomed) {
-                // Get click position relative to wrapper (where user clicked)
-                var wrapperRect = imageWrapper.getBoundingClientRect();
-                var clickX = e.clientX - wrapperRect.left;
-                var clickY = e.clientY - wrapperRect.top;
+                // Zoom in first
+                isZoomed = true;
+                imageWrapper.classList.add('zoomed');
                 
-                // Get image position within wrapper (for accurate zoom calculation)
-                var imgRect = mainImage.getBoundingClientRect();
+                // Enable mouse move for panning
+                imageWrapper.addEventListener('mousemove', handleZoomPan);
                 
-                // Calculate click position relative to the IMAGE
-                var imgClickX = e.clientX - imgRect.left;
-                var imgClickY = e.clientY - imgRect.top;
-                
-                // Pass both wrapper and image info
-                zoomInToArea(imgClickX, imgClickY, imgRect, wrapperRect);
+                // Immediately call handleZoomPan with the click event
+                // This ensures the clicked position is calculated the SAME WAY as mousemove
+                handleZoomPan(e);
             } else {
                 resetZoom();
             }
@@ -4614,50 +4610,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Apply transform
         mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
-    }
-    
-    // Zoom in to specific area - DESKTOP (works anywhere, calculates correctly)
-    function zoomInToArea(imgClickX, imgClickY, imgRect, wrapperRect) {
-        isZoomed = true;
-        imageWrapper.classList.add('zoomed');
-        
-        // Calculate click position relative to WRAPPER (not image)
-        // This matches how handleZoomPan calculates, so they're consistent
-        var clickX = imgRect.left - wrapperRect.left + imgClickX;
-        var clickY = imgRect.top - wrapperRect.top + imgClickY;
-        
-        // Calculate click position from wrapper center (-0.5 to 0.5)
-        var centerX = (clickX / wrapperRect.width) - 0.5;
-        var centerY = (clickY / wrapperRect.height) - 0.5;
-        
-        // Amplify the movement (3x faster response) - same as handleZoomPan
-        var amplifiedX = centerX * 3;
-        var amplifiedY = centerY * 3;
-        
-        // Get zoomed image dimensions
-        var zoomedWidth = imgRect.width * 2;
-        var zoomedHeight = imgRect.height * 2;
-        
-        // Calculate how much the zoomed image overflows the wrapper
-        var overflowX = Math.max(0, zoomedWidth - wrapperRect.width);
-        var overflowY = Math.max(0, zoomedHeight - wrapperRect.height);
-        
-        // Calculate pan offset - same formula as handleZoomPan
-        var moveX = -amplifiedX * (overflowX / 2);
-        var moveY = -amplifiedY * (overflowY / 2);
-        
-        // Clamp to boundaries
-        var maxMoveX = overflowX / 2;
-        var maxMoveY = overflowY / 2;
-        
-        currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, moveX));
-        currentPanY = Math.max(-maxMoveY, Math.min(maxMoveY, moveY));
-        
-        // Apply transform with pan offset
-        mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
-        
-        // Enable mouse move for panning
-        imageWrapper.addEventListener('mousemove', handleZoomPan);
     }
     
     // Zoom in to center - MOBILE (double-tap)
