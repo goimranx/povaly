@@ -2040,16 +2040,7 @@
             height: auto;
             object-fit: contain;
             margin: auto;
-            /* Smooth zoom transitions */
-            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                        min-width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                        min-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                        max-width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                        max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                        position 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                        top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                        left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                        margin 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            /* No transitions - instant zoom */
         }
         
         .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
@@ -2120,6 +2111,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             background: var(--global-color-card-bg, #FFFFFF);
+            font-weight: 500;
+            color: var(--global-color-text-muted, #7A8FA6);
         }
         
         .product-lightbox-thumbnail img {
@@ -2135,6 +2128,7 @@
         .product-lightbox-thumbnail.active {
             border-color: var(--global-color-warning, #FBB13C);
             box-shadow: none;
+            font-weight: 500;
         }
         
         .product-lightbox-thumbnail.active img {
