@@ -962,6 +962,37 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             thumbnailsContainer.appendChild(thumb);
         });
+        
+        // Initialize thumbnail swipe on mobile
+        if (window.innerWidth <= 767) {
+            initThumbnailSwipe();
+        }
+    }
+    
+    // Initialize thumbnail strip swipe on mobile
+    function initThumbnailSwipe() {
+        if (!thumbnailsContainer) return;
+        
+        var thumbStartX = 0;
+        var thumbIsDragging = false;
+        var thumbScrollLeft = 0;
+        
+        thumbnailsContainer.addEventListener('touchstart', function(e) {
+            thumbStartX = e.touches[0].clientX;
+            thumbScrollLeft = thumbnailsContainer.scrollLeft;
+            thumbIsDragging = true;
+        }, { passive: true });
+        
+        thumbnailsContainer.addEventListener('touchmove', function(e) {
+            if (!thumbIsDragging) return;
+            
+            var deltaX = thumbStartX - e.touches[0].clientX;
+            thumbnailsContainer.scrollLeft = thumbScrollLeft + deltaX;
+        }, { passive: true });
+        
+        thumbnailsContainer.addEventListener('touchend', function(e) {
+            thumbIsDragging = false;
+        }, { passive: true });
     }
     
     // Select thumbnail with proper swipe animation
@@ -1185,7 +1216,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Only apply transform if horizontal swipe is dominant
             if (Math.abs(dragDelta) > Math.abs(currentY - touchStartY)) {
                 e.preventDefault();
-                // Apply visual feedback: slide image with finger
+                // Apply visual feedback: slide image ONLY HORIZONTALLY (no diagonal movement)
                 mainImage.style.transition = 'none';
                 mainImage.style.transform = 'translateX(' + dragDelta + 'px)';
             }

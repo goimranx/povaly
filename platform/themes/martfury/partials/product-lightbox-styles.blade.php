@@ -683,12 +683,20 @@
                 padding: 3px 15px !important;
                 background: var(--global-color-site-bg, #FFFFFF) !important;
                 flex-direction: row !important;
-                overflow-x: hidden !important;
+                overflow-x: auto !important; /* Changed from hidden to auto for swipe */
                 overflow-y: hidden !important;
                 gap: 2px !important;
                 align-items: center !important;
                 scroll-behavior: smooth !important;
                 -webkit-overflow-scrolling: touch !important;
+                /* Hide scrollbar but keep functionality */
+                scrollbar-width: none !important; /* Firefox */
+                -ms-overflow-style: none !important; /* IE/Edge */
+            }
+            
+            /* Hide scrollbar for Chrome/Safari */
+            .product-lightbox-thumbnails::-webkit-scrollbar {
+                display: none !important;
             }
             
             /* Each thumbnail - 3:4 ratio, show 7 full + peek of next */
