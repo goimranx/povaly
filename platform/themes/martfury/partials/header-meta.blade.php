@@ -2018,6 +2018,9 @@
             height: 100%;
             cursor: zoom-in;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .product-lightbox-image-wrapper.zoomed {
@@ -2026,22 +2029,26 @@
         
         .product-lightbox-main-image {
             display: block;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             max-width: 100%;
             max-height: 100%;
+            width: auto;
+            height: auto;
             object-fit: contain;
+            margin: auto; /* Center in wrapper */
         }
         
         .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
+            position: absolute; /* Only absolute when zoomed */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             max-width: none;
             max-height: none;
             min-width: 200%;
             min-height: 200%;
             width: auto;
             height: auto;
+            margin: 0;
         }
         
         .product-lightbox-zoom-icon {
