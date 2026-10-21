@@ -2019,11 +2019,11 @@
         
         /* Video Player Styles */
         .product-lightbox-video-wrapper {
-            width: 100%;
+            width: 85%; /* Narrower than full width */
             height: 100%;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 0; /* No gap */
             padding: 20px;
             overflow-y: auto;
         }
@@ -2032,7 +2032,7 @@
             position: relative;
             width: 100%;
             background: #000;
-            border-radius: 8px;
+            border-radius: 0; /* No radius */
             overflow: hidden;
         }
         
@@ -2056,15 +2056,15 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 0;
-            border-top: 1px solid rgba(0,0,0,0.1);
-            border-bottom: 1px solid rgba(0,0,0,0.1);
+            padding: 10px 20px; /* Updated padding */
+            background: var(--global-color-card-bg, #f8f9fa); /* Card background */
+            border: none; /* No border */
         }
         
         .video-useful-section {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px; /* Reduced gap */
         }
         
         .useful-text {
@@ -2075,28 +2075,27 @@
         
         .btn-video-like {
             background: transparent;
-            border: 2px solid #ddd;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            border: none; /* No border */
+            padding: 0; /* No padding */
+            width: auto; /* Auto width */
+            height: auto; /* Auto height */
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
             color: #666;
+            font-size: 20px; /* Icon size */
         }
         
         .btn-video-like:hover {
-            border-color: #fcb800;
-            color: #fcb800;
+            color: var(--global-color-alert, #fcb800);
             transform: scale(1.1);
         }
         
         .btn-video-like.liked {
-            background: #fcb800;
-            border-color: #fcb800;
-            color: #fff;
+            margin-left: 6px; /* Margin when liked */
+            color: var(--global-color-alert, #fcb800);
         }
         
         .like-count {
@@ -2107,24 +2106,20 @@
         }
         
         .btn-video-share {
-            background: #f5f5f5;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 10px 20px;
+            background: transparent; /* No background */
+            border: none; /* No border */
+            padding: 0; /* No padding */
             display: flex;
             align-items: center;
-            gap: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
+            font-size: 20px; /* Icon size */
+            color: #666;
         }
         
         .btn-video-share:hover {
-            background: #fcb800;
-            border-color: #fcb800;
-            color: #fff;
+            color: var(--global-color-alert, #fcb800);
+            transform: scale(1.1);
         }
         
         /* Video Info Section */
@@ -4772,17 +4767,40 @@ document.addEventListener('DOMContentLoaded', function() {
         if (likeBtn && likeCount) {
             // Reset like state
             likeBtn.classList.remove('liked');
+            likeBtn.setAttribute('data-liked', 'false');
+            var icon = likeBtn.querySelector('i');
+            if (icon) {
+                icon.className = 'ph ph-thumbs-up'; // Outline icon
+            }
             likeCount.textContent = video.likes || 0;
             
-            // Add click handler
+            // Add click handler - toggle like on/off
             likeBtn.onclick = function() {
-                if (!likeBtn.classList.contains('liked')) {
+                var isLiked = likeBtn.getAttribute('data-liked') === 'true';
+                var currentCount = parseInt(likeCount.textContent) || 0;
+                
+                if (!isLiked) {
+                    // Like the video
                     likeBtn.classList.add('liked');
-                    var currentCount = parseInt(likeCount.textContent) || 0;
+                    likeBtn.setAttribute('data-liked', 'true');
+                    if (icon) {
+                        icon.className = 'ph-fill ph-thumbs-up'; // Filled icon with alert color
+                    }
                     likeCount.textContent = currentCount + 1;
                     
                     // TODO: Send to backend to persist like
                     // saveLike(video.id);
+                } else {
+                    // Unlike the video
+                    likeBtn.classList.remove('liked');
+                    likeBtn.setAttribute('data-liked', 'false');
+                    if (icon) {
+                        icon.className = 'ph ph-thumbs-up'; // Outline icon
+                    }
+                    likeCount.textContent = Math.max(0, currentCount - 1);
+                    
+                    // TODO: Send to backend to remove like
+                    // removeLike(video.id);
                 }
             };
         }
@@ -4804,11 +4822,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Fallback: copy to clipboard
                     if (video.url) {
                         navigator.clipboard.writeText(video.url).then(function() {
-                            // Show copied notification
-                            var originalText = shareBtn.innerHTML;
-                            shareBtn.innerHTML = '<i class="fa fa-check"></i> Copied!';
+                            // Show copied notification with Phosphor icon
+                            var originalHTML = shareBtn.innerHTML;
+                            shareBtn.innerHTML = '<i class="ph-fill ph-check"></i>';
                             setTimeout(function() {
-                                shareBtn.innerHTML = originalText;
+                                shareBtn.innerHTML = originalHTML;
                             }, 2000);
                         });
                     }

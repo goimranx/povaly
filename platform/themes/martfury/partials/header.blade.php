@@ -407,13 +407,13 @@
                         <div class="product-lightbox-video-interactions">
                             <div class="video-useful-section">
                                 <span class="useful-text">Useful?</span>
-                                <button class="btn-video-like" id="lightbox-video-like-btn">
-                                    <i class="fa fa-thumbs-up"></i>
+                                <button class="btn-video-like" id="lightbox-video-like-btn" data-liked="false">
+                                    <i class="ph ph-thumbs-up"></i>
                                 </button>
                                 <span class="like-count" id="lightbox-video-like-count">0</span>
                             </div>
                             <button class="btn-video-share" id="lightbox-video-share-btn">
-                                <i class="fa fa-share-alt"></i> Share
+                                <i class="ph ph-share-network"></i>
                             </button>
                         </div>
                         
