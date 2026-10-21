@@ -1898,7 +1898,7 @@
             position: relative; /* For absolute positioning of close button */
         }
         
-        /* Close button - positioned inside container, not inside header */
+        /* Close button - positioned at container level, not inside header */
         .product-lightbox-close {
             background: none;
             border: none;
@@ -1907,8 +1907,8 @@
             padding: 0;
             line-height: 1;
             position: absolute;
-            top: 6px; /* 6px from container top */
-            right: 6px; /* 6px from container right */
+            top: 4px;
+            right: 4px;
             width: 40px;
             height: 40px;
             display: flex;
@@ -1935,20 +1935,20 @@
             justify-content: space-between;
             padding: 0 30px;
             position: relative;
+            border-bottom: 2px solid var(--global-color-primary-border, #FFB399);
         }
         
         .product-lightbox-tabs {
             display: flex;
-            gap: 0; /* No gap between items */
+            gap: 0;
             padding: 0;
             width: 100%;
-            border-bottom: 2px solid var(--global-color-primary-border, #FFB399);
         }
         
         .product-lightbox-tab {
             background: none;
             border: none;
-            padding: 15px; /* 15px all around */
+            padding: 15px;
             font-size: 14px;
             font-weight: 600;
             letter-spacing: 0.5px;
@@ -1973,7 +1973,7 @@
             left: 0;
             right: 0;
             height: 2px;
-            background: var(--global-color-link-hover, #1dbff5); /* link-hover color */
+            background: var(--global-color-link, #13acdf);
             z-index: 1;
         }
         

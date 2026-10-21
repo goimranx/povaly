@@ -371,15 +371,17 @@
 {{-- Product Lightbox Modal --}}
 <div id="product-lightbox-modal" class="product-lightbox-overlay" style="display: none;">
     <div class="product-lightbox-container">
+        {{-- Close button - positioned at container level --}}
+        <button class="product-lightbox-close" aria-label="Close">
+            <i class="icon-cross"></i>
+        </button>
+        
         {{-- Header --}}
         <div class="product-lightbox-header">
             <div class="product-lightbox-tabs">
                 <button class="product-lightbox-tab active" data-tab="images">IMAGES</button>
                 <button class="product-lightbox-tab" data-tab="videos">VIDEOS</button>
             </div>
-            <button class="product-lightbox-close" aria-label="Close">
-                <i class="icon-cross"></i>
-            </button>
         </div>
         
         {{-- Body --}}
