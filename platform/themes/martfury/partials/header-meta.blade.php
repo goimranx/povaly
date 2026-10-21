@@ -2176,8 +2176,7 @@
                 grid-template-columns: repeat(3, 1fr);
             }
         }
-        }
-
+        
         /* Footer — driven by theme options */
         .ps-footer {
             background: var(--global-color-secondary-soft) !important;
