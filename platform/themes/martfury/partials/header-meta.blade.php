@@ -2095,13 +2095,14 @@
         
         /* Thumbnails */
         .product-lightbox-thumbnails {
-            flex: 1;
-            padding: 0 20px;
-            overflow-y: auto;
+            padding: 3px 20px;
+            overflow-y: hidden;
+            overflow-x: hidden;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             align-content: start;
+            height: auto;
         }
         
         .product-lightbox-thumbnail {
@@ -2194,7 +2195,7 @@
                 right: auto !important;
                 width: auto !important;
                 height: auto !important;
-                background: rgba(255, 255, 255, 0.7) !important;
+                background: rgba(255, 255, 255, 0.6) !important;
                 border: 1px solid rgba(13, 27, 42, 0.15) !important;
                 box-shadow: none !important;
                 border-radius: 20px !important;
