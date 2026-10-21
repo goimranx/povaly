@@ -2086,16 +2086,16 @@
             transition: all 0.3s ease;
             color: #666;
             font-size: 20px; /* Icon size */
+            margin-left: 6px; /* Always 6px margin */
         }
         
         .btn-video-like:hover {
-            color: var(--global-color-alert, #fcb800);
+            color: var(--global-color-primary, #0D6EFD);
             transform: scale(1.1);
         }
         
         .btn-video-like.liked {
-            margin-left: 6px; /* Margin when liked */
-            color: var(--global-color-alert, #fcb800);
+            color: var(--global-color-primary, #0D6EFD); /* Primary color when liked */
         }
         
         .like-count {
@@ -2112,14 +2112,13 @@
             display: flex;
             align-items: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: color 0.3s ease; /* Only color transition, no transform */
             font-size: 20px; /* Icon size */
             color: #666;
         }
         
         .btn-video-share:hover {
-            color: var(--global-color-alert, #fcb800);
-            transform: scale(1.1);
+            color: var(--global-color-primary, #0D6EFD); /* Primary color on hover */
         }
         
         /* Video Info Section */
@@ -2129,9 +2128,9 @@
         
         .video-product-title {
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 400; /* Weight 400 */
             color: #333;
-            margin-bottom: 12px;
+            margin-bottom: 3px; /* Just 3px margin bottom */
             line-height: 1.4;
         }
         
@@ -2144,12 +2143,11 @@
         }
         
         .video-uploader-info i {
-            font-size: 18px;
-            color: #999;
+            display: none; /* Hide icon */
         }
         
         .uploader-name {
-            font-weight: 500;
+            font-weight: 300; /* Weight 300 */
         }
         
         /* Video Lists Sidebar */
