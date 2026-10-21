@@ -1895,6 +1895,7 @@
             overflow: hidden !important;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
             padding: 20px !important; /* Add padding around the entire modal */
+            position: relative !important; /* For absolute positioning of close button */
         }
         
         /* Header */
@@ -1907,68 +1908,72 @@
         }
         
         .product-lightbox-tabs {
-            display: flex !important;
-            gap: 30px !important;
-            padding-bottom: 10px !important;
-            width: 100% !important; /* Make tabs full width for border */
-            border-bottom: 2px solid var(--global-color-primary-border, #FFB399) !important;
+            display: flex;
+            gap: 30px;
+            padding: 0; /* No padding at all */
+            width: 100%; /* Make tabs full width for border */
+            border-bottom: 2px solid var(--global-color-primary-border, #FFB399);
         }
         
         .product-lightbox-tab {
-            background: none !important;
-            border: none !important;
-            padding: 15px 20px !important;
-            font-size: 14px !important;
-            font-weight: 600 !important;
-            letter-spacing: 0.5px !important;
-            color: var(--global-color-text-body, #2E3D52) !important;
-            cursor: pointer !important;
-            position: relative !important;
-            transition: color 0.3s ease !important;
+            background: none;
+            border: none;
+            padding: 15px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--global-color-text-body, #2E3D52); /* Normal: text-body */
+            cursor: pointer;
+            position: relative;
+            transition: color 0.3s ease;
         }
         
         .product-lightbox-tab:hover {
-            color: var(--global-color-link-hover, #1dbff5) !important;
+            color: var(--global-color-text-main, #0D1B2A); /* Hover: text-main */
         }
         
         .product-lightbox-tab.active {
-            color: var(--global-color-link, #13acdf) !important;
+            color: var(--global-color-text-main, #0D1B2A); /* Active: text-main */
         }
         
         .product-lightbox-tab.active::after {
-            content: '' !important;
-            position: absolute !important;
-            bottom: -2px !important; /* Position over the parent border */
-            left: 0 !important;
-            right: 0 !important;
-            height: 2px !important;
-            background: var(--global-color-link, #13acdf) !important;
-            z-index: 1 !important; /* Ensure it appears over the parent border */
+            content: '';
+            position: absolute;
+            bottom: -2px; /* Position over the parent border */
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--global-color-text-main, #0D1B2A);
+            z-index: 1; /* Ensure it appears over the parent border */
         }
         
         .product-lightbox-close {
-            background: none !important;
-            border: none !important;
-            font-size: 1.3rem !important;
-            font-weight: 700 !important;
-            color: var(--global-color-text-body, #2E3D52) !important;
-            cursor: pointer !important;
-            padding: 0 !important;
-            line-height: 1 !important;
-            position: absolute !important;
-            top: 7px !important;
-            right: 7px !important;
-            width: 40px !important;
-            height: 40px !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            transition: color 0.3s ease !important;
-            z-index: 10 !important;
+            background: none;
+            border: none;
+            color: var(--global-color-text-body, #2E3D52);
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            position: absolute; /* Absolute to container */
+            top: 7px; /* 7px from container top */
+            right: 7px; /* 7px from container right */
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s ease;
+            z-index: 10;
+        }
+        
+        .product-lightbox-close i,
+        .product-lightbox-close .icon-cross {
+            font-size: 1.25rem; /* Icon size */
+            font-weight: 700; /* Icon weight */
         }
         
         .product-lightbox-close:hover {
-            color: var(--global-color-alert, #FF5C5C) !important;
+            color: var(--global-color-alert, #FF5C5C);
         }
         
         /* Body */
