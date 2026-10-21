@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class VideoLike extends Model
 {
@@ -64,7 +65,7 @@ class VideoLike extends Model
             );
             return true;
         } catch (\Exception $e) {
-            \Log::error('Failed to add video like: ' . $e->getMessage());
+            Log::error('Failed to add video like: ' . $e->getMessage());
             return false;
         }
     }
@@ -86,7 +87,7 @@ class VideoLike extends Model
             $query->delete();
             return true;
         } catch (\Exception $e) {
-            \Log::error('Failed to remove video like: ' . $e->getMessage());
+            Log::error('Failed to remove video like: ' . $e->getMessage());
             return false;
         }
     }

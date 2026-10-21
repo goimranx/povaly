@@ -476,5 +476,59 @@
                 </div>
             </div>
         </div>
+        
+        {{-- Mobile Video Controls Overlay (Only for Videos on Mobile) --}}
+        <div class="mobile-video-controls" id="mobile-video-controls" style="display: none;">
+            {{-- Top Right: Close & Title --}}
+            <div class="mobile-video-header">
+                <button class="mobile-video-close" aria-label="Close">
+                    <i class="icon-cross"></i>
+                </button>
+                <div class="mobile-video-title-wrapper">
+                    <h3 class="mobile-video-title" id="mobile-video-title"></h3>
+                    <button class="mobile-video-title-expand" id="mobile-video-title-expand">
+                        <i class="icon-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+            
+            {{-- Bottom Left: Uploader Info --}}
+            <div class="mobile-video-uploader">
+                <div class="mobile-uploader-avatar" id="mobile-uploader-avatar">
+                    <i class="icon-user"></i>
+                </div>
+                <span class="mobile-uploader-name" id="mobile-uploader-name"></span>
+            </div>
+            
+            {{-- Bottom Right: Action Buttons --}}
+            <div class="mobile-video-actions">
+                <button class="mobile-action-btn mobile-btn-like" id="mobile-btn-like" data-liked="false">
+                    <i class="ph ph-thumbs-up"></i>
+                    <span class="mobile-action-count" id="mobile-like-count">0</span>
+                </button>
+                <button class="mobile-action-btn mobile-btn-buy" id="mobile-btn-buy">
+                    <i class="icon-bag2"></i>
+                    <span class="mobile-action-count mobile-sold-count" id="mobile-sold-count">1.2K sold</span>
+                </button>
+                <button class="mobile-action-btn mobile-btn-cart" id="mobile-btn-cart">
+                    <i class="icon-cart"></i>
+                </button>
+                <button class="mobile-action-btn mobile-btn-share" id="mobile-btn-share">
+                    <i class="ph ph-paper-plane-tilt"></i>
+                </button>
+            </div>
+        </div>
+        
+        {{-- Mobile Video Drawer (Pull up for more videos) --}}
+        <div class="mobile-video-drawer" id="mobile-video-drawer" style="display: none;">
+            <div class="mobile-drawer-handle">
+                <div class="mobile-drawer-grabber"></div>
+            </div>
+            <div class="mobile-drawer-content">
+                <div class="mobile-drawer-videos" id="mobile-drawer-videos">
+                    {{-- Video list will be inserted here --}}
+                </div>
+            </div>
+        </div>
     </div>
 </div>

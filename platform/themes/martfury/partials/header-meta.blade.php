@@ -2577,51 +2577,286 @@
                 border: 2px solid var(--global-color-warning, #FBB13C) !important;
             }
             
-            /* Mobile video styles */
+            /* ═══════════════════════════════════════════════════════════════ */
+            /* Mobile Video-Specific Styles */
+            /* ═══════════════════════════════════════════════════════════════ */
+            
+            /* Black background for video mode */
+            .product-lightbox-overlay.video-mode {
+                background: #000 !important;
+            }
+            
+            /* Hide desktop video elements on mobile */
+            .product-lightbox-video-interactions,
+            .product-lightbox-video-info {
+                display: none !important;
+            }
+            
+            /* Video player centered, full width */
             .product-lightbox-video-wrapper {
-                padding: 15px !important;
-                gap: 15px !important;
-            }
-            
-            .product-lightbox-video-interactions {
-                flex-direction: column !important;
-                gap: 15px !important;
-                align-items: stretch !important;
-            }
-            
-            .video-useful-section {
+                padding: 0 !important;
+                display: flex !important;
+                align-items: center !important;
                 justify-content: center !important;
+                height: 100% !important;
+                gap: 0 !important;
             }
             
-            .btn-video-share {
+            .product-lightbox-video-player {
                 width: 100% !important;
+                height: auto !important;
+                aspect-ratio: 16 / 9 !important;
+                max-height: 100vh !important;
+            }
+            
+            /* Hide sidebar on video mode */
+            .video-mode .product-lightbox-sidebar {
+                display: none !important;
+            }
+            
+            /* Mobile Video Controls Overlay */
+            .mobile-video-controls {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                pointer-events: none !important;
+                z-index: 1000 !important;
+            }
+            
+            .mobile-video-controls > * {
+                pointer-events: auto !important;
+            }
+            
+            /* Top Right: Close & Title */
+            .mobile-video-header {
+                position: absolute !important;
+                top: 20px !important;
+                right: 20px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: flex-end !important;
+                gap: 10px !important;
+                max-width: calc(100vw - 120px) !important;
+            }
+            
+            .mobile-video-close {
+                width: 40px !important;
+                height: 40px !important;
+                border-radius: 50% !important;
+                background: rgba(255, 255, 255, 0.9) !important;
+                border: none !important;
+                display: flex !important;
+                align-items: center !important;
                 justify-content: center !important;
+                cursor: pointer !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
             }
             
-            .video-product-title {
+            .mobile-video-close i {
+                font-size: 20px !important;
+                color: #000 !important;
+            }
+            
+            .mobile-video-title-wrapper {
+                background: rgba(0, 0, 0, 0.6) !important;
+                backdrop-filter: blur(10px) !important;
+                border-radius: 8px !important;
+                padding: 10px 12px !important;
+                display: flex !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+                max-width: 100% !important;
+            }
+            
+            .mobile-video-title {
+                color: #fff !important;
+                font-size: 14px !important;
+                font-weight: 500 !important;
+                line-height: 1.4 !important;
+                margin: 0 !important;
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                text-align: left !important;
+                transition: -webkit-line-clamp 0.3s ease !important;
+            }
+            
+            .mobile-video-title.expanded {
+                -webkit-line-clamp: unset !important;
+            }
+            
+            .mobile-video-title-expand {
+                background: none !important;
+                border: none !important;
+                padding: 0 !important;
+                cursor: pointer !important;
+                flex-shrink: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 20px !important;
+                height: 20px !important;
+                color: #fff !important;
+                transition: transform 0.3s ease !important;
+            }
+            
+            .mobile-video-title-expand.expanded {
+                transform: rotate(180deg) !important;
+            }
+            
+            .mobile-video-title-expand i {
+                font-size: 14px !important;
+            }
+            
+            /* Bottom Left: Uploader Info */
+            .mobile-video-uploader {
+                position: absolute !important;
+                bottom: 20px !important;
+                left: 20px !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 10px !important;
+                background: rgba(0, 0, 0, 0.6) !important;
+                backdrop-filter: blur(10px) !important;
+                border-radius: 24px !important;
+                padding: 8px 14px 8px 8px !important;
+                max-width: calc(100vw - 150px) !important;
+            }
+            
+            .mobile-uploader-avatar {
+                width: 32px !important;
+                height: 32px !important;
+                border-radius: 50% !important;
+                background: var(--global-color-primary, #0D6EFD) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                color: #fff !important;
                 font-size: 16px !important;
+                flex-shrink: 0 !important;
             }
             
-            /* Mobile video lists */
-            .product-lightbox-video-lists {
-                padding: 15px 0 !important;
+            .mobile-uploader-name {
+                color: #fff !important;
+                font-size: 14px !important;
+                font-weight: 500 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                max-width: 16ch !important;
             }
             
-            .video-list-section {
-                margin-bottom: 20px !important;
+            /* Bottom Right: Action Buttons */
+            .mobile-video-actions {
+                position: absolute !important;
+                bottom: 20px !important;
+                right: 20px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 16px !important;
+                align-items: center !important;
             }
             
-            .video-list-item-thumbnail {
-                width: 60px !important;
-                height: 45px !important; /* 4:3 ratio (60 x 3/4 = 45) */
+            .mobile-action-btn {
+                width: 50px !important;
+                height: 50px !important;
+                border-radius: 50% !important;
+                background: rgba(255, 255, 255, 0.9) !important;
+                border: none !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                cursor: pointer !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+                position: relative !important;
+                transition: background 0.2s ease !important;
             }
             
-            .video-list-item-title {
-                font-size: 13px !important;
+            .mobile-action-btn i {
+                font-size: 24px !important;
+                color: #000 !important;
             }
             
-            .video-list-item-uploader {
+            .mobile-action-btn.mobile-btn-like[data-liked="true"] i {
+                color: var(--global-color-primary, #0D6EFD) !important;
+            }
+            
+            .mobile-action-count {
+                position: absolute !important;
+                bottom: -20px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                color: #fff !important;
                 font-size: 11px !important;
+                font-weight: 600 !important;
+                white-space: nowrap !important;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+            }
+            
+            .mobile-sold-count {
+                font-size: 10px !important;
+            }
+            
+            /* Mobile Video Drawer */
+            .mobile-video-drawer {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                background: var(--global-color-site-bg, #FFFFFF) !important;
+                border-radius: 20px 20px 0 0 !important;
+                box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2) !important;
+                transform: translateY(calc(100% - 50px)) !important;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                z-index: 1001 !important;
+                max-height: 80vh !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            
+            .mobile-video-drawer.open {
+                transform: translateY(0) !important;
+            }
+            
+            .mobile-drawer-handle {
+                padding: 12px 0 !important;
+                display: flex !important;
+                justify-content: center !important;
+                cursor: grab !important;
+            }
+            
+            .mobile-drawer-handle:active {
+                cursor: grabbing !important;
+            }
+            
+            .mobile-drawer-grabber {
+                width: 40px !important;
+                height: 4px !important;
+                background: rgba(0, 0, 0, 0.3) !important;
+                border-radius: 2px !important;
+            }
+            
+            .mobile-drawer-content {
+                flex: 1 !important;
+                overflow-y: auto !important;
+                padding: 0 15px 20px !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+            
+            .mobile-drawer-videos {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0 !important;
+            }
+            
+            /* Reuse existing video list styles for drawer */
+            .mobile-drawer-videos .video-list-section {
+                margin-bottom: 20px !important;
             }
         }
         
@@ -4644,8 +4879,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.overflow = 'hidden';
         
         // Show hint message on mobile every time lightbox opens (only on images tab)
-        if (window.innerWidth <= 767 && defaultTab === 'images') {
-            showHintMessage();
+        if (window.innerWidth <= 767) {
+            if (defaultTab === 'images') {
+                showHintMessage();
+            } else if (defaultTab === 'videos') {
+                // Initialize mobile video controls when opening directly on video
+                initializeMobileVideoControls();
+            }
         }
     };
     
@@ -4690,6 +4930,330 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // ═══════════════════════════════════════════════════════════════════
+    // MOBILE VIDEO CONTROLS
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Format numbers (e.g., 1500 -> 1.5K, 1000000 -> 1M)
+    function formatNumber(num) {
+        if (num >= 1000000) {
+            return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+        }
+        if (num >= 1000) {
+            return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+        }
+        return num.toString();
+    }
+    
+    // Initialize mobile video controls (called when video tab is active on mobile)
+    function initializeMobileVideoControls() {
+        if (window.innerWidth > 767) return; // Desktop only
+        if (!currentProduct || !currentProduct.videos || currentProduct.videos.length === 0) return;
+        
+        var videoIndex = currentProduct.currentVideoIndex || 0;
+        var video = currentProduct.videos[videoIndex];
+        if (!video) return;
+        
+        var mobileControls = document.getElementById('mobile-video-controls');
+        var mobileDrawer = document.getElementById('mobile-video-drawer');
+        var lightboxOverlay = document.getElementById('product-lightbox-modal');
+        
+        // Show mobile controls and drawer
+        if (mobileControls) mobileControls.style.display = 'block';
+        if (mobileDrawer) mobileDrawer.style.display = 'flex';
+        
+        // Add video-mode class for black background
+        if (lightboxOverlay) lightboxOverlay.classList.add('video-mode');
+        
+        // Set product title
+        var mobileTitle = document.getElementById('mobile-video-title');
+        if (mobileTitle && currentProduct) {
+            mobileTitle.textContent = currentProduct.name || 'Product Video';
+            mobileTitle.classList.remove('expanded');
+        }
+        
+        // Title expand/collapse
+        var titleExpand = document.getElementById('mobile-video-title-expand');
+        if (titleExpand && mobileTitle) {
+            titleExpand.classList.remove('expanded');
+            titleExpand.onclick = function() {
+                mobileTitle.classList.toggle('expanded');
+                titleExpand.classList.toggle('expanded');
+            };
+        }
+        
+        // Title click also expands/collapses
+        if (mobileTitle) {
+            mobileTitle.onclick = function() {
+                mobileTitle.classList.toggle('expanded');
+                if (titleExpand) titleExpand.classList.toggle('expanded');
+            };
+        }
+        
+        // Set uploader info
+        var mobileUploaderName = document.getElementById('mobile-uploader-name');
+        if (mobileUploaderName) {
+            var uploaderName = video.store_name || video.uploader || 'Povaly Product Visuals';
+            // Limit to 16 characters with ellipsis
+            if (uploaderName.length > 16) {
+                uploaderName = uploaderName.substring(0, 16) + '...';
+            }
+            mobileUploaderName.textContent = uploaderName;
+        }
+        
+        // Initialize action buttons
+        initializeMobileLikeButton(video);
+        initializeMobileBuyButton();
+        initializeMobileCartButton();
+        initializeMobileShareButton(video);
+        
+        // Initialize close button
+        var mobileClose = document.querySelector('.mobile-video-close');
+        if (mobileClose) {
+            mobileClose.onclick = closeLightbox;
+        }
+        
+        // Initialize drawer
+        initializeMobileDrawer();
+    }
+    
+    // Initialize mobile like button
+    function initializeMobileLikeButton(video) {
+        var mobileLikeBtn = document.getElementById('mobile-btn-like');
+        var mobileLikeCount = document.getElementById('mobile-like-count');
+        
+        if (!mobileLikeBtn || !mobileLikeCount) return;
+        
+        var videoId = video.id || btoa(video.url);
+        
+        // Load like state from database
+        fetch('/api/video-likes/' + encodeURIComponent(videoId))
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                var isLiked = data.user_liked || false;
+                var totalLikes = data.total_likes || 0;
+                
+                mobileLikeCount.textContent = formatNumber(totalLikes);
+                mobileLikeBtn.setAttribute('data-liked', isLiked ? 'true' : 'false');
+                mobileLikeBtn.setAttribute('data-video-id', videoId);
+                
+                var icon = mobileLikeBtn.querySelector('i');
+                if (isLiked && icon) {
+                    icon.className = 'ph-fill ph-thumbs-up';
+                } else if (icon) {
+                    icon.className = 'ph ph-thumbs-up';
+                }
+            })
+            .catch(function(err) {
+                console.error('Failed to load like state:', err);
+                mobileLikeCount.textContent = '0';
+                mobileLikeBtn.setAttribute('data-liked', 'false');
+                mobileLikeBtn.setAttribute('data-video-id', videoId);
+            });
+        
+        // Click handler
+        mobileLikeBtn.onclick = function() {
+            var isLiked = mobileLikeBtn.getAttribute('data-liked') === 'true';
+            var currentCount = parseInt(mobileLikeCount.textContent.replace(/[KM]/g, '')) || 0;
+            var videoId = mobileLikeBtn.getAttribute('data-video-id');
+            var icon = mobileLikeBtn.querySelector('i');
+            
+            if (!isLiked) {
+                // Like
+                mobileLikeBtn.setAttribute('data-liked', 'true');
+                if (icon) icon.className = 'ph-fill ph-thumbs-up';
+                
+                fetch('/api/video-likes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    },
+                    body: JSON.stringify({
+                        video_id: videoId,
+                        video_url: video.url,
+                        product_id: currentProduct?.id || null,
+                        action: 'like'
+                    })
+                })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        mobileLikeCount.textContent = formatNumber(data.total_likes);
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Failed to save like:', err);
+                });
+            } else {
+                // Unlike
+                mobileLikeBtn.setAttribute('data-liked', 'false');
+                if (icon) icon.className = 'ph ph-thumbs-up';
+                
+                fetch('/api/video-likes/' + encodeURIComponent(videoId), {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    }
+                })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        mobileLikeCount.textContent = formatNumber(data.total_likes);
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Failed to remove like:', err);
+                });
+            }
+        };
+    }
+    
+    // Initialize mobile buy button
+    function initializeMobileBuyButton() {
+        var mobileBuyBtn = document.getElementById('mobile-btn-buy');
+        var mobileSoldCount = document.getElementById('mobile-sold-count');
+        
+        if (!mobileBuyBtn) return;
+        
+        // Set sold count (get from product data if available)
+        if (mobileSoldCount && currentProduct) {
+            var soldCount = currentProduct.sold || currentProduct.number_of_sold || 0;
+            mobileSoldCount.textContent = formatNumber(soldCount) + ' sold';
+        }
+        
+        // Buy now handler
+        mobileBuyBtn.onclick = function() {
+            // Implement buy now logic here
+            console.log('Buy now clicked');
+            // You could redirect to checkout or add to cart and redirect
+        };
+    }
+    
+    // Initialize mobile cart button
+    function initializeMobileCartButton() {
+        var mobileCartBtn = document.getElementById('mobile-btn-cart');
+        
+        if (!mobileCartBtn) return;
+        
+        mobileCartBtn.onclick = function() {
+            // Implement add to cart logic here
+            console.log('Add to cart clicked');
+        };
+    }
+    
+    // Initialize mobile share button
+    function initializeMobileShareButton(video) {
+        var mobileShareBtn = document.getElementById('mobile-btn-share');
+        
+        if (!mobileShareBtn) return;
+        
+        mobileShareBtn.onclick = function() {
+            if (navigator.share && video.url) {
+                navigator.share({
+                    title: currentProduct?.name || 'Product Video',
+                    text: 'Check out this video!',
+                    url: video.url
+                }).catch(function(err) {
+                    console.log('Share failed:', err);
+                });
+            } else if (video.url) {
+                navigator.clipboard.writeText(video.url).then(function() {
+                    // Show feedback
+                    var icon = mobileShareBtn.querySelector('i');
+                    if (icon) {
+                        var originalClass = icon.className;
+                        icon.className = 'ph-fill ph-check';
+                        setTimeout(function() {
+                            icon.className = originalClass;
+                        }, 2000);
+                    }
+                });
+            }
+        };
+    }
+    
+    // Initialize mobile drawer
+    function initializeMobileDrawer() {
+        var drawer = document.getElementById('mobile-video-drawer');
+        var handle = drawer?.querySelector('.mobile-drawer-handle');
+        var drawerVideos = document.getElementById('mobile-drawer-videos');
+        
+        if (!drawer || !handle || !drawerVideos) return;
+        
+        // Populate drawer with video lists (reuse existing video list sections)
+        var videoListsContainer = document.getElementById('lightbox-video-lists');
+        if (videoListsContainer) {
+            drawerVideos.innerHTML = videoListsContainer.innerHTML;
+        }
+        
+        // Drawer drag/swipe interaction
+        var startY = 0;
+        var currentY = 0;
+        var isDragging = false;
+        
+        handle.addEventListener('touchstart', function(e) {
+            startY = e.touches[0].clientY;
+            isDragging = true;
+        });
+        
+        handle.addEventListener('touchmove', function(e) {
+            if (!isDragging) return;
+            currentY = e.touches[0].clientY;
+            var deltaY = currentY - startY;
+            
+            // Only allow dragging down when drawer is open, or up when closed
+            if (drawer.classList.contains('open')) {
+                if (deltaY > 0) {
+                    e.preventDefault();
+                    drawer.style.transform = 'translateY(calc(100% - 50px + ' + deltaY + 'px))';
+                }
+            } else {
+                if (deltaY < 0) {
+                    e.preventDefault();
+                    drawer.style.transform = 'translateY(calc(100% - 50px + ' + deltaY + 'px))';
+                }
+            }
+        });
+        
+        handle.addEventListener('touchend', function(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            var deltaY = currentY - startY;
+            drawer.style.transform = ''; // Reset inline transform
+            
+            // Toggle drawer based on drag distance
+            if (Math.abs(deltaY) > 100) {
+                if (deltaY > 0 && drawer.classList.contains('open')) {
+                    drawer.classList.remove('open');
+                } else if (deltaY < 0 && !drawer.classList.contains('open')) {
+                    drawer.classList.add('open');
+                }
+            }
+        });
+        
+        // Click handle to toggle
+        handle.addEventListener('click', function() {
+            drawer.classList.toggle('open');
+        });
+    }
+    
+    // Hide mobile video controls (when switching to images)
+    function hideMobileVideoControls() {
+        var mobileControls = document.getElementById('mobile-video-controls');
+        var mobileDrawer = document.getElementById('mobile-video-drawer');
+        var lightboxOverlay = document.getElementById('product-lightbox-modal');
+        
+        if (mobileControls) mobileControls.style.display = 'none';
+        if (mobileDrawer) mobileDrawer.style.display = 'none';
+        if (lightboxOverlay) lightboxOverlay.classList.remove('video-mode');
+        
+        // Close drawer if open
+        if (mobileDrawer) mobileDrawer.classList.remove('open');
+    }
+    
     // Close lightbox
     function closeLightbox() {
         stopAllVideos(); // Stop videos before closing
@@ -4723,6 +5287,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show/hide content - both main display AND sidebar
         if (tabName === 'images') {
             stopAllVideos(); // Stop videos when switching to images tab
+            hideMobileVideoControls(); // Hide mobile video UI
             imagesContent.style.display = 'flex';
             videosContent.style.display = 'none';
             
@@ -4750,6 +5315,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!hasVideoContent) {
                     var videoIndex = currentProduct.currentVideoIndex || 0;
                     loadVideos(currentProduct.videos, videoIndex);
+                }
+                
+                // Initialize mobile video controls if on mobile
+                if (window.innerWidth <= 767) {
+                    initializeMobileVideoControls();
                 }
             }
         }
