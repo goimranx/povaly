@@ -2040,13 +2040,13 @@
             height: auto;
             object-fit: contain;
             margin: auto;
-            transform-origin: center center;
         }
         
         .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
             position: absolute;
             top: 50%;
             left: 50%;
+            transform: translate(-50%, -50%);
             max-width: none;
             max-height: none;
             min-width: 200%;
