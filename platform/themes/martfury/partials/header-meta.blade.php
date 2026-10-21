@@ -4265,59 +4265,23 @@ document.addEventListener('DOMContentLoaded', function () {
         
         if (imageUrls.length === 0) return;
         
-        // Remove previous handlers
-        $gallery.off('mousedown.productLightbox touchstart.productLightbox click.productLightbox');
+        // Remove previous handlers to avoid duplicates
+        $gallery.find('img').off('.productLightbox');
         
-        // Track mouse position to detect drag vs click
-        var startX = 0;
-        var startY = 0;
-        var hasMoved = false;
-        
-        $gallery.on('mousedown.productLightbox touchstart.productLightbox', function(e) {
-            hasMoved = false;
-            if (e.type === 'mousedown') {
-                startX = e.clientX;
-                startY = e.clientY;
-            } else if (e.type === 'touchstart' && e.originalEvent.touches.length > 0) {
-                startX = e.originalEvent.touches[0].clientX;
-                startY = e.originalEvent.touches[0].clientY;
-            }
+        // Attach click handler directly to images using event delegation
+        // This is the professional way: handle clicks on the actual image element
+        $gallery.on('click.productLightbox', 'img', function(e) {
+            // Access Slick's internal data object to check dragging state
+            var slickData = $gallery.slick('getSlick');
             
-            // Add temporary mousemove listener
-            $gallery.on('mousemove.productLightboxDrag touchmove.productLightboxDrag', function(moveE) {
-                var currentX, currentY;
-                if (moveE.type === 'mousemove') {
-                    currentX = moveE.clientX;
-                    currentY = moveE.clientY;
-                } else if (moveE.type === 'touchmove' && moveE.originalEvent.touches.length > 0) {
-                    currentX = moveE.originalEvent.touches[0].clientX;
-                    currentY = moveE.originalEvent.touches[0].clientY;
-                }
-                
-                var deltaX = Math.abs(currentX - startX);
-                var deltaY = Math.abs(currentY - startY);
-                
-                // If moved more than 10px, consider it a drag
-                if (deltaX > 10 || deltaY > 10) {
-                    hasMoved = true;
-                }
-            });
-        });
-        
-        $gallery.on('mouseup.productLightbox touchend.productLightbox', function() {
-            // Remove temporary mousemove listener
-            $gallery.off('mousemove.productLightboxDrag touchmove.productLightboxDrag');
-        });
-        
-        $gallery.on('click.productLightbox', function(e) {
-            // If user dragged, don't open lightbox - let Slick handle the slide change
-            if (hasMoved) {
-                hasMoved = false;
+            // If Slick is currently dragging, don't open lightbox
+            if (slickData && slickData.dragging) {
                 return;
             }
             
-            // This was a click (not a drag), open lightbox
+            // This was a clean click (not a drag), open lightbox
             e.preventDefault();
+            e.stopPropagation();
             
             var currentIndex = $gallery.slick('slickCurrentSlide');
             
@@ -4337,11 +4301,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     images: imageUrls,
                     currentIndex: currentIndex
                 });
-            }, 250);
+            }, 300);
         });
         
-        // Add cursor pointer style
-        $gallery.find('.slick-slide').css('cursor', 'pointer');
+        // Add cursor pointer style to images
+        $gallery.find('img').css('cursor', 'pointer');
     };
     
     // Hook into the quick view initialized event
