@@ -2124,6 +2124,11 @@
         
         /* ══════════ MOBILE LIGHTBOX LAYOUT ══════════ */
         @media (max-width: 1199px) {
+            /* Full screen overlay - no spacing */
+            .product-lightbox-overlay {
+                padding: 0;
+            }
+            
             .product-lightbox-container {
                 width: 100%;
                 height: 100%;
@@ -2150,12 +2155,12 @@
                 padding: 8px 16px;
                 display: flex;
                 align-items: center;
-                gap: 6px;
                 z-index: 1000;
             }
             
-            .product-lightbox-close i::before {
-                content: "\e93e"; /* icon-arrow-left */
+            /* Hide icon, show only text */
+            .product-lightbox-close i {
+                display: none;
             }
             
             .product-lightbox-close::after {
@@ -2169,6 +2174,7 @@
             .product-lightbox-body {
                 flex-direction: column;
                 padding: 0;
+                height: 100%;
             }
             
             /* Main image takes full screen */
@@ -2179,36 +2185,39 @@
                 position: relative;
             }
             
-            /* Hide sidebar info section */
+            /* Hide sidebar completely */
             .product-lightbox-sidebar {
-                display: none;
+                display: none !important;
+            }
+            
+            .product-lightbox-info {
+                display: none !important;
             }
             
             /* Thumbnails as bottom strip overlay */
             .product-lightbox-thumbnails {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                width: 100%;
-                height: 80px;
-                padding: 10px 15px;
-                background: rgba(255, 255, 255, 0.6);
-                backdrop-filter: blur(10px);
-                display: flex;
-                flex-direction: row;
-                overflow-x: auto;
-                overflow-y: hidden;
-                gap: 10px;
-                align-content: center;
-                z-index: 999;
-                grid-template-columns: none;
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                height: 80px !important;
+                padding: 10px 15px !important;
+                background: rgba(255, 255, 255, 0.6) !important;
+                backdrop-filter: blur(10px) !important;
+                display: flex !important;
+                flex-direction: row !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                gap: 10px !important;
+                align-items: center !important;
+                z-index: 999 !important;
             }
             
             .product-lightbox-thumbnail {
-                flex: 0 0 60px;
-                width: 60px;
-                height: 60px;
+                flex: 0 0 60px !important;
+                width: 60px !important;
+                height: 60px !important;
             }
         }
         
