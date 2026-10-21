@@ -2066,6 +2066,14 @@
             margin: 0;
         }
         
+        /* Mobile: Use 150% zoom instead of 200% to avoid white areas */
+        @media (max-width: 767px) {
+            .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
+                min-width: 150%;
+                min-height: 150%;
+            }
+        }
+        
         /* Sidebar - 35% */
         .product-lightbox-sidebar {
             width: 35%;
@@ -4694,19 +4702,24 @@ document.addEventListener('DOMContentLoaded', function() {
         var centerX = (tapRelativeX / wrapperRect.width) - 0.5;
         var centerY = (tapRelativeY / wrapperRect.height) - 0.5;
         
-        // Amplify the movement (3x faster response) - same as desktop handleZoomPan
-        var amplifiedX = centerX * 3;
-        var amplifiedY = centerY * 3;
+        // Mobile uses 150% zoom (1.5x), desktop uses 200% (2x)
+        var zoomFactor = 1.5;
         
-        // Get zoomed image dimensions (2x)
-        var zoomedWidth = imgRect.width * 2;
-        var zoomedHeight = imgRect.height * 2;
+        // Amplify the movement - adjust based on zoom level
+        // Lower zoom = less amplification needed
+        var amplificationFactor = 2.2;
+        var amplifiedX = centerX * amplificationFactor;
+        var amplifiedY = centerY * amplificationFactor;
+        
+        // Get zoomed image dimensions
+        var zoomedWidth = imgRect.width * zoomFactor;
+        var zoomedHeight = imgRect.height * zoomFactor;
         
         // Calculate how much the zoomed image overflows the wrapper
         var overflowX = Math.max(0, zoomedWidth - wrapperRect.width);
         var overflowY = Math.max(0, zoomedHeight - wrapperRect.height);
         
-        // Calculate pan offset - same formula as handleZoomPan
+        // Calculate pan offset
         var moveX = -amplifiedX * (overflowX / 2);
         var moveY = -amplifiedY * (overflowY / 2);
         
