@@ -971,28 +971,56 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize thumbnail strip swipe on mobile
     function initThumbnailSwipe() {
-        if (!thumbnailsContainer) return;
+        // Get the sidebar wrapper (parent of thumbnails container)
+        var sidebarWrapper = document.querySelector('.product-lightbox-sidebar');
+        if (!sidebarWrapper || !thumbnailsContainer) return;
         
         var thumbStartX = 0;
+        var thumbStartY = 0;
         var thumbIsDragging = false;
         var thumbScrollLeft = 0;
+        var thumbMoved = false;
         
-        thumbnailsContainer.addEventListener('touchstart', function(e) {
+        // Attach to the entire sidebar wrapper so it works anywhere
+        sidebarWrapper.addEventListener('touchstart', function(e) {
             thumbStartX = e.touches[0].clientX;
+            thumbStartY = e.touches[0].clientY;
             thumbScrollLeft = thumbnailsContainer.scrollLeft;
-            thumbIsDragging = true;
-        }, { passive: true });
-        
-        thumbnailsContainer.addEventListener('touchmove', function(e) {
-            if (!thumbIsDragging) return;
-            
-            var deltaX = thumbStartX - e.touches[0].clientX;
-            thumbnailsContainer.scrollLeft = thumbScrollLeft + deltaX;
-        }, { passive: true });
-        
-        thumbnailsContainer.addEventListener('touchend', function(e) {
             thumbIsDragging = false;
+            thumbMoved = false;
         }, { passive: true });
+        
+        sidebarWrapper.addEventListener('touchmove', function(e) {
+            var deltaX = thumbStartX - e.touches[0].clientX;
+            var deltaY = Math.abs(thumbStartY - e.touches[0].clientY);
+            
+            // Only start dragging if horizontal movement is dominant
+            if (Math.abs(deltaX) > 5 && Math.abs(deltaX) > deltaY) {
+                thumbIsDragging = true;
+                thumbMoved = true;
+                e.preventDefault(); // Prevent browser back gesture
+            }
+            
+            if (thumbIsDragging) {
+                thumbnailsContainer.scrollLeft = thumbScrollLeft + deltaX;
+            }
+        }, { passive: false }); // passive: false to allow preventDefault
+        
+        sidebarWrapper.addEventListener('touchend', function(e) {
+            thumbIsDragging = false;
+            // Reset thumbMoved after a short delay
+            setTimeout(function() {
+                thumbMoved = false;
+            }, 100);
+        }, { passive: true });
+        
+        // Also prevent clicks on thumbnails if user was swiping
+        thumbnailsContainer.addEventListener('click', function(e) {
+            if (thumbMoved) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }, true);
     }
     
     // Select thumbnail with proper swipe animation
@@ -1034,36 +1062,37 @@ document.addEventListener('DOMContentLoaded', function() {
             newImg.style.left = '50%';
             newImg.style.transition = 'none';
             
-            // Force current image to be positioned absolutely and centered
+            // Force current image to be positioned absolutely and centered (Y stays fixed at -50%)
             currentImg.style.position = 'absolute';
             currentImg.style.top = '50%';
             currentImg.style.left = '50%';
             currentImg.style.transform = 'translate(-50%, -50%)';
             
             // Position new image off-screen based on navigation direction
+            // ONLY move horizontally (X), keep Y at -50% to prevent diagonal movement
             // direction = -1: going to previous (swipe RIGHT), prev comes from LEFT
             // direction = 1: going to next (swipe LEFT), next comes from RIGHT
             if (direction < 0) {
-                newImg.style.transform = 'translate(-150%, -50%)'; // Prev starts from left
+                newImg.style.transform = 'translate(calc(-100% - 100vw), -50%)'; // Prev starts from left (off-screen)
             } else {
-                newImg.style.transform = 'translate(50%, -50%)'; // Next starts from right
+                newImg.style.transform = 'translate(100vw, -50%)'; // Next starts from right (off-screen)
             }
             
             wrapper.appendChild(newImg);
             
-            // Animate: slide both images
+            // Animate: slide both images ONLY HORIZONTALLY
             setTimeout(function() {
                 currentImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 newImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 
-                // Slide out current image
+                // Slide out current image (only X changes, Y stays at -50%)
                 if (direction < 0) {
-                    currentImg.style.transform = 'translate(50%, -50%)'; // Current exits right
+                    currentImg.style.transform = 'translate(100vw, -50%)'; // Current exits right
                 } else {
-                    currentImg.style.transform = 'translate(-150%, -50%)'; // Current exits left
+                    currentImg.style.transform = 'translate(calc(-100% - 100vw), -50%)'; // Current exits left
                 }
                 
-                // Slide in new image to center
+                // Slide in new image to center (only X changes to -50%, Y stays at -50%)
                 newImg.style.transform = 'translate(-50%, -50%)';
             }, 10);
             
