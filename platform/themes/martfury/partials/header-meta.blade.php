@@ -2057,11 +2057,9 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            /* Don't use min-width/height - use scale transform for true zoom effect */
             max-width: none;
             max-height: none;
-            min-width: 200%;
-            min-height: 200%;
             width: auto;
             height: auto;
             margin: 0;
@@ -2070,8 +2068,7 @@
         /* Mobile: Use 150% zoom instead of 200% to avoid white areas */
         @media (max-width: 767px) {
             .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
-                min-width: 150%;
-                min-height: 150%;
+                /* Mobile zoom handled by scale transform */
             }
         }
         
@@ -4508,12 +4505,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 isZoomed = true;
                 imageWrapper.classList.add('zoomed');
                 
+                // Apply scale transform immediately for zoom effect
+                mainImage.style.transform = 'scale(2)';
+                
                 // Enable mouse move for panning
                 imageWrapper.addEventListener('mousemove', handleZoomPan);
                 
-                // Immediately call handleZoomPan with the click event
-                // This ensures the clicked position is calculated the SAME WAY as mousemove
-                handleZoomPan(e);
+                // After zoom animation, call handleZoomPan to position correctly
+                setTimeout(function() {
+                    handleZoomPan(e);
+                }, 300);
             } else {
                 // Reset transform-origin before zooming out
                 mainImage.style.transformOrigin = '';
@@ -4570,7 +4571,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 mainImage.style.transformOrigin = tapX + 'px ' + tapY + 'px';
                 
                 // Zoom to the tapped position (pass tap coordinates)
-                zoomIn(touchStartX, touchStartY);
+                zoomIn(touchStartX, touchStartY, tapX, tapY);
             }
             lastTapTime = 0;
             return; // Exit early, no drag
@@ -4703,12 +4704,12 @@ document.addEventListener('DOMContentLoaded', function() {
         currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, currentPanX));
         currentPanY = Math.max(-maxMoveY, Math.min(maxMoveY, currentPanY));
         
-        // Apply transform
-        mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
+        // Apply transform with scale(1.5) + translate for mobile panning
+        mainImage.style.transform = 'scale(1.5) translate(' + (currentPanX / 1.5) + 'px, ' + (currentPanY / 1.5) + 'px)';
     }
     
     // Zoom in to tapped area - MOBILE (double-tap)
-    function zoomIn(tapX, tapY) {
+    function zoomIn(tapX, tapY, tapRelativeX, tapRelativeY) {
         isZoomed = true;
         imageWrapper.classList.add('zoomed');
         
@@ -4716,16 +4717,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof tapX === 'undefined' || typeof tapY === 'undefined') {
             currentPanX = 0;
             currentPanY = 0;
-            mainImage.style.transform = 'translate(-50%, -50%)';
+            mainImage.style.transform = 'scale(1.5)';
             return;
         }
         
+        // Apply scale transform immediately for zoom effect (mobile uses 1.5x)
+        mainImage.style.transform = 'scale(1.5)';
+        
         // Get wrapper dimensions
         var wrapperRect = imageWrapper.getBoundingClientRect();
-        
-        // Calculate tap position relative to wrapper
-        var tapRelativeX = tapX - wrapperRect.left;
-        var tapRelativeY = tapY - wrapperRect.top;
         
         // Calculate tap position from wrapper center (-0.5 to 0.5)
         var centerX = (tapRelativeX / wrapperRect.width) - 0.5;
@@ -4736,16 +4736,11 @@ document.addEventListener('DOMContentLoaded', function() {
         var amplifiedX = centerX * amplificationFactor;
         var amplifiedY = centerY * amplificationFactor;
         
-        // First, set initial transform to prevent flicker
-        // Start with center position, then adjust after zoom is applied
-        mainImage.style.transform = 'translate(-50%, -50%)';
-        
-        // IMPORTANT: Get actual image dimensions AFTER zoom is applied
-        // Use requestAnimationFrame for smoother transition
+        // After zoom animation, calculate and apply pan offset
         requestAnimationFrame(function() {
             var img = mainImage.getBoundingClientRect();
             
-            // Calculate how much image extends beyond container (same as desktop)
+            // Calculate how much image extends beyond container
             var overflowX = Math.max(0, img.width - wrapperRect.width);
             var overflowY = Math.max(0, img.height - wrapperRect.height);
             
@@ -4760,8 +4755,8 @@ document.addEventListener('DOMContentLoaded', function() {
             currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, moveX));
             currentPanY = Math.max(-maxMoveY, Math.min(maxMoveY, moveY));
             
-            // Apply transform with pan offset - CSS transition will animate this smoothly
-            mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
+            // Apply transform with scale + translate for pan positioning
+            mainImage.style.transform = 'scale(1.5) translate(' + (currentPanX / 1.5) + 'px, ' + (currentPanY / 1.5) + 'px)';
         });
     }
     
@@ -4831,8 +4826,8 @@ document.addEventListener('DOMContentLoaded', function() {
         currentPanX = moveX;
         currentPanY = moveY;
         
-        // Apply transform
-        mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
+        // Apply transform with scale(2) + translate for panning
+        mainImage.style.transform = 'scale(2) translate(' + (currentPanX / 2) + 'px, ' + (currentPanY / 2) + 'px)';
     }
     
     // Keyboard shortcuts
