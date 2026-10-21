@@ -2095,14 +2095,13 @@
         
         /* Thumbnails */
         .product-lightbox-thumbnails {
-            padding: 3px 20px;
-            overflow-y: hidden;
-            overflow-x: hidden;
+            flex: 1;
+            padding: 0 20px;
+            overflow-y: auto;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             align-content: start;
-            height: auto;
         }
         
         .product-lightbox-thumbnail {
@@ -2283,11 +2282,11 @@
                 display: flex !important;
                 position: relative !important;
                 width: 100% !important;
-                height: 100% !important;
-                padding: 10px 15px !important;
+                height: auto !important;
+                padding: 3px 15px !important;
                 background: var(--global-color-site-bg, #FFFFFF) !important;
                 flex-direction: row !important;
-                overflow-x: auto !important;
+                overflow-x: hidden !important;
                 overflow-y: hidden !important;
                 gap: 2px !important;
                 align-items: center !important;
