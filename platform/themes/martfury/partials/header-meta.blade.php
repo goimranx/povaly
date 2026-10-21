@@ -1907,7 +1907,8 @@
         }
         
         .product-lightbox-tabs {
-            display: none !important; /* Hide tabs - only showing images */
+            display: flex !important;
+            gap: 30px !important;
         }
         
         .product-lightbox-tab {
@@ -1988,11 +1989,6 @@
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-        }
-        
-        /* Hide video content - only show images */
-        #lightbox-videos-content {
-            display: none !important;
         }
         
         .product-lightbox-image-wrapper {
