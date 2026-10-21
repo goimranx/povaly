@@ -2225,13 +2225,14 @@
             overflow: hidden;
             position: relative;
             background: #000;
-            border: 2px solid transparent; /* Transparent border by default */
-            transition: border-color 0.2s ease;
+            outline: 2px solid transparent; /* Use outline instead of border */
+            outline-offset: -2px; /* Inside the element */
+            transition: outline-color 0.2s ease;
         }
         
-        /* Active item thumbnail gets primary border */
+        /* Active item thumbnail gets primary outline */
         .video-list-item.active .video-list-item-thumbnail {
-            border-color: var(--global-color-primary, #0D6EFD); /* Primary color border */
+            outline-color: var(--global-color-primary, #0D6EFD); /* Primary color outline */
         }
         
         .video-list-item-thumbnail img {
@@ -4970,7 +4971,7 @@ document.addEventListener('DOMContentLoaded', function() {
         container.appendChild(videoEl);
     }
     
-    // Handle video ended - play next or show replay option
+    // Handle video ended - play next or restart from beginning
     function handleVideoEnded() {
         if (!currentProduct || !currentProduct.videos) return;
         
@@ -4984,12 +4985,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateActiveVideoListItem(currentIndex + 1);
             }, 1000); // 1 second delay before next video
         } else {
-            // Last video - show replay option
+            // Last video - restart from beginning automatically
             setTimeout(function() {
-                if (confirm('All videos watched. Play again from the beginning?')) {
-                    loadVideos(currentProduct.videos, 0);
-                    updateActiveVideoListItem(0);
-                }
+                loadVideos(currentProduct.videos, 0);
+                updateActiveVideoListItem(0);
             }, 1000);
         }
     }
