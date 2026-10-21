@@ -1877,7 +1877,7 @@
             right: 0 !important;
             bottom: 0 !important;
             background: rgba(13, 27, 42, 0.85) !important; /* Use global secondary color with transparency */
-            z-index: 10003 !important;
+            z-index: 99999 !important; /* Very high to show over offcanvas */
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
@@ -1901,14 +1901,15 @@
             display: flex !important;
             align-items: center !important;
             justify-content: space-between !important;
-            padding: 20px 30px 0 30px !important;
-            border-bottom: 2px solid var(--global-color-primary-border, #FFB399) !important;
+            padding: 20px 30px !important;
             position: relative !important;
         }
         
         .product-lightbox-tabs {
             display: flex !important;
             gap: 30px !important;
+            padding-bottom: 10px !important;
+            border-bottom: 2px solid var(--global-color-primary-border, #FFB399) !important;
         }
         
         .product-lightbox-tab {
@@ -1945,8 +1946,8 @@
         .product-lightbox-close {
             background: none !important;
             border: none !important;
-            font-size: 28px !important; /* Increase from 24px */
-            font-weight: bold !important;
+            font-size: 1.3rem !important;
+            font-weight: 700 !important;
             color: var(--global-color-text-body, #2E3D52) !important;
             cursor: pointer !important;
             padding: 0 !important;
@@ -1960,6 +1961,7 @@
             align-items: center !important;
             justify-content: center !important;
             transition: color 0.3s ease !important;
+            z-index: 10 !important;
         }
         
         .product-lightbox-close:hover {
@@ -1979,8 +1981,8 @@
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            padding: 30px !important;
-            background: var(--global-color-card-bg, #FFFFFF) !important;
+            padding: 20px !important;
+            background: transparent !important;
         }
         
         .product-lightbox-display {
@@ -1989,6 +1991,12 @@
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+            background: transparent !important;
+        }
+        
+        /* Hide video content by default - show only on VIDEOS tab */
+        #lightbox-videos-content {
+            display: none !important;
         }
         
         .product-lightbox-image-wrapper {
