@@ -1435,6 +1435,38 @@
                     
                     console.log('Lightbox: Collected ' + imageUrls.length + ' images');
                     
+                    // Collect all videos (facades and direct videos) for video tab
+                    var videos = [];
+                    
+                    // Collect facade videos
+                    gallery.querySelectorAll('.qs-video-facade').forEach(function(f) {
+                        videos.push({
+                            url: f.dataset.src,
+                            provider: f.dataset.provider,
+                            thumbnail: f.querySelector('img') ? f.querySelector('img').src : null,
+                            title: 'Product Video ' + (videos.length + 1),
+                            portrait: f.dataset.portrait === 'true',
+                            aspectRatio: f.dataset.aspectRatio || '16:9'
+                        });
+                    });
+                    
+                    // Collect direct video elements
+                    videoSlides.forEach(function(vSlide) {
+                        var videoEl = vSlide.querySelector('video');
+                        if (videoEl && !vSlide.querySelector('.qs-video-facade')) {
+                            videos.push({
+                                url: videoEl.src || (videoEl.querySelector('source') ? videoEl.querySelector('source').src : null),
+                                provider: 'direct',
+                                thumbnail: videoEl.poster || null,
+                                title: 'Product Video ' + (videos.length + 1),
+                                portrait: videoEl.dataset.portrait === 'true' || videoEl.getAttribute('data-portrait') === 'true',
+                                aspectRatio: videoEl.dataset.aspectRatio || videoEl.getAttribute('data-aspect-ratio') || '16:9'
+                            });
+                        }
+                    });
+                    
+                    console.log('Lightbox: Collected ' + videos.length + ' videos');
+                    
                     // Get product name
                     var productName = scope.querySelector('.qs-title') ? scope.querySelector('.qs-title').textContent.trim() : 'Product';
                     
@@ -1456,6 +1488,7 @@
                         window.openProductLightbox({
                             name: productName,
                             images: imageUrls,
+                            videos: videos, // Include videos so tab switching works
                             currentIndex: slideIdx
                         });
                         console.log('Lightbox: openProductLightbox called');
