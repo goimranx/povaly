@@ -4400,9 +4400,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 direction = index > currentIndex ? 1 : -1;
             }
             
-            // Reset any existing transforms on current image
-            currentImg.style.transition = '';
+            // Reset any existing transforms on current image - completely reset to natural state
+            currentImg.style.transition = 'none';
             currentImg.style.transform = '';
+            currentImg.style.transformOrigin = '';
+            // Force reflow
+            currentImg.offsetHeight;
             
             // Create new image for incoming
             var newImg = document.createElement('img');
@@ -4416,13 +4419,13 @@ document.addEventListener('DOMContentLoaded', function() {
             newImg.style.objectFit = 'contain';
             newImg.style.top = '50%';
             newImg.style.left = '50%';
+            newImg.style.transition = 'none';
             
             // Force current image to be positioned absolutely and centered
             currentImg.style.position = 'absolute';
             currentImg.style.top = '50%';
             currentImg.style.left = '50%';
             currentImg.style.transform = 'translate(-50%, -50%)';
-            currentImg.style.transition = '';
             
             // Position new image off-screen based on navigation direction
             // direction = -1: going to previous (swipe RIGHT), prev comes from LEFT
@@ -4457,6 +4460,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 mainImage.style.position = '';
                 mainImage.style.top = '';
                 mainImage.style.left = '';
+                mainImage.style.transformOrigin = '';
                 mainImage.style.transition = 'none'; // Fully disable transition
                 mainImage.style.transform = '';
                 // Force reflow to apply 'none', then restore CSS transitions
