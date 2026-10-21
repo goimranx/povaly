@@ -946,6 +946,13 @@
             bottom: 0 !important;
         }
         
+        /* Hide bottom navigation bar on desktop */
+        @media (min-width: 1200px) {
+            .navigation--list {
+                display: none !important;
+            }
+        }
+        
         .navigation--list { 
             background: var(--global-color-site-bg, #F4F9FD) !important;
             border-top: 1px solid var(--global-color-primary-border, #FFB399) !important;
