@@ -4689,7 +4689,7 @@ document.addEventListener('DOMContentLoaded', function() {
             videosContent.style.display = 'none';
             
             // Show thumbnails, hide video lists
-            if (thumbnailsContainer) thumbnailsContainer.style.display = 'block';
+            if (thumbnailsContainer) thumbnailsContainer.style.display = 'grid';
             if (videoListsContainer) videoListsContainer.style.display = 'none';
         } else {
             imagesContent.style.display = 'none';
