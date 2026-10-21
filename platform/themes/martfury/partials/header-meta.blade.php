@@ -2018,9 +2018,6 @@
             height: 100%;
             cursor: zoom-in;
             overflow: hidden;
-            display: flex;
-            align-items: flex-start; /* Start from top-left, not center */
-            justify-content: flex-start;
         }
         
         .product-lightbox-image-wrapper.zoomed {
@@ -2028,22 +2025,23 @@
         }
         
         .product-lightbox-main-image {
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-            display: block;
-            margin: auto; /* Center when not zoomed */
         }
         
         .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
             max-width: none;
             max-height: none;
-            width: 200%; /* 2x zoom */
+            min-width: 200%;
+            min-height: 200%;
+            width: auto;
             height: auto;
-            margin: 0; /* Remove auto centering when zoomed */
-            position: absolute;
-            top: 0;
-            left: 0;
         }
         
         .product-lightbox-zoom-icon {
@@ -4257,36 +4255,46 @@ document.addEventListener('DOMContentLoaded', function() {
         imageWrapper.removeEventListener('mousemove', handleZoomPan);
     }
     
-    // Handle zoom panning - rebuilt from scratch
+    // Handle zoom panning - Amazon style: amplified movement from center
     function handleZoomPan(e) {
         if (!isZoomed) return;
         
-        // Get container and mouse position
+        // Get container dimensions and mouse position
         var container = imageWrapper.getBoundingClientRect();
         var mouseX = e.clientX - container.left;
         var mouseY = e.clientY - container.top;
         
-        // Mouse position as percentage (0 to 1)
-        var percentX = mouseX / container.width;
-        var percentY = mouseY / container.height;
+        // Calculate mouse position from center (-0.5 to 0.5)
+        // Center = 0, left edge = -0.5, right edge = 0.5
+        var centerX = (mouseX / container.width) - 0.5;
+        var centerY = (mouseY / container.height) - 0.5;
         
-        // Get the actual zoomed image size
-        // Width is 200% of container, calculate actual pixel width
-        var zoomedWidth = container.width * 2;
-        var zoomedHeight = container.height * 2;
+        // Amplify the movement (3x faster response)
+        var amplifiedX = centerX * 3;
+        var amplifiedY = centerY * 3;
         
-        // Calculate how much we can pan (zoomed size - container size)
-        var maxPanX = zoomedWidth - container.width;
-        var maxPanY = zoomedHeight - container.height;
+        // Get actual image dimensions when zoomed
+        var img = mainImage.getBoundingClientRect();
         
-        // Calculate pan: map mouse percentage to pan range
-        // Mouse at 0% = show left edge (panX = 0)
-        // Mouse at 100% = show right edge (panX = -maxPanX)
-        var panX = -(percentX * maxPanX);
-        var panY = -(percentY * maxPanY);
+        // Calculate how much image extends beyond container
+        var overflowX = Math.max(0, img.width - container.width);
+        var overflowY = Math.max(0, img.height - container.height);
         
-        // Apply the transform
-        mainImage.style.transform = 'translate(' + panX + 'px, ' + panY + 'px)';
+        // Calculate movement: from center (0) to edges
+        // Negative centerX (left) = move image right (positive translateX)
+        // Positive centerX (right) = move image left (negative translateX)
+        var moveX = -amplifiedX * (overflowX / 2);
+        var moveY = -amplifiedY * (overflowY / 2);
+        
+        // Clamp to boundaries (don't show beyond image edges)
+        var maxMoveX = overflowX / 2;
+        var maxMoveY = overflowY / 2;
+        
+        moveX = Math.max(-maxMoveX, Math.min(maxMoveX, moveX));
+        moveY = Math.max(-maxMoveY, Math.min(maxMoveY, moveY));
+        
+        // Apply transform (translate from center position)
+        mainImage.style.transform = 'translate(calc(-50% + ' + moveX + 'px), calc(-50% + ' + moveY + 'px))';
     }
     
     // Keyboard shortcuts
