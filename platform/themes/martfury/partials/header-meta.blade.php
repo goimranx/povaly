@@ -2122,6 +2122,96 @@
             transform: scale(1.02);
         }
         
+        /* ══════════ MOBILE LIGHTBOX LAYOUT ══════════ */
+        @media (max-width: 1199px) {
+            .product-lightbox-container {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                padding: 0;
+                border-radius: 0;
+            }
+            
+            /* Hide header completely on mobile */
+            .product-lightbox-header {
+                display: none;
+            }
+            
+            /* Close button becomes back button - overlay on top left */
+            .product-lightbox-close {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                right: auto;
+                width: auto;
+                height: auto;
+                background: rgba(255, 255, 255, 0.6);
+                border-radius: 20px;
+                padding: 8px 16px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                z-index: 1000;
+            }
+            
+            .product-lightbox-close i::before {
+                content: "\e93e"; /* icon-arrow-left */
+            }
+            
+            .product-lightbox-close::after {
+                content: 'Back';
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--global-color-text-main, #0D1B2A);
+            }
+            
+            /* Full screen layout */
+            .product-lightbox-body {
+                flex-direction: column;
+                padding: 0;
+            }
+            
+            /* Main image takes full screen */
+            .product-lightbox-main {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                position: relative;
+            }
+            
+            /* Hide sidebar info section */
+            .product-lightbox-sidebar {
+                display: none;
+            }
+            
+            /* Thumbnails as bottom strip overlay */
+            .product-lightbox-thumbnails {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 80px;
+                padding: 10px 15px;
+                background: rgba(255, 255, 255, 0.6);
+                backdrop-filter: blur(10px);
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                gap: 10px;
+                align-content: center;
+                z-index: 999;
+                grid-template-columns: none;
+            }
+            
+            .product-lightbox-thumbnail {
+                flex: 0 0 60px;
+                width: 60px;
+                height: 60px;
+            }
+        }
+        
         /* Responsive */
         @media (max-width: 1199px) {
             .product-lightbox-container {
