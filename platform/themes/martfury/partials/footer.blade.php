@@ -1353,40 +1353,17 @@
                 viewport.addEventListener('touchend',   function()  { onDragEnd(); });
             }
 
-            // ── LIGHTBOX: Click on image to open lightbox (only if not dragging) ──
-            imageSlides.forEach(function(slide) {
+            // ── LIGHTBOX: Simple click on image opens lightbox ──
+            imageSlides.forEach(function(slide, slideIdx) {
                 var img = slide.querySelector('img');
                 if (!img) return;
                 
-                var clickStartX = 0, clickStartY = 0, wasDragged = false;
-                
-                img.addEventListener('mousedown', function(e) {
-                    clickStartX = e.clientX;
-                    clickStartY = e.clientY;
-                    wasDragged = false;
-                });
-                
-                img.addEventListener('mousemove', function(e) {
-                    if (clickStartX === 0) return;
-                    var deltaX = Math.abs(e.clientX - clickStartX);
-                    var deltaY = Math.abs(e.clientY - clickStartY);
-                    if (deltaX > 5 || deltaY > 5) {
-                        wasDragged = true;
-                    }
-                });
-                
                 img.addEventListener('click', function(e) {
-                    // If user dragged, don't open lightbox
-                    if (wasDragged || Math.abs(dragDelta) > 5) {
-                        console.log('Lightbox: Click ignored (was dragging)');
-                        wasDragged = false;
-                        return;
-                    }
+                    // Only open if we're not in the middle of dragging
+                    if (Math.abs(dragDelta) > 10) return;
                     
                     e.preventDefault();
                     e.stopPropagation();
-                    
-                    console.log('Lightbox: Image clicked, opening lightbox');
                     
                     // Collect all image URLs
                     var imageUrls = imageSlides.map(function(s) {
@@ -1397,29 +1374,22 @@
                     // Get product name
                     var productName = scope.querySelector('.qs-title') ? scope.querySelector('.qs-title').textContent.trim() : 'Product';
                     
-                    // Get current slide index
-                    var currentIndex = imageSlides.indexOf(slide);
-                    
-                    // Close Quick Shop offcanvas
+                    // Close Quick Shop
                     var offcanvasEl = document.getElementById('quick-shop-modal');
                     if (offcanvasEl && typeof bootstrap !== 'undefined') {
                         var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
-                        if (offcanvas) {
-                            offcanvas.hide();
-                        }
+                        if (offcanvas) offcanvas.hide();
                     }
                     
-                    // Open lightbox (function defined in header-meta.blade.php)
+                    // Open lightbox
                     if (typeof window.openProductLightbox === 'function') {
                         setTimeout(function() {
                             window.openProductLightbox({
                                 name: productName,
                                 images: imageUrls,
-                                currentIndex: currentIndex
+                                currentIndex: slideIdx
                             });
                         }, 300);
-                    } else {
-                        console.error('Lightbox: openProductLightbox function not found!');
                     }
                 });
             });
