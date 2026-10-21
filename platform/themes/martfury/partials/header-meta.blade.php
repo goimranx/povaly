@@ -2034,7 +2034,6 @@
             max-height: 100%;
             object-fit: contain;
             display: block;
-            transition: transform 0.1s ease-out;
         }
         
         .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
@@ -4255,7 +4254,7 @@ document.addEventListener('DOMContentLoaded', function() {
         imageWrapper.removeEventListener('mousemove', handleZoomPan);
     }
     
-    // Handle zoom panning - faster response, show edges before cursor reaches them
+    // Handle zoom panning - fast, direct region showing
     function handleZoomPan(e) {
         if (!isZoomed) return;
         
@@ -4270,38 +4269,25 @@ document.addEventListener('DOMContentLoaded', function() {
         var viewWidth = rect.width;
         var viewHeight = rect.height;
         
-        // Calculate mouse position as percentage (0 to 1)
-        var xPercent = mouseX / viewWidth;
-        var yPercent = mouseY / viewHeight;
-        
-        // Amplify the movement - make it more responsive (2x faster)
-        // Map from center: 0.5 = center, 0 = left edge, 1 = right edge
-        // Amplify by moving away from center faster
-        var xAmplified = (xPercent - 0.5) * 2; // Range: -1 to 1
-        var yAmplified = (yPercent - 0.5) * 2; // Range: -1 to 1
-        
-        // Add more amplification for faster response
-        xAmplified = xAmplified * 1.5; // Make it 1.5x more sensitive
-        yAmplified = yAmplified * 1.5;
-        
-        // Clamp to -1 to 1
-        xAmplified = Math.max(-1, Math.min(1, xAmplified));
-        yAmplified = Math.max(-1, Math.min(1, yAmplified));
-        
-        // Calculate maximum movement (how much image extends beyond view)
+        // Calculate how much the image extends beyond the view
         var maxMoveX = imgWidth - viewWidth;
         var maxMoveY = imgHeight - viewHeight;
         
-        // Calculate position: center = 0, move based on amplified value
-        // When xAmplified = -1 (left), targetX = 0 (show left edge)
-        // When xAmplified = 1 (right), targetX = -maxMoveX (show right edge)
-        var targetX = -(maxMoveX / 2) - (xAmplified * maxMoveX / 2);
-        var targetY = -(maxMoveY / 2) - (yAmplified * maxMoveY / 2);
+        // Mouse position as ratio (0 to 1)
+        var xRatio = mouseX / viewWidth;
+        var yRatio = mouseY / viewHeight;
         
-        // Strict boundary clamping - stop when nothing more to show
+        // Direct mapping: mouse position directly maps to image position
+        // xRatio 0 (left) = show left edge (targetX = 0)
+        // xRatio 1 (right) = show right edge (targetX = -maxMoveX)
+        var targetX = -xRatio * maxMoveX;
+        var targetY = -yRatio * maxMoveY;
+        
+        // Clamp to boundaries
         targetX = Math.max(-maxMoveX, Math.min(0, targetX));
         targetY = Math.max(-maxMoveY, Math.min(0, targetY));
         
+        // Apply transform instantly (no transition, fast response)
         mainImage.style.transform = 'translate(' + targetX + 'px, ' + targetY + 'px)';
     }
     
