@@ -1361,10 +1361,15 @@
                 
                 img.addEventListener('click', function(e) {
                     // Only open if we're not in the middle of dragging
-                    if (Math.abs(dragDelta) > 10) return;
+                    if (Math.abs(dragDelta) > 10) {
+                        console.log('Lightbox: Click ignored - user was dragging');
+                        return;
+                    }
                     
                     e.preventDefault();
                     e.stopPropagation();
+                    
+                    console.log('Lightbox: Image clicked, preparing to open...');
                     
                     // Collect all image URLs
                     var imageUrls = imageSlides.map(function(s) {
@@ -1372,25 +1377,37 @@
                         return img ? img.src : null;
                     }).filter(Boolean);
                     
+                    console.log('Lightbox: Collected ' + imageUrls.length + ' images');
+                    
                     // Get product name
                     var productName = scope.querySelector('.qs-title') ? scope.querySelector('.qs-title').textContent.trim() : 'Product';
+                    
+                    console.log('Lightbox: Product name:', productName);
                     
                     // Close Quick Shop
                     var offcanvasEl = document.getElementById('quick-shop-modal');
                     if (offcanvasEl && typeof bootstrap !== 'undefined') {
                         var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
-                        if (offcanvas) offcanvas.hide();
+                        if (offcanvas) {
+                            console.log('Lightbox: Closing Quick Shop offcanvas...');
+                            offcanvas.hide();
+                        }
                     }
                     
                     // Open lightbox
                     if (typeof window.openProductLightbox === 'function') {
+                        console.log('Lightbox: Opening lightbox in 300ms...');
                         setTimeout(function() {
+                            console.log('Lightbox: Calling openProductLightbox now');
                             window.openProductLightbox({
                                 name: productName,
                                 images: imageUrls,
                                 currentIndex: slideIdx
                             });
+                            console.log('Lightbox: openProductLightbox called');
                         }, 300);
+                    } else {
+                        console.error('Lightbox: openProductLightbox function NOT FOUND!');
                     }
                 });
             });
