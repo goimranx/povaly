@@ -4506,33 +4506,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (isZoomed) {
                 // Zoom out on double tap when zoomed
-                isZoomed = false;
-                imageWrapper.classList.remove('zoomed');
-                mainImage.style.transition = 'transform 0.3s ease';
-                mainImage.style.transform = '';
-                currentPanX = 0;
-                currentPanY = 0;
-                setTimeout(function() {
-                    mainImage.style.transition = '';
-                }, 300);
+                resetZoom();
             } else {
                 // Zoom in to tap point
-                isZoomed = true;
-                imageWrapper.classList.add('zoomed');
-                
-                // Set transform origin to tap point
-                var percentX = ((tapX / rect.width) * 100);
-                var percentY = ((tapY / rect.height) * 100);
-                mainImage.style.transformOrigin = percentX + '% ' + percentY + '%';
-                mainImage.style.transition = 'transform 0.3s ease';
-                mainImage.style.transform = 'translate(-50%, -50%) scale(2)';
-                
-                setTimeout(function() {
-                    mainImage.style.transition = '';
-                    mainImage.style.transformOrigin = 'center center';
-                }, 300);
-            }
-            } else {
                 zoomInToPoint(tapX, tapY, rect);
             }
             lastTapTime = 0; // Reset to prevent triple tap
