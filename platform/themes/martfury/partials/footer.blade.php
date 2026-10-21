@@ -1194,6 +1194,18 @@
 
             // Make all slides visible
             allSlides.forEach(function(s) { s.style.display = ''; });
+            
+            // Add transparent overlay to each video slide to prevent inline playback
+            videoSlides.forEach(function(slide) {
+                // Check if overlay already exists
+                if (slide.querySelector('.qs-video-click-overlay')) return;
+                
+                var overlay = document.createElement('div');
+                overlay.className = 'qs-video-click-overlay';
+                overlay.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:10;cursor:pointer;background:transparent;';
+                slide.style.position = 'relative';
+                slide.appendChild(overlay);
+            });
 
             const pillBtns  = Array.from(scope.querySelectorAll('.qs-pill__btn'));
             const prevBtn   = gallery.querySelector('.qs-arrow--prev');
@@ -1455,7 +1467,11 @@
 
             // YouTube/Vimeo facade — open lightbox with video tab instead of inline playback
             gallery.querySelectorAll('.qs-video-facade').forEach(function(facade, videoIdx) {
-                facade.addEventListener('click', function(e) {
+                // Add overlay on top of facade if not already present
+                var slide = facade.closest('.qs-slide--video');
+                var overlay = slide ? slide.querySelector('.qs-video-click-overlay') : null;
+                
+                var clickHandler = function(e) {
                     // Only open if we're not in the middle of dragging
                     if (dragMoved) {
                         console.log('Video Lightbox: Click ignored - user was dragging');
@@ -1526,17 +1542,27 @@
                     } else {
                         console.error('Video Lightbox: openProductLightbox function NOT FOUND!');
                     }
-                });
+                };
+                
+                // Use overlay if available, otherwise use facade
+                if (overlay) {
+                    overlay.addEventListener('click', clickHandler);
+                } else {
+                    facade.addEventListener('click', clickHandler);
+                }
             });
             
-            // Direct video elements (MP4, WebM, etc.) — also open lightbox
+            // Direct video elements (MP4, WebM, etc.) — use overlay click to open lightbox
             videoSlides.forEach(function(slide, slideIdx) {
                 var videoEl = slide.querySelector('video');
-                // Only handle direct video elements (not facades)
-                if (!videoEl || slide.querySelector('.qs-video-facade')) return;
+                var overlay = slide.querySelector('.qs-video-click-overlay');
                 
-                // Add click handler to the slide wrapper (easier to click than video element)
-                slide.addEventListener('click', function(e) {
+                // Only handle direct video elements (not facades - they have their own click handler)
+                if (!videoEl || slide.querySelector('.qs-video-facade')) return;
+                if (!overlay) return;
+                
+                // Add click handler to the overlay
+                overlay.addEventListener('click', function(e) {
                     // Only open if we're not in the middle of dragging
                     if (dragMoved) {
                         console.log('Direct Video Lightbox: Click ignored - user was dragging');
@@ -1546,7 +1572,7 @@
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    console.log('Direct Video Lightbox: Direct video clicked, preparing to open...');
+                    console.log('Direct Video Lightbox: Direct video overlay clicked, preparing to open...');
                     
                     // Collect all videos (both facades and direct video elements)
                     var videos = [];
