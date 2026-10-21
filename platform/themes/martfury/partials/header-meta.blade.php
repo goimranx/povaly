@@ -2180,7 +2180,7 @@
 
         /* Footer — driven by theme options */
         .ps-footer {
-            background: var(--global-color-secondary-soft) !important;
+            background: var(--global-color-secondary-mid) !important;
         }
         .ps-footer__widgets {
             background: var(--global-color-secondary-mid) !important;
