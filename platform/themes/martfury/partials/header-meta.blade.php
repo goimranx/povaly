@@ -4616,32 +4616,42 @@ document.addEventListener('DOMContentLoaded', function() {
         mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
     }
     
-    // Zoom in to specific area - DESKTOP (works anywhere, calculates on IMAGE)
+    // Zoom in to specific area - DESKTOP (works anywhere, calculates correctly)
     function zoomInToArea(imgClickX, imgClickY, imgRect, wrapperRect) {
         isZoomed = true;
         imageWrapper.classList.add('zoomed');
         
-        // Calculate click position as percentage from image center (-0.5 to 0.5)
-        var clickPercentX = (imgClickX / imgRect.width) - 0.5;
-        var clickPercentY = (imgClickY / imgRect.height) - 0.5;
+        // Calculate click position relative to WRAPPER (not image)
+        // This matches how handleZoomPan calculates, so they're consistent
+        var clickX = imgRect.left - wrapperRect.left + imgClickX;
+        var clickY = imgRect.top - wrapperRect.top + imgClickY;
         
-        // When zoomed, image is 200% (2x) of current display size
+        // Calculate click position from wrapper center (-0.5 to 0.5)
+        var centerX = (clickX / wrapperRect.width) - 0.5;
+        var centerY = (clickY / wrapperRect.height) - 0.5;
+        
+        // Amplify the movement (3x faster response) - same as handleZoomPan
+        var amplifiedX = centerX * 3;
+        var amplifiedY = centerY * 3;
+        
+        // Get zoomed image dimensions
         var zoomedWidth = imgRect.width * 2;
         var zoomedHeight = imgRect.height * 2;
         
         // Calculate how much the zoomed image overflows the wrapper
-        var overflowX = zoomedWidth - wrapperRect.width;
-        var overflowY = zoomedHeight - wrapperRect.height;
+        var overflowX = Math.max(0, zoomedWidth - wrapperRect.width);
+        var overflowY = Math.max(0, zoomedHeight - wrapperRect.height);
         
-        // Calculate pan offset to center the clicked area
-        currentPanX = -clickPercentX * overflowX;
-        currentPanY = -clickPercentY * overflowY;
+        // Calculate pan offset - same formula as handleZoomPan
+        var moveX = -amplifiedX * (overflowX / 2);
+        var moveY = -amplifiedY * (overflowY / 2);
         
         // Clamp to boundaries
         var maxMoveX = overflowX / 2;
         var maxMoveY = overflowY / 2;
-        currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, currentPanX));
-        currentPanY = Math.max(-maxMoveY, Math.min(maxMoveY, currentPanY));
+        
+        currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, moveX));
+        currentPanY = Math.max(-maxMoveY, Math.min(maxMoveY, moveY));
         
         // Apply transform with pan offset
         mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
@@ -4683,21 +4693,6 @@ document.addEventListener('DOMContentLoaded', function() {
         var container = imageWrapper.getBoundingClientRect();
         var mouseX = e.clientX - container.left;
         var mouseY = e.clientY - container.top;
-        
-        // Initialize last position on first move (preserves click-calculated position)
-        if (lastMouseX === null || lastMouseY === null) {
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
-            return; // Don't update transform on first mousemove
-        }
-        
-        // Calculate mouse movement delta
-        var deltaX = mouseX - lastMouseX;
-        var deltaY = mouseY - lastMouseY;
-        
-        // Update last position
-        lastMouseX = mouseX;
-        lastMouseY = mouseY;
         
         // Calculate mouse position from center (-0.5 to 0.5)
         var centerX = (mouseX / container.width) - 0.5;
