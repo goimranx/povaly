@@ -1230,9 +1230,9 @@
 
                 var g = getGroup(idx);
 
-                // Video nav zones
-                if (videoPrev) videoPrev.style.display = (g.tab === 'videos' && g.groupIdx > 0) ? 'flex' : 'none';
-                if (videoNext) videoNext.style.display = (g.tab === 'videos' && g.groupIdx < g.groupTotal - 1) ? 'flex' : 'none';
+                // Video nav zones - HIDDEN since videos open lightbox on click
+                if (videoPrev) videoPrev.style.display = 'none';
+                if (videoNext) videoNext.style.display = 'none';
 
                 // Pill active + counters
                 pillBtns.forEach(function(btn) {
@@ -1322,28 +1322,54 @@
             });
 
             // Swipe / drag — skip if target is video, iframe or interactive element
-            var dragStartX = 0, dragDelta = 0, isDragging = false, THRESHOLD = 50;
+            var dragStartX = 0, dragDelta = 0, isDragging = false, dragMoved = false, THRESHOLD = 50, MOVE_THRESHOLD = 5;
             function onDragStart(x, target) {
                 // Don't hijack video controls, iframes, buttons, or links
                 if (!target) return;
                 var tag = target.tagName.toLowerCase();
                 if (tag === 'video' || tag === 'iframe' || tag === 'button' || tag === 'a' || tag === 'input') return;
                 if (target.closest('video') || target.closest('iframe') || target.closest('.qs-video-zone') || target.closest('.qs-pill')) return;
-                dragStartX = x; isDragging = true; track.classList.add('dragging');
+                
+                // Allow clicks on images and video facades, but prepare for potential drag
+                dragStartX = x; 
+                isDragging = false; // Don't set dragging yet
+                dragMoved = false;
+                dragDelta = 0;
             }
             function onDragMove(x) {
+                if (dragStartX === 0) return;
+                
+                var currentDelta = x - dragStartX;
+                
+                // Only consider it a real drag if moved more than threshold
+                if (!isDragging && Math.abs(currentDelta) > MOVE_THRESHOLD) {
+                    isDragging = true;
+                    dragMoved = true;
+                    track.classList.add('dragging');
+                }
+                
                 if (!isDragging) return;
-                dragDelta = x - dragStartX;
+                
+                dragDelta = currentDelta;
                 track.style.transform = 'translateX(calc(-' + (idx * 100) + '% + ' + dragDelta + 'px))';
             }
             function onDragEnd() {
-                if (!isDragging) return;
+                if (isDragging) {
+                    track.classList.remove('dragging');
+                    if (dragDelta < -THRESHOLD && idx < total - 1) go(idx + 1);
+                    else if (dragDelta > THRESHOLD && idx > 0) go(idx - 1);
+                    else render();
+                }
+                
+                // Reset all drag state
+                dragStartX = 0;
                 isDragging = false;
-                track.classList.remove('dragging');
-                if (dragDelta < -THRESHOLD && idx < total - 1) go(idx + 1);
-                else if (dragDelta > THRESHOLD && idx > 0) go(idx - 1);
-                else render();
                 dragDelta = 0;
+                
+                // Reset dragMoved after a short delay to allow click handlers to check it
+                setTimeout(function() {
+                    dragMoved = false;
+                }, 50);
             }
             if (viewport) {
                 viewport.addEventListener('mousedown',  function(e) { onDragStart(e.clientX, e.target); });
@@ -1361,7 +1387,7 @@
                 
                 img.addEventListener('click', function(e) {
                     // Only open if we're not in the middle of dragging
-                    if (Math.abs(dragDelta) > 10) {
+                    if (dragMoved) {
                         console.log('Lightbox: Click ignored - user was dragging');
                         return;
                     }
@@ -1409,28 +1435,59 @@
                 });
             });
 
-            // YouTube/Vimeo facade — overlay iframe on top, keep facade so re-click works
-            gallery.querySelectorAll('.qs-video-facade').forEach(function(facade) {
-                facade.addEventListener('click', function() {
+            // YouTube/Vimeo facade — open lightbox with video tab instead of inline playback
+            gallery.querySelectorAll('.qs-video-facade').forEach(function(facade, videoIdx) {
+                facade.addEventListener('click', function(e) {
+                    // Only open if we're not in the middle of dragging
+                    if (dragMoved) {
+                        console.log('Video Lightbox: Click ignored - user was dragging');
+                        return;
+                    }
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Video Lightbox: Video clicked, preparing to open...');
+                    
                     var src = facade.dataset.src;
+                    var provider = facade.dataset.provider;
                     if (!src) return;
-                    stopAllMedia();
-                    var sep = src.indexOf('?') !== -1 ? '&' : '?';
-                    if (facade.dataset.provider === 'youtube' && src.indexOf('enablejsapi') === -1) src += sep + 'enablejsapi=1';
-                    else if (facade.dataset.provider === 'vimeo' && src.indexOf('api=1') === -1) src += sep + 'api=1';
-
-                    var iframe = document.createElement('iframe');
-                    iframe.src = src;
-                    iframe.frameBorder = '0';
-                    iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
-                    iframe.allowFullscreen = true;
-                    iframe.className = 'qs-video-iframe-overlay';
-                    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;display:block;z-index:2;';
-                    iframe._qsFacade = facade;
-
-                    // Hide facade, insert iframe as sibling inside the slide
-                    facade.style.display = 'none';
-                    facade.parentNode.appendChild(iframe);
+                    
+                    // Collect all videos
+                    var videos = Array.from(gallery.querySelectorAll('.qs-video-facade')).map(function(f, idx) {
+                        return {
+                            url: f.dataset.src,
+                            provider: f.dataset.provider,
+                            thumbnail: f.querySelector('img') ? f.querySelector('img').src : null,
+                            title: 'Product Video ' + (idx + 1),
+                            portrait: f.dataset.portrait === 'true',
+                            aspectRatio: f.dataset.aspectRatio || '16:9'
+                        };
+                    });
+                    
+                    // Collect all images for the lightbox
+                    var imageUrls = imageSlides.map(function(s) {
+                        var img = s.querySelector('img');
+                        return img ? img.src : null;
+                    }).filter(Boolean);
+                    
+                    // Get product name
+                    var productName = scope.querySelector('.qs-title') ? scope.querySelector('.qs-title').textContent.trim() : 'Product';
+                    
+                    // Open lightbox with videos tab active
+                    if (typeof window.openProductLightbox === 'function') {
+                        console.log('Video Lightbox: Opening lightbox with videos tab...');
+                        window.openProductLightbox({
+                            name: productName,
+                            images: imageUrls,
+                            videos: videos,
+                            openTab: 'videos',
+                            currentVideoIndex: videoIdx
+                        });
+                        console.log('Video Lightbox: openProductLightbox called');
+                    } else {
+                        console.error('Video Lightbox: openProductLightbox function NOT FOUND!');
+                    }
                 });
             });
 
