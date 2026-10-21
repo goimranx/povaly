@@ -4254,41 +4254,39 @@ document.addEventListener('DOMContentLoaded', function() {
         imageWrapper.removeEventListener('mousemove', handleZoomPan);
     }
     
-    // Handle zoom panning - fast, direct region showing
+    // Handle zoom panning - rebuilt from scratch
     function handleZoomPan(e) {
         if (!isZoomed) return;
         
-        var rect = imageWrapper.getBoundingClientRect();
-        var mouseX = e.clientX - rect.left;
-        var mouseY = e.clientY - rect.top;
+        // Get container and mouse position
+        var container = imageWrapper.getBoundingClientRect();
+        var mouseX = e.clientX - container.left;
+        var mouseY = e.clientY - container.top;
         
-        // Get dimensions
-        var imgRect = mainImage.getBoundingClientRect();
-        var imgWidth = imgRect.width;
-        var imgHeight = imgRect.height;
-        var viewWidth = rect.width;
-        var viewHeight = rect.height;
+        // Get image dimensions (when zoomed, it's 200% size)
+        var img = mainImage.getBoundingClientRect();
         
-        // Calculate how much the image extends beyond the view
-        var maxMoveX = imgWidth - viewWidth;
-        var maxMoveY = imgHeight - viewHeight;
+        // Calculate how much mouse has moved from center (in percentage)
+        // Center = 0.5, left = 0, right = 1
+        var percentX = mouseX / container.width;
+        var percentY = mouseY / container.height;
         
-        // Mouse position as ratio (0 to 1)
-        var xRatio = mouseX / viewWidth;
-        var yRatio = mouseY / viewHeight;
+        // Calculate maximum pan distance (image size - container size)
+        var maxPanX = (img.width - container.width);
+        var maxPanY = (img.height - container.height);
         
-        // Direct mapping: mouse position directly maps to image position
-        // xRatio 0 (left) = show left edge (targetX = 0)
-        // xRatio 1 (right) = show right edge (targetX = -maxMoveX)
-        var targetX = -xRatio * maxMoveX;
-        var targetY = -yRatio * maxMoveY;
+        // Calculate pan position
+        // When mouse at left (0), show left of image (pan = 0)
+        // When mouse at right (1), show right of image (pan = -maxPanX)
+        var panX = -percentX * maxPanX;
+        var panY = -percentY * maxPanY;
         
-        // Clamp to boundaries
-        targetX = Math.max(-maxMoveX, Math.min(0, targetX));
-        targetY = Math.max(-maxMoveY, Math.min(0, targetY));
+        // Clamp to prevent showing beyond image boundaries
+        panX = Math.max(-maxPanX, Math.min(0, panX));
+        panY = Math.max(-maxPanY, Math.min(0, panY));
         
-        // Apply transform instantly (no transition, fast response)
-        mainImage.style.transform = 'translate(' + targetX + 'px, ' + targetY + 'px)';
+        // Apply the transform
+        mainImage.style.transform = 'translate(' + panX + 'px, ' + panY + 'px)';
     }
     
     // Keyboard shortcuts
