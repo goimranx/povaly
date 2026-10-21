@@ -2040,6 +2040,16 @@
             height: auto;
             object-fit: contain;
             margin: auto;
+            /* Smooth zoom transitions */
+            transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        min-width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        min-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        max-width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        max-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        position 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        margin 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         
         .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
@@ -4634,6 +4644,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleTouchPan(deltaX, deltaY) {
         if (!isZoomed) return;
         
+        // Disable transition during active panning for instant response
+        mainImage.style.transition = 'none';
+        
         // Get container and image dimensions
         var container = imageWrapper.getBoundingClientRect();
         var img = mainImage.getBoundingClientRect();
@@ -4726,6 +4739,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function handleZoomPan(e) {
         if (!isZoomed) return;
+        
+        // Disable transition during active panning for instant response
+        mainImage.style.transition = 'none';
         
         // Get container dimensions and current mouse position
         var container = imageWrapper.getBoundingClientRect();
