@@ -969,54 +969,63 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Initialize thumbnail strip swipe on mobile
+    // Initialize thumbnail strip swipe on mobile - EXACTLY like offcanvas
     function initThumbnailSwipe() {
         // Get the sidebar wrapper (parent of thumbnails container)
         var sidebarWrapper = document.querySelector('.product-lightbox-sidebar');
         if (!sidebarWrapper || !thumbnailsContainer) return;
         
-        var thumbStartX = 0;
-        var thumbStartY = 0;
-        var thumbIsDragging = false;
-        var thumbScrollLeft = 0;
-        var thumbMoved = false;
+        var dragStartX = 0;
+        var dragStartY = 0;
+        var isDragging = false;
+        var dragMoved = false;
+        var scrollStart = 0;
+        var MOVE_THRESHOLD = 5;
         
         // Attach to the entire sidebar wrapper so it works anywhere
         sidebarWrapper.addEventListener('touchstart', function(e) {
-            thumbStartX = e.touches[0].clientX;
-            thumbStartY = e.touches[0].clientY;
-            thumbScrollLeft = thumbnailsContainer.scrollLeft;
-            thumbIsDragging = false;
-            thumbMoved = false;
+            // Don't hijack if touching a thumbnail directly (allow click)
+            dragStartX = e.touches[0].clientX;
+            dragStartY = e.touches[0].clientY;
+            scrollStart = thumbnailsContainer.scrollLeft;
+            isDragging = false;
+            dragMoved = false;
         }, { passive: true });
         
         sidebarWrapper.addEventListener('touchmove', function(e) {
-            var deltaX = thumbStartX - e.touches[0].clientX;
-            var deltaY = Math.abs(thumbStartY - e.touches[0].clientY);
+            if (dragStartX === 0) return;
+            
+            var currentX = e.touches[0].clientX;
+            var currentY = e.touches[0].clientY;
+            var deltaX = currentX - dragStartX;
+            var deltaY = Math.abs(currentY - dragStartY);
             
             // Only start dragging if horizontal movement is dominant
-            if (Math.abs(deltaX) > 5 && Math.abs(deltaX) > deltaY) {
-                thumbIsDragging = true;
-                thumbMoved = true;
-                e.preventDefault(); // Prevent browser back gesture
+            if (!isDragging && Math.abs(deltaX) > MOVE_THRESHOLD && Math.abs(deltaX) > deltaY) {
+                isDragging = true;
+                dragMoved = true;
             }
             
-            if (thumbIsDragging) {
-                thumbnailsContainer.scrollLeft = thumbScrollLeft + deltaX;
+            if (isDragging) {
+                e.preventDefault(); // Prevent browser back gesture
+                // Apply smooth scroll (negate deltaX because scrollLeft increases when scrolling right)
+                thumbnailsContainer.scrollLeft = scrollStart - deltaX;
             }
         }, { passive: false }); // passive: false to allow preventDefault
         
         sidebarWrapper.addEventListener('touchend', function(e) {
-            thumbIsDragging = false;
-            // Reset thumbMoved after a short delay
+            isDragging = false;
+            dragStartX = 0;
+            
+            // Reset dragMoved after a short delay to allow click handlers to check it
             setTimeout(function() {
-                thumbMoved = false;
-            }, 100);
+                dragMoved = false;
+            }, 50);
         }, { passive: true });
         
-        // Also prevent clicks on thumbnails if user was swiping
+        // Prevent clicks on thumbnails if user was swiping
         thumbnailsContainer.addEventListener('click', function(e) {
-            if (thumbMoved) {
+            if (dragMoved) {
                 e.preventDefault();
                 e.stopPropagation();
             }
@@ -1045,6 +1054,9 @@ document.addEventListener('DOMContentLoaded', function() {
             currentImg.style.transition = 'none';
             currentImg.style.transform = '';
             currentImg.style.transformOrigin = '';
+            currentImg.style.position = '';
+            currentImg.style.top = '';
+            currentImg.style.left = '';
             // Force reflow
             currentImg.offsetHeight;
             
@@ -1053,29 +1065,29 @@ document.addEventListener('DOMContentLoaded', function() {
             newImg.src = currentProduct.images[index];
             newImg.className = 'product-lightbox-main-image';
             newImg.style.position = 'absolute';
-            newImg.style.maxWidth = '100%';
-            newImg.style.maxHeight = '100%';
-            newImg.style.width = 'auto';
-            newImg.style.height = 'auto';
+            newImg.style.top = '0';
+            newImg.style.left = '0';
+            newImg.style.width = '100%';
+            newImg.style.height = '100%';
             newImg.style.objectFit = 'contain';
-            newImg.style.top = '50%';
-            newImg.style.left = '50%';
             newImg.style.transition = 'none';
             
-            // Force current image to be positioned absolutely and centered (Y stays fixed at -50%)
+            // Position images side by side for horizontal slide (like offcanvas)
+            // Set current image to relative position in wrapper
             currentImg.style.position = 'absolute';
-            currentImg.style.top = '50%';
-            currentImg.style.left = '50%';
-            currentImg.style.transform = 'translate(-50%, -50%)';
+            currentImg.style.top = '0';
+            currentImg.style.left = '0';
+            currentImg.style.width = '100%';
+            currentImg.style.height = '100%';
+            currentImg.style.objectFit = 'contain';
+            currentImg.style.transform = 'translateX(0)';
             
-            // Position new image off-screen based on navigation direction
-            // ONLY move horizontally (X), keep Y at -50% to prevent diagonal movement
-            // direction = -1: going to previous (swipe RIGHT), prev comes from LEFT
-            // direction = 1: going to next (swipe LEFT), next comes from RIGHT
+            // Position new image off-screen based on direction
+            // ONLY use translateX - no Y transforms at all
             if (direction < 0) {
-                newImg.style.transform = 'translate(calc(-100% - 100vw), -50%)'; // Prev starts from left (off-screen)
+                newImg.style.transform = 'translateX(-100%)'; // Prev starts from left
             } else {
-                newImg.style.transform = 'translate(100vw, -50%)'; // Next starts from right (off-screen)
+                newImg.style.transform = 'translateX(100%)'; // Next starts from right
             }
             
             wrapper.appendChild(newImg);
@@ -1085,15 +1097,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 newImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 
-                // Slide out current image (only X changes, Y stays at -50%)
+                // Slide out current image (only X)
                 if (direction < 0) {
-                    currentImg.style.transform = 'translate(100vw, -50%)'; // Current exits right
+                    currentImg.style.transform = 'translateX(100%)'; // Current exits right
                 } else {
-                    currentImg.style.transform = 'translate(calc(-100% - 100vw), -50%)'; // Current exits left
+                    currentImg.style.transform = 'translateX(-100%)'; // Current exits left
                 }
                 
-                // Slide in new image to center (only X changes to -50%, Y stays at -50%)
-                newImg.style.transform = 'translate(-50%, -50%)';
+                // Slide in new image to center (X = 0)
+                newImg.style.transform = 'translateX(0)';
             }, 10);
             
             // Clean up after animation
