@@ -4527,7 +4527,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isZoomed) {
                 resetZoom();
             } else {
-                zoomIn();
+                // Zoom to the tapped position (pass tap coordinates)
+                zoomIn(touchStartX, touchStartY);
             }
             lastTapTime = 0;
             return; // Exit early, no drag
@@ -4655,14 +4656,56 @@ document.addEventListener('DOMContentLoaded', function() {
         mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
     }
     
-    // Zoom in to center - MOBILE (double-tap)
-    function zoomIn() {
+    // Zoom in to tapped area - MOBILE (double-tap)
+    function zoomIn(tapX, tapY) {
         isZoomed = true;
         imageWrapper.classList.add('zoomed');
-        // Reset pan position and center the image
-        currentPanX = 0;
-        currentPanY = 0;
-        mainImage.style.transform = 'translate(-50%, -50%)';
+        
+        // If no tap coordinates provided, zoom to center (fallback)
+        if (typeof tapX === 'undefined' || typeof tapY === 'undefined') {
+            currentPanX = 0;
+            currentPanY = 0;
+            mainImage.style.transform = 'translate(-50%, -50%)';
+            return;
+        }
+        
+        // Get wrapper and image dimensions
+        var wrapperRect = imageWrapper.getBoundingClientRect();
+        var imgRect = mainImage.getBoundingClientRect();
+        
+        // Calculate tap position relative to wrapper
+        var tapRelativeX = tapX - wrapperRect.left;
+        var tapRelativeY = tapY - wrapperRect.top;
+        
+        // Calculate tap position from wrapper center (-0.5 to 0.5)
+        var centerX = (tapRelativeX / wrapperRect.width) - 0.5;
+        var centerY = (tapRelativeY / wrapperRect.height) - 0.5;
+        
+        // Amplify the movement (3x faster response) - same as desktop handleZoomPan
+        var amplifiedX = centerX * 3;
+        var amplifiedY = centerY * 3;
+        
+        // Get zoomed image dimensions (2x)
+        var zoomedWidth = imgRect.width * 2;
+        var zoomedHeight = imgRect.height * 2;
+        
+        // Calculate how much the zoomed image overflows the wrapper
+        var overflowX = Math.max(0, zoomedWidth - wrapperRect.width);
+        var overflowY = Math.max(0, zoomedHeight - wrapperRect.height);
+        
+        // Calculate pan offset - same formula as handleZoomPan
+        var moveX = -amplifiedX * (overflowX / 2);
+        var moveY = -amplifiedY * (overflowY / 2);
+        
+        // Clamp to boundaries
+        var maxMoveX = overflowX / 2;
+        var maxMoveY = overflowY / 2;
+        
+        currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, moveX));
+        currentPanY = Math.max(-maxMoveY, Math.min(maxMoveY, moveY));
+        
+        // Apply transform with pan offset
+        mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
     }
     
     // Reset zoom - DESKTOP & MOBILE
