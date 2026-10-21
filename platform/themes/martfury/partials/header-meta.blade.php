@@ -2225,13 +2225,13 @@
             overflow: hidden;
             position: relative;
             background: #000;
-            border: 2px solid transparent; /* Transparent border by default */
-            transition: border-color 0.2s ease;
+            border: none; /* No border by default */
+            transition: border 0.2s ease;
         }
         
         /* Active item thumbnail gets primary border */
         .video-list-item.active .video-list-item-thumbnail {
-            border-color: var(--global-color-primary, #0D6EFD); /* Primary color border */
+            border: 2px solid var(--global-color-primary, #0D6EFD); /* Primary color border */
         }
         
         .video-list-item-thumbnail img {
