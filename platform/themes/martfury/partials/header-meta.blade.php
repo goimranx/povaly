@@ -4454,16 +4454,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Image zoom functionality - Desktop: click to zoom INTO clicked area
+    // Image zoom functionality - Desktop: click to zoom INTO clicked area (IMAGE ONLY)
     imageWrapper.addEventListener('click', function(e) {
         // Only on desktop
         if (window.innerWidth > 767) {
+            // Check if click is on the image itself, not empty wrapper space
+            var target = e.target;
+            if (target !== mainImage) {
+                return; // Clicked on wrapper/empty space, ignore
+            }
+            
             if (!isZoomed) {
-                // Get click position relative to wrapper
-                var rect = imageWrapper.getBoundingClientRect();
-                var clickX = e.clientX - rect.left;
-                var clickY = e.clientY - rect.top;
-                zoomInToArea(clickX, clickY, rect);
+                // Get image bounds (not wrapper)
+                var imgRect = mainImage.getBoundingClientRect();
+                var clickX = e.clientX - imgRect.left;
+                var clickY = e.clientY - imgRect.top;
+                
+                // Pass image dimensions for accurate calculation
+                zoomInToArea(clickX, clickY, imgRect);
             } else {
                 resetZoom();
             }
@@ -4607,23 +4615,25 @@ document.addEventListener('DOMContentLoaded', function() {
         mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
     }
     
-    // Zoom in to specific area - DESKTOP
-    function zoomInToArea(clickX, clickY, rect) {
+    // Zoom in to specific area - DESKTOP (calculate based on IMAGE, not wrapper)
+    function zoomInToArea(clickX, clickY, imgRect) {
         isZoomed = true;
         imageWrapper.classList.add('zoomed');
         
-        // Calculate click position as percentage from center (-0.5 to 0.5)
-        var clickPercentX = (clickX / rect.width) - 0.5;
-        var clickPercentY = (clickY / rect.height) - 0.5;
+        // Calculate click position as percentage from image center (-0.5 to 0.5)
+        var clickPercentX = (clickX / imgRect.width) - 0.5;
+        var clickPercentY = (clickY / imgRect.height) - 0.5;
         
-        // Get image dimensions when zoomed (2x)
-        var img = mainImage.getBoundingClientRect();
-        var zoomedWidth = img.width * 2;
-        var zoomedHeight = img.height * 2;
+        // Get wrapper dimensions (what we're zooming into)
+        var wrapperRect = imageWrapper.getBoundingClientRect();
         
-        // Calculate how much the zoomed image overflows the container
-        var overflowX = zoomedWidth - rect.width;
-        var overflowY = zoomedHeight - rect.height;
+        // When zoomed, image is 200% (2x) of current display size
+        var zoomedWidth = imgRect.width * 2;
+        var zoomedHeight = imgRect.height * 2;
+        
+        // Calculate how much the zoomed image overflows the wrapper
+        var overflowX = zoomedWidth - wrapperRect.width;
+        var overflowY = zoomedHeight - wrapperRect.height;
         
         // Calculate pan offset to center the clicked area
         // Negative click position (left/top) = move image right/down (positive pan)
