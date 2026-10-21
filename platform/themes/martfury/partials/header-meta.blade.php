@@ -1894,6 +1894,7 @@
             flex-direction: column !important;
             overflow: hidden !important;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
+            padding: 20px !important; /* Add padding around the entire modal */
         }
         
         /* Header */
@@ -1901,7 +1902,7 @@
             display: flex !important;
             align-items: center !important;
             justify-content: space-between !important;
-            padding: 20px 30px !important;
+            padding: 0 30px !important; /* Remove top/bottom padding */
             position: relative !important;
         }
         
@@ -1909,6 +1910,7 @@
             display: flex !important;
             gap: 30px !important;
             padding-bottom: 10px !important;
+            width: 100% !important; /* Make tabs full width for border */
             border-bottom: 2px solid var(--global-color-primary-border, #FFB399) !important;
         }
         
@@ -1936,11 +1938,12 @@
         .product-lightbox-tab.active::after {
             content: '' !important;
             position: absolute !important;
-            bottom: -2px !important;
+            bottom: -2px !important; /* Position over the parent border */
             left: 0 !important;
             right: 0 !important;
             height: 2px !important;
             background: var(--global-color-link, #13acdf) !important;
+            z-index: 1 !important; /* Ensure it appears over the parent border */
         }
         
         .product-lightbox-close {
@@ -1973,6 +1976,7 @@
             flex: 1 !important;
             display: flex !important;
             overflow: hidden !important;
+            padding: 0 !important; /* No padding inside body */
         }
         
         /* Main Display - 64% */
@@ -1981,8 +1985,9 @@
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            padding: 20px !important;
+            padding: 0 !important; /* No padding */
             background: transparent !important;
+            overflow: hidden !important; /* Contain zoomed image */
         }
         
         .product-lightbox-display {
@@ -1992,6 +1997,8 @@
             align-items: center !important;
             justify-content: center !important;
             background: transparent !important;
+            overflow: hidden !important; /* Contain zoomed image */
+            position: relative !important;
         }
         
         /* Hide video content by default - show only on VIDEOS tab */
@@ -2001,13 +2008,19 @@
         
         .product-lightbox-image-wrapper {
             position: relative !important;
+            width: 100% !important;
+            height: 100% !important;
             max-width: 100% !important;
             max-height: 100% !important;
             cursor: zoom-in !important;
+            overflow: hidden !important; /* Contain zoomed image within wrapper */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
         
         .product-lightbox-image-wrapper.zoomed {
-            cursor: zoom-out !important;
+            cursor: move !important; /* Show move cursor when zoomed to indicate dragging */
         }
         
         .product-lightbox-main-image {
@@ -2015,6 +2028,14 @@
             max-height: 100% !important;
             object-fit: contain !important;
             display: block !important;
+            transition: transform 0.1s ease-out !important; /* Smooth zoom pan */
+        }
+        
+        .product-lightbox-image-wrapper.zoomed .product-lightbox-main-image {
+            max-width: none !important; /* Allow image to expand when zoomed */
+            max-height: none !important;
+            width: 200% !important; /* 2x zoom */
+            height: auto !important;
         }
         
         .product-lightbox-zoom-icon {
@@ -4205,20 +4226,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Image zoom functionality
     imageWrapper.addEventListener('click', function(e) {
         if (!isZoomed) {
-            zoomIn(e);
+            zoomIn();
         } else {
             resetZoom();
         }
     });
     
     // Zoom in
-    function zoomIn(e) {
+    function zoomIn() {
         isZoomed = true;
         imageWrapper.classList.add('zoomed');
-        mainImage.style.transformOrigin = 'center center';
-        mainImage.style.transform = 'scale(' + zoomLevel + ')';
-        mainImage.style.cursor = 'move';
-        
         // Enable mouse move for panning
         imageWrapper.addEventListener('mousemove', handleZoomPan);
     }
@@ -4227,21 +4244,28 @@ document.addEventListener('DOMContentLoaded', function() {
     function resetZoom() {
         isZoomed = false;
         imageWrapper.classList.remove('zoomed');
-        mainImage.style.transform = 'scale(1)';
-        mainImage.style.transformOrigin = 'center center';
-        mainImage.style.cursor = '';
+        mainImage.style.transform = 'translate(0, 0)';
         imageWrapper.removeEventListener('mousemove', handleZoomPan);
     }
     
-    // Handle zoom panning
+    // Handle zoom panning - move the image based on mouse position
     function handleZoomPan(e) {
         if (!isZoomed) return;
         
         var rect = imageWrapper.getBoundingClientRect();
-        var x = ((e.clientX - rect.left) / rect.width) * 100;
-        var y = ((e.clientY - rect.top) / rect.height) * 100;
+        var x = e.clientX - rect.left; // Mouse X position relative to wrapper
+        var y = e.clientY - rect.top;  // Mouse Y position relative to wrapper
         
-        mainImage.style.transformOrigin = x + '% ' + y + '%';
+        // Calculate percentages (0-1)
+        var xPercent = x / rect.width;
+        var yPercent = y / rect.height;
+        
+        // Calculate how much to move (50% = center, 0% = move right/down, 100% = move left/up)
+        // Since image is 200% width, we can move it 50% of its width
+        var moveX = (0.5 - xPercent) * 50; // Move range: -25% to +25%
+        var moveY = (0.5 - yPercent) * 50; // Move range: -25% to +25%
+        
+        mainImage.style.transform = 'translate(' + moveX + '%, ' + moveY + '%)';
     }
     
     // Keyboard shortcuts
