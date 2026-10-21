@@ -4589,8 +4589,8 @@ document.addEventListener('DOMContentLoaded', function() {
             touchMoveX = currentX;
             touchMoveY = currentY;
             
-            // Apply panning (2x amplified)
-            handleTouchPan(moveX * 2, moveY * 2);
+            // Apply panning (3x amplified for faster response - matches desktop feel)
+            handleTouchPan(moveX * 3, moveY * 3);
         } else if (isDragging && !isZoomed) {
             // Dragging for swipe navigation
             dragDelta = currentX - dragStartX;
@@ -4648,12 +4648,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle touch-based panning when zoomed
     var currentPanX = 0;
     var currentPanY = 0;
+    var isFirstTouchMove = false;
     
     function handleTouchPan(deltaX, deltaY) {
         if (!isZoomed) return;
         
-        // Disable transition during active panning for instant response
-        mainImage.style.transition = 'none';
+        // Only disable transition after first move (not during initial zoom)
+        if (isFirstTouchMove) {
+            // Disable transition during active panning for instant response
+            mainImage.style.transition = 'none';
+        } else {
+            isFirstTouchMove = true;
+        }
         
         // Get container and image dimensions
         var container = imageWrapper.getBoundingClientRect();
@@ -4706,9 +4712,13 @@ document.addEventListener('DOMContentLoaded', function() {
         var amplifiedX = centerX * amplificationFactor;
         var amplifiedY = centerY * amplificationFactor;
         
+        // First, set initial transform to prevent flicker
+        // Start with center position, then adjust after zoom is applied
+        mainImage.style.transform = 'translate(-50%, -50%)';
+        
         // IMPORTANT: Get actual image dimensions AFTER zoom is applied
-        // This ensures we calculate based on the real zoomed size (same as desktop)
-        setTimeout(function() {
+        // Use requestAnimationFrame for smoother transition
+        requestAnimationFrame(function() {
             var img = mainImage.getBoundingClientRect();
             
             // Calculate how much image extends beyond container (same as desktop)
@@ -4726,9 +4736,9 @@ document.addEventListener('DOMContentLoaded', function() {
             currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, moveX));
             currentPanY = Math.max(-maxMoveY, Math.min(maxMoveY, moveY));
             
-            // Apply transform with pan offset
+            // Apply transform with pan offset - CSS transition will animate this smoothly
             mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
-        }, 0);
+        });
     }
     
     // Reset zoom - DESKTOP & MOBILE
@@ -4740,18 +4750,27 @@ document.addEventListener('DOMContentLoaded', function() {
         currentPanY = 0;
         lastMouseX = null;
         lastMouseY = null;
+        isFirstMove = false;
+        isFirstTouchMove = false;
         imageWrapper.removeEventListener('mousemove', handleZoomPan);
     }
     
     // Handle zoom panning - Amazon style: amplified movement from center
     var lastMouseX = null;
     var lastMouseY = null;
+    var isFirstMove = false;
     
     function handleZoomPan(e) {
         if (!isZoomed) return;
         
-        // Disable transition during active panning for instant response
-        mainImage.style.transition = 'none';
+        // Only disable transition after first move (not during initial zoom)
+        if (!isFirstMove) {
+            isFirstMove = true;
+            // Keep transition for smooth initial zoom
+        } else {
+            // Disable transition for subsequent panning for instant response
+            mainImage.style.transition = 'none';
+        }
         
         // Get container dimensions and current mouse position
         var container = imageWrapper.getBoundingClientRect();
