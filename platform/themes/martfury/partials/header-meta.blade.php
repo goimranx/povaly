@@ -4810,47 +4810,118 @@ document.addEventListener('DOMContentLoaded', function() {
             videoUploader.querySelector('.uploader-name').textContent = uploaderName;
         }
         
-        // Initialize like button state
+        // Initialize like button state from database
         var likeBtn = document.getElementById('lightbox-video-like-btn');
         var likeCount = document.getElementById('lightbox-video-like-count');
         
         if (likeBtn && likeCount) {
-            // Reset like state
-            likeBtn.classList.remove('liked');
-            likeBtn.setAttribute('data-liked', 'false');
-            var icon = likeBtn.querySelector('i');
-            if (icon) {
-                icon.className = 'ph ph-thumbs-up'; // Outline icon
-            }
-            likeCount.textContent = video.likes || 0;
+            // Get video ID (use URL as unique identifier if no ID provided)
+            var videoId = video.id || btoa(video.url); // Base64 encode URL as fallback ID
             
-            // Add click handler - toggle like on/off
+            // Load like state and count from database
+            fetch('/api/video-likes/' + encodeURIComponent(videoId))
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    // Set initial state from database
+                    var isLiked = data.user_liked || false;
+                    var totalLikes = data.total_likes || 0;
+                    
+                    likeCount.textContent = totalLikes;
+                    likeBtn.setAttribute('data-liked', isLiked ? 'true' : 'false');
+                    likeBtn.setAttribute('data-video-id', videoId);
+                    
+                    var icon = likeBtn.querySelector('i');
+                    if (isLiked) {
+                        likeBtn.classList.add('liked');
+                        if (icon) icon.className = 'ph-fill ph-thumbs-up';
+                    } else {
+                        likeBtn.classList.remove('liked');
+                        if (icon) icon.className = 'ph ph-thumbs-up';
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Failed to load like state:', err);
+                    // Set defaults on error
+                    likeCount.textContent = video.likes || 0;
+                    likeBtn.setAttribute('data-liked', 'false');
+                    likeBtn.setAttribute('data-video-id', videoId);
+                    var icon = likeBtn.querySelector('i');
+                    if (icon) icon.className = 'ph ph-thumbs-up';
+                });
+            
+            // Add click handler - toggle like on/off with database persistence
             likeBtn.onclick = function() {
                 var isLiked = likeBtn.getAttribute('data-liked') === 'true';
                 var currentCount = parseInt(likeCount.textContent) || 0;
+                var videoId = likeBtn.getAttribute('data-video-id');
+                var icon = likeBtn.querySelector('i');
                 
                 if (!isLiked) {
-                    // Like the video
+                    // Like the video - save to database
                     likeBtn.classList.add('liked');
                     likeBtn.setAttribute('data-liked', 'true');
-                    if (icon) {
-                        icon.className = 'ph-fill ph-thumbs-up'; // Filled icon with alert color
-                    }
+                    if (icon) icon.className = 'ph-fill ph-thumbs-up';
                     likeCount.textContent = currentCount + 1;
                     
-                    // TODO: Send to backend to persist like
-                    // saveLike(video.id);
+                    // Save to database
+                    fetch('/api/video-likes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        },
+                        body: JSON.stringify({
+                            video_id: videoId,
+                            video_url: video.url,
+                            product_id: currentProduct?.id || null,
+                            action: 'like'
+                        })
+                    })
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
+                        if (data.success) {
+                            // Update count with actual database count
+                            likeCount.textContent = data.total_likes;
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('Failed to save like:', err);
+                        // Revert on error
+                        likeBtn.classList.remove('liked');
+                        likeBtn.setAttribute('data-liked', 'false');
+                        if (icon) icon.className = 'ph ph-thumbs-up';
+                        likeCount.textContent = currentCount;
+                    });
                 } else {
-                    // Unlike the video
+                    // Unlike the video - remove from database
                     likeBtn.classList.remove('liked');
                     likeBtn.setAttribute('data-liked', 'false');
-                    if (icon) {
-                        icon.className = 'ph ph-thumbs-up'; // Outline icon
-                    }
+                    if (icon) icon.className = 'ph ph-thumbs-up';
                     likeCount.textContent = Math.max(0, currentCount - 1);
                     
-                    // TODO: Send to backend to remove like
-                    // removeLike(video.id);
+                    // Remove from database
+                    fetch('/api/video-likes/' + encodeURIComponent(videoId), {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        }
+                    })
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
+                        if (data.success) {
+                            // Update count with actual database count
+                            likeCount.textContent = data.total_likes;
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('Failed to remove like:', err);
+                        // Revert on error
+                        likeBtn.classList.add('liked');
+                        likeBtn.setAttribute('data-liked', 'true');
+                        if (icon) icon.className = 'ph-fill ph-thumbs-up';
+                        likeCount.textContent = currentCount;
+                    });
                 }
             };
         }

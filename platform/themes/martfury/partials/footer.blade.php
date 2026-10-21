@@ -1435,32 +1435,32 @@
                     
                     console.log('Lightbox: Collected ' + imageUrls.length + ' images');
                     
-                    // Collect all videos (facades and direct videos) for video tab
+                    // Collect all videos (facades and direct videos) in DOM order for video tab
                     var videos = [];
                     
-                    // Collect facade videos
-                    gallery.querySelectorAll('.qs-video-facade').forEach(function(f) {
-                        videos.push({
-                            url: f.dataset.src,
-                            provider: f.dataset.provider,
-                            thumbnail: f.querySelector('img') ? f.querySelector('img').src : null,
-                            title: 'Product Video ' + (videos.length + 1),
-                            portrait: f.dataset.portrait === 'true',
-                            aspectRatio: f.dataset.aspectRatio || '16:9'
-                        });
-                    });
-                    
-                    // Collect direct video elements
                     videoSlides.forEach(function(vSlide) {
-                        var videoEl = vSlide.querySelector('video');
-                        if (videoEl && !vSlide.querySelector('.qs-video-facade')) {
+                        var facadeInSlide = vSlide.querySelector('.qs-video-facade');
+                        var videoElInSlide = vSlide.querySelector('video');
+                        
+                        if (facadeInSlide) {
+                            // This slide has a facade (YouTube/Vimeo)
                             videos.push({
-                                url: videoEl.src || (videoEl.querySelector('source') ? videoEl.querySelector('source').src : null),
-                                provider: 'direct',
-                                thumbnail: videoEl.poster || null,
+                                url: facadeInSlide.dataset.src,
+                                provider: facadeInSlide.dataset.provider,
+                                thumbnail: facadeInSlide.querySelector('img') ? facadeInSlide.querySelector('img').src : null,
                                 title: 'Product Video ' + (videos.length + 1),
-                                portrait: videoEl.dataset.portrait === 'true' || videoEl.getAttribute('data-portrait') === 'true',
-                                aspectRatio: videoEl.dataset.aspectRatio || videoEl.getAttribute('data-aspect-ratio') || '16:9'
+                                portrait: facadeInSlide.dataset.portrait === 'true',
+                                aspectRatio: facadeInSlide.dataset.aspectRatio || '16:9'
+                            });
+                        } else if (videoElInSlide) {
+                            // This slide has a direct video element
+                            videos.push({
+                                url: videoElInSlide.src || (videoElInSlide.querySelector('source') ? videoElInSlide.querySelector('source').src : null),
+                                provider: 'direct',
+                                thumbnail: videoElInSlide.poster || null,
+                                title: 'Product Video ' + (videos.length + 1),
+                                portrait: videoElInSlide.dataset.portrait === 'true' || videoElInSlide.getAttribute('data-portrait') === 'true',
+                                aspectRatio: videoElInSlide.dataset.aspectRatio || videoElInSlide.getAttribute('data-aspect-ratio') || '16:9'
                             });
                         }
                     });
@@ -1499,7 +1499,7 @@
             });
 
             // YouTube/Vimeo facade — open lightbox with video tab instead of inline playback
-            gallery.querySelectorAll('.qs-video-facade').forEach(function(facade, videoIdx) {
+            gallery.querySelectorAll('.qs-video-facade').forEach(function(facade) {
                 // Add overlay on top of facade if not already present
                 var slide = facade.closest('.qs-slide--video');
                 var overlay = slide ? slide.querySelector('.qs-video-click-overlay') : null;
@@ -1520,34 +1520,34 @@
                     var provider = facade.dataset.provider;
                     if (!src) return;
                     
-                    // Collect all videos (both facades and direct video elements)
+                    // Collect all videos in DOM order (mixing facades and direct videos)
                     var videos = [];
-                    var clickedVideoIndex = 0;
+                    var clickedVideoIndex = -1;
                     
-                    // Collect facade videos
-                    gallery.querySelectorAll('.qs-video-facade').forEach(function(f, idx) {
-                        if (f === facade) clickedVideoIndex = videos.length;
-                        videos.push({
-                            url: f.dataset.src,
-                            provider: f.dataset.provider,
-                            thumbnail: f.querySelector('img') ? f.querySelector('img').src : null,
-                            title: 'Product Video ' + (videos.length + 1),
-                            portrait: f.dataset.portrait === 'true',
-                            aspectRatio: f.dataset.aspectRatio || '16:9'
-                        });
-                    });
-                    
-                    // Collect direct video elements
-                    videoSlides.forEach(function(slide) {
-                        var videoEl = slide.querySelector('video');
-                        if (videoEl && !slide.querySelector('.qs-video-facade')) {
+                    videoSlides.forEach(function(vSlide) {
+                        var facadeInSlide = vSlide.querySelector('.qs-video-facade');
+                        var videoElInSlide = vSlide.querySelector('video');
+                        
+                        if (facadeInSlide) {
+                            // This slide has a facade (YouTube/Vimeo)
+                            if (facadeInSlide === facade) clickedVideoIndex = videos.length;
                             videos.push({
-                                url: videoEl.src || videoEl.querySelector('source')?.src,
-                                provider: 'direct',
-                                thumbnail: videoEl.poster || null,
+                                url: facadeInSlide.dataset.src,
+                                provider: facadeInSlide.dataset.provider,
+                                thumbnail: facadeInSlide.querySelector('img') ? facadeInSlide.querySelector('img').src : null,
                                 title: 'Product Video ' + (videos.length + 1),
-                                portrait: videoEl.dataset.portrait === 'true',
-                                aspectRatio: videoEl.dataset.aspectRatio || '16:9'
+                                portrait: facadeInSlide.dataset.portrait === 'true',
+                                aspectRatio: facadeInSlide.dataset.aspectRatio || '16:9'
+                            });
+                        } else if (videoElInSlide) {
+                            // This slide has a direct video element
+                            videos.push({
+                                url: videoElInSlide.src || (videoElInSlide.querySelector('source') ? videoElInSlide.querySelector('source').src : null),
+                                provider: 'direct',
+                                thumbnail: videoElInSlide.poster || null,
+                                title: 'Product Video ' + (videos.length + 1),
+                                portrait: videoElInSlide.dataset.portrait === 'true',
+                                aspectRatio: videoElInSlide.dataset.aspectRatio || '16:9'
                             });
                         }
                     });
@@ -1563,7 +1563,7 @@
                     
                     // Open lightbox with videos tab active
                     if (typeof window.openProductLightbox === 'function') {
-                        console.log('Video Lightbox: Opening lightbox with videos tab...');
+                        console.log('Video Lightbox: Opening lightbox with videos tab, index:', clickedVideoIndex);
                         window.openProductLightbox({
                             name: productName,
                             images: imageUrls,
@@ -1586,7 +1586,7 @@
             });
             
             // Direct video elements (MP4, WebM, etc.) — use overlay click to open lightbox
-            videoSlides.forEach(function(slide, slideIdx) {
+            videoSlides.forEach(function(slide) {
                 var videoEl = slide.querySelector('video');
                 var overlay = slide.querySelector('.qs-video-click-overlay');
                 
@@ -1607,35 +1607,34 @@
                     
                     console.log('Direct Video Lightbox: Direct video overlay clicked, preparing to open...');
                     
-                    // Collect all videos (both facades and direct video elements)
+                    // Collect all videos in DOM order (mixing facades and direct videos)
                     var videos = [];
-                    var clickedVideoIndex = 0;
+                    var clickedVideoIndex = -1;
                     
-                    // Collect facade videos first
-                    gallery.querySelectorAll('.qs-video-facade').forEach(function(f) {
-                        videos.push({
-                            url: f.dataset.src,
-                            provider: f.dataset.provider,
-                            thumbnail: f.querySelector('img') ? f.querySelector('img').src : null,
-                            title: 'Product Video ' + (videos.length + 1),
-                            portrait: f.dataset.portrait === 'true',
-                            aspectRatio: f.dataset.aspectRatio || '16:9'
-                        });
-                    });
-                    
-                    // Collect direct video elements
                     videoSlides.forEach(function(vSlide) {
-                        var vEl = vSlide.querySelector('video');
-                        if (vEl && !vSlide.querySelector('.qs-video-facade')) {
-                            if (vSlide === slide) clickedVideoIndex = videos.length;
-                            var videoSrc = vEl.src || (vEl.querySelector('source') ? vEl.querySelector('source').src : null);
+                        var facadeInSlide = vSlide.querySelector('.qs-video-facade');
+                        var videoElInSlide = vSlide.querySelector('video');
+                        
+                        if (facadeInSlide) {
+                            // This slide has a facade (YouTube/Vimeo)
                             videos.push({
-                                url: videoSrc,
-                                provider: 'direct',
-                                thumbnail: vEl.poster || null,
+                                url: facadeInSlide.dataset.src,
+                                provider: facadeInSlide.dataset.provider,
+                                thumbnail: facadeInSlide.querySelector('img') ? facadeInSlide.querySelector('img').src : null,
                                 title: 'Product Video ' + (videos.length + 1),
-                                portrait: vEl.dataset.portrait === 'true' || vEl.getAttribute('data-portrait') === 'true',
-                                aspectRatio: vEl.dataset.aspectRatio || vEl.getAttribute('data-aspect-ratio') || '16:9'
+                                portrait: facadeInSlide.dataset.portrait === 'true',
+                                aspectRatio: facadeInSlide.dataset.aspectRatio || '16:9'
+                            });
+                        } else if (videoElInSlide) {
+                            // This slide has a direct video element
+                            if (vSlide === slide) clickedVideoIndex = videos.length;
+                            videos.push({
+                                url: videoElInSlide.src || (videoElInSlide.querySelector('source') ? videoElInSlide.querySelector('source').src : null),
+                                provider: 'direct',
+                                thumbnail: videoElInSlide.poster || null,
+                                title: 'Product Video ' + (videos.length + 1),
+                                portrait: videoElInSlide.dataset.portrait === 'true' || videoElInSlide.getAttribute('data-portrait') === 'true',
+                                aspectRatio: videoElInSlide.dataset.aspectRatio || videoElInSlide.getAttribute('data-aspect-ratio') || '16:9'
                             });
                         }
                     });
@@ -1651,7 +1650,7 @@
                     
                     // Open lightbox with videos tab active
                     if (typeof window.openProductLightbox === 'function') {
-                        console.log('Direct Video Lightbox: Opening lightbox with videos tab...');
+                        console.log('Direct Video Lightbox: Opening lightbox with videos tab, index:', clickedVideoIndex);
                         window.openProductLightbox({
                             name: productName,
                             images: imageUrls,
