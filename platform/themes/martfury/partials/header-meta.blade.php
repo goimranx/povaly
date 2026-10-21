@@ -2055,32 +2055,6 @@
             margin: 0;
         }
         
-        .product-lightbox-zoom-icon {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: var(--global-color-text-body, #2E3D52);
-            pointer-events: none;
-            transition: all 0.3s ease;
-        }
-        
-        .product-lightbox-image-wrapper:hover .product-lightbox-zoom-icon {
-            background: rgba(255, 255, 255, 0.8);
-            color: var(--global-color-text-main, #0D1B2A);
-        }
-        
-        .product-lightbox-image-wrapper.zoomed .product-lightbox-zoom-icon i::before {
-            content: "\e968"; /* icon-magnifier-remove (zoom out) */
-        }
-        
         /* Sidebar - 35% */
         .product-lightbox-sidebar {
             width: 35%;
@@ -2111,10 +2085,10 @@
         /* Thumbnails */
         .product-lightbox-thumbnails {
             flex: 1;
-            padding: 0 20px 20px 20px;
+            padding: 0 20px;
             overflow-y: auto;
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 10px;
             align-content: start;
         }
@@ -2133,15 +2107,10 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s ease;
         }
         
         .product-lightbox-thumbnail:hover {
             border-color: var(--global-color-link-hover, #1dbff5);
-        }
-        
-        .product-lightbox-thumbnail:hover img {
-            transform: scale(1.05);
         }
         
         .product-lightbox-thumbnail.active {

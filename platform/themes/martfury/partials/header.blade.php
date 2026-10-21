@@ -391,9 +391,6 @@
                 <div class="product-lightbox-display" id="lightbox-images-content">
                     <div class="product-lightbox-image-wrapper">
                         <img src="" alt="" class="product-lightbox-main-image" id="lightbox-main-image">
-                        <div class="product-lightbox-zoom-icon">
-                            <i class="icon-magnifier-add"></i>
-                        </div>
                     </div>
                 </div>
                 <div class="product-lightbox-display" id="lightbox-videos-content" style="display: none;">
