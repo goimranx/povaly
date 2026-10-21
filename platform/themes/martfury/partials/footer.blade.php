@@ -199,6 +199,9 @@
         user-select: none;
     }
     .qs-gallery__viewport:active { cursor: grabbing; }
+    
+    /* Lightbox: Show pointer cursor on images to indicate clickable */
+    .qs-slide--image img { cursor: pointer !important; }
     @media (max-width: 576px) {
         .qs-gallery__viewport { height: 280px; }
     }
@@ -1349,6 +1352,77 @@
                 viewport.addEventListener('touchmove',  function(e) { onDragMove(e.touches[0].clientX); },  { passive: true });
                 viewport.addEventListener('touchend',   function()  { onDragEnd(); });
             }
+
+            // ── LIGHTBOX: Click on image to open lightbox (only if not dragging) ──
+            imageSlides.forEach(function(slide) {
+                var img = slide.querySelector('img');
+                if (!img) return;
+                
+                var clickStartX = 0, clickStartY = 0, wasDragged = false;
+                
+                img.addEventListener('mousedown', function(e) {
+                    clickStartX = e.clientX;
+                    clickStartY = e.clientY;
+                    wasDragged = false;
+                });
+                
+                img.addEventListener('mousemove', function(e) {
+                    if (clickStartX === 0) return;
+                    var deltaX = Math.abs(e.clientX - clickStartX);
+                    var deltaY = Math.abs(e.clientY - clickStartY);
+                    if (deltaX > 5 || deltaY > 5) {
+                        wasDragged = true;
+                    }
+                });
+                
+                img.addEventListener('click', function(e) {
+                    // If user dragged, don't open lightbox
+                    if (wasDragged || Math.abs(dragDelta) > 5) {
+                        console.log('Lightbox: Click ignored (was dragging)');
+                        wasDragged = false;
+                        return;
+                    }
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Lightbox: Image clicked, opening lightbox');
+                    
+                    // Collect all image URLs
+                    var imageUrls = imageSlides.map(function(s) {
+                        var img = s.querySelector('img');
+                        return img ? img.src : null;
+                    }).filter(Boolean);
+                    
+                    // Get product name
+                    var productName = scope.querySelector('.qs-title') ? scope.querySelector('.qs-title').textContent.trim() : 'Product';
+                    
+                    // Get current slide index
+                    var currentIndex = imageSlides.indexOf(slide);
+                    
+                    // Close Quick Shop offcanvas
+                    var offcanvasEl = document.getElementById('quick-shop-modal');
+                    if (offcanvasEl && typeof bootstrap !== 'undefined') {
+                        var offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
+                        if (offcanvas) {
+                            offcanvas.hide();
+                        }
+                    }
+                    
+                    // Open lightbox (function defined in header-meta.blade.php)
+                    if (typeof window.openProductLightbox === 'function') {
+                        setTimeout(function() {
+                            window.openProductLightbox({
+                                name: productName,
+                                images: imageUrls,
+                                currentIndex: currentIndex
+                            });
+                        }, 300);
+                    } else {
+                        console.error('Lightbox: openProductLightbox function not found!');
+                    }
+                });
+            });
 
             // YouTube/Vimeo facade — overlay iframe on top, keep facade so re-click works
             gallery.querySelectorAll('.qs-video-facade').forEach(function(facade) {

@@ -4383,10 +4383,14 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     
     // Hook into the Quick Shop completed event
-    $(document).on('ecommerce.quick-shop.completed', function() {
+    document.addEventListener('ecommerce.quick-shop.completed', function(e) {
+        console.log('Lightbox: ecommerce.quick-shop.completed event fired', e);
         setTimeout(function() {
+            console.log('Lightbox: About to call initProductLightboxForQuickShop');
             if (typeof window.initProductLightboxForQuickShop === 'function') {
                 window.initProductLightboxForQuickShop();
+            } else {
+                console.error('Lightbox: initProductLightboxForQuickShop function not found!');
             }
         }, 500);
     });
