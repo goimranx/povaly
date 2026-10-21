@@ -4394,13 +4394,13 @@ document.addEventListener('DOMContentLoaded', function() {
             currentImg.style.left = '50%';
             currentImg.style.transform = 'translate(-50%, -50%)';
             
-            // Position new image off-screen based on swipe direction
-            // direction > 0: swipe right (prev image), new comes from left
-            // direction < 0: swipe left (next image), new comes from right
-            if (direction > 0) {
-                newImg.style.transform = 'translate(-150%, -50%)'; // Start from left
+            // Position new image off-screen based on navigation direction
+            // direction = -1: going to previous (swipe RIGHT), prev comes from LEFT
+            // direction = 1: going to next (swipe LEFT), next comes from RIGHT
+            if (direction < 0) {
+                newImg.style.transform = 'translate(-150%, -50%)'; // Prev starts from left
             } else {
-                newImg.style.transform = 'translate(50%, -50%)'; // Start from right
+                newImg.style.transform = 'translate(50%, -50%)'; // Next starts from right
             }
             
             wrapper.appendChild(newImg);
@@ -4411,10 +4411,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 newImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 
                 // Slide out current image
-                if (direction > 0) {
-                    currentImg.style.transform = 'translate(50%, -50%)'; // Exit right
+                if (direction < 0) {
+                    currentImg.style.transform = 'translate(50%, -50%)'; // Current exits right
                 } else {
-                    currentImg.style.transform = 'translate(-150%, -50%)'; // Exit left
+                    currentImg.style.transform = 'translate(-150%, -50%)'; // Current exits left
                 }
                 
                 // Slide in new image to center
@@ -4454,13 +4454,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Image zoom functionality (desktop only - use double-tap on mobile)
+    // Image zoom functionality - DESKTOP ONLY (simple click)
     if (window.innerWidth > 767) {
         imageWrapper.addEventListener('click', function(e) {
             if (!isZoomed) {
-                zoomIn();
+                isZoomed = true;
+                imageWrapper.classList.add('zoomed');
+                imageWrapper.addEventListener('mousemove', handleZoomPan);
             } else {
-                resetZoom();
+                isZoomed = false;
+                imageWrapper.classList.remove('zoomed');
+                mainImage.style.transform = 'translate(-50%, -50%)';
+                currentPanX = 0;
+                currentPanY = 0;
+                imageWrapper.removeEventListener('mousemove', handleZoomPan);
             }
         });
     }
@@ -4498,7 +4505,33 @@ document.addEventListener('DOMContentLoaded', function() {
             var tapY = e.touches[0].clientY - rect.top;
             
             if (isZoomed) {
-                resetZoom();
+                // Zoom out on double tap when zoomed
+                isZoomed = false;
+                imageWrapper.classList.remove('zoomed');
+                mainImage.style.transition = 'transform 0.3s ease';
+                mainImage.style.transform = '';
+                currentPanX = 0;
+                currentPanY = 0;
+                setTimeout(function() {
+                    mainImage.style.transition = '';
+                }, 300);
+            } else {
+                // Zoom in to tap point
+                isZoomed = true;
+                imageWrapper.classList.add('zoomed');
+                
+                // Set transform origin to tap point
+                var percentX = ((tapX / rect.width) * 100);
+                var percentY = ((tapY / rect.height) * 100);
+                mainImage.style.transformOrigin = percentX + '% ' + percentY + '%';
+                mainImage.style.transition = 'transform 0.3s ease';
+                mainImage.style.transform = 'translate(-50%, -50%) scale(2)';
+                
+                setTimeout(function() {
+                    mainImage.style.transition = '';
+                    mainImage.style.transformOrigin = 'center center';
+                }, 300);
+            }
             } else {
                 zoomInToPoint(tapX, tapY, rect);
             }
@@ -4621,101 +4654,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 50);
     }
     
-    // Zoom in
-    function zoomIn() {
+    // Zoom in to tap point - grow smoothly from that point
+    function zoomInToPoint(tapX, tapY, rect) {
         isZoomed = true;
         imageWrapper.classList.add('zoomed');
-        // Enable mouse move for panning
-        imageWrapper.addEventListener('mousemove', handleZoomPan);
-    }
-    
-    // Zoom in to specific point - grow FROM tap point smoothly
-    function zoomInToPoint(tapX, tapY, rect) {
-        // Set transform-origin to tap point
+        
+        // Set transform origin to exact tap coordinates
         var percentX = (tapX / rect.width) * 100;
         var percentY = (tapY / rect.height) * 100;
         mainImage.style.transformOrigin = percentX + '% ' + percentY + '%';
+        mainImage.style.transition = 'transform 0.3s ease';
+        mainImage.style.transform = 'translate(-50%, -50%) scale(2)';
         
-        // Smoothly scale up from tap point
-        mainImage.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        mainImage.style.transform = 'scale(2)';
-        
-        isZoomed = true;
-        imageWrapper.classList.add('zoomed');
-        
-        // After scale, reposition if needed to keep tap point visible
+        // Reset transform-origin after zoom
         setTimeout(function() {
-            // Calculate focus offset
-            var focusX = (tapX / rect.width) - 0.5;
-            var focusY = (tapY / rect.height) - 0.5;
-            
-            // Get scaled dimensions
-            var img = mainImage.getBoundingClientRect();
-            var container = imageWrapper.getBoundingClientRect();
-            
-            var overflowX = Math.max(0, img.width - container.width);
-            var overflowY = Math.max(0, img.height - container.height);
-            
-            // Calculate pan
-            var panX = -focusX * overflowX;
-            var panY = -focusY * overflowY;
-            
-            // Clamp
-            var maxMoveX = overflowX / 2;
-            var maxMoveY = overflowY / 2;
-            panX = Math.max(-maxMoveX, Math.min(maxMoveX, panX));
-            panY = Math.max(-maxMoveY, Math.min(maxMoveY, panY));
-            
-            currentPanX = panX;
-            currentPanY = panY;
-            
-            // Switch to absolute for panning, keep scale
-            mainImage.style.position = 'absolute';
-            mainImage.style.top = '50%';
-            mainImage.style.left = '50%';
-            mainImage.style.maxWidth = 'none';
-            mainImage.style.maxHeight = 'none';
-            mainImage.style.minWidth = '200%';
-            mainImage.style.minHeight = '200%';
             mainImage.style.transformOrigin = 'center center';
-            mainImage.style.transform = 'translate(calc(-50% + ' + panX + 'px), calc(-50% + ' + panY + 'px))';
-        }, 400);
-        
-        // Enable mouse move for panning (desktop)
-        if (window.innerWidth > 767) {
-            imageWrapper.addEventListener('mousemove', handleZoomPan);
-        }
+            mainImage.style.transition = '';
+        }, 300);
     }
     
-    // Reset zoom - shrink back smoothly without flicker
+    // Reset zoom - zoom out smoothly
     function resetZoom() {
-        if (!isZoomed) return;
-        
         isZoomed = false;
         imageWrapper.classList.remove('zoomed');
+        mainImage.style.transition = 'transform 0.3s ease';
+        mainImage.style.transform = 'translate(-50%, -50%)';
+        currentPanX = 0;
+        currentPanY = 0;
         
-        // First scale down while in absolute position
-        mainImage.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        mainImage.style.transform = 'translate(-50%, -50%) scale(0.5)';
-        
-        // After animation, reset everything
         setTimeout(function() {
-            // Reset all positioning
-            mainImage.style.position = '';
-            mainImage.style.top = '';
-            mainImage.style.left = '';
-            mainImage.style.maxWidth = '';
-            mainImage.style.maxHeight = '';
-            mainImage.style.minWidth = '';
-            mainImage.style.minHeight = '';
-            mainImage.style.transform = '';
-            mainImage.style.transformOrigin = '';
             mainImage.style.transition = '';
-            currentPanX = 0;
-            currentPanY = 0;
-        }, 400);
-        
-        imageWrapper.removeEventListener('mousemove', handleZoomPan);
+        }, 300);
     }
     
     // Handle zoom panning - Amazon style: amplified movement from center
