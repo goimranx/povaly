@@ -1925,7 +1925,7 @@
         }
         
         .product-lightbox-close:hover {
-            color: var(--global-color-alert, #FF5C5C);
+            color: var(--global-color-link-hover, #1dbff5);
         }
         
         /* Header */
@@ -1948,7 +1948,7 @@
         .product-lightbox-tab {
             background: none;
             border: none;
-            padding: 15px;
+            padding: 10px 15px;
             font-size: 14px;
             font-weight: 600;
             letter-spacing: 0.5px;
@@ -2087,13 +2087,13 @@
         }
         
         .product-lightbox-info {
-            padding: 30px;
+            padding: 20px 30px;
             border-bottom: 1px solid var(--global-color-primary-border, #FFB399);
         }
         
         .product-lightbox-title {
-            font-size: 20px;
-            font-weight: 600;
+            font-size: 1.05rem;
+            font-weight: 400;
             color: var(--global-color-text-main, #0D1B2A);
             margin: 0 0 15px 0;
             line-height: 1.4;
@@ -2107,7 +2107,7 @@
         /* Thumbnails */
         .product-lightbox-thumbnails {
             flex: 1;
-            padding: 20px;
+            padding: 0 20px 20px 20px;
             overflow-y: auto;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
