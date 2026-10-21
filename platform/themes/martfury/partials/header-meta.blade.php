@@ -1898,34 +1898,40 @@
             position: relative; /* For absolute positioning of close button */
         }
         
-        /* Close button - positioned at container level, not inside header */
+        /* Close button - positioned at container level, minimal and visible over images */
         .product-lightbox-close {
-            background: none;
+            background: rgba(255, 255, 255, 0.9);
             border: none;
+            border-radius: 50%;
             color: var(--global-color-text-body, #2E3D52);
             cursor: pointer;
             padding: 0;
             line-height: 1;
             position: absolute;
-            top: 4px;
-            right: 4px;
-            width: 40px;
-            height: 40px;
+            top: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
             z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
         .product-lightbox-close i,
         .product-lightbox-close .icon-cross {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 700;
+            display: block;
         }
         
         .product-lightbox-close:hover {
+            background: rgba(255, 255, 255, 1);
             color: var(--global-color-link-hover, #1dbff5);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: scale(1.05);
         }
         
         /* Header */
