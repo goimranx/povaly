@@ -2042,6 +2042,7 @@
             margin: auto;
             /* Smooth zoom transitions */
             transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        transform-origin 0s,
                         min-width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                         min-height 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
                         max-width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
@@ -4459,8 +4460,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 mainImage.style.position = '';
                 mainImage.style.top = '';
                 mainImage.style.left = '';
-                mainImage.style.transition = '';
+                mainImage.style.transition = 'none'; // Fully disable transition
                 mainImage.style.transform = '';
+                // Force reflow to apply 'none', then restore CSS transitions
+                mainImage.offsetHeight;
+                mainImage.style.transition = '';
                 wrapper.removeChild(newImg);
             }, 350);
         } else {
@@ -4492,6 +4496,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Only on desktop
         if (window.innerWidth > 767) {
             if (!isZoomed) {
+                // Get click position relative to wrapper
+                var wrapperRect = imageWrapper.getBoundingClientRect();
+                var clickX = e.clientX - wrapperRect.left;
+                var clickY = e.clientY - wrapperRect.top;
+                
+                // Set transform-origin to click point for smooth zoom effect
+                mainImage.style.transformOrigin = clickX + 'px ' + clickY + 'px';
+                
                 // Zoom in first
                 isZoomed = true;
                 imageWrapper.classList.add('zoomed');
@@ -4503,6 +4515,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // This ensures the clicked position is calculated the SAME WAY as mousemove
                 handleZoomPan(e);
             } else {
+                // Reset transform-origin before zooming out
+                mainImage.style.transformOrigin = '';
                 resetZoom();
             }
         }
@@ -4543,8 +4557,18 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             if (isZoomed) {
+                // Reset transform-origin before zooming out
+                mainImage.style.transformOrigin = '';
                 resetZoom();
             } else {
+                // Get tap position relative to wrapper
+                var wrapperRect = imageWrapper.getBoundingClientRect();
+                var tapX = touchStartX - wrapperRect.left;
+                var tapY = touchStartY - wrapperRect.top;
+                
+                // Set transform-origin to tap point for smooth zoom effect
+                mainImage.style.transformOrigin = tapX + 'px ' + tapY + 'px';
+                
                 // Zoom to the tapped position (pass tap coordinates)
                 zoomIn(touchStartX, touchStartY);
             }
