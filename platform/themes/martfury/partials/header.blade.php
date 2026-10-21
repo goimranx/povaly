@@ -400,7 +400,30 @@
                 </div>
                 <div class="product-lightbox-display" id="lightbox-videos-content" style="display: none;">
                     <div class="product-lightbox-video-wrapper">
-                        <p>Video content will be displayed here</p>
+                        <div class="product-lightbox-video-player" id="lightbox-video-player">
+                            {{-- Video iframe will be inserted here --}}
+                        </div>
+                        
+                        <div class="product-lightbox-video-interactions">
+                            <div class="video-useful-section">
+                                <span class="useful-text">Useful?</span>
+                                <button class="btn-video-like" id="lightbox-video-like-btn">
+                                    <i class="fa fa-thumbs-up"></i>
+                                </button>
+                                <span class="like-count" id="lightbox-video-like-count">0</span>
+                            </div>
+                            <button class="btn-video-share" id="lightbox-video-share-btn">
+                                <i class="fa fa-share-alt"></i> Share
+                            </button>
+                        </div>
+                        
+                        <div class="product-lightbox-video-info">
+                            <h4 class="video-product-title" id="lightbox-video-product-title"></h4>
+                            <div class="video-uploader-info" id="lightbox-video-uploader">
+                                <i class="fa fa-user-circle"></i>
+                                <span class="uploader-name"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

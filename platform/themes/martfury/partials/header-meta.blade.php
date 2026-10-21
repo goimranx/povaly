@@ -2017,6 +2017,146 @@
             display: none;
         }
         
+        /* Video Player Styles */
+        .product-lightbox-video-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .product-lightbox-video-player {
+            position: relative;
+            width: 100%;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        /* Default padding-top will be set by JS based on aspect ratio */
+        .product-lightbox-video-player:not([style*="padding-top: 0"]) {
+            padding-top: 56.25%; /* Default 16:9 */
+        }
+        
+        .product-lightbox-video-player iframe,
+        .product-lightbox-video-player video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Video Interactions Section */
+        .product-lightbox-video-interactions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .video-useful-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .useful-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .btn-video-like {
+            background: transparent;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+        
+        .btn-video-like:hover {
+            border-color: #fcb800;
+            color: #fcb800;
+            transform: scale(1.1);
+        }
+        
+        .btn-video-like.liked {
+            background: #fcb800;
+            border-color: #fcb800;
+            color: #fff;
+        }
+        
+        .like-count {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            min-width: 30px;
+        }
+        
+        .btn-video-share {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .btn-video-share:hover {
+            background: #fcb800;
+            border-color: #fcb800;
+            color: #fff;
+        }
+        
+        /* Video Info Section */
+        .product-lightbox-video-info {
+            padding-top: 10px;
+        }
+        
+        .video-product-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .video-uploader-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .video-uploader-info i {
+            font-size: 18px;
+            color: #999;
+        }
+        
+        .uploader-name {
+            font-weight: 500;
+        }
+        
         .product-lightbox-image-wrapper {
             position: relative;
             width: 100%;
@@ -2307,6 +2447,31 @@
             /* Active thumbnail gets warning border on mobile */
             .product-lightbox-thumbnail.active {
                 border: 2px solid var(--global-color-warning, #FBB13C) !important;
+            }
+            
+            /* Mobile video styles */
+            .product-lightbox-video-wrapper {
+                padding: 15px !important;
+                gap: 15px !important;
+            }
+            
+            .product-lightbox-video-interactions {
+                flex-direction: column !important;
+                gap: 15px !important;
+                align-items: stretch !important;
+            }
+            
+            .video-useful-section {
+                justify-content: center !important;
+            }
+            
+            .btn-video-share {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+            
+            .video-product-title {
+                font-size: 16px !important;
             }
         }
         
@@ -4289,11 +4454,19 @@ document.addEventListener('DOMContentLoaded', function() {
         currentProduct = productData;
         productTitle.textContent = productData.name || 'Product';
         
-        // Set main image (use currentIndex if provided, otherwise 0)
-        var startIndex = productData.currentIndex || 0;
+        // Determine which tab to open
+        var defaultTab = productData.openTab || 'images';
+        
+        // Handle Images tab content
         if (productData.images && productData.images.length > 0) {
+            var startIndex = productData.currentIndex || 0;
             mainImage.src = productData.images[startIndex];
             loadThumbnails(productData.images, startIndex);
+        }
+        
+        // Handle Videos tab content
+        if (productData.videos && productData.videos.length > 0) {
+            loadVideos(productData.videos, productData.currentVideoIndex || 0);
         }
         
         // Set variations if provided
@@ -4304,12 +4477,15 @@ document.addEventListener('DOMContentLoaded', function() {
             variationsContainer.innerHTML = '';
         }
         
+        // Switch to the appropriate tab
+        switchTab(defaultTab);
+        
         // Show lightbox
         lightbox.style.display = 'flex';
         document.body.style.overflow = 'hidden';
         
-        // Show hint message on mobile every time lightbox opens
-        if (window.innerWidth <= 767) {
+        // Show hint message on mobile every time lightbox opens (only on images tab)
+        if (window.innerWidth <= 767 && defaultTab === 'images') {
             showHintMessage();
         }
     };
@@ -4340,25 +4516,197 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Tab switching
+    // Tab switching function
+    function switchTab(tabName) {
+        // Update active state
+        tabs.forEach(function(t) { 
+            if (t.getAttribute('data-tab') === tabName) {
+                t.classList.add('active');
+            } else {
+                t.classList.remove('active');
+            }
+        });
+        
+        // Show/hide content
+        if (tabName === 'images') {
+            imagesContent.style.display = 'flex';
+            videosContent.style.display = 'none';
+        } else {
+            imagesContent.style.display = 'none';
+            videosContent.style.display = 'flex';
+        }
+    }
+    
+    // Tab switching on click
     tabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
             var tabName = this.getAttribute('data-tab');
-            
-            // Update active state
-            tabs.forEach(function(t) { t.classList.remove('active'); });
-            this.classList.add('active');
-            
-            // Show/hide content
-            if (tabName === 'images') {
-                imagesContent.style.display = 'flex';
-                videosContent.style.display = 'none';
-            } else {
-                imagesContent.style.display = 'none';
-                videosContent.style.display = 'flex';
-            }
+            switchTab(tabName);
         });
     });
+    
+    // Load videos
+    function loadVideos(videos, activeIndex) {
+        if (typeof activeIndex === 'undefined') activeIndex = 0;
+        
+        var videoPlayer = document.getElementById('lightbox-video-player');
+        if (!videoPlayer) {
+            console.error('Video player element not found');
+            return;
+        }
+        
+        // Clear existing content
+        videoPlayer.innerHTML = '';
+        
+        // Get the active video
+        var video = videos[activeIndex];
+        if (!video) return;
+        
+        // Set aspect ratio for video player (default 16:9, but handle portrait)
+        var aspectRatio = video.aspectRatio || '16:9';
+        if (video.portrait || aspectRatio === '9:16') {
+            // Portrait video - max width with height based on ratio
+            videoPlayer.style.paddingTop = '0';
+            videoPlayer.style.maxWidth = '56.25%'; // 9/16 ratio
+            videoPlayer.style.aspectRatio = '9 / 16';
+            videoPlayer.style.margin = '0 auto';
+        } else {
+            // Landscape video - standard 16:9
+            videoPlayer.style.paddingTop = '56.25%'; // 16:9 ratio
+            videoPlayer.style.maxWidth = '100%';
+            videoPlayer.style.aspectRatio = '';
+            videoPlayer.style.margin = '0';
+        }
+        
+        // Determine video type and create appropriate player
+        if (video.provider === 'youtube') {
+            createYouTubePlayer(videoPlayer, video);
+        } else if (video.provider === 'vimeo') {
+            createVimeoPlayer(videoPlayer, video);
+        } else if (video.url) {
+            // Direct video file (MP4, WebM, etc.)
+            createDirectVideoPlayer(videoPlayer, video);
+        }
+        
+        // Update video info section
+        var videoTitle = document.getElementById('lightbox-video-product-title');
+        var videoUploader = document.getElementById('lightbox-video-uploader');
+        
+        if (videoTitle && currentProduct) {
+            videoTitle.textContent = currentProduct.name || 'Product Video';
+        }
+        
+        if (videoUploader) {
+            var uploaderName = video.store_name || video.uploader || 'Povaly Product Visuals';
+            videoUploader.querySelector('.uploader-name').textContent = uploaderName;
+        }
+        
+        // Initialize like button state
+        var likeBtn = document.getElementById('lightbox-video-like-btn');
+        var likeCount = document.getElementById('lightbox-video-like-count');
+        
+        if (likeBtn && likeCount) {
+            // Reset like state
+            likeBtn.classList.remove('liked');
+            likeCount.textContent = video.likes || 0;
+            
+            // Add click handler
+            likeBtn.onclick = function() {
+                if (!likeBtn.classList.contains('liked')) {
+                    likeBtn.classList.add('liked');
+                    var currentCount = parseInt(likeCount.textContent) || 0;
+                    likeCount.textContent = currentCount + 1;
+                    
+                    // TODO: Send to backend to persist like
+                    // saveLike(video.id);
+                }
+            };
+        }
+        
+        // Add share button handler
+        var shareBtn = document.getElementById('lightbox-video-share-btn');
+        if (shareBtn) {
+            shareBtn.onclick = function() {
+                // Share current video URL
+                if (navigator.share && video.url) {
+                    navigator.share({
+                        title: currentProduct?.name || 'Product Video',
+                        text: 'Check out this video!',
+                        url: video.url
+                    }).catch(function(err) {
+                        console.log('Share failed:', err);
+                    });
+                } else {
+                    // Fallback: copy to clipboard
+                    if (video.url) {
+                        navigator.clipboard.writeText(video.url).then(function() {
+                            // Show copied notification
+                            var originalText = shareBtn.innerHTML;
+                            shareBtn.innerHTML = '<i class="fa fa-check"></i> Copied!';
+                            setTimeout(function() {
+                                shareBtn.innerHTML = originalText;
+                            }, 2000);
+                        });
+                    }
+                }
+            };
+        }
+        
+        // Store current video index
+        currentProduct.currentVideoIndex = activeIndex;
+    }
+    
+    // Create YouTube player
+    function createYouTubePlayer(container, video) {
+        var src = video.url;
+        // Add autoplay and other parameters
+        var sep = src.indexOf('?') !== -1 ? '&' : '?';
+        if (src.indexOf('autoplay') === -1) src += sep + 'autoplay=1';
+        if (src.indexOf('enablejsapi') === -1) src += (src.indexOf('?') !== -1 ? '&' : '?') + 'enablejsapi=1';
+        
+        var iframe = document.createElement('iframe');
+        iframe.src = src;
+        iframe.frameBorder = '0';
+        iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+        iframe.allowFullscreen = true;
+        iframe.style.cssText = 'width:100%;height:100%;border:0;display:block;';
+        
+        container.appendChild(iframe);
+    }
+    
+    // Create Vimeo player
+    function createVimeoPlayer(container, video) {
+        var src = video.url;
+        // Add autoplay and other parameters
+        var sep = src.indexOf('?') !== -1 ? '&' : '?';
+        if (src.indexOf('autoplay') === -1) src += sep + 'autoplay=1';
+        if (src.indexOf('api') === -1) src += (src.indexOf('?') !== -1 ? '&' : '?') + 'api=1';
+        
+        var iframe = document.createElement('iframe');
+        iframe.src = src;
+        iframe.frameBorder = '0';
+        iframe.allow = 'accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture';
+        iframe.allowFullscreen = true;
+        iframe.style.cssText = 'width:100%;height:100%;border:0;display:block;';
+        
+        container.appendChild(iframe);
+    }
+    
+    // Create direct video player
+    function createDirectVideoPlayer(container, video) {
+        var videoEl = document.createElement('video');
+        videoEl.src = video.url;
+        videoEl.controls = true;
+        videoEl.autoplay = true;
+        videoEl.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+        
+        // Handle poster image if available
+        if (video.poster) {
+            videoEl.poster = video.poster;
+        }
+        
+        container.appendChild(videoEl);
+    }
     
     // Load thumbnails
     function loadThumbnails(images, activeIndex) {
