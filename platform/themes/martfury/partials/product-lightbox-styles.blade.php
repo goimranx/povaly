@@ -754,6 +754,11 @@
                 z-index: 1000 !important;
             }
             
+            /* Hide mobile video controls when viewing images */
+            .product-lightbox-overlay:not(.video-mode) .mobile-video-controls {
+                display: none !important;
+            }
+            
             .mobile-video-controls > * {
                 pointer-events: auto !important;
             }
@@ -950,6 +955,11 @@
             
             .mobile-video-drawer.open {
                 transform: translateY(0) !important;
+            }
+            
+            /* Hide drawer when viewing images (not in video mode) */
+            .product-lightbox-overlay:not(.video-mode) .mobile-video-drawer {
+                display: none !important;
             }
             
             .mobile-drawer-handle {
