@@ -2123,6 +2123,11 @@
             transform: scale(1.02);
         }
         
+        /* Double tap hint message - HIDE on desktop, show only mobile */
+        .product-lightbox-hint {
+            display: none !important;
+        }
+        
         /* ══════════ TABLET LAYOUT (768px - 1199px) ══════════ */
         @media (max-width: 1199px) and (min-width: 768px) {
             .product-lightbox-container {
@@ -2216,9 +2221,9 @@
                 position: relative !important;
             }
             
-            /* Double tap hint message - above thumbnails */
+            /* Double tap hint message - above thumbnails - MOBILE ONLY */
             .product-lightbox-hint {
-                display: none !important;
+                display: block !important; /* Show on mobile */
                 position: fixed !important;
                 bottom: 90px !important;
                 left: 50% !important;
@@ -2233,6 +2238,7 @@
                 pointer-events: none !important;
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
                 animation: fadeInOut 3s ease-in-out !important;
+                opacity: 0 !important; /* Start hidden, JS will show it */
             }
             
             @keyframes fadeInOut {
@@ -4298,14 +4304,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
-    // Show hint message
+    // Show hint message - Mobile only
     function showHintMessage() {
         var hintMessage = document.getElementById('lightbox-hint-message');
         if (hintMessage) {
-            hintMessage.style.display = 'block';
-            // Hide after 3 seconds (animation handles fade)
+            hintMessage.style.opacity = '1';
+            // Hide after 3 seconds
             setTimeout(function() {
-                hintMessage.style.display = 'none';
+                hintMessage.style.opacity = '0';
             }, 3000);
         }
     }
@@ -4360,40 +4366,67 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Select thumbnail
+    // Select thumbnail with proper swipe animation
     function selectThumbnail(index, direction) {
         if (!currentProduct || !currentProduct.images) return;
         
-        // Swipe animation on mobile
+        // Swipe animation on mobile - images follow finger movement
         if (direction && window.innerWidth <= 767) {
-            var currentImg = mainImage;
             var wrapper = imageWrapper;
+            var currentImg = mainImage;
             
-            // Create new image element for incoming image
+            // Create new image for incoming
             var newImg = document.createElement('img');
             newImg.src = currentProduct.images[index];
             newImg.className = 'product-lightbox-main-image';
             newImg.style.position = 'absolute';
+            newImg.style.maxWidth = '100%';
+            newImg.style.maxHeight = '100%';
+            newImg.style.width = 'auto';
+            newImg.style.height = 'auto';
+            newImg.style.objectFit = 'contain';
             newImg.style.top = '50%';
             newImg.style.left = '50%';
-            newImg.style.transform = 'translate(' + (direction > 0 ? '50%' : '-150%') + ', -50%)';
-            newImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            
+            // Position current image centered
+            currentImg.style.position = 'absolute';
+            currentImg.style.top = '50%';
+            currentImg.style.left = '50%';
+            currentImg.style.transform = 'translate(-50%, -50%)';
+            
+            // Position new image off-screen based on swipe direction
+            // direction > 0: swipe right (prev image), new comes from left
+            // direction < 0: swipe left (next image), new comes from right
+            if (direction > 0) {
+                newImg.style.transform = 'translate(-150%, -50%)'; // Start from left
+            } else {
+                newImg.style.transform = 'translate(50%, -50%)'; // Start from right
+            }
             
             wrapper.appendChild(newImg);
             
-            // Animate both images
+            // Animate: slide both images
             setTimeout(function() {
-                // Slide out current image
                 currentImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-                currentImg.style.transform = 'translate(' + (direction > 0 ? '-150%' : '50%') + ', -50%)';
+                newImg.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 
-                // Slide in new image
+                // Slide out current image
+                if (direction > 0) {
+                    currentImg.style.transform = 'translate(50%, -50%)'; // Exit right
+                } else {
+                    currentImg.style.transform = 'translate(-150%, -50%)'; // Exit left
+                }
+                
+                // Slide in new image to center
                 newImg.style.transform = 'translate(-50%, -50%)';
             }, 10);
             
             // Clean up after animation
             setTimeout(function() {
                 mainImage.src = currentProduct.images[index];
+                mainImage.style.position = '';
+                mainImage.style.top = '';
+                mainImage.style.left = '';
                 mainImage.style.transition = '';
                 mainImage.style.transform = '';
                 wrapper.removeChild(newImg);
@@ -4596,38 +4629,38 @@ document.addEventListener('DOMContentLoaded', function() {
         imageWrapper.addEventListener('mousemove', handleZoomPan);
     }
     
-    // Zoom in to specific point (for double-tap) - zoom FROM that point
+    // Zoom in to specific point - grow FROM tap point smoothly
     function zoomInToPoint(tapX, tapY, rect) {
-        // Set transform-origin to tap point for zoom effect
+        // Set transform-origin to tap point
         var percentX = (tapX / rect.width) * 100;
         var percentY = (tapY / rect.height) * 100;
         mainImage.style.transformOrigin = percentX + '% ' + percentY + '%';
         
-        // Apply zoom with scale transform
-        mainImage.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        // Smoothly scale up from tap point
+        mainImage.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         mainImage.style.transform = 'scale(2)';
         
         isZoomed = true;
         imageWrapper.classList.add('zoomed');
         
-        // After zoom, switch to absolute positioning for panning
+        // After scale, reposition if needed to keep tap point visible
         setTimeout(function() {
-            var img = mainImage.getBoundingClientRect();
-            var container = imageWrapper.getBoundingClientRect();
-            
-            // Calculate focus position
+            // Calculate focus offset
             var focusX = (tapX / rect.width) - 0.5;
             var focusY = (tapY / rect.height) - 0.5;
             
-            // Calculate how much image extends beyond container
+            // Get scaled dimensions
+            var img = mainImage.getBoundingClientRect();
+            var container = imageWrapper.getBoundingClientRect();
+            
             var overflowX = Math.max(0, img.width - container.width);
             var overflowY = Math.max(0, img.height - container.height);
             
-            // Calculate pan position to center on tapped area
+            // Calculate pan
             var panX = -focusX * overflowX;
             var panY = -focusY * overflowY;
             
-            // Clamp to boundaries
+            // Clamp
             var maxMoveX = overflowX / 2;
             var maxMoveY = overflowY / 2;
             panX = Math.max(-maxMoveX, Math.min(maxMoveX, panX));
@@ -4636,7 +4669,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentPanX = panX;
             currentPanY = panY;
             
-            // Switch to absolute positioning for panning
+            // Switch to absolute for panning, keep scale
             mainImage.style.position = 'absolute';
             mainImage.style.top = '50%';
             mainImage.style.left = '50%';
@@ -4644,9 +4677,9 @@ document.addEventListener('DOMContentLoaded', function() {
             mainImage.style.maxHeight = 'none';
             mainImage.style.minWidth = '200%';
             mainImage.style.minHeight = '200%';
+            mainImage.style.transformOrigin = 'center center';
             mainImage.style.transform = 'translate(calc(-50% + ' + panX + 'px), calc(-50% + ' + panY + 'px))';
-            mainImage.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        }, 350);
+        }, 400);
         
         // Enable mouse move for panning (desktop)
         if (window.innerWidth > 767) {
@@ -4654,19 +4687,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Reset zoom - zoom back OUT from current view
+    // Reset zoom - shrink back smoothly without flicker
     function resetZoom() {
         if (!isZoomed) return;
         
         isZoomed = false;
         imageWrapper.classList.remove('zoomed');
         
-        // Reset to normal positioning with scale-down animation
-        mainImage.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        // First scale down while in absolute position
+        mainImage.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         mainImage.style.transform = 'translate(-50%, -50%) scale(0.5)';
         
+        // After animation, reset everything
         setTimeout(function() {
-            // Reset all styles
+            // Reset all positioning
             mainImage.style.position = '';
             mainImage.style.top = '';
             mainImage.style.left = '';
@@ -4679,7 +4713,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mainImage.style.transition = '';
             currentPanX = 0;
             currentPanY = 0;
-        }, 350);
+        }, 400);
         
         imageWrapper.removeEventListener('mousemove', handleZoomPan);
     }
