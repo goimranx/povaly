@@ -4274,8 +4274,11 @@ document.addEventListener('DOMContentLoaded', function () {
     window.initProductLightboxForQuickView = function() {
         var $gallery = $('.bb-quick-view-gallery-images');
         if (!$gallery.length || !$gallery.hasClass('slick-initialized')) {
+            console.warn('Lightbox: Gallery not found or not initialized');
             return;
         }
+        
+        console.log('Lightbox: Initializing for quick view');
         
         // Get product name
         var productName = $('#product-quickview .ps-product__info h1 a').text().trim() || 'Product';
@@ -4286,27 +4289,76 @@ document.addEventListener('DOMContentLoaded', function () {
             imageUrls.push($(this).attr('src'));
         });
         
+        console.log('Lightbox: Found ' + imageUrls.length + ' images');
+        
         if (imageUrls.length === 0) return;
         
         // Remove previous handlers to avoid duplicates
-        $gallery.find('img').off('.productLightbox');
+        $gallery.off('.productLightbox');
+        
+        // Track if user is currently swiping/dragging
+        var isSwipingOrDragging = false;
+        
+        // Listen to Slick's swipe event to set flag
+        $gallery.on('swipe.productLightbox', function(event, slick, direction) {
+            console.log('Lightbox: Swipe detected, direction:', direction);
+            isSwipingOrDragging = true;
+            // Reset flag after a short delay
+            setTimeout(function() {
+                isSwipingOrDragging = false;
+            }, 100);
+        });
+        
+        // Also track mousedown/mousemove to detect manual dragging
+        var startX = 0, startY = 0;
+        $gallery.on('mousedown.productLightbox touchstart.productLightbox', function(e) {
+            isSwipingOrDragging = false;
+            if (e.type === 'mousedown') {
+                startX = e.clientX;
+                startY = e.clientY;
+            } else if (e.type === 'touchstart' && e.originalEvent.touches.length > 0) {
+                startX = e.originalEvent.touches[0].clientX;
+                startY = e.originalEvent.touches[0].clientY;
+            }
+        });
+        
+        $gallery.on('mousemove.productLightbox touchmove.productLightbox', function(e) {
+            var currentX, currentY;
+            if (e.type === 'mousemove') {
+                currentX = e.clientX;
+                currentY = e.clientY;
+            } else if (e.type === 'touchmove' && e.originalEvent.touches.length > 0) {
+                currentX = e.originalEvent.touches[0].clientX;
+                currentY = e.originalEvent.touches[0].clientY;
+            }
+            
+            var deltaX = Math.abs(currentX - startX);
+            var deltaY = Math.abs(currentY - startY);
+            
+            // If moved more than 5px, consider it dragging
+            if (deltaX > 5 || deltaY > 5) {
+                isSwipingOrDragging = true;
+            }
+        });
         
         // Attach click handler directly to images using event delegation
-        // This is the professional way: handle clicks on the actual image element
         $gallery.on('click.productLightbox', 'img', function(e) {
-            // Access Slick's internal data object to check dragging state
-            var slickData = $gallery.slick('getSlick');
+            console.log('Lightbox: Image clicked, isSwipingOrDragging:', isSwipingOrDragging);
             
-            // If Slick is currently dragging, don't open lightbox
-            if (slickData && slickData.dragging) {
+            // If user was swiping/dragging, don't open lightbox
+            if (isSwipingOrDragging) {
+                console.log('Lightbox: Click ignored (was dragging)');
+                isSwipingOrDragging = false; // Reset for next interaction
                 return;
             }
             
             // This was a clean click (not a drag), open lightbox
+            console.log('Lightbox: Opening lightbox');
             e.preventDefault();
             e.stopPropagation();
             
             var currentIndex = $gallery.slick('slickCurrentSlide');
+            console.log('Lightbox: Current slide index:', currentIndex);
             
             // Close quick view
             var offcanvasEl = document.getElementById('product-quickview');
@@ -4326,6 +4378,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }, 300);
         });
+        
+        console.log('Lightbox: Initialization complete');
     };
     
     // Hook into the quick view initialized event
