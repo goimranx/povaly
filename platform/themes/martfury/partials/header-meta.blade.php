@@ -18,6 +18,10 @@
             /*              POVALY GLOBAL DESIGN SYSTEM                        */
             /* ═══════════════════════════════════════════════════════════════ */
             
+            /* ══ BOOTSTRAP FONT OVERRIDE ══ */
+            --bs-font-sans-serif: '{{theme_option('primary_font', 'Work Sans')}}', sans-serif;
+            --bs-body-font-family: var(--bs-font-sans-serif);
+            
             /* ══ SURFACES (60%) ══ */
             --global-color-site-bg:        {{theme_option('global_color_site_bg', '#F4F9FD')}};
             --global-color-card-bg:        {{theme_option('global_color_card_bg', '#FFFFFF')}};
