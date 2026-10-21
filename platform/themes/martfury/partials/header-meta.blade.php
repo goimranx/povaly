@@ -870,42 +870,32 @@
         .header .ps-block--user-header .ps-block__right a { color: var(--global-color-text-on-dark) !important; }
         .header .ps-block--user-header .ps-block__right a:hover { color: var(--global-color-warning) !important; }
 
-        /* Hide mobile bottom bar on desktop */
-        @media (min-width: 1200px) {
-            nav.navigation--mobile-product,
-            .navigation--mobile-product {
-                display: none !important;
-            }
-        }
-
-        /* Bottom bar - ABSOLUTE NUCLEAR OPTION - prevent ANY movement (mobile only) */
-        @media (max-width: 1199px) {
-            nav.navigation--mobile-product,
-            .navigation--mobile-product,
-            nav.navigation--mobile-product[style],
-            .navigation--mobile-product[style] {
-                position: fixed !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                top: auto !important;
-                width: 100% !important;
-                transform: translate3d(0, 0, 0) !important;
-                -webkit-transform: translate3d(0, 0, 0) !important;
-                transition: none !important;
-                -webkit-transition: none !important;
-                animation: none !important;
-                -webkit-animation: none !important;
-                will-change: auto !important;
-                z-index: 10002 !important;
-                backface-visibility: hidden !important;
-                -webkit-backface-visibility: hidden !important;
-                /* Prevent interaction with viewport height changes */
-                contain: layout style paint !important;
-                /* Override any inline styles */
-                margin: 0 !important;
-                padding: 0 !important;
-            }
+        /* Bottom bar - ABSOLUTE NUCLEAR OPTION - prevent ANY movement */
+        nav.navigation--mobile-product,
+        .navigation--mobile-product,
+        nav.navigation--mobile-product[style],
+        .navigation--mobile-product[style] {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            top: auto !important;
+            width: 100% !important;
+            transform: translate3d(0, 0, 0) !important;
+            -webkit-transform: translate3d(0, 0, 0) !important;
+            transition: none !important;
+            -webkit-transition: none !important;
+            animation: none !important;
+            -webkit-animation: none !important;
+            will-change: auto !important;
+            z-index: 10002 !important;
+            backface-visibility: hidden !important;
+            -webkit-backface-visibility: hidden !important;
+            /* Prevent interaction with viewport height changes */
+            contain: layout style paint !important;
+            /* Override any inline styles */
+            margin: 0 !important;
+            padding: 0 !important;
         }
         
         /* CRITICAL: Fix for real mobile devices - use fixed viewport units */
@@ -939,21 +929,21 @@
                     -webkit-transform: translateZ(0) !important;
                 }
             }
-            
-            /* Prevent ANY transform classes from moving the bar */
-            nav.navigation--mobile-product.navigation--pin,
-            nav.navigation--mobile-product.navigation--unpin,
-            nav.navigation--mobile-product.navigation--sticky,
-            .navigation--mobile-product.navigation--pin,
-            .navigation--mobile-product.navigation--unpin,
-            .navigation--mobile-product.navigation--sticky,
-            nav.navigation--mobile-product[class*="navigation--"],
-            .navigation--mobile-product[class*="navigation--"] {
-                transform: translate3d(0, 0, 0) !important;
-                -webkit-transform: translate3d(0, 0, 0) !important;
-                position: fixed !important;
-                bottom: 0 !important;
-            }
+        }
+        
+        /* Prevent ANY transform classes from moving the bar */
+        nav.navigation--mobile-product.navigation--pin,
+        nav.navigation--mobile-product.navigation--unpin,
+        nav.navigation--mobile-product.navigation--sticky,
+        .navigation--mobile-product.navigation--pin,
+        .navigation--mobile-product.navigation--unpin,
+        .navigation--mobile-product.navigation--sticky,
+        nav.navigation--mobile-product[class*="navigation--"],
+        .navigation--mobile-product[class*="navigation--"] {
+            transform: translate3d(0, 0, 0) !important;
+            -webkit-transform: translate3d(0, 0, 0) !important;
+            position: fixed !important;
+            bottom: 0 !important;
         }
         
         .navigation--list { 
@@ -3220,25 +3210,9 @@ window.addEventListener('load', function() {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-    // ── FORCE LOCK BOTTOM BAR POSITION (prevent any JS from moving it) - MOBILE ONLY ─────
+    // ── FORCE LOCK BOTTOM BAR POSITION (prevent any JS from moving it) ─────
     var bottomBar = document.querySelector('.navigation--mobile-product');
     if (bottomBar) {
-        // Check if we're on mobile (below 1200px)
-        var isMobile = function() {
-            return window.innerWidth < 1200;
-        };
-        
-        // Hide on desktop, show on mobile
-        var updateVisibility = function() {
-            if (!isMobile()) {
-                bottomBar.style.setProperty('display', 'none', 'important');
-                return false; // Don't proceed with position locking
-            } else {
-                bottomBar.style.setProperty('display', '', ''); // Remove display property on mobile
-                return true; // Proceed with position locking
-            }
-        };
-        
         // Calculate the actual bottom position once
         var calculateBottom = function() {
             // Always stick to viewport bottom, not document bottom
@@ -3247,8 +3221,6 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // Force remove any transforms or animations
         var lockPosition = function() {
-            if (!updateVisibility()) return; // Exit if on desktop
-            
             var bottomValue = calculateBottom();
             bottomBar.style.setProperty('position', 'fixed', 'important');
             bottomBar.style.setProperty('bottom', bottomValue + 'px', 'important');
