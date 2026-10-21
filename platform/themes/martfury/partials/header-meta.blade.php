@@ -2095,7 +2095,7 @@
         }
         
         .product-lightbox-thumbnail {
-            aspect-ratio: 3 / 4;
+            aspect-ratio: 3 / 3.5;
             border: 2px solid var(--global-color-border-light, #F0D8CB);
             border-radius: 4px;
             overflow: hidden;
@@ -2288,7 +2288,7 @@
             .product-lightbox-thumbnail {
                 flex: 0 0 calc((100vw - 30px - 12px) / 7.2) !important;
                 width: calc((100vw - 30px - 12px) / 7.2) !important;
-                aspect-ratio: 3 / 4 !important;
+                aspect-ratio: 3 / 3.5 !important;
                 height: auto !important;
                 display: block !important;
                 border: none !important;
@@ -4370,10 +4370,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function selectThumbnail(index, direction) {
         if (!currentProduct || !currentProduct.images) return;
         
-        // Swipe animation on mobile - images follow finger movement
-        if (direction && window.innerWidth <= 767) {
+        // Always use slide animation on mobile (even for thumbnail clicks)
+        if (window.innerWidth <= 767) {
             var wrapper = imageWrapper;
             var currentImg = mainImage;
+            
+            // If no direction provided (thumbnail click), determine direction from index
+            if (!direction) {
+                var thumbs = thumbnailsContainer.querySelectorAll('.product-lightbox-thumbnail');
+                var currentIndex = Array.from(thumbs).findIndex(function(t) {
+                    return t.classList.contains('active');
+                });
+                direction = index > currentIndex ? 1 : -1;
+            }
+            
+            // Reset any existing transforms on current image
+            currentImg.style.transition = '';
+            currentImg.style.transform = '';
             
             // Create new image for incoming
             var newImg = document.createElement('img');
@@ -4388,11 +4401,12 @@ document.addEventListener('DOMContentLoaded', function() {
             newImg.style.top = '50%';
             newImg.style.left = '50%';
             
-            // Position current image centered
+            // Force current image to be positioned absolutely and centered
             currentImg.style.position = 'absolute';
             currentImg.style.top = '50%';
             currentImg.style.left = '50%';
             currentImg.style.transform = 'translate(-50%, -50%)';
+            currentImg.style.transition = '';
             
             // Position new image off-screen based on navigation direction
             // direction = -1: going to previous (swipe RIGHT), prev comes from LEFT
@@ -4432,6 +4446,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 wrapper.removeChild(newImg);
             }, 350);
         } else {
+            // Desktop: instant change
             mainImage.src = currentProduct.images[index];
         }
         
