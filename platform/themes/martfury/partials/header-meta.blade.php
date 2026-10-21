@@ -2271,13 +2271,16 @@
                 overflow-y: hidden !important;
                 gap: 2px !important;
                 align-items: center !important;
+                scroll-behavior: smooth !important;
+                -webkit-overflow-scrolling: touch !important;
             }
             
-            /* Each thumbnail - calculated to show 7.5 images in view */
+            /* Each thumbnail - 1:1 ratio, show 7 full + peek of next */
             .product-lightbox-thumbnail {
-                flex: 0 0 calc((100vw - 30px - 13px) / 7.5) !important;
-                width: calc((100vw - 30px - 13px) / 7.5) !important;
-                height: 60px !important;
+                flex: 0 0 calc((100vw - 30px - 12px) / 7.2) !important;
+                width: calc((100vw - 30px - 12px) / 7.2) !important;
+                aspect-ratio: 1 !important;
+                height: auto !important;
                 display: block !important;
             }
         }
@@ -4360,17 +4363,30 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update active state
         var thumbs = thumbnailsContainer.querySelectorAll('.product-lightbox-thumbnail');
         thumbs.forEach(function(t) { t.classList.remove('active'); });
-        thumbs[index].classList.add('active');
+        if (thumbs[index]) {
+            thumbs[index].classList.add('active');
+            
+            // Scroll active thumbnail into view on mobile
+            if (window.innerWidth <= 767) {
+                thumbs[index].scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'center'
+                });
+            }
+        }
     }
     
-    // Image zoom functionality
-    imageWrapper.addEventListener('click', function(e) {
-        if (!isZoomed) {
-            zoomIn();
-        } else {
-            resetZoom();
-        }
-    });
+    // Image zoom functionality (desktop only - use double-tap on mobile)
+    if (window.innerWidth > 767) {
+        imageWrapper.addEventListener('click', function(e) {
+            if (!isZoomed) {
+                zoomIn();
+            } else {
+                resetZoom();
+            }
+        });
+    }
     
     // Touch swipe and double-tap functionality for main image
     var touchStartX = 0;
@@ -4383,10 +4399,12 @@ document.addEventListener('DOMContentLoaded', function() {
     var touchMoveX = 0;
     var touchMoveY = 0;
     var isPanning = false;
+    var hasMoved = false; // Track if user has moved during touch
     
     imageWrapper.addEventListener('touchstart', function(e) {
-        touchStartX = e.changedTouches[0].screenX;
-        touchStartY = e.changedTouches[0].screenY;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        hasMoved = false;
         
         // Check for double tap
         var currentTime = new Date().getTime();
@@ -4414,10 +4432,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { passive: false });
     
     imageWrapper.addEventListener('touchmove', function(e) {
+        hasMoved = true;
+        
         if (isZoomed && isPanning) {
             e.preventDefault();
-            var currentX = e.changedTouches[0].screenX;
-            var currentY = e.changedTouches[0].screenY;
+            var currentX = e.touches[0].clientX;
+            var currentY = e.touches[0].clientY;
             
             // Calculate delta from last position
             var deltaX = currentX - touchMoveX;
@@ -4433,13 +4453,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { passive: false });
     
     imageWrapper.addEventListener('touchend', function(e) {
-        touchEndX = e.changedTouches[0].screenX;
-        touchEndY = e.changedTouches[0].screenY;
+        touchEndX = e.changedTouches[0].clientX;
+        touchEndY = e.changedTouches[0].clientY;
         
         if (isPanning) {
             isPanning = false;
+        } else if (!hasMoved) {
+            // Single tap when not zoomed - do nothing (wait for double tap)
         } else {
-            // Only handle swipe if not zoomed and not double-tapping
+            // Only handle swipe if not zoomed and user has moved
             var currentTime = new Date().getTime();
             var timeSinceLastTap = currentTime - lastTapTime;
             
@@ -4468,12 +4490,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Handle touch-based panning when zoomed
+    // Handle touch-based panning when zoomed - FAST like desktop
     var currentPanX = 0;
     var currentPanY = 0;
     
     function handleTouchPan(deltaX, deltaY) {
         if (!isZoomed) return;
+        
+        // Amplify movement 2x for faster response (similar to desktop 3x)
+        var amplifiedDeltaX = deltaX * 2;
+        var amplifiedDeltaY = deltaY * 2;
         
         // Get container and image dimensions
         var container = imageWrapper.getBoundingClientRect();
@@ -4485,9 +4511,9 @@ document.addEventListener('DOMContentLoaded', function() {
         var maxMoveX = overflowX / 2;
         var maxMoveY = overflowY / 2;
         
-        // Update pan position
-        currentPanX += deltaX;
-        currentPanY += deltaY;
+        // Update pan position with amplified delta
+        currentPanX += amplifiedDeltaX;
+        currentPanY += amplifiedDeltaY;
         
         // Clamp to boundaries
         currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, currentPanX));
