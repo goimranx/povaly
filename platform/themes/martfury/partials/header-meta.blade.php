@@ -4690,9 +4690,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Get wrapper and image dimensions
+        // Get wrapper dimensions
         var wrapperRect = imageWrapper.getBoundingClientRect();
-        var imgRect = mainImage.getBoundingClientRect();
         
         // Calculate tap position relative to wrapper
         var tapRelativeX = tapX - wrapperRect.left;
@@ -4702,36 +4701,34 @@ document.addEventListener('DOMContentLoaded', function() {
         var centerX = (tapRelativeX / wrapperRect.width) - 0.5;
         var centerY = (tapRelativeY / wrapperRect.height) - 0.5;
         
-        // Mobile uses 150% zoom (1.5x), desktop uses 200% (2x)
-        var zoomFactor = 1.5;
-        
-        // Amplify the movement - adjust based on zoom level
-        // Lower zoom = less amplification needed
+        // Amplify the movement - adjust for mobile zoom level
         var amplificationFactor = 2.2;
         var amplifiedX = centerX * amplificationFactor;
         var amplifiedY = centerY * amplificationFactor;
         
-        // Get zoomed image dimensions
-        var zoomedWidth = imgRect.width * zoomFactor;
-        var zoomedHeight = imgRect.height * zoomFactor;
-        
-        // Calculate how much the zoomed image overflows the wrapper
-        var overflowX = Math.max(0, zoomedWidth - wrapperRect.width);
-        var overflowY = Math.max(0, zoomedHeight - wrapperRect.height);
-        
-        // Calculate pan offset
-        var moveX = -amplifiedX * (overflowX / 2);
-        var moveY = -amplifiedY * (overflowY / 2);
-        
-        // Clamp to boundaries
-        var maxMoveX = overflowX / 2;
-        var maxMoveY = overflowY / 2;
-        
-        currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, moveX));
-        currentPanY = Math.max(-maxMoveY, Math.min(maxMoveY, moveY));
-        
-        // Apply transform with pan offset
-        mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
+        // IMPORTANT: Get actual image dimensions AFTER zoom is applied
+        // This ensures we calculate based on the real zoomed size (same as desktop)
+        setTimeout(function() {
+            var img = mainImage.getBoundingClientRect();
+            
+            // Calculate how much image extends beyond container (same as desktop)
+            var overflowX = Math.max(0, img.width - wrapperRect.width);
+            var overflowY = Math.max(0, img.height - wrapperRect.height);
+            
+            // Calculate pan offset
+            var moveX = -amplifiedX * (overflowX / 2);
+            var moveY = -amplifiedY * (overflowY / 2);
+            
+            // Clamp to boundaries
+            var maxMoveX = overflowX / 2;
+            var maxMoveY = overflowY / 2;
+            
+            currentPanX = Math.max(-maxMoveX, Math.min(maxMoveX, moveX));
+            currentPanY = Math.max(-maxMoveY, Math.min(maxMoveY, moveY));
+            
+            // Apply transform with pan offset
+            mainImage.style.transform = 'translate(calc(-50% + ' + currentPanX + 'px), calc(-50% + ' + currentPanY + 'px))';
+        }, 0);
     }
     
     // Reset zoom - DESKTOP & MOBILE
