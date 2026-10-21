@@ -2239,18 +2239,18 @@
                 width: 100% !important;
                 height: 100% !important;
                 padding: 10px 15px !important;
-                background: rgba(255, 255, 255, 0.6) !important;
-                backdrop-filter: blur(10px) !important;
+                background: var(--global-color-site-bg, #FFFFFF) !important;
                 flex-direction: row !important;
                 overflow-x: auto !important;
                 overflow-y: hidden !important;
-                gap: 10px !important;
+                gap: 2px !important;
                 align-items: center !important;
             }
             
+            /* Each thumbnail - calculated to show 7.5 images in view */
             .product-lightbox-thumbnail {
-                flex: 0 0 60px !important;
-                width: 60px !important;
+                flex: 0 0 calc((100vw - 30px - 13px) / 7.5) !important;
+                width: calc((100vw - 30px - 13px) / 7.5) !important;
                 height: 60px !important;
                 display: block !important;
             }
