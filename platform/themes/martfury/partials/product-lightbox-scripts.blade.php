@@ -390,14 +390,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         var videoId = video.id || btoa(video.url);
         
-        // Load like state from database
+        // Load like state from database - exactly like desktop
         fetch('/api/video-likes/' + encodeURIComponent(videoId))
             .then(function(response) { return response.json(); })
             .then(function(data) {
                 var isLiked = data.user_liked || false;
                 var totalLikes = data.total_likes || 0;
                 
-                mobileLikeCount.textContent = formatNumber(totalLikes);
+                mobileLikeCount.textContent = totalLikes; // Use actual number, not formatted
                 mobileLikeBtn.setAttribute('data-liked', isLiked ? 'true' : 'false');
                 mobileLikeBtn.setAttribute('data-video-id', videoId);
                 
@@ -410,16 +410,16 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(function(err) {
                 console.error('Failed to load like state:', err);
-                mobileLikeCount.textContent = '0';
+                mobileLikeCount.textContent = video.likes || 0;
                 mobileLikeBtn.setAttribute('data-liked', 'false');
                 mobileLikeBtn.setAttribute('data-video-id', videoId);
             });
         
-        // Click handler
+        // Click handler - exactly like desktop
         mobileLikeBtn.onclick = function() {
             resetControlsHideTimer(); // Reset timer on interaction
             var isLiked = mobileLikeBtn.getAttribute('data-liked') === 'true';
-            var currentCount = parseInt(mobileLikeCount.textContent.replace(/[KM]/g, '')) || 0;
+            var currentCount = parseInt(mobileLikeCount.textContent) || 0;
             var videoId = mobileLikeBtn.getAttribute('data-video-id');
             var icon = mobileLikeBtn.querySelector('i');
             
@@ -427,6 +427,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Like
                 mobileLikeBtn.setAttribute('data-liked', 'true');
                 if (icon) icon.className = 'ph-fill ph-thumbs-up';
+                mobileLikeCount.textContent = currentCount + 1;
                 
                 fetch('/api/video-likes', {
                     method: 'POST',
@@ -444,16 +445,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(function(response) { return response.json(); })
                 .then(function(data) {
                     if (data.success) {
-                        mobileLikeCount.textContent = formatNumber(data.total_likes);
+                        mobileLikeCount.textContent = data.total_likes;
                     }
                 })
                 .catch(function(err) {
                     console.error('Failed to save like:', err);
+                    // Revert on error
+                    mobileLikeBtn.setAttribute('data-liked', 'false');
+                    if (icon) icon.className = 'ph ph-thumbs-up';
+                    mobileLikeCount.textContent = currentCount;
                 });
             } else {
                 // Unlike
                 mobileLikeBtn.setAttribute('data-liked', 'false');
                 if (icon) icon.className = 'ph ph-thumbs-up';
+                mobileLikeCount.textContent = Math.max(0, currentCount - 1);
                 
                 fetch('/api/video-likes/' + encodeURIComponent(videoId), {
                     method: 'DELETE',
@@ -465,11 +471,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(function(response) { return response.json(); })
                 .then(function(data) {
                     if (data.success) {
-                        mobileLikeCount.textContent = formatNumber(data.total_likes);
+                        mobileLikeCount.textContent = data.total_likes;
                     }
                 })
                 .catch(function(err) {
                     console.error('Failed to remove like:', err);
+                    // Revert on error
+                    mobileLikeBtn.setAttribute('data-liked', 'true');
+                    if (icon) icon.className = 'ph-fill ph-thumbs-up';
+                    mobileLikeCount.textContent = currentCount;
                 });
             }
         };
@@ -485,10 +495,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set sold count (get from product data if available)
         if (mobileSoldCount && currentProduct) {
             var soldCount = currentProduct.sold || currentProduct.number_of_sold || 0;
-            mobileSoldCount.textContent = formatNumber(soldCount) + ' sold';
+            mobileSoldCount.textContent = soldCount > 0 ? soldCount + ' sold' : 'Buy now';
         }
         
-        // Buy now handler - add to cart and go to checkout
+        // Buy now handler - find the actual buy now button on the page and trigger it
         mobileBuyBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -499,60 +509,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Get CSRF token
-            var csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            // Close lightbox
+            closeLightbox();
             
-            // Add product to cart via AJAX
-            var formData = new FormData();
-            formData.append('id', currentProduct.id);
-            formData.append('qty', 1); // Default quantity 1
-            
-            // Try to get selected variation if exists
-            var variationSelect = document.querySelector('.product-variation-select');
-            if (variationSelect && variationSelect.value) {
-                formData.append('variation', variationSelect.value);
-            }
-            
-            fetch('/cart/add', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            })
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
-                if (data.error === false || data.success) {
-                    // Close lightbox
-                    closeLightbox();
-                    // Redirect to checkout after short delay
-                    setTimeout(function() {
-                        window.location.href = '/checkout';
-                    }, 300);
+            // After closing, trigger the buy now button
+            setTimeout(function() {
+                // Try to find the buy now button
+                var buyNowBtn = document.querySelector('.btn-buy-now, .buy-now-button, button[data-action="buy-now"], .add-to-cart-form .btn-buy-now');
+                
+                if (buyNowBtn) {
+                    buyNowBtn.click();
                 } else {
-                    console.error('Failed to add to cart:', data.message);
-                    // Fallback: close and scroll to product section
-                    closeLightbox();
-                    setTimeout(function() {
-                        var addToCartSection = document.querySelector('.product-info-main, .product-details, .box-product-detail');
-                        if (addToCartSection) {
-                            addToCartSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Fallback: try add to cart and then go to checkout
+                    var addToCartBtn = document.querySelector('.add-to-cart-button, button[name="add-to-cart"], .add-to-cart-form button[type="submit"]');
+                    if (addToCartBtn) {
+                        addToCartBtn.click();
+                        // Wait a bit then redirect to checkout
+                        setTimeout(function() {
+                            window.location.href = '/checkout';
+                        }, 500);
+                    } else {
+                        // Last resort: scroll to product section
+                        var productSection = document.querySelector('.product-info, .product-detail, .box-product-detail');
+                        if (productSection) {
+                            productSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
-                    }, 300);
-                }
-            })
-            .catch(function(err) {
-                console.error('Buy now error:', err);
-                // Fallback: try to find buy now button
-                closeLightbox();
-                setTimeout(function() {
-                    var buyNowBtn = document.querySelector('.btn-buy-now, .buy-now-button, [data-action="buy-now"]');
-                    if (buyNowBtn) {
-                        buyNowBtn.click();
                     }
-                }, 300);
-            });
+                }
+            }, 300);
         };
     }
     
@@ -563,13 +547,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!mobileCartBtn) return;
         
-        // Get current cart count for this product
-        if (mobileCartCount && currentProduct && currentProduct.id) {
-            // Try to get cart data from mini cart or cart icon
-            var cartCountElement = document.querySelector('.cart-counter, .mini-cart-count, [data-cart-count]');
-            if (cartCountElement) {
-                var totalCartCount = parseInt(cartCountElement.textContent) || 0;
-                mobileCartCount.textContent = formatNumber(totalCartCount);
+        // Get current cart count from the page
+        if (mobileCartCount) {
+            var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count]');
+            if (cartCounter) {
+                var count = parseInt(cartCounter.textContent) || 0;
+                mobileCartCount.textContent = count;
             } else {
                 mobileCartCount.textContent = '0';
             }
@@ -585,65 +568,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Get CSRF token
-            var csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            // Close lightbox
+            closeLightbox();
             
-            // Add product to cart via AJAX
-            var formData = new FormData();
-            formData.append('id', currentProduct.id);
-            formData.append('qty', 1); // Default quantity 1
-            
-            // Try to get selected variation if exists
-            var variationSelect = document.querySelector('.product-variation-select');
-            if (variationSelect && variationSelect.value) {
-                formData.append('variation', variationSelect.value);
-            }
-            
-            fetch('/cart/add', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            })
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
-                if (data.error === false || data.success) {
-                    // Update cart count
-                    var newCount = parseInt(mobileCartCount.textContent) + 1;
-                    mobileCartCount.textContent = formatNumber(newCount);
+            // After closing, trigger the add to cart button
+            setTimeout(function() {
+                var addToCartBtn = document.querySelector('.add-to-cart-button, button[name="add-to-cart"], .add-to-cart-form button[type="submit"], .btn-add-to-cart');
+                
+                if (addToCartBtn) {
+                    addToCartBtn.click();
                     
-                    // Update mini cart if exists
-                    var cartCountElement = document.querySelector('.cart-counter, .mini-cart-count, [data-cart-count]');
-                    if (cartCountElement) {
-                        cartCountElement.textContent = newCount;
-                    }
-                    
-                    // Show success feedback
-                    var icon = mobileCartBtn.querySelector('i');
-                    if (icon) {
-                        var originalClass = icon.className;
-                        icon.className = 'ph-fill ph-check-circle';
-                        setTimeout(function() {
-                            icon.className = originalClass;
-                        }, 1500);
-                    }
+                    // Update mobile cart count after a delay (wait for cart to update)
+                    setTimeout(function() {
+                        var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count]');
+                        if (cartCounter && mobileCartCount) {
+                            var newCount = parseInt(cartCounter.textContent) || 0;
+                            mobileCartCount.textContent = newCount;
+                        }
+                    }, 1000);
                 } else {
-                    console.error('Failed to add to cart:', data.message);
-                }
-            })
-            .catch(function(err) {
-                console.error('Add to cart error:', err);
-                // Fallback: try to find add to cart button
-                closeLightbox();
-                setTimeout(function() {
-                    var addToCartBtn = document.querySelector('.btn-add-to-cart, .add-to-cart-button, [data-action="add-to-cart"], .add-to-cart-form button[type="submit"]');
-                    if (addToCartBtn) {
-                        addToCartBtn.click();
+                    // Fallback: scroll to product section
+                    var productSection = document.querySelector('.product-info, .product-detail, .box-product-detail');
+                    if (productSection) {
+                        productSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
-                }, 300);
-            });
+                }
+            }, 300);
         };
     }
     
@@ -654,26 +604,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!mobileShareBtn) return;
         
-        // Get share count from video data or API
+        // Get share count - use video data (like desktop doesn't show share count initially)
         if (mobileShareCount && video) {
-            var videoId = video.id || btoa(video.url);
-            
-            // Try to get share count from API
-            fetch('/api/video-shares/' + encodeURIComponent(videoId))
-                .then(function(response) { return response.json(); })
-                .then(function(data) {
-                    var shareCount = data.total_shares || video.shares || 0;
-                    mobileShareCount.textContent = formatNumber(shareCount);
-                })
-                .catch(function(err) {
-                    // Fallback to video data or 0
-                    mobileShareCount.textContent = formatNumber(video.shares || 0);
-                });
+            mobileShareCount.textContent = video.shares || 0;
         }
         
         mobileShareBtn.onclick = function() {
             resetControlsHideTimer(); // Reset timer on interaction
             var videoId = video.id || btoa(video.url);
+            var currentCount = parseInt(mobileShareCount.textContent) || 0;
             
             if (navigator.share && video.url) {
                 navigator.share({
@@ -682,6 +621,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     url: video.url
                 })
                 .then(function() {
+                    // Increment count immediately
+                    if (mobileShareCount) {
+                        mobileShareCount.textContent = currentCount + 1;
+                    }
+                    
                     // Track share in database
                     fetch('/api/video-shares', {
                         method: 'POST',
@@ -698,16 +642,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(function(response) { return response.json(); })
                     .then(function(data) {
                         if (data.success && mobileShareCount) {
-                            mobileShareCount.textContent = formatNumber(data.total_shares);
+                            mobileShareCount.textContent = data.total_shares;
                         }
                     });
                 })
                 .catch(function(err) {
-                    console.log('Share failed:', err);
+                    console.log('Share cancelled or failed:', err);
                 });
             } else if (video.url) {
                 // Fallback: copy to clipboard
                 navigator.clipboard.writeText(video.url).then(function() {
+                    // Increment count immediately
+                    if (mobileShareCount) {
+                        mobileShareCount.textContent = currentCount + 1;
+                    }
+                    
                     // Track share in database
                     fetch('/api/video-shares', {
                         method: 'POST',
@@ -724,7 +673,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(function(response) { return response.json(); })
                     .then(function(data) {
                         if (data.success && mobileShareCount) {
-                            mobileShareCount.textContent = formatNumber(data.total_shares);
+                            mobileShareCount.textContent = data.total_shares;
                         }
                     });
                     

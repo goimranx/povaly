@@ -1184,5 +1184,9 @@
             .mobile-drawer-videos .video-list-item-uploader {
                 color: var(--global-color-text-body, #2E3D52) !important; /* Dark text, slightly lighter */
             }
+            
+            .mobile-drawer-videos .video-list-item-uploader span {
+                color: var(--global-color-text-body, #2E3D52) !important; /* Dark text for uploader name */
+            }
         }
 </style>

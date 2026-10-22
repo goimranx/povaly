@@ -165,7 +165,7 @@
                     <span>Share</span>
                 </button>
                 <button class="minimal-control-btn" id="minimal-more-btn">
-                    <i class="ph ph-play-circle"></i>
+                    <i class="ph ph-video"></i>
                     <span>More videos</span>
                 </button>
             </div>
