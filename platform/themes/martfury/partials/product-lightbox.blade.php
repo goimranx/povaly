@@ -115,11 +115,7 @@
         
         {{-- Mobile Video Controls Overlay (Only for Videos on Mobile) --}}
         <div class="mobile-video-controls" id="mobile-video-controls" style="display: none;">
-            {{-- Top Left: Fullscreen Button & Product Title --}}
-            <button class="mobile-video-fullscreen" id="mobile-video-fullscreen" aria-label="Fullscreen">
-                <i class="ph ph-corners-out"></i>
-            </button>
-            
+            {{-- Top Left: Product Title with inline chevron --}}
             <div class="mobile-video-title-container" id="mobile-video-title-container">
                 <h3 class="mobile-video-title" id="mobile-video-title"></h3>
                 <button class="mobile-video-title-expand" id="mobile-video-title-expand" style="display: none;">

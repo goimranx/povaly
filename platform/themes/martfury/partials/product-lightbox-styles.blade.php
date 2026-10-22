@@ -746,7 +746,7 @@
                 height: auto !important;
                 border: none !important;
                 object-fit: contain !important;
-                bottom: 0 !important;
+                bottom: 35px !important;
                 top: auto !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
@@ -797,35 +797,21 @@
                 pointer-events: auto !important;
             }
             
-            /* Top Left: Fullscreen Button */
+            /* Top Left: Fullscreen Button - HIDDEN */
             .mobile-video-fullscreen {
-                position: absolute !important;
-                top: 20px !important;
-                left: 20px !important;
-                width: auto !important;
-                height: auto !important;
-                background: none !important;
-                border: none !important;
-                box-shadow: none !important;
-                padding: 0 !important;
-                cursor: pointer !important;
-                z-index: 10 !important;
+                display: none !important;
             }
             
-            .mobile-video-fullscreen i {
-                font-size: 24px !important;
-                color: #fff !important;
-            }
-            
-            /* Product Title Container - below fullscreen button */
+            /* Product Title Container - top left (no fullscreen button above it) */
             .mobile-video-title-container {
                 position: absolute !important;
-                top: 55px !important; /* Below fullscreen button */
+                top: 20px !important; /* Same position as fullscreen button was */
                 left: 20px !important;
                 max-width: calc(100vw - 80px) !important; /* Leave space for close button */
                 display: flex !important;
-                flex-direction: column !important;
-                gap: 4px !important;
+                flex-direction: row !important; /* Row layout - title and chevron inline */
+                align-items: flex-start !important;
+                gap: 8px !important;
             }
             
             .mobile-video-title {
@@ -835,13 +821,14 @@
                 line-height: 1.4 !important;
                 margin: 0 !important;
                 display: -webkit-box !important;
-                -webkit-line-clamp: 2 !important;
+                -webkit-line-clamp: 2 !important; /* Always 2 lines max */
                 -webkit-box-orient: vertical !important;
                 overflow: hidden !important;
                 text-overflow: ellipsis !important;
                 text-align: left !important;
                 transition: -webkit-line-clamp 0.3s ease !important;
                 word-break: break-word !important;
+                flex: 1 !important;
             }
             
             .mobile-video-title.expanded {
@@ -855,12 +842,13 @@
                 cursor: pointer !important;
                 display: flex !important;
                 align-items: center !important;
-                justify-content: flex-start !important;
+                justify-content: center !important;
                 width: auto !important;
                 height: auto !important;
                 color: #fff !important;
                 transition: transform 0.3s ease !important;
-                align-self: flex-start !important;
+                flex-shrink: 0 !important;
+                margin-top: 2px !important; /* Align with first line of text */
             }
             
             .mobile-video-title-expand.expanded {
@@ -868,7 +856,7 @@
             }
             
             .mobile-video-title-expand i {
-                font-size: 12px !important; /* Smaller chevron */
+                font-size: 12px !important; /* Small chevron */
             }
             
             /* Fullscreen mode: hide everything except video and its native controls */

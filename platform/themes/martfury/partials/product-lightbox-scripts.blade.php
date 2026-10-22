@@ -161,13 +161,14 @@ document.addEventListener('DOMContentLoaded', function() {
             mobileTitle.textContent = currentProduct.name || 'Product Video';
             mobileTitle.classList.remove('expanded');
             
-            // Check if title overflows (needs expand button)
+            // Always show chevron inline with title
             setTimeout(function() {
                 var titleExpandBtn = document.getElementById('mobile-video-title-expand');
                 if (titleExpandBtn) {
                     // Check if text is truncated (scrollHeight > clientHeight means overflow)
                     var isOverflowing = mobileTitle.scrollHeight > mobileTitle.clientHeight;
-                    titleExpandBtn.style.display = isOverflowing ? 'flex' : 'none';
+                    // Always show chevron inline
+                    titleExpandBtn.style.display = 'flex';
                     titleExpandBtn.classList.remove('expanded');
                 }
             }, 100);
@@ -177,8 +178,12 @@ document.addEventListener('DOMContentLoaded', function() {
         var titleExpand = document.getElementById('mobile-video-title-expand');
         if (titleExpand && mobileTitle) {
             titleExpand.onclick = function() {
-                mobileTitle.classList.toggle('expanded');
-                titleExpand.classList.toggle('expanded');
+                // Check if there's overflow to expand
+                var isOverflowing = mobileTitle.scrollHeight > (mobileTitle.clientHeight + 5); // 5px tolerance
+                if (isOverflowing || mobileTitle.classList.contains('expanded')) {
+                    mobileTitle.classList.toggle('expanded');
+                    titleExpand.classList.toggle('expanded');
+                }
             };
         }
         
@@ -186,9 +191,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (mobileTitle) {
             mobileTitle.onclick = function() {
                 var titleExpandBtn = document.getElementById('mobile-video-title-expand');
-                if (titleExpandBtn && titleExpandBtn.style.display !== 'none') {
+                var isOverflowing = mobileTitle.scrollHeight > (mobileTitle.clientHeight + 5);
+                if (isOverflowing || mobileTitle.classList.contains('expanded')) {
                     mobileTitle.classList.toggle('expanded');
-                    titleExpandBtn.classList.toggle('expanded');
+                    if (titleExpandBtn) titleExpandBtn.classList.toggle('expanded');
                 }
             };
         }
