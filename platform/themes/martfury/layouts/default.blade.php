@@ -9,7 +9,7 @@
     @endif
 
     <div class="ps-container">
-        <div class="mt-40 mb-40">
+        <div class="mb-40">
             {!! Theme::content() !!}
         </div>
     </div>

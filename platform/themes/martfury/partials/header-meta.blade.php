@@ -1822,10 +1822,12 @@
         }
 
         /* Breadcrumb */
-        .ps-breadcrumb { background: var(--breadcrumb-bg); padding: var(--breadcrumb-padding); }
-        .ps-breadcrumb a { color: var(--breadcrumb-link-color); }
-        .ps-breadcrumb a:hover { color: var(--breadcrumb-link-hover-color); }
-        .ps-breadcrumb span { color: var(--breadcrumb-text-color); }
+        .ps-breadcrumb { background: var(--breadcrumb-bg); padding: 10px 0; }
+        .ps-breadcrumb a { color: var(--breadcrumb-link-color); font-size: 12px; font-weight: 400; }
+        .ps-breadcrumb a:hover { color: var(--breadcrumb-link-hover-color); text-decoration: underline; }
+        .ps-breadcrumb span { color: var(--breadcrumb-text-color); font-size: 12px; }
+        .ps-breadcrumb .breadcrumb-separator { margin: 0 8px; }
+        .ps-breadcrumb .breadcrumb-separator i { font-size: 10px; }
 
         /* Go to Top Button — selector: #back2top */
         #back2top {
