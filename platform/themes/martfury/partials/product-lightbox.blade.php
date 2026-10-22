@@ -134,21 +134,6 @@
                 </button>
             </div>
             
-            {{-- Center: Playback Controls (only for direct videos) --}}
-            <div class="mobile-video-center-controls" id="mobile-video-center-controls" style="display: none;">
-                <button class="center-control-btn center-control-btn-small" id="center-btn-backward" aria-label="Rewind 10s">
-                    <i class="ph ph-arrow-counter-clockwise"></i>
-                    <span class="control-badge">10</span>
-                </button>
-                <button class="center-control-btn center-control-btn-main" id="center-btn-play-pause" aria-label="Play/Pause">
-                    <i class="ph-fill ph-pause"></i>
-                </button>
-                <button class="center-control-btn center-control-btn-small" id="center-btn-forward" aria-label="Forward 10s">
-                    <i class="ph ph-arrow-clockwise"></i>
-                    <span class="control-badge">10</span>
-                </button>
-            </div>
-            
             {{-- Bottom Left: Uploader Info --}}
             <div class="mobile-video-uploader">
                 <div class="mobile-uploader-avatar" id="mobile-uploader-avatar">
@@ -175,27 +160,6 @@
                 </button>
                 <button class="mobile-action-btn mobile-btn-more" id="mobile-btn-more">
                     <i class="ph ph-dots-three-vertical"></i>
-                </button>
-            </div>
-            
-            {{-- Bottom: Video Controls Bar (time + progress only, no playback buttons) --}}
-            <div class="mobile-video-controls-bar" id="mobile-video-controls-bar">
-                {{-- Time Display --}}
-                <div class="mobile-video-time">
-                    <span id="mobile-current-time">0:00</span> / <span id="mobile-duration">0:00</span>
-                </div>
-                
-                {{-- Progress Bar --}}
-                <div class="mobile-video-progress" id="mobile-video-progress">
-                    <div class="mobile-video-progress-bg">
-                        <div class="mobile-video-progress-bar" id="mobile-video-progress-bar"></div>
-                        <div class="mobile-video-progress-handle" id="mobile-video-progress-handle"></div>
-                    </div>
-                </div>
-                
-                {{-- Volume Control (inline with progress) --}}
-                <button class="mobile-volume-btn" id="mobile-btn-volume" aria-label="Volume">
-                    <i class="ph ph-speaker-high"></i>
                 </button>
             </div>
         </div>

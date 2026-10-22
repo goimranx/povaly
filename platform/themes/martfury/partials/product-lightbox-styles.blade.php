@@ -872,7 +872,7 @@
                 font-size: 12px !important; /* Smaller chevron */
             }
             
-            /* Fullscreen mode: hide everything except video controls */
+            /* Fullscreen mode: hide everything except video and its native controls */
             .product-lightbox-overlay:fullscreen .mobile-video-header,
             .product-lightbox-overlay:fullscreen .mobile-video-title-container,
             .product-lightbox-overlay:fullscreen .mobile-video-uploader,
@@ -891,16 +891,10 @@
                 display: none !important;
             }
             
-            /* Keep fullscreen button and video controls visible in fullscreen */
+            /* Keep fullscreen button visible in fullscreen */
             .product-lightbox-overlay:fullscreen .mobile-video-fullscreen,
-            .product-lightbox-overlay:fullscreen .mobile-video-center-controls,
-            .product-lightbox-overlay:fullscreen .mobile-video-controls-bar,
             .product-lightbox-overlay:-webkit-full-screen .mobile-video-fullscreen,
-            .product-lightbox-overlay:-webkit-full-screen .mobile-video-center-controls,
-            .product-lightbox-overlay:-webkit-full-screen .mobile-video-controls-bar,
-            .product-lightbox-overlay:-moz-full-screen .mobile-video-fullscreen,
-            .product-lightbox-overlay:-moz-full-screen .mobile-video-center-controls,
-            .product-lightbox-overlay:-moz-full-screen .mobile-video-controls-bar {
+            .product-lightbox-overlay:-moz-full-screen .mobile-video-fullscreen {
                 display: flex !important;
             }
             
@@ -933,112 +927,10 @@
                 color: #fff !important;
             }
             
-            /* Center: Playback Controls (only for direct uploaded videos) */
-            .mobile-video-play-overlay {
-                position: absolute !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                opacity: 0 !important;
-                transition: opacity 0.3s ease !important;
-                pointer-events: none !important;
-            }
-            
-            .mobile-video-play-overlay.show {
-                opacity: 1 !important;
-            }
-            
-            .mobile-play-icon {
-                width: 72px !important;
-                height: 72px !important;
-                border-radius: 50% !important;
-                background: rgba(0, 0, 0, 0.5) !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-            }
-            
-            .mobile-play-icon i {
-                font-size: 36px !important;
-                color: #fff !important;
-            }
-            
-            /* Center: Playback Controls (only for direct uploaded videos) */
-            .mobile-video-center-controls {
-                position: absolute !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                gap: 20px !important; /* Closer together */
-                z-index: 10 !important;
-            }
-            
-            .center-control-btn {
-                width: 72px !important;
-                height: 72px !important;
-                border-radius: 50% !important;
-                background: rgba(0, 0, 0, 0.6) !important;
-                border: none !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                cursor: pointer !important;
-                transition: background 0.2s ease !important;
-                position: relative !important;
-            }
-            
-            .center-control-btn:active {
-                background: rgba(0, 0, 0, 0.8) !important;
-            }
-            
-            .center-control-btn i {
-                font-size: 36px !important;
-                color: #fff !important;
-            }
-            
-            /* Small buttons for forward/backward */
-            .center-control-btn-small {
-                width: 48px !important;
-                height: 48px !important;
-            }
-            
-            .center-control-btn-small i {
-                font-size: 24px !important;
-            }
-            
-            /* Main play/pause button - largest */
-            .center-control-btn-main {
-                width: 72px !important;
-                height: 72px !important;
-            }
-            
-            .center-control-btn-main i {
-                font-size: 36px !important;
-            }
-            
-            /* Badge for "10" indicator on forward/backward buttons */
-            .control-badge {
-                position: absolute !important;
-                bottom: -8px !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                background: rgba(0, 0, 0, 0.8) !important;
-                color: #fff !important;
-                font-size: 10px !important;
-                font-weight: 600 !important;
-                padding: 2px 6px !important;
-                border-radius: 10px !important;
-                min-width: 20px !important;
-                text-align: center !important;
-            }
-            
             /* Bottom Left: Uploader Info */
             .mobile-video-uploader {
                 position: absolute !important;
-                bottom: 200px !important; /* Above controls bar */
+                bottom: 120px !important; /* Above drawer */
                 left: 20px !important;
                 display: flex !important;
                 align-items: center !important;
@@ -1073,10 +965,10 @@
                 max-width: 16ch !important;
             }
             
-            /* Bottom Right: Action Buttons (includes three-dots menu) */
+            /* Bottom Right: Action Buttons */
             .mobile-video-actions {
                 position: absolute !important;
-                bottom: 200px !important; /* Above controls bar */
+                bottom: 120px !important; /* Above drawer */
                 right: 20px !important;
                 display: flex !important;
                 flex-direction: column !important;
@@ -1124,136 +1016,6 @@
             
             .mobile-sold-count {
                 font-size: 11px !important;
-            }
-            
-            /* Bottom: Video Controls Bar */
-            .mobile-video-controls-bar {
-                position: absolute !important;
-                bottom: 60px !important; /* Above drawer handle */
-                left: 0 !important;
-                right: 0 !important;
-                padding: 0 20px 20px 20px !important;
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 12px !important;
-                background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%) !important;
-            }
-            
-            /* Time Display */
-            .mobile-video-time {
-                display: flex !important;
-                align-items: center !important;
-                gap: 4px !important;
-                color: #fff !important;
-                font-size: 13px !important;
-                font-weight: 500 !important;
-                align-self: flex-start !important;
-            }
-            
-            /* Progress Bar */
-            .mobile-video-progress {
-                width: calc(100% - 50px) !important; /* Leave space for volume button */
-                height: 4px !important;
-                position: relative !important;
-                cursor: pointer !important;
-                display: inline-block !important;
-            }
-            
-            .mobile-video-progress-bg {
-                width: 100% !important;
-                height: 100% !important;
-                background: rgba(255, 255, 255, 0.3) !important;
-                border-radius: 2px !important;
-                position: relative !important;
-                overflow: visible !important;
-            }
-            
-            .mobile-video-progress-bar {
-                height: 100% !important;
-                background: #fff !important;
-                border-radius: 2px !important;
-                width: 0% !important;
-                transition: width 0.1s linear !important;
-            }
-            
-            .mobile-video-progress-handle {
-                position: absolute !important;
-                top: 50% !important;
-                left: 0% !important;
-                transform: translate(-50%, -50%) !important;
-                width: 12px !important;
-                height: 12px !important;
-                background: #fff !important;
-                border-radius: 50% !important;
-                opacity: 0 !important;
-                transition: opacity 0.2s ease !important;
-            }
-            
-            .mobile-video-progress:active .mobile-video-progress-handle {
-                opacity: 1 !important;
-            }
-            
-            /* Volume Button (inline with progress bar) */
-            .mobile-volume-btn {
-                background: none !important;
-                border: none !important;
-                padding: 0 !important;
-                cursor: pointer !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                width: 40px !important;
-                height: 24px !important;
-                vertical-align: top !important;
-                margin-left: 10px !important;
-            }
-            
-            .mobile-volume-btn i {
-                font-size: 24px !important;
-                color: #fff !important;
-            }
-                right: 20px !important;
-                height: 3px !important;
-                background: rgba(255, 255, 255, 0.3) !important;
-                border-radius: 2px !important;
-                overflow: hidden !important;
-                cursor: pointer !important;
-            }
-            
-            .mobile-video-progress-bar {
-                height: 100% !important;
-                background: #fff !important;
-                width: 0% !important;
-                transition: width 0.1s linear !important;
-            }
-            
-            /* Video Play/Pause Control - center of screen */
-            .mobile-video-play-control {
-                position: absolute !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                width: 80px !important;
-                height: 80px !important;
-                background: rgba(0, 0, 0, 0.5) !important;
-                border-radius: 50% !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                cursor: pointer !important;
-                opacity: 0 !important;
-                transition: opacity 0.3s ease !important;
-                pointer-events: none !important;
-            }
-            
-            .mobile-video-play-control.show {
-                opacity: 1 !important;
-                pointer-events: auto !important;
-            }
-            
-            .mobile-video-play-control i {
-                font-size: 40px !important;
-                color: #fff !important;
             }
             
             /* Mobile Video Drawer */
