@@ -460,6 +460,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         var videoId = video.id || btoa(video.url);
         
+        // Check if this button already has a handler for this video
+        var currentVideoId = mobileLikeBtn.getAttribute('data-video-id');
+        var needsNewHandler = currentVideoId !== videoId || !mobileLikeBtn.onclick;
+        
+        // Always update the video ID
+        mobileLikeBtn.setAttribute('data-video-id', videoId);
+        
         // Load like state from database - exactly like desktop
         fetch('/api/video-likes/' + encodeURIComponent(videoId))
             .then(function(response) { return response.json(); })
@@ -469,7 +476,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 mobileLikeCount.textContent = totalLikes; // Use actual number, not formatted
                 mobileLikeBtn.setAttribute('data-liked', isLiked ? 'true' : 'false');
-                mobileLikeBtn.setAttribute('data-video-id', videoId);
                 
                 var icon = mobileLikeBtn.querySelector('i');
                 if (isLiked && icon) {
@@ -482,78 +488,79 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Failed to load like state:', err);
                 mobileLikeCount.textContent = video.likes || 0;
                 mobileLikeBtn.setAttribute('data-liked', 'false');
-                mobileLikeBtn.setAttribute('data-video-id', videoId);
             });
         
-        // Click handler - exactly like desktop
-        mobileLikeBtn.onclick = function(e) {
-            e.stopPropagation(); // Prevent triggering toggle
-            resetUIHideTimer(); // Reset timer on interaction
-            var isLiked = mobileLikeBtn.getAttribute('data-liked') === 'true';
-            var currentCount = parseInt(mobileLikeCount.textContent) || 0;
-            var videoId = mobileLikeBtn.getAttribute('data-video-id');
-            var icon = mobileLikeBtn.querySelector('i');
-            
-            if (!isLiked) {
-                // Like
-                mobileLikeBtn.setAttribute('data-liked', 'true');
-                if (icon) icon.className = 'ph-fill ph-thumbs-up';
-                mobileLikeCount.textContent = currentCount + 1;
+        // Only attach click handler once per video (prevent duplicate handlers)
+        if (needsNewHandler) {
+            mobileLikeBtn.onclick = function(e) {
+                e.stopPropagation(); // Prevent triggering toggle
+                resetUIHideTimer(); // Reset timer on interaction
+                var isLiked = mobileLikeBtn.getAttribute('data-liked') === 'true';
+                var currentCount = parseInt(mobileLikeCount.textContent) || 0;
+                var videoId = mobileLikeBtn.getAttribute('data-video-id');
+                var icon = mobileLikeBtn.querySelector('i');
                 
-                fetch('/api/video-likes', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                    },
-                    body: JSON.stringify({
-                        video_id: videoId,
-                        video_url: video.url,
-                        product_id: currentProduct?.id || null,
-                        action: 'like'
-                    })
-                })
-                .then(function(response) { return response.json(); })
-                .then(function(data) {
-                    if (data.success) {
-                        mobileLikeCount.textContent = data.total_likes;
-                    }
-                })
-                .catch(function(err) {
-                    console.error('Failed to save like:', err);
-                    // Revert on error
-                    mobileLikeBtn.setAttribute('data-liked', 'false');
-                    if (icon) icon.className = 'ph ph-thumbs-up';
-                    mobileLikeCount.textContent = currentCount;
-                });
-            } else {
-                // Unlike
-                mobileLikeBtn.setAttribute('data-liked', 'false');
-                if (icon) icon.className = 'ph ph-thumbs-up';
-                mobileLikeCount.textContent = Math.max(0, currentCount - 1);
-                
-                fetch('/api/video-likes/' + encodeURIComponent(videoId), {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                    }
-                })
-                .then(function(response) { return response.json(); })
-                .then(function(data) {
-                    if (data.success) {
-                        mobileLikeCount.textContent = data.total_likes;
-                    }
-                })
-                .catch(function(err) {
-                    console.error('Failed to remove like:', err);
-                    // Revert on error
+                if (!isLiked) {
+                    // Like
                     mobileLikeBtn.setAttribute('data-liked', 'true');
                     if (icon) icon.className = 'ph-fill ph-thumbs-up';
-                    mobileLikeCount.textContent = currentCount;
-                });
-            }
-        };
+                    mobileLikeCount.textContent = currentCount + 1;
+                    
+                    fetch('/api/video-likes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        },
+                        body: JSON.stringify({
+                            video_id: videoId,
+                            video_url: video.url,
+                            product_id: currentProduct?.id || null,
+                            action: 'like'
+                        })
+                    })
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
+                        if (data.success) {
+                            mobileLikeCount.textContent = data.total_likes;
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('Failed to save like:', err);
+                        // Revert on error
+                        mobileLikeBtn.setAttribute('data-liked', 'false');
+                        if (icon) icon.className = 'ph ph-thumbs-up';
+                        mobileLikeCount.textContent = currentCount;
+                    });
+                } else {
+                    // Unlike
+                    mobileLikeBtn.setAttribute('data-liked', 'false');
+                    if (icon) icon.className = 'ph ph-thumbs-up';
+                    mobileLikeCount.textContent = Math.max(0, currentCount - 1);
+                    
+                    fetch('/api/video-likes/' + encodeURIComponent(videoId), {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        }
+                    })
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
+                        if (data.success) {
+                            mobileLikeCount.textContent = data.total_likes;
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('Failed to remove like:', err);
+                        // Revert on error
+                        mobileLikeBtn.setAttribute('data-liked', 'true');
+                        if (icon) icon.className = 'ph-fill ph-thumbs-up';
+                        mobileLikeCount.textContent = currentCount;
+                    });
+                }
+            };
+        }
     }
     
     // Initialize mobile buy button
@@ -569,46 +576,49 @@ document.addEventListener('DOMContentLoaded', function() {
             mobileSoldCount.textContent = soldCount > 0 ? soldCount + ' sold' : 'Buy now';
         }
         
-        // Buy now handler - find the actual buy now button on the page and trigger it
-        mobileBuyBtn.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            resetControlsHideTimer(); // Reset timer on interaction
-            
-            if (!currentProduct || !currentProduct.id) {
-                console.error('No product data available');
-                return;
-            }
-            
-            // Close lightbox
-            closeLightbox();
-            
-            // After closing, trigger the buy now button
-            setTimeout(function() {
-                // Try to find the buy now button
-                var buyNowBtn = document.querySelector('.btn-buy-now, .buy-now-button, button[data-action="buy-now"], .add-to-cart-form .btn-buy-now');
+        // Only attach handler if it doesn't exist
+        if (!mobileBuyBtn.onclick) {
+            // Buy now handler - find the actual buy now button on the page and trigger it
+            mobileBuyBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                resetUIHideTimer(); // Reset timer on interaction
                 
-                if (buyNowBtn) {
-                    buyNowBtn.click();
-                } else {
-                    // Fallback: try add to cart and then go to checkout
-                    var addToCartBtn = document.querySelector('.add-to-cart-button, button[name="add-to-cart"], .add-to-cart-form button[type="submit"]');
-                    if (addToCartBtn) {
-                        addToCartBtn.click();
-                        // Wait a bit then redirect to checkout
-                        setTimeout(function() {
-                            window.location.href = '/checkout';
-                        }, 500);
+                if (!currentProduct || !currentProduct.id) {
+                    console.error('No product data available');
+                    return;
+                }
+                
+                // Close lightbox
+                closeLightbox();
+                
+                // After closing, trigger the buy now button
+                setTimeout(function() {
+                    // Try to find the buy now button
+                    var buyNowBtn = document.querySelector('.btn-buy-now, .buy-now-button, button[data-action="buy-now"], .add-to-cart-form .btn-buy-now');
+                    
+                    if (buyNowBtn) {
+                        buyNowBtn.click();
                     } else {
-                        // Last resort: scroll to product section
-                        var productSection = document.querySelector('.product-info, .product-detail, .box-product-detail');
-                        if (productSection) {
-                            productSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        // Fallback: try add to cart and then go to checkout
+                        var addToCartBtn = document.querySelector('.add-to-cart-button, button[name="add-to-cart"], .add-to-cart-form button[type="submit"]');
+                        if (addToCartBtn) {
+                            addToCartBtn.click();
+                            // Wait a bit then redirect to checkout
+                            setTimeout(function() {
+                                window.location.href = '/checkout';
+                            }, 500);
+                        } else {
+                            // Last resort: scroll to product section
+                            var productSection = document.querySelector('.product-info, .product-detail, .box-product-detail');
+                            if (productSection) {
+                                productSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }
                         }
                     }
-                }
-            }, 300);
-        };
+                }, 300);
+            };
+        }
     }
     
     // Initialize mobile cart button
@@ -629,43 +639,46 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        mobileCartBtn.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            resetControlsHideTimer(); // Reset timer on interaction
-            
-            if (!currentProduct || !currentProduct.id) {
-                console.error('No product data available');
-                return;
-            }
-            
-            // Close lightbox
-            closeLightbox();
-            
-            // After closing, trigger the add to cart button
-            setTimeout(function() {
-                var addToCartBtn = document.querySelector('.add-to-cart-button, button[name="add-to-cart"], .add-to-cart-form button[type="submit"], .btn-add-to-cart');
+        // Only attach handler if it doesn't exist
+        if (!mobileCartBtn.onclick) {
+            mobileCartBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                resetUIHideTimer(); // Reset timer on interaction
                 
-                if (addToCartBtn) {
-                    addToCartBtn.click();
-                    
-                    // Update mobile cart count after a delay (wait for cart to update)
-                    setTimeout(function() {
-                        var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count]');
-                        if (cartCounter && mobileCartCount) {
-                            var newCount = parseInt(cartCounter.textContent) || 0;
-                            mobileCartCount.textContent = newCount;
-                        }
-                    }, 1000);
-                } else {
-                    // Fallback: scroll to product section
-                    var productSection = document.querySelector('.product-info, .product-detail, .box-product-detail');
-                    if (productSection) {
-                        productSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
+                if (!currentProduct || !currentProduct.id) {
+                    console.error('No product data available');
+                    return;
                 }
-            }, 300);
-        };
+                
+                // Close lightbox
+                closeLightbox();
+                
+                // After closing, trigger the add to cart button
+                setTimeout(function() {
+                    var addToCartBtn = document.querySelector('.add-to-cart-button, button[name="add-to-cart"], .add-to-cart-form button[type="submit"], .btn-add-to-cart');
+                    
+                    if (addToCartBtn) {
+                        addToCartBtn.click();
+                        
+                        // Update mobile cart count after a delay (wait for cart to update)
+                        setTimeout(function() {
+                            var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count]');
+                            if (cartCounter && mobileCartCount) {
+                                var newCount = parseInt(cartCounter.textContent) || 0;
+                                mobileCartCount.textContent = newCount;
+                            }
+                        }, 1000);
+                    } else {
+                        // Fallback: scroll to product section
+                        var productSection = document.querySelector('.product-info, .product-detail, .box-product-detail');
+                        if (productSection) {
+                            productSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                }, 300);
+            };
+        }
     }
     
     // Initialize mobile share button
@@ -677,6 +690,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         var videoId = video.id || btoa(video.url);
         
+        // Check if this button already has a handler for this video
+        var currentVideoId = mobileShareBtn.getAttribute('data-video-id');
+        var needsNewHandler = currentVideoId !== videoId || !mobileShareBtn.onclick;
+        
+        // Always update the video ID
+        mobileShareBtn.setAttribute('data-video-id', videoId);
+        
         // Load share count from database - exactly like like button
         fetch('/api/video-shares/' + encodeURIComponent(videoId))
             .then(function(response) { return response.json(); })
@@ -685,97 +705,98 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (mobileShareCount) {
                     mobileShareCount.textContent = totalShares; // Use actual number from database
                 }
-                mobileShareBtn.setAttribute('data-video-id', videoId);
             })
             .catch(function(err) {
                 console.error('Failed to load share count:', err);
                 if (mobileShareCount) {
                     mobileShareCount.textContent = video.shares || 0;
                 }
-                mobileShareBtn.setAttribute('data-video-id', videoId);
             });
         
-        mobileShareBtn.onclick = function(e) {
-            e.stopPropagation(); // Prevent triggering toggle
-            resetUIHideTimer(); // Reset timer on interaction
-            var videoId = video.id || btoa(video.url);
-            var currentCount = parseInt(mobileShareCount.textContent) || 0;
-            
-            if (navigator.share && video.url) {
-                navigator.share({
-                    title: currentProduct?.name || 'Product Video',
-                    text: 'Check out this video!',
-                    url: video.url
-                })
-                .then(function() {
-                    // Increment count immediately
-                    if (mobileShareCount) {
-                        mobileShareCount.textContent = currentCount + 1;
-                    }
-                    
-                    // Track share in database
-                    fetch('/api/video-shares', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                        },
-                        body: JSON.stringify({
-                            video_id: videoId,
-                            video_url: video.url,
-                            product_id: currentProduct?.id || null
-                        })
+        // Only attach click handler once per video (prevent duplicate handlers)
+        if (needsNewHandler) {
+            mobileShareBtn.onclick = function(e) {
+                e.stopPropagation(); // Prevent triggering toggle
+                resetUIHideTimer(); // Reset timer on interaction
+                var videoId = video.id || btoa(video.url);
+                var currentCount = parseInt(mobileShareCount.textContent) || 0;
+                
+                if (navigator.share && video.url) {
+                    navigator.share({
+                        title: currentProduct?.name || 'Product Video',
+                        text: 'Check out this video!',
+                        url: video.url
                     })
-                    .then(function(response) { return response.json(); })
-                    .then(function(data) {
-                        if (data.success && mobileShareCount) {
-                            mobileShareCount.textContent = data.total_shares;
+                    .then(function() {
+                        // Increment count immediately
+                        if (mobileShareCount) {
+                            mobileShareCount.textContent = currentCount + 1;
+                        }
+                        
+                        // Track share in database
+                        fetch('/api/video-shares', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                            },
+                            body: JSON.stringify({
+                                video_id: videoId,
+                                video_url: video.url,
+                                product_id: currentProduct?.id || null
+                            })
+                        })
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            if (data.success && mobileShareCount) {
+                                mobileShareCount.textContent = data.total_shares;
+                            }
+                        });
+                    })
+                    .catch(function(err) {
+                        console.log('Share cancelled or failed:', err);
+                    });
+                } else if (video.url) {
+                    // Fallback: copy to clipboard
+                    navigator.clipboard.writeText(video.url).then(function() {
+                        // Increment count immediately
+                        if (mobileShareCount) {
+                            mobileShareCount.textContent = currentCount + 1;
+                        }
+                        
+                        // Track share in database
+                        fetch('/api/video-shares', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                            },
+                            body: JSON.stringify({
+                                video_id: videoId,
+                                video_url: video.url,
+                                product_id: currentProduct?.id || null
+                            })
+                        })
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            if (data.success && mobileShareCount) {
+                                mobileShareCount.textContent = data.total_shares;
+                            }
+                        });
+                        
+                        // Show feedback
+                        var icon = mobileShareBtn.querySelector('i');
+                        if (icon) {
+                            var originalClass = icon.className;
+                            icon.className = 'ph-fill ph-check';
+                            setTimeout(function() {
+                                icon.className = originalClass;
+                            }, 2000);
                         }
                     });
-                })
-                .catch(function(err) {
-                    console.log('Share cancelled or failed:', err);
-                });
-            } else if (video.url) {
-                // Fallback: copy to clipboard
-                navigator.clipboard.writeText(video.url).then(function() {
-                    // Increment count immediately
-                    if (mobileShareCount) {
-                        mobileShareCount.textContent = currentCount + 1;
-                    }
-                    
-                    // Track share in database
-                    fetch('/api/video-shares', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                        },
-                        body: JSON.stringify({
-                            video_id: videoId,
-                            video_url: video.url,
-                            product_id: currentProduct?.id || null
-                        })
-                    })
-                    .then(function(response) { return response.json(); })
-                    .then(function(data) {
-                        if (data.success && mobileShareCount) {
-                            mobileShareCount.textContent = data.total_shares;
-                        }
-                    });
-                    
-                    // Show feedback
-                    var icon = mobileShareBtn.querySelector('i');
-                    if (icon) {
-                        var originalClass = icon.className;
-                        icon.className = 'ph-fill ph-check';
-                        setTimeout(function() {
-                            icon.className = originalClass;
-                        }, 2000);
-                    }
-                });
-            }
-        };
+                }
+            };
+        }
     }
     
     // Initialize mobile drawer
@@ -1031,13 +1052,20 @@ document.addEventListener('DOMContentLoaded', function() {
             videoUploader.querySelector('.uploader-name').textContent = uploaderName;
         }
         
-        // Initialize like button state from database
+        // Initialize desktop like button (only once, prevent duplicate handlers)
         var likeBtn = document.getElementById('lightbox-video-like-btn');
         var likeCount = document.getElementById('lightbox-video-like-count');
         
         if (likeBtn && likeCount) {
             // Get video ID (use URL as unique identifier if no ID provided)
             var videoId = video.id || btoa(video.url); // Base64 encode URL as fallback ID
+            
+            // Check if this button already has a handler for this video
+            var currentVideoId = likeBtn.getAttribute('data-video-id');
+            var needsNewHandler = currentVideoId !== videoId || !likeBtn.onclick;
+            
+            // Always update the video ID and load state
+            likeBtn.setAttribute('data-video-id', videoId);
             
             // Load like state and count from database
             fetch('/api/video-likes/' + encodeURIComponent(videoId))
@@ -1049,7 +1077,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     likeCount.textContent = totalLikes;
                     likeBtn.setAttribute('data-liked', isLiked ? 'true' : 'false');
-                    likeBtn.setAttribute('data-video-id', videoId);
                     
                     var icon = likeBtn.querySelector('i');
                     if (isLiked) {
@@ -1065,91 +1092,92 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Set defaults on error
                     likeCount.textContent = video.likes || 0;
                     likeBtn.setAttribute('data-liked', 'false');
-                    likeBtn.setAttribute('data-video-id', videoId);
                     var icon = likeBtn.querySelector('i');
                     if (icon) icon.className = 'ph ph-thumbs-up';
                 });
             
-            // Add click handler - toggle like on/off with database persistence
-            likeBtn.onclick = function() {
-                var isLiked = likeBtn.getAttribute('data-liked') === 'true';
-                var currentCount = parseInt(likeCount.textContent) || 0;
-                var videoId = likeBtn.getAttribute('data-video-id');
-                var icon = likeBtn.querySelector('i');
-                
-                if (!isLiked) {
-                    // Like the video - save to database
-                    likeBtn.classList.add('liked');
-                    likeBtn.setAttribute('data-liked', 'true');
-                    if (icon) icon.className = 'ph-fill ph-thumbs-up';
-                    likeCount.textContent = currentCount + 1;
+            // Only attach click handler once per video (prevent duplicate handlers)
+            if (needsNewHandler) {
+                likeBtn.onclick = function() {
+                    var isLiked = likeBtn.getAttribute('data-liked') === 'true';
+                    var currentCount = parseInt(likeCount.textContent) || 0;
+                    var videoId = likeBtn.getAttribute('data-video-id');
+                    var icon = likeBtn.querySelector('i');
                     
-                    // Save to database
-                    fetch('/api/video-likes', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                        },
-                        body: JSON.stringify({
-                            video_id: videoId,
-                            video_url: video.url,
-                            product_id: currentProduct?.id || null,
-                            action: 'like'
-                        })
-                    })
-                    .then(function(response) { return response.json(); })
-                    .then(function(data) {
-                        if (data.success) {
-                            // Update count with actual database count
-                            likeCount.textContent = data.total_likes;
-                        }
-                    })
-                    .catch(function(err) {
-                        console.error('Failed to save like:', err);
-                        // Revert on error
-                        likeBtn.classList.remove('liked');
-                        likeBtn.setAttribute('data-liked', 'false');
-                        if (icon) icon.className = 'ph ph-thumbs-up';
-                        likeCount.textContent = currentCount;
-                    });
-                } else {
-                    // Unlike the video - remove from database
-                    likeBtn.classList.remove('liked');
-                    likeBtn.setAttribute('data-liked', 'false');
-                    if (icon) icon.className = 'ph ph-thumbs-up';
-                    likeCount.textContent = Math.max(0, currentCount - 1);
-                    
-                    // Remove from database
-                    fetch('/api/video-likes/' + encodeURIComponent(videoId), {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                        }
-                    })
-                    .then(function(response) { return response.json(); })
-                    .then(function(data) {
-                        if (data.success) {
-                            // Update count with actual database count
-                            likeCount.textContent = data.total_likes;
-                        }
-                    })
-                    .catch(function(err) {
-                        console.error('Failed to remove like:', err);
-                        // Revert on error
+                    if (!isLiked) {
+                        // Like the video - save to database
                         likeBtn.classList.add('liked');
                         likeBtn.setAttribute('data-liked', 'true');
                         if (icon) icon.className = 'ph-fill ph-thumbs-up';
-                        likeCount.textContent = currentCount;
-                    });
-                }
-            };
+                        likeCount.textContent = currentCount + 1;
+                        
+                        // Save to database
+                        fetch('/api/video-likes', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                            },
+                            body: JSON.stringify({
+                                video_id: videoId,
+                                video_url: video.url,
+                                product_id: currentProduct?.id || null,
+                                action: 'like'
+                            })
+                        })
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            if (data.success) {
+                                // Update count with actual database count
+                                likeCount.textContent = data.total_likes;
+                            }
+                        })
+                        .catch(function(err) {
+                            console.error('Failed to save like:', err);
+                            // Revert on error
+                            likeBtn.classList.remove('liked');
+                            likeBtn.setAttribute('data-liked', 'false');
+                            if (icon) icon.className = 'ph ph-thumbs-up';
+                            likeCount.textContent = currentCount;
+                        });
+                    } else {
+                        // Unlike the video - remove from database
+                        likeBtn.classList.remove('liked');
+                        likeBtn.setAttribute('data-liked', 'false');
+                        if (icon) icon.className = 'ph ph-thumbs-up';
+                        likeCount.textContent = Math.max(0, currentCount - 1);
+                        
+                        // Remove from database
+                        fetch('/api/video-likes/' + encodeURIComponent(videoId), {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                            }
+                        })
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            if (data.success) {
+                                // Update count with actual database count
+                                likeCount.textContent = data.total_likes;
+                            }
+                        })
+                        .catch(function(err) {
+                            console.error('Failed to remove like:', err);
+                            // Revert on error
+                            likeBtn.classList.add('liked');
+                            likeBtn.setAttribute('data-liked', 'true');
+                            if (icon) icon.className = 'ph-fill ph-thumbs-up';
+                            likeCount.textContent = currentCount;
+                        });
+                    }
+                };
+            }
         }
         
         // Add share button handler
         var shareBtn = document.getElementById('lightbox-video-share-btn');
-        if (shareBtn) {
+        if (shareBtn && !shareBtn.onclick) {
             shareBtn.onclick = function() {
                 // Share current video URL
                 if (navigator.share && video.url) {
@@ -1178,6 +1206,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Store current video index
         currentProduct.currentVideoIndex = activeIndex;
+        
+        // Initialize mobile video controls if on mobile (after desktop like button is initialized)
+        if (window.innerWidth <= 767) {
+            initializeMobileVideoControls();
+        }
     }
     
     // Create YouTube player
