@@ -4,18 +4,17 @@
 
 <div class="ps-page--product">
     <div class="ps-container" id="app">
-        <div class="ps-page__container">
-            <div class="ps-product--detail ps-product--fullwidth bb-product-detail">
-                <div class="ps-product__header">
-                            <div class="ps-product__gallery-wrapper">
-                                <div class="ps-product__thumbnail">
-                                    @include(EcommerceHelper::viewPath('includes.product-gallery'))
-                                </div>
-                            </div>
-                            <form class="add-to-cart-form ps-product__info-wrapper" method="POST" action="{{ route('public.cart.add-to-cart') }}">
-                                @csrf
-                                <!-- LEFT: Product Details (65%) -->
-                                <div class="ps-product__details">
+        <div class="ps-product--detail ps-product--fullwidth bb-product-detail">
+            <div class="ps-product__header">
+                <div class="ps-product__gallery-wrapper">
+                    <div class="ps-product__thumbnail">
+                        @include(EcommerceHelper::viewPath('includes.product-gallery'))
+                    </div>
+                </div>
+                <form class="add-to-cart-form ps-product__info-wrapper" method="POST" action="{{ route('public.cart.add-to-cart') }}">
+                    @csrf
+                    <!-- LEFT: Product Details (65%) -->
+                    <div class="ps-product__details">
                                     <h1>{{ $product->name }}</h1>
                                     
                                     <div class="ps-product__meta">
@@ -205,11 +204,15 @@
                     </div>
 
                     @if (EcommerceHelper::isEnabledUpSaleProducts())
-                        @include(EcommerceHelper::viewPath('includes.up-sale-products'), ['parentProduct' => $product])
+                        <div class="ec-up-sale-section">
+                            @include(EcommerceHelper::viewPath('includes.up-sale-products'), ['parentProduct' => $product])
+                        </div>
                     @endif
 
                     @if (EcommerceHelper::isEnabledCrossSaleProducts())
-                        @include(EcommerceHelper::viewPath('includes.cross-sale-products'), ['parentProduct' => $product])
+                        <div class="ec-cross-sale-section">
+                            @include(EcommerceHelper::viewPath('includes.cross-sale-products'), ['parentProduct' => $product])
+                        </div>
                     @endif
 
                     <div class="ps-product__content ps-tab-root">
@@ -335,7 +338,6 @@
                     </div>
                 </div>
             </div>
-        </div>
     </div>
 </div>
 

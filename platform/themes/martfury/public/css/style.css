@@ -3,16 +3,19 @@ html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:1
 
 /* Product Page Container Structure */
 .ps-page--product .ps-container {
-    padding: 0;
-}
-
-.ps-page--product .ps-page__container {
     width: 100%;
-    max-width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
 }
 
 .ps-product--detail {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+}
+
+.ec-up-sale-section,
+.ec-cross-sale-section {
+    margin-bottom: 40px;
 }
 
 /* Product Header Three-Column Layout */
