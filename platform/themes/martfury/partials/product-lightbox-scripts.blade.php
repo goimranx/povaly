@@ -1519,11 +1519,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (videoTitle && currentProduct) {
             // Use video title if available, otherwise fall back to product name + index
-            if (video.title && video.title.trim()) {
+            if (video.title) {
                 videoTitle.textContent = video.title;
             } else {
                 // Fallback: Product name + video index
-                var videoIndex = activeIndex;
+                var videoIndex = currentProduct.currentVideoIndex || 0;
                 videoTitle.textContent = (currentProduct.name || 'Product') + ' - Video ' + (videoIndex + 1);
             }
         }
