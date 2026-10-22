@@ -1117,6 +1117,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load videos
     function loadVideos(videos, activeIndex) {
+        console.log('📹 [LOAD VIDEOS] Called with activeIndex:', activeIndex, 'Stack:', new Error().stack.split('\n')[2]);
+        
         if (typeof activeIndex === 'undefined') activeIndex = 0;
         
         var videoPlayer = document.getElementById('lightbox-video-player');
@@ -1377,26 +1379,57 @@ document.addEventListener('DOMContentLoaded', function() {
         var shareBtn = document.getElementById('lightbox-video-share-btn');
         if (shareBtn) {
             var shareCount = shareBtn.querySelector('.share-count');
-            var videoId = video.id || btoa(video.url);
+            
+            // CRITICAL: Use same video ID extraction logic as like button
+            var shareVideoId;
+            if (video.id) {
+                shareVideoId = video.id;
+            } else if (video.provider === 'youtube') {
+                var youtubeMatch = video.url.match(/embed\/([^?]+)/);
+                shareVideoId = youtubeMatch ? 'youtube_' + youtubeMatch[1] : btoa(video.url);
+            } else if (video.provider === 'vimeo') {
+                var vimeoMatch = video.url.match(/video\/(\d+)/);
+                shareVideoId = vimeoMatch ? 'vimeo_' + vimeoMatch[1] : btoa(video.url);
+            } else {
+                var cleanUrl = video.url.split('?')[0];
+                shareVideoId = btoa(cleanUrl);
+            }
             var videoUrl = video.url;
             
+            console.log('🔗 [DESKTOP SHARE] Initializing for video:', shareVideoId);
+            
+            // Check if same video - skip if yes
+            var currentShareVideoId = shareBtn.getAttribute('data-video-id');
+            if (currentShareVideoId === shareVideoId) {
+                console.log('⏭️ [DESKTOP SHARE] Same video, skipping');
+                return;
+            }
+            
             // Always update the video ID and URL - THIS IS CRITICAL
-            shareBtn.setAttribute('data-video-id', videoId);
+            shareBtn.setAttribute('data-video-id', shareVideoId);
             shareBtn.setAttribute('data-video-url', videoUrl);
+            
+            console.log('🔄 [DESKTOP SHARE] Fetching from:', '/api/video-shares/' + shareVideoId);
             
             // Load share count from database
             if (shareCount) {
-                fetch('/api/video-shares/' + encodeURIComponent(videoId))
-                    .then(function(response) { return response.json(); })
+                fetch('/api/video-shares/' + encodeURIComponent(shareVideoId))
+                    .then(function(response) { 
+                        console.log('📡 [DESKTOP SHARE] Response:', response.status);
+                        return response.json(); 
+                    })
                     .then(function(data) {
+                        console.log('✅ [DESKTOP SHARE] Data:', data);
                         var totalShares = data.total_shares || 0;
                         shareCount.textContent = totalShares;
                     })
                     .catch(function(err) {
-                        console.error('Failed to load share count:', err);
+                        console.error('❌ [DESKTOP SHARE] Error:', err);
                         shareCount.textContent = video.shares || 0;
                     });
             }
+            
+            console.log('🔧 [DESKTOP SHARE] Cloning button');
             
             // CLONE AND REPLACE to remove ALL previous handlers
             var newShareBtn = shareBtn.cloneNode(true);
@@ -1405,6 +1438,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Get shareCount from new cloned element
             shareCount = shareBtn.querySelector('.share-count');
+            
+            console.log('🔧 [DESKTOP SHARE] Button cloned, count ref:', shareCount ? 'OK' : 'MISSING');
             
             // Attach fresh click handler - reads current data attributes inside the handler
             shareBtn.onclick = function() {
