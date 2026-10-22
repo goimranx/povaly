@@ -909,7 +909,7 @@
             /* Top Right: Close Button Only */
             .mobile-video-header {
                 position: absolute !important;
-                top: 10px !important;
+                top: 12px !important;
                 right: 10px !important;
                 display: flex !important;
                 align-items: center !important;
