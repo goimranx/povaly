@@ -494,18 +494,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (videoListsContainer) videoListsContainer.style.display = 'block';
             if (productInfo) productInfo.style.display = 'none';
             
-            // Auto-play first video ONLY when switching from Images tab (not on initial load)
-            // If video is already loaded (currentVideoIndex exists), don't reload
+            // Auto-play video when switching to Videos tab
             if (currentProduct && currentProduct.videos && currentProduct.videos.length > 0) {
-                // Check if we're switching tabs (not initial load)
                 var videoPlayer = document.getElementById('lightbox-video-player');
                 var hasVideoContent = videoPlayer && videoPlayer.children.length > 0;
                 
-                // Only load first video if no video is currently loaded
-                if (!hasVideoContent) {
-                    var videoIndex = currentProduct.currentVideoIndex || 0;
-                    loadVideos(currentProduct.videos, videoIndex);
-                }
+                // Always reload video to ensure autoplay works
+                var videoIndex = currentProduct.currentVideoIndex || 0;
+                loadVideos(currentProduct.videos, videoIndex);
                 
                 // Initialize mobile video controls if on mobile
                 if (window.innerWidth <= 767) {

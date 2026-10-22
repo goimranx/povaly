@@ -49,7 +49,7 @@
                                 <span class="like-count" id="lightbox-video-like-count">0</span>
                             </div>
                             <button class="btn-video-share" id="lightbox-video-share-btn">
-                                <i class="ph ph-share-network"></i>
+                                <i class="ph ph-share-fat"></i>
                             </button>
                         </div>
                         
@@ -150,7 +150,7 @@
                     <i class="icon-cart"></i>
                 </button>
                 <button class="mobile-action-btn mobile-btn-share" id="mobile-btn-share">
-                    <i class="ph ph-paper-plane-tilt"></i>
+                    <i class="ph ph-share-fat"></i>
                 </button>
             </div>
         </div>
