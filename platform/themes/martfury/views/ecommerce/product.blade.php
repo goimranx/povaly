@@ -14,7 +14,6 @@
                                 </div>
                             </div>
                             <div class="ps-product__info-wrapper">
-                                <div class="ps-product__info-left">
                                 <div class="ps-product__info">
                                 <h1>{{ $product->name }}</h1>
                                 <div class="ps-product__meta">
@@ -184,7 +183,18 @@
                             </div>
                             </div>
                             <div class="ps-product__info-right">
-                                <!-- Right side content (35% width) - Can be used for additional info, features, etc -->
+                                <aside class="widget widget_product widget_features">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        @if (theme_option('product_feature_' . $i . '_title'))
+                                            <p><i class="{{ theme_option('product_feature_' . $i . '_icon') }}"></i> {{ theme_option('product_feature_' . $i . '_title') }}</p>
+                                        @endif
+                                    @endfor
+                                </aside>
+                                @if (is_plugin_active('ads'))
+                                    <aside class="widget">
+                                        {!! AdsManager::display('product-sidebar', ['class' => 'mb-3'], false) !!}
+                                    </aside>
+                                @endif
                             </div>
                             </div>
                         </div>
@@ -289,20 +299,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="ps-page__right">
-                    <aside class="widget widget_product widget_features">
-                        @for ($i = 1; $i <= 5; $i++)
-                            @if (theme_option('product_feature_' . $i . '_title'))
-                                <p><i class="{{ theme_option('product_feature_' . $i . '_icon') }}"></i> {{ theme_option('product_feature_' . $i . '_title') }}</p>
-                            @endif
-                        @endfor
-                    </aside>
-                    @if (is_plugin_active('ads'))
-                        <aside class="widget">
-                            {!! AdsManager::display('product-sidebar', ['class' => 'mb-3'], false) !!}
-                        </aside>
-                    @endif
                 </div>
             </div>
 
