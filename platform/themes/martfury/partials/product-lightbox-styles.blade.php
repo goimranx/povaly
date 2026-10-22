@@ -746,11 +746,13 @@
             .product-lightbox-video-player video {
                 position: absolute !important;
                 max-width: 100% !important;
-                max-height: 100% !important;
+                max-height: calc(100% - 200px) !important; /* Reserve space at bottom for controls + UI */
                 width: auto !important;
                 height: auto !important;
                 border: none !important;
-                object-fit: contain !important; /* Contain to prevent cropping */
+                object-fit: contain !important;
+                bottom: 200px !important; /* Push video up to make room for controls and UI */
+                top: auto !important;
             }
             
             /* Portrait videos (9:16 reels) - cover full height */
@@ -771,6 +773,20 @@
                 width: 100% !important;
                 height: auto !important;
                 object-fit: contain !important;
+            }
+            
+            /* Native video controls positioning - above drawer and uploader/actions */
+            .product-lightbox-video-player video::-webkit-media-controls-panel {
+                bottom: 160px !important; /* Position above drawer (50px) + uploader/actions area (110px) */
+            }
+            
+            .product-lightbox-video-player video::-webkit-media-controls-enclosure {
+                bottom: 160px !important;
+            }
+            
+            /* For better visibility, add padding to video container bottom */
+            .video-mode .product-lightbox-video-player {
+                padding-bottom: 180px !important; /* Space for controls + UI elements */
             }
             
             /* Hide sidebar on video mode */
