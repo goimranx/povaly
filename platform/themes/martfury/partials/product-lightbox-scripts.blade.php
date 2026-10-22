@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Auto-hide controls timer
     var controlsHideTimer = null;
-    var CONTROLS_HIDE_DELAY = 3000; // 3 seconds
+    var CONTROLS_HIDE_DELAY = 5000; // 5 seconds (increased from 3)
     
     // Show controls
     function showMobileControls() {
@@ -138,9 +138,12 @@ document.addEventListener('DOMContentLoaded', function() {
             resetControlsHideTimer();
         }
         
-        // Show drawer handle when controls are visible
-        if (drawer && !drawer.classList.contains('open')) {
-            drawer.style.display = 'flex';
+        // Show drawer handle when controls are visible (unless drawer is open)
+        if (drawer) {
+            if (!drawer.classList.contains('open')) {
+                // Just show the handle, drawer stays closed
+                drawer.style.display = 'flex';
+            }
         }
     }
     
@@ -153,9 +156,11 @@ document.addEventListener('DOMContentLoaded', function() {
             mobileControls.classList.add('controls-hidden');
         }
         
-        // Hide drawer when controls are hidden (unless it's open)
-        if (drawer && !drawer.classList.contains('open')) {
-            drawer.style.display = 'none';
+        // Hide drawer completely when controls are hidden (unless it's open)
+        if (drawer) {
+            if (!drawer.classList.contains('open')) {
+                drawer.style.display = 'none';
+            }
         }
     }
     
@@ -174,8 +179,10 @@ document.addEventListener('DOMContentLoaded', function() {
         var mobileControls = document.getElementById('mobile-video-controls');
         if (mobileControls) {
             if (mobileControls.classList.contains('controls-hidden')) {
+                // Controls are hidden, show them
                 showMobileControls();
             } else {
+                // Controls are visible, hide them immediately (no timer)
                 hideMobileControls();
                 if (controlsHideTimer) {
                     clearTimeout(controlsHideTimer);
@@ -225,8 +232,23 @@ document.addEventListener('DOMContentLoaded', function() {
         var videoPlayer = document.getElementById('lightbox-video-player');
         if (videoPlayer) {
             // Remove existing listener if any
-            videoPlayer.removeEventListener('click', toggleMobileControls);
-            videoPlayer.addEventListener('click', toggleMobileControls);
+            var newVideoPlayer = videoPlayer.cloneNode(true);
+            videoPlayer.parentNode.replaceChild(newVideoPlayer, videoPlayer);
+            videoPlayer = newVideoPlayer;
+            
+            // Add click listener
+            videoPlayer.addEventListener('click', function(e) {
+                // Ignore clicks on video controls
+                var target = e.target;
+                if (target.tagName === 'VIDEO' || target.tagName === 'IFRAME' || target.closest('video') || target.closest('iframe')) {
+                    // Only toggle if not clicking on native controls
+                    if (e.target.tagName !== 'VIDEO' || e.offsetY < e.target.offsetHeight - 50) {
+                        toggleMobileControls();
+                    }
+                } else {
+                    toggleMobileControls();
+                }
+            });
         }
         
         // Show controls initially and start auto-hide timer

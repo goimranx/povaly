@@ -1173,11 +1173,11 @@
             /* Drawer-specific overrides for video list styles */
             .mobile-drawer-videos .video-list-header {
                 background: var(--global-color-secondary-soft, #F4F9FD) !important; /* Secondary soft color */
-                color: var(--global-color-text-main, #0D1B2A) !important; /* Dark text */
+                color: var(--global-color-text-on-dark, #FFFFFF) !important; /* White text */
             }
             
             .mobile-drawer-videos .video-list-title {
-                color: var(--global-color-text-main, #0D1B2A) !important; /* Dark text */
+                color: var(--global-color-text-on-dark, #FFFFFF) !important; /* White text */
             }
             
             .mobile-drawer-videos .video-list-item {
@@ -1193,15 +1193,15 @@
             }
             
             .mobile-drawer-videos .video-list-item-title {
-                color: var(--global-color-text-main, #0D1B2A) !important; /* Dark text */
+                color: var(--global-color-text-on-dark, #FFFFFF) !important; /* White text */
             }
             
             .mobile-drawer-videos .video-list-item-uploader {
-                color: var(--global-color-text-body, #2E3D52) !important; /* Dark text, slightly lighter */
+                color: var(--global-color-text-on-dark, #FFFFFF) !important; /* White text */
             }
             
             .mobile-drawer-videos .video-list-item-uploader span {
-                color: var(--global-color-text-body, #2E3D52) !important; /* Dark text for uploader name */
+                color: var(--global-color-text-on-dark, #FFFFFF) !important; /* White text */
             }
         }
 </style>
