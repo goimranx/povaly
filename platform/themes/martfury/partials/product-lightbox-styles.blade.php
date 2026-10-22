@@ -789,14 +789,14 @@
                 display: none !important;
             }
             
-            /* Mobile Video Controls Overlay */
+            /* Mobile Video UI Overlay */
             .mobile-video-controls {
                 position: fixed !important;
                 top: 0 !important;
                 left: 0 !important;
                 right: 0 !important;
                 bottom: 0 !important;
-                pointer-events: none !important;
+                pointer-events: none !important; /* Allow clicks to pass through */
                 z-index: 1000 !important;
             }
             
@@ -806,7 +806,12 @@
             }
             
             .mobile-video-controls > * {
-                pointer-events: auto !important;
+                pointer-events: auto !important; /* But enable clicks on child elements */
+            }
+            
+            /* Click layer (for detecting taps anywhere) */
+            #mobile-click-layer {
+                pointer-events: auto !important; /* Enable clicks on the background layer */
             }
             
             /* Controls hidden state - hide UI elements (title, uploader, actions), show minimal buttons */

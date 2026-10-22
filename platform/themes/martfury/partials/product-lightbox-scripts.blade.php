@@ -231,16 +231,31 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add video-mode class for black background
         if (lightboxOverlay) lightboxOverlay.classList.add('video-mode');
         
-        // Set up tap-to-toggle on the entire video display area (not just video player)
-        var videosContent = document.getElementById('lightbox-videos-content');
-        if (videosContent) {
-            // Remove existing listener if any
-            var newVideosContent = videosContent.cloneNode(true);
-            videosContent.parentNode.replaceChild(newVideosContent, videosContent);
-            videosContent = newVideosContent;
+        // Set up tap-to-toggle on the entire video overlay area
+        // Use the mobile-video-controls overlay which covers the full screen
+        if (mobileControls) {
+            // Create a clickable overlay layer
+            var existingClickLayer = document.getElementById('mobile-click-layer');
+            if (existingClickLayer) {
+                existingClickLayer.remove();
+            }
             
-            // Add click listener to the entire videos content area
-            videosContent.addEventListener('click', function(e) {
+            var clickLayer = document.createElement('div');
+            clickLayer.id = 'mobile-click-layer';
+            clickLayer.style.cssText = 'position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: -1;';
+            mobileControls.appendChild(clickLayer);
+            
+            // Add click listener to the overlay
+            clickLayer.addEventListener('click', function(e) {
+                // Only toggle if clicking on the background (not on buttons or UI elements)
+                toggleMobileUI();
+            });
+        }
+        
+        // Also add listener to video player area for direct clicks on video
+        var videoWrapper = document.querySelector('.product-lightbox-video-wrapper');
+        if (videoWrapper) {
+            videoWrapper.addEventListener('click', function(e) {
                 // Don't toggle if clicking on a button or interactive element
                 var target = e.target;
                 if (target.tagName === 'BUTTON' || 
@@ -254,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return; // Don't toggle for these elements
                 }
                 
-                // Toggle controls
+                // Toggle UI
                 toggleMobileUI();
             });
         }
