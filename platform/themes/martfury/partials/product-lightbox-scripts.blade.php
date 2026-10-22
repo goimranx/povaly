@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var mobileTitle = document.getElementById('mobile-video-title');
         if (mobileTitle && currentProduct) {
             // Use video title if available, otherwise fall back to product name
-            if (video.title) {
+            if (video.title && video.title.trim()) {
                 mobileTitle.textContent = video.title;
             } else {
                 mobileTitle.textContent = currentProduct.name || 'Product Video';
@@ -1518,13 +1518,12 @@ document.addEventListener('DOMContentLoaded', function() {
         var videoUploader = document.getElementById('lightbox-video-uploader');
         
         if (videoTitle && currentProduct) {
-            // Use video title if available, otherwise fall back to product name + index
-            if (video.title) {
+            // Use video title if available, otherwise fall back to product name
+            if (video.title && video.title.trim()) {
                 videoTitle.textContent = video.title;
             } else {
-                // Fallback: Product name + video index
-                var videoIndex = currentProduct.currentVideoIndex || 0;
-                videoTitle.textContent = (currentProduct.name || 'Product') + ' - Video ' + (videoIndex + 1);
+                // Fallback: Use product name
+                videoTitle.textContent = currentProduct.name || 'Product Video';
             }
         }
         
@@ -2104,7 +2103,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         var title = document.createElement('div');
         title.className = 'video-list-item-title';
-        title.textContent = video.title || 'Product Video ' + (index + 1);
+        title.textContent = (video.title && video.title.trim()) ? video.title : (currentProduct?.name || 'Product Video');
         
         var uploader = document.createElement('div');
         uploader.className = 'video-list-item-uploader';
