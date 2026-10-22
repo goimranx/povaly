@@ -201,22 +201,21 @@
                                 <!-- END: Purchase Box (35%) -->
                             </form>
                         </div>
-                    </div>
-                </div>
+                        <!-- END: ps-product__header -->
 
-                @if (EcommerceHelper::isEnabledUpSaleProducts())
-                    <div class="ec-up-sale-section">
-                        @include(EcommerceHelper::viewPath('includes.up-sale-products'), ['parentProduct' => $product])
-                    </div>
-                @endif
+                        @if (EcommerceHelper::isEnabledUpSaleProducts())
+                            <div class="ec-up-sale-section">
+                                @include(EcommerceHelper::viewPath('includes.up-sale-products'), ['parentProduct' => $product])
+                            </div>
+                        @endif
 
-                @if (EcommerceHelper::isEnabledCrossSaleProducts())
-                    <div class="ec-cross-sale-section">
-                        @include(EcommerceHelper::viewPath('includes.cross-sale-products'), ['parentProduct' => $product])
-                    </div>
-                @endif
+                        @if (EcommerceHelper::isEnabledCrossSaleProducts())
+                            <div class="ec-cross-sale-section">
+                                @include(EcommerceHelper::viewPath('includes.cross-sale-products'), ['parentProduct' => $product])
+                            </div>
+                        @endif
 
-                <div class="ps-product__content ps-tab-root">
+                        <div class="ps-product__content ps-tab-root">
                             <ul class="ps-tab-list">
                                 <li class="active"><a href="#tab-description">{{ __('Description') }}</a></li>
                                 @if (EcommerceHelper::isProductSpecificationEnabled() && $product->specificationAttributes->where('pivot.hidden', false)->isNotEmpty())
@@ -308,8 +307,9 @@
                                 @endif
                             </div>
                         </div>
+                        <!-- END: ps-product__content -->
 
-                <div class="ps-section--default">
+                        <div class="ps-section--default">
                 <div class="ps-section__header">
                     <h3>{{ __('Related products') }}</h3>
                 </div>
@@ -338,8 +338,13 @@
                     </div>
                 </div>
             </div>
+            <!-- END: ps-section--default -->
+        </div>
+        <!-- END: ps-product--detail -->
     </div>
+    <!-- END: ps-container -->
 </div>
+<!-- END: ps-page--product -->
 
 <script>
 // Handle scroll to reviews when clicking rating from product cards
