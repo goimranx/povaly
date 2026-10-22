@@ -812,6 +812,7 @@
             /* Click layer (for detecting taps anywhere) */
             #mobile-click-layer {
                 pointer-events: auto !important; /* Enable clicks on the background layer */
+                z-index: -1 !important; /* Behind all UI elements */
             }
             
             /* Controls hidden state - hide UI elements (title, uploader, actions), show minimal buttons */
@@ -851,6 +852,7 @@
                 opacity: 0 !important;
                 transition: opacity 0.3s ease !important;
                 pointer-events: none !important;
+                z-index: 10 !important; /* Ensure above click layer */
             }
             
             /* Show minimal buttons only when UI elements are hidden */
@@ -911,6 +913,7 @@
                 flex-direction: row !important;
                 align-items: flex-start !important;
                 gap: 4px !important; /* Small gap between title and chevron */
+                z-index: 10 !important; /* Ensure above click layer */
             }
             
             .mobile-video-title {
@@ -1001,6 +1004,7 @@
                 display: flex !important;
                 align-items: center !important;
                 justify-content: flex-end !important;
+                z-index: 10 !important; /* Ensure above click layer */
             }
             
             .mobile-video-close {
@@ -1035,6 +1039,7 @@
                 border-radius: 0 !important;
                 padding: 0 !important;
                 max-width: calc(100vw - 150px) !important;
+                z-index: 10 !important; /* Ensure above click layer */
             }
             
             .mobile-uploader-avatar {
@@ -1069,6 +1074,7 @@
                 flex-direction: column !important;
                 gap: 16px !important; /* Reduced gap from 20px to 16px */
                 align-items: center !important;
+                z-index: 10 !important; /* Ensure buttons are above click layer */
             }
             
             .mobile-action-btn {
