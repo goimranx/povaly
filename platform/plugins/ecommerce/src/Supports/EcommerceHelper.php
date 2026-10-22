@@ -2039,18 +2039,6 @@ class EcommerceHelper
 
             $fields = [
                 [
-                    'type' => 'text',
-                    'label' => trans('plugins/ecommerce::products.form.video_title'),
-                    'attributes' => [
-                        'name' => 'title',
-                        'value' => null,
-                        'options' => [
-                            'class' => 'form-control',
-                            'placeholder' => trans('plugins/ecommerce::products.form.video_title_help'),
-                        ],
-                    ],
-                ],
-                [
                     'type' => 'mediaFile',
                     'label' => trans('plugins/ecommerce::products.form.video_file'),
                     'attributes' => [
@@ -2079,6 +2067,18 @@ class EcommerceHelper
                         'options' => [
                             'class' => 'form-control',
                             'placeholder' => trans('plugins/ecommerce::products.form.video_thumbnail_help'),
+                        ],
+                    ],
+                ],
+                [
+                    'type' => 'text',
+                    'label' => trans('plugins/ecommerce::products.form.video_title'),
+                    'attributes' => [
+                        'name' => 'title',
+                        'value' => null,
+                        'options' => [
+                            'class' => 'form-control',
+                            'placeholder' => trans('plugins/ecommerce::products.form.video_title_help'),
                         ],
                     ],
                 ],
