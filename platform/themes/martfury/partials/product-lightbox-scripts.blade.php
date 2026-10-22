@@ -399,20 +399,63 @@ document.addEventListener('DOMContentLoaded', function() {
         var drawer = document.getElementById('mobile-video-drawer');
         
         if (minimalShareBtn) {
+            // Get video ID - CRITICAL: Use proper video ID format (same as mobile share button)
+            var videoId;
+            if (video.id) {
+                videoId = video.id;
+            } else if (video.provider === 'youtube') {
+                var youtubeMatch = video.url.match(/embed\/([^?]+)/);
+                videoId = youtubeMatch ? 'youtube_' + youtubeMatch[1] : btoa(video.url);
+            } else if (video.provider === 'vimeo') {
+                var vimeoMatch = video.url.match(/video\/(\d+)/);
+                videoId = vimeoMatch ? 'vimeo_' + vimeoMatch[1] : btoa(video.url);
+            } else {
+                var cleanUrl = video.url.split('?')[0];
+                videoId = btoa(cleanUrl);
+            }
+            var videoUrl = video.url;
+            
             minimalShareBtn.onclick = function(e) {
                 e.stopPropagation(); // Prevent triggering toggle
                 
-                var videoId = video.id || btoa(video.url);
+                // Get current share count from cache or mobile button
+                var mobileShareCount = document.getElementById('mobile-share-count');
+                var currentCount = videoDataCache.shares[videoId] ? 
+                    videoDataCache.shares[videoId].total_shares : 
+                    (mobileShareCount ? parseInt(mobileShareCount.textContent) || 0 : 0);
                 
-                if (navigator.share && video.url) {
-                    navigator.share({
+                // Optimistically increment share count IMMEDIATELY
+                var newCount = currentCount + 1;
+                
+                // Update cache optimistically
+                videoDataCache.shares[videoId] = {
+                    total_shares: newCount,
+                    timestamp: Date.now(),
+                    optimistic: true
+                };
+                
+                // Update mobile share count if visible
+                if (mobileShareCount) {
+                    mobileShareCount.textContent = newCount;
+                }
+                
+                console.log('🔗 [MINIMAL SHARE] Optimistic increment:', currentCount, '→', newCount);
+                
+                // Track share with server
+                var sharePromise;
+                
+                if (navigator.share && videoUrl) {
+                    // Native share API
+                    sharePromise = navigator.share({
                         title: currentProduct?.name || 'Product Video',
                         text: 'Check out this video!',
-                        url: video.url
+                        url: videoUrl
                     })
                     .then(function() {
-                        // Track share
-                        fetch('/api/video-shares', {
+                        console.log('✅ [MINIMAL SHARE] Native share completed');
+                        
+                        // Send to server
+                        return fetch('/api/video-shares', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -420,26 +463,31 @@ document.addEventListener('DOMContentLoaded', function() {
                             },
                             body: JSON.stringify({
                                 video_id: videoId,
-                                video_url: video.url,
+                                video_url: videoUrl,
                                 product_id: currentProduct?.id || null
                             })
                         });
+                    })
+                    .catch(function(err) {
+                        // User cancelled share - rollback
+                        console.log('❌ [MINIMAL SHARE] Share cancelled, rolling back');
+                        
+                        videoDataCache.shares[videoId] = {
+                            total_shares: currentCount,
+                            timestamp: Date.now(),
+                            optimistic: false
+                        };
+                        
+                        if (mobileShareCount) {
+                            mobileShareCount.textContent = currentCount;
+                        }
+                        
+                        throw err; // Re-throw to skip .then
                     });
-                } else if (video.url) {
-                    navigator.clipboard.writeText(video.url).then(function() {
-                        // Track share
-                        fetch('/api/video-shares', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                            },
-                            body: JSON.stringify({
-                                video_id: videoId,
-                                video_url: video.url,
-                                product_id: currentProduct?.id || null
-                            })
-                        });
+                } else if (videoUrl) {
+                    // Clipboard fallback
+                    sharePromise = navigator.clipboard.writeText(videoUrl).then(function() {
+                        console.log('✅ [MINIMAL SHARE] Copied to clipboard');
                         
                         // Show feedback
                         var btnText = minimalShareBtn.querySelector('span');
@@ -448,7 +496,52 @@ document.addEventListener('DOMContentLoaded', function() {
                         setTimeout(function() {
                             btnText.textContent = originalText;
                         }, 2000);
+                        
+                        // Send to server
+                        return fetch('/api/video-shares', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                            },
+                            body: JSON.stringify({
+                                video_id: videoId,
+                                video_url: videoUrl,
+                                product_id: currentProduct?.id || null
+                            })
+                        });
                     });
+                }
+                
+                // Handle server response
+                if (sharePromise) {
+                    sharePromise
+                        .then(function(response) {
+                            if (response) return response.json();
+                        })
+                        .then(function(data) {
+                            if (data) {
+                                console.log('🔄 [MINIMAL SHARE] Server response:', data);
+                                
+                                // Update cache with server's authoritative value
+                                videoDataCache.shares[videoId] = {
+                                    total_shares: data.total_shares || newCount,
+                                    timestamp: Date.now(),
+                                    optimistic: false
+                                };
+                                
+                                // Update UI if different from optimistic value
+                                if (mobileShareCount && data.total_shares !== newCount) {
+                                    mobileShareCount.textContent = data.total_shares;
+                                    console.log('🔄 [MINIMAL SHARE] Reconciled:', newCount, '→', data.total_shares);
+                                }
+                            }
+                        })
+                        .catch(function(err) {
+                            if (err.name !== 'AbortError') {
+                                console.error('❌ [MINIMAL SHARE] Server error:', err);
+                            }
+                        });
                 }
             };
         }
