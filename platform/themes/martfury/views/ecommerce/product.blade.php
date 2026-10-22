@@ -4,10 +4,9 @@
 
 <div class="ps-page--product">
     <div class="ps-container" id="app">
-            <div class="ps-page__container">
-                <div class="ps-page__left">
-                    <div class="ps-product--detail ps-product--fullwidth bb-product-detail">
-                        <div class="ps-product__header">
+        <div class="ps-page__container">
+            <div class="ps-product--detail ps-product--fullwidth bb-product-detail">
+                <div class="ps-product__header">
                             <div class="ps-product__gallery-wrapper">
                                 <div class="ps-product__thumbnail">
                                     @include(EcommerceHelper::viewPath('includes.product-gallery'))
@@ -203,15 +202,17 @@
                                 <!-- END: Purchase Box (35%) -->
                             </form>
                         </div>
-                        @if (EcommerceHelper::isEnabledUpSaleProducts())
-                            @include(EcommerceHelper::viewPath('includes.up-sale-products'), ['parentProduct' => $product])
-                        @endif
+                    </div>
 
-                        @if (EcommerceHelper::isEnabledCrossSaleProducts())
-                            @include(EcommerceHelper::viewPath('includes.cross-sale-products'), ['parentProduct' => $product])
-                        @endif
+                    @if (EcommerceHelper::isEnabledUpSaleProducts())
+                        @include(EcommerceHelper::viewPath('includes.up-sale-products'), ['parentProduct' => $product])
+                    @endif
 
-                        <div class="ps-product__content ps-tab-root">
+                    @if (EcommerceHelper::isEnabledCrossSaleProducts())
+                        @include(EcommerceHelper::viewPath('includes.cross-sale-products'), ['parentProduct' => $product])
+                    @endif
+
+                    <div class="ps-product__content ps-tab-root">
                             <ul class="ps-tab-list">
                                 <li class="active"><a href="#tab-description">{{ __('Description') }}</a></li>
                                 @if (EcommerceHelper::isProductSpecificationEnabled() && $product->specificationAttributes->where('pivot.hidden', false)->isNotEmpty())
@@ -304,10 +305,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="ps-section--default">
+                    <div class="ps-section--default">
                 <div class="ps-section__header">
                     <h3>{{ __('Related products') }}</h3>
                 </div>
@@ -336,6 +335,7 @@
                     </div>
                 </div>
             </div>
+        </div>
     </div>
 </div>
 
