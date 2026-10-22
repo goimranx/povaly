@@ -165,11 +165,6 @@
             overflow: hidden;
         }
         
-        /* Default padding-top will be set by JS based on aspect ratio */
-        .product-lightbox-video-player:not([style*="padding-top: 0"]) {
-            padding-top: 56.25%; /* Default 16:9 */
-        }
-        
         .product-lightbox-video-player iframe,
         .product-lightbox-video-player video {
             position: absolute;
@@ -746,13 +741,15 @@
             .product-lightbox-video-player video {
                 position: absolute !important;
                 max-width: 100% !important;
-                max-height: calc(100% - 200px) !important; /* Reserve space at bottom for controls + UI */
+                max-height: 100% !important;
                 width: auto !important;
                 height: auto !important;
                 border: none !important;
                 object-fit: contain !important;
-                bottom: 200px !important; /* Push video up to make room for controls and UI */
+                bottom: 0 !important;
                 top: auto !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
             }
             
             /* Portrait videos (9:16 reels) - cover full height */
@@ -773,20 +770,6 @@
                 width: 100% !important;
                 height: auto !important;
                 object-fit: contain !important;
-            }
-            
-            /* Native video controls positioning - above drawer and uploader/actions */
-            .product-lightbox-video-player video::-webkit-media-controls-panel {
-                bottom: 160px !important; /* Position above drawer (50px) + uploader/actions area (110px) */
-            }
-            
-            .product-lightbox-video-player video::-webkit-media-controls-enclosure {
-                bottom: 160px !important;
-            }
-            
-            /* For better visibility, add padding to video container bottom */
-            .video-mode .product-lightbox-video-player {
-                padding-bottom: 180px !important; /* Space for controls + UI elements */
             }
             
             /* Hide sidebar on video mode */
