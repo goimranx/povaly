@@ -121,24 +121,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ═══════════════════════════════════════════════════════════════════
-    // MOBILE VIDEO CONTROLS
+    // MOBILE VIDEO UI ELEMENTS (title, uploader, actions, drawer)
     // ═══════════════════════════════════════════════════════════════════
     
-    // Auto-hide controls timer
-    var controlsHideTimer = null;
-    var CONTROLS_HIDE_DELAY = 5000; // 5 seconds (increased from 3)
+    // Auto-hide UI timer
+    var uiHideTimer = null;
+    var UI_HIDE_DELAY = 5000; // 5 seconds
     
-    // Show controls
-    function showMobileControls() {
+    // Show UI elements (title, uploader, actions, drawer)
+    function showMobileUI() {
         var mobileControls = document.getElementById('mobile-video-controls');
         var drawer = document.getElementById('mobile-video-drawer');
         
         if (mobileControls) {
-            mobileControls.classList.remove('controls-hidden');
-            resetControlsHideTimer();
+            mobileControls.classList.remove('controls-hidden'); // 'controls-hidden' hides UI elements
+            resetUIHideTimer();
         }
         
-        // Show drawer handle when controls are visible (unless drawer is open)
+        // Show drawer handle when UI is visible (unless drawer is open)
         if (drawer) {
             if (!drawer.classList.contains('open')) {
                 // Show the handle
@@ -148,16 +148,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Hide controls
-    function hideMobileControls() {
+    // Hide UI elements (title, uploader, actions, drawer)
+    function hideMobileUI() {
         var mobileControls = document.getElementById('mobile-video-controls');
         var drawer = document.getElementById('mobile-video-drawer');
         
         if (mobileControls) {
-            mobileControls.classList.add('controls-hidden');
+            mobileControls.classList.add('controls-hidden'); // Hides UI, shows minimal buttons
         }
         
-        // Hide drawer completely when controls are hidden (unless it's open)
+        // Hide drawer completely when UI is hidden (unless it's open)
         if (drawer) {
             if (!drawer.classList.contains('open')) {
                 // Force hide the drawer
@@ -168,27 +168,27 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Reset auto-hide timer
-    function resetControlsHideTimer() {
-        if (controlsHideTimer) {
-            clearTimeout(controlsHideTimer);
+    function resetUIHideTimer() {
+        if (uiHideTimer) {
+            clearTimeout(uiHideTimer);
         }
-        controlsHideTimer = setTimeout(function() {
-            hideMobileControls();
-        }, CONTROLS_HIDE_DELAY);
+        uiHideTimer = setTimeout(function() {
+            hideMobileUI();
+        }, UI_HIDE_DELAY);
     }
     
-    // Toggle controls on tap
-    function toggleMobileControls() {
+    // Toggle UI on tap
+    function toggleMobileUI() {
         var mobileControls = document.getElementById('mobile-video-controls');
         if (mobileControls) {
             if (mobileControls.classList.contains('controls-hidden')) {
-                // Controls are hidden, show them
-                showMobileControls();
+                // UI is hidden, show it
+                showMobileUI();
             } else {
-                // Controls are visible, hide them immediately (no timer)
-                hideMobileControls();
-                if (controlsHideTimer) {
-                    clearTimeout(controlsHideTimer);
+                // UI is visible, hide it immediately (no timer)
+                hideMobileUI();
+                if (uiHideTimer) {
+                    clearTimeout(uiHideTimer);
                 }
             }
         }
@@ -255,12 +255,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Toggle controls
-                toggleMobileControls();
+                toggleMobileUI();
             });
         }
         
         // Show controls initially and start auto-hide timer
-        showMobileControls();
+        showMobileUI();
         
         // Set product title
         var mobileTitle = document.getElementById('mobile-video-title');
@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.stopPropagation(); // Prevent triggering toggle
                 mobileTitle.classList.toggle('expanded');
                 titleExpand.classList.toggle('expanded');
-                resetControlsHideTimer(); // Reset timer when interacting
+                resetUIHideTimer(); // Reset timer when interacting
             };
         }
         
@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (titleExpandBtn && titleExpandBtn.classList.contains('show')) {
                     mobileTitle.classList.toggle('expanded');
                     titleExpandBtn.classList.toggle('expanded');
-                    resetControlsHideTimer(); // Reset timer when interacting
+                    resetUIHideTimer(); // Reset timer when interacting
                 }
             };
         }
@@ -426,8 +426,8 @@ document.addEventListener('DOMContentLoaded', function() {
             minimalMoreBtn.onclick = function(e) {
                 e.stopPropagation(); // Prevent triggering toggle
                 
-                // Show all controls
-                showMobileControls();
+                // Show all UI
+                showMobileUI();
                 
                 // Open drawer
                 drawer.classList.add('open');
@@ -776,7 +776,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         drawer.classList.remove('open');
                         
                         // Show controls and restart auto-hide timer
-                        showMobileControls();
+                        showMobileUI();
                     }
                 });
             });
@@ -838,17 +838,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Opening drawer
                 drawer.classList.add('open');
                 drawer.style.display = 'flex';
-                showMobileControls(); // Show controls when opening drawer
+                showMobileUI(); // Show UI when opening drawer
             }
         });
         
         // When drawer closes, check if controls should be hidden
         drawer.addEventListener('transitionend', function(e) {
             if (e.propertyName === 'transform' && !drawer.classList.contains('open')) {
-                // Drawer just closed, restart auto-hide timer for controls
+                // Drawer just closed, restart auto-hide timer for UI
                 var mobileControls = document.getElementById('mobile-video-controls');
                 if (mobileControls && !mobileControls.classList.contains('controls-hidden')) {
-                    resetControlsHideTimer();
+                    resetUIHideTimer();
                 }
             }
         });

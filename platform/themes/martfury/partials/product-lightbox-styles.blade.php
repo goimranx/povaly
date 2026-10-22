@@ -809,7 +809,7 @@
                 pointer-events: auto !important;
             }
             
-            /* Controls hidden state - add transitions */
+            /* Controls hidden state - hide UI elements (title, uploader, actions), show minimal buttons */
             .mobile-video-controls.controls-hidden .mobile-video-title-container,
             .mobile-video-controls.controls-hidden .mobile-video-uploader,
             .mobile-video-controls.controls-hidden .mobile-video-actions {
@@ -818,7 +818,7 @@
                 transition: opacity 0.3s ease !important;
             }
             
-            /* Controls visible state */
+            /* Controls visible state - show UI elements (title, uploader, actions), hide minimal buttons */
             .mobile-video-controls:not(.controls-hidden) .mobile-video-title-container,
             .mobile-video-controls:not(.controls-hidden) .mobile-video-uploader,
             .mobile-video-controls:not(.controls-hidden) .mobile-video-actions {
@@ -833,7 +833,7 @@
                 pointer-events: auto !important;
             }
             
-            /* Minimal controls (shown when main controls are hidden) */
+            /* Minimal buttons (Share & More videos) - shown when UI elements are hidden */
             .mobile-video-minimal-controls {
                 position: absolute !important;
                 bottom: 30px !important;
@@ -848,14 +848,14 @@
                 pointer-events: none !important;
             }
             
-            /* Show minimal controls only when main controls are hidden */
+            /* Show minimal buttons only when UI elements are hidden */
             .mobile-video-controls.controls-hidden .mobile-video-minimal-controls {
                 display: flex !important;
                 opacity: 1 !important;
                 pointer-events: auto !important;
             }
             
-            /* Explicitly hide minimal controls when main controls are visible */
+            /* Explicitly hide minimal buttons when UI elements are visible */
             .mobile-video-controls:not(.controls-hidden) .mobile-video-minimal-controls {
                 display: none !important;
                 opacity: 0 !important;
