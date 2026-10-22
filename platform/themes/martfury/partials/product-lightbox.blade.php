@@ -133,11 +133,17 @@
                 </div>
             </div>
             
-            {{-- Center: Play/Pause Overlay (tap video to toggle) --}}
-            <div class="mobile-video-play-overlay" id="mobile-video-play-overlay">
-                <div class="mobile-play-icon" id="mobile-play-icon">
-                    <i class="ph-fill ph-play"></i>
-                </div>
+            {{-- Center: Playback Controls (only for direct videos) --}}
+            <div class="mobile-video-center-controls" id="mobile-video-center-controls" style="display: none;">
+                <button class="center-control-btn" id="center-btn-backward" aria-label="Rewind 10s">
+                    <i class="ph ph-rewind"></i>
+                </button>
+                <button class="center-control-btn center-control-btn-main" id="center-btn-play-pause" aria-label="Play/Pause">
+                    <i class="ph-fill ph-pause"></i>
+                </button>
+                <button class="center-control-btn" id="center-btn-forward" aria-label="Forward 10s">
+                    <i class="ph ph-fast-forward"></i>
+                </button>
             </div>
             
             {{-- Bottom Left: Uploader Info --}}
@@ -169,7 +175,7 @@
                 </button>
             </div>
             
-            {{-- Bottom: Video Controls Bar --}}
+            {{-- Bottom: Video Controls Bar (time + progress only, no playback buttons) --}}
             <div class="mobile-video-controls-bar" id="mobile-video-controls-bar">
                 {{-- Time Display --}}
                 <div class="mobile-video-time">
@@ -184,21 +190,10 @@
                     </div>
                 </div>
                 
-                {{-- Playback Controls (rewind, play/pause, forward, volume) --}}
-                <div class="mobile-video-playback-controls">
-                    <button class="mobile-playback-btn" id="mobile-btn-backward" aria-label="Rewind 10s">
-                        <i class="ph ph-rewind"></i>
-                    </button>
-                    <button class="mobile-playback-btn mobile-playback-btn-main" id="mobile-btn-play-pause" aria-label="Play/Pause">
-                        <i class="ph-fill ph-play"></i>
-                    </button>
-                    <button class="mobile-playback-btn" id="mobile-btn-forward" aria-label="Forward 10s">
-                        <i class="ph ph-fast-forward"></i>
-                    </button>
-                    <button class="mobile-playback-btn" id="mobile-btn-volume" aria-label="Volume">
-                        <i class="ph ph-speaker-high"></i>
-                    </button>
-                </div>
+                {{-- Volume Control (inline with progress) --}}
+                <button class="mobile-volume-btn" id="mobile-btn-volume" aria-label="Volume">
+                    <i class="ph ph-speaker-high"></i>
+                </button>
             </div>
         </div>
         

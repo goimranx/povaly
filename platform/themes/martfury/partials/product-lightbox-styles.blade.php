@@ -932,6 +932,50 @@
                 color: #fff !important;
             }
             
+            /* Center: Playback Controls (only for direct uploaded videos) */
+            .mobile-video-center-controls {
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 40px !important;
+                z-index: 10 !important;
+            }
+            
+            .center-control-btn {
+                width: 56px !important;
+                height: 56px !important;
+                border-radius: 50% !important;
+                background: rgba(0, 0, 0, 0.6) !important;
+                border: none !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                cursor: pointer !important;
+                transition: background 0.2s ease !important;
+            }
+            
+            .center-control-btn:active {
+                background: rgba(0, 0, 0, 0.8) !important;
+            }
+            
+            .center-control-btn i {
+                font-size: 28px !important;
+                color: #fff !important;
+            }
+            
+            .center-control-btn-main {
+                width: 72px !important;
+                height: 72px !important;
+            }
+            
+            .center-control-btn-main i {
+                font-size: 36px !important;
+            }
+            
             /* Bottom Left: Uploader Info */
             .mobile-video-uploader {
                 position: absolute !important;
@@ -1049,10 +1093,11 @@
             
             /* Progress Bar */
             .mobile-video-progress {
-                width: 100% !important;
+                width: calc(100% - 50px) !important; /* Leave space for volume button */
                 height: 4px !important;
                 position: relative !important;
                 cursor: pointer !important;
+                display: inline-block !important;
             }
             
             .mobile-video-progress-bg {
@@ -1089,31 +1134,24 @@
                 opacity: 1 !important;
             }
             
-            /* Playback Controls (rewind, play/pause, forward, volume) */
-            .mobile-video-playback-controls {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                gap: 24px !important;
-            }
-            
-            .mobile-playback-btn {
+            /* Volume Button (inline with progress bar) */
+            .mobile-volume-btn {
                 background: none !important;
                 border: none !important;
-                padding: 8px !important;
+                padding: 0 !important;
                 cursor: pointer !important;
-                display: flex !important;
+                display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
+                width: 40px !important;
+                height: 24px !important;
+                vertical-align: top !important;
+                margin-left: 10px !important;
             }
             
-            .mobile-playback-btn i {
+            .mobile-volume-btn i {
                 font-size: 24px !important;
                 color: #fff !important;
-            }
-            
-            .mobile-playback-btn-main i {
-                font-size: 32px !important;
             }
                 right: 20px !important;
                 height: 3px !important;

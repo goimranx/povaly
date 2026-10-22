@@ -754,6 +754,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         container.appendChild(iframe);
         
+        // YouTube uses its own controls - hide custom controls on mobile
+        if (window.innerWidth <= 767) {
+            hideMobileCustomControls();
+        }
+        
         // Listen for YouTube player state changes
         window.addEventListener('message', function(event) {
             if (event.origin !== 'https://www.youtube.com') return;
@@ -797,6 +802,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         container.appendChild(iframe);
         
+        // Vimeo uses its own controls - hide custom controls on mobile
+        if (window.innerWidth <= 767) {
+            hideMobileCustomControls();
+        }
+        
         // Listen for Vimeo player events
         window.addEventListener('message', function(event) {
             if (event.origin !== 'https://player.vimeo.com') return;
@@ -808,6 +818,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } catch (e) {}
         });
+    }
+    
+    // Hide mobile custom controls (for YouTube/Vimeo which have their own)
+    function hideMobileCustomControls() {
+        var centerControls = document.getElementById('mobile-video-center-controls');
+        var controlsBar = document.getElementById('mobile-video-controls-bar');
+        
+        if (centerControls) centerControls.style.display = 'none';
+        if (controlsBar) controlsBar.style.display = 'none';
+    }
+    
+    // Show mobile custom controls (for direct uploaded videos)
+    function showMobileCustomControls() {
+        var centerControls = document.getElementById('mobile-video-center-controls');
+        var controlsBar = document.getElementById('mobile-video-controls-bar');
+        
+        if (centerControls) centerControls.style.display = 'flex';
+        if (controlsBar) controlsBar.style.display = 'flex';
     }
     
     // Create direct video player
@@ -835,6 +863,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (window.innerWidth <= 767) {
             videoEl.controls = false;
             videoEl.style.cssText = 'width:100%;height:100%;object-fit:' + (isPortrait ? 'cover' : 'contain') + ';';
+            
+            // Show custom controls for direct videos
+            showMobileCustomControls();
         } else {
             videoEl.controls = true;
             videoEl.style.cssText = 'width:100%;height:100%;object-fit:contain;';
@@ -867,13 +898,14 @@ document.addEventListener('DOMContentLoaded', function() {
         var progressWrapper = document.getElementById('mobile-video-progress');
         var currentTimeEl = document.getElementById('mobile-current-time');
         var durationEl = document.getElementById('mobile-duration');
-        var playPauseBtn = document.getElementById('mobile-btn-play-pause');
-        var backwardBtn = document.getElementById('mobile-btn-backward');
-        var forwardBtn = document.getElementById('mobile-btn-forward');
+        
+        // Center controls
+        var centerPlayPauseBtn = document.getElementById('center-btn-play-pause');
+        var centerBackwardBtn = document.getElementById('center-btn-backward');
+        var centerForwardBtn = document.getElementById('center-btn-forward');
+        
         var volumeBtn = document.getElementById('mobile-btn-volume');
         var fullscreenBtn = document.getElementById('mobile-video-fullscreen');
-        var playOverlay = document.getElementById('mobile-video-play-overlay');
-        var playIcon = document.getElementById('mobile-play-icon');
         var moreBtn = document.getElementById('mobile-btn-more');
         
         // Format time helper (seconds to MM:SS)
@@ -901,51 +933,34 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update progress as video plays
         videoEl.addEventListener('timeupdate', updateProgress);
         
-        // Play/Pause button
-        if (playPauseBtn) {
-            playPauseBtn.onclick = function() {
+        // Center Play/Pause button
+        if (centerPlayPauseBtn) {
+            centerPlayPauseBtn.onclick = function(e) {
+                e.stopPropagation();
                 if (videoEl.paused) {
                     videoEl.play();
-                    playPauseBtn.querySelector('i').className = 'ph-fill ph-pause';
-                    hidePlayOverlay();
                 } else {
                     videoEl.pause();
-                    playPauseBtn.querySelector('i').className = 'ph-fill ph-play';
-                    showPlayOverlay();
                 }
             };
         }
         
         // Video play/pause events
         videoEl.addEventListener('play', function() {
-            if (playPauseBtn) playPauseBtn.querySelector('i').className = 'ph-fill ph-pause';
-            hidePlayOverlay();
+            if (centerPlayPauseBtn) centerPlayPauseBtn.querySelector('i').className = 'ph-fill ph-pause';
         });
         
         videoEl.addEventListener('pause', function() {
-            if (playPauseBtn) playPauseBtn.querySelector('i').className = 'ph-fill ph-play';
-            showPlayOverlay();
+            if (centerPlayPauseBtn) centerPlayPauseBtn.querySelector('i').className = 'ph-fill ph-play';
         });
-        
-        // Show/hide play overlay
-        function showPlayOverlay() {
-            if (playOverlay) {
-                playOverlay.classList.add('show');
-                if (playIcon) playIcon.querySelector('i').className = 'ph-fill ph-play';
-            }
-        }
-        
-        function hidePlayOverlay() {
-            if (playOverlay) playOverlay.classList.remove('show');
-        }
         
         // Tap video area to toggle play/pause
         var videoContent = document.getElementById('lightbox-videos-content');
         if (videoContent) {
-            var tapTimeout;
             videoContent.addEventListener('click', function(e) {
-                // Ignore if clicking controls
-                if (e.target.closest('.mobile-video-controls-bar') || 
+                // Ignore if clicking controls or buttons
+                if (e.target.closest('.mobile-video-center-controls') || 
+                    e.target.closest('.mobile-video-controls-bar') || 
                     e.target.closest('.mobile-video-actions') ||
                     e.target.closest('.mobile-video-header') ||
                     e.target.closest('.mobile-video-uploader') ||
@@ -959,26 +974,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     videoEl.pause();
                 }
-                
-                // Show overlay briefly
-                showPlayOverlay();
-                clearTimeout(tapTimeout);
-                tapTimeout = setTimeout(function() {
-                    if (!videoEl.paused) hidePlayOverlay();
-                }, 500);
             });
         }
         
-        // Backward 10 seconds
-        if (backwardBtn) {
-            backwardBtn.onclick = function() {
+        // Center Backward 10 seconds
+        if (centerBackwardBtn) {
+            centerBackwardBtn.onclick = function(e) {
+                e.stopPropagation();
                 videoEl.currentTime = Math.max(0, videoEl.currentTime - 10);
             };
         }
         
-        // Forward 10 seconds
-        if (forwardBtn) {
-            forwardBtn.onclick = function() {
+        // Center Forward 10 seconds
+        if (centerForwardBtn) {
+            centerForwardBtn.onclick = function(e) {
+                e.stopPropagation();
                 videoEl.currentTime = Math.min(videoEl.duration, videoEl.currentTime + 10);
             };
         }
