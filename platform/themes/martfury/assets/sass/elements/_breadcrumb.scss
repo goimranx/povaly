@@ -15,8 +15,8 @@
             color: $color-heading;
 
             &:before {
-                content: "\e93f"; // chevron-right icon code
-                font-family: 'Linearicons-Free';
+                content: "\e93c"; // chevron-right icon code
+                font-family: 'Linearicons';
                 margin: 0 8px;
                 font-size: 10px;
             }
@@ -37,7 +37,7 @@
             color: var(--global-color-body, #666);
 
             &:hover {
-                color: var(--global-color-main, #fcb800);
+                color: var(--global-color-text-main, #000);
                 text-decoration: underline;
             }
 
