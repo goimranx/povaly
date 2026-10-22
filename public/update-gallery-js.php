@@ -5,8 +5,8 @@
  * This copies the updated front-ecommerce.js to the vendor public directory
  */
 
-$source = __DIR__ . '/platform/plugins/ecommerce/public/js/front-ecommerce.js';
-$destination = __DIR__ . '/public/vendor/core/plugins/ecommerce/js/front-ecommerce.js';
+$source = dirname(__DIR__) . '/platform/plugins/ecommerce/public/js/front-ecommerce.js';
+$destination = __DIR__ . '/vendor/core/plugins/ecommerce/js/front-ecommerce.js';
 
 // Check if source exists
 if (!file_exists($source)) {

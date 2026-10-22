@@ -8,7 +8,7 @@ echo '<h2>Gallery JS Diagnostic Check</h2>';
 echo '<style>body{font-family:monospace;padding:20px;} .ok{color:green;} .error{color:red;}</style>';
 
 // Check 1: Source file
-$source = __DIR__ . '/platform/plugins/ecommerce/public/js/front-ecommerce.js';
+$source = dirname(__DIR__) . '/platform/plugins/ecommerce/public/js/front-ecommerce.js';
 echo '<h3>1. Source File Check</h3>';
 if (file_exists($source)) {
     echo '<div class="ok">✅ Source exists: ' . $source . '</div>';
@@ -33,7 +33,7 @@ if (file_exists($source)) {
 }
 
 // Check 2: Vendor file (what's actually loaded)
-$vendor = __DIR__ . '/public/vendor/core/plugins/ecommerce/js/front-ecommerce.js';
+$vendor = __DIR__ . '/vendor/core/plugins/ecommerce/js/front-ecommerce.js';
 echo '<h3>2. Vendor File Check (Actually Loaded)</h3>';
 if (file_exists($vendor)) {
     echo '<div class="ok">✅ Vendor file exists: ' . $vendor . '</div>';
@@ -79,7 +79,7 @@ if (file_exists($source) && file_exists($vendor)) {
 }
 
 // Check 4: Resource file
-$resource = __DIR__ . '/platform/plugins/ecommerce/resources/js/front-ecommerce.js';
+$resource = dirname(__DIR__) . '/platform/plugins/ecommerce/resources/js/front-ecommerce.js';
 echo '<h3>4. Resource File Check (Original Source)</h3>';
 if (file_exists($resource)) {
     echo '<div class="ok">✅ Resource exists: ' . $resource . '</div>';
