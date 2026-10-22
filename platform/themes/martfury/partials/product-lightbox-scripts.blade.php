@@ -124,6 +124,52 @@ document.addEventListener('DOMContentLoaded', function() {
     // MOBILE VIDEO CONTROLS
     // ═══════════════════════════════════════════════════════════════════
     
+    // Auto-hide controls timer
+    var controlsHideTimer = null;
+    var CONTROLS_HIDE_DELAY = 3000; // 3 seconds
+    
+    // Show controls
+    function showMobileControls() {
+        var mobileControls = document.getElementById('mobile-video-controls');
+        if (mobileControls) {
+            mobileControls.classList.remove('controls-hidden');
+            resetControlsHideTimer();
+        }
+    }
+    
+    // Hide controls
+    function hideMobileControls() {
+        var mobileControls = document.getElementById('mobile-video-controls');
+        if (mobileControls) {
+            mobileControls.classList.add('controls-hidden');
+        }
+    }
+    
+    // Reset auto-hide timer
+    function resetControlsHideTimer() {
+        if (controlsHideTimer) {
+            clearTimeout(controlsHideTimer);
+        }
+        controlsHideTimer = setTimeout(function() {
+            hideMobileControls();
+        }, CONTROLS_HIDE_DELAY);
+    }
+    
+    // Toggle controls on tap
+    function toggleMobileControls() {
+        var mobileControls = document.getElementById('mobile-video-controls');
+        if (mobileControls) {
+            if (mobileControls.classList.contains('controls-hidden')) {
+                showMobileControls();
+            } else {
+                hideMobileControls();
+                if (controlsHideTimer) {
+                    clearTimeout(controlsHideTimer);
+                }
+            }
+        }
+    }
+    
     // Format numbers (e.g., 1500 -> 1.5K, 1000000 -> 1M)
     function formatNumber(num) {
         if (num >= 1000000) {
@@ -155,6 +201,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add video-mode class for black background
         if (lightboxOverlay) lightboxOverlay.classList.add('video-mode');
         
+        // Set up tap-to-toggle on video player area
+        var videoPlayer = document.getElementById('lightbox-video-player');
+        if (videoPlayer) {
+            // Remove existing listener if any
+            videoPlayer.removeEventListener('click', toggleMobileControls);
+            videoPlayer.addEventListener('click', toggleMobileControls);
+        }
+        
+        // Show controls initially and start auto-hide timer
+        showMobileControls();
+        
         // Set product title
         var mobileTitle = document.getElementById('mobile-video-title');
         if (mobileTitle && currentProduct) {
@@ -181,20 +238,24 @@ document.addEventListener('DOMContentLoaded', function() {
         // Title expand/collapse
         var titleExpand = document.getElementById('mobile-video-title-expand');
         if (titleExpand && mobileTitle) {
-            titleExpand.onclick = function() {
+            titleExpand.onclick = function(e) {
+                e.stopPropagation(); // Prevent triggering toggle
                 mobileTitle.classList.toggle('expanded');
                 titleExpand.classList.toggle('expanded');
+                resetControlsHideTimer(); // Reset timer when interacting
             };
         }
         
         // Title click also expands/collapses (only if overflow)
         if (mobileTitle) {
-            mobileTitle.onclick = function() {
+            mobileTitle.onclick = function(e) {
+                e.stopPropagation(); // Prevent triggering toggle
                 var titleExpandBtn = document.getElementById('mobile-video-title-expand');
                 // Only allow expand if chevron is visible (meaning there's overflow)
                 if (titleExpandBtn && titleExpandBtn.classList.contains('show')) {
                     mobileTitle.classList.toggle('expanded');
                     titleExpandBtn.classList.toggle('expanded');
+                    resetControlsHideTimer(); // Reset timer when interacting
                 }
             };
         }
@@ -234,14 +295,90 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeMobileCartButton();
         initializeMobileShareButton(video);
         
+        // Initialize minimal controls (Share and More videos)
+        initializeMinimalControls(video);
+        
         // Initialize close button
         var mobileClose = document.querySelector('.mobile-video-close');
         if (mobileClose) {
-            mobileClose.onclick = closeLightbox;
+            mobileClose.onclick = function(e) {
+                e.stopPropagation(); // Prevent triggering toggle
+                closeLightbox();
+            };
         }
         
         // Initialize drawer
         initializeMobileDrawer();
+    }
+    
+    // Initialize minimal controls (Share and More videos buttons)
+    function initializeMinimalControls(video) {
+        var minimalShareBtn = document.getElementById('minimal-share-btn');
+        var minimalMoreBtn = document.getElementById('minimal-more-btn');
+        var drawer = document.getElementById('mobile-video-drawer');
+        
+        if (minimalShareBtn) {
+            minimalShareBtn.onclick = function(e) {
+                e.stopPropagation(); // Prevent triggering toggle
+                
+                var videoId = video.id || btoa(video.url);
+                
+                if (navigator.share && video.url) {
+                    navigator.share({
+                        title: currentProduct?.name || 'Product Video',
+                        text: 'Check out this video!',
+                        url: video.url
+                    })
+                    .then(function() {
+                        // Track share
+                        fetch('/api/video-shares', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                            },
+                            body: JSON.stringify({
+                                video_id: videoId,
+                                video_url: video.url,
+                                product_id: currentProduct?.id || null
+                            })
+                        });
+                    });
+                } else if (video.url) {
+                    navigator.clipboard.writeText(video.url).then(function() {
+                        // Track share
+                        fetch('/api/video-shares', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                            },
+                            body: JSON.stringify({
+                                video_id: videoId,
+                                video_url: video.url,
+                                product_id: currentProduct?.id || null
+                            })
+                        });
+                        
+                        // Show feedback
+                        var btnText = minimalShareBtn.querySelector('span');
+                        var originalText = btnText.textContent;
+                        btnText.textContent = 'Copied!';
+                        setTimeout(function() {
+                            btnText.textContent = originalText;
+                        }, 2000);
+                    });
+                }
+            };
+        }
+        
+        if (minimalMoreBtn && drawer) {
+            minimalMoreBtn.onclick = function(e) {
+                e.stopPropagation(); // Prevent triggering toggle
+                drawer.classList.add('open');
+                showMobileControls(); // Show controls when opening drawer
+            };
+        }
     }
     
     // Initialize mobile like button
@@ -280,6 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Click handler
         mobileLikeBtn.onclick = function() {
+            resetControlsHideTimer(); // Reset timer on interaction
             var isLiked = mobileLikeBtn.getAttribute('data-liked') === 'true';
             var currentCount = parseInt(mobileLikeCount.textContent.replace(/[KM]/g, '')) || 0;
             var videoId = mobileLikeBtn.getAttribute('data-video-id');
@@ -354,6 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileBuyBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
+            resetControlsHideTimer(); // Reset timer on interaction
             
             if (!currentProduct || !currentProduct.id) {
                 console.error('No product data available');
@@ -439,6 +578,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileCartBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
+            resetControlsHideTimer(); // Reset timer on interaction
             
             if (!currentProduct || !currentProduct.id) {
                 console.error('No product data available');
@@ -532,6 +672,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         mobileShareBtn.onclick = function() {
+            resetControlsHideTimer(); // Reset timer on interaction
             var videoId = video.id || btoa(video.url);
             
             if (navigator.share && video.url) {

@@ -809,6 +809,73 @@
                 pointer-events: auto !important;
             }
             
+            /* Controls hidden state - add transitions */
+            .mobile-video-controls.controls-hidden .mobile-video-title-container,
+            .mobile-video-controls.controls-hidden .mobile-video-uploader,
+            .mobile-video-controls.controls-hidden .mobile-video-actions {
+                opacity: 0 !important;
+                pointer-events: none !important;
+                transition: opacity 0.3s ease !important;
+            }
+            
+            /* Controls visible state */
+            .mobile-video-controls:not(.controls-hidden) .mobile-video-title-container,
+            .mobile-video-controls:not(.controls-hidden) .mobile-video-uploader,
+            .mobile-video-controls:not(.controls-hidden) .mobile-video-actions {
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                transition: opacity 0.3s ease !important;
+            }
+            
+            /* Close button always visible */
+            .mobile-video-header {
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+            
+            /* Minimal controls (shown when main controls are hidden) */
+            .mobile-video-minimal-controls {
+                position: absolute !important;
+                bottom: 20px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                display: none !important;
+                flex-direction: row !important;
+                gap: 20px !important;
+                align-items: center !important;
+                opacity: 0 !important;
+                transition: opacity 0.3s ease !important;
+            }
+            
+            .mobile-video-controls.controls-hidden .mobile-video-minimal-controls {
+                display: flex !important;
+                opacity: 1 !important;
+            }
+            
+            .minimal-control-btn {
+                background: rgba(255, 255, 255, 0.15) !important;
+                backdrop-filter: blur(10px) !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                border-radius: 24px !important;
+                padding: 10px 20px !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                color: #fff !important;
+                font-size: 14px !important;
+                font-weight: 500 !important;
+                cursor: pointer !important;
+                transition: background 0.2s ease !important;
+            }
+            
+            .minimal-control-btn:active {
+                background: rgba(255, 255, 255, 0.25) !important;
+            }
+            
+            .minimal-control-btn i {
+                font-size: 20px !important;
+            }
+            
             /* Top Left: Fullscreen Button - HIDDEN */
             .mobile-video-fullscreen {
                 display: none !important;

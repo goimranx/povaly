@@ -123,7 +123,7 @@
                 </button>
             </div>
             
-            {{-- Top Right: Close Button --}}
+            {{-- Top Right: Close Button (Always visible) --}}
             <div class="mobile-video-header">
                 <button class="mobile-video-close" aria-label="Close">
                     <i class="icon-cross"></i>
@@ -155,6 +155,18 @@
                 <button class="mobile-action-btn mobile-btn-share" id="mobile-btn-share">
                     <i class="ph ph-share-fat"></i>
                     <span class="mobile-action-count" id="mobile-share-count">0</span>
+                </button>
+            </div>
+            
+            {{-- Bottom Center: Minimal Controls (shown when main controls are hidden) --}}
+            <div class="mobile-video-minimal-controls" id="mobile-video-minimal-controls" style="display: none;">
+                <button class="minimal-control-btn" id="minimal-share-btn">
+                    <i class="ph ph-share-fat"></i>
+                    <span>Share</span>
+                </button>
+                <button class="minimal-control-btn" id="minimal-more-btn">
+                    <i class="ph ph-play-circle"></i>
+                    <span>More videos</span>
                 </button>
             </div>
         </div>
