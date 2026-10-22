@@ -220,19 +220,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (window.innerWidth > 767) return; // Desktop only
         if (!currentProduct || !currentProduct.videos || currentProduct.videos.length === 0) return;
         
-        // PREVENT MULTIPLE INITIALIZATIONS - check if already initialized
-        var mobileControls = document.getElementById('mobile-video-controls');
-        if (mobileControls && mobileControls.getAttribute('data-initialized') === 'true') {
-            console.log('⏭️ [MOBILE VIDEO] Already initialized, skipping');
-            return;
-        }
-        
         console.log('✅ [MOBILE VIDEO] Initializing mobile video controls');
         
         var videoIndex = currentProduct.currentVideoIndex || 0;
         var video = currentProduct.videos[videoIndex];
         if (!video) return;
         
+        var mobileControls = document.getElementById('mobile-video-controls');
         var mobileDrawer = document.getElementById('mobile-video-drawer');
         var lightboxOverlay = document.getElementById('product-lightbox-modal');
         
@@ -240,7 +234,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (mobileControls) {
             mobileControls.style.display = 'block';
             mobileControls.classList.remove('controls-hidden'); // Start visible
-            mobileControls.setAttribute('data-initialized', 'true'); // Mark as initialized
         }
         if (mobileDrawer) {
             mobileDrawer.style.display = 'flex';
@@ -250,124 +243,48 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add video-mode class for black background
         if (lightboxOverlay) lightboxOverlay.classList.add('video-mode');
         
-        // Set up tap-to-toggle on video wrapper area
-        // Allow player controls to work by detecting clicks on wrapper, not iframe/video itself
-        var videoWrapper = document.querySelector('.product-lightbox-video-wrapper');
-        
-        if (videoWrapper) {
-            console.log('👆 [TAP-TO-TOGGLE] Video wrapper found, adding click listener');
+        // Set up tap-to-toggle on the ENTIRE mobile controls overlay (not just video wrapper)
+        // This covers the whole screen except buttons
+        if (mobileControls && !mobileControls._tapHandlerAttached) {
+            console.log('👆 [TAP-TO-TOGGLE] Attaching tap handler to mobile controls overlay');
             
-            // Remove any existing listener first to prevent duplicates
-            var existingHandler = videoWrapper._toggleHandler;
-            if (existingHandler) {
-                videoWrapper.removeEventListener('click', existingHandler);
-            }
-            
-            // Create new handler and store reference
-            var toggleHandler = function(e) {
+            var mobileControlsHandler = function(e) {
                 var target = e.target;
                 
-                console.log('👆 [TAP-TO-TOGGLE] Click detected on:', target.tagName, target.className, 'Current target:', e.currentTarget.className);
+                console.log('👆 [TAP-TO-TOGGLE] Click detected on:', target.tagName, target.className, target.id);
                 
-                // For VIDEO elements: check if clicking on controls or video surface
-                // Only skip if user is interacting with player controls (not just watching)
-                if (target.tagName === 'VIDEO') {
-                    // Check if click is on video controls area (bottom ~50px of video)
-                    var video = target;
-                    var rect = video.getBoundingClientRect();
-                    var clickY = e.clientY - rect.top;
-                    var videoHeight = rect.height;
-                    var controlsHeight = 50; // Typical controls height
-                    
-                    // If clicking in the controls area (bottom), let it work
-                    if (clickY > (videoHeight - controlsHeight)) {
-                        console.log('⏭️ [TAP-TO-TOGGLE] Skipping - click on video controls area');
-                        return;
-                    }
-                    
-                    // If clicking on video surface (not controls), toggle UI
-                    console.log('✅ [TAP-TO-TOGGLE] Click on video surface (not controls), toggling UI');
-                    toggleMobileUI();
-                    return;
-                }
-                
-                // For IFRAME (YouTube/Vimeo), never intercept
-                if (target.tagName === 'IFRAME' ||
-                    target.closest('iframe')) {
-                    console.log('⏭️ [TAP-TO-TOGGLE] Skipping - click on iframe');
-                    return;
-                }
-                
-                // DON'T toggle if clicking on desktop interaction buttons
-                if (target.closest('.product-lightbox-video-interactions') ||
-                    target.closest('.btn-video-like') ||
-                    target.closest('.btn-video-share')) {
-                    console.log('⏭️ [TAP-TO-TOGGLE] Skipping - click on desktop button');
-                    return;
-                }
-                
-                // DON'T toggle if clicking on mobile overlay buttons
+                // DON'T toggle if clicking on buttons or interactive elements
                 if (target.closest('.mobile-video-header') ||
                     target.closest('.mobile-video-actions') ||
                     target.closest('.mobile-video-minimal-controls') ||
-                    target.closest('.mobile-video-drawer')) {
-                    console.log('⏭️ [TAP-TO-TOGGLE] Skipping - click on mobile button');
+                    target.closest('.mobile-video-drawer') ||
+                    target.closest('.product-lightbox-video-interactions') ||
+                    target.closest('.btn-video-like') ||
+                    target.closest('.btn-video-share')) {
+                    console.log('⏭️ [TAP-TO-TOGGLE] Skipping - click on button/drawer');
                     return;
                 }
                 
-                // Otherwise, this is a click on the wrapper/empty space - toggle UI
-                console.log('✅ [TAP-TO-TOGGLE] Click on wrapper, toggling UI');
+                // Toggle UI for any other click (including video, title, uploader, empty space)
+                console.log('✅ [TAP-TO-TOGGLE] Toggling UI');
                 toggleMobileUI();
             };
             
-            videoWrapper._toggleHandler = toggleHandler;
-            videoWrapper.addEventListener('click', toggleHandler);
-        } else {
-            console.log('❌ [TAP-TO-TOGGLE] Video wrapper NOT found');
-        }
-        
-        // Also allow toggling via title and uploader areas
-        var titleContainer = document.getElementById('mobile-video-title-container');
-        var uploaderInfo = document.querySelector('.mobile-video-uploader');
-        
-        if (titleContainer) {
-            console.log('👆 [TAP-TO-TOGGLE] Title container found, adding click listener');
-            
-            // Remove existing listener
-            var existingTitleHandler = titleContainer._toggleHandler;
-            if (existingTitleHandler) {
-                titleContainer.removeEventListener('click', existingTitleHandler);
-            }
-            
-            var titleToggleHandler = function(e) {
-                console.log('👆 [TAP-TO-TOGGLE] Title clicked, toggling UI');
-                toggleMobileUI();
-            };
-            
-            titleContainer._toggleHandler = titleToggleHandler;
-            titleContainer.addEventListener('click', titleToggleHandler);
-        }
-        
-        if (uploaderInfo) {
-            console.log('👆 [TAP-TO-TOGGLE] Uploader info found, adding click listener');
-            
-            // Remove existing listener
-            var existingUploaderHandler = uploaderInfo._toggleHandler;
-            if (existingUploaderHandler) {
-                uploaderInfo.removeEventListener('click', existingUploaderHandler);
-            }
-            
-            var uploaderToggleHandler = function(e) {
-                console.log('👆 [TAP-TO-TOGGLE] Uploader clicked, toggling UI');
-                toggleMobileUI();
-            };
-            
-            uploaderInfo._toggleHandler = uploaderToggleHandler;
-            uploaderInfo.addEventListener('click', uploaderToggleHandler);
+            mobileControls.addEventListener('click', mobileControlsHandler);
+            mobileControls._tapHandlerAttached = true;
         }
         
         // Show controls initially and start auto-hide timer
         showMobileUI();
+        
+        // Load video lists in drawer (CRITICAL - was missing after tab switch)
+        console.log('📹 [MOBILE VIDEO] Loading video lists into drawer');
+        loadVideoLists(
+            currentProduct.videos || [],
+            currentProduct.relatedVideos || [],
+            currentProduct.reviewVideos || [],
+            videoIndex
+        );
         
         // Set product title
         var mobileTitle = document.getElementById('mobile-video-title');
