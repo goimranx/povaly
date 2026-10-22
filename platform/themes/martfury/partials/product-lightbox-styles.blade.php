@@ -845,11 +845,21 @@
                 align-items: center !important;
                 opacity: 0 !important;
                 transition: opacity 0.3s ease !important;
+                pointer-events: none !important;
             }
             
+            /* Show minimal controls only when main controls are hidden */
             .mobile-video-controls.controls-hidden .mobile-video-minimal-controls {
                 display: flex !important;
                 opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+            
+            /* Explicitly hide minimal controls when main controls are visible */
+            .mobile-video-controls:not(.controls-hidden) .mobile-video-minimal-controls {
+                display: none !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
             }
             
             .minimal-control-btn {
