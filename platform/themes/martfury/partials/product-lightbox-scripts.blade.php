@@ -744,6 +744,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         // Close drawer after selection
                         drawer.classList.remove('open');
+                        
+                        // Show controls and restart auto-hide timer
+                        showMobileControls();
                     }
                 });
             });
@@ -798,11 +801,25 @@ document.addEventListener('DOMContentLoaded', function() {
         // Click handle to toggle
         handle.addEventListener('click', function() {
             if (drawer.classList.contains('open')) {
+                // Closing drawer
                 drawer.classList.remove('open');
+                // Don't hide drawer completely, just close it to show handle
             } else {
+                // Opening drawer
                 drawer.classList.add('open');
                 drawer.style.display = 'flex';
                 showMobileControls(); // Show controls when opening drawer
+            }
+        });
+        
+        // When drawer closes, check if controls should be hidden
+        drawer.addEventListener('transitionend', function(e) {
+            if (e.propertyName === 'transform' && !drawer.classList.contains('open')) {
+                // Drawer just closed, restart auto-hide timer for controls
+                var mobileControls = document.getElementById('mobile-video-controls');
+                if (mobileControls && !mobileControls.classList.contains('controls-hidden')) {
+                    resetControlsHideTimer();
+                }
             }
         });
     }

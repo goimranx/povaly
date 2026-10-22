@@ -861,7 +861,7 @@
                 flex-direction: column !important; /* Icon on top, text below */
                 align-items: center !important;
                 gap: 6px !important; /* Small gap between icon and text */
-                color: var(--global-color-text-main, #0D1B2A) !important; /* Dark text */
+                color: var(--global-color-text-on-dark, #FFFFFF) !important; /* White text on dark background */
                 font-size: 13px !important;
                 font-weight: 500 !important;
                 cursor: pointer !important;
@@ -874,11 +874,11 @@
             
             .minimal-control-btn i {
                 font-size: 28px !important; /* Larger icon */
-                color: var(--global-color-text-main, #0D1B2A) !important; /* Dark icon */
+                color: var(--global-color-text-on-dark, #FFFFFF) !important; /* White icon on dark background */
             }
             
             .minimal-control-btn span {
-                color: var(--global-color-text-main, #0D1B2A) !important; /* Dark text */
+                color: var(--global-color-text-on-dark, #FFFFFF) !important; /* White text on dark background */
             }
             
             /* Top Left: Fullscreen Button - HIDDEN */
