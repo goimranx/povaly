@@ -685,6 +685,19 @@
             .product-lightbox-thumbnail.active {
                 border: 2px solid var(--global-color-warning, #FBB13C) !important;
             }
+        }
+        
+        /* ══════════ SMALLER MOBILE (480px - 768px) - Show 12 thumbnails ══════════ */
+        @media (max-width: 767px) and (min-width: 480px) {
+            /* Show 12 thumbnails + peek */
+            .product-lightbox-thumbnail {
+                flex: 0 0 calc((100vw - 30px - 22px) / 12.2) !important;
+                width: calc((100vw - 30px - 22px) / 12.2) !important;
+            }
+        }
+        
+        /* Continue with rest of mobile styles */
+        @media (max-width: 767px) {
             
             /* ═══════════════════════════════════════════════════════════════ */
             /* Mobile Video-Specific Styles */
