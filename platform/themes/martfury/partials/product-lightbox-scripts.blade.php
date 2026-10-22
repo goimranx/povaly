@@ -1205,86 +1205,90 @@ document.addEventListener('DOMContentLoaded', function() {
                 index: activeIndex 
             });
             
-            // Check if this is the same video - if so, skip reinitialization
+            // Check if this is the same video - if so, skip EVERYTHING
             var currentVideoId = likeBtn.getAttribute('data-video-id');
             if (currentVideoId === videoId) {
-                console.log('⏭️ [DESKTOP LIKE] Same video, skipping reinitialization');
-                return; // SKIP if same video
-            }
-            
-            // Always update the video ID - THIS IS CRITICAL
-            likeBtn.setAttribute('data-video-id', videoId);
-            likeBtn.setAttribute('data-video-url', videoUrl);
-            
-            console.log('🔄 [DESKTOP LIKE] Fetching from:', '/api/video-likes/' + videoId);
-            
-            // Load like state and count from database
-            fetch('/api/video-likes/' + encodeURIComponent(videoId))
-                .then(function(response) { 
-                    console.log('📡 [DESKTOP LIKE] Response:', response.status, response.ok); 
-                    return response.json(); 
-                })
-                .then(function(data) {
-                    console.log('✅ [DESKTOP LIKE] Data received:', data);
-                    
-                    // Set initial state from database
-                    var isLiked = data.user_liked || false;
-                    var totalLikes = data.total_likes || 0;
-                    
-                    console.log('👤 [DESKTOP LIKE] Setting state - Liked:', isLiked, 'Count:', totalLikes);
-                    
-                    likeCount.textContent = totalLikes;
-                    likeBtn.setAttribute('data-liked', isLiked ? 'true' : 'false');
-                    
-                    var icon = likeBtn.querySelector('i');
-                    if (isLiked) {
-                        likeBtn.classList.add('liked');
-                        if (icon) icon.className = 'ph-fill ph-thumbs-up';
-                        console.log('❤️ [DESKTOP LIKE] User HAS liked this video');
-                    } else {
-                        likeBtn.classList.remove('liked');
+                console.log('⏭️ [DESKTOP LIKE] Same video, skipping ALL initialization');
+                // Don't do ANYTHING - button already set up for this video
+            } else {
+                // NEW VIDEO - need to reinitialize
+                console.log('🆕 [DESKTOP LIKE] New video, reinitializing');
+                
+                // Always update the video ID - THIS IS CRITICAL
+                likeBtn.setAttribute('data-video-id', videoId);
+                likeBtn.setAttribute('data-video-url', videoUrl);
+                
+                console.log('🔄 [DESKTOP LIKE] Fetching from:', '/api/video-likes/' + videoId);
+                
+                // CLONE BUTTON FIRST to remove old handlers
+                console.log('🔧 [DESKTOP LIKE] Cloning button to remove old handlers');
+                var newLikeBtn = likeBtn.cloneNode(true);
+                likeBtn.parentNode.replaceChild(newLikeBtn, likeBtn);
+                likeBtn = newLikeBtn; // Update reference
+                
+                // CRITICAL: Update likeCount reference after cloning
+                likeCount = document.getElementById('lightbox-video-like-count');
+                console.log('🔧 [DESKTOP LIKE] Button cloned for video:', videoId, 'New count ref:', likeCount ? 'OK' : 'MISSING');
+                
+                // Make sure data attributes are on the NEW cloned button
+                likeBtn.setAttribute('data-video-id', videoId);
+                likeBtn.setAttribute('data-video-url', videoUrl);
+                
+                // Load like state and count from database AFTER cloning
+                fetch('/api/video-likes/' + encodeURIComponent(videoId))
+                    .then(function(response) { 
+                        console.log('📡 [DESKTOP LIKE] Response:', response.status, response.ok); 
+                        return response.json(); 
+                    })
+                    .then(function(data) {
+                        console.log('✅ [DESKTOP LIKE] Data received:', data);
+                        
+                        // Set initial state from database
+                        var isLiked = data.user_liked || false;
+                        var totalLikes = data.total_likes || 0;
+                        
+                        console.log('👤 [DESKTOP LIKE] Setting state - Liked:', isLiked, 'Count:', totalLikes);
+                        
+                        likeCount.textContent = totalLikes;
+                        likeBtn.setAttribute('data-liked', isLiked ? 'true' : 'false');
+                        
+                        var icon = likeBtn.querySelector('i');
+                        if (isLiked) {
+                            likeBtn.classList.add('liked');
+                            if (icon) icon.className = 'ph-fill ph-thumbs-up';
+                            console.log('❤️ [DESKTOP LIKE] User HAS liked this video');
+                        } else {
+                            likeBtn.classList.remove('liked');
+                            if (icon) icon.className = 'ph ph-thumbs-up';
+                            console.log('🤍 [DESKTOP LIKE] User has NOT liked this video');
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('❌ [DESKTOP LIKE] API Error:', err);
+                        // Set defaults on error
+                        likeCount.textContent = video.likes || 0;
+                        likeBtn.setAttribute('data-liked', 'false');
+                        var icon = likeBtn.querySelector('i');
                         if (icon) icon.className = 'ph ph-thumbs-up';
-                        console.log('🤍 [DESKTOP LIKE] User has NOT liked this video');
-                    }
-                })
-                .catch(function(err) {
-                    console.error('❌ [DESKTOP LIKE] API Error:', err);
-                    // Set defaults on error
-                    likeCount.textContent = video.likes || 0;
-                    likeBtn.setAttribute('data-liked', 'false');
-                    var icon = likeBtn.querySelector('i');
-                    if (icon) icon.className = 'ph ph-thumbs-up';
-                });
-            
-            console.log('🔧 [DESKTOP LIKE] Cloning button to remove old handlers');
-            
-            // CLONE AND REPLACE to remove ALL previous handlers (best practice for cleanup)
-            var newLikeBtn = likeBtn.cloneNode(true);
-            likeBtn.parentNode.replaceChild(newLikeBtn, likeBtn);
-            likeBtn = newLikeBtn; // Update reference
-            
-            // CRITICAL: Update likeCount reference after cloning (it's inside the button)
-            likeCount = document.getElementById('lightbox-video-like-count');
-            
-            console.log('🔧 [DESKTOP LIKE] Button cloned for video:', videoId, 'New count ref:', likeCount ? 'OK' : 'MISSING');
-            
-            // Attach fresh click handler - reads current data attributes inside the handler
-            likeBtn.onclick = function() {
-                console.log('👆 [DESKTOP LIKE] Click detected');
+                    });
                 
-                // READ CURRENT values from data attributes (not from closure)
-                var currentVideoId = this.getAttribute('data-video-id');
-                var currentVideoUrl = this.getAttribute('data-video-url');
-                var isLiked = this.getAttribute('data-liked') === 'true';
-                var currentCount = parseInt(likeCount.textContent) || 0;
-                var icon = this.querySelector('i');
-                
-                console.log('📊 [DESKTOP LIKE] Current state:', { 
-                    videoId: currentVideoId, 
-                    videoUrl: currentVideoUrl, 
-                    isLiked, 
-                    count: currentCount 
-                });
+                // Attach fresh click handler - reads current data attributes inside the handler
+                likeBtn.onclick = function() {
+                    console.log('👆 [DESKTOP LIKE] Click detected');
+                    
+                    // READ CURRENT values from data attributes (not from closure)
+                    var currentVideoId = this.getAttribute('data-video-id');
+                    var currentVideoUrl = this.getAttribute('data-video-url');
+                    var isLiked = this.getAttribute('data-liked') === 'true';
+                    var currentCount = parseInt(likeCount.textContent) || 0;
+                    var icon = this.querySelector('i');
+                    
+                    console.log('📊 [DESKTOP LIKE] Current state:', { 
+                        videoId: currentVideoId, 
+                        videoUrl: currentVideoUrl, 
+                        isLiked, 
+                        count: currentCount 
+                    });
                 
                 if (!isLiked) {
                     console.log('➕ [DESKTOP LIKE] LIKING video:', currentVideoId);
@@ -1372,8 +1376,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         likeCount.textContent = currentCount;
                     });
                 }
-            };
-        }
+            }; // Close onclick handler
+            } // Close else block for NEW VIDEO
+        } // Close if (likeBtn && likeCount)
         
         // Add share button handler with database tracking and proper cleanup
         var shareBtn = document.getElementById('lightbox-video-share-btn');
