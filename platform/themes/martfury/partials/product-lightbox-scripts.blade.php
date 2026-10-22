@@ -930,10 +930,43 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!mobileShareBtn) return;
         
-        var videoId = video.id || btoa(video.url);
+        // Get video ID - CRITICAL: Use proper video ID, not embed URL
+        var videoId;
+        if (video.id) {
+            // Use provided video ID if available
+            videoId = video.id;
+        } else if (video.provider === 'youtube') {
+            // Extract YouTube video ID from URL (e.g., YuITHVKtSx8 from embed URL)
+            var youtubeMatch = video.url.match(/embed\/([^?]+)/);
+            videoId = youtubeMatch ? 'youtube_' + youtubeMatch[1] : btoa(video.url);
+        } else if (video.provider === 'vimeo') {
+            // Extract Vimeo video ID from URL
+            var vimeoMatch = video.url.match(/video\/(\d+)/);
+            videoId = vimeoMatch ? 'vimeo_' + vimeoMatch[1] : btoa(video.url);
+        } else {
+            // For direct videos, use base URL without query params
+            var cleanUrl = video.url.split('?')[0];
+            videoId = btoa(cleanUrl);
+        }
         var videoUrl = video.url;
         
-        // Always update the video ID and URL - THIS IS CRITICAL
+        console.log('🎬 [MOBILE SHARE] Loading video:', { 
+            videoId, 
+            videoUrl, 
+            provider: video.provider
+        });
+        
+        // Check if this is the same video - if so, skip EVERYTHING
+        var currentVideoId = mobileShareBtn.getAttribute('data-video-id');
+        if (currentVideoId === videoId) {
+            console.log('⏭️ [MOBILE SHARE] Same video, skipping ALL initialization');
+            // Don't do ANYTHING - button already set up for this video
+            return;
+        }
+        
+        console.log('🆕 [MOBILE SHARE] New video, reinitializing');
+        
+        // Set video ID IMMEDIATELY before fetch to prevent duplicate initializations
         mobileShareBtn.setAttribute('data-video-id', videoId);
         mobileShareBtn.setAttribute('data-video-url', videoUrl);
         
