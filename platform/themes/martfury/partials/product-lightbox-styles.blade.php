@@ -817,13 +817,13 @@
             /* Product Title Container - below close button line */
             .mobile-video-title-container {
                 position: absolute !important;
-                top: 50px !important; /* Below close button (15px top + 24px icon + 11px gap) */
-                left: 15px !important;
-                right: 15px !important;
+                top: 50px !important; /* Below close button (10px top + 24px icon + 16px gap) */
+                left: 10px !important;
+                right: 10px !important;
                 display: flex !important;
                 flex-direction: row !important;
                 align-items: flex-start !important;
-                gap: 8px !important;
+                gap: 4px !important; /* Small gap between title and chevron */
             }
             
             .mobile-video-title {
@@ -855,14 +855,14 @@
                 padding: 0 !important;
                 cursor: pointer !important;
                 display: none !important; /* Hidden by default */
-                align-items: center !important;
+                align-items: flex-end !important; /* Align to bottom of line 2 */
                 justify-content: center !important;
                 width: auto !important;
-                height: auto !important;
+                height: 39.2px !important; /* Height of 2 lines (14px * 1.4 * 2) */
                 color: #fff !important;
                 transition: transform 0.3s ease !important;
                 flex-shrink: 0 !important;
-                margin-top: 2px !important;
+                padding-bottom: 2px !important; /* Fine-tune alignment with text baseline */
             }
             
             .mobile-video-title-expand.show {
@@ -871,10 +871,13 @@
             
             .mobile-video-title-expand.expanded {
                 transform: rotate(180deg) !important;
+                align-items: flex-start !important;
+                padding-bottom: 0 !important;
+                padding-top: 2px !important;
             }
             
             .mobile-video-title-expand i {
-                font-size: 12px !important;
+                font-size: 14px !important; /* Match text size */
             }
             
             /* Fullscreen mode: hide everything except video and its native controls */
@@ -906,8 +909,8 @@
             /* Top Right: Close Button Only */
             .mobile-video-header {
                 position: absolute !important;
-                top: 15px !important;
-                right: 15px !important;
+                top: 10px !important;
+                right: 10px !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: flex-end !important;
@@ -936,7 +939,7 @@
             .mobile-video-uploader {
                 position: absolute !important;
                 bottom: 120px !important; /* Above drawer */
-                left: 15px !important;
+                left: 10px !important;
                 display: flex !important;
                 align-items: center !important;
                 gap: 10px !important;
@@ -974,7 +977,7 @@
             .mobile-video-actions {
                 position: absolute !important;
                 bottom: 120px !important; /* Above drawer */
-                right: 15px !important;
+                right: 10px !important;
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 20px !important;
