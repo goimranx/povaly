@@ -733,9 +733,44 @@
             
             .product-lightbox-video-player {
                 width: 100% !important;
-                height: auto !important;
-                aspect-ratio: 16 / 9 !important;
+                height: 100% !important; /* Full height */
                 max-height: 100vh !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                position: relative !important;
+            }
+            
+            /* Video element/iframe styling for proper aspect ratios */
+            .product-lightbox-video-player iframe,
+            .product-lightbox-video-player video {
+                position: absolute !important;
+                max-width: 100% !important;
+                max-height: 100% !important;
+                width: auto !important;
+                height: auto !important;
+                border: none !important;
+                object-fit: contain !important; /* Contain to prevent cropping */
+            }
+            
+            /* Portrait videos (9:16 reels) - cover full height */
+            .product-lightbox-video-player[data-aspect="9:16"] iframe,
+            .product-lightbox-video-player[data-aspect="9:16"] video,
+            .product-lightbox-video-player.portrait iframe,
+            .product-lightbox-video-player.portrait video {
+                width: auto !important;
+                height: 100% !important;
+                object-fit: cover !important; /* Cover for portrait to fill height */
+            }
+            
+            /* Landscape videos (16:9) - maintain aspect ratio */
+            .product-lightbox-video-player[data-aspect="16:9"] iframe,
+            .product-lightbox-video-player[data-aspect="16:9"] video,
+            .product-lightbox-video-player.landscape iframe,
+            .product-lightbox-video-player.landscape video {
+                width: 100% !important;
+                height: auto !important;
+                object-fit: contain !important;
             }
             
             /* Hide sidebar on video mode */
@@ -763,6 +798,26 @@
                 pointer-events: auto !important;
             }
             
+            /* Top Left: Fullscreen Button */
+            .mobile-video-fullscreen {
+                position: absolute !important;
+                top: 20px !important;
+                left: 20px !important;
+                width: auto !important;
+                height: auto !important;
+                background: none !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                cursor: pointer !important;
+                z-index: 10 !important;
+            }
+            
+            .mobile-video-fullscreen i {
+                font-size: 24px !important;
+                color: #fff !important;
+            }
+            
             /* Top Right: Close & Title */
             .mobile-video-header {
                 position: absolute !important;
@@ -779,9 +834,9 @@
                 width: auto !important;
                 height: auto !important;
                 border-radius: 0 !important;
-                background: none !important; /* No background */
+                background: none !important;
                 border: none !important;
-                box-shadow: none !important; /* No shadow */
+                box-shadow: none !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
@@ -791,11 +846,11 @@
             
             .mobile-video-close i {
                 font-size: 24px !important;
-                color: #fff !important; /* White icon on dark background */
+                color: #fff !important;
             }
             
             .mobile-video-title-wrapper {
-                background: none !important; /* No background */
+                background: none !important;
                 backdrop-filter: none !important;
                 border-radius: 0 !important;
                 padding: 0 !important;
@@ -806,7 +861,7 @@
             }
             
             .mobile-video-title {
-                color: #fff !important; /* White text on dark */
+                color: #fff !important;
                 font-size: 14px !important;
                 font-weight: 500 !important;
                 line-height: 1.4 !important;
@@ -835,7 +890,7 @@
                 justify-content: center !important;
                 width: 20px !important;
                 height: 20px !important;
-                color: #fff !important; /* White icon on dark */
+                color: #fff !important;
                 transition: transform 0.3s ease !important;
             }
             
@@ -847,15 +902,45 @@
                 font-size: 14px !important;
             }
             
-            /* Bottom Left: Uploader Info - above drawer with gap */
+            /* Center: Play/Pause Overlay (shows on pause/tap) */
+            .mobile-video-play-overlay {
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                opacity: 0 !important;
+                transition: opacity 0.3s ease !important;
+                pointer-events: none !important;
+            }
+            
+            .mobile-video-play-overlay.show {
+                opacity: 1 !important;
+            }
+            
+            .mobile-play-icon {
+                width: 72px !important;
+                height: 72px !important;
+                border-radius: 50% !important;
+                background: rgba(0, 0, 0, 0.5) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            .mobile-play-icon i {
+                font-size: 36px !important;
+                color: #fff !important;
+            }
+            
+            /* Bottom Left: Uploader Info */
             .mobile-video-uploader {
                 position: absolute !important;
-                bottom: 90px !important; /* Moved up to be above drawer (50px drawer handle + 40px gap) */
+                bottom: 200px !important; /* Above controls bar */
                 left: 20px !important;
                 display: flex !important;
                 align-items: center !important;
                 gap: 10px !important;
-                background: none !important; /* No background */
+                background: none !important;
                 backdrop-filter: none !important;
                 border-radius: 0 !important;
                 padding: 0 !important;
@@ -866,17 +951,17 @@
                 width: 32px !important;
                 height: 32px !important;
                 border-radius: 50% !important;
-                background: rgba(255, 255, 255, 0.2) !important; /* Subtle background for avatar */
+                background: rgba(255, 255, 255, 0.2) !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                color: #fff !important; /* White icon */
+                color: #fff !important;
                 font-size: 16px !important;
                 flex-shrink: 0 !important;
             }
             
             .mobile-uploader-name {
-                color: #fff !important; /* White text on dark */
+                color: #fff !important;
                 font-size: 14px !important;
                 font-weight: 500 !important;
                 white-space: nowrap !important;
@@ -885,10 +970,10 @@
                 max-width: 16ch !important;
             }
             
-            /* Bottom Right: Action Buttons - above drawer with gap */
+            /* Bottom Right: Action Buttons (includes three-dots menu) */
             .mobile-video-actions {
                 position: absolute !important;
-                bottom: 90px !important; /* Moved up to be above drawer (50px drawer handle + 40px gap) */
+                bottom: 200px !important; /* Above controls bar */
                 right: 20px !important;
                 display: flex !important;
                 flex-direction: column !important;
@@ -900,9 +985,9 @@
                 width: auto !important;
                 height: auto !important;
                 border-radius: 0 !important;
-                background: none !important; /* No background */
+                background: none !important;
                 border: none !important;
-                box-shadow: none !important; /* No shadow */
+                box-shadow: none !important;
                 display: flex !important;
                 flex-direction: column !important;
                 align-items: center !important;
@@ -915,11 +1000,11 @@
             
             .mobile-action-btn i {
                 font-size: 28px !important;
-                color: #fff !important; /* White icons on dark */
+                color: #fff !important;
             }
             
             .mobile-action-btn.mobile-btn-like[data-liked="true"] i {
-                color: #fff !important; /* Keep white even when liked */
+                color: #fff !important;
             }
             
             .mobile-action-count {
@@ -927,7 +1012,7 @@
                 bottom: -20px !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
-                color: #fff !important; /* White text on dark */
+                color: #fff !important;
                 font-size: 12px !important;
                 font-weight: 600 !important;
                 white-space: nowrap !important;
@@ -936,6 +1021,142 @@
             
             .mobile-sold-count {
                 font-size: 11px !important;
+            }
+            
+            /* Bottom: Video Controls Bar */
+            .mobile-video-controls-bar {
+                position: absolute !important;
+                bottom: 60px !important; /* Above drawer handle */
+                left: 0 !important;
+                right: 0 !important;
+                padding: 0 20px 20px 20px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 12px !important;
+                background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%) !important;
+            }
+            
+            /* Time Display */
+            .mobile-video-time {
+                display: flex !important;
+                align-items: center !important;
+                gap: 4px !important;
+                color: #fff !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+                align-self: flex-start !important;
+            }
+            
+            /* Progress Bar */
+            .mobile-video-progress {
+                width: 100% !important;
+                height: 4px !important;
+                position: relative !important;
+                cursor: pointer !important;
+            }
+            
+            .mobile-video-progress-bg {
+                width: 100% !important;
+                height: 100% !important;
+                background: rgba(255, 255, 255, 0.3) !important;
+                border-radius: 2px !important;
+                position: relative !important;
+                overflow: visible !important;
+            }
+            
+            .mobile-video-progress-bar {
+                height: 100% !important;
+                background: #fff !important;
+                border-radius: 2px !important;
+                width: 0% !important;
+                transition: width 0.1s linear !important;
+            }
+            
+            .mobile-video-progress-handle {
+                position: absolute !important;
+                top: 50% !important;
+                left: 0% !important;
+                transform: translate(-50%, -50%) !important;
+                width: 12px !important;
+                height: 12px !important;
+                background: #fff !important;
+                border-radius: 50% !important;
+                opacity: 0 !important;
+                transition: opacity 0.2s ease !important;
+            }
+            
+            .mobile-video-progress:active .mobile-video-progress-handle {
+                opacity: 1 !important;
+            }
+            
+            /* Playback Controls (rewind, play/pause, forward, volume) */
+            .mobile-video-playback-controls {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 24px !important;
+            }
+            
+            .mobile-playback-btn {
+                background: none !important;
+                border: none !important;
+                padding: 8px !important;
+                cursor: pointer !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            .mobile-playback-btn i {
+                font-size: 24px !important;
+                color: #fff !important;
+            }
+            
+            .mobile-playback-btn-main i {
+                font-size: 32px !important;
+            }
+                right: 20px !important;
+                height: 3px !important;
+                background: rgba(255, 255, 255, 0.3) !important;
+                border-radius: 2px !important;
+                overflow: hidden !important;
+                cursor: pointer !important;
+            }
+            
+            .mobile-video-progress-bar {
+                height: 100% !important;
+                background: #fff !important;
+                width: 0% !important;
+                transition: width 0.1s linear !important;
+            }
+            
+            /* Video Play/Pause Control - center of screen */
+            .mobile-video-play-control {
+                position: absolute !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                width: 80px !important;
+                height: 80px !important;
+                background: rgba(0, 0, 0, 0.5) !important;
+                border-radius: 50% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                cursor: pointer !important;
+                opacity: 0 !important;
+                transition: opacity 0.3s ease !important;
+                pointer-events: none !important;
+            }
+            
+            .mobile-video-play-control.show {
+                opacity: 1 !important;
+                pointer-events: auto !important;
+            }
+            
+            .mobile-video-play-control i {
+                font-size: 40px !important;
+                color: #fff !important;
             }
             
             /* Mobile Video Drawer */

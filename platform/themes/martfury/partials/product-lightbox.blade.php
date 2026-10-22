@@ -115,6 +115,11 @@
         
         {{-- Mobile Video Controls Overlay (Only for Videos on Mobile) --}}
         <div class="mobile-video-controls" id="mobile-video-controls" style="display: none;">
+            {{-- Top Left: Fullscreen Button --}}
+            <button class="mobile-video-fullscreen" id="mobile-video-fullscreen" aria-label="Fullscreen">
+                <i class="ph ph-corners-out"></i>
+            </button>
+            
             {{-- Top Right: Close & Title --}}
             <div class="mobile-video-header">
                 <button class="mobile-video-close" aria-label="Close">
@@ -125,6 +130,13 @@
                     <button class="mobile-video-title-expand" id="mobile-video-title-expand">
                         <i class="icon-chevron-down"></i>
                     </button>
+                </div>
+            </div>
+            
+            {{-- Center: Play/Pause Overlay (tap video to toggle) --}}
+            <div class="mobile-video-play-overlay" id="mobile-video-play-overlay">
+                <div class="mobile-play-icon" id="mobile-play-icon">
+                    <i class="ph-fill ph-play"></i>
                 </div>
             </div>
             
@@ -152,6 +164,41 @@
                 <button class="mobile-action-btn mobile-btn-share" id="mobile-btn-share">
                     <i class="ph ph-share-fat"></i>
                 </button>
+                <button class="mobile-action-btn mobile-btn-more" id="mobile-btn-more">
+                    <i class="ph ph-dots-three-vertical"></i>
+                </button>
+            </div>
+            
+            {{-- Bottom: Video Controls Bar --}}
+            <div class="mobile-video-controls-bar" id="mobile-video-controls-bar">
+                {{-- Time Display --}}
+                <div class="mobile-video-time">
+                    <span id="mobile-current-time">0:00</span> / <span id="mobile-duration">0:00</span>
+                </div>
+                
+                {{-- Progress Bar --}}
+                <div class="mobile-video-progress" id="mobile-video-progress">
+                    <div class="mobile-video-progress-bg">
+                        <div class="mobile-video-progress-bar" id="mobile-video-progress-bar"></div>
+                        <div class="mobile-video-progress-handle" id="mobile-video-progress-handle"></div>
+                    </div>
+                </div>
+                
+                {{-- Playback Controls (rewind, play/pause, forward, volume) --}}
+                <div class="mobile-video-playback-controls">
+                    <button class="mobile-playback-btn" id="mobile-btn-backward" aria-label="Rewind 10s">
+                        <i class="ph ph-rewind"></i>
+                    </button>
+                    <button class="mobile-playback-btn mobile-playback-btn-main" id="mobile-btn-play-pause" aria-label="Play/Pause">
+                        <i class="ph-fill ph-play"></i>
+                    </button>
+                    <button class="mobile-playback-btn" id="mobile-btn-forward" aria-label="Forward 10s">
+                        <i class="ph ph-fast-forward"></i>
+                    </button>
+                    <button class="mobile-playback-btn" id="mobile-btn-volume" aria-label="Volume">
+                        <i class="ph ph-speaker-high"></i>
+                    </button>
+                </div>
             </div>
         </div>
         
