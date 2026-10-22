@@ -264,7 +264,13 @@ document.addEventListener('DOMContentLoaded', function() {
             videoWrapper.addEventListener('click', function(e) {
                 // Don't toggle if clicking on a button or interactive element
                 var target = e.target;
-                if (target.tagName === 'BUTTON' || 
+                
+                // Allow native video controls to work (video, iframe, and their control elements)
+                if (target.tagName === 'VIDEO' || 
+                    target.tagName === 'IFRAME' ||
+                    target.closest('video') ||
+                    target.closest('iframe') ||
+                    target.tagName === 'BUTTON' || 
                     target.closest('button') || 
                     target.closest('.mobile-video-header') ||
                     target.closest('.mobile-video-title-container') ||
@@ -272,10 +278,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     target.closest('.mobile-video-actions') ||
                     target.closest('.mobile-video-minimal-controls') ||
                     target.closest('.mobile-video-drawer')) {
-                    return; // Don't toggle for these elements
+                    return; // Don't toggle for these elements - let native controls work
                 }
                 
-                // Toggle UI
+                // Toggle UI only when clicking on wrapper background
                 toggleMobileUI();
             });
         }
