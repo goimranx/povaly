@@ -458,19 +458,50 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!mobileLikeBtn || !mobileLikeCount) return;
         
-        var videoId = video.id || btoa(video.url);
+        // Get video ID - CRITICAL: Use proper video ID, not embed URL
+        var videoId;
+        if (video.id) {
+            videoId = video.id;
+        } else if (video.provider === 'youtube') {
+            var youtubeMatch = video.url.match(/embed\/([^?]+)/);
+            videoId = youtubeMatch ? 'youtube_' + youtubeMatch[1] : btoa(video.url);
+        } else if (video.provider === 'vimeo') {
+            var vimeoMatch = video.url.match(/video\/(\d+)/);
+            videoId = vimeoMatch ? 'vimeo_' + vimeoMatch[1] : btoa(video.url);
+        } else {
+            var cleanUrl = video.url.split('?')[0];
+            videoId = btoa(cleanUrl);
+        }
         var videoUrl = video.url;
+        
+        console.log('📱 [MOBILE LIKE] Loading video:', { videoId, videoUrl, provider: video.provider });
+        
+        // Check if this is the same video - if so, skip reinitialization
+        var currentVideoId = mobileLikeBtn.getAttribute('data-video-id');
+        if (currentVideoId === videoId) {
+            console.log('⏭️ [MOBILE LIKE] Same video, skipping reinitialization');
+            return;
+        }
         
         // Always update the video ID and URL - THIS IS CRITICAL
         mobileLikeBtn.setAttribute('data-video-id', videoId);
         mobileLikeBtn.setAttribute('data-video-url', videoUrl);
         
+        console.log('🔄 [MOBILE LIKE] Fetching from:', '/api/video-likes/' + videoId);
+        
         // Load like state from database
         fetch('/api/video-likes/' + encodeURIComponent(videoId))
-            .then(function(response) { return response.json(); })
+            .then(function(response) { 
+                console.log('📡 [MOBILE LIKE] Response:', response.status, response.ok);
+                return response.json(); 
+            })
             .then(function(data) {
+                console.log('✅ [MOBILE LIKE] Data received:', data);
+                
                 var isLiked = data.user_liked || false;
                 var totalLikes = data.total_likes || 0;
+                
+                console.log('👤 [MOBILE LIKE] Setting state - Liked:', isLiked, 'Count:', totalLikes);
                 
                 mobileLikeCount.textContent = totalLikes;
                 mobileLikeBtn.setAttribute('data-liked', isLiked ? 'true' : 'false');
@@ -478,20 +509,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 var icon = mobileLikeBtn.querySelector('i');
                 if (isLiked && icon) {
                     icon.className = 'ph-fill ph-thumbs-up';
+                    console.log('❤️ [MOBILE LIKE] User HAS liked this video');
                 } else if (icon) {
                     icon.className = 'ph ph-thumbs-up';
+                    console.log('🤍 [MOBILE LIKE] User has NOT liked this video');
                 }
             })
             .catch(function(err) {
-                console.error('Failed to load like state:', err);
+                console.error('❌ [MOBILE LIKE] API Error:', err);
                 mobileLikeCount.textContent = video.likes || 0;
                 mobileLikeBtn.setAttribute('data-liked', 'false');
             });
+        
+        console.log('🔧 [MOBILE LIKE] Cloning button to remove old handlers');
         
         // CLONE AND REPLACE to remove ALL previous handlers (best practice for cleanup)
         var newMobileLikeBtn = mobileLikeBtn.cloneNode(true);
         mobileLikeBtn.parentNode.replaceChild(newMobileLikeBtn, mobileLikeBtn);
         mobileLikeBtn = newMobileLikeBtn; // Update reference
+        
+        // CRITICAL: Update mobileLikeCount reference after cloning
+        mobileLikeCount = document.getElementById('mobile-like-count');
+        
+        console.log('🔧 [MOBILE LIKE] Button cloned, new count ref:', mobileLikeCount ? 'OK' : 'MISSING');
         
         // Attach fresh click handler - reads current data attributes inside the handler
         mobileLikeBtn.onclick = function(e) {
@@ -1136,11 +1176,39 @@ document.addEventListener('DOMContentLoaded', function() {
         var likeCount = document.getElementById('lightbox-video-like-count');
         
         if (likeBtn && likeCount) {
-            // Get video ID (use URL as unique identifier if no ID provided)
-            var videoId = video.id || btoa(video.url); // Base64 encode URL as fallback ID
+            // Get video ID - CRITICAL: Use proper video ID, not embed URL
+            var videoId;
+            if (video.id) {
+                // Use provided video ID if available
+                videoId = video.id;
+            } else if (video.provider === 'youtube') {
+                // Extract YouTube video ID from URL (e.g., YuITHVKtSx8 from embed URL)
+                var youtubeMatch = video.url.match(/embed\/([^?]+)/);
+                videoId = youtubeMatch ? 'youtube_' + youtubeMatch[1] : btoa(video.url);
+            } else if (video.provider === 'vimeo') {
+                // Extract Vimeo video ID from URL
+                var vimeoMatch = video.url.match(/video\/(\d+)/);
+                videoId = vimeoMatch ? 'vimeo_' + vimeoMatch[1] : btoa(video.url);
+            } else {
+                // For direct videos, use base URL without query params
+                var cleanUrl = video.url.split('?')[0];
+                videoId = btoa(cleanUrl);
+            }
             var videoUrl = video.url;
             
-            console.log('🎬 [DESKTOP LIKE] Loading video:', { videoId, videoUrl, index: activeIndex });
+            console.log('🎬 [DESKTOP LIKE] Loading video:', { 
+                videoId, 
+                videoUrl, 
+                provider: video.provider,
+                index: activeIndex 
+            });
+            
+            // Check if this is the same video - if so, skip reinitialization
+            var currentVideoId = likeBtn.getAttribute('data-video-id');
+            if (currentVideoId === videoId) {
+                console.log('⏭️ [DESKTOP LIKE] Same video, skipping reinitialization');
+                return; // SKIP if same video
+            }
             
             // Always update the video ID - THIS IS CRITICAL
             likeBtn.setAttribute('data-video-id', videoId);
@@ -1185,6 +1253,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     var icon = likeBtn.querySelector('i');
                     if (icon) icon.className = 'ph ph-thumbs-up';
                 });
+            
+            console.log('🔧 [DESKTOP LIKE] Cloning button to remove old handlers');
             
             // CLONE AND REPLACE to remove ALL previous handlers (best practice for cleanup)
             var newLikeBtn = likeBtn.cloneNode(true);
