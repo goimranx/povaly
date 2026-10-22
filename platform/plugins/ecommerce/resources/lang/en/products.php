@@ -105,6 +105,8 @@ return [
         'maximum_order_quantity' => 'Maximum order quantity',
         'maximum_order_quantity_helper' => 'Maximum quantity to place an order, if the value is 0, there is no limit.',
         'video' => 'Video',
+        'video_title' => 'Video Title',
+        'video_title_help' => 'Enter a descriptive title for this video (e.g., "Product Demo", "Unboxing", "How to Use")',
         'video_file' => 'File',
         'video_url' => 'Or External Video URL',
         'video_url_help' => 'Enter YouTube or Vimeo video URL',

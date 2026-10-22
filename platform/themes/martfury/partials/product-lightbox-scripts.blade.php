@@ -229,7 +229,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set product title
         var mobileTitle = document.getElementById('mobile-video-title');
         if (mobileTitle && currentProduct) {
-            mobileTitle.textContent = currentProduct.name || 'Product Video';
+            // Use video title if available, otherwise fall back to product name
+            if (video.title) {
+                mobileTitle.textContent = video.title;
+            } else {
+                mobileTitle.textContent = currentProduct.name || 'Product Video';
+            }
             mobileTitle.classList.remove('expanded');
             
             // Check if title overflows 2 lines and show chevron only if it does
@@ -1513,7 +1518,14 @@ document.addEventListener('DOMContentLoaded', function() {
         var videoUploader = document.getElementById('lightbox-video-uploader');
         
         if (videoTitle && currentProduct) {
-            videoTitle.textContent = currentProduct.name || 'Product Video';
+            // Use video title if available, otherwise fall back to product name + index
+            if (video.title) {
+                videoTitle.textContent = video.title;
+            } else {
+                // Fallback: Product name + video index
+                var videoIndex = currentProduct.currentVideoIndex || 0;
+                videoTitle.textContent = (currentProduct.name || 'Product') + ' - Video ' + (videoIndex + 1);
+            }
         }
         
         if (videoUploader) {

@@ -1058,10 +1058,12 @@ class Product extends BaseModel
                     }
 
                     $thumbnail = Arr::get($item, '2.value');
+                    $title = Arr::get($item, '3.value'); // Get video title
 
                     $data = [
                         'url' => $url,
                         'thumbnail' => $thumbnail ? RvMedia::getImageUrl($thumbnail) : null,
+                        'title' => $title ?: null, // Include video title
                     ];
 
                     if (Youtube::isYoutubeURL($url)) {
