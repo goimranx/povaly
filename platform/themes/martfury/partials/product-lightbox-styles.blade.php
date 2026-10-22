@@ -746,8 +746,16 @@
                 border: none !important;
             }
             
-            /* Default: Landscape videos (16:9) - maintain aspect ratio with letterboxing */
-            .product-lightbox-video-player iframe,
+            /* YouTube/Vimeo iframes - fill FULL HEIGHT to avoid black bars */
+            .product-lightbox-video-player iframe {
+                width: auto !important;
+                height: 100% !important; /* Full height */
+                max-width: none !important;
+                max-height: 100% !important;
+                aspect-ratio: 16 / 9 !important; /* Width calculated from height */
+            }
+            
+            /* Default: Direct video - Landscape (16:9) - maintain aspect ratio */
             .product-lightbox-video-player video {
                 width: 100% !important;
                 height: auto !important;
@@ -756,10 +764,8 @@
                 object-fit: contain !important; /* Maintain aspect, add black bars if needed */
             }
             
-            /* Portrait videos (9:16) - fill full height, no black bars */
-            .product-lightbox-video-player[data-aspect="9:16"] iframe,
+            /* Portrait direct videos (9:16) - fill full height, no black bars */
             .product-lightbox-video-player[data-aspect="9:16"] video,
-            .product-lightbox-video-player.portrait iframe,
             .product-lightbox-video-player.portrait video {
                 width: auto !important;
                 height: 100% !important;
@@ -768,10 +774,8 @@
                 object-fit: cover !important; /* Fill height, crop sides if needed */
             }
             
-            /* Landscape videos (16:9) - maintain aspect ratio */
-            .product-lightbox-video-player[data-aspect="16:9"] iframe,
+            /* Landscape direct videos (16:9) - maintain aspect ratio */
             .product-lightbox-video-player[data-aspect="16:9"] video,
-            .product-lightbox-video-player.landscape iframe,
             .product-lightbox-video-player.landscape video {
                 width: 100% !important;
                 height: auto !important;
