@@ -118,7 +118,7 @@
             {{-- Top Left: Product Title with inline chevron --}}
             <div class="mobile-video-title-container" id="mobile-video-title-container">
                 <h3 class="mobile-video-title" id="mobile-video-title"></h3>
-                <button class="mobile-video-title-expand" id="mobile-video-title-expand" style="display: none;">
+                <button class="mobile-video-title-expand" id="mobile-video-title-expand">
                     <i class="icon-chevron-down"></i>
                 </button>
             </div>

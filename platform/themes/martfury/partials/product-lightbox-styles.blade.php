@@ -814,14 +814,14 @@
                 display: none !important;
             }
             
-            /* Product Title Container - top left (no fullscreen button above it) */
+            /* Product Title Container - below close button line */
             .mobile-video-title-container {
                 position: absolute !important;
-                top: 15px !important;
+                top: 50px !important; /* Below close button (15px top + 24px icon + 11px gap) */
                 left: 15px !important;
-                max-width: calc(100vw - 80px) !important; /* Leave space for close button */
+                right: 15px !important;
                 display: flex !important;
-                flex-direction: row !important; /* Row layout - title and chevron inline */
+                flex-direction: row !important;
                 align-items: flex-start !important;
                 gap: 8px !important;
             }
@@ -833,7 +833,7 @@
                 line-height: 1.4 !important;
                 margin: 0 !important;
                 display: -webkit-box !important;
-                -webkit-line-clamp: 2 !important; /* Always 2 lines max */
+                -webkit-line-clamp: 2 !important;
                 -webkit-box-orient: vertical !important;
                 overflow: hidden !important;
                 text-overflow: ellipsis !important;
@@ -845,6 +845,8 @@
             
             .mobile-video-title.expanded {
                 -webkit-line-clamp: unset !important;
+                max-height: 200px !important;
+                overflow-y: auto !important;
             }
             
             .mobile-video-title-expand {
@@ -852,7 +854,7 @@
                 border: none !important;
                 padding: 0 !important;
                 cursor: pointer !important;
-                display: flex !important;
+                display: none !important; /* Hidden by default */
                 align-items: center !important;
                 justify-content: center !important;
                 width: auto !important;
@@ -860,7 +862,11 @@
                 color: #fff !important;
                 transition: transform 0.3s ease !important;
                 flex-shrink: 0 !important;
-                margin-top: 2px !important; /* Align with first line of text */
+                margin-top: 2px !important;
+            }
+            
+            .mobile-video-title-expand.show {
+                display: flex !important; /* Show only when overflow detected */
             }
             
             .mobile-video-title-expand.expanded {
@@ -868,7 +874,7 @@
             }
             
             .mobile-video-title-expand i {
-                font-size: 12px !important; /* Small chevron */
+                font-size: 12px !important;
             }
             
             /* Fullscreen mode: hide everything except video and its native controls */
