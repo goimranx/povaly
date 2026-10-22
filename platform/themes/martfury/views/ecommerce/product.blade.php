@@ -8,10 +8,14 @@
                 <div class="ps-page__left">
                     <div class="ps-product--detail ps-product--fullwidth bb-product-detail">
                         <div class="ps-product__header">
-                            <div class="ps-product__thumbnail">
-                                @include(EcommerceHelper::viewPath('includes.product-gallery'))
+                            <div class="ps-product__gallery-wrapper">
+                                <div class="ps-product__thumbnail">
+                                    @include(EcommerceHelper::viewPath('includes.product-gallery'))
+                                </div>
                             </div>
-                            <div class="ps-product__info">
+                            <div class="ps-product__info-wrapper">
+                                <div class="ps-product__info-left">
+                                <div class="ps-product__info">
                                 <h1>{{ $product->name }}</h1>
                                 <div class="ps-product__meta">
                                     @if ($product->brand_id)
@@ -177,6 +181,11 @@
 
                                     {!! Theme::renderSocialSharing($product->url, SeoHelper::getDescription(), $product->image) !!}
                                 </div>
+                            </div>
+                            </div>
+                            <div class="ps-product__info-right">
+                                <!-- Right side content (35% width) - Can be used for additional info, features, etc -->
+                            </div>
                             </div>
                         </div>
                         @if (EcommerceHelper::isEnabledUpSaleProducts())
