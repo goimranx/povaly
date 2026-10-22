@@ -752,20 +752,37 @@
                 transform: translateX(-50%) !important;
             }
             
-            /* Portrait videos (9:16 reels) - cover full height */
-            .product-lightbox-video-player[data-aspect="9:16"] iframe,
+            /* YouTube and Vimeo iframes - center vertically, full width */
+            .product-lightbox-video-player iframe {
+                width: 100% !important; /* Full width, no side space */
+                height: auto !important;
+                max-width: 100% !important;
+                aspect-ratio: 16 / 9 !important; /* Maintain aspect ratio */
+                bottom: auto !important;
+                top: 50% !important;
+                left: 0 !important;
+                transform: translateY(-50%) !important; /* Center vertically */
+                object-fit: contain !important;
+            }
+            
+            /* Direct video elements keep bottom positioning */
+            .product-lightbox-video-player video {
+                bottom: 35px !important;
+                top: auto !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+            }
+            
+            /* Portrait videos (9:16 reels) - cover full height - ONLY for direct video */
             .product-lightbox-video-player[data-aspect="9:16"] video,
-            .product-lightbox-video-player.portrait iframe,
             .product-lightbox-video-player.portrait video {
                 width: auto !important;
                 height: 100% !important;
                 object-fit: cover !important; /* Cover for portrait to fill height */
             }
             
-            /* Landscape videos (16:9) - maintain aspect ratio */
-            .product-lightbox-video-player[data-aspect="16:9"] iframe,
+            /* Landscape videos (16:9) - maintain aspect ratio - ONLY for direct video */
             .product-lightbox-video-player[data-aspect="16:9"] video,
-            .product-lightbox-video-player.landscape iframe,
             .product-lightbox-video-player.landscape video {
                 width: 100% !important;
                 height: auto !important;
