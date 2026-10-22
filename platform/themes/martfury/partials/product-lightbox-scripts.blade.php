@@ -1121,148 +1121,136 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Attach like button click handler - extracted to reuse for cached and fresh data
+    // ═══════════════════════════════════════════════════════════════════
+    // OPTIMISTIC UI HANDLERS - Facebook/YouTube Pattern
+    // Update UI instantly, reconcile with server in background, rollback on error
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Attach like button click handler with optimistic UI
     function attachLikeButtonHandler(btn, videoId, videoUrl) {
-        btn.onclick = function() {
-            console.log('👆 [DESKTOP LIKE] Click detected');
+        btn.onclick = function(e) {
+            e.preventDefault();
+            console.log('👆 [OPTIMISTIC LIKE] Click detected');
             
-            // Re-query count element to ensure we have the current one
-            var currentLikeCount = document.getElementById('lightbox-video-like-count');
-            if (!currentLikeCount) {
-                console.error('❌ [DESKTOP LIKE] Count element not found in click handler');
-                return;
+            // Get current state BEFORE any changes
+            var isCurrentlyLiked = this.getAttribute('data-liked') === 'true';
+            var countEl = document.getElementById('lightbox-video-like-count');
+            if (!countEl) return;
+            
+            var currentCount = parseInt(countEl.textContent) || 0;
+            var icon = this.querySelector('i');
+            var newCount = isCurrentlyLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
+            
+            console.log('⚡ [OPTIMISTIC LIKE] INSTANT UPDATE - Current:', isCurrentlyLiked, 'Count:', currentCount, '→', newCount);
+            
+            // ═══ STEP 1: INSTANT UI UPDATE (OPTIMISTIC) ═══
+            this.setAttribute('data-liked', !isCurrentlyLiked ? 'true' : 'false');
+            countEl.textContent = newCount;
+            
+            if (!isCurrentlyLiked) {
+                // Liking
+                this.classList.add('liked');
+                if (icon) icon.className = 'ph-fill ph-thumbs-up';
+            } else {
+                // Unliking  
+                this.classList.remove('liked');
+                if (icon) icon.className = 'ph ph-thumbs-up';
             }
             
-            // READ CURRENT values from data attributes (not from closure)
-            var currentVideoId = this.getAttribute('data-video-id');
-            var currentVideoUrl = this.getAttribute('data-video-url');
-            var isLiked = this.getAttribute('data-liked') === 'true';
-            var currentCount = parseInt(currentLikeCount.textContent) || 0;
-            var icon = this.querySelector('i');
+            // Optimistic cache update
+            videoDataCache.likes[videoId] = {
+                user_liked: !isCurrentlyLiked,
+                total_likes: newCount,
+                timestamp: Date.now(),
+                optimistic: true // Mark as not yet confirmed by server
+            };
             
-            console.log('📊 [DESKTOP LIKE] Current state:', { 
-                videoId: currentVideoId, 
-                videoUrl: currentVideoUrl, 
-                isLiked, 
-                count: currentCount 
-            });
-
-            if (!isLiked) {
-                console.log('➕ [DESKTOP LIKE] LIKING video:', currentVideoId);
-                
-                // Like the video - save to database
-                this.classList.add('liked');
-                this.setAttribute('data-liked', 'true');
-                if (icon) icon.className = 'ph-fill ph-thumbs-up';
-                currentLikeCount.textContent = currentCount + 1;
-                
-                var payload = {
-                    video_id: currentVideoId,
-                    video_url: currentVideoUrl,
-                    product_id: currentProduct?.id || null,
-                    action: 'like'
-                };
-                console.log('📤 [DESKTOP LIKE] POST payload:', payload);
-                
-                // Save to database
-                fetch('/api/video-likes', {
+            // ═══ STEP 2: BACKGROUND SERVER SYNC ═══
+            var apiCall = !isCurrentlyLiked 
+                ? fetch('/api/video-likes', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
                     },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({
+                        video_id: videoId,
+                        video_url: videoUrl,
+                        product_id: currentProduct?.id || null,
+                        action: 'like'
+                    })
                 })
-                .then(function(response) { 
-                    console.log('📡 [DESKTOP LIKE] POST response:', response.status);
-                    return response.json(); 
-                })
-                .then(function(data) {
-                    console.log('✅ [DESKTOP LIKE] POST data:', data);
-                    if (data.success) {
-                        // Update cache
-                        videoDataCache.likes[currentVideoId] = {
-                            user_liked: true,
-                            total_likes: data.total_likes,
-                            timestamp: Date.now()
-                        };
-                        
-                        // Re-query to ensure we have current element
-                        var latestCount = document.getElementById('lightbox-video-like-count');
-                        if (latestCount) {
-                            latestCount.textContent = data.total_likes;
-                            console.log('💾 [DESKTOP LIKE] Updated count to:', data.total_likes);
-                        }
-                    }
-                })
-                .catch(function(err) {
-                    console.error('❌ [DESKTOP LIKE] POST failed:', err);
-                    // Revert on error
-                    var btn = document.getElementById('lightbox-video-like-btn');
-                    var count = document.getElementById('lightbox-video-like-count');
-                    if (btn) {
-                        btn.classList.remove('liked');
-                        btn.setAttribute('data-liked', 'false');
-                        var btnIcon = btn.querySelector('i');
-                        if (btnIcon) btnIcon.className = 'ph ph-thumbs-up';
-                    }
-                    if (count) count.textContent = currentCount;
-                });
-            } else {
-                console.log('➖ [DESKTOP LIKE] UNLIKING video:', currentVideoId);
-                
-                // Unlike the video - remove from database
-                this.classList.remove('liked');
-                this.setAttribute('data-liked', 'false');
-                if (icon) icon.className = 'ph ph-thumbs-up';
-                currentLikeCount.textContent = Math.max(0, currentCount - 1);
-                
-                console.log('📤 [DESKTOP LIKE] DELETE to:', '/api/video-likes/' + currentVideoId);
-                
-                // Remove from database
-                fetch('/api/video-likes/' + encodeURIComponent(currentVideoId), {
+                : fetch('/api/video-likes/' + encodeURIComponent(videoId), {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
                     }
-                })
+                });
+            
+            apiCall
                 .then(function(response) { 
-                    console.log('📡 [DESKTOP LIKE] DELETE response:', response.status);
+                    if (!response.ok) throw new Error('Server error: ' + response.status);
                     return response.json(); 
                 })
                 .then(function(data) {
-                    console.log('✅ [DESKTOP LIKE] DELETE data:', data);
+                    console.log('✅ [OPTIMISTIC LIKE] Server confirmed:', data);
+                    
                     if (data.success) {
-                        // Update cache
-                        videoDataCache.likes[currentVideoId] = {
-                            user_liked: false,
-                            total_likes: data.total_likes,
-                            timestamp: Date.now()
+                        // ═══ STEP 3: RECONCILE WITH SERVER TRUTH ═══
+                        videoDataCache.likes[videoId] = {
+                            user_liked: data.user_liked !== undefined ? data.user_liked : !isCurrentlyLiked,
+                            total_likes: data.total_likes !== undefined ? data.total_likes : newCount,
+                            timestamp: Date.now(),
+                            optimistic: false // Confirmed by server
                         };
                         
-                        // Re-query to ensure we have current element
-                        var latestCount = document.getElementById('lightbox-video-like-count');
-                        if (latestCount) {
-                            latestCount.textContent = data.total_likes;
-                            console.log('💾 [DESKTOP LIKE] Updated count to:', data.total_likes);
+                        // Update count with server's authoritative value
+                        var latestCountEl = document.getElementById('lightbox-video-like-count');
+                        var latestBtn = document.getElementById('lightbox-video-like-btn');
+                        
+                        if (latestCountEl && latestBtn && latestBtn.getAttribute('data-video-id') === videoId) {
+                            // Only update if still on same video
+                            if (data.total_likes !== undefined) {
+                                latestCountEl.textContent = data.total_likes;
+                                console.log('🔄 [OPTIMISTIC LIKE] Reconciled count:', newCount, '→', data.total_likes);
+                            }
                         }
                     }
                 })
                 .catch(function(err) {
-                    console.error('❌ [DESKTOP LIKE] DELETE failed:', err);
-                    // Revert on error
-                    var btn = document.getElementById('lightbox-video-like-btn');
-                    var count = document.getElementById('lightbox-video-like-count');
-                    if (btn) {
-                        btn.classList.add('liked');
-                        btn.setAttribute('data-liked', 'true');
-                        var btnIcon = btn.querySelector('i');
-                        if (btnIcon) btnIcon.className = 'ph-fill ph-thumbs-up';
+                    console.error('❌ [OPTIMISTIC LIKE] Server failed, ROLLING BACK:', err);
+                    
+                    // ═══ STEP 4: ROLLBACK ON FAILURE ═══
+                    var rollbackBtn = document.getElementById('lightbox-video-like-btn');
+                    var rollbackCount = document.getElementById('lightbox-video-like-count');
+                    
+                    if (rollbackBtn && rollbackCount && rollbackBtn.getAttribute('data-video-id') === videoId) {
+                        // Revert to original state
+                        rollbackBtn.setAttribute('data-liked', isCurrentlyLiked ? 'true' : 'false');
+                        rollbackCount.textContent = currentCount;
+                        
+                        var rollbackIcon = rollbackBtn.querySelector('i');
+                        if (isCurrentlyLiked) {
+                            rollbackBtn.classList.add('liked');
+                            if (rollbackIcon) rollbackIcon.className = 'ph-fill ph-thumbs-up';
+                        } else {
+                            rollbackBtn.classList.remove('liked');
+                            if (rollbackIcon) rollbackIcon.className = 'ph ph-thumbs-up';
+                        }
+                        
+                        // Revert cache
+                        videoDataCache.likes[videoId] = {
+                            user_liked: isCurrentlyLiked,
+                            total_likes: currentCount,
+                            timestamp: Date.now(),
+                            optimistic: false
+                        };
+                        
+                        // Show user-friendly error
+                        console.log('🔙 [OPTIMISTIC LIKE] Rolled back to:', isCurrentlyLiked, currentCount);
                     }
-                    if (count) count.textContent = currentCount;
                 });
-            }
         };
     }
     
@@ -1568,28 +1556,65 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('🔧 [DESKTOP SHARE] Button cloned, count ref:', shareCount ? 'OK' : 'MISSING');
             
-            // Attach fresh click handler - reads current data attributes inside the handler
-            shareBtn.onclick = function() {
-                // READ CURRENT values from data attributes
+            // Attach fresh click handler with optimistic UI
+            shareBtn.onclick = function(e) {
+                e.preventDefault();
+                console.log('👆 [OPTIMISTIC SHARE] Click detected');
+                
+                // Get current state
                 var currentVideoId = this.getAttribute('data-video-id');
                 var currentVideoUrl = this.getAttribute('data-video-url');
                 var currentCount = shareCount ? parseInt(shareCount.textContent) || 0 : 0;
+                var newCount = currentCount + 1;
                 
-                // Share current video URL
+                console.log('⚡ [OPTIMISTIC SHARE] INSTANT UPDATE - Count:', currentCount, '→', newCount);
+                
+                // ═══ STEP 1: INSTANT UI UPDATE (OPTIMISTIC) ═══
+                if (shareCount) {
+                    shareCount.textContent = newCount;
+                }
+                
+                // Optimistic cache update
+                videoDataCache.shares[currentVideoId] = {
+                    total_shares: newCount,
+                    timestamp: Date.now(),
+                    optimistic: true
+                };
+                
+                // ═══ STEP 2: TRIGGER SHARE ACTION ═══
+                var sharePromise = null;
+                
                 if (navigator.share && currentVideoUrl) {
-                    navigator.share({
+                    // Native share API
+                    sharePromise = navigator.share({
                         title: currentProduct?.name || 'Product Video',
                         text: 'Check out this video!',
                         url: currentVideoUrl
-                    })
-                    .then(function() {
-                        // Increment count immediately
-                        if (shareCount) {
-                            shareCount.textContent = currentCount + 1;
+                    });
+                } else if (currentVideoUrl) {
+                    // Fallback: copy to clipboard
+                    sharePromise = navigator.clipboard.writeText(currentVideoUrl).then(function() {
+                        // Show copied notification
+                        var icon = document.getElementById('lightbox-video-share-btn')?.querySelector('i');
+                        if (icon) {
+                            var originalClass = icon.className;
+                            icon.className = 'ph-fill ph-check';
+                            setTimeout(function() {
+                                icon.className = originalClass;
+                            }, 2000);
                         }
+                    });
+                }
+                
+                if (!sharePromise) return;
+                
+                // ═══ STEP 3: BACKGROUND SERVER SYNC ═══
+                sharePromise
+                    .then(function() {
+                        console.log('✅ [OPTIMISTIC SHARE] User completed share action');
                         
-                        // Track share in database
-                        fetch('/api/video-shares', {
+                        // Track in database
+                        return fetch('/api/video-shares', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1600,58 +1625,56 @@ document.addEventListener('DOMContentLoaded', function() {
                                 video_url: currentVideoUrl,
                                 product_id: currentProduct?.id || null
                             })
-                        })
-                        .then(function(response) { return response.json(); })
-                        .then(function(data) {
-                            if (data.success && shareCount) {
-                                shareCount.textContent = data.total_shares;
-                            }
                         });
                     })
-                    .catch(function(err) {
-                        console.log('Share cancelled or failed:', err);
-                    });
-                } else {
-                    // Fallback: copy to clipboard
-                    if (currentVideoUrl) {
-                        navigator.clipboard.writeText(currentVideoUrl).then(function() {
-                            // Increment count immediately
-                            if (shareCount) {
-                                shareCount.textContent = currentCount + 1;
-                            }
+                    .then(function(response) {
+                        if (!response || !response.ok) {
+                            throw new Error('Server error');
+                        }
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        console.log('✅ [OPTIMISTIC SHARE] Server confirmed:', data);
+                        
+                        if (data.success) {
+                            // ═══ STEP 4: RECONCILE WITH SERVER TRUTH ═══
+                            videoDataCache.shares[currentVideoId] = {
+                                total_shares: data.total_shares !== undefined ? data.total_shares : newCount,
+                                timestamp: Date.now(),
+                                optimistic: false
+                            };
                             
-                            // Track share in database
-                            fetch('/api/video-shares', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                                },
-                                body: JSON.stringify({
-                                    video_id: currentVideoId,
-                                    video_url: currentVideoUrl,
-                                    product_id: currentProduct?.id || null
-                                })
-                            })
-                            .then(function(response) { return response.json(); })
-                            .then(function(data) {
-                                if (data.success && shareCount) {
-                                    shareCount.textContent = data.total_shares;
+                            // Update with server's authoritative value
+                            var latestShareBtn = document.getElementById('lightbox-video-share-btn');
+                            if (latestShareBtn && latestShareBtn.getAttribute('data-video-id') === currentVideoId) {
+                                var latestShareCount = latestShareBtn.querySelector('.share-count');
+                                if (latestShareCount && data.total_shares !== undefined) {
+                                    latestShareCount.textContent = data.total_shares;
+                                    console.log('🔄 [OPTIMISTIC SHARE] Reconciled count:', newCount, '→', data.total_shares);
                                 }
-                            });
-                            
-                            // Show copied notification with Phosphor icon
-                            var icon = shareBtn.querySelector('i');
-                            if (icon) {
-                                var originalClass = icon.className;
-                                icon.className = 'ph-fill ph-check';
-                                setTimeout(function() {
-                                    icon.className = originalClass;
-                                }, 2000);
                             }
-                        });
-                    }
-                }
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('❌ [OPTIMISTIC SHARE] Failed, ROLLING BACK:', err);
+                        
+                        // ═══ STEP 5: ROLLBACK ON FAILURE ═══
+                        var rollbackBtn = document.getElementById('lightbox-video-share-btn');
+                        if (rollbackBtn && rollbackBtn.getAttribute('data-video-id') === currentVideoId) {
+                            var rollbackCount = rollbackBtn.querySelector('.share-count');
+                            if (rollbackCount) {
+                                rollbackCount.textContent = currentCount;
+                                console.log('🔙 [OPTIMISTIC SHARE] Rolled back to:', currentCount);
+                            }
+                        }
+                        
+                        // Revert cache
+                        videoDataCache.shares[currentVideoId] = {
+                            total_shares: currentCount,
+                            timestamp: Date.now(),
+                            optimistic: false
+                        };
+                    });
             };
             } // Close else block for NEW VIDEO
         }
