@@ -1538,7 +1538,7 @@
                                 url: facadeInSlide.dataset.src,
                                 provider: facadeInSlide.dataset.provider,
                                 thumbnail: facadeInSlide.querySelector('img') ? facadeInSlide.querySelector('img').src : null,
-                                title: videoTitle || 'Product Video ' + (videos.length + 1),
+                                title: videoTitle,
                                 portrait: facadeInSlide.dataset.portrait === 'true',
                                 aspectRatio: facadeInSlide.dataset.aspectRatio || '16:9'
                             });
@@ -1548,7 +1548,7 @@
                                 url: videoElInSlide.src || (videoElInSlide.querySelector('source') ? videoElInSlide.querySelector('source').src : null),
                                 provider: 'direct',
                                 thumbnail: videoElInSlide.poster || null,
-                                title: videoTitle || 'Product Video ' + (videos.length + 1),
+                                title: videoTitle,
                                 portrait: videoElInSlide.dataset.portrait === 'true',
                                 aspectRatio: videoElInSlide.dataset.aspectRatio || '16:9'
                             });
@@ -1625,7 +1625,7 @@
                                 url: facadeInSlide.dataset.src,
                                 provider: facadeInSlide.dataset.provider,
                                 thumbnail: facadeInSlide.querySelector('img') ? facadeInSlide.querySelector('img').src : null,
-                                title: videoTitle || 'Product Video ' + (videos.length + 1),
+                                title: videoTitle,
                                 portrait: facadeInSlide.dataset.portrait === 'true',
                                 aspectRatio: facadeInSlide.dataset.aspectRatio || '16:9'
                             });
@@ -1636,7 +1636,7 @@
                                 url: videoElInSlide.src || (videoElInSlide.querySelector('source') ? videoElInSlide.querySelector('source').src : null),
                                 provider: 'direct',
                                 thumbnail: videoElInSlide.poster || null,
-                                title: videoTitle || 'Product Video ' + (videos.length + 1),
+                                title: videoTitle,
                                 portrait: videoElInSlide.dataset.portrait === 'true' || videoElInSlide.getAttribute('data-portrait') === 'true',
                                 aspectRatio: videoElInSlide.dataset.aspectRatio || videoElInSlide.getAttribute('data-aspect-ratio') || '16:9'
                             });
