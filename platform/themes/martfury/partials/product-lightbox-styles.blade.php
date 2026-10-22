@@ -746,13 +746,13 @@
                 border: none !important;
             }
             
-            /* YouTube/Vimeo iframes - fill FULL HEIGHT to avoid black bars */
+            /* YouTube/Vimeo iframes - smart scaling for any aspect ratio */
             .product-lightbox-video-player iframe {
-                width: auto !important;
-                height: 100% !important; /* Full height */
-                max-width: none !important;
+                width: 100vw !important; /* Full viewport width */
+                height: 100vh !important; /* Full viewport height */
+                max-width: 100% !important;
                 max-height: 100% !important;
-                aspect-ratio: 16 / 9 !important; /* Width calculated from height */
+                object-fit: contain !important; /* Scale to fit, maintain aspect ratio */
             }
             
             /* Default: Direct video - Landscape (16:9) - maintain aspect ratio */
