@@ -237,52 +237,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add video-mode class for black background
         if (lightboxOverlay) lightboxOverlay.classList.add('video-mode');
         
-        // Set up tap-to-toggle on the entire video overlay area
-        // Use the mobile-video-controls overlay which covers the full screen
-        if (mobileControls) {
-            // Create a clickable overlay layer
-            var existingClickLayer = document.getElementById('mobile-click-layer');
-            if (existingClickLayer) {
-                existingClickLayer.remove();
-            }
-            
-            var clickLayer = document.createElement('div');
-            clickLayer.id = 'mobile-click-layer';
-            clickLayer.style.cssText = 'position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: -1;';
-            mobileControls.appendChild(clickLayer);
-            
-            // Add click listener to the overlay
-            clickLayer.addEventListener('click', function(e) {
-                // Only toggle if clicking on the background (not on buttons or UI elements)
-                toggleMobileUI();
+        // Set up tap-to-toggle ONLY on the mobile controls overlay elements
+        // DO NOT intercept clicks on video player area - let player controls work naturally
+        
+        // Add click listener ONLY to specific UI elements (not video player)
+        var titleContainer = document.getElementById('mobile-video-title-container');
+        var uploaderInfo = document.querySelector('.mobile-video-uploader');
+        
+        // Toggle when clicking on title/uploader area (empty spaces)
+        if (titleContainer) {
+            titleContainer.addEventListener('click', function(e) {
+                // Only toggle if clicking directly on container (not on title text or buttons)
+                if (e.target === titleContainer) {
+                    toggleMobileUI();
+                }
             });
         }
         
-        // Also add listener to video player area for direct clicks on video
-        var videoWrapper = document.querySelector('.product-lightbox-video-wrapper');
-        if (videoWrapper) {
-            videoWrapper.addEventListener('click', function(e) {
-                // Don't toggle if clicking on a button or interactive element
-                var target = e.target;
-                
-                // Allow native video controls to work (video, iframe, and their control elements)
-                if (target.tagName === 'VIDEO' || 
-                    target.tagName === 'IFRAME' ||
-                    target.closest('video') ||
-                    target.closest('iframe') ||
-                    target.tagName === 'BUTTON' || 
-                    target.closest('button') || 
-                    target.closest('.mobile-video-header') ||
-                    target.closest('.mobile-video-title-container') ||
-                    target.closest('.mobile-video-uploader') ||
-                    target.closest('.mobile-video-actions') ||
-                    target.closest('.mobile-video-minimal-controls') ||
-                    target.closest('.mobile-video-drawer')) {
-                    return; // Don't toggle for these elements - let native controls work
+        if (uploaderInfo) {
+            uploaderInfo.addEventListener('click', function(e) {
+                // Only toggle if clicking directly on uploader area (not on buttons)
+                if (e.target === uploaderInfo || e.target.closest('.mobile-uploader-avatar') || e.target.closest('.mobile-uploader-name')) {
+                    toggleMobileUI();
                 }
-                
-                // Toggle UI only when clicking on wrapper background
-                toggleMobileUI();
             });
         }
         
@@ -758,14 +735,26 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                     
-                    // Try to find and click the buy now button
-                    var buyNowBtn = document.querySelector('.btn-buy-now, .buy-now-button, button[data-action="buy-now"], .add-to-cart-form .btn-buy-now');
+                    // Try to find and click the buy now button (correct selectors for current theme)
+                    var buyNowBtn = document.querySelector(
+                        'button[name="checkout"],' +
+                        '.ps-btn[name="checkout"], ' +
+                        'button[data-bb-toggle="buy-now"], ' +
+                        '.btn-buy-now, ' +
+                        '.buy-now-button'
+                    );
                     
                     if (buyNowBtn) {
                         buyNowBtn.click();
                     } else {
                         // Fallback: add to cart then go to checkout
-                        var addToCartBtn = document.querySelector('.add-to-cart-button, button[name="add-to-cart"], .add-to-cart-form button[type="submit"], .btn-add-to-cart');
+                        var addToCartBtn = document.querySelector(
+                            'button[name="add_to_cart"], ' +
+                            '.add-to-cart-button, ' +
+                            '.ps-btn[name="add_to_cart"], ' +
+                            'button[data-bb-toggle="add-to-cart-in-form"], ' +
+                            '.add-to-cart-form button[type="submit"]'
+                        );
                         if (addToCartBtn) {
                             addToCartBtn.click();
                             // Wait for cart update then redirect
@@ -774,7 +763,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             }, 800);
                         } else {
                             // Last resort: scroll to product section
-                            var productSection = document.querySelector('.product-info, .product-detail, .box-product-detail');
+                            var productSection = document.querySelector(
+                                '.ps-product__info, ' +
+                                '.bb-product-detail, ' +
+                                '.ps-product--detail, ' +
+                                '#product-detail-page, ' +
+                                '.product-info, ' +
+                                '.product-detail'
+                            );
                             if (productSection) {
                                 productSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                             }
@@ -872,8 +868,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     });
                     
-                    // Find and click add to cart button
-                    var addToCartBtn = document.querySelector('.add-to-cart-button, button[name="add-to-cart"], .add-to-cart-form button[type="submit"], .btn-add-to-cart');
+                    // Find and click add to cart button (correct selectors for current theme)
+                    var addToCartBtn = document.querySelector(
+                        'button[name="add-to-cart"], ' +
+                        '.bb-product-details-add-to-cart-btn, ' +
+                        'button[data-bb-toggle="add-to-cart-in-form"], ' +
+                        '.add-to-cart-button, ' +
+                        '.add-to-cart-form button[type="submit"], ' +
+                        '.btn-add-to-cart'
+                    );
                     
                     if (addToCartBtn) {
                         addToCartBtn.click();
@@ -913,7 +916,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         }, 1000);
                     } else {
                         // Fallback: scroll to product section
-                        var productSection = document.querySelector('.product-info, .product-detail, .box-product-detail');
+                        var productSection = document.querySelector(
+                            '.ps-product__info, ' +
+                            '.bb-product-detail, ' +
+                            '.ps-product--detail, ' +
+                            '#product-detail-page, ' +
+                            '.product-info, ' +
+                            '.product-detail'
+                        );
                         if (productSection) {
                             productSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
