@@ -836,12 +836,12 @@
             /* Minimal controls (shown when main controls are hidden) */
             .mobile-video-minimal-controls {
                 position: absolute !important;
-                bottom: 20px !important;
+                bottom: 30px !important;
                 left: 50% !important;
                 transform: translateX(-50%) !important;
                 display: none !important;
                 flex-direction: row !important;
-                gap: 20px !important;
+                gap: 40px !important; /* More gap between buttons */
                 align-items: center !important;
                 opacity: 0 !important;
                 transition: opacity 0.3s ease !important;
@@ -853,27 +853,32 @@
             }
             
             .minimal-control-btn {
-                background: rgba(255, 255, 255, 0.15) !important;
-                backdrop-filter: blur(10px) !important;
-                border: 1px solid rgba(255, 255, 255, 0.2) !important;
-                border-radius: 24px !important;
-                padding: 10px 20px !important;
+                background: none !important; /* No background */
+                border: none !important; /* No border */
+                box-shadow: none !important; /* No shadow */
+                padding: 0 !important;
                 display: flex !important;
+                flex-direction: column !important; /* Icon on top, text below */
                 align-items: center !important;
-                gap: 8px !important;
-                color: #fff !important;
-                font-size: 14px !important;
+                gap: 6px !important; /* Small gap between icon and text */
+                color: var(--global-color-text-main, #0D1B2A) !important; /* Dark text */
+                font-size: 13px !important;
                 font-weight: 500 !important;
                 cursor: pointer !important;
-                transition: background 0.2s ease !important;
+                transition: opacity 0.2s ease !important;
             }
             
             .minimal-control-btn:active {
-                background: rgba(255, 255, 255, 0.25) !important;
+                opacity: 0.7 !important;
             }
             
             .minimal-control-btn i {
-                font-size: 20px !important;
+                font-size: 28px !important; /* Larger icon */
+                color: var(--global-color-text-main, #0D1B2A) !important; /* Dark icon */
+            }
+            
+            .minimal-control-btn span {
+                color: var(--global-color-text-main, #0D1B2A) !important; /* Dark text */
             }
             
             /* Top Left: Fullscreen Button - HIDDEN */

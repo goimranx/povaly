@@ -131,17 +131,31 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show controls
     function showMobileControls() {
         var mobileControls = document.getElementById('mobile-video-controls');
+        var drawer = document.getElementById('mobile-video-drawer');
+        
         if (mobileControls) {
             mobileControls.classList.remove('controls-hidden');
             resetControlsHideTimer();
+        }
+        
+        // Show drawer handle when controls are visible
+        if (drawer && !drawer.classList.contains('open')) {
+            drawer.style.display = 'flex';
         }
     }
     
     // Hide controls
     function hideMobileControls() {
         var mobileControls = document.getElementById('mobile-video-controls');
+        var drawer = document.getElementById('mobile-video-drawer');
+        
         if (mobileControls) {
             mobileControls.classList.add('controls-hidden');
+        }
+        
+        // Hide drawer when controls are hidden (unless it's open)
+        if (drawer && !drawer.classList.contains('open')) {
+            drawer.style.display = 'none';
         }
     }
     
@@ -195,8 +209,14 @@ document.addEventListener('DOMContentLoaded', function() {
         var lightboxOverlay = document.getElementById('product-lightbox-modal');
         
         // Show mobile controls and drawer
-        if (mobileControls) mobileControls.style.display = 'block';
-        if (mobileDrawer) mobileDrawer.style.display = 'flex';
+        if (mobileControls) {
+            mobileControls.style.display = 'block';
+            mobileControls.classList.remove('controls-hidden'); // Start visible
+        }
+        if (mobileDrawer) {
+            mobileDrawer.style.display = 'flex';
+            mobileDrawer.classList.remove('open'); // Start closed
+        }
         
         // Add video-mode class for black background
         if (lightboxOverlay) lightboxOverlay.classList.add('video-mode');
@@ -375,8 +395,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (minimalMoreBtn && drawer) {
             minimalMoreBtn.onclick = function(e) {
                 e.stopPropagation(); // Prevent triggering toggle
+                
+                // Show all controls
+                showMobileControls();
+                
+                // Open drawer
                 drawer.classList.add('open');
-                showMobileControls(); // Show controls when opening drawer
+                drawer.style.display = 'flex';
             };
         }
     }
@@ -772,7 +797,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Click handle to toggle
         handle.addEventListener('click', function() {
-            drawer.classList.toggle('open');
+            if (drawer.classList.contains('open')) {
+                drawer.classList.remove('open');
+            } else {
+                drawer.classList.add('open');
+                drawer.style.display = 'flex';
+                showMobileControls(); // Show controls when opening drawer
+            }
         });
     }
     
