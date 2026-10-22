@@ -2034,7 +2034,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (productVideosList && productVideos && productVideos.length > 0) {
             productVideosList.innerHTML = '';
             productVideos.forEach(function(video, index) {
-                var item = createVideoListItem(video, index, index === activeIndex);
+                var item = createVideoListItem(video, index, index === activeIndex, currentProduct?.name);
                 item.addEventListener('click', function() {
                     loadVideos(productVideos, index);
                     updateActiveVideoListItem(index);
@@ -2052,7 +2052,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (relatedVideosList && relatedVideos && relatedVideos.length > 0) {
             relatedVideosList.innerHTML = '';
             relatedVideos.forEach(function(video, index) {
-                var item = createVideoListItem(video, index, false);
+                var item = createVideoListItem(video, index, false, currentProduct?.name);
                 item.addEventListener('click', function() {
                     loadVideos(relatedVideos, index);
                     updateActiveVideoListItem(index, 'related');
@@ -2070,7 +2070,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (reviewVideosList && reviewVideos && reviewVideos.length > 0) {
             reviewVideosList.innerHTML = '';
             reviewVideos.forEach(function(video, index) {
-                var item = createVideoListItem(video, index, false);
+                var item = createVideoListItem(video, index, false, currentProduct?.name);
                 item.addEventListener('click', function() {
                     loadVideos(reviewVideos, index);
                     updateActiveVideoListItem(index, 'review');
@@ -2084,7 +2084,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Create a video list item element
-    function createVideoListItem(video, index, isActive) {
+    function createVideoListItem(video, index, isActive, productName) {
         var item = document.createElement('div');
         item.className = 'video-list-item' + (isActive ? ' active' : '');
         item.setAttribute('data-video-index', index);
@@ -2103,7 +2103,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         var title = document.createElement('div');
         title.className = 'video-list-item-title';
-        title.textContent = (video.title && video.title.trim()) ? video.title : (currentProduct?.name || 'Product Video');
+        title.textContent = (video.title && video.title.trim()) ? video.title : (productName || 'Product Video');
         
         var uploader = document.createElement('div');
         uploader.className = 'video-list-item-uploader';
