@@ -15,10 +15,10 @@
             color: $color-heading;
 
             &:before {
-                content: "\e93c"; // chevron-right icon code
-                font-family: 'Linearicons';
+                content: "›"; // simple right-pointing character
                 margin: 0 8px;
-                font-size: 10px;
+                font-size: 12px;
+                color: #666;
             }
 
             &:first-child {
