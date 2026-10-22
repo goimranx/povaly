@@ -150,9 +150,11 @@
                 </button>
                 <button class="mobile-action-btn mobile-btn-cart" id="mobile-btn-cart">
                     <i class="icon-cart"></i>
+                    <span class="mobile-action-count" id="mobile-cart-count">0</span>
                 </button>
                 <button class="mobile-action-btn mobile-btn-share" id="mobile-btn-share">
                     <i class="ph ph-share-fat"></i>
+                    <span class="mobile-action-count" id="mobile-share-count">0</span>
                 </button>
             </div>
         </div>

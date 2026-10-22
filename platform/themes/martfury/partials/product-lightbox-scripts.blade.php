@@ -350,84 +350,243 @@ document.addEventListener('DOMContentLoaded', function() {
             mobileSoldCount.textContent = formatNumber(soldCount) + ' sold';
         }
         
-        // Buy now handler - find and trigger the buy now button on the page
+        // Buy now handler - add to cart and go to checkout
         mobileBuyBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
             
-            // Try to find the buy now button on the product page
-            var buyNowBtn = document.querySelector('.btn-buy-now, .buy-now-button, [data-action="buy-now"]');
+            if (!currentProduct || !currentProduct.id) {
+                console.error('No product data available');
+                return;
+            }
             
-            if (buyNowBtn) {
-                // Close lightbox first
+            // Get CSRF token
+            var csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            
+            // Add product to cart via AJAX
+            var formData = new FormData();
+            formData.append('id', currentProduct.id);
+            formData.append('qty', 1); // Default quantity 1
+            
+            // Try to get selected variation if exists
+            var variationSelect = document.querySelector('.product-variation-select');
+            if (variationSelect && variationSelect.value) {
+                formData.append('variation', variationSelect.value);
+            }
+            
+            fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.error === false || data.success) {
+                    // Close lightbox
+                    closeLightbox();
+                    // Redirect to checkout after short delay
+                    setTimeout(function() {
+                        window.location.href = '/checkout';
+                    }, 300);
+                } else {
+                    console.error('Failed to add to cart:', data.message);
+                    // Fallback: close and scroll to product section
+                    closeLightbox();
+                    setTimeout(function() {
+                        var addToCartSection = document.querySelector('.product-info-main, .product-details, .box-product-detail');
+                        if (addToCartSection) {
+                            addToCartSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 300);
+                }
+            })
+            .catch(function(err) {
+                console.error('Buy now error:', err);
+                // Fallback: try to find buy now button
                 closeLightbox();
-                // Trigger the buy now button after a short delay
                 setTimeout(function() {
-                    buyNowBtn.click();
-                }, 300);
-            } else {
-                // Fallback: close lightbox and scroll to add to cart section
-                closeLightbox();
-                setTimeout(function() {
-                    var addToCartSection = document.querySelector('.product-info-main, .product-details, .box-product-detail');
-                    if (addToCartSection) {
-                        addToCartSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    var buyNowBtn = document.querySelector('.btn-buy-now, .buy-now-button, [data-action="buy-now"]');
+                    if (buyNowBtn) {
+                        buyNowBtn.click();
                     }
                 }, 300);
-            }
+            });
         };
     }
     
     // Initialize mobile cart button
     function initializeMobileCartButton() {
         var mobileCartBtn = document.getElementById('mobile-btn-cart');
+        var mobileCartCount = document.getElementById('mobile-cart-count');
         
         if (!mobileCartBtn) return;
+        
+        // Get current cart count for this product
+        if (mobileCartCount && currentProduct && currentProduct.id) {
+            // Try to get cart data from mini cart or cart icon
+            var cartCountElement = document.querySelector('.cart-counter, .mini-cart-count, [data-cart-count]');
+            if (cartCountElement) {
+                var totalCartCount = parseInt(cartCountElement.textContent) || 0;
+                mobileCartCount.textContent = formatNumber(totalCartCount);
+            } else {
+                mobileCartCount.textContent = '0';
+            }
+        }
         
         mobileCartBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
             
-            // Try to find the add to cart button on the page
-            var addToCartBtn = document.querySelector('.btn-add-to-cart, .add-to-cart-button, [data-action="add-to-cart"], .add-to-cart-form button[type="submit"]');
+            if (!currentProduct || !currentProduct.id) {
+                console.error('No product data available');
+                return;
+            }
             
-            if (addToCartBtn) {
-                // Close lightbox first
+            // Get CSRF token
+            var csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            
+            // Add product to cart via AJAX
+            var formData = new FormData();
+            formData.append('id', currentProduct.id);
+            formData.append('qty', 1); // Default quantity 1
+            
+            // Try to get selected variation if exists
+            var variationSelect = document.querySelector('.product-variation-select');
+            if (variationSelect && variationSelect.value) {
+                formData.append('variation', variationSelect.value);
+            }
+            
+            fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.error === false || data.success) {
+                    // Update cart count
+                    var newCount = parseInt(mobileCartCount.textContent) + 1;
+                    mobileCartCount.textContent = formatNumber(newCount);
+                    
+                    // Update mini cart if exists
+                    var cartCountElement = document.querySelector('.cart-counter, .mini-cart-count, [data-cart-count]');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = newCount;
+                    }
+                    
+                    // Show success feedback
+                    var icon = mobileCartBtn.querySelector('i');
+                    if (icon) {
+                        var originalClass = icon.className;
+                        icon.className = 'ph-fill ph-check-circle';
+                        setTimeout(function() {
+                            icon.className = originalClass;
+                        }, 1500);
+                    }
+                } else {
+                    console.error('Failed to add to cart:', data.message);
+                }
+            })
+            .catch(function(err) {
+                console.error('Add to cart error:', err);
+                // Fallback: try to find add to cart button
                 closeLightbox();
-                // Trigger the add to cart button after a short delay
                 setTimeout(function() {
-                    addToCartBtn.click();
-                }, 300);
-            } else {
-                // Fallback: close lightbox and scroll to add to cart section
-                closeLightbox();
-                setTimeout(function() {
-                    var addToCartSection = document.querySelector('.product-info-main, .product-details, .box-product-detail');
-                    if (addToCartSection) {
-                        addToCartSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    var addToCartBtn = document.querySelector('.btn-add-to-cart, .add-to-cart-button, [data-action="add-to-cart"], .add-to-cart-form button[type="submit"]');
+                    if (addToCartBtn) {
+                        addToCartBtn.click();
                     }
                 }, 300);
-            }
+            });
         };
     }
     
     // Initialize mobile share button
     function initializeMobileShareButton(video) {
         var mobileShareBtn = document.getElementById('mobile-btn-share');
+        var mobileShareCount = document.getElementById('mobile-share-count');
         
         if (!mobileShareBtn) return;
         
+        // Get share count from video data or API
+        if (mobileShareCount && video) {
+            var videoId = video.id || btoa(video.url);
+            
+            // Try to get share count from API
+            fetch('/api/video-shares/' + encodeURIComponent(videoId))
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    var shareCount = data.total_shares || video.shares || 0;
+                    mobileShareCount.textContent = formatNumber(shareCount);
+                })
+                .catch(function(err) {
+                    // Fallback to video data or 0
+                    mobileShareCount.textContent = formatNumber(video.shares || 0);
+                });
+        }
+        
         mobileShareBtn.onclick = function() {
+            var videoId = video.id || btoa(video.url);
+            
             if (navigator.share && video.url) {
                 navigator.share({
                     title: currentProduct?.name || 'Product Video',
                     text: 'Check out this video!',
                     url: video.url
-                }).catch(function(err) {
+                })
+                .then(function() {
+                    // Track share in database
+                    fetch('/api/video-shares', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        },
+                        body: JSON.stringify({
+                            video_id: videoId,
+                            video_url: video.url,
+                            product_id: currentProduct?.id || null
+                        })
+                    })
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
+                        if (data.success && mobileShareCount) {
+                            mobileShareCount.textContent = formatNumber(data.total_shares);
+                        }
+                    });
+                })
+                .catch(function(err) {
                     console.log('Share failed:', err);
                 });
             } else if (video.url) {
+                // Fallback: copy to clipboard
                 navigator.clipboard.writeText(video.url).then(function() {
+                    // Track share in database
+                    fetch('/api/video-shares', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        },
+                        body: JSON.stringify({
+                            video_id: videoId,
+                            video_url: video.url,
+                            product_id: currentProduct?.id || null
+                        })
+                    })
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
+                        if (data.success && mobileShareCount) {
+                            mobileShareCount.textContent = formatNumber(data.total_shares);
+                        }
+                    });
+                    
                     // Show feedback
                     var icon = mobileShareBtn.querySelector('i');
                     if (icon) {

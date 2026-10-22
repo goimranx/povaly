@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\VideoLikeController;
+use App\Http\Controllers\VideoShareController;
 use Illuminate\Support\Facades\Route;
 
 // Video Likes API Routes
@@ -9,6 +10,10 @@ Route::prefix('api')->middleware(['web'])->group(function () {
     Route::get('/video-likes/{videoId}', [VideoLikeController::class, 'show'])->name('api.video-likes.show');
     Route::post('/video-likes', [VideoLikeController::class, 'store'])->name('api.video-likes.store');
     Route::delete('/video-likes/{videoId}', [VideoLikeController::class, 'destroy'])->name('api.video-likes.destroy');
+    
+    // Video Shares API Routes
+    Route::get('/video-shares/{videoId}', [VideoShareController::class, 'show'])->name('api.video-shares.show');
+    Route::post('/video-shares', [VideoShareController::class, 'store'])->name('api.video-shares.store');
 });
 
 // System Update Routes (Admin Only)

@@ -980,7 +980,7 @@
                 right: 10px !important;
                 display: flex !important;
                 flex-direction: column !important;
-                gap: 20px !important;
+                gap: 16px !important; /* Reduced gap from 20px to 16px */
                 align-items: center !important;
             }
             
@@ -1002,7 +1002,7 @@
             }
             
             .mobile-action-btn i {
-                font-size: 28px !important;
+                font-size: 24px !important; /* Reduced from 28px to 24px */
                 color: #fff !important;
             }
             
@@ -1012,18 +1012,18 @@
             
             .mobile-action-count {
                 position: absolute !important;
-                bottom: -20px !important;
+                bottom: -18px !important; /* Adjusted for smaller icons */
                 left: 50% !important;
                 transform: translateX(-50%) !important;
                 color: #fff !important;
-                font-size: 12px !important;
+                font-size: 11px !important; /* Slightly smaller */
                 font-weight: 600 !important;
                 white-space: nowrap !important;
                 text-shadow: none !important;
             }
             
             .mobile-sold-count {
-                font-size: 11px !important;
+                font-size: 10px !important; /* Slightly smaller */
             }
             
             /* Mobile Video Drawer */
