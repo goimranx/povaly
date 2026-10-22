@@ -86,13 +86,13 @@
             const imageSlides = Array.from(allSlides).filter(slide => !slide.classList.contains('video-thumbnail'));
             const videoSlides = Array.from(allSlides).filter(slide => slide.classList.contains('video-thumbnail'));
             
-            // Handle image thumbnails (show 6, 7th shows +X)
-            if (imageSlides.length > 6) {
-                const moreCount = imageSlides.length - 6;
-                const seventhSlide = imageSlides[6];
-                if (seventhSlide) {
-                    seventhSlide.setAttribute('data-more-count', '+' + moreCount);
-                    seventhSlide.style.display = 'block';
+            // Handle image thumbnails (show 4, 5th shows +X)
+            if (imageSlides.length > 4) {
+                const moreCount = imageSlides.length - 4;
+                const fifthSlide = imageSlides[4];
+                if (fifthSlide) {
+                    fifthSlide.setAttribute('data-more-count', '+' + moreCount);
+                    fifthSlide.style.display = 'block';
                 }
             }
             
