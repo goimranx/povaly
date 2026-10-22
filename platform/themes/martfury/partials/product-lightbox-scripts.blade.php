@@ -720,7 +720,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set sold count (get from product data if available)
         if (mobileSoldCount && currentProduct) {
             var soldCount = currentProduct.sold || currentProduct.number_of_sold || 0;
-            mobileSoldCount.textContent = soldCount > 0 ? soldCount + ' sold' : 'Buy now';
+            // Show "Order" by default, show sold count if >= 1
+            mobileSoldCount.textContent = soldCount >= 1 ? soldCount : 'Order';
         }
         
         // Only attach handler if it doesn't exist
@@ -795,17 +796,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Update count display
                     if (mobileCartCount) {
-                        if (inCart) {
-                            mobileCartCount.textContent = quantity; // Show product quantity if in cart
+                        if (inCart && quantity >= 1) {
+                            mobileCartCount.textContent = quantity; // Show product quantity if >= 1 in cart
                         } else {
-                            // Show global cart count from page
-                            var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count]');
-                            if (cartCounter) {
-                                var count = parseInt(cartCounter.textContent) || 0;
-                                mobileCartCount.textContent = count;
-                            } else {
-                                mobileCartCount.textContent = '0';
-                            }
+                            mobileCartCount.textContent = 'Cart'; // Show "Cart" by default
                         }
                     }
                     
