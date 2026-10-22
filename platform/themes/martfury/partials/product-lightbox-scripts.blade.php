@@ -486,8 +486,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         
         // Click handler - exactly like desktop
-        mobileLikeBtn.onclick = function() {
-            resetControlsHideTimer(); // Reset timer on interaction
+        mobileLikeBtn.onclick = function(e) {
+            e.stopPropagation(); // Prevent triggering toggle
+            resetUIHideTimer(); // Reset timer on interaction
             var isLiked = mobileLikeBtn.getAttribute('data-liked') === 'true';
             var currentCount = parseInt(mobileLikeCount.textContent) || 0;
             var videoId = mobileLikeBtn.getAttribute('data-video-id');
@@ -674,13 +675,29 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!mobileShareBtn) return;
         
-        // Get share count - use video data (like desktop doesn't show share count initially)
-        if (mobileShareCount && video) {
-            mobileShareCount.textContent = video.shares || 0;
-        }
+        var videoId = video.id || btoa(video.url);
         
-        mobileShareBtn.onclick = function() {
-            resetControlsHideTimer(); // Reset timer on interaction
+        // Load share count from database - exactly like like button
+        fetch('/api/video-shares/' + encodeURIComponent(videoId))
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                var totalShares = data.total_shares || 0;
+                if (mobileShareCount) {
+                    mobileShareCount.textContent = totalShares; // Use actual number from database
+                }
+                mobileShareBtn.setAttribute('data-video-id', videoId);
+            })
+            .catch(function(err) {
+                console.error('Failed to load share count:', err);
+                if (mobileShareCount) {
+                    mobileShareCount.textContent = video.shares || 0;
+                }
+                mobileShareBtn.setAttribute('data-video-id', videoId);
+            });
+        
+        mobileShareBtn.onclick = function(e) {
+            e.stopPropagation(); // Prevent triggering toggle
+            resetUIHideTimer(); // Reset timer on interaction
             var videoId = video.id || btoa(video.url);
             var currentCount = parseInt(mobileShareCount.textContent) || 0;
             
