@@ -245,34 +245,56 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set up tap-to-toggle on the ENTIRE mobile controls overlay (not just video wrapper)
         // This covers the whole screen except buttons
-        if (mobileControls && !mobileControls._tapHandlerAttached) {
-            console.log('👆 [TAP-TO-TOGGLE] Attaching tap handler to mobile controls overlay');
-            
-            var mobileControlsHandler = function(e) {
-                var target = e.target;
-                
-                console.log('👆 [TAP-TO-TOGGLE] Click detected on:', target.tagName, target.className, target.id);
-                
-                // DON'T toggle if clicking on buttons or interactive elements
-                if (target.closest('.mobile-video-header') ||
-                    target.closest('.mobile-video-actions') ||
-                    target.closest('.mobile-video-minimal-controls') ||
-                    target.closest('.mobile-video-drawer') ||
-                    target.closest('.product-lightbox-video-interactions') ||
-                    target.closest('.btn-video-like') ||
-                    target.closest('.btn-video-share')) {
-                    console.log('⏭️ [TAP-TO-TOGGLE] Skipping - click on button/drawer');
-                    return;
-                }
-                
-                // Toggle UI for any other click (including video, title, uploader, empty space)
-                console.log('✅ [TAP-TO-TOGGLE] Toggling UI');
-                toggleMobileUI();
-            };
-            
-            mobileControls.addEventListener('click', mobileControlsHandler);
-            mobileControls._tapHandlerAttached = true;
+        // ALWAYS reattach to ensure it works (removeEventListener handles cleanup)
+        console.log('👆 [TAP-TO-TOGGLE] Setting up tap handler on mobile controls overlay');
+        
+        // Remove old handler if exists (cleanup)
+        if (mobileControls._tapHandler) {
+            console.log('🧹 [TAP-TO-TOGGLE] Removing old handler');
+            mobileControls.removeEventListener('click', mobileControls._tapHandler);
         }
+        
+        // Create new handler
+        var mobileControlsHandler = function(e) {
+            var target = e.target;
+            
+            console.log('👆 [TAP-TO-TOGGLE] Click detected on:', {
+                tag: target.tagName,
+                class: target.className,
+                id: target.id,
+                text: target.textContent ? target.textContent.substring(0, 30) : ''
+            });
+            
+            // DON'T toggle if clicking on buttons or interactive elements
+            if (target.closest('button') ||
+                target.closest('.mobile-video-header') ||
+                target.closest('.mobile-video-actions') ||
+                target.closest('.mobile-video-minimal-controls') ||
+                target.closest('.mobile-video-drawer') ||
+                target.closest('.product-lightbox-video-interactions') ||
+                target.closest('.btn-video-like') ||
+                target.closest('.btn-video-share') ||
+                target.closest('a') ||
+                target.closest('[onclick]')) {
+                console.log('⏭️ [TAP-TO-TOGGLE] Skipping - click on interactive element');
+                return;
+            }
+            
+            // Toggle UI for any other click (including video, title, uploader, empty space)
+            console.log('✅ [TAP-TO-TOGGLE] Calling toggleMobileUI()');
+            e.preventDefault(); // Prevent any default behavior
+            e.stopPropagation(); // Stop event bubbling
+            toggleMobileUI();
+        };
+        
+        // Store handler reference for cleanup
+        mobileControls._tapHandler = mobileControlsHandler;
+        
+        // Attach handler
+        console.log('👆 [TAP-TO-TOGGLE] Attaching click handler to:', mobileControls.id);
+        mobileControls.addEventListener('click', mobileControlsHandler, true); // Use capture phase
+        
+        console.log('✅ [TAP-TO-TOGGLE] Handler attached successfully');
         
         // Show controls initially and start auto-hide timer
         showMobileUI();
@@ -809,9 +831,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set sold count (get from product data if available)
         if (mobileSoldCount && currentProduct) {
-            var soldCount = currentProduct.sold || currentProduct.number_of_sold || 0;
-            // Show "Order" by default, show sold count if >= 1
-            mobileSoldCount.textContent = soldCount >= 1 ? soldCount : 'Order';
+            var soldCount = currentProduct.sold || currentProduct.number_of_sold || currentProduct.sales || 0;
+            console.log('📦 [BUY BUTTON] Sold count:', soldCount, 'Product data:', {
+                sold: currentProduct.sold,
+                number_of_sold: currentProduct.number_of_sold,
+                sales: currentProduct.sales
+            });
+            
+            // Always show the sold count if available, otherwise show "Order"
+            if (soldCount > 0) {
+                mobileSoldCount.textContent = formatNumber(soldCount);
+            } else {
+                mobileSoldCount.textContent = 'Order';
+            }
         }
         
         // Only attach handler if it doesn't exist
@@ -930,11 +962,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!mobileCartBtn) return;
         
+        console.log('🛒 [CART BUTTON INIT] Current product:', currentProduct);
+        
         // Check if product is in cart and update icon
-        if (currentProduct && currentProduct.id) {
-            fetch('/api/cart/check/' + currentProduct.id)
+        if (currentProduct && (currentProduct.id || currentProduct.product_id || currentProduct.productId)) {
+            var productId = currentProduct.id || currentProduct.product_id || currentProduct.productId;
+            
+            console.log('🛒 [CART BUTTON INIT] Checking cart for product:', productId);
+            
+            fetch('/api/cart/check/' + productId)
                 .then(function(response) { return response.json(); })
                 .then(function(data) {
+                    console.log('🛒 [CART BUTTON INIT] Cart check response:', data);
+                    
                     var inCart = data.in_cart || false;
                     var quantity = data.quantity || 0;
                     
@@ -950,10 +990,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Update count display
                     if (mobileCartCount) {
-                        if (inCart && quantity >= 1) {
-                            mobileCartCount.textContent = quantity; // Show product quantity if >= 1 in cart
+                        if (inCart && quantity > 0) {
+                            // Show THIS product's cart quantity (formatted)
+                            mobileCartCount.textContent = formatNumber(quantity);
+                            console.log('✅ [CART BUTTON INIT] Product in cart, quantity:', quantity);
                         } else {
-                            mobileCartCount.textContent = 'Cart'; // Show "Cart" by default
+                            // Show global cart total from page header
+                            var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count], .header-cart-count');
+                            var globalCount = cartCounter ? parseInt(cartCounter.textContent) || 0 : 0;
+                            
+                            if (globalCount > 0) {
+                                mobileCartCount.textContent = formatNumber(globalCount);
+                                console.log('✅ [CART BUTTON INIT] Showing global cart count:', globalCount);
+                            } else {
+                                mobileCartCount.textContent = 'Cart';
+                                console.log('✅ [CART BUTTON INIT] Cart empty, showing "Cart"');
+                            }
                         }
                     }
                     
@@ -962,19 +1014,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     mobileCartBtn.setAttribute('data-quantity', quantity);
                 })
                 .catch(function(err) {
-                    console.error('Failed to check cart state:', err);
+                    console.error('❌ [CART BUTTON INIT] Failed to check cart state:', err);
                     // Fallback: get global cart count from page
                     if (mobileCartCount) {
-                        var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count]');
+                        var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count], .header-cart-count');
                         if (cartCounter) {
                             var count = parseInt(cartCounter.textContent) || 0;
-                            mobileCartCount.textContent = count;
+                            mobileCartCount.textContent = count > 0 ? formatNumber(count) : 'Cart';
+                            console.log('⚠️ [CART BUTTON INIT] Fallback to global count:', count);
                         } else {
-                            mobileCartCount.textContent = '0';
+                            mobileCartCount.textContent = 'Cart';
+                            console.log('⚠️ [CART BUTTON INIT] No cart counter found, showing "Cart"');
                         }
                     }
                     mobileCartBtn.setAttribute('data-in-cart', 'false');
                 });
+        } else {
+            console.warn('⚠️ [CART BUTTON INIT] No product ID available');
         }
         
         // Only attach handler if it doesn't exist
@@ -1044,11 +1100,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         // Update mobile cart state after a delay (wait for cart to update)
                         setTimeout(function() {
+                            console.log('🔄 [CART BUTTON] Updating cart state after add...');
+                            
                             // Re-check cart state
-                            if (currentProduct && currentProduct.id) {
-                                fetch('/api/cart/check/' + currentProduct.id)
+                            if (currentProduct && productId) {
+                                fetch('/api/cart/check/' + productId)
                                     .then(function(response) { return response.json(); })
                                     .then(function(data) {
+                                        console.log('🔄 [CART BUTTON] Updated cart state:', data);
+                                        
                                         var inCart = data.in_cart || false;
                                         var quantity = data.quantity || 0;
                                         
@@ -1058,21 +1118,24 @@ document.addEventListener('DOMContentLoaded', function() {
                                             icon.className = 'ph-fill ph-shopping-cart';
                                         }
                                         
-                                        // Update count
-                                        if (mobileCartCount && inCart) {
-                                            mobileCartCount.textContent = quantity;
+                                        // Update count - show THIS product's quantity
+                                        if (mobileCartCount && inCart && quantity > 0) {
+                                            mobileCartCount.textContent = formatNumber(quantity);
+                                            console.log('✅ [CART BUTTON] Updated count to:', quantity);
+                                        } else if (mobileCartCount) {
+                                            // Get global count as fallback
+                                            var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count], .header-cart-count');
+                                            var globalCount = cartCounter ? parseInt(cartCounter.textContent) || 0 : 0;
+                                            mobileCartCount.textContent = globalCount > 0 ? formatNumber(globalCount) : 'Cart';
+                                            console.log('✅ [CART BUTTON] Updated to global count:', globalCount);
                                         }
                                         
                                         mobileCartBtn.setAttribute('data-in-cart', inCart ? 'true' : 'false');
                                         mobileCartBtn.setAttribute('data-quantity', quantity);
+                                    })
+                                    .catch(function(err) {
+                                        console.error('❌ [CART BUTTON] Failed to update state:', err);
                                     });
-                            }
-                            
-                            // Also update global cart count
-                            var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count]');
-                            if (cartCounter && mobileCartCount && !mobileCartBtn.getAttribute('data-in-cart')) {
-                                var newCount = parseInt(cartCounter.textContent) || 0;
-                                mobileCartCount.textContent = newCount;
                             }
                         }, 1000);
                     } else {
