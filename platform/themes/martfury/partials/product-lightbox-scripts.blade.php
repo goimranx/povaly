@@ -726,7 +726,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Only attach handler if it doesn't exist
         if (!mobileBuyBtn.onclick) {
-            // Buy now handler - find the actual buy now button on the page and trigger it
+            // Buy now handler - trigger actual buy button with default selections
             mobileBuyBtn.onclick = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -737,25 +737,41 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 
-                // Close lightbox
+                // Close lightbox first
                 closeLightbox();
                 
-                // After closing, trigger the buy now button
+                // After closing, set defaults and trigger buy
                 setTimeout(function() {
-                    // Try to find the buy now button
+                    // Set quantity to 1
+                    var qtyInput = document.querySelector('input[name="qty"], input[name="quantity"], .qty-input, .quantity-input');
+                    if (qtyInput) {
+                        qtyInput.value = 1;
+                    }
+                    
+                    // Select first/default variation if exists
+                    var variationSelects = document.querySelectorAll('select[name^="attribute"]');
+                    variationSelects.forEach(function(select) {
+                        if (select.options.length > 0) {
+                            select.selectedIndex = select.options[0].value ? 0 : 1; // Skip placeholder if exists
+                            // Trigger change event for variation logic
+                            select.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    });
+                    
+                    // Try to find and click the buy now button
                     var buyNowBtn = document.querySelector('.btn-buy-now, .buy-now-button, button[data-action="buy-now"], .add-to-cart-form .btn-buy-now');
                     
                     if (buyNowBtn) {
                         buyNowBtn.click();
                     } else {
-                        // Fallback: try add to cart and then go to checkout
-                        var addToCartBtn = document.querySelector('.add-to-cart-button, button[name="add-to-cart"], .add-to-cart-form button[type="submit"]');
+                        // Fallback: add to cart then go to checkout
+                        var addToCartBtn = document.querySelector('.add-to-cart-button, button[name="add-to-cart"], .add-to-cart-form button[type="submit"], .btn-add-to-cart');
                         if (addToCartBtn) {
                             addToCartBtn.click();
-                            // Wait a bit then redirect to checkout
+                            // Wait for cart update then redirect
                             setTimeout(function() {
                                 window.location.href = '/checkout';
-                            }, 500);
+                            }, 800);
                         } else {
                             // Last resort: scroll to product section
                             var productSection = document.querySelector('.product-info, .product-detail, .box-product-detail');
@@ -838,8 +854,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Close lightbox
                 closeLightbox();
                 
-                // After closing, trigger the add to cart button
+                // After closing, set defaults and trigger add to cart
                 setTimeout(function() {
+                    // Set quantity to 1
+                    var qtyInput = document.querySelector('input[name="qty"], input[name="quantity"], .qty-input, .quantity-input');
+                    if (qtyInput) {
+                        qtyInput.value = 1;
+                    }
+                    
+                    // Select first/default variation if exists
+                    var variationSelects = document.querySelectorAll('select[name^="attribute"]');
+                    variationSelects.forEach(function(select) {
+                        if (select.options.length > 0) {
+                            select.selectedIndex = select.options[0].value ? 0 : 1; // Skip placeholder if exists
+                            // Trigger change event for variation logic
+                            select.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    });
+                    
+                    // Find and click add to cart button
                     var addToCartBtn = document.querySelector('.add-to-cart-button, button[name="add-to-cart"], .add-to-cart-form button[type="submit"], .btn-add-to-cart');
                     
                     if (addToCartBtn) {
