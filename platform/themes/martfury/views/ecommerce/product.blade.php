@@ -3,8 +3,7 @@
 @endphp
 
 <div class="ps-page--product">
-    <div class="ps-container" id="app">
-        <div class="ps-product--detail ps-product--fullwidth bb-product-detail">
+    <div class="ps-product--detail ps-product--fullwidth bb-product-detail" id="app">
             
             <!-- PRODUCT HEADER: Gallery + Product Info + Purchase Box -->
             <div class="ps-product__header">
@@ -350,10 +349,8 @@
             </div>
             <!-- END: ps-section--default -->
 
-        </div>
-        <!-- END: ps-product--detail -->
     </div>
-    <!-- END: ps-container -->
+    <!-- END: ps-product--detail -->
 </div>
 <!-- END: ps-page--product -->
 
