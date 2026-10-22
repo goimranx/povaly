@@ -817,8 +817,8 @@
             /* Product Title Container - top left (no fullscreen button above it) */
             .mobile-video-title-container {
                 position: absolute !important;
-                top: 20px !important; /* Same position as fullscreen button was */
-                left: 20px !important;
+                top: 15px !important;
+                left: 15px !important;
                 max-width: calc(100vw - 80px) !important; /* Leave space for close button */
                 display: flex !important;
                 flex-direction: row !important; /* Row layout - title and chevron inline */
@@ -900,8 +900,8 @@
             /* Top Right: Close Button Only */
             .mobile-video-header {
                 position: absolute !important;
-                top: 20px !important;
-                right: 20px !important;
+                top: 15px !important;
+                right: 15px !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: flex-end !important;
@@ -930,7 +930,7 @@
             .mobile-video-uploader {
                 position: absolute !important;
                 bottom: 120px !important; /* Above drawer */
-                left: 20px !important;
+                left: 15px !important;
                 display: flex !important;
                 align-items: center !important;
                 gap: 10px !important;
@@ -968,7 +968,7 @@
             .mobile-video-actions {
                 position: absolute !important;
                 bottom: 120px !important; /* Above drawer */
-                right: 20px !important;
+                right: 15px !important;
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 20px !important;
