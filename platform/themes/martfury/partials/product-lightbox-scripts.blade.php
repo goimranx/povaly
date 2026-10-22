@@ -5,13 +5,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     var lightbox = document.getElementById('product-lightbox-modal');
     if (!lightbox) {
-        console.warn('Lightbox: #product-lightbox-modal not found in DOM');
-        return;
+                return;
     }
     
-    console.log('Lightbox: Initializing lightbox modal...');
-    
-    var mainImage = document.getElementById('lightbox-main-image');
+        var mainImage = document.getElementById('lightbox-main-image');
     var imageWrapper = mainImage.parentElement;
     var thumbnailsContainer = document.getElementById('lightbox-thumbnails');
     var productTitle = document.getElementById('lightbox-product-title');
@@ -189,19 +186,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (mobileControls) {
             if (mobileControls.classList.contains('controls-hidden')) {
                 // UI is hidden, show it
-                console.log('📱 [TOGGLE UI] Showing UI');
-                showMobileUI();
+                                showMobileUI();
             } else {
                 // UI is visible, hide it immediately (no timer)
-                console.log('📱 [TOGGLE UI] Hiding UI');
-                hideMobileUI();
+                                hideMobileUI();
                 if (uiHideTimer) {
                     clearTimeout(uiHideTimer);
                 }
             }
         } else {
-            console.log('❌ [TOGGLE UI] Mobile controls element not found');
-        }
+                    }
     }
     
     // Format numbers (e.g., 1500 -> 1.5K, 1000000 -> 1M)
@@ -220,9 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (window.innerWidth > 767) return; // Desktop only
         if (!currentProduct || !currentProduct.videos || currentProduct.videos.length === 0) return;
         
-        console.log('✅ [MOBILE VIDEO] Initializing mobile video controls');
-        
-        var videoIndex = currentProduct.currentVideoIndex || 0;
+                var videoIndex = currentProduct.currentVideoIndex || 0;
         var video = currentProduct.videos[videoIndex];
         if (!video) return;
         
@@ -246,11 +238,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (lightboxOverlay) lightboxOverlay.classList.add('video-mode');
         
         // DISABLED: Tap-to-toggle functionality (keeping UI always visible for now)
-        console.log('ℹ️ [MOBILE VIDEO] UI always visible mode - tap-to-toggle disabled');
-        
-        // Load video lists in drawer (CRITICAL - was missing after tab switch)
-        console.log('📹 [MOBILE VIDEO] Loading video lists into drawer');
-        loadVideoLists(
+                // Load video lists in drawer (CRITICAL - was missing after tab switch)
+                loadVideoLists(
             currentProduct.videos || [],
             currentProduct.relatedVideos || [],
             currentProduct.reviewVideos || [],
@@ -403,9 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     mobileShareCount.textContent = newCount;
                 }
                 
-                console.log('🔗 [MINIMAL SHARE] Optimistic increment:', currentCount, '→', newCount);
-                
-                // Track share with server
+                                // Track share with server
                 var sharePromise;
                 
                 if (navigator.share && videoUrl) {
@@ -416,9 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         url: videoUrl
                     })
                     .then(function() {
-                        console.log('✅ [MINIMAL SHARE] Native share completed');
-                        
-                        // Send to server
+                                                // Send to server
                         return fetch('/api/video-shares', {
                             method: 'POST',
                             headers: {
@@ -434,9 +419,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                     .catch(function(err) {
                         // User cancelled share - rollback
-                        console.log('❌ [MINIMAL SHARE] Share cancelled, rolling back');
-                        
-                        videoDataCache.shares[videoId] = {
+                                                videoDataCache.shares[videoId] = {
                             total_shares: currentCount,
                             timestamp: Date.now(),
                             optimistic: false
@@ -451,9 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (videoUrl) {
                     // Clipboard fallback
                     sharePromise = navigator.clipboard.writeText(videoUrl).then(function() {
-                        console.log('✅ [MINIMAL SHARE] Copied to clipboard');
-                        
-                        // Show feedback
+                                                // Show feedback
                         var btnText = minimalShareBtn.querySelector('span');
                         var originalText = btnText.textContent;
                         btnText.textContent = 'Copied!';
@@ -485,9 +466,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         })
                         .then(function(data) {
                             if (data) {
-                                console.log('🔄 [MINIMAL SHARE] Server response:', data);
-                                
-                                // Update cache with server's authoritative value
+                                                                // Update cache with server's authoritative value
                                 videoDataCache.shares[videoId] = {
                                     total_shares: data.total_shares || newCount,
                                     timestamp: Date.now(),
@@ -497,14 +476,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                 // Update UI if different from optimistic value
                                 if (mobileShareCount && data.total_shares !== newCount) {
                                     mobileShareCount.textContent = data.total_shares;
-                                    console.log('🔄 [MINIMAL SHARE] Reconciled:', newCount, '→', data.total_shares);
-                                }
+                                                                    }
                             }
                         })
                         .catch(function(err) {
                             if (err.name !== 'AbortError') {
-                                console.error('❌ [MINIMAL SHARE] Server error:', err);
-                            }
+                                                            }
                         });
                 }
             };
@@ -547,13 +524,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         var videoUrl = video.url;
         
-        console.log('📱 [MOBILE LIKE] Loading video:', { videoId, videoUrl, provider: video.provider });
-        
-        // Check if this is the same video - if so, skip reinitialization
+                // Check if this is the same video - if so, skip reinitialization
         var currentVideoId = mobileLikeBtn.getAttribute('data-video-id');
         if (currentVideoId === videoId) {
-            console.log('⏭️ [MOBILE LIKE] Same video, skipping reinitialization');
-            return;
+                        return;
         }
         
         // Always update the video ID and URL - THIS IS CRITICAL
@@ -562,8 +536,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Check cache first for instant display (same as desktop)
         if (videoDataCache.likes[videoId]) {
-            console.log('💾 [MOBILE LIKE] Using cached data for instant display');
-            var cachedData = videoDataCache.likes[videoId];
+                        var cachedData = videoDataCache.likes[videoId];
             
             // Update button state INSTANTLY from cache
             mobileLikeCount.textContent = cachedData.total_likes;
@@ -598,21 +571,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .catch(function(err) {
-                    console.error('❌ [MOBILE LIKE] Background refresh error:', err);
-                });
+                                    });
         } else {
             // No cache - fetch and wait
-            console.log('🔄 [MOBILE LIKE] Fetching from:', '/api/video-likes/' + videoId);
-            
-            fetch('/api/video-likes/' + encodeURIComponent(videoId))
+                        fetch('/api/video-likes/' + encodeURIComponent(videoId))
                 .then(function(response) { 
-                    console.log('📡 [MOBILE LIKE] Response:', response.status, response.ok);
-                    return response.json(); 
+                                        return response.json(); 
                 })
                 .then(function(data) {
-                    console.log('✅ [MOBILE LIKE] Data received:', data);
-                    
-                    var isLiked = data.user_liked || false;
+                                        var isLiked = data.user_liked || false;
                     var totalLikes = data.total_likes || 0;
                     
                     // Save to cache
@@ -623,30 +590,23 @@ document.addEventListener('DOMContentLoaded', function() {
                         optimistic: false
                     };
                     
-                    console.log('👤 [MOBILE LIKE] Setting state - Liked:', isLiked, 'Count:', totalLikes);
-                    
-                    mobileLikeCount.textContent = totalLikes;
+                                        mobileLikeCount.textContent = totalLikes;
                     mobileLikeBtn.setAttribute('data-liked', isLiked ? 'true' : 'false');
                     
                     var icon = mobileLikeBtn.querySelector('i');
                     if (isLiked && icon) {
                         icon.className = 'ph-fill ph-thumbs-up';
-                        console.log('❤️ [MOBILE LIKE] User HAS liked this video');
-                    } else if (icon) {
+                                            } else if (icon) {
                         icon.className = 'ph ph-thumbs-up';
-                        console.log('🤍 [MOBILE LIKE] User has NOT liked this video');
-                    }
+                                            }
                 })
                 .catch(function(err) {
-                    console.error('❌ [MOBILE LIKE] API Error:', err);
-                    mobileLikeCount.textContent = video.likes || 0;
+                                        mobileLikeCount.textContent = video.likes || 0;
                     mobileLikeBtn.setAttribute('data-liked', 'false');
                 });
         }
         
-        console.log('🔧 [MOBILE LIKE] Cloning button to remove old handlers');
-        
-        // CLONE AND REPLACE to remove ALL previous handlers (best practice for cleanup)
+                // CLONE AND REPLACE to remove ALL previous handlers (best practice for cleanup)
         var newMobileLikeBtn = mobileLikeBtn.cloneNode(true);
         mobileLikeBtn.parentNode.replaceChild(newMobileLikeBtn, mobileLikeBtn);
         mobileLikeBtn = newMobileLikeBtn; // Update reference
@@ -654,16 +614,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // CRITICAL: Update mobileLikeCount reference after cloning
         mobileLikeCount = document.getElementById('mobile-like-count');
         
-        console.log('🔧 [MOBILE LIKE] Button cloned, new count ref:', mobileLikeCount ? 'OK' : 'MISSING');
-        
-        // Attach fresh click handler with cache updates
+                // Attach fresh click handler with cache updates
         mobileLikeBtn.onclick = function(e) {
             e.stopPropagation(); // Prevent triggering toggle
             resetUIHideTimer(); // Reset timer on interaction
             
-            console.log('👆 [MOBILE OPTIMISTIC LIKE] Click detected');
-            
-            // READ CURRENT values from data attributes (not from closure)
+                        // READ CURRENT values from data attributes (not from closure)
             var currentVideoId = this.getAttribute('data-video-id');
             var currentVideoUrl = this.getAttribute('data-video-url');
             var isLiked = this.getAttribute('data-liked') === 'true';
@@ -671,9 +627,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var icon = this.querySelector('i');
             var newCount = isLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
             
-            console.log('⚡ [MOBILE OPTIMISTIC LIKE] INSTANT UPDATE - Current:', isLiked, 'Count:', currentCount, '→', newCount);
-            
-            // ═══ INSTANT UI UPDATE (OPTIMISTIC) ═══
+                        // ═══ INSTANT UI UPDATE (OPTIMISTIC) ═══
             this.setAttribute('data-liked', !isLiked ? 'true' : 'false');
             mobileLikeCount.textContent = newCount;
             
@@ -720,9 +674,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return response.json(); 
                 })
                 .then(function(data) {
-                    console.log('✅ [MOBILE OPTIMISTIC LIKE] Server confirmed:', data);
-                    
-                    if (data.success) {
+                                        if (data.success) {
                         // Update cache with server truth
                         videoDataCache.likes[currentVideoId] = {
                             user_liked: data.user_liked !== undefined ? data.user_liked : !isLiked,
@@ -737,15 +689,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (latestCount && latestBtn && latestBtn.getAttribute('data-video-id') === currentVideoId) {
                             if (data.total_likes !== undefined) {
                                 latestCount.textContent = data.total_likes;
-                                console.log('🔄 [MOBILE OPTIMISTIC LIKE] Reconciled:', newCount, '→', data.total_likes);
-                            }
+                                                            }
                         }
                     }
                 })
                 .catch(function(err) {
-                    console.error('❌ [MOBILE OPTIMISTIC LIKE] Failed, ROLLING BACK:', err);
-                    
-                    // Rollback
+                                        // Rollback
                     var rollbackBtn = document.getElementById('mobile-btn-like');
                     var rollbackCount = document.getElementById('mobile-like-count');
                     if (rollbackBtn && rollbackBtn.getAttribute('data-video-id') === currentVideoId) {
@@ -781,7 +730,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set text to "Order" (no count display)
         if (mobileSoldCount) {
             mobileSoldCount.textContent = 'Order';
-            console.log('✅ [BUY BUTTON] Set to "Order" (count display disabled)');
+
         }
         
         // Only attach handler if it doesn't exist
@@ -792,47 +741,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.stopPropagation();
                 resetUIHideTimer(); // Reset timer on interaction
                 
-                console.log('🛒 [BUY BUTTON] Clicked - Product:', currentProduct);
-                
-                if (!currentProduct) {
-                    console.error('❌ [BUY BUTTON] No product data available');
-                    return;
+                                if (!currentProduct) {
+                                        return;
                 }
                 
                 // Extract product ID from various possible locations
                 var productId = currentProduct.id || currentProduct.product_id || currentProduct.productId;
-                console.log('✅ [BUY BUTTON] Product ID:', productId, 'Name:', currentProduct.name);
-                
-                // Close lightbox first
+                                // Close lightbox first
                 closeLightbox();
                 
                 // After closing, set defaults and trigger buy
                 setTimeout(function() {
-                    console.log('🔍 [BUY BUTTON] Looking for buy now button...');
-                    
-                    // Set quantity to 1
+                                        // Set quantity to 1
                     var qtyInput = document.querySelector('input[name="qty"], input[name="quantity"], .qty-input, .quantity-input');
                     if (qtyInput) {
                         qtyInput.value = 1;
-                        console.log('✅ [BUY BUTTON] Set quantity to 1');
-                    } else {
-                        console.log('⚠️ [BUY BUTTON] Quantity input not found');
-                    }
+                                            } else {
+                                            }
                     
                     // Select first/default variation if exists
                     var variationSelects = document.querySelectorAll('select[name^="attribute"]');
                     if (variationSelects.length > 0) {
-                        console.log('🔍 [BUY BUTTON] Found', variationSelects.length, 'variation selects');
-                        variationSelects.forEach(function(select, index) {
+                                                variationSelects.forEach(function(select, index) {
                             if (select.options.length > 0) {
                                 select.selectedIndex = select.options[0].value ? 0 : 1; // Skip placeholder if exists
                                 select.dispatchEvent(new Event('change', { bubbles: true }));
-                                console.log('✅ [BUY BUTTON] Selected variation', index);
-                            }
+                                                            }
                         });
                     } else {
-                        console.log('ℹ️ [BUY BUTTON] No variations found');
-                    }
+                                            }
                     
                     // Try to find and click the buy now button (correct selectors for current theme)
                     var buyNowBtn = document.querySelector(
@@ -844,13 +781,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     );
                     
                     if (buyNowBtn) {
-                        console.log('✅ [BUY BUTTON] Found buy now button:', buyNowBtn.outerHTML.substring(0, 100));
+
                         buyNowBtn.click();
-                        console.log('✅ [BUY BUTTON] Clicked buy now button');
-                    } else {
-                        console.log('⚠️ [BUY BUTTON] Buy now button not found, trying add to cart fallback...');
-                        
-                        // Fallback: add to cart then go to checkout
+                                            } else {
+                                                // Fallback: add to cart then go to checkout
                         var addToCartBtn = document.querySelector(
                             'button[name="add_to_cart"], ' +
                             '.add-to-cart-button, ' +
@@ -860,17 +794,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         );
                         
                         if (addToCartBtn) {
-                            console.log('✅ [BUY BUTTON] Found add to cart button:', addToCartBtn.outerHTML.substring(0, 100));
+
                             addToCartBtn.click();
-                            console.log('✅ [BUY BUTTON] Clicked add to cart, redirecting to checkout...');
-                            // Wait for cart update then redirect
+                                                        // Wait for cart update then redirect
                             setTimeout(function() {
                                 window.location.href = '/checkout';
                             }, 800);
                         } else {
-                            console.log('❌ [BUY BUTTON] No buttons found, scrolling to product section...');
-                            
-                            // Last resort: scroll to product section
+                                                        // Last resort: scroll to product section
                             var productSection = document.querySelector(
                                 '.ps-product__info, ' +
                                 '.bb-product-detail, ' +
@@ -881,11 +812,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             );
                             
                             if (productSection) {
-                                console.log('✅ [BUY BUTTON] Found product section, scrolling...');
-                                productSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                                productSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
                             } else {
-                                console.log('❌ [BUY BUTTON] Product section not found');
-                            }
+                                                            }
                         }
                     }
                 }, 300);
@@ -903,7 +832,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set text to "Add Cart" (no count display)
         if (mobileCartCount) {
             mobileCartCount.textContent = 'Add Cart';
-            console.log('✅ [CART BUTTON] Set to "Add Cart" (count display disabled)');
+
         }
         
         // Still check cart state for icon
@@ -929,8 +858,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     mobileCartBtn.setAttribute('data-in-cart', inCart ? 'true' : 'false');
                 })
                 .catch(function(err) {
-                    console.error('❌ [CART BUTTON] Failed to check cart state:', err);
-                });
+                                    });
         }
         
         // Only attach handler if it doesn't exist
@@ -940,48 +868,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.stopPropagation();
                 resetUIHideTimer(); // Reset timer on interaction
                 
-                console.log('🛒 [CART BUTTON] Clicked - Product:', currentProduct);
-                
-                if (!currentProduct) {
-                    console.error('❌ [CART BUTTON] No product data available');
-                    return;
+                                if (!currentProduct) {
+                                        return;
                 }
                 
                 // Extract product ID from various possible locations
                 var productId = currentProduct.id || currentProduct.product_id || currentProduct.productId;
-                console.log('✅ [CART BUTTON] Product ID:', productId, 'Name:', currentProduct.name);
-                
-                // Close lightbox
+                                // Close lightbox
                 closeLightbox();
                 
                 // After closing, set defaults and trigger add to cart
                 setTimeout(function() {
-                    console.log('🔍 [CART BUTTON] Looking for add to cart button...');
-                    
-                    // Set quantity to 1
+                                        // Set quantity to 1
                     var qtyInput = document.querySelector('input[name="qty"], input[name="quantity"], .qty-input, .quantity-input');
                     if (qtyInput) {
                         qtyInput.value = 1;
-                        console.log('✅ [CART BUTTON] Set quantity to 1');
-                    } else {
-                        console.log('⚠️ [CART BUTTON] Quantity input not found');
-                    }
+                                            } else {
+                                            }
                     
                     // Select first/default variation if exists
                     var variationSelects = document.querySelectorAll('select[name^="attribute"]');
                     if (variationSelects.length > 0) {
-                        console.log('🔍 [CART BUTTON] Found', variationSelects.length, 'variation selects');
-                        variationSelects.forEach(function(select, index) {
+                                                variationSelects.forEach(function(select, index) {
                             if (select.options.length > 0) {
                                 select.selectedIndex = select.options[0].value ? 0 : 1; // Skip placeholder if exists
                                 // Trigger change event for variation logic
                                 select.dispatchEvent(new Event('change', { bubbles: true }));
-                                console.log('✅ [CART BUTTON] Selected variation', index);
-                            }
+                                                            }
                         });
                     } else {
-                        console.log('ℹ️ [CART BUTTON] No variations found');
-                    }
+                                            }
                     
                     // Find and click add to cart button (correct selectors for current theme)
                     var addToCartBtn = document.querySelector(
@@ -994,11 +910,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     );
                     
                     if (addToCartBtn) {
-                        console.log('✅ [CART BUTTON] Found add to cart button:', addToCartBtn.outerHTML.substring(0, 100));
+
                         addToCartBtn.click();
-                        console.log('✅ [CART BUTTON] Clicked add to cart button');
-                        
-                        // Update icon after add (keep "Add Cart" text unchanged)
+                                                // Update icon after add (keep "Add Cart" text unchanged)
                         setTimeout(function() {
                             var icon = mobileCartBtn.querySelector('i');
                             if (icon) {
@@ -1052,23 +966,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         var videoUrl = video.url;
         
-        console.log('🎬 [MOBILE SHARE] Loading video:', { 
-            videoId, 
-            videoUrl, 
-            provider: video.provider
-        });
-        
-        // Check if this is the same video - if so, skip EVERYTHING
+                // Check if this is the same video - if so, skip EVERYTHING
         var currentVideoId = mobileShareBtn.getAttribute('data-video-id');
         if (currentVideoId === videoId) {
-            console.log('⏭️ [MOBILE SHARE] Same video, skipping ALL initialization');
-            // Don't do ANYTHING - button already set up for this video
+                        // Don't do ANYTHING - button already set up for this video
             return;
         }
         
-        console.log('🆕 [MOBILE SHARE] New video, reinitializing');
-        
-        // Set video ID IMMEDIATELY before fetch to prevent duplicate initializations
+                // Set video ID IMMEDIATELY before fetch to prevent duplicate initializations
         mobileShareBtn.setAttribute('data-video-id', videoId);
         mobileShareBtn.setAttribute('data-video-url', videoUrl);
         
@@ -1082,8 +987,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Check cache first for instant display (same as desktop)
         if (videoDataCache.shares[videoId]) {
-            console.log('💾 [MOBILE SHARE] Using cached data for instant display');
-            var cachedData = videoDataCache.shares[videoId];
+                        var cachedData = videoDataCache.shares[videoId];
             
             if (mobileShareCount) {
                 mobileShareCount.textContent = cachedData.total_shares;
@@ -1107,13 +1011,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .catch(function(err) {
-                    console.error('❌ [MOBILE SHARE] Background refresh error:', err);
-                });
+                                    });
         } else {
             // No cache - fetch and wait
-            console.log('🔄 [MOBILE SHARE] Fetching from API');
-            
-            fetch('/api/video-shares/' + encodeURIComponent(videoId))
+                        fetch('/api/video-shares/' + encodeURIComponent(videoId))
                 .then(function(response) { return response.json(); })
                 .then(function(data) {
                     var totalShares = data.total_shares || 0;
@@ -1132,8 +1033,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 })
                 .catch(function(err) {
-                    console.error('❌ [MOBILE SHARE] Failed to load share count:', err);
-                    var currentCount = document.getElementById('mobile-share-count');
+                                        var currentCount = document.getElementById('mobile-share-count');
                     if (currentCount) {
                         currentCount.textContent = video.shares || 0;
                     }
@@ -1146,17 +1046,13 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation(); // Prevent triggering toggle
             resetUIHideTimer(); // Reset timer on interaction
             
-            console.log('👆 [MOBILE OPTIMISTIC SHARE] Click detected');
-            
-            // Get current state
+                        // Get current state
             var currentVideoId = this.getAttribute('data-video-id');
             var currentVideoUrl = this.getAttribute('data-video-url');
             var currentCount = mobileShareCount ? parseInt(mobileShareCount.textContent) || 0 : 0;
             var newCount = currentCount + 1;
             
-            console.log('⚡ [MOBILE OPTIMISTIC SHARE] INSTANT UPDATE - Count:', currentCount, '→', newCount);
-            
-            // ═══ STEP 1: INSTANT UI UPDATE (OPTIMISTIC) ═══
+                        // ═══ STEP 1: INSTANT UI UPDATE (OPTIMISTIC) ═══
             if (mobileShareCount) {
                 mobileShareCount.textContent = newCount;
             }
@@ -1198,9 +1094,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // ═══ STEP 3: BACKGROUND SERVER SYNC ═══
             sharePromise
                 .then(function() {
-                    console.log('✅ [MOBILE OPTIMISTIC SHARE] User completed share action');
-                    
-                    // Track in database
+                                        // Track in database
                     return fetch('/api/video-shares', {
                         method: 'POST',
                         headers: {
@@ -1221,9 +1115,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return response.json();
                 })
                 .then(function(data) {
-                    console.log('✅ [MOBILE OPTIMISTIC SHARE] Server confirmed:', data);
-                    
-                    if (data.success) {
+                                        if (data.success) {
                         // ═══ STEP 4: RECONCILE WITH SERVER TRUTH ═══
                         videoDataCache.shares[currentVideoId] = {
                             total_shares: data.total_shares !== undefined ? data.total_shares : newCount,
@@ -1237,22 +1129,18 @@ document.addEventListener('DOMContentLoaded', function() {
                             var latestMobileShareCount = document.getElementById('mobile-share-count');
                             if (latestMobileShareCount && data.total_shares !== undefined) {
                                 latestMobileShareCount.textContent = data.total_shares;
-                                console.log('🔄 [MOBILE OPTIMISTIC SHARE] Reconciled count:', newCount, '→', data.total_shares);
-                            }
+                                                            }
                         }
                     }
                 })
                 .catch(function(err) {
-                    console.error('❌ [MOBILE OPTIMISTIC SHARE] Failed, ROLLING BACK:', err);
-                    
-                    // ═══ STEP 5: ROLLBACK ON FAILURE ═══
+                                        // ═══ STEP 5: ROLLBACK ON FAILURE ═══
                     var rollbackBtn = document.getElementById('mobile-btn-share');
                     if (rollbackBtn && rollbackBtn.getAttribute('data-video-id') === currentVideoId) {
                         var rollbackCount = document.getElementById('mobile-share-count');
                         if (rollbackCount) {
                             rollbackCount.textContent = currentCount;
-                            console.log('🔙 [MOBILE OPTIMISTIC SHARE] Rolled back to:', currentCount);
-                        }
+                                                    }
                     }
                     
                     // Revert cache
@@ -1490,9 +1378,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function attachLikeButtonHandler(btn, videoId, videoUrl) {
         btn.onclick = function(e) {
             e.preventDefault();
-            console.log('👆 [OPTIMISTIC LIKE] Click detected');
-            
-            // Get current state BEFORE any changes
+                        // Get current state BEFORE any changes
             var isCurrentlyLiked = this.getAttribute('data-liked') === 'true';
             var countEl = document.getElementById('lightbox-video-like-count');
             if (!countEl) return;
@@ -1501,9 +1387,7 @@ document.addEventListener('DOMContentLoaded', function() {
             var icon = this.querySelector('i');
             var newCount = isCurrentlyLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
             
-            console.log('⚡ [OPTIMISTIC LIKE] INSTANT UPDATE - Current:', isCurrentlyLiked, 'Count:', currentCount, '→', newCount);
-            
-            // ═══ STEP 1: INSTANT UI UPDATE (OPTIMISTIC) ═══
+                        // ═══ STEP 1: INSTANT UI UPDATE (OPTIMISTIC) ═══
             this.setAttribute('data-liked', !isCurrentlyLiked ? 'true' : 'false');
             countEl.textContent = newCount;
             
@@ -1554,9 +1438,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return response.json(); 
                 })
                 .then(function(data) {
-                    console.log('✅ [OPTIMISTIC LIKE] Server confirmed:', data);
-                    
-                    if (data.success) {
+                                        if (data.success) {
                         // ═══ STEP 3: RECONCILE WITH SERVER TRUTH ═══
                         videoDataCache.likes[videoId] = {
                             user_liked: data.user_liked !== undefined ? data.user_liked : !isCurrentlyLiked,
@@ -1573,15 +1455,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             // Only update if still on same video
                             if (data.total_likes !== undefined) {
                                 latestCountEl.textContent = data.total_likes;
-                                console.log('🔄 [OPTIMISTIC LIKE] Reconciled count:', newCount, '→', data.total_likes);
-                            }
+                                                            }
                         }
                     }
                 })
                 .catch(function(err) {
-                    console.error('❌ [OPTIMISTIC LIKE] Server failed, ROLLING BACK:', err);
-                    
-                    // ═══ STEP 4: ROLLBACK ON FAILURE ═══
+                                        // ═══ STEP 4: ROLLBACK ON FAILURE ═══
                     var rollbackBtn = document.getElementById('lightbox-video-like-btn');
                     var rollbackCount = document.getElementById('lightbox-video-like-count');
                     
@@ -1608,22 +1487,19 @@ document.addEventListener('DOMContentLoaded', function() {
                         };
                         
                         // Show user-friendly error
-                        console.log('🔙 [OPTIMISTIC LIKE] Rolled back to:', isCurrentlyLiked, currentCount);
-                    }
+                                            }
                 });
         };
     }
     
     // Load videos
     function loadVideos(videos, activeIndex) {
-        console.log('📹 [LOAD VIDEOS] Called with activeIndex:', activeIndex, 'Stack:', new Error().stack.split('\n')[2]);
-        
+
         if (typeof activeIndex === 'undefined') activeIndex = 0;
         
         var videoPlayer = document.getElementById('lightbox-video-player');
         if (!videoPlayer) {
-            console.error('Video player element not found');
-            return;
+                        return;
         }
         
         // Clear existing content
@@ -1697,30 +1573,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             var videoUrl = video.url;
             
-            console.log('🎬 [DESKTOP LIKE] Loading video:', { 
-                videoId, 
-                videoUrl, 
-                provider: video.provider,
-                index: activeIndex 
-            });
-            
-            // Check if this is the same video - if so, skip EVERYTHING
+                        // Check if this is the same video - if so, skip EVERYTHING
             var currentVideoId = likeBtn.getAttribute('data-video-id');
             if (currentVideoId === videoId) {
-                console.log('⏭️ [DESKTOP LIKE] Same video, skipping ALL initialization');
-                // Don't do ANYTHING - button already set up for this video
+                                // Don't do ANYTHING - button already set up for this video
             } else {
                 // NEW VIDEO - need to reinitialize
-                console.log('🆕 [DESKTOP LIKE] New video, reinitializing');
-                
-                // Set video ID IMMEDIATELY before fetch to prevent duplicate initializations
+                                // Set video ID IMMEDIATELY before fetch to prevent duplicate initializations
                 likeBtn.setAttribute('data-video-id', videoId);
                 likeBtn.setAttribute('data-video-url', videoUrl);
                 
                 // Check cache first for instant display
                 if (videoDataCache.likes[videoId]) {
-                    console.log('💾 [DESKTOP LIKE] Using cached data for instant display');
-                    var cachedData = videoDataCache.likes[videoId];
+                                        var cachedData = videoDataCache.likes[videoId];
                     
                     // Update button state INSTANTLY from cache
                     likeCount.textContent = cachedData.total_likes;
@@ -1765,21 +1630,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         })
                         .catch(function(err) {
-                            console.error('❌ [DESKTOP LIKE] Background refresh error:', err);
-                        });
+                                                    });
                 } else {
                     // No cache - fetch and wait
-                    console.log('🔄 [DESKTOP LIKE] Fetching from:', '/api/video-likes/' + videoId);
-                    
-                    fetch('/api/video-likes/' + encodeURIComponent(videoId))
+                                        fetch('/api/video-likes/' + encodeURIComponent(videoId))
                     .then(function(response) { 
-                        console.log('📡 [DESKTOP LIKE] Response:', response.status, response.ok); 
-                        return response.json(); 
+                                                return response.json(); 
                     })
                     .then(function(data) {
-                        console.log('✅ [DESKTOP LIKE] Data received:', data);
-                        
-                        // Save to cache FIRST
+                                                // Save to cache FIRST
                         videoDataCache.likes[videoId] = {
                             user_liked: data.user_liked || false,
                             total_likes: data.total_likes || 0,
@@ -1791,56 +1650,45 @@ document.addEventListener('DOMContentLoaded', function() {
                         var currentLikeCount = document.getElementById('lightbox-video-like-count');
                         
                         if (!currentLikeBtn || !currentLikeBtn.parentNode) {
-                            console.log('⚠️ [DESKTOP LIKE] Button removed from DOM, skipping update');
-                            return;
+                                                        return;
                         }
                         
                         // Check if video has changed while we were fetching
                         if (currentLikeBtn.getAttribute('data-video-id') !== videoId) {
-                            console.log('⚠️ [DESKTOP LIKE] Video changed during fetch, skipping update');
-                            return;
+                                                        return;
                         }
                         
                         // NOW clone the button with the data ready
-                        console.log('🔧 [DESKTOP LIKE] Cloning button to remove old handlers');
-                        var newLikeBtn = currentLikeBtn.cloneNode(true);
+                                                var newLikeBtn = currentLikeBtn.cloneNode(true);
                         currentLikeBtn.parentNode.replaceChild(newLikeBtn, currentLikeBtn);
                         
                         // CRITICAL: Update likeCount reference after cloning
                         var newLikeCount = document.getElementById('lightbox-video-like-count');
-                        console.log('🔧 [DESKTOP LIKE] Button cloned for video:', videoId, 'New count ref:', newLikeCount ? 'OK' : 'MISSING');
-                        
-                        if (!newLikeCount) {
-                            console.error('❌ [DESKTOP LIKE] Count element not found after cloning');
-                            return;
+                                                if (!newLikeCount) {
+                                                        return;
                         }
                         
                         // Set state from database IMMEDIATELY (no delay)
                         var isLiked = data.user_liked || false;
                         var totalLikes = data.total_likes || 0;
                         
-                        console.log('👤 [DESKTOP LIKE] Setting state - Liked:', isLiked, 'Count:', totalLikes);
-                        
-                        newLikeCount.textContent = totalLikes;
+                                                newLikeCount.textContent = totalLikes;
                         newLikeBtn.setAttribute('data-liked', isLiked ? 'true' : 'false');
                         
                         var icon = newLikeBtn.querySelector('i');
                         if (isLiked) {
                             newLikeBtn.classList.add('liked');
                             if (icon) icon.className = 'ph-fill ph-thumbs-up';
-                            console.log('❤️ [DESKTOP LIKE] User HAS liked this video');
-                        } else {
+                                                    } else {
                             newLikeBtn.classList.remove('liked');
                             if (icon) icon.className = 'ph ph-thumbs-up';
-                            console.log('🤍 [DESKTOP LIKE] User has NOT liked this video');
-                        }
+                                                    }
                         
                         // Attach fresh click handler
                         attachLikeButtonHandler(newLikeBtn, videoId, videoUrl);
                     })
                     .catch(function(err) {
-                        console.error('❌ [DESKTOP LIKE] Fetch error:', err);
-                        // Set defaults on error - re-query elements
+                                                // Set defaults on error - re-query elements
                         var errorBtn = document.getElementById('lightbox-video-like-btn');
                         var errorCount = document.getElementById('lightbox-video-like-count');
                         if (errorCount) errorCount.textContent = video.likes || 0;
@@ -1871,42 +1719,32 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             var videoUrl = video.url;
             
-            console.log('🔗 [DESKTOP SHARE] Initializing for video:', shareVideoId);
-            
-            // Check if same video - skip if yes
+                        // Check if same video - skip if yes
             var currentShareVideoId = shareBtn.getAttribute('data-video-id');
             if (currentShareVideoId === shareVideoId) {
-                console.log('⏭️ [DESKTOP SHARE] Same video, skipping');
-                // DON'T return - just skip this section, continue to rest of loadVideos
+                                // DON'T return - just skip this section, continue to rest of loadVideos
             } else {
             
             // Always update the video ID and URL - THIS IS CRITICAL
             shareBtn.setAttribute('data-video-id', shareVideoId);
             shareBtn.setAttribute('data-video-url', videoUrl);
             
-            console.log('🔄 [DESKTOP SHARE] Fetching from:', '/api/video-shares/' + shareVideoId);
-            
-            // Load share count from database
+                        // Load share count from database
             if (shareCount) {
                 fetch('/api/video-shares/' + encodeURIComponent(shareVideoId))
                     .then(function(response) { 
-                        console.log('📡 [DESKTOP SHARE] Response:', response.status);
-                        return response.json(); 
+                                                return response.json(); 
                     })
                     .then(function(data) {
-                        console.log('✅ [DESKTOP SHARE] Data:', data);
-                        var totalShares = data.total_shares || 0;
+                                                var totalShares = data.total_shares || 0;
                         shareCount.textContent = totalShares;
                     })
                     .catch(function(err) {
-                        console.error('❌ [DESKTOP SHARE] Error:', err);
-                        shareCount.textContent = video.shares || 0;
+                                                shareCount.textContent = video.shares || 0;
                     });
             }
             
-            console.log('🔧 [DESKTOP SHARE] Cloning button');
-            
-            // CLONE AND REPLACE to remove ALL previous handlers
+                        // CLONE AND REPLACE to remove ALL previous handlers
             var newShareBtn = shareBtn.cloneNode(true);
             shareBtn.parentNode.replaceChild(newShareBtn, shareBtn);
             shareBtn = newShareBtn; // Update reference
@@ -1914,22 +1752,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // Get shareCount from new cloned element
             shareCount = shareBtn.querySelector('.share-count');
             
-            console.log('🔧 [DESKTOP SHARE] Button cloned, count ref:', shareCount ? 'OK' : 'MISSING');
-            
-            // Attach fresh click handler with optimistic UI
+                        // Attach fresh click handler with optimistic UI
             shareBtn.onclick = function(e) {
                 e.preventDefault();
-                console.log('👆 [OPTIMISTIC SHARE] Click detected');
-                
-                // Get current state
+                                // Get current state
                 var currentVideoId = this.getAttribute('data-video-id');
                 var currentVideoUrl = this.getAttribute('data-video-url');
                 var currentCount = shareCount ? parseInt(shareCount.textContent) || 0 : 0;
                 var newCount = currentCount + 1;
                 
-                console.log('⚡ [OPTIMISTIC SHARE] INSTANT UPDATE - Count:', currentCount, '→', newCount);
-                
-                // ═══ STEP 1: INSTANT UI UPDATE (OPTIMISTIC) ═══
+                                // ═══ STEP 1: INSTANT UI UPDATE (OPTIMISTIC) ═══
                 if (shareCount) {
                     shareCount.textContent = newCount;
                 }
@@ -1971,9 +1803,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // ═══ STEP 3: BACKGROUND SERVER SYNC ═══
                 sharePromise
                     .then(function() {
-                        console.log('✅ [OPTIMISTIC SHARE] User completed share action');
-                        
-                        // Track in database
+                                                // Track in database
                         return fetch('/api/video-shares', {
                             method: 'POST',
                             headers: {
@@ -1994,9 +1824,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         return response.json();
                     })
                     .then(function(data) {
-                        console.log('✅ [OPTIMISTIC SHARE] Server confirmed:', data);
-                        
-                        if (data.success) {
+                                                if (data.success) {
                             // ═══ STEP 4: RECONCILE WITH SERVER TRUTH ═══
                             videoDataCache.shares[currentVideoId] = {
                                 total_shares: data.total_shares !== undefined ? data.total_shares : newCount,
@@ -2010,22 +1838,18 @@ document.addEventListener('DOMContentLoaded', function() {
                                 var latestShareCount = latestShareBtn.querySelector('.share-count');
                                 if (latestShareCount && data.total_shares !== undefined) {
                                     latestShareCount.textContent = data.total_shares;
-                                    console.log('🔄 [OPTIMISTIC SHARE] Reconciled count:', newCount, '→', data.total_shares);
-                                }
+                                                                    }
                             }
                         }
                     })
                     .catch(function(err) {
-                        console.error('❌ [OPTIMISTIC SHARE] Failed, ROLLING BACK:', err);
-                        
-                        // ═══ STEP 5: ROLLBACK ON FAILURE ═══
+                                                // ═══ STEP 5: ROLLBACK ON FAILURE ═══
                         var rollbackBtn = document.getElementById('lightbox-video-share-btn');
                         if (rollbackBtn && rollbackBtn.getAttribute('data-video-id') === currentVideoId) {
                             var rollbackCount = rollbackBtn.querySelector('.share-count');
                             if (rollbackCount) {
                                 rollbackCount.textContent = currentCount;
-                                console.log('🔙 [OPTIMISTIC SHARE] Rolled back to:', currentCount);
-                            }
+                                                            }
                         }
                         
                         // Revert cache
