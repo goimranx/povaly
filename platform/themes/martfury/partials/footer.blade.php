@@ -1441,6 +1441,8 @@
                     videoSlides.forEach(function(vSlide) {
                         var facadeInSlide = vSlide.querySelector('.qs-video-facade');
                         var videoElInSlide = vSlide.querySelector('video');
+                        var videoTitle = vSlide.getAttribute('data-video-title') || null;
+                        var videoTitle = vSlide.getAttribute('data-video-title') || null;
                         
                         if (facadeInSlide) {
                             // This slide has a facade (YouTube/Vimeo)
@@ -1448,7 +1450,7 @@
                                 url: facadeInSlide.dataset.src,
                                 provider: facadeInSlide.dataset.provider,
                                 thumbnail: facadeInSlide.querySelector('img') ? facadeInSlide.querySelector('img').src : null,
-                                title: 'Product Video ' + (videos.length + 1),
+                                title: videoTitle || 'Product Video ' + (videos.length + 1),
                                 portrait: facadeInSlide.dataset.portrait === 'true',
                                 aspectRatio: facadeInSlide.dataset.aspectRatio || '16:9'
                             });
@@ -1458,7 +1460,7 @@
                                 url: videoElInSlide.src || (videoElInSlide.querySelector('source') ? videoElInSlide.querySelector('source').src : null),
                                 provider: 'direct',
                                 thumbnail: videoElInSlide.poster || null,
-                                title: 'Product Video ' + (videos.length + 1),
+                                title: videoTitle || 'Product Video ' + (videos.length + 1),
                                 portrait: videoElInSlide.dataset.portrait === 'true' || videoElInSlide.getAttribute('data-portrait') === 'true',
                                 aspectRatio: videoElInSlide.dataset.aspectRatio || videoElInSlide.getAttribute('data-aspect-ratio') || '16:9'
                             });
@@ -1527,6 +1529,7 @@
                     videoSlides.forEach(function(vSlide) {
                         var facadeInSlide = vSlide.querySelector('.qs-video-facade');
                         var videoElInSlide = vSlide.querySelector('video');
+                        var videoTitle = vSlide.getAttribute('data-video-title') || null;
                         
                         if (facadeInSlide) {
                             // This slide has a facade (YouTube/Vimeo)
@@ -1535,7 +1538,7 @@
                                 url: facadeInSlide.dataset.src,
                                 provider: facadeInSlide.dataset.provider,
                                 thumbnail: facadeInSlide.querySelector('img') ? facadeInSlide.querySelector('img').src : null,
-                                title: 'Product Video ' + (videos.length + 1),
+                                title: videoTitle || 'Product Video ' + (videos.length + 1),
                                 portrait: facadeInSlide.dataset.portrait === 'true',
                                 aspectRatio: facadeInSlide.dataset.aspectRatio || '16:9'
                             });
@@ -1545,7 +1548,7 @@
                                 url: videoElInSlide.src || (videoElInSlide.querySelector('source') ? videoElInSlide.querySelector('source').src : null),
                                 provider: 'direct',
                                 thumbnail: videoElInSlide.poster || null,
-                                title: 'Product Video ' + (videos.length + 1),
+                                title: videoTitle || 'Product Video ' + (videos.length + 1),
                                 portrait: videoElInSlide.dataset.portrait === 'true',
                                 aspectRatio: videoElInSlide.dataset.aspectRatio || '16:9'
                             });
@@ -1614,6 +1617,7 @@
                     videoSlides.forEach(function(vSlide) {
                         var facadeInSlide = vSlide.querySelector('.qs-video-facade');
                         var videoElInSlide = vSlide.querySelector('video');
+                        var videoTitle = vSlide.getAttribute('data-video-title') || null;
                         
                         if (facadeInSlide) {
                             // This slide has a facade (YouTube/Vimeo)
@@ -1621,7 +1625,7 @@
                                 url: facadeInSlide.dataset.src,
                                 provider: facadeInSlide.dataset.provider,
                                 thumbnail: facadeInSlide.querySelector('img') ? facadeInSlide.querySelector('img').src : null,
-                                title: 'Product Video ' + (videos.length + 1),
+                                title: videoTitle || 'Product Video ' + (videos.length + 1),
                                 portrait: facadeInSlide.dataset.portrait === 'true',
                                 aspectRatio: facadeInSlide.dataset.aspectRatio || '16:9'
                             });
@@ -1632,7 +1636,7 @@
                                 url: videoElInSlide.src || (videoElInSlide.querySelector('source') ? videoElInSlide.querySelector('source').src : null),
                                 provider: 'direct',
                                 thumbnail: videoElInSlide.poster || null,
-                                title: 'Product Video ' + (videos.length + 1),
+                                title: videoTitle || 'Product Video ' + (videos.length + 1),
                                 portrait: videoElInSlide.dataset.portrait === 'true' || videoElInSlide.getAttribute('data-portrait') === 'true',
                                 aspectRatio: videoElInSlide.dataset.aspectRatio || videoElInSlide.getAttribute('data-aspect-ratio') || '16:9'
                             });

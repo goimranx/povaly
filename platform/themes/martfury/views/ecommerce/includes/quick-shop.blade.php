@@ -132,7 +132,7 @@
 
                 {{-- Videos after all images --}}
                 @foreach ($videoList as $video)
-                    <div class="qs-slide qs-slide--video">
+                    <div class="qs-slide qs-slide--video" data-video-title="{{ $video['title'] ?? '' }}">
                         @if ($video['provider'] === 'video')
                             @php $ext = pathinfo($video['url'], PATHINFO_EXTENSION) ?: 'mp4'; if($ext === 'mov') $ext = 'mp4'; @endphp
                             <video controls preload="metadata" @if(!empty($video['thumbnail'])) poster="{{ $video['thumbnail'] }}" @endif style="width:100%;height:100%;object-fit:contain;display:block;">
