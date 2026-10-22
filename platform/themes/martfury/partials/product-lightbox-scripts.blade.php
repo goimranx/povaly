@@ -701,7 +701,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         };
                     }
                 });
-            }
         };
     }
     
