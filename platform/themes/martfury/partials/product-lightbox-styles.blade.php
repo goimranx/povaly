@@ -823,7 +823,20 @@
                 z-index: -1 !important; /* Behind all UI elements */
             }
             
-            /* Controls hidden state - hide UI elements (title, uploader, actions), show minimal buttons */
+            /* ═══════════════════════════════════════════════════════════════════
+               MOBILE UI - ALWAYS VISIBLE MODE
+               ═══════════════════════════════════════════════════════════════════ */
+            
+            /* Keep UI elements always visible with always-visible class */
+            .mobile-video-controls.always-visible .mobile-video-title-container,
+            .mobile-video-controls.always-visible .mobile-video-uploader,
+            .mobile-video-controls.always-visible .mobile-video-actions {
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                visibility: visible !important;
+            }
+            
+            /* Controls hidden state - hide UI elements (title, uploader, actions) */
             .mobile-video-controls.controls-hidden .mobile-video-title-container,
             .mobile-video-controls.controls-hidden .mobile-video-uploader,
             .mobile-video-controls.controls-hidden .mobile-video-actions {
@@ -832,7 +845,7 @@
                 transition: opacity 0.3s ease !important;
             }
             
-            /* Controls visible state - show UI elements (title, uploader, actions), hide minimal buttons */
+            /* Controls visible state - show UI elements (title, uploader, actions) */
             .mobile-video-controls:not(.controls-hidden) .mobile-video-title-container,
             .mobile-video-controls:not(.controls-hidden) .mobile-video-uploader,
             .mobile-video-controls:not(.controls-hidden) .mobile-video-actions {
@@ -847,34 +860,16 @@
                 pointer-events: auto !important;
             }
             
-            /* Minimal buttons (Share & More videos) - shown when UI elements are hidden */
+            /* ═══════════════════════════════════════════════════════════════════
+               MINIMAL CONTROLS - HIDDEN FOR NOW
+               ═══════════════════════════════════════════════════════════════════ */
+            
+            /* Minimal buttons (Share & More videos) - FORCE HIDDEN for now */
             .mobile-video-minimal-controls {
-                position: absolute !important;
-                bottom: 30px !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                display: none !important;
-                flex-direction: row !important;
-                gap: 40px !important; /* More gap between buttons */
-                align-items: center !important;
-                opacity: 0 !important;
-                transition: opacity 0.3s ease !important;
-                pointer-events: none !important;
-                z-index: 10 !important; /* Ensure above click layer */
-            }
-            
-            /* Show minimal buttons only when UI elements are hidden */
-            .mobile-video-controls.controls-hidden .mobile-video-minimal-controls {
-                display: flex !important;
-                opacity: 1 !important;
-                pointer-events: auto !important;
-            }
-            
-            /* Explicitly hide minimal buttons when UI elements are visible */
-            .mobile-video-controls:not(.controls-hidden) .mobile-video-minimal-controls {
-                display: none !important;
+                display: none !important; /* Force hidden */
                 opacity: 0 !important;
                 pointer-events: none !important;
+                visibility: hidden !important;
             }
             
             .minimal-control-btn {
@@ -1077,10 +1072,10 @@
             .mobile-video-actions {
                 position: absolute !important;
                 bottom: 120px !important; /* Above drawer */
-                right: 10px !important;
+                right: 12px !important;
                 display: flex !important;
                 flex-direction: column !important;
-                gap: 20px !important; /* Increased gap for better spacing */
+                gap: 28px !important; /* Increased from 20px to 28px for more space */
                 align-items: center !important;
                 z-index: 10 !important; /* Ensure buttons are above click layer */
             }
@@ -1098,13 +1093,19 @@
                 justify-content: center !important;
                 cursor: pointer !important;
                 position: relative !important;
-                transition: none !important;
-                padding: 0 !important;
+                transition: transform 0.2s ease !important; /* Add subtle scale on tap */
+                padding: 8px 0 !important; /* Add padding for better tap target */
+                margin: 0 !important;
+            }
+            
+            .mobile-action-btn:active {
+                transform: scale(0.95) !important; /* Subtle feedback on tap */
             }
             
             .mobile-action-btn i {
-                font-size: 24px !important; /* Reduced from 28px to 24px */
+                font-size: 26px !important; /* Slightly larger for better visibility */
                 color: #fff !important;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important; /* Better contrast */
             }
             
             .mobile-action-btn.mobile-btn-like[data-liked="true"] i {
@@ -1113,14 +1114,16 @@
             
             .mobile-action-count {
                 position: absolute !important;
-                bottom: -18px !important; /* Adjusted for smaller icons */
+                bottom: -20px !important; /* More space from icon */
                 left: 50% !important;
                 transform: translateX(-50%) !important;
                 color: #fff !important;
-                font-size: 11px !important; /* Slightly smaller */
+                font-size: 11px !important;
                 font-weight: 600 !important;
                 white-space: nowrap !important;
-                text-shadow: none !important;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important; /* Better readability */
+                min-width: 40px !important; /* Ensure text doesn't wrap oddly */
+                text-align: center !important;
             }
             
             .mobile-sold-count {
