@@ -628,15 +628,58 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!mobileCartBtn) return;
         
-        // Get current cart count from the page
-        if (mobileCartCount) {
-            var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count]');
-            if (cartCounter) {
-                var count = parseInt(cartCounter.textContent) || 0;
-                mobileCartCount.textContent = count;
-            } else {
-                mobileCartCount.textContent = '0';
-            }
+        // Check if product is in cart and update icon
+        if (currentProduct && currentProduct.id) {
+            fetch('/api/cart/check/' + currentProduct.id)
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    var inCart = data.in_cart || false;
+                    var quantity = data.quantity || 0;
+                    
+                    // Update icon based on cart state
+                    var icon = mobileCartBtn.querySelector('i');
+                    if (icon) {
+                        if (inCart) {
+                            icon.className = 'ph-fill ph-shopping-cart'; // Filled icon when in cart
+                        } else {
+                            icon.className = 'ph ph-shopping-cart'; // Outline icon when not in cart
+                        }
+                    }
+                    
+                    // Update count display
+                    if (mobileCartCount) {
+                        if (inCart) {
+                            mobileCartCount.textContent = quantity; // Show product quantity if in cart
+                        } else {
+                            // Show global cart count from page
+                            var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count]');
+                            if (cartCounter) {
+                                var count = parseInt(cartCounter.textContent) || 0;
+                                mobileCartCount.textContent = count;
+                            } else {
+                                mobileCartCount.textContent = '0';
+                            }
+                        }
+                    }
+                    
+                    // Store cart state
+                    mobileCartBtn.setAttribute('data-in-cart', inCart ? 'true' : 'false');
+                    mobileCartBtn.setAttribute('data-quantity', quantity);
+                })
+                .catch(function(err) {
+                    console.error('Failed to check cart state:', err);
+                    // Fallback: get global cart count from page
+                    if (mobileCartCount) {
+                        var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count]');
+                        if (cartCounter) {
+                            var count = parseInt(cartCounter.textContent) || 0;
+                            mobileCartCount.textContent = count;
+                        } else {
+                            mobileCartCount.textContent = '0';
+                        }
+                    }
+                    mobileCartBtn.setAttribute('data-in-cart', 'false');
+                });
         }
         
         // Only attach handler if it doesn't exist
@@ -661,10 +704,35 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (addToCartBtn) {
                         addToCartBtn.click();
                         
-                        // Update mobile cart count after a delay (wait for cart to update)
+                        // Update mobile cart state after a delay (wait for cart to update)
                         setTimeout(function() {
+                            // Re-check cart state
+                            if (currentProduct && currentProduct.id) {
+                                fetch('/api/cart/check/' + currentProduct.id)
+                                    .then(function(response) { return response.json(); })
+                                    .then(function(data) {
+                                        var inCart = data.in_cart || false;
+                                        var quantity = data.quantity || 0;
+                                        
+                                        // Update icon
+                                        var icon = mobileCartBtn.querySelector('i');
+                                        if (icon && inCart) {
+                                            icon.className = 'ph-fill ph-shopping-cart';
+                                        }
+                                        
+                                        // Update count
+                                        if (mobileCartCount && inCart) {
+                                            mobileCartCount.textContent = quantity;
+                                        }
+                                        
+                                        mobileCartBtn.setAttribute('data-in-cart', inCart ? 'true' : 'false');
+                                        mobileCartBtn.setAttribute('data-quantity', quantity);
+                                    });
+                            }
+                            
+                            // Also update global cart count
                             var cartCounter = document.querySelector('.cart-counter, .mini-cart-count, .cart-count, [data-cart-count]');
-                            if (cartCounter && mobileCartCount) {
+                            if (cartCounter && mobileCartCount && !mobileCartBtn.getAttribute('data-in-cart')) {
                                 var newCount = parseInt(cartCounter.textContent) || 0;
                                 mobileCartCount.textContent = newCount;
                             }

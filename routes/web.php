@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartCheckController;
 use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\VideoLikeController;
 use App\Http\Controllers\VideoShareController;
@@ -14,6 +15,9 @@ Route::prefix('api')->middleware(['web'])->group(function () {
     // Video Shares API Routes
     Route::get('/video-shares/{videoId}', [VideoShareController::class, 'show'])->name('api.video-shares.show');
     Route::post('/video-shares', [VideoShareController::class, 'store'])->name('api.video-shares.store');
+    
+    // Cart Check API Routes
+    Route::get('/cart/check/{productId}', [CartCheckController::class, 'check'])->name('api.cart.check');
 });
 
 // System Update Routes (Admin Only)
