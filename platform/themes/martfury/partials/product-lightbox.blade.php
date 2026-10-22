@@ -115,34 +115,37 @@
         
         {{-- Mobile Video Controls Overlay (Only for Videos on Mobile) --}}
         <div class="mobile-video-controls" id="mobile-video-controls" style="display: none;">
-            {{-- Top Left: Fullscreen Button --}}
+            {{-- Top Left: Fullscreen Button & Product Title --}}
             <button class="mobile-video-fullscreen" id="mobile-video-fullscreen" aria-label="Fullscreen">
                 <i class="ph ph-corners-out"></i>
             </button>
             
-            {{-- Top Right: Close & Title --}}
+            <div class="mobile-video-title-container" id="mobile-video-title-container">
+                <h3 class="mobile-video-title" id="mobile-video-title"></h3>
+                <button class="mobile-video-title-expand" id="mobile-video-title-expand" style="display: none;">
+                    <i class="icon-chevron-down"></i>
+                </button>
+            </div>
+            
+            {{-- Top Right: Close Button --}}
             <div class="mobile-video-header">
                 <button class="mobile-video-close" aria-label="Close">
                     <i class="icon-cross"></i>
                 </button>
-                <div class="mobile-video-title-wrapper">
-                    <h3 class="mobile-video-title" id="mobile-video-title"></h3>
-                    <button class="mobile-video-title-expand" id="mobile-video-title-expand">
-                        <i class="icon-chevron-down"></i>
-                    </button>
-                </div>
             </div>
             
             {{-- Center: Playback Controls (only for direct videos) --}}
             <div class="mobile-video-center-controls" id="mobile-video-center-controls" style="display: none;">
-                <button class="center-control-btn" id="center-btn-backward" aria-label="Rewind 10s">
-                    <i class="ph ph-rewind"></i>
+                <button class="center-control-btn center-control-btn-small" id="center-btn-backward" aria-label="Rewind 10s">
+                    <i class="ph ph-arrow-counter-clockwise"></i>
+                    <span class="control-badge">10</span>
                 </button>
                 <button class="center-control-btn center-control-btn-main" id="center-btn-play-pause" aria-label="Play/Pause">
                     <i class="ph-fill ph-pause"></i>
                 </button>
-                <button class="center-control-btn" id="center-btn-forward" aria-label="Forward 10s">
-                    <i class="ph ph-fast-forward"></i>
+                <button class="center-control-btn center-control-btn-small" id="center-btn-forward" aria-label="Forward 10s">
+                    <i class="ph ph-arrow-clockwise"></i>
+                    <span class="control-badge">10</span>
                 </button>
             </div>
             

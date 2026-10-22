@@ -818,16 +818,100 @@
                 color: #fff !important;
             }
             
-            /* Top Right: Close & Title */
+            /* Product Title Container - below fullscreen button */
+            .mobile-video-title-container {
+                position: absolute !important;
+                top: 55px !important; /* Below fullscreen button */
+                left: 20px !important;
+                max-width: calc(100vw - 80px) !important; /* Leave space for close button */
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 4px !important;
+            }
+            
+            .mobile-video-title {
+                color: #fff !important;
+                font-size: 14px !important;
+                font-weight: 500 !important;
+                line-height: 1.4 !important;
+                margin: 0 !important;
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2 !important;
+                -webkit-box-orient: vertical !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                text-align: left !important;
+                transition: -webkit-line-clamp 0.3s ease !important;
+                word-break: break-word !important;
+            }
+            
+            .mobile-video-title.expanded {
+                -webkit-line-clamp: unset !important;
+            }
+            
+            .mobile-video-title-expand {
+                background: none !important;
+                border: none !important;
+                padding: 0 !important;
+                cursor: pointer !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                width: auto !important;
+                height: auto !important;
+                color: #fff !important;
+                transition: transform 0.3s ease !important;
+                align-self: flex-start !important;
+            }
+            
+            .mobile-video-title-expand.expanded {
+                transform: rotate(180deg) !important;
+            }
+            
+            .mobile-video-title-expand i {
+                font-size: 12px !important; /* Smaller chevron */
+            }
+            
+            /* Fullscreen mode: hide everything except video controls */
+            .product-lightbox-overlay:fullscreen .mobile-video-header,
+            .product-lightbox-overlay:fullscreen .mobile-video-title-container,
+            .product-lightbox-overlay:fullscreen .mobile-video-uploader,
+            .product-lightbox-overlay:fullscreen .mobile-video-actions,
+            .product-lightbox-overlay:fullscreen .mobile-video-drawer,
+            .product-lightbox-overlay:-webkit-full-screen .mobile-video-header,
+            .product-lightbox-overlay:-webkit-full-screen .mobile-video-title-container,
+            .product-lightbox-overlay:-webkit-full-screen .mobile-video-uploader,
+            .product-lightbox-overlay:-webkit-full-screen .mobile-video-actions,
+            .product-lightbox-overlay:-webkit-full-screen .mobile-video-drawer,
+            .product-lightbox-overlay:-moz-full-screen .mobile-video-header,
+            .product-lightbox-overlay:-moz-full-screen .mobile-video-title-container,
+            .product-lightbox-overlay:-moz-full-screen .mobile-video-uploader,
+            .product-lightbox-overlay:-moz-full-screen .mobile-video-actions,
+            .product-lightbox-overlay:-moz-full-screen .mobile-video-drawer {
+                display: none !important;
+            }
+            
+            /* Keep fullscreen button and video controls visible in fullscreen */
+            .product-lightbox-overlay:fullscreen .mobile-video-fullscreen,
+            .product-lightbox-overlay:fullscreen .mobile-video-center-controls,
+            .product-lightbox-overlay:fullscreen .mobile-video-controls-bar,
+            .product-lightbox-overlay:-webkit-full-screen .mobile-video-fullscreen,
+            .product-lightbox-overlay:-webkit-full-screen .mobile-video-center-controls,
+            .product-lightbox-overlay:-webkit-full-screen .mobile-video-controls-bar,
+            .product-lightbox-overlay:-moz-full-screen .mobile-video-fullscreen,
+            .product-lightbox-overlay:-moz-full-screen .mobile-video-center-controls,
+            .product-lightbox-overlay:-moz-full-screen .mobile-video-controls-bar {
+                display: flex !important;
+            }
+            
+            /* Top Right: Close Button Only */
             .mobile-video-header {
                 position: absolute !important;
                 top: 20px !important;
                 right: 20px !important;
                 display: flex !important;
-                flex-direction: column !important;
-                align-items: flex-end !important;
-                gap: 10px !important;
-                max-width: calc(100vw - 120px) !important;
+                align-items: center !important;
+                justify-content: flex-end !important;
             }
             
             .mobile-video-close {
@@ -849,60 +933,7 @@
                 color: #fff !important;
             }
             
-            .mobile-video-title-wrapper {
-                background: none !important;
-                backdrop-filter: none !important;
-                border-radius: 0 !important;
-                padding: 0 !important;
-                display: flex !important;
-                align-items: flex-start !important;
-                gap: 8px !important;
-                max-width: 100% !important;
-            }
-            
-            .mobile-video-title {
-                color: #fff !important;
-                font-size: 14px !important;
-                font-weight: 500 !important;
-                line-height: 1.4 !important;
-                margin: 0 !important;
-                display: -webkit-box !important;
-                -webkit-line-clamp: 2 !important;
-                -webkit-box-orient: vertical !important;
-                overflow: hidden !important;
-                text-overflow: ellipsis !important;
-                text-align: left !important;
-                transition: -webkit-line-clamp 0.3s ease !important;
-            }
-            
-            .mobile-video-title.expanded {
-                -webkit-line-clamp: unset !important;
-            }
-            
-            .mobile-video-title-expand {
-                background: none !important;
-                border: none !important;
-                padding: 0 !important;
-                cursor: pointer !important;
-                flex-shrink: 0 !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                width: 20px !important;
-                height: 20px !important;
-                color: #fff !important;
-                transition: transform 0.3s ease !important;
-            }
-            
-            .mobile-video-title-expand.expanded {
-                transform: rotate(180deg) !important;
-            }
-            
-            .mobile-video-title-expand i {
-                font-size: 14px !important;
-            }
-            
-            /* Center: Play/Pause Overlay (shows on pause/tap) */
+            /* Center: Playback Controls (only for direct uploaded videos) */
             .mobile-video-play-overlay {
                 position: absolute !important;
                 top: 50% !important;
@@ -941,13 +972,13 @@
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                gap: 40px !important;
+                gap: 20px !important; /* Closer together */
                 z-index: 10 !important;
             }
             
             .center-control-btn {
-                width: 56px !important;
-                height: 56px !important;
+                width: 72px !important;
+                height: 72px !important;
                 border-radius: 50% !important;
                 background: rgba(0, 0, 0, 0.6) !important;
                 border: none !important;
@@ -956,6 +987,7 @@
                 justify-content: center !important;
                 cursor: pointer !important;
                 transition: background 0.2s ease !important;
+                position: relative !important;
             }
             
             .center-control-btn:active {
@@ -963,10 +995,21 @@
             }
             
             .center-control-btn i {
-                font-size: 28px !important;
+                font-size: 36px !important;
                 color: #fff !important;
             }
             
+            /* Small buttons for forward/backward */
+            .center-control-btn-small {
+                width: 48px !important;
+                height: 48px !important;
+            }
+            
+            .center-control-btn-small i {
+                font-size: 24px !important;
+            }
+            
+            /* Main play/pause button - largest */
             .center-control-btn-main {
                 width: 72px !important;
                 height: 72px !important;
@@ -974,6 +1017,22 @@
             
             .center-control-btn-main i {
                 font-size: 36px !important;
+            }
+            
+            /* Badge for "10" indicator on forward/backward buttons */
+            .control-badge {
+                position: absolute !important;
+                bottom: -8px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                background: rgba(0, 0, 0, 0.8) !important;
+                color: #fff !important;
+                font-size: 10px !important;
+                font-weight: 600 !important;
+                padding: 2px 6px !important;
+                border-radius: 10px !important;
+                min-width: 20px !important;
+                text-align: center !important;
             }
             
             /* Bottom Left: Uploader Info */

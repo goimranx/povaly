@@ -160,23 +160,36 @@ document.addEventListener('DOMContentLoaded', function() {
         if (mobileTitle && currentProduct) {
             mobileTitle.textContent = currentProduct.name || 'Product Video';
             mobileTitle.classList.remove('expanded');
+            
+            // Check if title overflows (needs expand button)
+            setTimeout(function() {
+                var titleExpandBtn = document.getElementById('mobile-video-title-expand');
+                if (titleExpandBtn) {
+                    // Check if text is truncated (scrollHeight > clientHeight means overflow)
+                    var isOverflowing = mobileTitle.scrollHeight > mobileTitle.clientHeight;
+                    titleExpandBtn.style.display = isOverflowing ? 'flex' : 'none';
+                    titleExpandBtn.classList.remove('expanded');
+                }
+            }, 100);
         }
         
         // Title expand/collapse
         var titleExpand = document.getElementById('mobile-video-title-expand');
         if (titleExpand && mobileTitle) {
-            titleExpand.classList.remove('expanded');
             titleExpand.onclick = function() {
                 mobileTitle.classList.toggle('expanded');
                 titleExpand.classList.toggle('expanded');
             };
         }
         
-        // Title click also expands/collapses
+        // Title click also expands/collapses (only if overflow)
         if (mobileTitle) {
             mobileTitle.onclick = function() {
-                mobileTitle.classList.toggle('expanded');
-                if (titleExpand) titleExpand.classList.toggle('expanded');
+                var titleExpandBtn = document.getElementById('mobile-video-title-expand');
+                if (titleExpandBtn && titleExpandBtn.style.display !== 'none') {
+                    mobileTitle.classList.toggle('expanded');
+                    titleExpandBtn.classList.toggle('expanded');
+                }
             };
         }
         
