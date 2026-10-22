@@ -535,34 +535,6 @@
             display: none !important;
         }
         
-        /* ══════════ TABLET LAYOUT (768px - 1199px) ══════════ */
-        @media (max-width: 1199px) and (min-width: 768px) {
-            .product-lightbox-container {
-                width: 95%;
-                height: 90%;
-            }
-            
-            .product-lightbox-body {
-                flex-direction: column;
-            }
-            
-            .product-lightbox-main {
-                width: 100%;
-                height: 50%;
-            }
-            
-            .product-lightbox-sidebar {
-                width: 100%;
-                height: 50%;
-                border-left: none;
-                border-top: 1px solid var(--global-color-primary-border, #FFB399);
-            }
-            
-            .product-lightbox-thumbnails {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-        
         /* ══════════ MOBILE LAYOUT (below 768px) ══════════ */
         @media (max-width: 767px) {
             /* Full screen overlay - no spacing */
