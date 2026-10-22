@@ -907,12 +907,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 console.log('🛒 [BUY BUTTON] Clicked - Product:', currentProduct);
                 
-                if (!currentProduct || !currentProduct.id) {
+                if (!currentProduct) {
                     console.error('❌ [BUY BUTTON] No product data available');
                     return;
                 }
                 
-                console.log('✅ [BUY BUTTON] Product ID:', currentProduct.id, 'Name:', currentProduct.name);
+                // Extract product ID from various possible locations
+                var productId = currentProduct.id || currentProduct.product_id || currentProduct.productId;
+                console.log('✅ [BUY BUTTON] Product ID:', productId, 'Name:', currentProduct.name);
                 
                 // Close lightbox first
                 closeLightbox();
@@ -1065,12 +1067,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.stopPropagation();
                 resetUIHideTimer(); // Reset timer on interaction
                 
-                if (!currentProduct || !currentProduct.id) {
+                console.log('🛒 [CART BUTTON] Clicked - Product:', currentProduct);
+                
+                if (!currentProduct) {
                     console.error('❌ [CART BUTTON] No product data available');
                     return;
                 }
                 
-                console.log('✅ [CART BUTTON] Product ID:', currentProduct.id, 'Name:', currentProduct.name);
+                // Extract product ID from various possible locations
+                var productId = currentProduct.id || currentProduct.product_id || currentProduct.productId;
+                console.log('✅ [CART BUTTON] Product ID:', productId, 'Name:', currentProduct.name);
                 
                 // Close lightbox
                 closeLightbox();
