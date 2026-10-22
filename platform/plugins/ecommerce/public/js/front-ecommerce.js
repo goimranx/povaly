@@ -1,9 +1,2172 @@
-(function(){function T(t){"@babel/helpers - typeof";return T=typeof Symbol=="function"&&typeof Symbol.iterator=="symbol"?function(e){return typeof e}:function(e){return e&&typeof Symbol=="function"&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},T(t)}function R(t,e){if(T(t)!="object"||!t)return t;var r=t[Symbol.toPrimitive];if(r!==void 0){var o=r.call(t,e||"default");if(T(o)!="object")return o;throw new TypeError("@@toPrimitive must return a primitive value.")}return(e==="string"?String:Number)(t)}function W(t){var e=R(t,"string");return T(e)=="symbol"?e:e+""}function g(t,e,r){return(e=W(e))in t?Object.defineProperty(t,e,{value:r,enumerable:!0,configurable:!0,writable:!0}):t[e]=r,t}function U(t,e){if(e.has(t))throw new TypeError("Cannot initialize the same private elements twice on an object")}function P(t,e,r){U(t,e),e.set(t,r)}function H(t,e,r){if(typeof t=="function"?t===e:t.has(e))return arguments.length<3?e:r;throw new TypeError("Private element is not present on this object")}function C(t,e){return t.get(H(t,e))}var O=new WeakMap,M=new WeakMap,F=new WeakMap,I=new WeakMap,N=class{showError(t){typeof Theme!="undefined"?Theme.showError(t):console.error("[Ecommerce]",t)}showSuccess(t){typeof Theme!="undefined"?Theme.showSuccess(t):console.log("[Ecommerce]",t)}handleError(t,e=null){if(typeof Theme!="undefined")Theme.handleError(t,e);else{var r;console.error("[Ecommerce]",((r=t.responseJSON)===null||r===void 0?void 0:r.message)||t.statusText||t)}}updateLazyLoad(){typeof Theme!="undefined"&&Theme.lazyLoadInstance&&Theme.lazyLoadInstance.update()}getCsrfToken(t=null){if(t&&t.length){const e=t.find('input[name="_token"]').val();if(e)return e}return $('meta[name="csrf-token"]').attr("content")||""}getAjaxData(t={},e=null){const r=this.getCsrfToken(e);return r&&(t._token=r),t}constructor(){g(this,"quickSearchAjax",null),g(this,"filterAjax",null),g(this,"lastFilterFormData",null),g(this,"lastFilterFormAction",null),g(this,"filterTimeout",null),P(this,O,t=>{let e=[],r={},o={};return t.forEach(a=>{if(a.name.includes("attributes["))a.value&&e.push(a);else if(a.name.endsWith("[]")){const i=a.name.slice(0,-2);r[i]||(r[i]=new Set),a.value&&r[i].add(a.value)}else o[a.name]||(o[a.name]=!0,a.value&&e.push(a))}),Object.keys(r).forEach(a=>{const i=Array.from(r[a]);i.length>0&&e.push({name:a,value:i.join(",")})}),e}),g(this,"highlightSearchKeywords",(t,e)=>{if(!e.trim())return;let r=e.trim().split(/\s+/),o=new RegExp(`(${r.join("|")})`,"gi");t.html(t.text().replace(o,'<span class="bb-quick-search-highlight">$1</span>'))}),P(this,M,(t,e)=>{const r=t.find('button[type="submit"]'),o=t.find('input[name="q"]'),a=t.find(".bb-quick-search-results");if(!o.val()){a.removeClass("show").html("");return}this.quickSearchAjax=$.ajax({type:"GET",url:e||t.data("ajax-url"),data:t.serialize(),beforeSend:()=>{r.addClass("btn-loading"),e||a.removeClass("show").html(""),this.quickSearchAjax!==null&&this.quickSearchAjax.abort()},success:({error:i,message:n,data:c})=>{if(i){EcommerceApp.showError(n);return}a.addClass("show"),e?a.find(".bb-quick-search-list").append($(c).find(".bb-quick-search-list").html()):a.html(c);let s=this,l=o.val();a.find(".bb-quick-search-item-name").each(function(){$(this).html($(this).text()),l&&s.highlightSearchKeywords($(this),l)}),EcommerceApp.updateLazyLoad()},complete:()=>r.removeClass("btn-loading")})}),P(this,F,(t,e,r)=>{const o=$(".bb-product-form-filter");t&&!e&&(this.lastFilterFormData=null,this.lastFilterFormAction=null);let a=e;if(Array.isArray(e)){const i=new URLSearchParams,n={},c={};e.forEach(s=>{s.name&&s.value&&(s.name.includes("attributes[")&&s.name.endsWith("[]")?(c[s.name]||(c[s.name]=[]),c[s.name].push(s.value)):n[s.name]=s.value)}),Object.keys(n).forEach(s=>{i.set(s,n[s])}),Object.keys(c).forEach(s=>{c[s].forEach(l=>{i.append(s,l)})}),a={},Object.keys(n).forEach(s=>{a[s]=n[s]}),Object.keys(c).forEach(s=>{a[s]=c[s]})}this.filterAjax=$.ajax({url:t,type:"GET",data:a,beforeSend:()=>{document.dispatchEvent(new CustomEvent("ecommerce.product-filter.before",{detail:{data:a,element:o}}))},success:i=>{const{message:n,error:c}=i;if(c){EcommerceApp.showError(n),this.filterAjax=null;return}let s=r||t;if(s.includes("?")){const l=s.split("?"),d=l[0],p=new URLSearchParams(l[1]),m=new URLSearchParams,b={};for(const[f,h]of p.entries())f.includes("attributes[")&&f.endsWith("[]")?(b[f]||(b[f]=[]),b[f].push(h)):m.has(f)||m.set(f,h);Object.keys(b).forEach(f=>{b[f].forEach(h=>{m.append(f,h)})}),s=d+"?"+m.toString()}window.history.pushState(i,null,s),document.dispatchEvent(new CustomEvent("ecommerce.product-filter.success",{detail:{data:i,element:o}})),this.filterAjax=null,$(".bb-product-price-filter").length&&EcommerceApp.initPriceFilter()},error:i=>{i.statusText!=="abort"&&EcommerceApp.handleError(i)},complete:()=>{this.filterTimeout=null,this.filterAjax=null,EcommerceApp.updateLazyLoad(),document.dispatchEvent(new CustomEvent("ecommerce.product-filter.completed",{detail:{element:o}}))}})}),P(this,I,async()=>{const t=(r,o,a)=>{o(),fetch(r,{method:"GET",headers:{"Content-Type":"application/json",Accept:"application/json"}}).then(i=>{if(!i.ok)throw new Error("Network response was not ok");return i.json()}).then(({error:i,data:n})=>{i||(a(n),document.dispatchEvent(new CustomEvent("ecommerce.categories-dropdown.success",{detail:{data:n}})))}).catch(i=>{EcommerceApp.handleError(i)})},e=$(document).find('[data-bb-toggle="init-categories-dropdown"]');e.length&&t(e.first().data("url"),()=>{},r=>{e.each((o,a)=>{const i=$(a),n=$(i.data("bb-target"));n.length?n.html(r.dropdown):i.append(r.select),EcommerceApp.updateLazyLoad()})})}),g(this,"productQuantityToggle",()=>{$('[data-bb-toggle="product-quantity"]').on("click",'[data-bb-toggle="product-quantity-toggle"]',function(t){const e=$(t.currentTarget);let r=e.data("value");if(!r)return;let o=null;if(r==="plus"?o=e.prev():r==="minus"&&(o=e.next()),!o)return;let a=parseInt(o.val())||1;o.val(r==="plus"?a+1:a===1?1:a-1),document.dispatchEvent(new CustomEvent("ecommerce.cart.quantity.change",{detail:{element:e,action:r==="+"?"increase":"decrease"}}))})}),g(this,"defaultOnBeforeChangeSwatches",(t,e)=>{const r=e.closest("form");t&&(r.find('button[type="submit"]').prop("disabled",!0),r.find('button[data-bb-toggle="add-to-cart"]').prop("disabled",!0))}),g(this,"defaultOnChangeSwatchesSuccess",(t,e)=>{if(!t)return;let r=e&&e.length?e.closest(".bb-product-detail"):$();r.length||(r=$(".bb-product-detail").first());const o=e.closest("form"),a=o.find('button[type="submit"]'),i=o.find('input[name="qty"]'),n=r.find(".number-items-available"),c=r.find('[data-bb-value="product-sku"]'),{error:s,data:l}=t;if(s){a.prop("disabled",!0),i.prop("disabled",!0),o.find('input[name="id"]').val("");return}a.prop("disabled",!1),i.prop("disabled",!1),o.find('input[name="id"]').val(l.id),r.find('[data-bb-value="product-price"]').text(l.display_sale_price),l.sale_price!==l.price?r.find('[data-bb-value="product-original-price"]').text(l.display_price).show():r.find('[data-bb-value="product-original-price"]').hide(),l.sku?(c.text(l.sku),c.closest("div").show()):c.closest("div").hide(),l.error_message?(a.prop("disabled",!0),i.prop("disabled",!0),n.html(`<span class='text-danger'>${l.error_message}</span>`).show()):l.warning_message?n.html(`<span class='text-warning fw-medium fs-6'>${l.warning_message}</span>`).show():l.success_message?n.html(`<span class='text-success'>${l.success_message}</span>`).show():n.html("").hide(),r.find(".bb-product-attribute-swatch-item").removeClass("disabled"),r.find(".bb-product-attribute-swatch-list select option").prop("disabled",!1);const d=l.unavailable_attribute_ids||[];d.length&&d.map(v=>{let x=r.find(`.bb-product-attribute-swatch-item[data-id="${v}"]`);x.length?(x.addClass("disabled"),x.find("input").prop("checked",!1)):(x=r.find(`.bb-product-attribute-swatch-list select option[data-id="${v}"]`),x.length&&x.prop("disabled",!0))});let p="",m="";const b=window.siteConfig||{},f=r.find(".bb-product-gallery").data("placeholder")||b.img_placeholder;l.image_with_sizes||(l.image_with_sizes={origin:[],thumb:[]}),!l.image_with_sizes.origin.length&&f&&l.image_with_sizes.origin.push(f),l.image_with_sizes.origin.forEach(function(v){p+=`
-            <a href='${v}'>
-                <img src='${v}' alt='${l.name}'>
+class Ecommerce {
+    quickSearchAjax = null
+    filterAjax = null
+    lastFilterFormData = null
+    lastFilterFormAction = null
+    filterTimeout = null
+
+    showError(message) {
+        if (typeof Theme !== 'undefined') {
+            Theme.showError(message)
+        } else {
+            console.error('[Ecommerce]', message)
+        }
+    }
+
+    showSuccess(message) {
+        if (typeof Theme !== 'undefined') {
+            Theme.showSuccess(message)
+        } else {
+            console.log('[Ecommerce]', message)
+        }
+    }
+
+    handleError(error, $form = null) {
+        if (typeof Theme !== 'undefined') {
+            Theme.handleError(error, $form)
+        } else {
+            console.error('[Ecommerce]', error.responseJSON?.message || error.statusText || error)
+        }
+    }
+
+    updateLazyLoad() {
+        if (typeof Theme !== 'undefined' && Theme.lazyLoadInstance) {
+            Theme.lazyLoadInstance.update()
+        }
+    }
+
+    getCsrfToken($form = null) {
+        if ($form && $form.length) {
+            const formToken = $form.find('input[name="_token"]').val()
+            if (formToken) {
+                return formToken
+            }
+        }
+        return $('meta[name="csrf-token"]').attr('content') || ''
+    }
+
+    getAjaxData(data = {}, $form = null) {
+        const token = this.getCsrfToken($form)
+        if (token) {
+            data._token = token
+        }
+        return data
+    }
+
+    constructor() {
+        this.initClipboard()
+        this.initFileUpload()
+
+        $(document)
+            .on('click', '[data-bb-toggle="toggle-product-categories-tree"]', (e) => {
+                e.preventDefault()
+
+                const currentTarget = $(e.currentTarget)
+
+                currentTarget.toggleClass('active')
+                currentTarget.closest('.bb-product-filter-item').find('> .bb-product-filter-items').slideToggle().toggleClass('active')
+            })
+            .on('click', '[data-bb-toggle="toggle-filter-sidebar"]', () => {
+                $('.bb-filter-offcanvas-area').toggleClass('offcanvas-opened')
+                $('.body-overlay').toggleClass('opened')
+            })
+            .on('click', '.body-overlay', () => {
+                $('.bb-filter-offcanvas-area').removeClass('offcanvas-opened')
+                $('.body-overlay').removeClass('opened')
+            })
+            .on('submit', 'form.bb-product-form-filter', (e) => {
+                e.preventDefault()
+
+                const form = $(e.currentTarget)
+
+                const formData = this.#transformFormData(form.serializeArray())
+                const url = form.prop('action')
+                let nextUrl = url
+
+                const searchParams = new URLSearchParams()
+
+                const paramsByName = {}
+                const attributeArrays = {}
+
+                const currentUrlParams = new URLSearchParams(window.location.search)
+
+                const currentFilterState = {}
+                for (const [key, value] of currentUrlParams.entries()) {
+                    if (key !== 'page' && key !== '_' && value) {
+                        if (!currentFilterState[key]) {
+                            currentFilterState[key] = []
+                        }
+                        currentFilterState[key].push(value)
+                    }
+                }
+
+                formData.forEach((item) => {
+                    if (item.name.includes('attributes[') && item.name.endsWith('[]')) {
+                        if (!attributeArrays[item.name]) {
+                            attributeArrays[item.name] = []
+                        }
+                        attributeArrays[item.name].push(item.value)
+                    } else if (!paramsByName[item.name]) {
+                        paramsByName[item.name] = item.value
+                    }
+                })
+
+                const newFilterState = {}
+                Object.keys(paramsByName).forEach(name => {
+                    if (name !== 'page' && name !== '_' && paramsByName[name]) {
+                        if (!newFilterState[name]) {
+                            newFilterState[name] = []
+                        }
+                        newFilterState[name].push(paramsByName[name])
+                    }
+                })
+                Object.keys(attributeArrays).forEach(name => {
+                    if (!newFilterState[name]) {
+                        newFilterState[name] = []
+                    }
+                    newFilterState[name] = newFilterState[name].concat(attributeArrays[name])
+                })
+
+                Object.keys(currentFilterState).forEach(key => {
+                    if (Array.isArray(currentFilterState[key])) {
+                        currentFilterState[key].sort()
+                    }
+                })
+                Object.keys(newFilterState).forEach(key => {
+                    if (Array.isArray(newFilterState[key])) {
+                        newFilterState[key].sort()
+                    }
+                })
+
+                const filterStateChanged = JSON.stringify(currentFilterState) !== JSON.stringify(newFilterState)
+
+                if (filterStateChanged && paramsByName['page']) {
+                    delete paramsByName['page']
+                }
+
+                Object.keys(paramsByName).forEach(name => {
+                    if (paramsByName[name]) {
+                        searchParams.set(name, paramsByName[name])
+                    }
+                })
+
+                Object.keys(attributeArrays).forEach(name => {
+                    attributeArrays[name].forEach(value => {
+                        searchParams.append(name, value)
+                    })
+                })
+
+                const queryString = searchParams.toString()
+                if (queryString) {
+                    nextUrl += `?${queryString}`
+                }
+
+                let filteredFormData = formData
+                if (filterStateChanged && formData.some(item => item.name === 'page')) {
+                    filteredFormData = formData.filter(item => item.name !== 'page')
+                }
+
+                const formDataWithTimestamp = [...filteredFormData, { name: '_', value: Date.now() }]
+
+                if (window.location.href === nextUrl) {
+                    return
+                }
+
+                const formDataString = JSON.stringify(formData)
+                const currentFormAction = form.prop('action')
+
+                if (this.lastFilterFormData === formDataString && this.lastFilterFormAction === currentFormAction) {
+                    return
+                }
+
+                this.lastFilterFormData = formDataString
+                this.lastFilterFormAction = currentFormAction
+
+                if (this.filterAjax) {
+                    this.filterAjax.abort()
+                }
+
+                if (this.filterTimeout) {
+                    clearTimeout(this.filterTimeout)
+                }
+
+                this.filterTimeout = setTimeout(() => {
+                    this.#ajaxFilterForm(url, formDataWithTimestamp, nextUrl)
+                }, 100)
+            })
+            .on('change', 'form.bb-product-form-filter input, form.bb-product-form-filter select', (e) => {
+                const currentTarget = $(e.currentTarget)
+                const form = currentTarget.closest('form')
+
+                const inputName = currentTarget.attr('name')
+
+                if (inputName.includes('attributes[')) {
+                    form.trigger('submit')
+                } else if (currentTarget.attr('type') === 'checkbox' && inputName && inputName.endsWith('[]')) {
+                    const baseName = inputName.slice(0, -2)
+                    const checkboxes = form.find(`input[name="${inputName}"]`).filter(':checked')
+
+                    let singleInput = form.find(`input[name="${baseName}"]`)
+                    if (!singleInput.length) {
+                        form.append(`<input type="hidden" name="${baseName}" value="">`)
+                        singleInput = form.find(`input[name="${baseName}"]`)
+                    }
+
+                    const values = checkboxes.map(function() {
+                        return $(this).val()
+                    }).get()
+
+                    singleInput.val(values.join(','))
+                }
+
+                form.trigger('submit')
+            })
+            .on('keyup', '.bb-form-quick-search input', (e) => {
+                this.#ajaxSearchProducts($(e.currentTarget).closest('form'))
+            })
+            .on('click', 'body', (e) => {
+                if (!$(e.target).closest('.bb-form-quick-search').length) {
+                    $('.bb-quick-search-results').removeClass('show').html('')
+                }
+            })
+            .on('click', '[data-bb-toggle="quick-shop"]', (e) => {
+                e.preventDefault()
+                e.stopPropagation()
+
+                const currentTarget = $(e.currentTarget)
+                const modal = $('#quick-shop-modal')
+
+                $.ajax({
+                    url: currentTarget.data('url'),
+                    type: 'GET',
+                    beforeSend: () => {
+                        if (modal.find('.quick-shop-content').length) {
+                            modal.find('.quick-shop-content').html('')
+                            modal.find('.modal-body').addClass('modal-empty')
+                            modal.find('.loading-spinner').removeClass('d-none').show()
+                            modal.find('.quick-shop-content').hide()
+                        } else {
+                            modal.find('.modal-body').html('')
+                        }
+
+                        modal.modal('show')
+
+                        document.dispatchEvent(
+                            new CustomEvent('ecommerce.quick-shop.before-send', {
+                                detail: {
+                                    element: currentTarget,
+                                    modal,
+                                },
+                            })
+                        )
+                    },
+                    success: ({ data }) => {
+                        if (modal.find('.quick-shop-content').length) {
+                            modal.find('.quick-shop-content').html(data)
+                            modal.find('.loading-spinner').addClass('d-none').hide()
+                            modal.find('.modal-body').removeClass('modal-empty')
+                            modal.find('.quick-shop-content').show()
+                        } else {
+                            modal.find('.modal-body').html(data)
+                        }
+                    },
+                    error: (error) => EcommerceApp.handleError(error),
+                    complete: () => {
+                        document.dispatchEvent(
+                            new CustomEvent('ecommerce.quick-shop.completed', {
+                                detail: {
+                                    element: currentTarget,
+                                    modal,
+                                },
+                            })
+                        )
+                    },
+                })
+            })
+            .on('click', '.bb-product-filter-link', (e) => {
+                const currentTarget = $(e.currentTarget)
+                const form = currentTarget.closest('form')
+
+                // The category tree is also rendered outside the shop filter, for example in a
+                // homepage sidebar. There is no filter form to submit there, so the link is just
+                // a link to the category page - let the browser follow it.
+                if (!form.length) {
+                    return
+                }
+
+                e.preventDefault()
+
+                const parent = currentTarget.closest('.bb-product-filter')
+                const categoryId = currentTarget.data('id')
+
+                let categoriesInput = form.find('input[name="categories"]')
+
+                if (!categoriesInput.length) {
+                    categoriesInput = form.find('input[name="categories[]"]')
+                }
+
+                parent.find('.bb-product-filter-link').removeClass('active')
+                currentTarget.addClass('active')
+
+                form.find('input[name="page"]').remove()
+                form.find('input[name="per-page"]').remove()
+
+                if (categoriesInput.length && categoryId) {
+                    if (categoriesInput.attr('name') === 'categories[]') {
+                        categoriesInput.val(categoryId).trigger('change')
+                    } else {
+                        categoriesInput.val(categoryId).trigger('change')
+                    }
+                } else {
+                    if (!categoryId) {
+                        if (categoriesInput.length) {
+                            categoriesInput.val(null)
+                        }
+                    }
+
+                    form.prop('action', currentTarget.prop('href')).trigger('submit')
+                }
+            })
+            .on('click', '.bb-product-filter-clear', (e) => {
+                e.preventDefault()
+
+                const currentTarget = $(e.currentTarget)
+
+                this.#ajaxFilterForm(currentTarget.prop('href'))
+            })
+            .on('click', '.bb-product-filter-clear-all', (e) => {
+                e.preventDefault()
+
+                const form = $('.bb-product-form-filter')
+
+                form.find(
+                    'input[type="text"], input[type="hidden"], input[type="radio"], select'
+                ).val(null)
+
+                form.find('input[type="checkbox"]').prop('checked', false)
+
+                form.trigger('submit')
+            })
+            .on('submit', 'form#cancel-order-form', (e) => {
+                e.preventDefault()
+
+                const currentTarget = $(e.currentTarget)
+                const modal = currentTarget.closest('.modal')
+                const button = modal.find('button[type="submit"]')
+
+                $.ajax({
+                    url: currentTarget.prop('action'),
+                    type: 'POST',
+                    data: currentTarget.serialize(),
+                    beforeSend: () => {
+                        button.addClass('btn-loading')
+                    },
+                    success: ({ error, message }) => {
+                        if (error) {
+                            EcommerceApp.showError(message)
+
+                            return
+                        }
+
+                        EcommerceApp.showSuccess(message)
+
+                        modal.modal('hide')
+
+                        setTimeout(() => window.location.reload(), 1000)
+                    },
+                    error: (error) => EcommerceApp.handleError(error),
+                    complete: () => button.removeClass('btn-loading'),
+                })
+            })
+            .on('click', '[data-bb-toggle="add-to-compare"]', function (e) {
+                e.preventDefault()
+
+                const currentTarget = $(e.currentTarget)
+
+                const url = currentTarget.hasClass('active')
+                    ? currentTarget.data('remove-url')
+                    : currentTarget.data('url')
+                let data = currentTarget.hasClass('active') ? { _method: 'DELETE' } : {}
+                const $form = currentTarget.closest('form')
+
+                $.ajax({
+                    url,
+                    method: 'POST',
+                    data: EcommerceApp.getAjaxData(data, $form),
+                    beforeSend: () => currentTarget.addClass('btn-loading'),
+                    success: ({ error, message, data }) => {
+                        if (error) {
+                            EcommerceApp.showError(message)
+                        } else {
+                            EcommerceApp.showSuccess(message)
+                            currentTarget.toggleClass('active')
+
+                            if (data.count !== undefined) {
+                                $('[data-bb-value="compare-count"]').text(data.count)
+                            }
+
+                            if (currentTarget.hasClass('active')) {
+                                document.dispatchEvent(
+                                    new CustomEvent('ecommerce.compare.added', {
+                                        detail: {
+                                            data,
+                                            element: currentTarget,
+                                            extraData: data.extra_data
+                                        },
+                                    })
+                                )
+                            } else {
+                                document.dispatchEvent(
+                                    new CustomEvent('ecommerce.compare.removed', {
+                                        detail: {
+                                            data,
+                                            element: currentTarget,
+                                            extraData: data.extra_data
+                                        },
+                                    })
+                                )
+                            }
+                        }
+                    },
+                    error: (error) => EcommerceApp.handleError(error),
+                    complete: () => currentTarget.removeClass('btn-loading'),
+                })
+            })
+            .on('click', '[data-bb-toggle="remove-from-compare"]', (e) => {
+                e.preventDefault()
+
+                const currentTarget = $(e.currentTarget)
+                const table = currentTarget.closest('table')
+                const $form = currentTarget.closest('form')
+
+                $.ajax({
+                    url: currentTarget.data('url'),
+                    method: 'POST',
+                    data: EcommerceApp.getAjaxData({ _method: 'DELETE' }, $form),
+                    success: ({ error, message, data }) => {
+                        if (error) {
+                            EcommerceApp.showError(message)
+                        } else {
+                            EcommerceApp.showSuccess(message)
+
+                            document.dispatchEvent(
+                                new CustomEvent('ecommerce.compare.removed', {
+                                    detail: {
+                                        data,
+                                        element: currentTarget,
+                                        extraData: data.extra_data
+                                    },
+                                })
+                            )
+
+                            if (data.count !== undefined) {
+                                $('[data-bb-value="compare-count"]').text(data.count)
+
+                                if (data.count > 0) {
+                                    table.find(`td:nth-child(${currentTarget.closest('td').index() + 1})`).remove()
+                                }
+                            } else {
+                                window.location.reload()
+                            }
+                        }
+                    },
+                    error: (error) => EcommerceApp.handleError(error),
+                })
+            })
+            .on('click', '[data-bb-toggle="add-to-wishlist"]', function (e) {
+                e.preventDefault()
+
+                const currentTarget = $(e.currentTarget)
+                const url = currentTarget.data('url')
+                const $form = currentTarget.closest('form')
+
+                $.ajax({
+                    url,
+                    method: 'POST',
+                    data: EcommerceApp.getAjaxData({}, $form),
+                    beforeSend: () => currentTarget.addClass('btn-loading'),
+                    success: ({ error, message, data }) => {
+                        if (error) {
+                            EcommerceApp.showError(message)
+                        } else {
+                            if (data.count !== undefined) {
+                                $('[data-bb-value="wishlist-count"]').text(data.count)
+                            }
+
+                            EcommerceApp.showSuccess(message)
+
+                            document.dispatchEvent(
+                                new CustomEvent('ecommerce.wishlist.added', {
+                                    detail: {
+                                        data,
+                                        element: currentTarget,
+                                        extraData: data.extra_data,
+                                        added: data.added
+                                    },
+                                })
+                            )
+                        }
+                    },
+                    error: (error) => EcommerceApp.handleError(error),
+                    complete: () => currentTarget.removeClass('btn-loading'),
+                })
+            })
+            .on('click', '[data-bb-toggle="remove-from-wishlist"]', (e) => {
+                e.preventDefault()
+
+                const currentTarget = $(e.currentTarget)
+                const $form = currentTarget.closest('form')
+
+                $.ajax({
+                    url: currentTarget.data('url'),
+                    method: 'POST',
+                    data: EcommerceApp.getAjaxData({ _method: 'DELETE' }, $form),
+                    beforeSend: () => currentTarget.addClass('btn-loading'),
+                    success: ({ error, message, data }) => {
+                        if (error) {
+                            EcommerceApp.showError(message)
+                        } else {
+                            EcommerceApp.showSuccess(message)
+
+                            currentTarget.closest('tr').remove()
+
+                            if (data.count !== undefined) {
+                                $('[data-bb-value="wishlist-count"]').text(data.count)
+
+                                if (data.count === 0) {
+                                    window.location.reload()
+                                }
+                            }
+
+                            document.dispatchEvent(
+                                new CustomEvent('ecommerce.wishlist.removed', {
+                                    detail: {
+                                        data,
+                                        element: currentTarget,
+                                        extraData: data.extra_data
+                                    },
+                                })
+                            )
+                        }
+                    },
+                    error: (error) => EcommerceApp.handleError(error),
+                    complete: () => currentTarget.removeClass('btn-loading'),
+                })
+            })
+            .on('click', '[data-bb-toggle="add-to-cart"]', (e) => {
+                e.preventDefault()
+
+                const currentTarget = $(e.currentTarget)
+                const $form = currentTarget.closest('form')
+                const quantity = currentTarget.closest('tr').find('input[name="qty"]')
+                const data = {
+                    id: currentTarget.data('id'),
+                }
+
+                if (quantity) {
+                    data.qty = quantity.val()
+                }
+
+                $.ajax({
+                    url: currentTarget.data('url'),
+                    method: 'POST',
+                    data: EcommerceApp.getAjaxData(data, $form),
+                    dataType: 'json',
+                    beforeSend: () => currentTarget.addClass('btn-loading').prop('disabled', true),
+                    success: ({ error, message, data }) => {
+                        if (error) {
+                            EcommerceApp.showError(message)
+
+                            if (data.next_url !== undefined) {
+                                setTimeout(() => {
+                                    window.location.href = data.next_url
+                                }, 500);
+                            }
+
+                            return false
+                        }
+
+                        let showSuccess = true
+
+                        if (currentTarget.data('show-toast-on-success') !== undefined) {
+                            showSuccess = currentTarget.data('show-toast-on-success')
+                        }
+
+                        if (showSuccess) {
+                            EcommerceApp.showSuccess(message)
+                        }
+
+                        if (data.count !== undefined) {
+                            $('[data-bb-value="cart-count"]').text(data.count)
+                        }
+
+                        document.dispatchEvent(
+                            new CustomEvent('ecommerce.cart.added', {
+                                detail: {
+                                    data,
+                                    element: currentTarget,
+                                    message,
+                                    extraData: data.extra_data
+                                },
+                            })
+                        )
+
+                        if (data && data.next_url !== undefined) {
+                            window.location.href = data.next_url
+                        }
+                    },
+                    error: (error) => EcommerceApp.handleError(error),
+                    complete: () => currentTarget.removeClass('btn-loading').prop('disabled', false),
+                })
+            })
+            .on('click', '[data-bb-toggle="remove-from-cart"]', (e) => {
+                e.preventDefault()
+
+                const currentTarget = $(e.currentTarget)
+
+                $.ajax({
+                    url: currentTarget.prop('href') || currentTarget.data('url'),
+                    method: 'GET',
+                    beforeSend: () => currentTarget.addClass('btn-loading'),
+                    success: ({ error, message, data }) => {
+                        if (error) {
+                            EcommerceApp.showError(message)
+                        } else {
+                            EcommerceApp.showSuccess(message)
+
+                            currentTarget.closest('tr').remove()
+
+                            if (data.count !== undefined) {
+                                $('[data-bb-value="cart-count"]').text(data.count)
+
+                                if (data.count === 0) {
+                                    window.location.reload()
+                                }
+                            }
+
+                            document.dispatchEvent(
+                                new CustomEvent('ecommerce.cart.removed', {
+                                    detail: {
+                                        data,
+                                        element: currentTarget,
+                                        extraData: data.extra_data
+                                    },
+                                })
+                            )
+                        }
+                    },
+                    error: (error) => EcommerceApp.handleError(error),
+                    complete: () => currentTarget.removeClass('btn-loading'),
+                })
+            })
+            .on('submit', '[data-bb-toggle="coupon-form"]', (e) => {
+                e.preventDefault()
+
+                const currentTarget = $(e.currentTarget)
+                const button = currentTarget.find('button[type="submit"]')
+
+                $.ajax({
+                    url: currentTarget.prop('action'),
+                    type: 'POST',
+                    data: currentTarget.serialize(),
+                    beforeSend: () => button.prop('disabled', true).addClass('btn-loading'),
+                    success: ({ error, message, data }) => {
+                        if (error) {
+                            EcommerceApp.showError(message)
+                        } else {
+                            EcommerceApp.showSuccess(message)
+
+                            document.dispatchEvent(
+                                new CustomEvent('ecommerce.coupon.applied', {
+                                    detail: { data, element: currentTarget },
+                                })
+                            )
+                        }
+                    },
+                    error: (error) => EcommerceApp.handleError(error),
+                    complete: () => button.prop('disabled', false).removeClass('btn-loading'),
+                })
+            })
+            .on('click', '[data-bb-toggle="quick-view-product"]', (e) => {
+                e.preventDefault()
+
+                const currentTarget = $(e.currentTarget)
+
+                $.ajax({
+                    url: currentTarget.data('url'),
+                    type: 'GET',
+                    beforeSend: () => currentTarget.prop('disabled', true).addClass('btn-loading'),
+                    success: ({ error, message, data }) => {
+                        if (error) {
+                            EcommerceApp.showError(message)
+                        } else {
+                            const quickViewModal = $('[data-bb-toggle="quick-view-modal"]')
+                            quickViewModal.modal('show')
+                            quickViewModal.find('.modal-body').html(data)
+
+                            document.dispatchEvent(
+                                new CustomEvent('ecommerce.quick-view.initialized', {
+                                    detail: { data, element: currentTarget },
+                                })
+                            )
+
+                            setTimeout(() => {
+                                this.initProductGallery(true)
+                            }, 100)
+                        }
+                    },
+                    error: (error) => EcommerceApp.handleError(error),
+                    complete: () => currentTarget.prop('disabled', false).removeClass('btn-loading'),
+                })
+            })
+            .on('click', '[data-bb-toggle="product-form"] button[type="submit"]', (e) => {
+                e.preventDefault()
+                const currentTarget = $(e.currentTarget)
+                const form = currentTarget.closest('form')
+                const data = form.serializeArray()
+
+                if (form.find('input[name="id"]').val() === '') {
+                    return
+                }
+
+                data.push({ name: 'checkout', value: currentTarget.prop('name') === 'checkout' ? 1 : 0 })
+
+                $.ajax({
+                    type: 'POST',
+                    url: form.prop('action'),
+                    data: data,
+                    beforeSend: () => {
+                        currentTarget.prop('disabled', true).addClass('btn-loading')
+                    },
+                    success: ({ error, message, data }) => {
+                        if (error) {
+                            EcommerceApp.showError(message)
+
+                            return
+                        }
+                        EcommerceApp.showSuccess(message)
+
+                        form.find('input[name="qty"]').val(1)
+
+                        if (data.count !== undefined) {
+                            $('[data-bb-value="cart-count"]').text(data.count)
+                        }
+
+                        document.dispatchEvent(
+                            new CustomEvent('ecommerce.cart.added', {
+                                detail: {
+                                    data,
+                                    element: currentTarget,
+                                    extraData: data.extra_data
+                                },
+                            })
+                        )
+
+                        if (data && data.next_url !== undefined) {
+                            window.location.href = data.next_url
+                        }
+                    },
+                    error: (error) => EcommerceApp.handleError(error),
+                    complete: () => currentTarget.prop('disabled', false).removeClass('btn-loading'),
+                })
+            })
+            .on('change', '[data-bb-toggle="product-form-filter-item"]', (e) => {
+                const currentTarget = $(e.currentTarget)
+                const $form = $('.bb-product-form-filter')
+                const name = currentTarget.prop('name')
+                const value = currentTarget.val()
+
+                if (name.endsWith('[]') && ! name.includes('attributes[')) {
+                    const baseName = name.slice(0, -2)
+                    let $input = $form.find(`input[name="${baseName}"]`)
+
+                    if (!$input.length) {
+                        $form.append(`<input type="hidden" name="${baseName}" value="">`)
+                        $input = $form.find(`input[name="${baseName}"]`)
+                    }
+
+                    let currentValues = $input.val() ? $input.val().split(',') : []
+
+                    const uniqueValues = new Set(currentValues)
+
+                    uniqueValues.add(value)
+
+                    $input.val(Array.from(uniqueValues).join(','))
+                } else {
+                    const isCheckbox = currentTarget.is(':checkbox')
+
+                    if (isCheckbox) {
+                        const isChecked = currentTarget.prop('checked')
+                        const $input = $form.find(`input[type="hidden"][name="${name}"]`)
+
+                        if ($input.length) {
+                            $input.val(isChecked ? value : '')
+                        } else {
+                            $form.append(`<input type="hidden" name="${name}" value="${isChecked ? value : ''}">`)
+                        }
+                    } else {
+                        const $input = $form.find(`input[name="${name}"]`)
+
+                        if ($input.length) {
+                            $input.val(value)
+                        }
+                    }
+                }
+
+                $form.trigger('submit')
+            })
+
+        if ($('.bb-product-price-filter').length) {
+            this.initPriceFilter()
+        }
+
+        this.#initCategoriesDropdown()
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    isRtl() {
+        return document.body.getAttribute('dir') === 'rtl'
+    }
+
+    /**
+     * @param {JQuery} element
+     */
+    initLightGallery(element) {
+        if (!element.length) {
+            return
+        }
+
+        if (element.data('lightGallery')) {
+            element.data('lightGallery').destroy(true)
+        }
+
+        element.lightGallery({
+            selector: 'a',
+            thumbnail: true,
+            share: false,
+            fullScreen: false,
+            autoplay: false,
+            autoplayControls: false,
+            actualSize: false,
+        })
+    }
+
+    initProductGallery(onlyQuickView = false) {
+        if (typeof $.fn.slick === 'undefined') {
+            return
+        }
+
+        if (!onlyQuickView) {
+            const $gallery = $(document).find('.bb-product-gallery-images')
+
+            if ($gallery.length) {
+
+            const $thumbnails = $(document).find('.bb-product-gallery-thumbnails')
+
+            function postMessageToPlayer(player, command) {
+                if (!player || !command || !player.src) {
+                    return
+                }
+
+                let origin
+
+                try {
+                    origin = new URL(player.src).origin
+                } catch (e) {
+                    return
+                }
+
+                player.contentWindow.postMessage(
+                    JSON.stringify(command),
+                    origin
+                )
+            }
+
+            function playPauseVideo(slick, control) {
+                let currentSlide, slideType, startTime, player, video
+
+                currentSlide = slick.find('.slick-current')
+                slideType = currentSlide.data('provider')
+                player = currentSlide.get(0)
+                startTime = currentSlide.data('video-start')
+
+                if (slideType === 'vimeo') {
+                    switch (control) {
+                        case 'play':
+                            if (startTime != null && startTime > 0 && !currentSlide.hasClass('started')) {
+                                currentSlide.addClass('started')
+                                postMessageToPlayer(player, {
+                                    method: 'setCurrentTime',
+                                    value: startTime,
+                                })
+                            }
+                            postMessageToPlayer(player, {
+                                method: 'play',
+                                value: 1,
+                            })
+                            break
+                        case 'pause':
+                            postMessageToPlayer(player, {
+                                method: 'pause',
+                                value: 1,
+                            })
+                            break
+                    }
+                } else if (slideType === 'youtube') {
+                    switch (control) {
+                        case 'play':
+                            postMessageToPlayer(player, {
+                                event: 'command',
+                                func: 'mute',
+                            })
+                            postMessageToPlayer(player, {
+                                event: 'command',
+                                func: 'playVideo',
+                            })
+                            break
+                        case 'pause':
+                            postMessageToPlayer(player, {
+                                event: 'command',
+                                func: 'pauseVideo',
+                            })
+                            break
+                    }
+                } else if (slideType === 'video') {
+                    video = currentSlide.children('video').get(0)
+                    if (video != null) {
+                        if (control === 'play') {
+                            video.play()
+                        } else {
+                            video.pause()
+                        }
+                    }
+                }
+            }
+
+            $gallery.on('init', function (slick) {
+                slick = $(slick.currentTarget)
+                setTimeout(function () {
+                    playPauseVideo(slick, 'play')
+                }, 1000)
+            })
+
+            $gallery.on('beforeChange', function (event, slick) {
+                slick = $(slick.$slider)
+                playPauseVideo(slick, 'pause')
+            })
+
+            $gallery.on('afterChange', function (event, slick) {
+                slick = $(slick.$slider)
+                playPauseVideo(slick, 'play')
+            })
+
+            $(document).on('click', '.bb-button-trigger-play-video', function (e) {
+                const $button = $(e.currentTarget)
+                const videoElement = document.getElementById($button.data('target'))
+
+                videoElement.muted = false
+                videoElement.play()
+
+                $button.closest('.bb-product-video').addClass('bb-product-video-playing')
+            })
+
+            // When the theme option enables native `controls`, playback can start or stop
+            // from the control bar or a click on the video itself - the overlay button
+            // state must follow the element's real play/pause events, not only the
+            // trigger button. Without `controls`, only the trigger button and the slider
+            // autoplay drive playback, so the overlay is left alone to keep the muted
+            // autoplay behavior. Media events do not bubble, so listen in the capture phase.
+            if (!window.bbProductVideoEventsBound) {
+                window.bbProductVideoEventsBound = true
+
+                document.addEventListener(
+                    'play',
+                    (e) => {
+                        if (e.target.controls) {
+                            $(e.target).closest('.bb-product-video').addClass('bb-product-video-playing')
+                        }
+                    },
+                    true
+                )
+
+                document.addEventListener(
+                    'pause',
+                    (e) => {
+                        if (e.target.controls && !e.target.ended) {
+                            $(e.target).closest('.bb-product-video').removeClass('bb-product-video-playing')
+                        }
+                    },
+                    true
+                )
+
+                document.addEventListener(
+                    'ended',
+                    (e) => {
+                        const $wrapper = $(e.target).closest('.bb-product-video')
+
+                        if ($wrapper.length) {
+                            e.target.currentTime = 0
+                            e.target.pause()
+                            $wrapper.removeClass('bb-product-video-playing')
+                        }
+                    },
+                    true
+                )
+            }
+
+            // Lazy YouTube/Vimeo: swap the thumbnail facade for the real iframe on click.
+            // Keeps the heavy embed player (and its third-party JS) off the page until the
+            // visitor actually wants to watch, cutting initial load CPU/network significantly.
+            $(document).on('click', '.bb-product-video-facade', function (e) {
+                e.preventDefault()
+
+                const $facade = $(e.currentTarget)
+                const src = $facade.data('src')
+
+                if (!src) {
+                    return
+                }
+
+                const iframe = document.createElement('iframe')
+                iframe.setAttribute('src', src)
+                iframe.setAttribute('frameborder', '0')
+                iframe.setAttribute(
+                    'allow',
+                    'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+                )
+                iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin')
+                iframe.setAttribute('allowfullscreen', '')
+                iframe.setAttribute('title', $facade.data('title') || '')
+                iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;'
+
+                $facade.replaceWith(iframe)
+            })
+
+            if ($gallery.length) {
+                $gallery.each((index, item) => {
+                    const $item = $(item)
+
+                    if ($item.hasClass('slick-initialized')) {
+                        $item.slick('unslick')
+                    }
+
+                    $item.removeClass('slick-initialized slick-slider slick-vertical slick-dotted')
+
+                    if (!$item.children().length) {
+                        return
+                    }
+
+                    try {
+                        $item.slick({
+                            slidesToShow: 1,
+                            slidesToScroll: 1,
+                            arrows: false,
+                            dots: false,
+                            infinite: false,
+                            fade: true,
+                            lazyLoad: 'ondemand',
+                            asNavFor: '.bb-product-gallery-thumbnails',
+                            rtl: this.isRtl(),
+                        })
+                    } catch (e) {
+                        console.warn('Slick gallery init failed', e)
+                    }
+                })
+            }
+
+            if ($thumbnails.length) {
+                $thumbnails.each((index, item) => {
+                    const $item = $(item)
+
+                    if ($item.hasClass('slick-initialized')) {
+                        $item.slick('unslick')
+                    }
+
+                    $item.removeClass('slick-initialized slick-slider slick-vertical slick-dotted')
+
+                    if (!$item.children().length) {
+                        return
+                    }
+
+                    let isVertical = $item.data('vertical') === 1
+
+                    if (window.innerWidth < 768) {
+                        isVertical = false
+                    }
+
+                    try {
+                        console.log('🔷 Gallery Thumbnails Init Start')
+                        console.log('📊 Total children before slick:', $item.children().length)
+                        console.log('📐 isVertical:', isVertical)
+                        console.log('📱 Window width:', window.innerWidth)
+                        
+                        // Bind init event BEFORE initializing slick
+                        $item.on('init', function(event, slick) {
+                            console.log('✅ Slick Init Event Fired!')
+                            console.log('📦 Slick instance:', slick)
+                            
+                            const $slides = $(slick.$slides).not('.slick-cloned')
+                            console.log('📸 Total slides (no clones):', $slides.length)
+                            
+                            const $imageSlides = $slides.filter(':not(.video-thumbnail)')
+                            const $videoSlides = $slides.filter('.video-thumbnail')
+                            
+                            console.log('🖼️ Image slides:', $imageSlides.length)
+                            console.log('🎥 Video slides:', $videoSlides.length)
+                            
+                            // Handle image thumbnails: show 4, add counter to 5th if more exist
+                            if ($imageSlides.length > 4) {
+                                const moreCount = $imageSlides.length - 4
+                                console.log('➕ Adding counter to 5th image, more count:', moreCount)
+                                const $fifthImage = $imageSlides.eq(4)
+                                console.log('🎯 Fifth image element:', $fifthImage)
+                                if ($fifthImage.length) {
+                                    $fifthImage.append('<span class="gallery-more-count">+' + moreCount + '</span>')
+                                    console.log('✔️ Counter added to 5th image')
+                                }
+                            } else {
+                                console.log('ℹ️ Not enough images for counter (need >4, have ' + $imageSlides.length + ')')
+                            }
+                            
+                            // Handle video thumbnails: show 2, add counter to 3rd if more exist
+                            if ($videoSlides.length > 2) {
+                                const moreCount = $videoSlides.length - 2
+                                console.log('➕ Adding counter to 3rd video, more count:', moreCount)
+                                const $thirdVideo = $videoSlides.eq(2)
+                                console.log('🎯 Third video element:', $thirdVideo)
+                                if ($thirdVideo.length) {
+                                    $thirdVideo.append('<span class="gallery-more-count">+' + moreCount + '</span>')
+                                    console.log('✔️ Counter added to 3rd video')
+                                }
+                            } else {
+                                console.log('ℹ️ Not enough videos for counter (need >2, have ' + $videoSlides.length + ')')
+                            }
+                            
+                            console.log('🏁 Counter initialization complete')
+                        })
+                        
+                        console.log('🚀 Calling slick() with slidesToShow: 4')
+                        
+                        $item.slick({
+                            slidesToShow: 4,
+                            slidesToScroll: 1,
+                            asNavFor: '.bb-product-gallery-images',
+                            focusOnSelect: true,
+                            infinite: false,
+                            rtl: this.isRtl() && ! isVertical,
+                            vertical: isVertical,
+                            verticalSwiping: isVertical,
+                            prevArrow:
+                                '<button class="slick-prev slick-arrow" aria-label="Previous"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" /></svg></button>',
+                            nextArrow:
+                                '<button class="slick-next slick-arrow" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg></button>',
+                            responsive: [
+                                {
+                                    breakpoint: 768,
+                                    settings: {
+                                        slidesToShow: 4,
+                                    },
+                                },
+                            ],
+                        })
+                        
+                        console.log('✅ Slick initialized successfully')
+                    } catch (e) {
+                        console.error('❌ Slick thumbnails init failed', e)
+                    }
+                })
+            }
+
+            this.initLightGallery($gallery)
+
+            EcommerceApp.updateLazyLoad()
+            }
+        }
+
+        const $quickViewGallery = $(document).find('.bb-quick-view-gallery-images')
+
+        if ($quickViewGallery.length) {
+            $quickViewGallery.each((index, item) => {
+                const $item = $(item)
+
+                if ($item.hasClass('slick-initialized')) {
+                    $item.slick('unslick')
+                }
+
+                $item.removeClass('slick-initialized slick-slider slick-vertical slick-dotted')
+
+                if (!$item.children().length) {
+                    return
+                }
+
+                try {
+                    $item.slick({
+                        slidesToShow: 1,
+                        slidesToScroll: 1,
+                        dots: false,
+                        arrows: true,
+                        adaptiveHeight: false,
+                        rtl: this.isRtl(),
+                    })
+                } catch (e) {
+                    console.warn('Slick quick-view init failed', e)
+                }
+            })
+        }
+
+        this.initLightGallery($quickViewGallery)
+    }
+
+    initPriceFilter() {
+        if (typeof $.fn.slider === 'undefined') {
+            throw new Error('jQuery UI slider is required for price filter')
+        }
+
+        const $priceFilter = $(document).find('.bb-product-price-filter')
+        const $sliderRange = $priceFilter.find('.price-slider')
+        const $rangeLabel = $priceFilter.find('.input-range-label')
+
+        if ($priceFilter) {
+            const $minPrice = $priceFilter.find('input[name="min_price"]')
+            const $maxPrice = $priceFilter.find('input[name="max_price"]')
+
+            const currentMinPrice = parseInt($minPrice.val()) || $sliderRange.data('min')
+            const currentMaxPrice = parseInt($maxPrice.val()) || $sliderRange.data('max')
+            const isRtl = this.isRtl()
+
+            const sliderMin = isRtl ? -$sliderRange.data('max') : $sliderRange.data('min')
+            const sliderMax = isRtl ? -$sliderRange.data('min') : $sliderRange.data('max')
+            const sliderValues = isRtl ? [-currentMaxPrice, -currentMinPrice] : [currentMinPrice, currentMaxPrice]
+
+            $sliderRange.slider({
+                range: true,
+                min: sliderMin,
+                max: sliderMax,
+                values: sliderValues,
+                slide: function (_, ui) {
+                    const realMin = isRtl ? -ui.values[1] : ui.values[0]
+                    const realMax = isRtl ? -ui.values[0] : ui.values[1]
+
+                    $rangeLabel.find('.from').text(this.formatPrice(realMin))
+                    $rangeLabel.find('.to').text(this.formatPrice(realMax))
+                }.bind(this),
+                change: function (_, ui) {
+                    const realMin = isRtl ? -ui.values[1] : ui.values[0]
+                    const realMax = isRtl ? -ui.values[0] : ui.values[1]
+
+                    if (parseInt(currentMinPrice) !== realMin) {
+                        $minPrice.val(realMin).trigger('change')
+                    }
+
+                    if (parseInt(currentMaxPrice) !== realMax) {
+                        $maxPrice.val(realMax).trigger('change')
+                    }
+                }.bind(this),
+            })
+
+            const currentValues = $sliderRange.slider('values')
+            const displayMin = isRtl ? -currentValues[1] : currentValues[0]
+            const displayMax = isRtl ? -currentValues[0] : currentValues[1]
+
+            $rangeLabel.find('.from').text(this.formatPrice(displayMin))
+            $rangeLabel.find('.to').text(this.formatPrice(displayMax))
+        }
+    }
+
+    formatPrice(price, numberAfterDot, x) {
+        const currencies = window.currencies || {}
+
+        if (!numberAfterDot) {
+            numberAfterDot = currencies.number_after_dot !== undefined ? currencies.number_after_dot : 2
+        }
+
+        const regex = '\\d(?=(\\d{' + (x || 3) + '})+$)'
+        let priceUnit = ''
+
+        if (currencies.show_symbol_or_title) {
+            priceUnit = currencies.symbol || currencies.title || ''
+        }
+
+        if (currencies.display_big_money) {
+            let label = ''
+
+            if (price >= 1000000 && price < 1000000000) {
+                price = price / 1000000
+                label = currencies.million
+            } else if (price >= 1000000000) {
+                price = price / 1000000000
+                label = currencies.billion
+            }
+
+            priceUnit = label + (priceUnit ? ` ${priceUnit}` : '')
+        }
+
+        price = price.toFixed(Math.max(0, ~~numberAfterDot)).toString().split('.')
+
+        price =
+            price[0].toString().replace(new RegExp(regex, 'g'), `$&${currencies.thousands_separator}`) +
+            (price[1] ? currencies.decimal_separator + price[1] : '')
+
+        if (currencies.show_symbol_or_title) {
+            price = currencies.is_prefix_symbol ? priceUnit + price : price + priceUnit
+        }
+
+        return price
+    }
+
+    #transformFormData = (formData) => {
+        let data = []
+        let groupedData = {}
+        let seenParams = {}
+
+        formData.forEach((item) => {
+            if (item.name.includes('attributes[')) {
+                if (item.value) {
+                    data.push(item)
+                }
+            } else if (item.name.endsWith('[]')) {
+                const baseName = item.name.slice(0, -2)
+                if (!groupedData[baseName]) {
+                    groupedData[baseName] = new Set()
+                }
+                if (item.value) {
+                    groupedData[baseName].add(item.value)
+                }
+            } else {
+                if (!seenParams[item.name]) {
+                    seenParams[item.name] = true
+                    if (item.value) {
+                        data.push(item)
+                    }
+                }
+            }
+        })
+
+        Object.keys(groupedData).forEach(key => {
+            const values = Array.from(groupedData[key])
+            if (values.length > 0) {
+                data.push({
+                    name: key,
+                    value: values.join(',')
+                })
+            }
+        })
+
+        return data
+    }
+
+    highlightSearchKeywords = ($element, phrase) => {
+        if (!phrase.trim()) {
+            return
+        }
+
+        let keywords = phrase.trim().split(/\s+/)
+        let regex = new RegExp(`(${keywords.join('|')})`, 'gi')
+
+        $element.html($element.text().replace(regex, '<span class="bb-quick-search-highlight">$1</span>'))
+    }
+
+    #ajaxSearchProducts = (form, url) => {
+        const button = form.find('button[type="submit"]')
+        const input = form.find('input[name="q"]')
+        const results = form.find('.bb-quick-search-results')
+
+        if (!input.val()) {
+            results.removeClass('show').html('')
+
+            return
+        }
+
+        this.quickSearchAjax = $.ajax({
+            type: 'GET',
+            url: url || form.data('ajax-url'),
+            data: form.serialize(),
+            beforeSend: () => {
+                button.addClass('btn-loading')
+
+                if (!url) {
+                    results.removeClass('show').html('')
+                }
+
+                if (this.quickSearchAjax !== null) {
+                    this.quickSearchAjax.abort()
+                }
+            },
+            success: ({ error, message, data }) => {
+                if (error) {
+                    EcommerceApp.showError(message)
+
+                    return
+                }
+
+                results.addClass('show')
+
+                if (url) {
+                    results.find('.bb-quick-search-list').append($(data).find('.bb-quick-search-list').html())
+                } else {
+                    results.html(data)
+                }
+
+                let that = this
+
+                let searchPhrase = input.val()
+                results.find('.bb-quick-search-item-name').each(function () {
+                    $(this).html($(this).text())
+
+                    if (searchPhrase) {
+                        that.highlightSearchKeywords($(this), searchPhrase)
+                    }
+                })
+
+
+                EcommerceApp.updateLazyLoad()
+            },
+            complete: () => button.removeClass('btn-loading'),
+        })
+    }
+
+    #ajaxFilterForm = (url, data, nextUrl) => {
+        const form = $('.bb-product-form-filter')
+
+        if (url && !data) {
+            this.lastFilterFormData = null
+            this.lastFilterFormAction = null
+        }
+
+        let ajaxData = data
+        if (Array.isArray(data)) {
+            const params = new URLSearchParams()
+            const paramsByName = {}
+            const attributeArrays = {}
+
+            data.forEach(item => {
+                if (item.name && item.value) {
+                    if (item.name.includes('attributes[') && item.name.endsWith('[]')) {
+                        if (!attributeArrays[item.name]) {
+                            attributeArrays[item.name] = []
+                        }
+                        attributeArrays[item.name].push(item.value)
+                    } else {
+                        paramsByName[item.name] = item.value
+                    }
+                }
+            })
+
+            Object.keys(paramsByName).forEach(name => {
+                params.set(name, paramsByName[name])
+            })
+
+            Object.keys(attributeArrays).forEach(name => {
+                attributeArrays[name].forEach(value => {
+                    params.append(name, value)
+                })
+            })
+
+            ajaxData = {}
+
+            Object.keys(paramsByName).forEach(name => {
+                ajaxData[name] = paramsByName[name]
+            })
+
+            Object.keys(attributeArrays).forEach(name => {
+                ajaxData[name] = attributeArrays[name]
+            })
+        }
+
+        this.filterAjax = $.ajax({
+            url: url,
+            type: 'GET',
+            data: ajaxData,
+            beforeSend: () => {
+                document.dispatchEvent(
+                    new CustomEvent('ecommerce.product-filter.before', {
+                        detail: {
+                            data: ajaxData,
+                            element: form,
+                        },
+                    })
+                )
+            },
+            success: (data) => {
+                const { message, error } = data
+
+                if (error) {
+                    EcommerceApp.showError(message)
+                    this.filterAjax = null
+                    return
+                }
+
+                let finalUrl = nextUrl || url
+                if (finalUrl.includes('?')) {
+                    const urlParts = finalUrl.split('?')
+                    const baseUrl = urlParts[0]
+                    const params = new URLSearchParams(urlParts[1])
+
+                    const uniqueParams = new URLSearchParams()
+                    const attributeArrays = {}
+
+                    for (const [key, value] of params.entries()) {
+                        if (key.includes('attributes[') && key.endsWith('[]')) {
+                            if (!attributeArrays[key]) {
+                                attributeArrays[key] = []
+                            }
+                            attributeArrays[key].push(value)
+                        } else if (!uniqueParams.has(key)) {
+                            uniqueParams.set(key, value)
+                        }
+                    }
+
+                    Object.keys(attributeArrays).forEach(key => {
+                        attributeArrays[key].forEach(value => {
+                            uniqueParams.append(key, value)
+                        })
+                    })
+
+                    finalUrl = baseUrl + '?' + uniqueParams.toString()
+                }
+
+                window.history.pushState(data, null, finalUrl)
+
+                document.dispatchEvent(
+                    new CustomEvent('ecommerce.product-filter.success', {
+                        detail: {
+                            data,
+                            element: form,
+                        },
+                    })
+                )
+
+                this.filterAjax = null
+
+                if ($('.bb-product-price-filter').length) {
+                    EcommerceApp.initPriceFilter()
+                }
+            },
+            error: (xhr) => {
+                if (xhr.statusText !== 'abort') {
+                    EcommerceApp.handleError(xhr)
+                }
+            },
+            complete: () => {
+                this.filterTimeout = null
+                this.filterAjax = null
+                EcommerceApp.updateLazyLoad()
+
+                document.dispatchEvent(
+                    new CustomEvent('ecommerce.product-filter.completed', {
+                        detail: {
+                            element: form,
+                        },
+                    })
+                )
+            },
+        })
+    }
+
+    #initCategoriesDropdown = async () => {
+        const makeRequest = (url, beforeCallback, successCallback) => {
+            beforeCallback();
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(({ error, data }) => {
+                    if (error) {
+                        return;
+                    }
+
+                    successCallback(data);
+
+                    document.dispatchEvent(
+                        new CustomEvent('ecommerce.categories-dropdown.success', {
+                            detail: {
+                                data,
+                            },
+                        })
+                    );
+                })
+                .catch(error => {
+                    EcommerceApp.handleError(error);
+                });
+        }
+
+        const initCategoriesDropdown = $(document).find('[data-bb-toggle="init-categories-dropdown"]')
+
+        if (initCategoriesDropdown.length) {
+            const url = initCategoriesDropdown.first().data('url')
+
+            makeRequest(
+                url,
+                () => {},
+                (data) => {
+                    initCategoriesDropdown.each((index, element) => {
+                        const currentTarget = $(element)
+                        const target = $(currentTarget.data('bb-target'))
+
+                        if (target.length) {
+                            target.html(data.dropdown)
+                        } else {
+                            currentTarget.append(data.select)
+                        }
+
+                        EcommerceApp.updateLazyLoad()
+                    })
+                }
+            )
+        }
+    }
+
+    productQuantityToggle = () => {
+        const $container = $('[data-bb-toggle="product-quantity"]')
+
+        $container.on('click', '[data-bb-toggle="product-quantity-toggle"]', function (e) {
+            const $currentTarget = $(e.currentTarget)
+
+            let $calculation = $currentTarget.data('value')
+
+            if (!$calculation) {
+                return
+            }
+
+            let $input = null
+
+            if ($calculation === 'plus') {
+                $input = $currentTarget.prev()
+            } else if ($calculation === 'minus') {
+                $input = $currentTarget.next()
+            }
+
+            if (!$input) {
+                return
+            }
+
+            let $quantity = parseInt($input.val()) || 1
+
+            $input.val($calculation === 'plus' ? $quantity + 1 : $quantity === 1 ? 1 : $quantity - 1)
+
+            document.dispatchEvent(
+                new CustomEvent('ecommerce.cart.quantity.change', {
+                    detail: {
+                        element: $currentTarget,
+                        action: $calculation === '+' ? 'increase' : 'decrease',
+                    },
+                })
+            )
+        })
+    }
+
+    /**
+     * Default handler invoked before a swatch change AJAX fires.
+     * Called unconditionally by change-product-swatches.js; user hook
+     * window.onBeforeChangeSwatches runs after this (additive).
+     *
+     * @param {Array<Number>} data
+     * @param {jQuery} element
+     */
+    defaultOnBeforeChangeSwatches = (data, element) => {
+        const form = element.closest('form')
+
+        if (data) {
+            form.find('button[type="submit"]').prop('disabled', true)
+            form.find('button[data-bb-toggle="add-to-cart"]').prop('disabled', true)
+        }
+    }
+
+    /**
+     * Default handler invoked on successful swatch change AJAX.
+     * Updates price, SKU, stock, disabled attributes, and the main product
+     * gallery (images + thumbs + quick-view). Called unconditionally by
+     * change-product-swatches.js; user hook window.onChangeSwatchesSuccess
+     * runs after this (additive).
+     *
+     * @param {{data: Object, error: Boolean, message: String}} response
+     * @param {jQuery} element
+     */
+    defaultOnChangeSwatchesSuccess = (response, element) => {
+        if (!response) {
+            return
+        }
+
+        // Scope to the product container that triggered the change (main page or quick-view modal),
+        // so changing a variation inside the quick view does not rewrite the gallery of the page behind it.
+        let $product = element && element.length ? element.closest('.bb-product-detail') : $()
+        if (!$product.length) {
+            $product = $('.bb-product-detail').first()
+        }
+        const $form = element.closest('form')
+        const $button = $form.find('button[type="submit"]')
+        const $quantity = $form.find('input[name="qty"]')
+        const $available = $product.find('.number-items-available')
+        const $sku = $product.find('[data-bb-value="product-sku"]')
+
+        const { error, data } = response
+
+        if (error) {
+            $button.prop('disabled', true)
+            $quantity.prop('disabled', true)
+
+            $form.find('input[name="id"]').val('')
+
+            return
+        }
+
+        $button.prop('disabled', false)
+        $quantity.prop('disabled', false)
+        $form.find('input[name="id"]').val(data.id)
+
+        $product.find('[data-bb-value="product-price"]').text(data.display_sale_price)
+
+        if (data.sale_price !== data.price) {
+            $product.find('[data-bb-value="product-original-price"]').text(data.display_price).show()
+        } else {
+            $product.find('[data-bb-value="product-original-price"]').hide()
+        }
+
+        if (data.sku) {
+            $sku.text(data.sku)
+            $sku.closest('div').show()
+        } else {
+            $sku.closest('div').hide()
+        }
+
+        if (data.error_message) {
+            $button.prop('disabled', true)
+            $quantity.prop('disabled', true)
+
+            $available.html(`<span class='text-danger'>${data.error_message}</span>`).show()
+        } else if (data.warning_message) {
+            $available.html(`<span class='text-warning fw-medium fs-6'>${data.warning_message}</span>`).show()
+        } else if (data.success_message) {
+            $available.html(`<span class='text-success'>${data.success_message}</span>`).show()
+        } else {
+            $available.html('').hide()
+        }
+
+        $product.find('.bb-product-attribute-swatch-item').removeClass('disabled')
+        $product.find('.bb-product-attribute-swatch-list select option').prop('disabled', false)
+
+        const unavailableAttributeIds = data.unavailable_attribute_ids || []
+
+        if (unavailableAttributeIds.length) {
+            unavailableAttributeIds.map((id) => {
+                let $swatchItem = $product.find(`.bb-product-attribute-swatch-item[data-id="${id}"]`)
+
+                if ($swatchItem.length) {
+                    $swatchItem.addClass('disabled')
+                    $swatchItem.find('input').prop('checked', false)
+                } else {
+                    $swatchItem = $product.find(`.bb-product-attribute-swatch-list select option[data-id="${id}"]`)
+
+                    if ($swatchItem.length) {
+                        $swatchItem.prop('disabled', true)
+                    }
+                }
+            })
+        }
+
+        let imageHtml = ''
+        let thumbHtml = ''
+
+        const siteConfig = window.siteConfig || {}
+        const placeholder = $product.find('.bb-product-gallery').data('placeholder') || siteConfig.img_placeholder
+
+        // Guard against variations/combinations that return no image set (image_with_sizes can be null
+        // when images live only on variations and an incomplete/invalid attribute combo is selected).
+        if (!data.image_with_sizes) {
+            data.image_with_sizes = { origin: [], thumb: [] }
+        }
+
+        if (!data.image_with_sizes.origin.length && placeholder) {
+            data.image_with_sizes.origin.push(placeholder)
+        }
+
+        data.image_with_sizes.origin.forEach(function(item) {
+            imageHtml += `
+            <a href='${item}'>
+                <img src='${item}' alt='${data.name}'>
             </a>
-        `}),!l.image_with_sizes.thumb.length&&f&&l.image_with_sizes.thumb.push(f),l.image_with_sizes.thumb.forEach(function(v){m+=`
+        `
+        })
+
+        if (!data.image_with_sizes.thumb.length && placeholder) {
+            data.image_with_sizes.thumb.push(placeholder)
+        }
+
+        data.image_with_sizes.thumb.forEach(function(item) {
+            thumbHtml += `
             <div>
-                <img src='${v}' alt='${l.name}'>
+                <img src='${item}' alt='${data.name}'>
             </div>
-        `});const h=r.find(".bb-product-gallery"),y=h.find(".bb-product-gallery-images"),u=h.find(".bb-product-gallery-thumbnails"),w=y.find(".bb-product-video").clone(),G=u.find(".video-thumbnail").clone();let A="",_="";w.length>0&&w.each(function(){A+=$(this)[0].outerHTML}),G.length>0&&G.each(function(){_+=`<div>${$(this)[0].outerHTML}</div>`});const q=h.data("video-position")||"bottom";let k="",S="";const E=$("<div>").html(p).children().toArray().map(v=>v.outerHTML),D=$("<div>").html(m).children().toArray().map(v=>v.outerHTML);q==="top"||q==="after_first_image"&&E.length===0?(k=A+p,S=_+m):q==="after_first_image"&&E.length>0?(k=E[0]+A+E.slice(1).join(""),S=(D[0]||"")+_+D.slice(1).join("")):q==="before_last_image"&&E.length>1?(k=E.slice(0,-1).join("")+A+E.slice(-1).join(""),S=D.slice(0,-1).join("")+_+D.slice(-1).join("")):(k=p+A,S=m+_);const L=h.find(".bb-product-gallery-thumbnails");$.fn.slick&&L.length&&L.hasClass("slick-initialized")&&L.slick("unslick"),L.html(S);const j=r.find(".bb-quick-view-gallery-images");j.length&&($.fn.slick&&j.hasClass("slick-initialized")&&j.slick("unslick"),j.html(k));const z=h.find(".bb-product-gallery-images");$.fn.slick&&z.length&&z.hasClass("slick-initialized")&&z.slick("unslick"),z.html(k),j.length?typeof EcommerceApp!="undefined"&&EcommerceApp.initProductGallery(!0):typeof EcommerceApp!="undefined"&&EcommerceApp.initProductGallery()}),g(this,"onChangeProductAttribute",()=>{}),g(this,"handleUpdateCart",t=>{let e;t?e=$(t).closest("form"):e=$("form.cart-form"),$.ajax({type:"POST",url:e.prop("action"),data:e.serialize(),success:({error:r,message:o,data:a})=>{r&&EcommerceApp.showError(o),this.ajaxLoadCart(a)},error:r=>EcommerceApp.handleError(r)})}),g(this,"ajaxLoadCart",t=>{if(!t)return;const e=$('[data-bb-toggle="cart-content"]');t.count!==void 0&&$('[data-bb-value="cart-count"]').text(t.count),t.total_price!==void 0&&$('[data-bb-value="cart-total-price"]').text(t.total_price),e.length&&(e.replaceWith(t.cart_content),this.productQuantityToggle(),EcommerceApp.updateLazyLoad())}),this.initClipboard(),this.initFileUpload(),$(document).on("click",'[data-bb-toggle="toggle-product-categories-tree"]',t=>{t.preventDefault();const e=$(t.currentTarget);e.toggleClass("active"),e.closest(".bb-product-filter-item").find("> .bb-product-filter-items").slideToggle().toggleClass("active")}).on("click",'[data-bb-toggle="toggle-filter-sidebar"]',()=>{$(".bb-filter-offcanvas-area").toggleClass("offcanvas-opened"),$(".body-overlay").toggleClass("opened")}).on("click",".body-overlay",()=>{$(".bb-filter-offcanvas-area").removeClass("offcanvas-opened"),$(".body-overlay").removeClass("opened")}).on("submit","form.bb-product-form-filter",t=>{t.preventDefault();const e=$(t.currentTarget),r=C(O,this).call(this,e.serializeArray()),o=e.prop("action");let a=o;const i=new URLSearchParams,n={},c={},s=new URLSearchParams(window.location.search),l={};for(const[u,w]of s.entries())u!=="page"&&u!=="_"&&w&&(l[u]||(l[u]=[]),l[u].push(w));r.forEach(u=>{u.name.includes("attributes[")&&u.name.endsWith("[]")?(c[u.name]||(c[u.name]=[]),c[u.name].push(u.value)):n[u.name]||(n[u.name]=u.value)});const d={};Object.keys(n).forEach(u=>{u!=="page"&&u!=="_"&&n[u]&&(d[u]||(d[u]=[]),d[u].push(n[u]))}),Object.keys(c).forEach(u=>{d[u]||(d[u]=[]),d[u]=d[u].concat(c[u])}),Object.keys(l).forEach(u=>{Array.isArray(l[u])&&l[u].sort()}),Object.keys(d).forEach(u=>{Array.isArray(d[u])&&d[u].sort()});const p=JSON.stringify(l)!==JSON.stringify(d);p&&n.page&&delete n.page,Object.keys(n).forEach(u=>{n[u]&&i.set(u,n[u])}),Object.keys(c).forEach(u=>{c[u].forEach(w=>{i.append(u,w)})});const m=i.toString();m&&(a+=`?${m}`);let b=r;p&&r.some(u=>u.name==="page")&&(b=r.filter(u=>u.name!=="page"));const f=[...b,{name:"_",value:Date.now()}];if(window.location.href===a)return;const h=JSON.stringify(r),y=e.prop("action");this.lastFilterFormData===h&&this.lastFilterFormAction===y||(this.lastFilterFormData=h,this.lastFilterFormAction=y,this.filterAjax&&this.filterAjax.abort(),this.filterTimeout&&clearTimeout(this.filterTimeout),this.filterTimeout=setTimeout(()=>{C(F,this).call(this,o,f,a)},100))}).on("change","form.bb-product-form-filter input, form.bb-product-form-filter select",t=>{const e=$(t.currentTarget),r=e.closest("form"),o=e.attr("name");if(o.includes("attributes["))r.trigger("submit");else if(e.attr("type")==="checkbox"&&o&&o.endsWith("[]")){const a=o.slice(0,-2),i=r.find(`input[name="${o}"]`).filter(":checked");let n=r.find(`input[name="${a}"]`);n.length||(r.append(`<input type="hidden" name="${a}" value="">`),n=r.find(`input[name="${a}"]`));const c=i.map(function(){return $(this).val()}).get();n.val(c.join(","))}r.trigger("submit")}).on("keyup",".bb-form-quick-search input",t=>{C(M,this).call(this,$(t.currentTarget).closest("form"))}).on("click","body",t=>{$(t.target).closest(".bb-form-quick-search").length||$(".bb-quick-search-results").removeClass("show").html("")}).on("click",'[data-bb-toggle="quick-shop"]',t=>{t.preventDefault(),t.stopPropagation();const e=$(t.currentTarget),r=$("#quick-shop-modal");$.ajax({url:e.data("url"),type:"GET",beforeSend:()=>{r.find(".quick-shop-content").length?(r.find(".quick-shop-content").html(""),r.find(".modal-body").addClass("modal-empty"),r.find(".loading-spinner").removeClass("d-none").show(),r.find(".quick-shop-content").hide()):r.find(".modal-body").html(""),r.modal("show"),document.dispatchEvent(new CustomEvent("ecommerce.quick-shop.before-send",{detail:{element:e,modal:r}}))},success:({data:o})=>{r.find(".quick-shop-content").length?(r.find(".quick-shop-content").html(o),r.find(".loading-spinner").addClass("d-none").hide(),r.find(".modal-body").removeClass("modal-empty"),r.find(".quick-shop-content").show()):r.find(".modal-body").html(o)},error:o=>EcommerceApp.handleError(o),complete:()=>{document.dispatchEvent(new CustomEvent("ecommerce.quick-shop.completed",{detail:{element:e,modal:r}}))}})}).on("click",".bb-product-filter-link",t=>{const e=$(t.currentTarget),r=e.closest("form");if(!r.length)return;t.preventDefault();const o=e.closest(".bb-product-filter"),a=e.data("id");let i=r.find('input[name="categories"]');i.length||(i=r.find('input[name="categories[]"]')),o.find(".bb-product-filter-link").removeClass("active"),e.addClass("active"),r.find('input[name="page"]').remove(),r.find('input[name="per-page"]').remove(),i.length&&a?(i.attr("name"),i.val(a).trigger("change")):(a||i.length&&i.val(null),r.prop("action",e.prop("href")).trigger("submit"))}).on("click",".bb-product-filter-clear",t=>{t.preventDefault();const e=$(t.currentTarget);C(F,this).call(this,e.prop("href"))}).on("click",".bb-product-filter-clear-all",t=>{t.preventDefault();const e=$(".bb-product-form-filter");e.find('input[type="text"], input[type="hidden"], input[type="radio"], select').val(null),e.find('input[type="checkbox"]').prop("checked",!1),e.trigger("submit")}).on("submit","form#cancel-order-form",t=>{t.preventDefault();const e=$(t.currentTarget),r=e.closest(".modal"),o=r.find('button[type="submit"]');$.ajax({url:e.prop("action"),type:"POST",data:e.serialize(),beforeSend:()=>{o.addClass("btn-loading")},success:({error:a,message:i})=>{if(a){EcommerceApp.showError(i);return}EcommerceApp.showSuccess(i),r.modal("hide"),setTimeout(()=>window.location.reload(),1e3)},error:a=>EcommerceApp.handleError(a),complete:()=>o.removeClass("btn-loading")})}).on("click",'[data-bb-toggle="add-to-compare"]',function(t){t.preventDefault();const e=$(t.currentTarget),r=e.hasClass("active")?e.data("remove-url"):e.data("url");let o=e.hasClass("active")?{_method:"DELETE"}:{};const a=e.closest("form");$.ajax({url:r,method:"POST",data:EcommerceApp.getAjaxData(o,a),beforeSend:()=>e.addClass("btn-loading"),success:({error:i,message:n,data:c})=>{i?EcommerceApp.showError(n):(EcommerceApp.showSuccess(n),e.toggleClass("active"),c.count!==void 0&&$('[data-bb-value="compare-count"]').text(c.count),e.hasClass("active")?document.dispatchEvent(new CustomEvent("ecommerce.compare.added",{detail:{data:c,element:e,extraData:c.extra_data}})):document.dispatchEvent(new CustomEvent("ecommerce.compare.removed",{detail:{data:c,element:e,extraData:c.extra_data}})))},error:i=>EcommerceApp.handleError(i),complete:()=>e.removeClass("btn-loading")})}).on("click",'[data-bb-toggle="remove-from-compare"]',t=>{t.preventDefault();const e=$(t.currentTarget),r=e.closest("table"),o=e.closest("form");$.ajax({url:e.data("url"),method:"POST",data:EcommerceApp.getAjaxData({_method:"DELETE"},o),success:({error:a,message:i,data:n})=>{a?EcommerceApp.showError(i):(EcommerceApp.showSuccess(i),document.dispatchEvent(new CustomEvent("ecommerce.compare.removed",{detail:{data:n,element:e,extraData:n.extra_data}})),n.count!==void 0?($('[data-bb-value="compare-count"]').text(n.count),n.count>0&&r.find(`td:nth-child(${e.closest("td").index()+1})`).remove()):window.location.reload())},error:a=>EcommerceApp.handleError(a)})}).on("click",'[data-bb-toggle="add-to-wishlist"]',function(t){t.preventDefault();const e=$(t.currentTarget),r=e.data("url"),o=e.closest("form");$.ajax({url:r,method:"POST",data:EcommerceApp.getAjaxData({},o),beforeSend:()=>e.addClass("btn-loading"),success:({error:a,message:i,data:n})=>{a?EcommerceApp.showError(i):(n.count!==void 0&&$('[data-bb-value="wishlist-count"]').text(n.count),EcommerceApp.showSuccess(i),document.dispatchEvent(new CustomEvent("ecommerce.wishlist.added",{detail:{data:n,element:e,extraData:n.extra_data,added:n.added}})))},error:a=>EcommerceApp.handleError(a),complete:()=>e.removeClass("btn-loading")})}).on("click",'[data-bb-toggle="remove-from-wishlist"]',t=>{t.preventDefault();const e=$(t.currentTarget),r=e.closest("form");$.ajax({url:e.data("url"),method:"POST",data:EcommerceApp.getAjaxData({_method:"DELETE"},r),beforeSend:()=>e.addClass("btn-loading"),success:({error:o,message:a,data:i})=>{o?EcommerceApp.showError(a):(EcommerceApp.showSuccess(a),e.closest("tr").remove(),i.count!==void 0&&($('[data-bb-value="wishlist-count"]').text(i.count),i.count===0&&window.location.reload()),document.dispatchEvent(new CustomEvent("ecommerce.wishlist.removed",{detail:{data:i,element:e,extraData:i.extra_data}})))},error:o=>EcommerceApp.handleError(o),complete:()=>e.removeClass("btn-loading")})}).on("click",'[data-bb-toggle="add-to-cart"]',t=>{t.preventDefault();const e=$(t.currentTarget),r=e.closest("form"),o=e.closest("tr").find('input[name="qty"]'),a={id:e.data("id")};o&&(a.qty=o.val()),$.ajax({url:e.data("url"),method:"POST",data:EcommerceApp.getAjaxData(a,r),dataType:"json",beforeSend:()=>e.addClass("btn-loading").prop("disabled",!0),success:({error:i,message:n,data:c})=>{if(i)return EcommerceApp.showError(n),c.next_url!==void 0&&setTimeout(()=>{window.location.href=c.next_url},500),!1;let s=!0;e.data("show-toast-on-success")!==void 0&&(s=e.data("show-toast-on-success")),s&&EcommerceApp.showSuccess(n),c.count!==void 0&&$('[data-bb-value="cart-count"]').text(c.count),document.dispatchEvent(new CustomEvent("ecommerce.cart.added",{detail:{data:c,element:e,message:n,extraData:c.extra_data}})),c&&c.next_url!==void 0&&(window.location.href=c.next_url)},error:i=>EcommerceApp.handleError(i),complete:()=>e.removeClass("btn-loading").prop("disabled",!1)})}).on("click",'[data-bb-toggle="remove-from-cart"]',t=>{t.preventDefault();const e=$(t.currentTarget);$.ajax({url:e.prop("href")||e.data("url"),method:"GET",beforeSend:()=>e.addClass("btn-loading"),success:({error:r,message:o,data:a})=>{r?EcommerceApp.showError(o):(EcommerceApp.showSuccess(o),e.closest("tr").remove(),a.count!==void 0&&($('[data-bb-value="cart-count"]').text(a.count),a.count===0&&window.location.reload()),document.dispatchEvent(new CustomEvent("ecommerce.cart.removed",{detail:{data:a,element:e,extraData:a.extra_data}})))},error:r=>EcommerceApp.handleError(r),complete:()=>e.removeClass("btn-loading")})}).on("submit",'[data-bb-toggle="coupon-form"]',t=>{t.preventDefault();const e=$(t.currentTarget),r=e.find('button[type="submit"]');$.ajax({url:e.prop("action"),type:"POST",data:e.serialize(),beforeSend:()=>r.prop("disabled",!0).addClass("btn-loading"),success:({error:o,message:a,data:i})=>{o?EcommerceApp.showError(a):(EcommerceApp.showSuccess(a),document.dispatchEvent(new CustomEvent("ecommerce.coupon.applied",{detail:{data:i,element:e}})))},error:o=>EcommerceApp.handleError(o),complete:()=>r.prop("disabled",!1).removeClass("btn-loading")})}).on("click",'[data-bb-toggle="quick-view-product"]',t=>{t.preventDefault();const e=$(t.currentTarget);$.ajax({url:e.data("url"),type:"GET",beforeSend:()=>e.prop("disabled",!0).addClass("btn-loading"),success:({error:r,message:o,data:a})=>{if(r)EcommerceApp.showError(o);else{const i=$('[data-bb-toggle="quick-view-modal"]');i.modal("show"),i.find(".modal-body").html(a),document.dispatchEvent(new CustomEvent("ecommerce.quick-view.initialized",{detail:{data:a,element:e}})),setTimeout(()=>{this.initProductGallery(!0)},100)}},error:r=>EcommerceApp.handleError(r),complete:()=>e.prop("disabled",!1).removeClass("btn-loading")})}).on("click",'[data-bb-toggle="product-form"] button[type="submit"]',t=>{t.preventDefault();const e=$(t.currentTarget),r=e.closest("form"),o=r.serializeArray();r.find('input[name="id"]').val()!==""&&(o.push({name:"checkout",value:e.prop("name")==="checkout"?1:0}),$.ajax({type:"POST",url:r.prop("action"),data:o,beforeSend:()=>{e.prop("disabled",!0).addClass("btn-loading")},success:({error:a,message:i,data:n})=>{if(a){EcommerceApp.showError(i);return}EcommerceApp.showSuccess(i),r.find('input[name="qty"]').val(1),n.count!==void 0&&$('[data-bb-value="cart-count"]').text(n.count),document.dispatchEvent(new CustomEvent("ecommerce.cart.added",{detail:{data:n,element:e,extraData:n.extra_data}})),n&&n.next_url!==void 0&&(window.location.href=n.next_url)},error:a=>EcommerceApp.handleError(a),complete:()=>e.prop("disabled",!1).removeClass("btn-loading")}))}).on("change",'[data-bb-toggle="product-form-filter-item"]',t=>{const e=$(t.currentTarget),r=$(".bb-product-form-filter"),o=e.prop("name"),a=e.val();if(o.endsWith("[]")&&!o.includes("attributes[")){const i=o.slice(0,-2);let n=r.find(`input[name="${i}"]`);n.length||(r.append(`<input type="hidden" name="${i}" value="">`),n=r.find(`input[name="${i}"]`));let c=n.val()?n.val().split(","):[];const s=new Set(c);s.add(a),n.val(Array.from(s).join(","))}else if(e.is(":checkbox")){const i=e.prop("checked"),n=r.find(`input[type="hidden"][name="${o}"]`);n.length?n.val(i?a:""):r.append(`<input type="hidden" name="${o}" value="${i?a:""}">`)}else{const i=r.find(`input[name="${o}"]`);i.length&&i.val(a)}r.trigger("submit")}),$(".bb-product-price-filter").length&&this.initPriceFilter(),C(I,this).call(this)}isRtl(){return document.body.getAttribute("dir")==="rtl"}initLightGallery(t){t.length&&(t.data("lightGallery")&&t.data("lightGallery").destroy(!0),t.lightGallery({selector:"a",thumbnail:!0,share:!1,fullScreen:!1,autoplay:!1,autoplayControls:!1,actualSize:!1}))}initProductGallery(t=!1){if(typeof $.fn.slick=="undefined")return;if(!t){const a=$(document).find(".bb-product-gallery-images");if(a.length){let n=function(s,l){if(!s||!l||!s.src)return;let d;try{d=new URL(s.src).origin}catch(p){return}s.contentWindow.postMessage(JSON.stringify(l),d)},c=function(s,l){let d,p,m,b,f;if(d=s.find(".slick-current"),p=d.data("provider"),b=d.get(0),m=d.data("video-start"),p==="vimeo")switch(l){case"play":m!=null&&m>0&&!d.hasClass("started")&&(d.addClass("started"),n(b,{method:"setCurrentTime",value:m})),n(b,{method:"play",value:1});break;case"pause":n(b,{method:"pause",value:1});break}else if(p==="youtube")switch(l){case"play":n(b,{event:"command",func:"mute"}),n(b,{event:"command",func:"playVideo"});break;case"pause":n(b,{event:"command",func:"pauseVideo"});break}else p==="video"&&(f=d.children("video").get(0),f!=null&&(l==="play"?f.play():f.pause()))};var r=n,o=c;const i=$(document).find(".bb-product-gallery-thumbnails");a.on("init",function(s){s=$(s.currentTarget),setTimeout(function(){c(s,"play")},1e3)}),a.on("beforeChange",function(s,l){l=$(l.$slider),c(l,"pause")}),a.on("afterChange",function(s,l){l=$(l.$slider),c(l,"play")}),$(document).on("click",".bb-button-trigger-play-video",function(s){const l=$(s.currentTarget),d=document.getElementById(l.data("target"));d.muted=!1,d.play(),l.closest(".bb-product-video").addClass("bb-product-video-playing")}),window.bbProductVideoEventsBound||(window.bbProductVideoEventsBound=!0,document.addEventListener("play",s=>{s.target.controls&&$(s.target).closest(".bb-product-video").addClass("bb-product-video-playing")},!0),document.addEventListener("pause",s=>{s.target.controls&&!s.target.ended&&$(s.target).closest(".bb-product-video").removeClass("bb-product-video-playing")},!0),document.addEventListener("ended",s=>{const l=$(s.target).closest(".bb-product-video");l.length&&(s.target.currentTime=0,s.target.pause(),l.removeClass("bb-product-video-playing"))},!0)),$(document).on("click",".bb-product-video-facade",function(s){s.preventDefault();const l=$(s.currentTarget),d=l.data("src");if(!d)return;const p=document.createElement("iframe");p.setAttribute("src",d),p.setAttribute("frameborder","0"),p.setAttribute("allow","accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"),p.setAttribute("referrerpolicy","strict-origin-when-cross-origin"),p.setAttribute("allowfullscreen",""),p.setAttribute("title",l.data("title")||""),p.style.cssText="position:absolute;top:0;left:0;width:100%;height:100%;border:0;",l.replaceWith(p)}),a.length&&a.each((s,l)=>{const d=$(l);if(d.hasClass("slick-initialized")&&d.slick("unslick"),d.removeClass("slick-initialized slick-slider slick-vertical slick-dotted"),!!d.children().length)try{d.slick({slidesToShow:1,slidesToScroll:1,arrows:!1,dots:!1,infinite:!1,fade:!0,lazyLoad:"ondemand",asNavFor:".bb-product-gallery-thumbnails",rtl:this.isRtl()})}catch(p){console.warn("Slick gallery init failed",p)}}),i.length&&i.each((s,l)=>{const d=$(l);if(d.hasClass("slick-initialized")&&d.slick("unslick"),d.removeClass("slick-initialized slick-slider slick-vertical slick-dotted"),!d.children().length)return;let p=d.data("vertical")===1;window.innerWidth<768&&(p=!1);try{d.slick({slidesToShow:6,slidesToScroll:1,asNavFor:".bb-product-gallery-images",focusOnSelect:!0,infinite:!1,rtl:this.isRtl()&&!p,vertical:p,verticalSwiping:p,prevArrow:'<button class="slick-prev slick-arrow" aria-label="Previous"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" /></svg></button>',nextArrow:'<button class="slick-next slick-arrow" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg></button>',responsive:[{breakpoint:768,settings:{slidesToShow:4}}]})}catch(m){console.warn("Slick thumbnails init failed",m)}}),this.initLightGallery(a),EcommerceApp.updateLazyLoad()}}const e=$(document).find(".bb-quick-view-gallery-images");e.length&&e.each((a,i)=>{const n=$(i);if(n.hasClass("slick-initialized")&&n.slick("unslick"),n.removeClass("slick-initialized slick-slider slick-vertical slick-dotted"),!!n.children().length)try{n.slick({slidesToShow:1,slidesToScroll:1,dots:!1,arrows:!0,adaptiveHeight:!1,rtl:this.isRtl()})}catch(c){console.warn("Slick quick-view init failed",c)}}),this.initLightGallery(e)}initPriceFilter(){if(typeof $.fn.slider=="undefined")throw new Error("jQuery UI slider is required for price filter");const t=$(document).find(".bb-product-price-filter"),e=t.find(".price-slider"),r=t.find(".input-range-label");if(t){const o=t.find('input[name="min_price"]'),a=t.find('input[name="max_price"]'),i=parseInt(o.val())||e.data("min"),n=parseInt(a.val())||e.data("max"),c=this.isRtl(),s=c?-e.data("max"):e.data("min"),l=c?-e.data("min"):e.data("max"),d=c?[-n,-i]:[i,n];e.slider({range:!0,min:s,max:l,values:d,slide:function(f,h){const y=c?-h.values[1]:h.values[0],u=c?-h.values[0]:h.values[1];r.find(".from").text(this.formatPrice(y)),r.find(".to").text(this.formatPrice(u))}.bind(this),change:function(f,h){const y=c?-h.values[1]:h.values[0],u=c?-h.values[0]:h.values[1];parseInt(i)!==y&&o.val(y).trigger("change"),parseInt(n)!==u&&a.val(u).trigger("change")}.bind(this)});const p=e.slider("values"),m=c?-p[1]:p[0],b=c?-p[0]:p[1];r.find(".from").text(this.formatPrice(m)),r.find(".to").text(this.formatPrice(b))}}formatPrice(t,e,r){const o=window.currencies||{};e||(e=o.number_after_dot!==void 0?o.number_after_dot:2);const a="\\d(?=(\\d{"+(r||3)+"})+$)";let i="";if(o.show_symbol_or_title&&(i=o.symbol||o.title||""),o.display_big_money){let n="";t>=1e6&&t<1e9?(t=t/1e6,n=o.million):t>=1e9&&(t=t/1e9,n=o.billion),i=n+(i?` ${i}`:"")}return t=t.toFixed(Math.max(0,~~e)).toString().split("."),t=t[0].toString().replace(new RegExp(a,"g"),`$&${o.thousands_separator}`)+(t[1]?o.decimal_separator+t[1]:""),o.show_symbol_or_title&&(t=o.is_prefix_symbol?i+t:t+i),t}initFileUpload(){$(document).on("change",".bb-file-input",t=>{const e=t.target,r=$(e).siblings(".bb-file-label"),o=r.find(".bb-file-name");if(r.find(".bb-file-placeholder"),e.files&&e.files.length>0){const a=e.files[0];o.text(a.name),r.addClass("has-file")}else o.text(""),r.removeClass("has-file")})}initClipboard(){$(document).on("click","[data-ecommerce-clipboard]",async t=>{t.preventDefault();const e=$(t.currentTarget),r=e.data("clipboard-message"),o=e.data("clipboard-text");if(!o)return;let a=!1;if(navigator.clipboard&&window.isSecureContext)try{await navigator.clipboard.writeText(o),a=!0}catch(i){console.warn("Clipboard API failed, falling back to legacy method:",i)}if(!a){const i=document.createElement("textarea");i.value=o,i.style.position="fixed",i.style.left="-999999px",i.style.top="-999999px",document.body.appendChild(i),i.focus(),i.select();try{document.execCommand("copy"),a=!0}catch(n){console.error("Failed to copy text: ",n)}document.body.removeChild(i)}if(a){r&&EcommerceApp.showSuccess(r);const i=e.html();e.html('<i class="ti ti-check"></i> '+(r||"Copied!")),setTimeout(()=>{e.html(i)},2e3)}else EcommerceApp.showError("Failed to copy to clipboard")})}};$(()=>{window.EcommerceApp=new N,EcommerceApp.productQuantityToggle(),EcommerceApp.initProductGallery(),EcommerceApp.onChangeProductAttribute(),$(".bb-product-price-filter").length&&EcommerceApp.initPriceFilter(),document.addEventListener("ecommerce.quick-shop.completed",()=>{EcommerceApp.productQuantityToggle()}),document.addEventListener("ecommerce.cart.quantity.change",t=>{const{element:e}=t.detail;EcommerceApp.handleUpdateCart(e)}),document.addEventListener("ecommerce.product-filter.before",()=>{let t=$('[data-bb-toggle="product-list"]').find(".bb-product-items-wrapper");t.length&&t.append('<div class="loading-spinner"></div>')}),document.addEventListener("ecommerce.product-filter.success",t=>{const{data:e}=t.detail,r=$(".bb-product-items-wrapper");if(r.length&&r.html(e.data),e.additional){const a=$(".bb-product-listing-page-description"),i=e.additional.product_listing_page_description_html;i?a.length&&(a.html(i),document.dispatchEvent(new CustomEvent("shortcode.loaded",{detail:{name:null,attributes:[],html:i}})),EcommerceApp.updateLazyLoad()):a.html("");const n=$(".bb-shop-sidebar");let c=$("[data-bb-filter-sidebar]");c.length||(c=n);const s={};$(".bb-product-filter-link.active").each(function(){const d=$(this).closest(".bb-product-filter").data("filter-group");d&&(s[d]=$(this).data("id"))});const l=[];c.find('input[type="checkbox"]:checked').each(function(){const d=$(this),p=d.attr("name"),m=d.val(),b=d.attr("id");l.push({name:p,value:m,id:b})}),c.replaceWith(e.additional.filters_html),setTimeout(()=>{const d=$("[data-bb-filter-sidebar]").length?$("[data-bb-filter-sidebar]"):$(".bb-shop-sidebar");Object.keys(s).forEach(p=>{const m=s[p];d.find(`.bb-product-filter[data-filter-group="${p}"] .bb-product-filter-link[data-id="${m}"]`).addClass("active")}),l.forEach(p=>{let m=null;p.id&&(m=d.find(`#${p.id}`)),(!m||!m.length)&&(m=d.find(`input[type="checkbox"][name="${p.name}"][value="${p.value}"]`)),(!m||!m.length)&&(m=d.find(`input[type="checkbox"][value="${p.value}"]`).filter(function(){return $(this).attr("name")===p.name})),m&&m.length&&m.prop("checked",!0)})},10)}$(document).find(".bb-product-price-filter").length&&EcommerceApp.initPriceFilter(),r.length&&$("html, body").animate({scrollTop:r.offset().top-120});let o=$('[data-bb-toggle="product-list"]').find(".bb-product-items-wrapper");o.length&&o.find(".loading-spinner").remove()}),document.addEventListener("ecommerce.product-filter.completed",()=>{EcommerceApp.updateLazyLoad()})})})();
+        `
+        })
+
+        const $galleryImages = $product.find('.bb-product-gallery')
+        const $existingGalleryImages = $galleryImages.find('.bb-product-gallery-images')
+        const $existingThumbnails = $galleryImages.find('.bb-product-gallery-thumbnails')
+
+        const existingVideoElements = $existingGalleryImages.find('.bb-product-video').clone()
+        const existingVideoThumbnails = $existingThumbnails.find('.video-thumbnail').clone()
+
+        let videoImageHtml = ''
+        let videoThumbHtml = ''
+
+        if (existingVideoElements.length > 0) {
+            existingVideoElements.each(function() {
+                videoImageHtml += $(this)[0].outerHTML
+            })
+        }
+
+        if (existingVideoThumbnails.length > 0) {
+            existingVideoThumbnails.each(function() {
+                videoThumbHtml += `<div>${$(this)[0].outerHTML}</div>`
+            })
+        }
+
+        const videoPosition = $galleryImages.data('video-position') || 'bottom'
+        let finalImageHtml = ''
+        let finalThumbHtml = ''
+
+        const $tempImages = $('<div>').html(imageHtml)
+        const imageItems = $tempImages.children().toArray().map(el => el.outerHTML)
+        const $tempThumbs = $('<div>').html(thumbHtml)
+        const thumbItems = $tempThumbs.children().toArray().map(el => el.outerHTML)
+
+        if (videoPosition === 'top' || (videoPosition === 'after_first_image' && imageItems.length === 0)) {
+            finalImageHtml = videoImageHtml + imageHtml
+            finalThumbHtml = videoThumbHtml + thumbHtml
+        } else if (videoPosition === 'after_first_image' && imageItems.length > 0) {
+            finalImageHtml = imageItems[0] + videoImageHtml + imageItems.slice(1).join('')
+            finalThumbHtml = (thumbItems[0] || '') + videoThumbHtml + thumbItems.slice(1).join('')
+        } else if (videoPosition === 'before_last_image' && imageItems.length > 1) {
+            finalImageHtml = imageItems.slice(0, -1).join('') + videoImageHtml + imageItems.slice(-1).join('')
+            finalThumbHtml = thumbItems.slice(0, -1).join('') + videoThumbHtml + thumbItems.slice(-1).join('')
+        } else {
+            finalImageHtml = imageHtml + videoImageHtml
+            finalThumbHtml = thumbHtml + videoThumbHtml
+        }
+
+        const $thumbnails = $galleryImages.find('.bb-product-gallery-thumbnails')
+        if ($.fn.slick && $thumbnails.length && $thumbnails.hasClass('slick-initialized')) {
+            $thumbnails.slick('unslick')
+        }
+        $thumbnails.html(finalThumbHtml)
+
+        const $quickViewGalleryImages = $product.find('.bb-quick-view-gallery-images')
+
+        if ($quickViewGalleryImages.length) {
+            if ($.fn.slick && $quickViewGalleryImages.hasClass('slick-initialized')) {
+                $quickViewGalleryImages.slick('unslick')
+            }
+            $quickViewGalleryImages.html(finalImageHtml)
+        }
+
+        const $galleryImagesSlider = $galleryImages.find('.bb-product-gallery-images')
+        if ($.fn.slick && $galleryImagesSlider.length && $galleryImagesSlider.hasClass('slick-initialized')) {
+            $galleryImagesSlider.slick('unslick')
+        }
+        $galleryImagesSlider.html(finalImageHtml)
+
+        // When in quick-view modal, skip main-page gallery reinit to avoid
+        // rewriting the page behind the modal — only refresh the quick-view gallery.
+        if (!$quickViewGalleryImages.length) {
+            if (typeof EcommerceApp !== 'undefined') {
+                EcommerceApp.initProductGallery()
+            }
+        } else if (typeof EcommerceApp !== 'undefined') {
+            EcommerceApp.initProductGallery(true)
+        }
+    }
+
+    // Retained as a no-op for backward compatibility. Default swatch handlers
+    // are now class methods (defaultOnBeforeChangeSwatches / defaultOnChangeSwatchesSuccess)
+    // invoked directly by change-product-swatches.js. The window.* hooks remain
+    // available as additive user extension points.
+    onChangeProductAttribute = () => {}
+
+    handleUpdateCart = (element) => {
+        let form
+
+        if (element) {
+            form = $(element).closest('form')
+        } else {
+            form = $('form.cart-form')
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: form.prop('action'),
+            data: form.serialize(),
+            success: ({ error, message, data }) => {
+                if (error) {
+                    EcommerceApp.showError(message)
+                }
+
+                this.ajaxLoadCart(data)
+            },
+            error: (error) => EcommerceApp.handleError(error),
+        })
+    }
+
+    ajaxLoadCart = (data) => {
+        if (!data) {
+            return
+        }
+
+        const $cart = $('[data-bb-toggle="cart-content"]')
+
+        if (data.count !== undefined) {
+            $('[data-bb-value="cart-count"]').text(data.count)
+        }
+
+        if (data.total_price !== undefined) {
+            $('[data-bb-value="cart-total-price"]').text(data.total_price)
+        }
+
+        if ($cart.length) {
+            $cart.replaceWith(data.cart_content)
+            this.productQuantityToggle()
+
+            EcommerceApp.updateLazyLoad()
+        }
+    }
+
+    initFileUpload() {
+        $(document).on('change', '.bb-file-input', (e) => {
+            const input = e.target
+            const label = $(input).siblings('.bb-file-label')
+            const fileName = label.find('.bb-file-name')
+            const placeholder = label.find('.bb-file-placeholder')
+
+            if (input.files && input.files.length > 0) {
+                const file = input.files[0]
+                fileName.text(file.name)
+                label.addClass('has-file')
+            } else {
+                fileName.text('')
+                label.removeClass('has-file')
+            }
+        })
+    }
+
+    initClipboard() {
+        $(document).on('click', '[data-ecommerce-clipboard]', async (e) => {
+            e.preventDefault()
+
+            const target = $(e.currentTarget)
+            const copiedMessage = target.data('clipboard-message')
+            const text = target.data('clipboard-text')
+
+            if (!text) {
+                return
+            }
+
+            let copied = false
+
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(text)
+                    copied = true
+                } catch (err) {
+                    console.warn('Clipboard API failed, falling back to legacy method:', err)
+                }
+            }
+
+            if (!copied) {
+                const textArea = document.createElement('textarea')
+                textArea.value = text
+                textArea.style.position = 'fixed'
+                textArea.style.left = '-999999px'
+                textArea.style.top = '-999999px'
+                document.body.appendChild(textArea)
+                textArea.focus()
+                textArea.select()
+
+                try {
+                    document.execCommand('copy')
+                    copied = true
+                } catch (err) {
+                    console.error('Failed to copy text: ', err)
+                }
+
+                document.body.removeChild(textArea)
+            }
+
+            if (copied) {
+                if (copiedMessage) {
+                    EcommerceApp.showSuccess(copiedMessage)
+                }
+
+                const originalHtml = target.html()
+                target.html('<i class="ti ti-check"></i> ' + (copiedMessage || 'Copied!'))
+
+                setTimeout(() => {
+                    target.html(originalHtml)
+                }, 2000)
+            } else {
+                EcommerceApp.showError('Failed to copy to clipboard')
+            }
+        })
+    }
+}
+
+$(() => {
+    window.EcommerceApp = new Ecommerce()
+
+    EcommerceApp.productQuantityToggle()
+
+    EcommerceApp.initProductGallery()
+
+    EcommerceApp.onChangeProductAttribute()
+
+    if ($('.bb-product-price-filter').length) {
+        EcommerceApp.initPriceFilter()
+    }
+
+    document.addEventListener('ecommerce.quick-shop.completed', () => {
+        EcommerceApp.productQuantityToggle()
+    })
+
+    document.addEventListener('ecommerce.cart.quantity.change', (e) => {
+        const { element } = e.detail
+        EcommerceApp.handleUpdateCart(element)
+    })
+
+    document.addEventListener('ecommerce.product-filter.before', () => {
+        let $wrapper = $('[data-bb-toggle="product-list"]')
+            .find('.bb-product-items-wrapper');
+
+        if ($wrapper.length) {
+            $wrapper.append('<div class="loading-spinner"></div>')
+        }
+    })
+
+    document.addEventListener('ecommerce.product-filter.success', (e) => {
+        const { data } = e.detail
+
+        const $productItemsWrapper = $('.bb-product-items-wrapper')
+
+        if ($productItemsWrapper.length) {
+            $productItemsWrapper.html(data.data)
+        }
+
+        if (data.additional) {
+            const $descriptionContainer = $('.bb-product-listing-page-description')
+
+            const descriptionHtml = data.additional.product_listing_page_description_html
+
+            if (descriptionHtml) {
+                if ($descriptionContainer.length) {
+                    $descriptionContainer.html(descriptionHtml)
+
+                    document.dispatchEvent(new CustomEvent('shortcode.loaded', {
+                        detail: {
+                            name: null,
+                            attributes: [],
+                            html: descriptionHtml
+                        }
+                    }));
+
+                    EcommerceApp.updateLazyLoad()
+                }
+            } else {
+                $descriptionContainer.html('')
+            }
+
+            const $defaultSidebar = $('.bb-shop-sidebar')
+
+            let $sidebar = $('[data-bb-filter-sidebar]')
+
+            if (! $sidebar.length) {
+                $sidebar = $defaultSidebar
+            }
+
+            const activeFilterLinks = {};
+            $('.bb-product-filter-link.active').each(function() {
+                const filterGroup = $(this).closest('.bb-product-filter').data('filter-group');
+                if (filterGroup) {
+                    activeFilterLinks[filterGroup] = $(this).data('id');
+                }
+            });
+
+            const checkedCheckboxes = [];
+            $sidebar.find('input[type="checkbox"]:checked').each(function() {
+                const $checkbox = $(this);
+                const name = $checkbox.attr('name');
+                const value = $checkbox.val();
+                const id = $checkbox.attr('id');
+
+                checkedCheckboxes.push({
+                    name: name,
+                    value: value,
+                    id: id
+                });
+            });
+
+            $sidebar.replaceWith(data.additional.filters_html)
+
+            setTimeout(() => {
+                const $newSidebar = $('[data-bb-filter-sidebar]').length ? $('[data-bb-filter-sidebar]') : $('.bb-shop-sidebar')
+
+                Object.keys(activeFilterLinks).forEach(group => {
+                    const id = activeFilterLinks[group];
+                    $newSidebar.find(`.bb-product-filter[data-filter-group="${group}"] .bb-product-filter-link[data-id="${id}"]`).addClass('active');
+                });
+
+                checkedCheckboxes.forEach(checkbox => {
+                    let $targetCheckbox = null;
+
+                    if (checkbox.id) {
+                        $targetCheckbox = $newSidebar.find(`#${checkbox.id}`);
+                    }
+
+                    if (!$targetCheckbox || !$targetCheckbox.length) {
+                        $targetCheckbox = $newSidebar.find(`input[type="checkbox"][name="${checkbox.name}"][value="${checkbox.value}"]`);
+                    }
+
+                    if (!$targetCheckbox || !$targetCheckbox.length) {
+                        $targetCheckbox = $newSidebar.find(`input[type="checkbox"][value="${checkbox.value}"]`).filter(function() {
+                            return $(this).attr('name') === checkbox.name;
+                        });
+                    }
+
+                    if ($targetCheckbox && $targetCheckbox.length) {
+                        $targetCheckbox.prop('checked', true);
+                    }
+                });
+            }, 10);
+        }
+
+        if ($(document).find('.bb-product-price-filter').length) {
+            EcommerceApp.initPriceFilter()
+        }
+
+        if ($productItemsWrapper.length) {
+            $('html, body').animate({
+                scrollTop: $productItemsWrapper.offset().top - 120,
+            })
+        }
+
+        let $wrapper = $('[data-bb-toggle="product-list"]')
+            .find('.bb-product-items-wrapper');
+
+        if ($wrapper.length) {
+            $wrapper.find('.loading-spinner').remove()
+        }
+    })
+
+    document.addEventListener('ecommerce.product-filter.completed', () => {
+        EcommerceApp.updateLazyLoad()
+    })
+})
