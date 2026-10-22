@@ -1097,30 +1097,57 @@ class Ecommerce {
                     }
 
                     try {
+                        console.log('🔷 Gallery Thumbnails Init Start')
+                        console.log('📊 Total children before slick:', $item.children().length)
+                        console.log('📐 isVertical:', isVertical)
+                        console.log('📱 Window width:', window.innerWidth)
+                        
                         // Bind init event BEFORE initializing slick
                         $item.on('init', function(event, slick) {
+                            console.log('✅ Slick Init Event Fired!')
+                            console.log('📦 Slick instance:', slick)
+                            
                             const $slides = $(slick.$slides).not('.slick-cloned')
+                            console.log('📸 Total slides (no clones):', $slides.length)
+                            
                             const $imageSlides = $slides.filter(':not(.video-thumbnail)')
                             const $videoSlides = $slides.filter('.video-thumbnail')
+                            
+                            console.log('🖼️ Image slides:', $imageSlides.length)
+                            console.log('🎥 Video slides:', $videoSlides.length)
                             
                             // Handle image thumbnails: show 4, add counter to 5th if more exist
                             if ($imageSlides.length > 4) {
                                 const moreCount = $imageSlides.length - 4
+                                console.log('➕ Adding counter to 5th image, more count:', moreCount)
                                 const $fifthImage = $imageSlides.eq(4)
+                                console.log('🎯 Fifth image element:', $fifthImage)
                                 if ($fifthImage.length) {
                                     $fifthImage.append('<span class="gallery-more-count">+' + moreCount + '</span>')
+                                    console.log('✔️ Counter added to 5th image')
                                 }
+                            } else {
+                                console.log('ℹ️ Not enough images for counter (need >4, have ' + $imageSlides.length + ')')
                             }
                             
                             // Handle video thumbnails: show 2, add counter to 3rd if more exist
                             if ($videoSlides.length > 2) {
                                 const moreCount = $videoSlides.length - 2
+                                console.log('➕ Adding counter to 3rd video, more count:', moreCount)
                                 const $thirdVideo = $videoSlides.eq(2)
+                                console.log('🎯 Third video element:', $thirdVideo)
                                 if ($thirdVideo.length) {
                                     $thirdVideo.append('<span class="gallery-more-count">+' + moreCount + '</span>')
+                                    console.log('✔️ Counter added to 3rd video')
                                 }
+                            } else {
+                                console.log('ℹ️ Not enough videos for counter (need >2, have ' + $videoSlides.length + ')')
                             }
+                            
+                            console.log('🏁 Counter initialization complete')
                         })
+                        
+                        console.log('🚀 Calling slick() with slidesToShow: 4')
                         
                         $item.slick({
                             slidesToShow: 4,
@@ -1144,8 +1171,10 @@ class Ecommerce {
                                 },
                             ],
                         })
+                        
+                        console.log('✅ Slick initialized successfully')
                     } catch (e) {
-                        console.warn('Slick thumbnails init failed', e)
+                        console.error('❌ Slick thumbnails init failed', e)
                     }
                 })
             }
