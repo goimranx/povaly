@@ -70,3 +70,48 @@
         </div>
     </div>
 </div>
+
+<script>
+(function() {
+    'use strict';
+    
+    // Gallery thumbnail counter - show "+X" for hidden items
+    function initGalleryCounter() {
+        const thumbnails = document.querySelector('.bb-product-gallery-thumbnails');
+        if (!thumbnails) return;
+        
+        // Wait for slick to initialize
+        setTimeout(function() {
+            const allSlides = thumbnails.querySelectorAll('.slick-slide:not(.slick-cloned)');
+            const imageSlides = Array.from(allSlides).filter(slide => !slide.classList.contains('video-thumbnail'));
+            const videoSlides = Array.from(allSlides).filter(slide => slide.classList.contains('video-thumbnail'));
+            
+            // Handle image thumbnails (show 6, 7th shows +X)
+            if (imageSlides.length > 6) {
+                const moreCount = imageSlides.length - 6;
+                const seventhSlide = imageSlides[6];
+                if (seventhSlide) {
+                    seventhSlide.setAttribute('data-more-count', '+' + moreCount);
+                    seventhSlide.style.display = 'block';
+                }
+            }
+            
+            // Handle video thumbnails (show 2, 3rd shows +X)
+            if (videoSlides.length > 2) {
+                const moreCount = videoSlides.length - 2;
+                const thirdVideo = videoSlides[2];
+                if (thirdVideo) {
+                    thirdVideo.setAttribute('data-more-count', '+' + moreCount);
+                    thirdVideo.style.display = 'block';
+                }
+            }
+        }, 500);
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initGalleryCounter);
+    } else {
+        initGalleryCounter();
+    }
+})();
+</script>
