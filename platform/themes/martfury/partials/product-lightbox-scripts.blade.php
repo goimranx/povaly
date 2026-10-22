@@ -910,6 +910,14 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileShareBtn.setAttribute('data-video-id', videoId);
         mobileShareBtn.setAttribute('data-video-url', videoUrl);
         
+        // CLONE AND REPLACE button FIRST to remove old handlers
+        var newMobileShareBtn = mobileShareBtn.cloneNode(true);
+        mobileShareBtn.parentNode.replaceChild(newMobileShareBtn, mobileShareBtn);
+        mobileShareBtn = newMobileShareBtn; // Update reference
+        
+        // Get mobileShareCount from new cloned element
+        mobileShareCount = document.getElementById('mobile-share-count');
+        
         // Check cache first for instant display (same as desktop)
         if (videoDataCache.shares[videoId]) {
             console.log('💾 [MOBILE SHARE] Using cached data for instant display');
@@ -931,8 +939,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     };
                     
                     // Update UI if different from cache
-                    if (mobileShareCount && data.total_shares !== undefined) {
-                        mobileShareCount.textContent = data.total_shares;
+                    var currentCount = document.getElementById('mobile-share-count');
+                    if (currentCount && data.total_shares !== undefined) {
+                        currentCount.textContent = data.total_shares;
                     }
                 })
                 .catch(function(err) {
@@ -954,25 +963,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         optimistic: false
                     };
                     
-                    if (mobileShareCount) {
-                        mobileShareCount.textContent = totalShares;
+                    // Update UI (re-query to ensure we have current element)
+                    var currentCount = document.getElementById('mobile-share-count');
+                    if (currentCount) {
+                        currentCount.textContent = totalShares;
                     }
                 })
                 .catch(function(err) {
                     console.error('❌ [MOBILE SHARE] Failed to load share count:', err);
-                    if (mobileShareCount) {
-                        mobileShareCount.textContent = video.shares || 0;
+                    var currentCount = document.getElementById('mobile-share-count');
+                    if (currentCount) {
+                        currentCount.textContent = video.shares || 0;
                     }
                 });
         }
-        
-        // CLONE AND REPLACE to remove ALL previous handlers
-        var newMobileShareBtn = mobileShareBtn.cloneNode(true);
-        mobileShareBtn.parentNode.replaceChild(newMobileShareBtn, mobileShareBtn);
-        mobileShareBtn = newMobileShareBtn; // Update reference
-        
-        // Get mobileShareCount from new cloned element
-        mobileShareCount = document.getElementById('mobile-share-count');
         
         // Attach fresh click handler with optimistic UI (same as desktop)
         mobileShareBtn.onclick = function(e) {
