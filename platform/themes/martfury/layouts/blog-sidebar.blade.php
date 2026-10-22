@@ -4,9 +4,11 @@
     <div class="container">
         <div class="ps-page__header">
             <h1>{{ SeoHelper::getTitle() }}</h1>
-            <div class="ps-breadcrumb--2">
-                {!! Theme::partial('breadcrumbs') !!}
-            </div>
+            @if (Theme::breadcrumb()->enabled())
+                <div class="ps-breadcrumb--2">
+                    {!! Theme::partial('breadcrumbs') !!}
+                </div>
+            @endif
         </div>
         <div class="ps-blog--sidebar">
             <div class="ps-blog__left">
