@@ -154,9 +154,6 @@
                 <button class="mobile-action-btn mobile-btn-share" id="mobile-btn-share">
                     <i class="ph ph-share-fat"></i>
                 </button>
-                <button class="mobile-action-btn mobile-btn-more" id="mobile-btn-more">
-                    <i class="ph ph-dots-three-vertical"></i>
-                </button>
             </div>
         </div>
         

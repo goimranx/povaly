@@ -201,8 +201,26 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set uploader info
         var mobileUploaderName = document.getElementById('mobile-uploader-name');
-        if (mobileUploaderName) {
+        var mobileUploaderAvatar = document.getElementById('mobile-uploader-avatar');
+        if (mobileUploaderName && mobileUploaderAvatar) {
             var uploaderName = video.store_name || video.uploader || 'Povaly Product Visuals';
+            
+            // Check if it's "Povaly Product Visuals" - use site logo (SEO graph image)
+            if (uploaderName === 'Povaly Product Visuals') {
+                // Get the site logo/SEO image from meta tags or theme settings
+                var siteLogo = document.querySelector('meta[property="og:image"]')?.content || 
+                               document.querySelector('link[rel="icon"]')?.href ||
+                               '/themes/martfury/images/logo.png'; // Fallback to theme logo
+                
+                mobileUploaderAvatar.innerHTML = '<img src="' + siteLogo + '" alt="Povaly" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">';
+            } else if (video.store_logo) {
+                // Use store logo if available
+                mobileUploaderAvatar.innerHTML = '<img src="' + video.store_logo + '" alt="' + uploaderName + '" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">';
+            } else {
+                // Fallback to icon
+                mobileUploaderAvatar.innerHTML = '<i class="icon-user"></i>';
+            }
+            
             // Limit to 16 characters with ellipsis
             if (uploaderName.length > 16) {
                 uploaderName = uploaderName.substring(0, 16) + '...';
@@ -332,11 +350,31 @@ document.addEventListener('DOMContentLoaded', function() {
             mobileSoldCount.textContent = formatNumber(soldCount) + ' sold';
         }
         
-        // Buy now handler
-        mobileBuyBtn.onclick = function() {
-            // Implement buy now logic here
-            console.log('Buy now clicked');
-            // You could redirect to checkout or add to cart and redirect
+        // Buy now handler - find and trigger the buy now button on the page
+        mobileBuyBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Try to find the buy now button on the product page
+            var buyNowBtn = document.querySelector('.btn-buy-now, .buy-now-button, [data-action="buy-now"]');
+            
+            if (buyNowBtn) {
+                // Close lightbox first
+                closeLightbox();
+                // Trigger the buy now button after a short delay
+                setTimeout(function() {
+                    buyNowBtn.click();
+                }, 300);
+            } else {
+                // Fallback: close lightbox and scroll to add to cart section
+                closeLightbox();
+                setTimeout(function() {
+                    var addToCartSection = document.querySelector('.product-info-main, .product-details, .box-product-detail');
+                    if (addToCartSection) {
+                        addToCartSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 300);
+            }
         };
     }
     
@@ -346,9 +384,30 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!mobileCartBtn) return;
         
-        mobileCartBtn.onclick = function() {
-            // Implement add to cart logic here
-            console.log('Add to cart clicked');
+        mobileCartBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Try to find the add to cart button on the page
+            var addToCartBtn = document.querySelector('.btn-add-to-cart, .add-to-cart-button, [data-action="add-to-cart"], .add-to-cart-form button[type="submit"]');
+            
+            if (addToCartBtn) {
+                // Close lightbox first
+                closeLightbox();
+                // Trigger the add to cart button after a short delay
+                setTimeout(function() {
+                    addToCartBtn.click();
+                }, 300);
+            } else {
+                // Fallback: close lightbox and scroll to add to cart section
+                closeLightbox();
+                setTimeout(function() {
+                    var addToCartSection = document.querySelector('.product-info-main, .product-details, .box-product-detail');
+                    if (addToCartSection) {
+                        addToCartSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 300);
+            }
         };
     }
     
@@ -395,6 +454,25 @@ document.addEventListener('DOMContentLoaded', function() {
         var videoListsContainer = document.getElementById('lightbox-video-lists');
         if (videoListsContainer) {
             drawerVideos.innerHTML = videoListsContainer.innerHTML;
+            
+            // Add click handlers to all video items in the drawer
+            var videoItems = drawerVideos.querySelectorAll('.video-list-item');
+            videoItems.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    var videoIndex = parseInt(item.getAttribute('data-video-index'));
+                    if (!isNaN(videoIndex) && currentProduct && currentProduct.videos) {
+                        // Play the clicked video
+                        loadVideos(currentProduct.videos, videoIndex);
+                        updateActiveVideoListItem(videoIndex);
+                        
+                        // Update mobile controls
+                        initializeMobileVideoControls();
+                        
+                        // Close drawer after selection
+                        drawer.classList.remove('open');
+                    }
+                });
+            });
         }
         
         // Drawer drag/swipe interaction
