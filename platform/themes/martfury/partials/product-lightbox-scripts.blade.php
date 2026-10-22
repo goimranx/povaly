@@ -237,29 +237,56 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add video-mode class for black background
         if (lightboxOverlay) lightboxOverlay.classList.add('video-mode');
         
-        // Set up tap-to-toggle ONLY on the mobile controls overlay elements
-        // DO NOT intercept clicks on video player area - let player controls work naturally
+        // Set up tap-to-toggle on video wrapper area
+        // Allow player controls to work by detecting clicks on wrapper, not iframe/video itself
+        var videoWrapper = document.querySelector('.product-lightbox-video-wrapper');
         
-        // Add click listener ONLY to specific UI elements (not video player)
+        if (videoWrapper) {
+            videoWrapper.addEventListener('click', function(e) {
+                var target = e.target;
+                
+                // DON'T toggle if clicking directly on video/iframe (let player controls work)
+                if (target.tagName === 'VIDEO' || 
+                    target.tagName === 'IFRAME' ||
+                    target.closest('video') ||
+                    target.closest('iframe')) {
+                    // This is a click ON the player itself - don't toggle, let controls work
+                    return;
+                }
+                
+                // DON'T toggle if clicking on desktop interaction buttons
+                if (target.closest('.product-lightbox-video-interactions') ||
+                    target.closest('.btn-video-like') ||
+                    target.closest('.btn-video-share')) {
+                    return;
+                }
+                
+                // DON'T toggle if clicking on mobile overlay buttons
+                if (target.closest('.mobile-video-header') ||
+                    target.closest('.mobile-video-actions') ||
+                    target.closest('.mobile-video-minimal-controls') ||
+                    target.closest('.mobile-video-drawer')) {
+                    return;
+                }
+                
+                // Otherwise, this is a click on the wrapper/empty space - toggle UI
+                toggleMobileUI();
+            });
+        }
+        
+        // Also allow toggling via title and uploader areas
         var titleContainer = document.getElementById('mobile-video-title-container');
         var uploaderInfo = document.querySelector('.mobile-video-uploader');
         
-        // Toggle when clicking on title/uploader area (empty spaces)
         if (titleContainer) {
             titleContainer.addEventListener('click', function(e) {
-                // Only toggle if clicking directly on container (not on title text or buttons)
-                if (e.target === titleContainer) {
-                    toggleMobileUI();
-                }
+                toggleMobileUI();
             });
         }
         
         if (uploaderInfo) {
             uploaderInfo.addEventListener('click', function(e) {
-                // Only toggle if clicking directly on uploader area (not on buttons)
-                if (e.target === uploaderInfo || e.target.closest('.mobile-uploader-avatar') || e.target.closest('.mobile-uploader-name')) {
-                    toggleMobileUI();
-                }
+                toggleMobileUI();
             });
         }
         
