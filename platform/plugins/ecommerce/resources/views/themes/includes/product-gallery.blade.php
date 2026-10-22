@@ -10,6 +10,26 @@
     $videoPosition = theme_option('ecommerce_product_gallery_video_position') ?: ($videoPosition ?? 'bottom');
 @endphp
 
+<style>
+.bb-product-gallery-thumbnails .gallery-more-count {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 10;
+    border-radius: 10px;
+    pointer-events: none;
+}
+</style>
+
 <div class="bb-product-gallery-wrapper">
     <div @class(['bb-product-gallery', 'bb-product-gallery-' . $galleryStyle]) data-video-position="{{ $videoPosition }}" data-placeholder="{{ RvMedia::getDefaultImage() }}">
         <div class="bb-product-gallery-images">
