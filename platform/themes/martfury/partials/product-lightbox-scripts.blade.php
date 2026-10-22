@@ -189,14 +189,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (mobileControls) {
             if (mobileControls.classList.contains('controls-hidden')) {
                 // UI is hidden, show it
+                console.log('📱 [TOGGLE UI] Showing UI');
                 showMobileUI();
             } else {
                 // UI is visible, hide it immediately (no timer)
+                console.log('📱 [TOGGLE UI] Hiding UI');
                 hideMobileUI();
                 if (uiHideTimer) {
                     clearTimeout(uiHideTimer);
                 }
             }
+        } else {
+            console.log('❌ [TOGGLE UI] Mobile controls element not found');
         }
     }
     
@@ -242,14 +246,19 @@ document.addEventListener('DOMContentLoaded', function() {
         var videoWrapper = document.querySelector('.product-lightbox-video-wrapper');
         
         if (videoWrapper) {
+            console.log('👆 [TAP-TO-TOGGLE] Video wrapper found, adding click listener');
+            
             videoWrapper.addEventListener('click', function(e) {
                 var target = e.target;
+                
+                console.log('👆 [TAP-TO-TOGGLE] Click detected on:', target.tagName, target.className);
                 
                 // DON'T toggle if clicking directly on video/iframe (let player controls work)
                 if (target.tagName === 'VIDEO' || 
                     target.tagName === 'IFRAME' ||
                     target.closest('video') ||
                     target.closest('iframe')) {
+                    console.log('⏭️ [TAP-TO-TOGGLE] Skipping - click on player element');
                     // This is a click ON the player itself - don't toggle, let controls work
                     return;
                 }
@@ -258,6 +267,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (target.closest('.product-lightbox-video-interactions') ||
                     target.closest('.btn-video-like') ||
                     target.closest('.btn-video-share')) {
+                    console.log('⏭️ [TAP-TO-TOGGLE] Skipping - click on desktop button');
                     return;
                 }
                 
@@ -266,12 +276,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     target.closest('.mobile-video-actions') ||
                     target.closest('.mobile-video-minimal-controls') ||
                     target.closest('.mobile-video-drawer')) {
+                    console.log('⏭️ [TAP-TO-TOGGLE] Skipping - click on mobile button');
                     return;
                 }
                 
                 // Otherwise, this is a click on the wrapper/empty space - toggle UI
+                console.log('✅ [TAP-TO-TOGGLE] Toggling UI');
                 toggleMobileUI();
             });
+        } else {
+            console.log('❌ [TAP-TO-TOGGLE] Video wrapper NOT found');
         }
         
         // Also allow toggling via title and uploader areas
@@ -279,13 +293,17 @@ document.addEventListener('DOMContentLoaded', function() {
         var uploaderInfo = document.querySelector('.mobile-video-uploader');
         
         if (titleContainer) {
+            console.log('👆 [TAP-TO-TOGGLE] Title container found, adding click listener');
             titleContainer.addEventListener('click', function(e) {
+                console.log('👆 [TAP-TO-TOGGLE] Title clicked, toggling UI');
                 toggleMobileUI();
             });
         }
         
         if (uploaderInfo) {
+            console.log('👆 [TAP-TO-TOGGLE] Uploader info found, adding click listener');
             uploaderInfo.addEventListener('click', function(e) {
+                console.log('👆 [TAP-TO-TOGGLE] Uploader clicked, toggling UI');
                 toggleMobileUI();
             });
         }
@@ -829,31 +847,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.stopPropagation();
                 resetUIHideTimer(); // Reset timer on interaction
                 
+                console.log('🛒 [BUY BUTTON] Clicked - Product:', currentProduct);
+                
                 if (!currentProduct || !currentProduct.id) {
-                    console.error('No product data available');
+                    console.error('❌ [BUY BUTTON] No product data available');
                     return;
                 }
+                
+                console.log('✅ [BUY BUTTON] Product ID:', currentProduct.id, 'Name:', currentProduct.name);
                 
                 // Close lightbox first
                 closeLightbox();
                 
                 // After closing, set defaults and trigger buy
                 setTimeout(function() {
+                    console.log('🔍 [BUY BUTTON] Looking for buy now button...');
+                    
                     // Set quantity to 1
                     var qtyInput = document.querySelector('input[name="qty"], input[name="quantity"], .qty-input, .quantity-input');
                     if (qtyInput) {
                         qtyInput.value = 1;
+                        console.log('✅ [BUY BUTTON] Set quantity to 1');
+                    } else {
+                        console.log('⚠️ [BUY BUTTON] Quantity input not found');
                     }
                     
                     // Select first/default variation if exists
                     var variationSelects = document.querySelectorAll('select[name^="attribute"]');
-                    variationSelects.forEach(function(select) {
-                        if (select.options.length > 0) {
-                            select.selectedIndex = select.options[0].value ? 0 : 1; // Skip placeholder if exists
-                            // Trigger change event for variation logic
-                            select.dispatchEvent(new Event('change', { bubbles: true }));
-                        }
-                    });
+                    if (variationSelects.length > 0) {
+                        console.log('🔍 [BUY BUTTON] Found', variationSelects.length, 'variation selects');
+                        variationSelects.forEach(function(select, index) {
+                            if (select.options.length > 0) {
+                                select.selectedIndex = select.options[0].value ? 0 : 1; // Skip placeholder if exists
+                                select.dispatchEvent(new Event('change', { bubbles: true }));
+                                console.log('✅ [BUY BUTTON] Selected variation', index);
+                            }
+                        });
+                    } else {
+                        console.log('ℹ️ [BUY BUTTON] No variations found');
+                    }
                     
                     // Try to find and click the buy now button (correct selectors for current theme)
                     var buyNowBtn = document.querySelector(
@@ -865,8 +897,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     );
                     
                     if (buyNowBtn) {
+                        console.log('✅ [BUY BUTTON] Found buy now button:', buyNowBtn.outerHTML.substring(0, 100));
                         buyNowBtn.click();
+                        console.log('✅ [BUY BUTTON] Clicked buy now button');
                     } else {
+                        console.log('⚠️ [BUY BUTTON] Buy now button not found, trying add to cart fallback...');
+                        
                         // Fallback: add to cart then go to checkout
                         var addToCartBtn = document.querySelector(
                             'button[name="add_to_cart"], ' +
@@ -875,13 +911,18 @@ document.addEventListener('DOMContentLoaded', function() {
                             'button[data-bb-toggle="add-to-cart-in-form"], ' +
                             '.add-to-cart-form button[type="submit"]'
                         );
+                        
                         if (addToCartBtn) {
+                            console.log('✅ [BUY BUTTON] Found add to cart button:', addToCartBtn.outerHTML.substring(0, 100));
                             addToCartBtn.click();
+                            console.log('✅ [BUY BUTTON] Clicked add to cart, redirecting to checkout...');
                             // Wait for cart update then redirect
                             setTimeout(function() {
                                 window.location.href = '/checkout';
                             }, 800);
                         } else {
+                            console.log('❌ [BUY BUTTON] No buttons found, scrolling to product section...');
+                            
                             // Last resort: scroll to product section
                             var productSection = document.querySelector(
                                 '.ps-product__info, ' +
@@ -891,8 +932,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                 '.product-info, ' +
                                 '.product-detail'
                             );
+                            
                             if (productSection) {
+                                console.log('✅ [BUY BUTTON] Found product section, scrolling...');
                                 productSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            } else {
+                                console.log('❌ [BUY BUTTON] Product section not found');
                             }
                         }
                     }
@@ -963,30 +1008,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 resetUIHideTimer(); // Reset timer on interaction
                 
                 if (!currentProduct || !currentProduct.id) {
-                    console.error('No product data available');
+                    console.error('❌ [CART BUTTON] No product data available');
                     return;
                 }
+                
+                console.log('✅ [CART BUTTON] Product ID:', currentProduct.id, 'Name:', currentProduct.name);
                 
                 // Close lightbox
                 closeLightbox();
                 
                 // After closing, set defaults and trigger add to cart
                 setTimeout(function() {
+                    console.log('🔍 [CART BUTTON] Looking for add to cart button...');
+                    
                     // Set quantity to 1
                     var qtyInput = document.querySelector('input[name="qty"], input[name="quantity"], .qty-input, .quantity-input');
                     if (qtyInput) {
                         qtyInput.value = 1;
+                        console.log('✅ [CART BUTTON] Set quantity to 1');
+                    } else {
+                        console.log('⚠️ [CART BUTTON] Quantity input not found');
                     }
                     
                     // Select first/default variation if exists
                     var variationSelects = document.querySelectorAll('select[name^="attribute"]');
-                    variationSelects.forEach(function(select) {
-                        if (select.options.length > 0) {
-                            select.selectedIndex = select.options[0].value ? 0 : 1; // Skip placeholder if exists
-                            // Trigger change event for variation logic
-                            select.dispatchEvent(new Event('change', { bubbles: true }));
-                        }
-                    });
+                    if (variationSelects.length > 0) {
+                        console.log('🔍 [CART BUTTON] Found', variationSelects.length, 'variation selects');
+                        variationSelects.forEach(function(select, index) {
+                            if (select.options.length > 0) {
+                                select.selectedIndex = select.options[0].value ? 0 : 1; // Skip placeholder if exists
+                                // Trigger change event for variation logic
+                                select.dispatchEvent(new Event('change', { bubbles: true }));
+                                console.log('✅ [CART BUTTON] Selected variation', index);
+                            }
+                        });
+                    } else {
+                        console.log('ℹ️ [CART BUTTON] No variations found');
+                    }
                     
                     // Find and click add to cart button (correct selectors for current theme)
                     var addToCartBtn = document.querySelector(
@@ -999,7 +1057,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     );
                     
                     if (addToCartBtn) {
+                        console.log('✅ [CART BUTTON] Found add to cart button:', addToCartBtn.outerHTML.substring(0, 100));
                         addToCartBtn.click();
+                        console.log('✅ [CART BUTTON] Clicked add to cart button');
                         
                         // Update mobile cart state after a delay (wait for cart to update)
                         setTimeout(function() {
