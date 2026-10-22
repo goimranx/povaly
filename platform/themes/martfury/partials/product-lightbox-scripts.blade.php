@@ -1140,17 +1140,28 @@ document.addEventListener('DOMContentLoaded', function() {
             var videoId = video.id || btoa(video.url); // Base64 encode URL as fallback ID
             var videoUrl = video.url;
             
+            console.log('🎬 [DESKTOP LIKE] Loading video:', { videoId, videoUrl, index: activeIndex });
+            
             // Always update the video ID - THIS IS CRITICAL
             likeBtn.setAttribute('data-video-id', videoId);
             likeBtn.setAttribute('data-video-url', videoUrl);
             
+            console.log('🔄 [DESKTOP LIKE] Fetching from:', '/api/video-likes/' + videoId);
+            
             // Load like state and count from database
             fetch('/api/video-likes/' + encodeURIComponent(videoId))
-                .then(function(response) { return response.json(); })
+                .then(function(response) { 
+                    console.log('📡 [DESKTOP LIKE] Response:', response.status, response.ok); 
+                    return response.json(); 
+                })
                 .then(function(data) {
+                    console.log('✅ [DESKTOP LIKE] Data received:', data);
+                    
                     // Set initial state from database
                     var isLiked = data.user_liked || false;
                     var totalLikes = data.total_likes || 0;
+                    
+                    console.log('👤 [DESKTOP LIKE] Setting state - Liked:', isLiked, 'Count:', totalLikes);
                     
                     likeCount.textContent = totalLikes;
                     likeBtn.setAttribute('data-liked', isLiked ? 'true' : 'false');
@@ -1159,13 +1170,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (isLiked) {
                         likeBtn.classList.add('liked');
                         if (icon) icon.className = 'ph-fill ph-thumbs-up';
+                        console.log('❤️ [DESKTOP LIKE] User HAS liked this video');
                     } else {
                         likeBtn.classList.remove('liked');
                         if (icon) icon.className = 'ph ph-thumbs-up';
+                        console.log('🤍 [DESKTOP LIKE] User has NOT liked this video');
                     }
                 })
                 .catch(function(err) {
-                    console.error('Failed to load like state:', err);
+                    console.error('❌ [DESKTOP LIKE] API Error:', err);
                     // Set defaults on error
                     likeCount.textContent = video.likes || 0;
                     likeBtn.setAttribute('data-liked', 'false');
@@ -1178,8 +1191,15 @@ document.addEventListener('DOMContentLoaded', function() {
             likeBtn.parentNode.replaceChild(newLikeBtn, likeBtn);
             likeBtn = newLikeBtn; // Update reference
             
+            // CRITICAL: Update likeCount reference after cloning (it's inside the button)
+            likeCount = document.getElementById('lightbox-video-like-count');
+            
+            console.log('🔧 [DESKTOP LIKE] Button cloned for video:', videoId, 'New count ref:', likeCount ? 'OK' : 'MISSING');
+            
             // Attach fresh click handler - reads current data attributes inside the handler
             likeBtn.onclick = function() {
+                console.log('👆 [DESKTOP LIKE] Click detected');
+                
                 // READ CURRENT values from data attributes (not from closure)
                 var currentVideoId = this.getAttribute('data-video-id');
                 var currentVideoUrl = this.getAttribute('data-video-url');
@@ -1187,12 +1207,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 var currentCount = parseInt(likeCount.textContent) || 0;
                 var icon = this.querySelector('i');
                 
+                console.log('📊 [DESKTOP LIKE] Current state:', { 
+                    videoId: currentVideoId, 
+                    videoUrl: currentVideoUrl, 
+                    isLiked, 
+                    count: currentCount 
+                });
+                
                 if (!isLiked) {
+                    console.log('➕ [DESKTOP LIKE] LIKING video:', currentVideoId);
+                    
                     // Like the video - save to database
                     this.classList.add('liked');
                     this.setAttribute('data-liked', 'true');
                     if (icon) icon.className = 'ph-fill ph-thumbs-up';
                     likeCount.textContent = currentCount + 1;
+                    
+                    var payload = {
+                        video_id: currentVideoId,
+                        video_url: currentVideoUrl,
+                        product_id: currentProduct?.id || null,
+                        action: 'like'
+                    };
+                    console.log('📤 [DESKTOP LIKE] POST payload:', payload);
                     
                     // Save to database
                     fetch('/api/video-likes', {
@@ -1201,22 +1238,22 @@ document.addEventListener('DOMContentLoaded', function() {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
                         },
-                        body: JSON.stringify({
-                            video_id: currentVideoId,
-                            video_url: currentVideoUrl,
-                            product_id: currentProduct?.id || null,
-                            action: 'like'
-                        })
+                        body: JSON.stringify(payload)
                     })
-                    .then(function(response) { return response.json(); })
+                    .then(function(response) { 
+                        console.log('📡 [DESKTOP LIKE] POST response:', response.status);
+                        return response.json(); 
+                    })
                     .then(function(data) {
+                        console.log('✅ [DESKTOP LIKE] POST data:', data);
                         if (data.success) {
                             // Update count with actual database count
                             likeCount.textContent = data.total_likes;
+                            console.log('💾 [DESKTOP LIKE] Updated count to:', data.total_likes);
                         }
                     })
                     .catch(function(err) {
-                        console.error('Failed to save like:', err);
+                        console.error('❌ [DESKTOP LIKE] POST failed:', err);
                         // Revert on error
                         likeBtn.classList.remove('liked');
                         likeBtn.setAttribute('data-liked', 'false');
@@ -1224,11 +1261,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         likeCount.textContent = currentCount;
                     });
                 } else {
+                    console.log('➖ [DESKTOP LIKE] UNLIKING video:', currentVideoId);
+                    
                     // Unlike the video - remove from database
                     this.classList.remove('liked');
                     this.setAttribute('data-liked', 'false');
                     if (icon) icon.className = 'ph ph-thumbs-up';
                     likeCount.textContent = Math.max(0, currentCount - 1);
+                    
+                    console.log('📤 [DESKTOP LIKE] DELETE to:', '/api/video-likes/' + currentVideoId);
                     
                     // Remove from database
                     fetch('/api/video-likes/' + encodeURIComponent(currentVideoId), {
@@ -1238,15 +1279,20 @@ document.addEventListener('DOMContentLoaded', function() {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
                         }
                     })
-                    .then(function(response) { return response.json(); })
+                    .then(function(response) { 
+                        console.log('📡 [DESKTOP LIKE] DELETE response:', response.status);
+                        return response.json(); 
+                    })
                     .then(function(data) {
+                        console.log('✅ [DESKTOP LIKE] DELETE data:', data);
                         if (data.success) {
                             // Update count with actual database count
                             likeCount.textContent = data.total_likes;
+                            console.log('💾 [DESKTOP LIKE] Updated count to:', data.total_likes);
                         }
                     })
                     .catch(function(err) {
-                        console.error('Failed to remove like:', err);
+                        console.error('❌ [DESKTOP LIKE] DELETE failed:', err);
                         // Revert on error
                         likeBtn.classList.add('liked');
                         likeBtn.setAttribute('data-liked', 'true');
