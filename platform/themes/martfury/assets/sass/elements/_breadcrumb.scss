@@ -1,5 +1,5 @@
 .ps-breadcrumb {
-    padding: 20px 0;
+    padding: 10px 0;
     background-color: #f1f1f1;
 
     .breadcrumb {
@@ -10,14 +10,15 @@
 
         li {
             display: inline-block;
-            font-size: 14px;
+            font-size: 12px;
             line-height: 20px;
             color: $color-heading;
 
             &:before {
-                content: "/";
-                //font-family: FontAwesome;
-                margin: 0 5px;
+                content: "\e93f"; // chevron-right icon code
+                font-family: 'Linearicons-Free';
+                margin: 0 8px;
+                font-size: 10px;
             }
 
             &:first-child {
@@ -31,10 +32,13 @@
 
         a {
             line-height: 20px;
-            color: #09c;
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--global-color-body, #666);
 
             &:hover {
-                color: $color-1st;
+                color: var(--global-color-main, #fcb800);
+                text-decoration: underline;
             }
 
             i {

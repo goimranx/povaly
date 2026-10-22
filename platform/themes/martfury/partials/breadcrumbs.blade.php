@@ -3,7 +3,6 @@
         @if (! $loop->last)
             <li>
                 <a href="{{ $crumb['url'] }}" itemprop="item">{!! BaseHelper::clean($crumb['label']) !!}</a>
-                <span class="breadcrumb-separator"><i class="icon-chevron-right"></i></span>
             </li>
         @endif
     @endforeach
