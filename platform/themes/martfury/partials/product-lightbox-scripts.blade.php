@@ -141,8 +141,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show drawer handle when controls are visible (unless drawer is open)
         if (drawer) {
             if (!drawer.classList.contains('open')) {
-                // Just show the handle, drawer stays closed
+                // Show the handle
                 drawer.style.display = 'flex';
+                drawer.style.visibility = 'visible';
             }
         }
     }
@@ -159,7 +160,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Hide drawer completely when controls are hidden (unless it's open)
         if (drawer) {
             if (!drawer.classList.contains('open')) {
+                // Force hide the drawer
                 drawer.style.display = 'none';
+                drawer.style.visibility = 'hidden';
             }
         }
     }
@@ -228,26 +231,31 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add video-mode class for black background
         if (lightboxOverlay) lightboxOverlay.classList.add('video-mode');
         
-        // Set up tap-to-toggle on video player area
-        var videoPlayer = document.getElementById('lightbox-video-player');
-        if (videoPlayer) {
+        // Set up tap-to-toggle on the entire video display area (not just video player)
+        var videosContent = document.getElementById('lightbox-videos-content');
+        if (videosContent) {
             // Remove existing listener if any
-            var newVideoPlayer = videoPlayer.cloneNode(true);
-            videoPlayer.parentNode.replaceChild(newVideoPlayer, videoPlayer);
-            videoPlayer = newVideoPlayer;
+            var newVideosContent = videosContent.cloneNode(true);
+            videosContent.parentNode.replaceChild(newVideosContent, videosContent);
+            videosContent = newVideosContent;
             
-            // Add click listener
-            videoPlayer.addEventListener('click', function(e) {
-                // Ignore clicks on video controls
+            // Add click listener to the entire videos content area
+            videosContent.addEventListener('click', function(e) {
+                // Don't toggle if clicking on a button or interactive element
                 var target = e.target;
-                if (target.tagName === 'VIDEO' || target.tagName === 'IFRAME' || target.closest('video') || target.closest('iframe')) {
-                    // Only toggle if not clicking on native controls
-                    if (e.target.tagName !== 'VIDEO' || e.offsetY < e.target.offsetHeight - 50) {
-                        toggleMobileControls();
-                    }
-                } else {
-                    toggleMobileControls();
+                if (target.tagName === 'BUTTON' || 
+                    target.closest('button') || 
+                    target.closest('.mobile-video-header') ||
+                    target.closest('.mobile-video-title-container') ||
+                    target.closest('.mobile-video-uploader') ||
+                    target.closest('.mobile-video-actions') ||
+                    target.closest('.mobile-video-minimal-controls') ||
+                    target.closest('.mobile-video-drawer')) {
+                    return; // Don't toggle for these elements
                 }
+                
+                // Toggle controls
+                toggleMobileControls();
             });
         }
         

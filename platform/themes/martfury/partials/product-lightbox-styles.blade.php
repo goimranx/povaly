@@ -1148,7 +1148,7 @@
             .mobile-drawer-grabber {
                 width: 40px !important;
                 height: 4px !important;
-                background: rgba(0, 0, 0, 0.4) !important; /* Sharper/darker for better visibility */
+                background: var(--global-color-secondary-soft, #F4F9FD) !important; /* Secondary soft color */
                 border-radius: 2px !important;
             }
             
