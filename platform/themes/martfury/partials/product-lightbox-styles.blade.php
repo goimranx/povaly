@@ -1080,7 +1080,7 @@
                 right: 10px !important;
                 display: flex !important;
                 flex-direction: column !important;
-                gap: 16px !important; /* Reduced gap from 20px to 16px */
+                gap: 20px !important; /* Increased gap for better spacing */
                 align-items: center !important;
                 z-index: 10 !important; /* Ensure buttons are above click layer */
             }
