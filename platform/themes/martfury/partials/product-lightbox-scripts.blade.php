@@ -1175,33 +1175,117 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Add share button handler
+        // Add share button handler with database tracking
         var shareBtn = document.getElementById('lightbox-video-share-btn');
-        if (shareBtn && !shareBtn.onclick) {
-            shareBtn.onclick = function() {
-                // Share current video URL
-                if (navigator.share && video.url) {
-                    navigator.share({
-                        title: currentProduct?.name || 'Product Video',
-                        text: 'Check out this video!',
-                        url: video.url
-                    }).catch(function(err) {
-                        console.log('Share failed:', err);
+        if (shareBtn) {
+            var shareCount = shareBtn.querySelector('.share-count');
+            
+            // Check if this button already has a handler for this video
+            var currentVideoId = shareBtn.getAttribute('data-video-id');
+            var needsNewHandler = currentVideoId !== videoId || !shareBtn.onclick;
+            
+            // Always update the video ID
+            shareBtn.setAttribute('data-video-id', videoId);
+            
+            // Load share count from database
+            if (shareCount) {
+                fetch('/api/video-shares/' + encodeURIComponent(videoId))
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
+                        var totalShares = data.total_shares || 0;
+                        shareCount.textContent = totalShares;
+                    })
+                    .catch(function(err) {
+                        console.error('Failed to load share count:', err);
+                        shareCount.textContent = video.shares || 0;
                     });
-                } else {
-                    // Fallback: copy to clipboard
-                    if (video.url) {
-                        navigator.clipboard.writeText(video.url).then(function() {
-                            // Show copied notification with Phosphor icon
-                            var originalHTML = shareBtn.innerHTML;
-                            shareBtn.innerHTML = '<i class="ph-fill ph-check"></i>';
-                            setTimeout(function() {
-                                shareBtn.innerHTML = originalHTML;
-                            }, 2000);
+            }
+            
+            // Only attach click handler once per video (prevent duplicate handlers)
+            if (needsNewHandler) {
+                shareBtn.onclick = function() {
+                    var currentCount = shareCount ? parseInt(shareCount.textContent) || 0 : 0;
+                    var videoId = shareBtn.getAttribute('data-video-id');
+                    
+                    // Share current video URL
+                    if (navigator.share && video.url) {
+                        navigator.share({
+                            title: currentProduct?.name || 'Product Video',
+                            text: 'Check out this video!',
+                            url: video.url
+                        })
+                        .then(function() {
+                            // Increment count immediately
+                            if (shareCount) {
+                                shareCount.textContent = currentCount + 1;
+                            }
+                            
+                            // Track share in database
+                            fetch('/api/video-shares', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                                },
+                                body: JSON.stringify({
+                                    video_id: videoId,
+                                    video_url: video.url,
+                                    product_id: currentProduct?.id || null
+                                })
+                            })
+                            .then(function(response) { return response.json(); })
+                            .then(function(data) {
+                                if (data.success && shareCount) {
+                                    shareCount.textContent = data.total_shares;
+                                }
+                            });
+                        })
+                        .catch(function(err) {
+                            console.log('Share cancelled or failed:', err);
                         });
+                    } else {
+                        // Fallback: copy to clipboard
+                        if (video.url) {
+                            navigator.clipboard.writeText(video.url).then(function() {
+                                // Increment count immediately
+                                if (shareCount) {
+                                    shareCount.textContent = currentCount + 1;
+                                }
+                                
+                                // Track share in database
+                                fetch('/api/video-shares', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                                    },
+                                    body: JSON.stringify({
+                                        video_id: videoId,
+                                        video_url: video.url,
+                                        product_id: currentProduct?.id || null
+                                    })
+                                })
+                                .then(function(response) { return response.json(); })
+                                .then(function(data) {
+                                    if (data.success && shareCount) {
+                                        shareCount.textContent = data.total_shares;
+                                    }
+                                });
+                                
+                                // Show copied notification with Phosphor icon
+                                var icon = shareBtn.querySelector('i');
+                                if (icon) {
+                                    var originalClass = icon.className;
+                                    icon.className = 'ph-fill ph-check';
+                                    setTimeout(function() {
+                                        icon.className = originalClass;
+                                    }, 2000);
+                                }
+                            });
+                        }
                     }
-                }
-            };
+                };
+            }
         }
         
         // Store current video index

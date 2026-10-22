@@ -50,6 +50,7 @@
                             </div>
                             <button class="btn-video-share" id="lightbox-video-share-btn">
                                 <i class="ph ph-share-fat"></i>
+                                <span class="share-count">0</span>
                             </button>
                         </div>
                         

@@ -234,6 +234,7 @@
             padding: 0; /* No padding */
             display: flex;
             align-items: center;
+            gap: 6px; /* Gap between icon and count */
             cursor: pointer;
             transition: color 0.3s ease; /* Only color transition, no transform */
             font-size: 20px; /* Icon size */
@@ -242,6 +243,13 @@
         
         .btn-video-share:hover {
             color: var(--global-color-primary, #0D6EFD); /* Primary color on hover */
+        }
+        
+        .btn-video-share .share-count {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            min-width: 30px;
         }
         
         /* Video Info Section */
