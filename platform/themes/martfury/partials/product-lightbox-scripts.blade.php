@@ -127,9 +127,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // MOBILE VIDEO UI ELEMENTS (title, uploader, actions, drawer)
     // ═══════════════════════════════════════════════════════════════════
     
-    // Auto-hide UI timer
-    var uiHideTimer = null;
-    var UI_HIDE_DELAY = 5000; // 5 seconds
+    // Auto-hide UI timer - DISABLED (UI always visible)
+    // No timer functionality needed
     
     // Show UI elements (title, uploader, actions, drawer)
     function showMobileUI() {
@@ -137,14 +136,12 @@ document.addEventListener('DOMContentLoaded', function() {
         var drawer = document.getElementById('mobile-video-drawer');
         
         if (mobileControls) {
-            mobileControls.classList.remove('controls-hidden'); // 'controls-hidden' hides UI elements
-            resetUIHideTimer();
+            mobileControls.classList.remove('controls-hidden'); // Show UI elements
         }
         
-        // Show drawer handle when UI is visible (unless drawer is open)
+        // Show drawer handle
         if (drawer) {
             if (!drawer.classList.contains('open')) {
-                // Show the handle
                 drawer.style.display = 'flex';
                 drawer.style.visibility = 'visible';
             }
@@ -163,39 +160,22 @@ document.addEventListener('DOMContentLoaded', function() {
         // Hide drawer completely when UI is hidden (unless it's open)
         if (drawer) {
             if (!drawer.classList.contains('open')) {
-                // Force hide the drawer
                 drawer.style.display = 'none';
                 drawer.style.visibility = 'hidden';
             }
         }
     }
     
-    // Reset auto-hide timer
-    function resetUIHideTimer() {
-        if (uiHideTimer) {
-            clearTimeout(uiHideTimer);
-        }
-        uiHideTimer = setTimeout(function() {
-            hideMobileUI();
-        }, UI_HIDE_DELAY);
-    }
-    
-    // Toggle UI on tap
+    // Toggle UI on tap (not used - UI always visible)
     function toggleMobileUI() {
         var mobileControls = document.getElementById('mobile-video-controls');
         if (mobileControls) {
             if (mobileControls.classList.contains('controls-hidden')) {
-                // UI is hidden, show it
-                                showMobileUI();
+                showMobileUI();
             } else {
-                // UI is visible, hide it immediately (no timer)
-                                hideMobileUI();
-                if (uiHideTimer) {
-                    clearTimeout(uiHideTimer);
-                }
+                hideMobileUI();
             }
-        } else {
-                    }
+        }
     }
     
     // Format numbers (e.g., 1500 -> 1.5K, 1000000 -> 1M)
@@ -276,8 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.stopPropagation(); // Prevent triggering toggle
                 mobileTitle.classList.toggle('expanded');
                 titleExpand.classList.toggle('expanded');
-                resetUIHideTimer(); // Reset timer when interacting
-            };
+                            };
         }
         
         // Title click also expands/collapses (only if overflow)
@@ -289,8 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (titleExpandBtn && titleExpandBtn.classList.contains('show')) {
                     mobileTitle.classList.toggle('expanded');
                     titleExpandBtn.classList.toggle('expanded');
-                    resetUIHideTimer(); // Reset timer when interacting
-                }
+                                    }
             };
         }
         
@@ -617,8 +595,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Attach fresh click handler with cache updates
         mobileLikeBtn.onclick = function(e) {
             e.stopPropagation(); // Prevent triggering toggle
-            resetUIHideTimer(); // Reset timer on interaction
-            
+                        
                         // READ CURRENT values from data attributes (not from closure)
             var currentVideoId = this.getAttribute('data-video-id');
             var currentVideoUrl = this.getAttribute('data-video-url');
@@ -739,8 +716,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mobileBuyBtn.onclick = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                resetUIHideTimer(); // Reset timer on interaction
-                
+                                
                                 if (!currentProduct) {
                                         return;
                 }
@@ -866,8 +842,7 @@ document.addEventListener('DOMContentLoaded', function() {
             mobileCartBtn.onclick = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                resetUIHideTimer(); // Reset timer on interaction
-                
+                                
                                 if (!currentProduct) {
                                         return;
                 }
@@ -1044,8 +1019,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileShareBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation(); // Prevent triggering toggle
-            resetUIHideTimer(); // Reset timer on interaction
-            
+                        
                         // Get current state
             var currentVideoId = this.getAttribute('data-video-id');
             var currentVideoUrl = this.getAttribute('data-video-url');
@@ -1274,8 +1248,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Drawer just closed, restart auto-hide timer for UI
                 var mobileControls = document.getElementById('mobile-video-controls');
                 if (mobileControls && !mobileControls.classList.contains('controls-hidden')) {
-                    resetUIHideTimer();
-                }
+                                    }
             }
         });
     }
@@ -1887,10 +1860,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         var src = video.url;
-        // Add autoplay and other parameters
+        // Add autoplay and minimal UI parameters for clean player
         var sep = src.indexOf('?') !== -1 ? '&' : '?';
         if (src.indexOf('autoplay') === -1) src += sep + 'autoplay=1';
         if (src.indexOf('enablejsapi') === -1) src += (src.indexOf('?') !== -1 ? '&' : '?') + 'enablejsapi=1';
+        
+        // Minimal UI parameters - hide everything except player controls
+        src += '&modestbranding=1'; // Hide YouTube logo
+        src += '&rel=0'; // Don't show related videos
+        src += '&showinfo=0'; // Hide video info
+        src += '&iv_load_policy=3'; // Hide annotations
+        src += '&cc_load_policy=0'; // Hide captions by default
+        src += '&fs=1'; // Allow fullscreen
+        src += '&disablekb=0'; // Keep keyboard controls
+        src += '&controls=1'; // Show player controls
         
         var iframe = document.createElement('iframe');
         iframe.src = src;
@@ -1930,10 +1913,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         var src = video.url;
-        // Add autoplay and other parameters
+        // Add autoplay and minimal UI parameters for clean player
         var sep = src.indexOf('?') !== -1 ? '&' : '?';
         if (src.indexOf('autoplay') === -1) src += sep + 'autoplay=1';
         if (src.indexOf('api') === -1) src += (src.indexOf('?') !== -1 ? '&' : '?') + 'api=1';
+        
+        // Minimal UI parameters - hide everything except player controls
+        src += '&title=0'; // Hide video title
+        src += '&byline=0'; // Hide author byline
+        src += '&portrait=0'; // Hide author portrait
+        src += '&sidedock=0'; // Hide sidedock (related videos)
+        src += '&controls=1'; // Show player controls
+        src += '&dnt=1'; // Do not track
         
         var iframe = document.createElement('iframe');
         iframe.src = src;
