@@ -1097,8 +1097,33 @@ class Ecommerce {
                     }
 
                     try {
+                        // Bind init event BEFORE initializing slick
+                        $item.on('init', function(event, slick) {
+                            const $slides = $(slick.$slides).not('.slick-cloned')
+                            const $imageSlides = $slides.filter(':not(.video-thumbnail)')
+                            const $videoSlides = $slides.filter('.video-thumbnail')
+                            
+                            // Handle image thumbnails: show 4, add counter to 5th if more exist
+                            if ($imageSlides.length > 4) {
+                                const moreCount = $imageSlides.length - 4
+                                const $fifthImage = $imageSlides.eq(4)
+                                if ($fifthImage.length) {
+                                    $fifthImage.append('<span class="gallery-more-count">+' + moreCount + '</span>')
+                                }
+                            }
+                            
+                            // Handle video thumbnails: show 2, add counter to 3rd if more exist
+                            if ($videoSlides.length > 2) {
+                                const moreCount = $videoSlides.length - 2
+                                const $thirdVideo = $videoSlides.eq(2)
+                                if ($thirdVideo.length) {
+                                    $thirdVideo.append('<span class="gallery-more-count">+' + moreCount + '</span>')
+                                }
+                            }
+                        })
+                        
                         $item.slick({
-                            slidesToShow: 6,
+                            slidesToShow: 4,
                             slidesToScroll: 1,
                             asNavFor: '.bb-product-gallery-images',
                             focusOnSelect: true,

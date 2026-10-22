@@ -3582,3 +3582,65 @@ ul.bb-social-sharing {
     }
 }
 
+
+
+// Product Gallery Thumbnails Styling
+.bb-product-gallery-vertical {
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 10px;
+    
+    .bb-product-gallery-thumbnails {
+        min-width: 50px !important;
+        max-width: 50px !important;
+        flex-shrink: 0;
+        margin: 0;
+        
+        .slick-slide {
+            > div {
+                aspect-ratio: 3 / 4;
+                border-radius: 10px;
+                overflow: hidden;
+                position: relative;
+                border: 2px solid transparent;
+                
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+            }
+            
+            &.slick-current > div {
+                border-color: var(--global-color-primary-border, #ddd);
+            }
+        }
+    }
+    
+    .bb-product-gallery-images {
+        width: 80% !important;
+        flex-grow: 1;
+        padding: 0 !important;
+        max-width: none !important;
+    }
+}
+
+// Gallery counter overlay for "+X more" thumbnails
+.bb-product-gallery-thumbnails {
+    .gallery-more-count {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        z-index: 10;
+        border-radius: 10px;
+    }
+}
