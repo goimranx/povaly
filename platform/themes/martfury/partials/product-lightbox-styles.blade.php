@@ -1066,7 +1066,7 @@
             .mobile-drawer-grabber {
                 width: 40px !important;
                 height: 4px !important;
-                background: rgba(0, 0, 0, 0.3) !important;
+                background: rgba(0, 0, 0, 0.4) !important; /* Sharper/darker for better visibility */
                 border-radius: 2px !important;
             }
             
@@ -1086,6 +1086,36 @@
             /* Reuse existing video list styles for drawer */
             .mobile-drawer-videos .video-list-section {
                 margin-bottom: 20px !important;
+            }
+            
+            /* Drawer-specific overrides for video list styles */
+            .mobile-drawer-videos .video-list-header {
+                background: var(--global-color-secondary-soft, #F4F9FD) !important; /* Secondary soft color */
+                color: var(--global-color-text-main, #0D1B2A) !important; /* Dark text */
+            }
+            
+            .mobile-drawer-videos .video-list-title {
+                color: var(--global-color-text-main, #0D1B2A) !important; /* Dark text */
+            }
+            
+            .mobile-drawer-videos .video-list-item {
+                background: var(--global-color-secondary-mid, #E8F1F8) !important; /* Same as drawer background */
+            }
+            
+            .mobile-drawer-videos .video-list-item:hover {
+                background: var(--global-color-secondary-soft, #F4F9FD) !important; /* Lighter on hover */
+            }
+            
+            .mobile-drawer-videos .video-list-item.active {
+                background: var(--global-color-secondary-mid, #E8F1F8) !important; /* Same as drawer background */
+            }
+            
+            .mobile-drawer-videos .video-list-item-title {
+                color: var(--global-color-text-main, #0D1B2A) !important; /* Dark text */
+            }
+            
+            .mobile-drawer-videos .video-list-item-uploader {
+                color: var(--global-color-text-body, #2E3D52) !important; /* Dark text, slightly lighter */
             }
         }
 </style>
