@@ -1166,44 +1166,63 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        // Drawer drag/swipe interaction
+        // Drawer drag/swipe interaction - make entire drawer draggable, not just handle
         var startY = 0;
         var currentY = 0;
         var isDragging = false;
+        var initialDrawerTransform = 0;
         
-        handle.addEventListener('touchstart', function(e) {
+        // Add touch events to entire drawer for easier pulling
+        drawer.addEventListener('touchstart', function(e) {
+            // Don't interfere with scrolling inside drawer content
+            var target = e.target;
+            if (target.closest('.video-list-item') || target.closest('a') || target.closest('button')) {
+                return; // Allow clicks on video items
+            }
+            
             startY = e.touches[0].clientY;
             isDragging = true;
+            initialDrawerTransform = drawer.classList.contains('open') ? 0 : (drawer.offsetHeight - 50);
         });
         
-        handle.addEventListener('touchmove', function(e) {
+        drawer.addEventListener('touchmove', function(e) {
             if (!isDragging) return;
             currentY = e.touches[0].clientY;
             var deltaY = currentY - startY;
             
-            // Only allow dragging down when drawer is open, or up when closed
+            // Allow dragging in both directions
             if (drawer.classList.contains('open')) {
+                // When open, allow dragging down to close
                 if (deltaY > 0) {
                     e.preventDefault();
-                    drawer.style.transform = 'translateY(calc(100% - 50px + ' + deltaY + 'px))';
+                    var newTransform = Math.min(drawer.offsetHeight - 50, deltaY);
+                    drawer.style.transform = 'translateY(' + newTransform + 'px)';
+                } else if (deltaY < 0) {
+                    // Allow slight overscroll up
+                    e.preventDefault();
+                    var newTransform = Math.max(-50, deltaY);
+                    drawer.style.transform = 'translateY(' + newTransform + 'px)';
                 }
             } else {
+                // When closed, allow dragging up to open
                 if (deltaY < 0) {
                     e.preventDefault();
-                    drawer.style.transform = 'translateY(calc(100% - 50px + ' + deltaY + 'px))';
+                    var baseTransform = drawer.offsetHeight - 50;
+                    var newTransform = baseTransform + deltaY;
+                    drawer.style.transform = 'translateY(' + Math.max(0, newTransform) + 'px)';
                 }
             }
         });
         
-        handle.addEventListener('touchend', function(e) {
+        drawer.addEventListener('touchend', function(e) {
             if (!isDragging) return;
             isDragging = false;
             
             var deltaY = currentY - startY;
             drawer.style.transform = ''; // Reset inline transform
             
-            // Toggle drawer based on drag distance
-            if (Math.abs(deltaY) > 100) {
+            // Toggle drawer based on drag distance (reduced threshold for easier interaction)
+            if (Math.abs(deltaY) > 80) {
                 if (deltaY > 0 && drawer.classList.contains('open')) {
                     drawer.classList.remove('open');
                 } else if (deltaY < 0 && !drawer.classList.contains('open')) {
