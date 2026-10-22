@@ -24,6 +24,12 @@ document.addEventListener('DOMContentLoaded', function() {
     var isZoomed = false;
     var zoomLevel = 2;
     
+    // Cache for video like/share data to prevent delays on video switches
+    var videoDataCache = {
+        likes: {}, // videoId: {user_liked, total_likes, timestamp}
+        shares: {} // videoId: {total_shares, timestamp}
+    };
+    
     // Open lightbox
     window.openProductLightbox = function(productData) {
         currentProduct = productData;
@@ -1115,6 +1121,151 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Attach like button click handler - extracted to reuse for cached and fresh data
+    function attachLikeButtonHandler(btn, videoId, videoUrl) {
+        btn.onclick = function() {
+            console.log('👆 [DESKTOP LIKE] Click detected');
+            
+            // Re-query count element to ensure we have the current one
+            var currentLikeCount = document.getElementById('lightbox-video-like-count');
+            if (!currentLikeCount) {
+                console.error('❌ [DESKTOP LIKE] Count element not found in click handler');
+                return;
+            }
+            
+            // READ CURRENT values from data attributes (not from closure)
+            var currentVideoId = this.getAttribute('data-video-id');
+            var currentVideoUrl = this.getAttribute('data-video-url');
+            var isLiked = this.getAttribute('data-liked') === 'true';
+            var currentCount = parseInt(currentLikeCount.textContent) || 0;
+            var icon = this.querySelector('i');
+            
+            console.log('📊 [DESKTOP LIKE] Current state:', { 
+                videoId: currentVideoId, 
+                videoUrl: currentVideoUrl, 
+                isLiked, 
+                count: currentCount 
+            });
+
+            if (!isLiked) {
+                console.log('➕ [DESKTOP LIKE] LIKING video:', currentVideoId);
+                
+                // Like the video - save to database
+                this.classList.add('liked');
+                this.setAttribute('data-liked', 'true');
+                if (icon) icon.className = 'ph-fill ph-thumbs-up';
+                currentLikeCount.textContent = currentCount + 1;
+                
+                var payload = {
+                    video_id: currentVideoId,
+                    video_url: currentVideoUrl,
+                    product_id: currentProduct?.id || null,
+                    action: 'like'
+                };
+                console.log('📤 [DESKTOP LIKE] POST payload:', payload);
+                
+                // Save to database
+                fetch('/api/video-likes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(function(response) { 
+                    console.log('📡 [DESKTOP LIKE] POST response:', response.status);
+                    return response.json(); 
+                })
+                .then(function(data) {
+                    console.log('✅ [DESKTOP LIKE] POST data:', data);
+                    if (data.success) {
+                        // Update cache
+                        videoDataCache.likes[currentVideoId] = {
+                            user_liked: true,
+                            total_likes: data.total_likes,
+                            timestamp: Date.now()
+                        };
+                        
+                        // Re-query to ensure we have current element
+                        var latestCount = document.getElementById('lightbox-video-like-count');
+                        if (latestCount) {
+                            latestCount.textContent = data.total_likes;
+                            console.log('💾 [DESKTOP LIKE] Updated count to:', data.total_likes);
+                        }
+                    }
+                })
+                .catch(function(err) {
+                    console.error('❌ [DESKTOP LIKE] POST failed:', err);
+                    // Revert on error
+                    var btn = document.getElementById('lightbox-video-like-btn');
+                    var count = document.getElementById('lightbox-video-like-count');
+                    if (btn) {
+                        btn.classList.remove('liked');
+                        btn.setAttribute('data-liked', 'false');
+                        var btnIcon = btn.querySelector('i');
+                        if (btnIcon) btnIcon.className = 'ph ph-thumbs-up';
+                    }
+                    if (count) count.textContent = currentCount;
+                });
+            } else {
+                console.log('➖ [DESKTOP LIKE] UNLIKING video:', currentVideoId);
+                
+                // Unlike the video - remove from database
+                this.classList.remove('liked');
+                this.setAttribute('data-liked', 'false');
+                if (icon) icon.className = 'ph ph-thumbs-up';
+                currentLikeCount.textContent = Math.max(0, currentCount - 1);
+                
+                console.log('📤 [DESKTOP LIKE] DELETE to:', '/api/video-likes/' + currentVideoId);
+                
+                // Remove from database
+                fetch('/api/video-likes/' + encodeURIComponent(currentVideoId), {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                    }
+                })
+                .then(function(response) { 
+                    console.log('📡 [DESKTOP LIKE] DELETE response:', response.status);
+                    return response.json(); 
+                })
+                .then(function(data) {
+                    console.log('✅ [DESKTOP LIKE] DELETE data:', data);
+                    if (data.success) {
+                        // Update cache
+                        videoDataCache.likes[currentVideoId] = {
+                            user_liked: false,
+                            total_likes: data.total_likes,
+                            timestamp: Date.now()
+                        };
+                        
+                        // Re-query to ensure we have current element
+                        var latestCount = document.getElementById('lightbox-video-like-count');
+                        if (latestCount) {
+                            latestCount.textContent = data.total_likes;
+                            console.log('💾 [DESKTOP LIKE] Updated count to:', data.total_likes);
+                        }
+                    }
+                })
+                .catch(function(err) {
+                    console.error('❌ [DESKTOP LIKE] DELETE failed:', err);
+                    // Revert on error
+                    var btn = document.getElementById('lightbox-video-like-btn');
+                    var count = document.getElementById('lightbox-video-like-count');
+                    if (btn) {
+                        btn.classList.add('liked');
+                        btn.setAttribute('data-liked', 'true');
+                        var btnIcon = btn.querySelector('i');
+                        if (btnIcon) btnIcon.className = 'ph-fill ph-thumbs-up';
+                    }
+                    if (count) count.textContent = currentCount;
+                });
+            }
+        };
+    }
+    
     // Load videos
     function loadVideos(videos, activeIndex) {
         console.log('📹 [LOAD VIDEOS] Called with activeIndex:', activeIndex, 'Stack:', new Error().stack.split('\n')[2]);
@@ -1213,20 +1364,79 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // NEW VIDEO - need to reinitialize
                 console.log('🆕 [DESKTOP LIKE] New video, reinitializing');
-                console.log('🔄 [DESKTOP LIKE] Fetching from:', '/api/video-likes/' + videoId);
                 
                 // Set video ID IMMEDIATELY before fetch to prevent duplicate initializations
                 likeBtn.setAttribute('data-video-id', videoId);
                 likeBtn.setAttribute('data-video-url', videoUrl);
                 
-                // FETCH FIRST - get the data before cloning
-                fetch('/api/video-likes/' + encodeURIComponent(videoId))
+                // Check cache first for instant display
+                if (videoDataCache.likes[videoId]) {
+                    console.log('💾 [DESKTOP LIKE] Using cached data for instant display');
+                    var cachedData = videoDataCache.likes[videoId];
+                    
+                    // Update button state INSTANTLY from cache
+                    likeCount.textContent = cachedData.total_likes;
+                    likeBtn.setAttribute('data-liked', cachedData.user_liked ? 'true' : 'false');
+                    
+                    var icon = likeBtn.querySelector('i');
+                    if (cachedData.user_liked) {
+                        likeBtn.classList.add('liked');
+                        if (icon) icon.className = 'ph-fill ph-thumbs-up';
+                    } else {
+                        likeBtn.classList.remove('liked');
+                        if (icon) icon.className = 'ph ph-thumbs-up';
+                    }
+                    
+                    // Clone button to remove old handlers
+                    var newLikeBtn = likeBtn.cloneNode(true);
+                    if (likeBtn.parentNode) {
+                        likeBtn.parentNode.replaceChild(newLikeBtn, likeBtn);
+                    }
+                    
+                    // Attach click handler (same as below)
+                    attachLikeButtonHandler(newLikeBtn, videoId, videoUrl);
+                    
+                    // Still fetch in background to refresh cache
+                    fetch('/api/video-likes/' + encodeURIComponent(videoId))
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            // Update cache
+                            videoDataCache.likes[videoId] = {
+                                user_liked: data.user_liked || false,
+                                total_likes: data.total_likes || 0,
+                                timestamp: Date.now()
+                            };
+                            
+                            // Update UI if different from cache
+                            var currentBtn = document.getElementById('lightbox-video-like-btn');
+                            var currentCount = document.getElementById('lightbox-video-like-count');
+                            if (currentBtn && currentBtn.getAttribute('data-video-id') === videoId && currentCount) {
+                                if (currentCount.textContent != data.total_likes) {
+                                    currentCount.textContent = data.total_likes;
+                                }
+                            }
+                        })
+                        .catch(function(err) {
+                            console.error('❌ [DESKTOP LIKE] Background refresh error:', err);
+                        });
+                } else {
+                    // No cache - fetch and wait
+                    console.log('🔄 [DESKTOP LIKE] Fetching from:', '/api/video-likes/' + videoId);
+                    
+                    fetch('/api/video-likes/' + encodeURIComponent(videoId))
                     .then(function(response) { 
                         console.log('📡 [DESKTOP LIKE] Response:', response.status, response.ok); 
                         return response.json(); 
                     })
                     .then(function(data) {
                         console.log('✅ [DESKTOP LIKE] Data received:', data);
+                        
+                        // Save to cache FIRST
+                        videoDataCache.likes[videoId] = {
+                            user_liked: data.user_liked || false,
+                            total_likes: data.total_likes || 0,
+                            timestamp: Date.now()
+                        };
                         
                         // Re-query the button and check if it still exists and has the correct video ID
                         var currentLikeBtn = document.getElementById('lightbox-video-like-btn');
@@ -1277,134 +1487,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             console.log('🤍 [DESKTOP LIKE] User has NOT liked this video');
                         }
                         
-                        // Attach fresh click handler - reads current data attributes inside the handler
-                        newLikeBtn.onclick = function() {
-                            console.log('👆 [DESKTOP LIKE] Click detected');
-                            
-                            // Re-query count element to ensure we have the current one
-                            var currentLikeCount = document.getElementById('lightbox-video-like-count');
-                            if (!currentLikeCount) {
-                                console.error('❌ [DESKTOP LIKE] Count element not found in click handler');
-                                return;
-                            }
-                            
-                            // READ CURRENT values from data attributes (not from closure)
-                            var currentVideoId = this.getAttribute('data-video-id');
-                            var currentVideoUrl = this.getAttribute('data-video-url');
-                            var isLiked = this.getAttribute('data-liked') === 'true';
-                            var currentCount = parseInt(currentLikeCount.textContent) || 0;
-                            var icon = this.querySelector('i');
-                            
-                            console.log('📊 [DESKTOP LIKE] Current state:', { 
-                                videoId: currentVideoId, 
-                                videoUrl: currentVideoUrl, 
-                                isLiked, 
-                                count: currentCount 
-                            });
-                
-                if (!isLiked) {
-                    console.log('➕ [DESKTOP LIKE] LIKING video:', currentVideoId);
-                    
-                    // Like the video - save to database
-                    this.classList.add('liked');
-                    this.setAttribute('data-liked', 'true');
-                    if (icon) icon.className = 'ph-fill ph-thumbs-up';
-                    currentLikeCount.textContent = currentCount + 1;
-                    
-                    var payload = {
-                        video_id: currentVideoId,
-                        video_url: currentVideoUrl,
-                        product_id: currentProduct?.id || null,
-                        action: 'like'
-                    };
-                    console.log('📤 [DESKTOP LIKE] POST payload:', payload);
-                    
-                    // Save to database
-                    fetch('/api/video-likes', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                        },
-                        body: JSON.stringify(payload)
-                    })
-                    .then(function(response) { 
-                        console.log('📡 [DESKTOP LIKE] POST response:', response.status);
-                        return response.json(); 
-                    })
-                    .then(function(data) {
-                        console.log('✅ [DESKTOP LIKE] POST data:', data);
-                        if (data.success) {
-                            // Re-query to ensure we have current element
-                            var latestCount = document.getElementById('lightbox-video-like-count');
-                            if (latestCount) {
-                                latestCount.textContent = data.total_likes;
-                                console.log('💾 [DESKTOP LIKE] Updated count to:', data.total_likes);
-                            }
-                        }
-                    })
-                    .catch(function(err) {
-                        console.error('❌ [DESKTOP LIKE] POST failed:', err);
-                        // Revert on error - use 'this' context to refer to the button
-                        var btn = document.getElementById('lightbox-video-like-btn');
-                        var count = document.getElementById('lightbox-video-like-count');
-                        if (btn) {
-                            btn.classList.remove('liked');
-                            btn.setAttribute('data-liked', 'false');
-                            var btnIcon = btn.querySelector('i');
-                            if (btnIcon) btnIcon.className = 'ph ph-thumbs-up';
-                        }
-                        if (count) count.textContent = currentCount;
-                    });
-                } else {
-                    console.log('➖ [DESKTOP LIKE] UNLIKING video:', currentVideoId);
-                    
-                    // Unlike the video - remove from database
-                    this.classList.remove('liked');
-                    this.setAttribute('data-liked', 'false');
-                    if (icon) icon.className = 'ph ph-thumbs-up';
-                    currentLikeCount.textContent = Math.max(0, currentCount - 1);
-                    
-                    console.log('📤 [DESKTOP LIKE] DELETE to:', '/api/video-likes/' + currentVideoId);
-                    
-                    // Remove from database
-                    fetch('/api/video-likes/' + encodeURIComponent(currentVideoId), {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-                        }
-                    })
-                    .then(function(response) { 
-                        console.log('📡 [DESKTOP LIKE] DELETE response:', response.status);
-                        return response.json(); 
-                    })
-                    .then(function(data) {
-                        console.log('✅ [DESKTOP LIKE] DELETE data:', data);
-                        if (data.success) {
-                            // Re-query to ensure we have current element
-                            var latestCount = document.getElementById('lightbox-video-like-count');
-                            if (latestCount) {
-                                latestCount.textContent = data.total_likes;
-                                console.log('💾 [DESKTOP LIKE] Updated count to:', data.total_likes);
-                            }
-                        }
-                    })
-                    .catch(function(err) {
-                        console.error('❌ [DESKTOP LIKE] DELETE failed:', err);
-                        // Revert on error
-                        var btn = document.getElementById('lightbox-video-like-btn');
-                        var count = document.getElementById('lightbox-video-like-count');
-                        if (btn) {
-                            btn.classList.add('liked');
-                            btn.setAttribute('data-liked', 'true');
-                            var btnIcon = btn.querySelector('i');
-                            if (btnIcon) btnIcon.className = 'ph-fill ph-thumbs-up';
-                        }
-                        if (count) count.textContent = currentCount;
-                    });
-                }
-            }; // Close onclick handler
+                        // Attach fresh click handler
+                        attachLikeButtonHandler(newLikeBtn, videoId, videoUrl);
                     })
                     .catch(function(err) {
                         console.error('❌ [DESKTOP LIKE] Fetch error:', err);
@@ -1414,6 +1498,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (errorCount) errorCount.textContent = video.likes || 0;
                         if (errorBtn) errorBtn.setAttribute('data-liked', 'false');
                     });
+                } // Close else block for cache check
             } // Close else block for NEW VIDEO
         } // Close if (likeBtn && likeCount)
         
