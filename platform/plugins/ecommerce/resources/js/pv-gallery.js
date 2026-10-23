@@ -16,7 +16,8 @@
             this.currentIndex = parseInt(container.getAttribute('data-default-index')) || 0;
             this.variationMap = JSON.parse(container.getAttribute('data-variation-map') || '{}');
             this.allImages = [];
-            this.lightGalleryInstance = null;
+            this.imageUrls = [];
+            this.lightboxVideos = [];
             
             this.init();
         }
@@ -72,17 +73,17 @@
             });
             
             // Bind hover and click events for VIDEO thumbnails
-            this.videoThumbs.forEach((videoThumb) => {
+            this.videoThumbs.forEach((videoThumb, vIndex) => {
                 // Hover shows video preview facade
                 videoThumb.addEventListener('mouseenter', () => {
                     this.showVideoPreview(videoThumb);
                 });
                 
-                // Click opens lightbox
+                // Click opens lightbox on videos tab
                 videoThumb.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    this.openLightbox();
+                    this.openLightboxWithVideo(vIndex);
                 });
             });
             
@@ -101,83 +102,69 @@
         }
         
         initLightGallery() {
-            // Build dynamic gallery items for lightGallery
-            const galleryItems = [];
-            
-            // Add all images
+            // Build image URLs array for lightbox
+            this.imageUrls = [];
             this.allImages.forEach(img => {
-                galleryItems.push({
-                    src: img.url,
-                    thumb: img.url
-                });
+                this.imageUrls.push(img.url);
             });
             
-            // Add all videos
+            // Build videos array for lightbox
+            this.lightboxVideos = [];
             this.videoThumbs.forEach((videoThumb) => {
                 const videoUrl = videoThumb.getAttribute('data-video-url');
                 const videoProvider = videoThumb.getAttribute('data-video-provider');
                 const videoThumbnail = videoThumb.getAttribute('data-video-thumbnail');
                 
-                if (videoProvider === 'video') {
-                    galleryItems.push({
-                        src: videoUrl,
-                        thumb: videoThumbnail || '',
-                        poster: videoThumbnail || '',
-                        html: `<video controls style="width:100%;height:100%;object-fit:contain;"><source src="${videoUrl}" type="video/mp4"></video>`
-                    });
-                } else {
-                    galleryItems.push({
-                        src: videoUrl,
-                        thumb: videoThumbnail || '',
-                        poster: videoThumbnail || ''
-                    });
-                }
+                this.lightboxVideos.push({
+                    url: videoUrl,
+                    provider: videoProvider,
+                    thumbnail: videoThumbnail || '',
+                    title: ''
+                });
             });
-            
-            this.galleryItems = galleryItems;
         }
         
         openLightbox() {
-            if (typeof $ === 'undefined' || typeof $.fn.lightGallery === 'undefined') {
-                console.warn('LightGallery not available');
+            if (typeof window.openProductLightbox !== 'function') {
+                console.warn('Product lightbox not available');
                 return;
             }
             
-            // Destroy existing instance if any
-            if (this.lightGalleryInstance) {
-                this.lightGalleryInstance.destroy(true);
-            }
+            // Get product name from page
+            const productName = document.querySelector('.ps-product__info h1, .product-name, h1.product-title')?.textContent || 'Product';
             
-            // Create temporary container for lightGallery
-            const $tempContainer = $('<div style="display:none;"></div>');
-            $('body').append($tempContainer);
-            
-            // Initialize lightGallery with dynamic items
-            this.lightGalleryInstance = $tempContainer.lightGallery({
-                dynamic: true,
-                dynamicEl: this.galleryItems,
-                index: this.currentIndex,
-                download: false,
-                thumbnail: true,
-                animateThumb: true,
-                showThumbByDefault: false
-            });
-            
-            // Open immediately
-            $tempContainer.data('lightGallery').index = this.currentIndex;
-            
-            // Clean up on close
-            $tempContainer.on('onCloseAfter.lg', () => {
-                setTimeout(() => {
-                    $tempContainer.remove();
-                    this.lightGalleryInstance = null;
-                }, 100);
+            // Open custom product lightbox
+            window.openProductLightbox({
+                name: productName,
+                images: this.imageUrls,
+                videos: this.lightboxVideos,
+                currentIndex: this.currentIndex,
+                openTab: 'images'
             });
         }
         
         openLightboxAtIndex(index) {
             this.currentIndex = index;
             this.openLightbox();
+        }
+        
+        openLightboxWithVideo(videoIndex) {
+            if (typeof window.openProductLightbox !== 'function') {
+                console.warn('Product lightbox not available');
+                return;
+            }
+            
+            // Get product name from page
+            const productName = document.querySelector('.ps-product__info h1, .product-name, h1.product-title')?.textContent || 'Product';
+            
+            // Open custom product lightbox on videos tab
+            window.openProductLightbox({
+                name: productName,
+                images: this.imageUrls,
+                videos: this.lightboxVideos,
+                currentVideoIndex: videoIndex,
+                openTab: 'videos'
+            });
         }
         
         jumpToImage(index) {
@@ -248,14 +235,13 @@
             this.mainImage.style.display = 'none';
             videoFacade.style.display = 'block';
             
-            // Click facade to open lightbox instead of loading video inline
+            // Click facade to open lightbox with videos tab
             videoFacade.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 // Find video index and open lightbox
                 const videoIndex = Array.from(this.videoThumbs).indexOf(videoThumb);
-                this.currentIndex = this.allImages.length + videoIndex;
-                this.openLightbox();
+                this.openLightboxWithVideo(videoIndex);
             };
             
             // Set active state on video thumbnail
