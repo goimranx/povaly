@@ -96,22 +96,14 @@
     border-radius: 10px;
 }
 
-.pv-thumb-divider {
-    width: 100%;
-    height: 2px;
-    background-color: var(--global-color-primary-border, #ddd);
-    margin: 5px 0;
-    flex-shrink: 0;
+/* Hide thumbnails with .pv-thumb-hidden class */
+.pv-thumb.pv-thumb-hidden {
+    display: none !important;
 }
 
-/* Hide thumbnails after 4th image */
-.pv-thumb:not(.pv-thumb-video):nth-child(n+5):not(:has(.pv-thumb-overlay)) {
-    display: none;
-}
-
-/* Hide video thumbnails after 2nd (accounting for divider) */
-.pv-thumb-video:nth-of-type(n+3):not(:has(.pv-thumb-overlay)) {
-    display: none;
+/* Show the 4th image thumbnail (index 3) even if hidden, for counter display */
+.pv-thumb.pv-thumb-hidden:has(.pv-thumb-overlay) {
+    display: flex !important;
 }
 
 @media (max-width: 768px) {

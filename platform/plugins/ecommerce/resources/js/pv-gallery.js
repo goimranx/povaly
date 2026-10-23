@@ -1,8 +1,9 @@
 /**
  * PV Custom Gallery System
- * Handles product gallery with variation image support
- * Shows first 4 images visible (with +N counter on 4th if more exist)
- * Shows first 2 videos visible (with +N counter on 2nd if more exist)
+ * Same logic as quick-shop offcanvas gallery
+ * - Hover to preview
+ * - Click to select/activate
+ * - Variation change jumps to first variation image
  */
 (function() {
     'use strict';
@@ -11,70 +12,70 @@
         constructor(container) {
             this.container = container;
             this.mainImage = container.querySelector('#pv-main-image');
-            this.thumbnails = container.querySelectorAll('.pv-thumb');
-            this.currentIndex = 0;
+            this.thumbnails = container.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
+            this.currentIndex = parseInt(container.getAttribute('data-default-index')) || 0;
+            this.variationMap = JSON.parse(container.getAttribute('data-variation-map') || '{}');
             this.allImages = [];
-            this.variationMap = {}; // Maps variation ID to first image index
             
             this.init();
         }
         
         init() {
             console.log('✅ PV Gallery initialized');
-            console.log('📸 Total thumbnails:', this.thumbnails.length);
+            console.log('📸 Total image thumbnails:', this.thumbnails.length);
+            console.log('🗺️ Variation map:', this.variationMap);
             
             // Collect all images data
             this.thumbnails.forEach((thumb, index) => {
-                if (thumb.classList.contains('pv-thumb-video')) {
-                    return; // Skip videos for image data
-                }
-                
                 const imageUrl = thumb.getAttribute('data-image');
                 const variationId = thumb.getAttribute('data-variation-id');
+                const dataIndex = parseInt(thumb.getAttribute('data-index'));
                 
                 this.allImages.push({
-                    index,
+                    index: dataIndex,
                     url: imageUrl,
                     variationId,
-                    thumb
+                    thumb,
+                    domIndex: index
+                });
+            });
+            
+            // Set initial active state
+            this.setActive(this.currentIndex);
+            
+            // Bind hover events for preview
+            this.thumbnails.forEach((thumb) => {
+                thumb.addEventListener('mouseenter', () => {
+                    const index = parseInt(thumb.getAttribute('data-index'));
+                    this.previewImage(index);
                 });
                 
-                // Map variation ID to first occurrence
-                if (variationId && !this.variationMap[variationId]) {
-                    this.variationMap[variationId] = index;
-                }
+                // On click, make it the active/current image
+                thumb.addEventListener('click', () => {
+                    const index = parseInt(thumb.getAttribute('data-index'));
+                    this.jumpToImage(index);
+                });
             });
             
-            console.log('🗺️ Variation map:', this.variationMap);
-            
-            // Bind click events to ALL thumbnails (including hidden ones)
-            this.thumbnails.forEach((thumb, index) => {
-                thumb.addEventListener('click', () => this.handleThumbClick(index));
-            });
-            
-            // Listen for variation changes
+            // Listen for variation changes (same event as quick-shop)
             document.addEventListener('ecommerce.change-variation', (e) => {
                 console.log('🔄 Variation change event:', e.detail);
                 this.handleVariationChange(e.detail);
             });
+            
+            console.log('✅ PV Gallery ready with', this.allImages.length, 'images');
         }
         
-        handleThumbClick(index) {
-            const thumb = this.thumbnails[index];
+        previewImage(index) {
+            // Show image on hover (temporary preview)
+            const imageData = this.allImages.find(img => img.index === index);
+            if (!imageData || !this.mainImage) return;
             
-            if (!thumb) return;
-            
-            // Handle video thumbnails differently
-            if (thumb.classList.contains('pv-thumb-video')) {
-                console.log('🎥 Video thumbnail clicked');
-                // Future: handle video modal/lightbox
-                return;
-            }
-            
-            this.jumpToImage(index);
+            this.mainImage.src = imageData.url;
         }
         
         jumpToImage(index) {
+            // Permanently switch to this image (on click or variation change)
             const imageData = this.allImages.find(img => img.index === index);
             
             if (!imageData || !this.mainImage) {
@@ -86,17 +87,27 @@
             this.mainImage.src = imageData.url;
             this.mainImage.srcset = '';
             
-            // Update active state - remove from all, add to clicked
-            this.thumbnails.forEach(t => t.classList.remove('pv-active'));
-            imageData.thumb.classList.add('pv-active');
+            // Update active state
+            this.setActive(index);
             
             this.currentIndex = index;
             
             console.log('🖼️ Jumped to image index:', index);
         }
         
+        setActive(index) {
+            // Remove active from all
+            this.thumbnails.forEach(t => t.classList.remove('pv-active'));
+            
+            // Add active to target
+            const imageData = this.allImages.find(img => img.index === index);
+            if (imageData && imageData.thumb) {
+                imageData.thumb.classList.add('pv-active');
+            }
+        }
+        
         handleVariationChange(data) {
-            // Try different property names that might contain the variation ID
+            // Extract variation ID from event (multiple possible property names)
             const variationId = data.variationId 
                               || data.variation_id 
                               || data.id 
@@ -104,22 +115,20 @@
                               || data.product_id;
             
             if (!variationId) {
-                console.warn('⚠️ No variation ID in event data:', data);
+                console.warn('⚠️ No variation ID in event:', data);
                 return;
             }
             
-            console.log('🔍 Looking for variation ID:', variationId);
+            console.log('🔍 Looking for variation:', variationId);
             
-            // Find first image for this variation
+            // Use variation map to find first image for this variation
             const targetIndex = this.variationMap[variationId];
             
             if (targetIndex !== undefined) {
                 console.log('✅ Found variation image at index:', targetIndex);
                 this.jumpToImage(targetIndex);
             } else {
-                console.log('⚠️ No specific image found for variation:', variationId);
-                // Optionally jump to first image as fallback
-                // this.jumpToImage(0);
+                console.log('⚠️ No specific image for variation:', variationId, '- keeping current image');
             }
         }
     }
@@ -132,7 +141,7 @@
             new PVGallery(gallery);
         });
         
-        console.log('📦 PV Gallery System loaded, initialized', galleries.length, 'galleries');
+        console.log('📦 PV Gallery System loaded:', galleries.length, 'galleries');
     }
     
     if (document.readyState === 'loading') {
