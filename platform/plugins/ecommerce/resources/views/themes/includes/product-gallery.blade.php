@@ -31,10 +31,6 @@
     border-radius: 10px !important;
     pointer-events: none !important;
 }
-/* Hide slick arrows */
-.bb-product-gallery-thumbnails .slick-arrow {
-    display: none !important;
-}
 </style>
 
 <div class="bb-product-gallery-wrapper">

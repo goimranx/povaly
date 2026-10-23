@@ -1165,18 +1165,16 @@ class Ecommerce {
                             asNavFor: '.bb-product-gallery-images',
                             focusOnSelect: true,
                             infinite: false,
+                            arrows: false,
                             rtl: this.isRtl() && ! isVertical,
                             vertical: isVertical,
                             verticalSwiping: isVertical,
-                            prevArrow:
-                                '<button class="slick-prev slick-arrow" aria-label="Previous"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" /></svg></button>',
-                            nextArrow:
-                                '<button class="slick-next slick-arrow" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg></button>',
                             responsive: [
                                 {
                                     breakpoint: 768,
                                     settings: {
                                         slidesToShow: 4,
+                                        arrows: false,
                                     },
                                 },
                             ],
