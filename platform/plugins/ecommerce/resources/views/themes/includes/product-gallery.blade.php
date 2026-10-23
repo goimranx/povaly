@@ -125,47 +125,41 @@
     $allImagesList = $allImages->map(fn($i) => ['src' => basename($i['src']), 'type' => $i['type']])->toArray();
     $allImagesJson = json_encode($allImagesList);
 
-    // ── Determine the default jump index (same logic as quick-shop) ────────────────────────────
+    // ── Determine selected variation and reorder images if needed ────────────────────────────
     $defaultJumpIndex = 0;
     $displayProduct = $product;
+    $selectedVariationId = null;
 
-    // Check if we have a selected variation to jump to
+    // Check if we have a selected variation
     if ($product->has_variation && isset($productVariation) && $productVariation) {
         $displayProduct = $productVariation;
+        $selectedVariationId = $productVariation->id;
         
-        // $productVariation is the actual Product model (variation product), not ProductVariation model
-        // So we use $productVariation->id to find it in the variationImageMap
-        $variationProductId = $productVariation->id;
+        // REORDER: Move selected variation's images to the TOP
+        $variationImages = $allImages->filter(fn($i) => $i['variationId'] === $selectedVariationId)->values();
+        $otherImages = $allImages->filter(fn($i) => $i['variationId'] !== $selectedVariationId)->values();
         
-        // Strategy 1: use variationImageMap by product_id
-        if (isset($variationImageMap[$variationProductId])) {
-            $defaultJumpIndex = $variationImageMap[$variationProductId];
-            $debugInfo['jump_strategy'] = '1-variationImageMap';
-            $debugInfo['jump_to'] = $defaultJumpIndex;
-        }
-        // Strategy 2: match by image src regardless of type
-        elseif (!empty($productVariation->image)) {
-            $found = $allImages->search(fn($i) => $i['src'] === $productVariation->image);
-            if ($found !== false) {
-                $defaultJumpIndex = $found;
-                $debugInfo['jump_strategy'] = '2-image-match';
-                $debugInfo['jump_to'] = $defaultJumpIndex;
-            }
-        }
-        // Strategy 3: use $productImages (controller-provided variation images)
-        elseif (!empty($productImages)) {
-            foreach ($productImages as $img) {
-                $found = $allImages->search(fn($i) => $i['src'] === $img);
-                if ($found !== false) { 
-                    $defaultJumpIndex = $found; 
-                    $debugInfo['jump_strategy'] = '3-productImages';
-                    $debugInfo['jump_to'] = $defaultJumpIndex;
-                    break; 
+        if ($variationImages->isNotEmpty()) {
+            // Rebuild collection: variation images FIRST, then everything else
+            $allImages = $variationImages->concat($otherImages);
+            
+            // Rebuild variationImageMap with new indices
+            $variationImageMap = [];
+            foreach ($allImages as $idx => $imgData) {
+                if ($imgData['variationId'] && !isset($variationImageMap[$imgData['variationId']])) {
+                    $variationImageMap[$imgData['variationId']] = $idx;
                 }
             }
+            
+            // Default jump is now index 0 (first variation image)
+            $defaultJumpIndex = 0;
+            $debugInfo['reordered'] = 'YES';
+            $debugInfo['variation_images_count'] = $variationImages->count();
+        } else {
+            $debugInfo['reordered'] = 'NO - no variation images found';
         }
     } else {
-        $debugInfo['jump_strategy'] = 'none-no-variation';
+        $debugInfo['reordered'] = 'NO - no variation selected';
     }
     
     // ── Get videos (product level, not variation-specific) ──────────────────────────────────
