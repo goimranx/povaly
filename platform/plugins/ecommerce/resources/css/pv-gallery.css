@@ -92,17 +92,28 @@
     font-size: 16px;
     font-weight: 700;
     z-index: 10;
-    pointer-events: none;
+    pointer-events: all; /* Allow clicks on overlay */
     border-radius: 10px;
+    cursor: pointer;
 }
 
-/* Hide thumbnails with .pv-thumb-hidden class */
-.pv-thumb.pv-thumb-hidden:not(.pv-thumb-video) {
+/* Hide image thumbnails after 3rd (indices 3+) */
+.pv-thumb:not(.pv-thumb-video):nth-child(n+4) {
     display: none !important;
 }
 
-/* Show items with counter overlay even if hidden */
-.pv-thumb.pv-thumb-hidden:has(.pv-thumb-overlay) {
+/* Show 4th image thumbnail (index 3) if it has counter */
+.pv-thumb:not(.pv-thumb-video):nth-child(4):has(.pv-thumb-overlay) {
+    display: flex !important;
+}
+
+/* Hide video thumbnails after 2nd */
+.pv-thumb-video:nth-child(n+3) {
+    display: none !important;
+}
+
+/* Show 3rd video if it has counter */
+.pv-thumb-video:nth-child(3):has(.pv-thumb-overlay) {
     display: flex !important;
 }
 

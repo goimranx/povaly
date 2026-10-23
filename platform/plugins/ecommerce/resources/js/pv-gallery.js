@@ -42,21 +42,23 @@
             // Set initial active state
             this.setActive(this.currentIndex);
             
-            // Bind hover events - hover activates immediately
+            // Bind hover and click events
             this.thumbnails.forEach((thumb) => {
+                // Hover activates immediately
                 thumb.addEventListener('mouseenter', () => {
                     const index = parseInt(thumb.getAttribute('data-index'));
                     this.jumpToImage(index);
                 });
                 
-                // Click on overlay opens lightbox
-                const overlay = thumb.querySelector('.pv-thumb-overlay');
-                if (overlay) {
-                    thumb.addEventListener('click', (e) => {
+                // Click on thumbnail with overlay opens lightbox
+                thumb.addEventListener('click', (e) => {
+                    const overlay = thumb.querySelector('.pv-thumb-overlay');
+                    if (overlay) {
                         e.preventDefault();
+                        e.stopPropagation();
                         this.openLightbox();
-                    });
-                }
+                    }
+                });
             });
             
             // Listen for variation changes

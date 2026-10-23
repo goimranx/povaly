@@ -123,8 +123,8 @@
                     <img src="{{ RvMedia::getImageUrl($imgData['src'], 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
                     
                     {{-- Show counter on 4th item (index 3) if more exist --}}
-                    @if ($index === 3 && $totalImages > 4)
-                        <span class="pv-thumb-overlay">+{{ $totalImages - 4 }}</span>
+                    @if ($index === 3 && $totalImages > 3)
+                        <span class="pv-thumb-overlay">+{{ $totalImages - 3 }}</span>
                     @endif
                 </div>
             @endforeach
