@@ -42,7 +42,7 @@
             // Set initial active state
             this.setActive(this.currentIndex);
             
-            // Bind hover and click events
+            // Bind hover and click events for IMAGE thumbnails
             this.thumbnails.forEach((thumb) => {
                 // Hover activates immediately
                 thumb.addEventListener('mouseenter', () => {
@@ -56,7 +56,29 @@
                     if (overlay) {
                         e.preventDefault();
                         e.stopPropagation();
-                        this.openLightbox();
+                        // Click the counter opens lightbox at that index
+                        this.openLightboxAtIndex(parseInt(thumb.getAttribute('data-index')));
+                    }
+                });
+            });
+            
+            // Bind hover and click events for VIDEO thumbnails
+            this.videoThumbs.forEach((videoThumb) => {
+                // Hover shows video preview in main area
+                videoThumb.addEventListener('mouseenter', () => {
+                    this.showVideoPreview(videoThumb);
+                });
+                
+                // Click on video thumbnail with overlay opens lightbox
+                videoThumb.addEventListener('click', (e) => {
+                    const overlay = videoThumb.querySelector('.pv-thumb-overlay');
+                    if (overlay) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // For videos, open the lightbox (videos are after all images)
+                        const videoIndex = parseInt(videoThumb.getAttribute('data-index').replace('video-', ''));
+                        const imageCount = this.allImages.length;
+                        this.openLightboxAtIndex(imageCount + videoIndex);
                     }
                 });
             });
@@ -95,6 +117,82 @@
             if (this.mainImage) {
                 this.mainImage.click();
             }
+        }
+        
+        openLightboxAtIndex(index) {
+            // Find the image/video at this index and click it to open lightbox
+            const imageThumb = this.allImages.find(img => img.index === index);
+            if (imageThumb && imageThumb.thumb) {
+                // Click the thumbnail's img to trigger lightbox
+                const img = imageThumb.thumb.querySelector('img');
+                if (img) {
+                    img.click();
+                    return;
+                }
+            }
+            
+            // Fallback: just open lightbox at current position
+            this.openLightbox();
+        }
+        
+        showVideoPreview(videoThumb) {
+            const videoUrl = videoThumb.getAttribute('data-video-url');
+            const videoProvider = videoThumb.getAttribute('data-video-provider');
+            
+            if (!videoUrl || !this.mainImage) return;
+            
+            const mainContainer = this.mainImage.parentElement;
+            if (!mainContainer) return;
+            
+            // Create or get video preview container
+            let videoPreview = mainContainer.querySelector('.pv-video-preview');
+            if (!videoPreview) {
+                videoPreview = document.createElement('div');
+                videoPreview.className = 'pv-video-preview';
+                videoPreview.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;background:#000;display:none;border-radius:10px;overflow:hidden;';
+                mainContainer.appendChild(videoPreview);
+            }
+            
+            // Clear previous content
+            videoPreview.innerHTML = '';
+            
+            // Create appropriate video element based on provider
+            if (videoProvider === 'video') {
+                // Direct video file
+                const video = document.createElement('video');
+                video.controls = true;
+                video.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+                video.src = videoUrl;
+                videoPreview.appendChild(video);
+            } else if (videoProvider === 'youtube' || videoProvider === 'vimeo') {
+                // Embedded iframe
+                const iframe = document.createElement('iframe');
+                iframe.style.cssText = 'width:100%;height:100%;border:0;';
+                iframe.src = videoUrl;
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                iframe.allowFullscreen = true;
+                videoPreview.appendChild(iframe);
+            }
+            
+            // Hide main image, show video preview
+            this.mainImage.style.display = 'none';
+            videoPreview.style.display = 'block';
+            
+            // Set active state on video thumbnail
+            this.videoThumbs.forEach(v => v.classList.remove('pv-active'));
+            videoThumb.classList.add('pv-active');
+            
+            // Hide video preview when hovering back to image thumbnails
+            const resetVideo = () => {
+                if (videoPreview) videoPreview.style.display = 'none';
+                if (this.mainImage) this.mainImage.style.display = 'block';
+                this.videoThumbs.forEach(v => v.classList.remove('pv-active'));
+            };
+            
+            this.thumbnails.forEach(thumb => {
+                thumb.removeEventListener('mouseenter', resetVideo);
+                thumb.addEventListener('mouseenter', resetVideo, { once: false });
+            });
         }
         
         handleVariationChange(data) {
