@@ -52,26 +52,18 @@ class SystemUpdateController extends Controller
             $composerOutput = $this->executeCommand('composer install --no-dev --optimize-autoloader --no-interaction', $returnCode);
             $output = array_merge($output, $composerOutput);
 
-            // Step 4: Install/Update NPM dependencies
-            $output[] = "\n=== Updating NPM Dependencies ===";
-            $npmOutput = $this->executeCommand('npm install', $returnCode);
-            $output = array_merge($output, $npmOutput);
-
-            // Step 5: Compile assets
-            $output[] = "\n=== Compiling Assets ===";
-            $buildOutput = $this->executeCommand('npm run prod', $returnCode);
-            $output = array_merge($output, $buildOutput);
-
-            // Step 5b: Publish ALL plugin assets to vendor directory
+            // Step 4: Publish ALL plugin assets to vendor directory
+            // Note: Assets are pre-compiled locally and committed to git
+            // Server just copies from platform/*/public/ to public/vendor/
             $output[] = "\n=== Publishing Plugin Assets to Vendor ===";
             $this->publishPluginAssets($output);
 
-            // Step 6: Clear all caches
+            // Step 5: Clear all caches
             $output[] = "\n=== Clearing All Caches ===";
             $this->clearAllCaches();
             $output[] = "✓ All caches cleared";
 
-            // Step 7: Run database migrations (skip errors if tables already exist)
+            // Step 6: Run database migrations (skip errors if tables already exist)
             $output[] = "\n=== Running Database Migrations ===";
             try {
                 Artisan::call('migrate', ['--force' => true]);
@@ -90,12 +82,12 @@ class SystemUpdateController extends Controller
                 }
             }
 
-            // Step 8: Publish assets
+            // Step 7: Publish assets
             $output[] = "\n=== Publishing Vendor Assets ===";
             Artisan::call('vendor:publish', ['--tag' => 'public', '--force' => true]);
             $output[] = "✓ Vendor assets published";
 
-            // Step 8b: Publish theme assets (copies platform/themes/*/public/ → public/themes/)
+            // Step 7b: Publish theme assets (copies platform/themes/*/public/ → public/themes/)
             // Note: our custom CSS is already tracked in git so the pull handles it.
             // This step copies everything else (images, fonts, js) from the theme public folder.
             $output[] = "\n=== Publishing Theme Assets ===";
@@ -120,12 +112,12 @@ class SystemUpdateController extends Controller
                 }
             }
 
-            // Step 9: Optimize application
+            // Step 8: Optimize application
             $output[] = "\n=== Optimizing Application ===";
             $this->optimizeApplication();
             $output[] = "✓ Application optimized";
 
-            // Step 10: Take the site out of maintenance mode
+            // Step 9: Take the site out of maintenance mode
             $output[] = "\n=== Disabling Maintenance Mode ===";
             Artisan::call('up');
             $output[] = "✓ Maintenance mode disabled";
