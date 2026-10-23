@@ -147,8 +147,8 @@
                     </svg>
                     
                     {{-- Show counter on 3rd video (index 2) if more exist --}}
-                    @if ($vIndex === 2 && $totalVideos > 3)
-                        <span class="pv-thumb-overlay">+{{ $totalVideos - 3 }}</span>
+                    @if ($vIndex === 2 && $totalVideos > 2)
+                        <span class="pv-thumb-overlay">+{{ $totalVideos - 2 }}</span>
                     @endif
                 </div>
             @endforeach
