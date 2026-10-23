@@ -62,6 +62,10 @@ class SystemUpdateController extends Controller
             $buildOutput = $this->executeCommand('npm run prod', $returnCode);
             $output = array_merge($output, $buildOutput);
 
+            // Step 5b: Copy PV Gallery files to vendor directory
+            $output[] = "\n=== Publishing PV Gallery Assets ===";
+            $this->publishPVGalleryAssets($output);
+
             // Step 6: Clear all caches
             $output[] = "\n=== Clearing All Caches ===";
             $this->clearAllCaches();
@@ -292,6 +296,57 @@ class SystemUpdateController extends Controller
         $output = array_filter(explode("\n", $result->output()));
         
         return $output;
+    }
+
+    /**
+     * Publish PV Gallery assets from platform to public/vendor
+     */
+    private function publishPVGalleryAssets(array &$output)
+    {
+        $files = [
+            [
+                'source' => base_path('platform/plugins/ecommerce/public/css/pv-gallery.css'),
+                'dest' => public_path('vendor/core/plugins/ecommerce/css/pv-gallery.css'),
+            ],
+            [
+                'source' => base_path('platform/plugins/ecommerce/public/js/pv-gallery.js'),
+                'dest' => public_path('vendor/core/plugins/ecommerce/js/pv-gallery.js'),
+            ],
+        ];
+
+        $success = 0;
+        $failed = 0;
+
+        foreach ($files as $file) {
+            $source = $file['source'];
+            $dest = $file['dest'];
+            
+            if (!File::exists($source)) {
+                $output[] = "⚠ PV Gallery source not found: " . basename($source);
+                $failed++;
+                continue;
+            }
+            
+            // Create destination directory if needed
+            File::ensureDirectoryExists(dirname($dest));
+            
+            // Copy file
+            if (File::copy($source, $dest)) {
+                $output[] = "✓ Published " . basename($source) . " (" . File::size($dest) . " bytes)";
+                $success++;
+            } else {
+                $output[] = "✗ Failed to publish " . basename($source);
+                $failed++;
+            }
+        }
+
+        if ($success > 0) {
+            $output[] = "✓ PV Gallery assets published: {$success} files";
+        }
+        
+        if ($failed > 0) {
+            $output[] = "⚠ Failed to publish {$failed} PV Gallery files";
+        }
     }
 
     /**
