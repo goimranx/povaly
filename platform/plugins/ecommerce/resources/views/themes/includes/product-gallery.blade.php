@@ -212,7 +212,7 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
                 
                 {{-- Compare button --}}
                 @if (EcommerceHelper::isCompareEnabled())
-                    <button type="button" class="pv-action-btn js-add-to-compare-button {{ EcommerceHelper::isProductInCompare($product->id) ? 'active' : '' }}" 
+                    <button type="button" class="pv-action-btn {{ EcommerceHelper::isProductInCompare($product->id) ? 'js-remove-from-compare-button active' : 'js-add-to-compare-button' }}" 
                             data-url="{{ route('public.compare.add', $product->id) }}"
                             data-remove-url="{{ route('public.compare.remove', $product->id) }}"
                             data-product-id="{{ $product->id }}"
@@ -223,11 +223,14 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
                 
                 {{-- Wishlist button --}}
                 @if (EcommerceHelper::isWishlistEnabled())
-                    <button type="button" class="pv-action-btn js-add-to-wishlist-button" 
-                            data-url="{{ route('public.wishlist.add', $product->id) }}"
+                    @php
+                        $inWishlist = EcommerceHelper::isProductInWishlist($product->id);
+                    @endphp
+                    <button type="button" class="pv-action-btn {{ $inWishlist ? 'js-remove-from-wishlist-button active' : 'js-add-to-wishlist-button' }}" 
+                            data-url="{{ $inWishlist ? route('public.wishlist.remove', $product->id) : route('public.wishlist.add', $product->id) }}"
                             data-product-id="{{ $product->id }}"
-                            title="{{ __('Add to Wishlist') }}">
-                        <i class="ph ph-heart"></i>
+                            title="{{ $inWishlist ? __('Remove from Wishlist') : __('Add to Wishlist') }}">
+                        <i class="ph {{ $inWishlist ? 'ph-fill' : '' }} ph-heart"></i>
                     </button>
                 @endif
             </div>

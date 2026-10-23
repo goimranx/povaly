@@ -310,6 +310,17 @@
                     $('.btn-wishlist span i').text(res.data.count)
 
                     _self.removeClass('button-loading').removeClass('js-add-to-wishlist-button').addClass('js-remove-from-wishlist-button active')
+                    
+                    // Update icon to filled
+                    let icon = _self.find('i')
+                    if (icon.length) {
+                        if (icon.hasClass('icon-heart')) {
+                            // Theme icon - keep as is
+                        } else if (icon.hasClass('ph')) {
+                            // Phosphor icon - change to filled
+                            icon.removeClass('ph').addClass('ph-fill')
+                        }
+                    }
                 },
                 error: res => {
                     _self.removeClass('button-loading')
@@ -341,6 +352,17 @@
 
                     _self.closest('tr').remove()
                     _self.removeClass('button-loading').removeClass('js-remove-from-wishlist-button active').addClass('js-add-to-wishlist-button')
+                    
+                    // Update icon to outline
+                    let icon = _self.find('i')
+                    if (icon.length) {
+                        if (icon.hasClass('icon-heart')) {
+                            // Theme icon - keep as is
+                        } else if (icon.hasClass('ph-fill')) {
+                            // Phosphor icon - change to outline
+                            icon.removeClass('ph-fill').addClass('ph')
+                        }
+                    }
                 },
                 error: res => {
                     _self.removeClass('button-loading')
@@ -371,6 +393,17 @@
                     $('.btn-compare span i').text(res.data.count)
 
                     _self.removeClass('button-loading').removeClass('js-add-to-compare-button').addClass('js-remove-from-compare-button active')
+                    
+                    // Update icon to filled
+                    let icon = _self.find('i')
+                    if (icon.length) {
+                        if (icon.hasClass('icon-chart-bars')) {
+                            // Theme icon - keep as is
+                        } else if (icon.hasClass('ph')) {
+                            // Phosphor icon - change to filled
+                            icon.removeClass('ph').addClass('ph-fill')
+                        }
+                    }
                 },
                 error: res => {
                     _self.removeClass('button-loading')
@@ -403,6 +436,17 @@
                     $('.btn-compare span i').text(res.data.count)
 
                     $('.ps-table--compare').load(window.location.href + ' .ps-table--compare > *')
+                    
+                    // Update icon to outline
+                    let icon = _self.find('i')
+                    if (icon.length) {
+                        if (icon.hasClass('icon-chart-bars')) {
+                            // Theme icon - keep as is
+                        } else if (icon.hasClass('ph-fill')) {
+                            // Phosphor icon - change to outline
+                            icon.removeClass('ph-fill').addClass('ph')
+                        }
+                    }
                 },
                 error: res => {
                     _self.removeClass('button-loading')
