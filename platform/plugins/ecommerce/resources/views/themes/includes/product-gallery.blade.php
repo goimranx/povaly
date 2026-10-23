@@ -129,24 +129,43 @@
     $defaultJumpIndex = 0;
     $displayProduct = $product;
 
-    if ($product->has_variation && isset($productVariation) && $productVariation && $productVariation->id !== $product->id) {
+    // Check if we have a selected variation to jump to
+    if ($product->has_variation && isset($productVariation) && $productVariation) {
         $displayProduct = $productVariation;
+        
+        // $productVariation is the actual Product model (variation product), not ProductVariation model
+        // So we use $productVariation->id to find it in the variationImageMap
+        $variationProductId = $productVariation->id;
+        
         // Strategy 1: use variationImageMap by product_id
-        if (isset($variationImageMap[$productVariation->id])) {
-            $defaultJumpIndex = $variationImageMap[$productVariation->id];
+        if (isset($variationImageMap[$variationProductId])) {
+            $defaultJumpIndex = $variationImageMap[$variationProductId];
+            $debugInfo['jump_strategy'] = '1-variationImageMap';
+            $debugInfo['jump_to'] = $defaultJumpIndex;
         }
         // Strategy 2: match by image src regardless of type
         elseif (!empty($productVariation->image)) {
             $found = $allImages->search(fn($i) => $i['src'] === $productVariation->image);
-            if ($found !== false) $defaultJumpIndex = $found;
+            if ($found !== false) {
+                $defaultJumpIndex = $found;
+                $debugInfo['jump_strategy'] = '2-image-match';
+                $debugInfo['jump_to'] = $defaultJumpIndex;
+            }
         }
         // Strategy 3: use $productImages (controller-provided variation images)
         elseif (!empty($productImages)) {
             foreach ($productImages as $img) {
                 $found = $allImages->search(fn($i) => $i['src'] === $img);
-                if ($found !== false) { $defaultJumpIndex = $found; break; }
+                if ($found !== false) { 
+                    $defaultJumpIndex = $found; 
+                    $debugInfo['jump_strategy'] = '3-productImages';
+                    $debugInfo['jump_to'] = $defaultJumpIndex;
+                    break; 
+                }
             }
         }
+    } else {
+        $debugInfo['jump_strategy'] = 'none-no-variation';
     }
     
     // ── Get videos (product level, not variation-specific) ──────────────────────────────────
