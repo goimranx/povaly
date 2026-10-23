@@ -110,6 +110,7 @@
                         @if (EcommerceHelper::isWishlistEnabled())
                             <button type="button" class="ec-card__float-btn js-add-to-wishlist-button"
                                     data-url="{{ route('public.wishlist.add', $product->id) }}"
+                                    data-product-id="{{ $product->id }}"
                                     title="{{ __('Add to Wishlist') }}">
                                 <i class="icon-heart"></i>
                             </button>
@@ -117,6 +118,7 @@
                         @if (EcommerceHelper::isCompareEnabled())
                             <button type="button" class="ec-card__float-btn js-add-to-compare-button"
                                     data-url="{{ route('public.compare.add', $product->id) }}"
+                                    data-product-id="{{ $product->id }}"
                                     title="{{ __('Compare') }}">
                                 <i class="icon-chart-bars"></i>
                             </button>

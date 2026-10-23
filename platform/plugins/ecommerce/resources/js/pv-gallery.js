@@ -353,48 +353,66 @@
         // DO NOT override the global handlers - let main.js handle all compare/wishlist buttons
         // The global handlers in main.js already work for ALL buttons including .pv-action-btn
         
-        // Only handle icon toggling for PV gallery buttons specifically on success events
-        $(document).on('added-to-compare removed-from-compare', function(e, productId) {
+        // Only handle additional UI updates for PV gallery buttons on success events
+        $(document).on('added-to-compare', function(e, productId) {
+            // Find PV gallery button by product-id
             const btn = document.querySelector(`.pv-action-btn[data-product-id="${productId}"]`);
-            if (btn) {
-                const icon = btn.querySelector('i');
-                if (icon && icon.classList.contains('ph-chart-bar')) {
-                    if (e.type === 'added-to-compare') {
-                        icon.className = 'ph-fill ph-chart-bar';
-                        btn.classList.add('active');
-                        btn.classList.remove('js-add-to-compare-button');
-                        btn.classList.add('js-remove-from-compare-button');
-                    } else {
-                        icon.className = 'ph ph-chart-bar';
-                        btn.classList.remove('active');
-                        btn.classList.remove('js-remove-from-compare-button');
-                        btn.classList.add('js-add-to-compare-button');
-                    }
-                }
+            if (!btn) return;
+            
+            const icon = btn.querySelector('i');
+            if (!icon) return;
+            
+            // Handle Phosphor icons (PV gallery uses these)
+            if (icon.classList.contains('ph-chart-bar')) {
+                icon.className = 'ph-fill ph-chart-bar';
             }
+            // Theme icons are handled by main.js, no need to change them here
+        });
+        
+        $(document).on('removed-from-compare', function(e, productId) {
+            // Find PV gallery button by product-id
+            const btn = document.querySelector(`.pv-action-btn[data-product-id="${productId}"]`);
+            if (!btn) return;
+            
+            const icon = btn.querySelector('i');
+            if (!icon) return;
+            
+            // Handle Phosphor icons (PV gallery uses these)
+            if (icon.classList.contains('ph-chart-bar') || icon.classList.contains('ph-fill')) {
+                icon.className = 'ph ph-chart-bar';
+            }
+            // Theme icons are handled by main.js, no need to change them here
         });
         
         // Listen for wishlist events
         $(document).on('added-to-wishlist', function(e, productId) {
+            // Find PV gallery button by product-id
             const btn = document.querySelector(`.pv-action-btn[data-product-id="${productId}"]`);
-            if (btn) {
-                const icon = btn.querySelector('i');
-                if (icon && icon.classList.contains('ph-heart')) {
-                    icon.className = 'ph-fill ph-heart';
-                    btn.classList.add('active');
-                }
+            if (!btn) return;
+            
+            const icon = btn.querySelector('i');
+            if (!icon) return;
+            
+            // Handle Phosphor icons (PV gallery uses these)
+            if (icon.classList.contains('ph-heart')) {
+                icon.className = 'ph-fill ph-heart';
             }
+            // Theme icons are handled by main.js, no need to change them here
         });
         
         $(document).on('removed-from-wishlist', function(e, productId) {
+            // Find PV gallery button by product-id
             const btn = document.querySelector(`.pv-action-btn[data-product-id="${productId}"]`);
-            if (btn) {
-                const icon = btn.querySelector('i');
-                if (icon && icon.classList.contains('ph-heart')) {
-                    icon.className = 'ph ph-heart';
-                    btn.classList.remove('active');
-                }
+            if (!btn) return;
+            
+            const icon = btn.querySelector('i');
+            if (!icon) return;
+            
+            // Handle Phosphor icons (PV gallery uses these)
+            if (icon.classList.contains('ph-heart') || icon.classList.contains('ph-fill')) {
+                icon.className = 'ph ph-heart';
             }
+            // Theme icons are handled by main.js, no need to change them here
         });
     }
     
