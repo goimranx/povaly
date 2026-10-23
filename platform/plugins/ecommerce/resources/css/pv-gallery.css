@@ -107,13 +107,13 @@
     display: flex !important;
 }
 
-/* Hide video thumbnails after 2nd */
-.pv-thumb-video:nth-child(n+3) {
+/* Hide video thumbnails: Keep first 2 visible, hide from 3rd onward */
+.pv-gallery-thumbnails .pv-thumb-video ~ .pv-thumb-video ~ .pv-thumb-video {
     display: none !important;
 }
 
-/* Show 3rd video if it has counter */
-.pv-thumb-video:nth-child(3):has(.pv-thumb-overlay) {
+/* Show 3rd video if it has counter overlay */
+.pv-gallery-thumbnails .pv-thumb-video ~ .pv-thumb-video ~ .pv-thumb-video:has(.pv-thumb-overlay) {
     display: flex !important;
 }
 

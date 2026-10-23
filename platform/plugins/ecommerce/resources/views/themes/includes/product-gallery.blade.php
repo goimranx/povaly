@@ -20,19 +20,19 @@
     // ── Build the unified image list (EXACT SAME LOGIC AS QUICK-SHOP) ──────────────────────────────────
     $allImages = collect();
 
-    // 1. Product gallery images (from $productImages variable passed by controller)
-    $galleryBase = !empty($productImages) ? $productImages : [];
+    // 1. Product gallery images (from product->images, NOT $productImages which is variation-specific)
+    $galleryBase = !empty($product->images) ? $product->images : [];
     foreach ($galleryBase as $img) {
         if ($img) $allImages->push(['src' => $img, 'type' => 'gallery', 'variationId' => null]);
     }
 
-    // 2. Featured image (CRITICAL: Add this to match quick-shop!)
-    // Always add featured image first if not already in collection
+    // 2. Featured image (CRITICAL: Add this FIRST if not already in gallery)
+    // This is the main product's featured image
     if (!empty($product->image) && !$allImages->contains('src', $product->image)) {
         $allImages->prepend(['src' => $product->image, 'type' => 'featured', 'variationId' => null]);
     }
 
-    // 3. All variation images (CRITICAL: This is what was missing!)
+    // 3. All variation images (CRITICAL: Load ALL variations, not just selected one!)
     $variationImageMap = []; // product_id → first index in $allImages
     $productVariations = null;
     
