@@ -222,7 +222,7 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
                 
                 {{-- Wishlist button --}}
                 @if (EcommerceHelper::isWishlistEnabled())
-                    <button type="button" class="pv-action-btn js-add-to-wishlist-button {{ EcommerceHelper::isProductInWishlist($product->id) ? 'active' : '' }}" 
+                    <button type="button" class="pv-action-btn js-add-to-wishlist-button" 
                             data-url="{{ route('public.wishlist.add', $product->id) }}"
                             title="{{ __('Add to Wishlist') }}">
                         <i class="icon-heart"></i>
