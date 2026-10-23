@@ -22,26 +22,44 @@
 
     // DEBUG: Log what we're starting with
     $debugInfo = [
+        'product_id' => $product->id,
+        'product_name' => $product->name,
+        'is_variation' => $product->is_variation ?? false,
         'product_image' => $product->image ?? 'NULL',
         'product_images_count' => !empty($product->images) ? count($product->images) : 0,
         'product_images_list' => !empty($product->images) ? array_map(fn($i) => basename($i), $product->images) : [],
         'has_variation' => $product->has_variation,
     ];
 
-    // 1. Product gallery images (from product->images, NOT $productImages which is variation-specific)
-    $galleryBase = !empty($product->images) ? $product->images : [];
+    // CRITICAL FIX: Get the ORIGINAL configurable product if this is a variation
+    // The controller may have modified $product with UpdateDefaultProductService
+    $configurableProduct = $product;
+    if ($product->is_variation || ($product->has_variation && $product->defaultVariation && $product->defaultVariation->product_id)) {
+        // Load the original configurable product
+        $configurableProduct = \Botble\Ecommerce\Models\Product::query()
+            ->where('id', $product->getKey())
+            ->select('id', 'name', 'image', 'images', 'is_variation', 'has_variation')
+            ->first() ?? $product;
+        $debugInfo['loaded_configurable'] = 'YES';
+        $debugInfo['configurable_images_count'] = !empty($configurableProduct->images) ? count($configurableProduct->images) : 0;
+    } else {
+        $debugInfo['loaded_configurable'] = 'NO - not needed';
+    }
+
+    // 1. Product gallery images (from CONFIGURABLE product, not modified $product)
+    $galleryBase = !empty($configurableProduct->images) ? $configurableProduct->images : [];
     foreach ($galleryBase as $img) {
         if ($img) $allImages->push(['src' => $img, 'type' => 'gallery', 'variationId' => null]);
     }
     $debugInfo['after_gallery'] = $allImages->count();
 
-    // 2. Featured image (CRITICAL: Add this FIRST if not already in gallery)
+    // 2. Featured image (CRITICAL: Use CONFIGURABLE product's featured image)
     // This is the main product's featured image
-    if (!empty($product->image) && !$allImages->contains('src', $product->image)) {
-        $allImages->prepend(['src' => $product->image, 'type' => 'featured', 'variationId' => null]);
+    if (!empty($configurableProduct->image) && !$allImages->contains('src', $configurableProduct->image)) {
+        $allImages->prepend(['src' => $configurableProduct->image, 'type' => 'featured', 'variationId' => null]);
         $debugInfo['featured_added'] = 'YES';
     } else {
-        $debugInfo['featured_added'] = 'NO - ' . (!empty($product->image) ? 'already in gallery' : 'image is empty');
+        $debugInfo['featured_added'] = 'NO - ' . (!empty($configurableProduct->image) ? 'already in gallery' : 'image is empty');
     }
     $debugInfo['after_featured'] = $allImages->count();
 
