@@ -87,6 +87,37 @@
     height: 20px;
 }
 
+/* Large play button for video facade in main preview */
+.pv-video-facade .pv-play-button-large {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.pv-video-facade:hover .pv-play-button-large {
+    background-color: rgba(0, 0, 0, 0.7);
+    border-color: #fff;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.pv-video-facade .pv-play-button-large svg {
+    width: 32px;
+    height: 32px;
+    fill: rgba(255, 255, 255, 0.9);
+    margin-left: 4px; /* Slight offset for visual centering */
+}
+
 .pv-thumb-overlay {
     position: absolute;
     top: 0;

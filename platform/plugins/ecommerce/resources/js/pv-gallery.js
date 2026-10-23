@@ -16,6 +16,7 @@
             this.currentIndex = parseInt(container.getAttribute('data-default-index')) || 0;
             this.variationMap = JSON.parse(container.getAttribute('data-variation-map') || '{}');
             this.allImages = [];
+            this.lightGalleryInstance = null;
             
             this.init();
         }
@@ -39,6 +40,9 @@
                 });
             });
             
+            // Initialize lightGallery on the main image
+            this.initLightGallery();
+            
             // Set initial active state
             this.setActive(this.currentIndex);
             
@@ -50,43 +54,130 @@
                     this.jumpToImage(index);
                 });
                 
-                // Click on thumbnail with overlay opens lightbox
+                // Click opens lightbox (unless it's a counter overlay)
                 thumb.addEventListener('click', (e) => {
                     const overlay = thumb.querySelector('.pv-thumb-overlay');
                     if (overlay) {
+                        // Counter overlay - open lightbox
                         e.preventDefault();
                         e.stopPropagation();
-                        // Click the counter opens lightbox at that index
-                        this.openLightboxAtIndex(parseInt(thumb.getAttribute('data-index')));
+                        const index = parseInt(thumb.getAttribute('data-index'));
+                        this.openLightboxAtIndex(index);
+                    } else {
+                        // Regular thumbnail - open lightbox
+                        e.preventDefault();
+                        this.openLightbox();
                     }
                 });
             });
             
             // Bind hover and click events for VIDEO thumbnails
             this.videoThumbs.forEach((videoThumb) => {
-                // Hover shows video preview in main area
+                // Hover shows video preview facade
                 videoThumb.addEventListener('mouseenter', () => {
                     this.showVideoPreview(videoThumb);
                 });
                 
-                // Click on video thumbnail with overlay opens lightbox
+                // Click opens lightbox
                 videoThumb.addEventListener('click', (e) => {
-                    const overlay = videoThumb.querySelector('.pv-thumb-overlay');
-                    if (overlay) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        // For videos, open the lightbox (videos are after all images)
-                        const videoIndex = parseInt(videoThumb.getAttribute('data-index').replace('video-', ''));
-                        const imageCount = this.allImages.length;
-                        this.openLightboxAtIndex(imageCount + videoIndex);
-                    }
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.openLightbox();
                 });
             });
+            
+            // Click on main preview opens lightbox
+            if (this.mainImage) {
+                this.mainImage.style.cursor = 'pointer';
+                this.mainImage.addEventListener('click', () => {
+                    this.openLightbox();
+                });
+            }
             
             // Listen for variation changes
             document.addEventListener('ecommerce.change-variation', (e) => {
                 this.handleVariationChange(e.detail);
             });
+        }
+        
+        initLightGallery() {
+            // Build dynamic gallery items for lightGallery
+            const galleryItems = [];
+            
+            // Add all images
+            this.allImages.forEach(img => {
+                galleryItems.push({
+                    src: img.url,
+                    thumb: img.url
+                });
+            });
+            
+            // Add all videos
+            this.videoThumbs.forEach((videoThumb) => {
+                const videoUrl = videoThumb.getAttribute('data-video-url');
+                const videoProvider = videoThumb.getAttribute('data-video-provider');
+                const videoThumbnail = videoThumb.getAttribute('data-video-thumbnail');
+                
+                if (videoProvider === 'video') {
+                    galleryItems.push({
+                        src: videoUrl,
+                        thumb: videoThumbnail || '',
+                        poster: videoThumbnail || '',
+                        html: `<video controls style="width:100%;height:100%;object-fit:contain;"><source src="${videoUrl}" type="video/mp4"></video>`
+                    });
+                } else {
+                    galleryItems.push({
+                        src: videoUrl,
+                        thumb: videoThumbnail || '',
+                        poster: videoThumbnail || ''
+                    });
+                }
+            });
+            
+            this.galleryItems = galleryItems;
+        }
+        
+        openLightbox() {
+            if (typeof $ === 'undefined' || typeof $.fn.lightGallery === 'undefined') {
+                console.warn('LightGallery not available');
+                return;
+            }
+            
+            // Destroy existing instance if any
+            if (this.lightGalleryInstance) {
+                this.lightGalleryInstance.destroy(true);
+            }
+            
+            // Create temporary container for lightGallery
+            const $tempContainer = $('<div style="display:none;"></div>');
+            $('body').append($tempContainer);
+            
+            // Initialize lightGallery with dynamic items
+            this.lightGalleryInstance = $tempContainer.lightGallery({
+                dynamic: true,
+                dynamicEl: this.galleryItems,
+                index: this.currentIndex,
+                download: false,
+                thumbnail: true,
+                animateThumb: true,
+                showThumbByDefault: false
+            });
+            
+            // Open immediately
+            $tempContainer.data('lightGallery').index = this.currentIndex;
+            
+            // Clean up on close
+            $tempContainer.on('onCloseAfter.lg', () => {
+                setTimeout(() => {
+                    $tempContainer.remove();
+                    this.lightGalleryInstance = null;
+                }, 100);
+            });
+        }
+        
+        openLightboxAtIndex(index) {
+            this.currentIndex = index;
+            this.openLightbox();
         }
         
         jumpToImage(index) {
@@ -112,29 +203,6 @@
             }
         }
         
-        openLightbox() {
-            // Trigger main image click to open existing lightbox
-            if (this.mainImage) {
-                this.mainImage.click();
-            }
-        }
-        
-        openLightboxAtIndex(index) {
-            // Find the image/video at this index and click it to open lightbox
-            const imageThumb = this.allImages.find(img => img.index === index);
-            if (imageThumb && imageThumb.thumb) {
-                // Click the thumbnail's img to trigger lightbox
-                const img = imageThumb.thumb.querySelector('img');
-                if (img) {
-                    img.click();
-                    return;
-                }
-            }
-            
-            // Fallback: just open lightbox at current position
-            this.openLightbox();
-        }
-        
         showVideoPreview(videoThumb) {
             const videoUrl = videoThumb.getAttribute('data-video-url');
             const videoProvider = videoThumb.getAttribute('data-video-provider');
@@ -145,7 +213,7 @@
             const mainContainer = this.mainImage.parentElement;
             if (!mainContainer) return;
             
-            // Create or get video preview facade (thumbnail + play button)
+            // Create or get video preview facade (thumbnail + circled play button)
             let videoFacade = mainContainer.querySelector('.pv-video-facade');
             if (!videoFacade) {
                 videoFacade = document.createElement('div');
@@ -154,7 +222,7 @@
                 mainContainer.appendChild(videoFacade);
             }
             
-            // Build facade content: thumbnail + play button
+            // Build facade content: thumbnail + circled play button
             let facadeHtml = '';
             
             if (videoThumbnail) {
@@ -163,10 +231,10 @@
                 facadeHtml += '<div style="width:100%;height:100%;background:#111;"></div>';
             }
             
-            // Add large play button overlay
+            // Add large circled play button overlay
             facadeHtml += `
-                <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;pointer-events:none;">
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="rgba(255,255,255,0.9)" style="filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
+                <div class="pv-play-button-large">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"/>
                     </svg>
                 </div>
@@ -180,9 +248,14 @@
             this.mainImage.style.display = 'none';
             videoFacade.style.display = 'block';
             
-            // Click facade to load actual video
-            videoFacade.onclick = () => {
-                this.loadActualVideo(videoFacade, videoUrl, videoProvider);
+            // Click facade to open lightbox instead of loading video inline
+            videoFacade.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Find video index and open lightbox
+                const videoIndex = Array.from(this.videoThumbs).indexOf(videoThumb);
+                this.currentIndex = this.allImages.length + videoIndex;
+                this.openLightbox();
             };
             
             // Set active state on video thumbnail
