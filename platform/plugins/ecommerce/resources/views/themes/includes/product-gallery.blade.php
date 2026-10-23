@@ -215,8 +215,9 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
                     <button type="button" class="pv-action-btn js-add-to-compare-button {{ EcommerceHelper::isProductInCompare($product->id) ? 'active' : '' }}" 
                             data-url="{{ route('public.compare.add', $product->id) }}"
                             data-remove-url="{{ route('public.compare.remove', $product->id) }}"
+                            data-product-id="{{ $product->id }}"
                             title="{{ __('Compare') }}">
-                        <i class="ph {{ EcommerceHelper::isProductInCompare($product->id) ? 'ph-fill' : '' }} ph-arrow-counter-clockwise"></i>
+                        <i class="ph {{ EcommerceHelper::isProductInCompare($product->id) ? 'ph-fill' : '' }} ph-chart-bar"></i>
                     </button>
                 @endif
                 

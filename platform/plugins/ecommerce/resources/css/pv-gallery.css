@@ -44,8 +44,8 @@
 }
 
 .pv-action-btn {
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     background-color: #fff;
     border: 1.5px solid var(--global-color-primary-border, #ddd);
@@ -53,34 +53,24 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease;
     padding: 0;
-}
-
-.pv-action-btn:hover {
-    background-color: #fff;
-    border-color: var(--global-color-link, #fcb800);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .pv-action-btn i {
     font-size: 20px;
+    font-weight: 600;
     color: var(--global-color-text-body, #333);
     transition: color 0.3s ease;
 }
 
-.pv-action-btn:hover i {
-    color: var(--global-color-link, #fcb800);
-}
-
 /* Active state - filled icon with primary color */
-.pv-action-btn.active i {
-    color: var(--global-color-primary, #fcb800);
-}
-
 .pv-action-btn.active {
     border-color: var(--global-color-primary, #fcb800);
+}
+
+.pv-action-btn.active i {
+    color: var(--global-color-primary, #fcb800);
 }
 
 .pv-gallery-thumbnails {
