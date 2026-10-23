@@ -117,6 +117,38 @@
                     } else {
                         $product.find('[data-bb-value="product-original-price"]').hide()
                     }
+
+                    // Dispatch event for PV Gallery to update images
+                    document.dispatchEvent(new CustomEvent('ecommerce.change-variation', {
+                        detail: {
+                            variationId: data.id,
+                            product_id: data.id,
+                            id: data.id,
+                            data: data
+                        }
+                    }))
+
+                    // Ensure active state is properly applied to selected swatches
+                    if (data.selected_attributes && Array.isArray(data.selected_attributes)) {
+                        $('.product-attributes .attribute-swatches-wrapper').each(function() {
+                            const $wrapper = $(this)
+                            const wrapperSlug = $wrapper.find('.attribute-swatch').data('slug')
+                            
+                            // Find the matching selected attribute
+                            const selectedAttr = data.selected_attributes.find(attr => attr.set_slug === wrapperSlug)
+                            
+                            if (selectedAttr) {
+                                // Remove active class from all in this set
+                                $wrapper.find('.attribute-swatch').removeClass('active')
+                                
+                                // Add active class to the selected one
+                                const $selected = $wrapper.find('input[data-slug="' + selectedAttr.slug + '"]')
+                                if ($selected.length) {
+                                    $selected.closest('.attribute-swatch').addClass('active')
+                                }
+                            }
+                        })
+                    }
                 }
             }
         })
