@@ -35,10 +35,10 @@
     // The controller may have modified $product with UpdateDefaultProductService
     $configurableProduct = $product;
     if ($product->is_variation || ($product->has_variation && $product->defaultVariation && $product->defaultVariation->product_id)) {
-        // Load the original configurable product
+        // Load the original configurable product (without has_variation - it's computed)
         $configurableProduct = \Botble\Ecommerce\Models\Product::query()
             ->where('id', $product->getKey())
-            ->select('id', 'name', 'image', 'images', 'is_variation', 'has_variation')
+            ->select('id', 'name', 'image', 'images', 'is_variation')
             ->first() ?? $product;
         $debugInfo['loaded_configurable'] = 'YES';
         $debugInfo['configurable_images_count'] = !empty($configurableProduct->images) ? count($configurableProduct->images) : 0;
