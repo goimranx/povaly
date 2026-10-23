@@ -1123,7 +1123,12 @@ class Ecommerce {
                                 const $fifthImage = $imageSlides.eq(4)
                                 console.log('🎯 Fifth image element:', $fifthImage)
                                 if ($fifthImage.length && !$fifthImage.find('.gallery-more-count').length) {
-                                    $fifthImage.css('position', 'relative').append('<span class="gallery-more-count">+' + moreCount + '</span>')
+                                    // Wrap image in relative container then add overlay
+                                    const $img = $fifthImage.find('img')
+                                    if (!$img.parent().hasClass('thumbnail-wrapper')) {
+                                        $img.wrap('<div class="thumbnail-wrapper" style="position:relative;width:100%;height:100%;"></div>')
+                                    }
+                                    $img.parent().append('<span class="gallery-more-count">+' + moreCount + '</span>')
                                     console.log('✔️ Counter added to 5th image')
                                 }
                             } else {
@@ -1137,7 +1142,12 @@ class Ecommerce {
                                 const $thirdVideo = $videoSlides.eq(2)
                                 console.log('🎯 Third video element:', $thirdVideo)
                                 if ($thirdVideo.length && !$thirdVideo.find('.gallery-more-count').length) {
-                                    $thirdVideo.css('position', 'relative').append('<span class="gallery-more-count">+' + moreCount + '</span>')
+                                    // Wrap image in relative container then add overlay
+                                    const $img = $thirdVideo.find('img').first()
+                                    if (!$img.parent().hasClass('thumbnail-wrapper')) {
+                                        $img.wrap('<div class="thumbnail-wrapper" style="position:relative;width:100%;height:100%;"></div>')
+                                    }
+                                    $img.parent().append('<span class="gallery-more-count">+' + moreCount + '</span>')
                                     console.log('✔️ Counter added to 3rd video')
                                 }
                             } else {
