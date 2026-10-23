@@ -12,11 +12,11 @@
 
     $galleryStyle = theme_option('ecommerce_product_gallery_image_style') ?: ($galleryStyle ?? 'vertical');
     
-    // ── Build the unified image list (SAME AS QUICK-SHOP) ──────────────────────────────────
+    // ── Build the unified image list (EXACT SAME LOGIC AS QUICK-SHOP) ──────────────────────────────────
     $allImages = collect();
 
-    // 1. Product gallery images
-    $galleryBase = !empty($product->images) ? $product->images : [];
+    // 1. Product gallery images (from $productImages variable passed by controller)
+    $galleryBase = !empty($productImages) ? $productImages : [];
     foreach ($galleryBase as $img) {
         if ($img) $allImages->push(['src' => $img, 'type' => 'gallery', 'variationId' => null]);
     }
@@ -26,9 +26,14 @@
         $allImages->prepend(['src' => $product->image, 'type' => 'featured', 'variationId' => null]);
     }
 
-    // 3. All variation images (featured + gallery for each variation), deduplicated
+    // 3. All variation images (CRITICAL: This is what was missing!)
     $variationImageMap = []; // product_id → first index in $allImages
-    if ($product->has_variation && isset($productVariations) && $productVariations) {
+    $productVariations = null;
+    
+    if ($product->has_variation) {
+        // Load ALL variations with their products
+        $productVariations = $product->variations()->with('product')->get();
+        
         foreach ($productVariations as $pv) {
             if (!$pv->product) continue;
             $varImages = [];
@@ -59,7 +64,7 @@
         $allImages->push(['src' => RvMedia::getDefaultImage(), 'type' => 'placeholder', 'variationId' => null]);
     }
 
-    // ── Determine the default jump index ────────────────────────────
+    // ── Determine the default jump index (same logic as quick-shop) ────────────────────────────
     $defaultJumpIndex = 0;
     $displayProduct = $product;
 
@@ -74,9 +79,16 @@
             $found = $allImages->search(fn($i) => $i['src'] === $productVariation->image);
             if ($found !== false) $defaultJumpIndex = $found;
         }
+        // Strategy 3: use $productImages (controller-provided variation images)
+        elseif (!empty($productImages)) {
+            foreach ($productImages as $img) {
+                $found = $allImages->search(fn($i) => $i['src'] === $img);
+                if ($found !== false) { $defaultJumpIndex = $found; break; }
+            }
+        }
     }
     
-    // ── Get videos ──────────────────────────────────
+    // ── Get videos (product level, not variation-specific) ──────────────────────────────────
     $hasVideo = !empty($product->video) && is_array($product->video) && count(array_filter($product->video, fn($v) => !empty($v['url']))) > 0;
     $videoList = $hasVideo ? array_values(array_filter($product->video, fn($v) => !empty($v['url']))) : [];
     
