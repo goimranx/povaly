@@ -21,7 +21,7 @@
     width: calc(100% - 60px);
     position: relative;
     background-color: var(--global-color-card-bg, #f9f9f9);
-    border-radius: 10px;
+    border-radius: 0;
     padding: 10px;
 }
 
@@ -29,7 +29,55 @@
     width: 100%;
     height: auto;
     display: block;
-    border-radius: 10px;
+    border-radius: 0;
+}
+
+/* Action buttons overlay - top right */
+.pv-gallery-actions {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 10;
+}
+
+.pv-action-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.pv-action-btn:hover {
+    background-color: var(--global-color-link, #fcb800);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pv-action-btn:hover i {
+    color: #fff !important;
+}
+
+.pv-action-btn i {
+    font-size: 18px;
+    color: var(--global-color-text-body, #333);
+    transition: color 0.3s ease;
+}
+
+.pv-action-btn.active {
+    background-color: var(--global-color-link, #fcb800);
+}
+
+.pv-action-btn.active i {
+    color: #fff !important;
 }
 
 .pv-gallery-thumbnails {

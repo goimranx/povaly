@@ -202,6 +202,33 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
                     fetchpriority="high"
                 />
             @endif
+            
+            {{-- Action buttons overlay --}}
+            <div class="pv-gallery-actions">
+                {{-- Share button --}}
+                <button type="button" class="pv-action-btn pv-share-btn" title="{{ __('Share') }}" data-url="{{ $product->url }}" data-title="{{ $product->name }}">
+                    <i class="icon-share"></i>
+                </button>
+                
+                {{-- Compare button --}}
+                @if (EcommerceHelper::isCompareEnabled())
+                    <button type="button" class="pv-action-btn js-add-to-compare-button {{ EcommerceHelper::isProductInCompare($product->id) ? 'active' : '' }}" 
+                            data-url="{{ route('public.compare.add', $product->id) }}"
+                            data-remove-url="{{ route('public.compare.remove', $product->id) }}"
+                            title="{{ __('Compare') }}">
+                        <i class="icon-chart-bars"></i>
+                    </button>
+                @endif
+                
+                {{-- Wishlist button --}}
+                @if (EcommerceHelper::isWishlistEnabled())
+                    <button type="button" class="pv-action-btn js-add-to-wishlist-button {{ EcommerceHelper::isProductInWishlist($product->id) ? 'active' : '' }}" 
+                            data-url="{{ route('public.wishlist.add', $product->id) }}"
+                            title="{{ __('Add to Wishlist') }}">
+                        <i class="icon-heart"></i>
+                    </button>
+                @endif
+            </div>
         </div>
         
         <div class="pv-gallery-thumbnails">

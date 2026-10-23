@@ -306,6 +306,43 @@
         document.querySelectorAll('.pv-gallery').forEach(gallery => {
             new PVGallery(gallery);
         });
+        
+        // Initialize share button
+        initShareButton();
+    }
+    
+    // Share button handler
+    function initShareButton() {
+        document.querySelectorAll('.pv-share-btn').forEach(btn => {
+            if (btn._pvShareBound) return;
+            btn._pvShareBound = true;
+            
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const url = this.getAttribute('data-url');
+                const title = this.getAttribute('data-title');
+                
+                // Use native share API if available
+                if (navigator.share) {
+                    navigator.share({
+                        title: title,
+                        url: url
+                    }).catch((error) => console.log('Error sharing:', error));
+                } else {
+                    // Fallback: copy to clipboard
+                    navigator.clipboard.writeText(url).then(() => {
+                        // Show success notification
+                        if (typeof Theme !== 'undefined' && typeof Theme.showSuccess === 'function') {
+                            Theme.showSuccess('Link copied to clipboard!');
+                        } else {
+                            alert('Link copied to clipboard!');
+                        }
+                    });
+                }
+            });
+        });
     }
     
     if (document.readyState === 'loading') {
