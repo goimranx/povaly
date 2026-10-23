@@ -20,17 +20,29 @@
     // ── Build the unified image list (EXACT SAME LOGIC AS QUICK-SHOP) ──────────────────────────────────
     $allImages = collect();
 
+    // DEBUG: Log what we're starting with
+    $debugInfo = [
+        'product_image' => $product->image ?? 'NULL',
+        'product_images_count' => !empty($product->images) ? count($product->images) : 0,
+        'has_variation' => $product->has_variation,
+    ];
+
     // 1. Product gallery images (from product->images, NOT $productImages which is variation-specific)
     $galleryBase = !empty($product->images) ? $product->images : [];
     foreach ($galleryBase as $img) {
         if ($img) $allImages->push(['src' => $img, 'type' => 'gallery', 'variationId' => null]);
     }
+    $debugInfo['after_gallery'] = $allImages->count();
 
     // 2. Featured image (CRITICAL: Add this FIRST if not already in gallery)
     // This is the main product's featured image
     if (!empty($product->image) && !$allImages->contains('src', $product->image)) {
         $allImages->prepend(['src' => $product->image, 'type' => 'featured', 'variationId' => null]);
+        $debugInfo['featured_added'] = 'YES';
+    } else {
+        $debugInfo['featured_added'] = 'NO - ' . (!empty($product->image) ? 'already in gallery' : 'image is empty');
     }
+    $debugInfo['after_featured'] = $allImages->count();
 
     // 3. All variation images (CRITICAL: Load ALL variations, not just selected one!)
     $variationImageMap = []; // product_id → first index in $allImages
@@ -39,6 +51,7 @@
     if ($product->has_variation) {
         // Load ALL variations with their products
         $productVariations = $product->variations()->with('product')->get();
+        $debugInfo['variations_loaded'] = $productVariations->count();
         
         foreach ($productVariations as $pv) {
             if (!$pv->product) continue;
@@ -64,11 +77,15 @@
             }
         }
     }
+    $debugInfo['after_variations'] = $allImages->count();
 
     // 4. Fallback placeholder if nothing
     if ($allImages->isEmpty()) {
         $allImages->push(['src' => RvMedia::getDefaultImage(), 'type' => 'placeholder', 'variationId' => null]);
     }
+    
+    // DEBUG: Output to console
+    $debugJson = json_encode($debugInfo);
 
     // ── Determine the default jump index (same logic as quick-shop) ────────────────────────────
     $defaultJumpIndex = 0;
@@ -101,6 +118,11 @@
     $totalImages = $allImages->count();
     $totalVideos = count($videoList);
 @endphp
+
+<script>
+console.log('[PV Gallery Debug]', {!! $debugJson !!});
+console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
+</script>
 
 <div class="pv-gallery-wrapper">
     <div @class(['pv-gallery', 'pv-gallery-' . $galleryStyle]) data-default-index="{{ $defaultJumpIndex }}" data-variation-map="{{ json_encode($variationImageMap) }}">
