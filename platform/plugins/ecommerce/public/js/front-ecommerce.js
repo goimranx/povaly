@@ -1122,13 +1122,9 @@ class Ecommerce {
                                 console.log('➕ Adding counter to 5th image, more count:', moreCount)
                                 const $fifthImage = $imageSlides.eq(4)
                                 console.log('🎯 Fifth image element:', $fifthImage)
-                                if ($fifthImage.length) {
-                                    // Wrap the slide content in a relative positioned container if not already wrapped
-                                    const $wrapper = $fifthImage.find('> div, > img').first().parent()
-                                    if (!$wrapper.find('.gallery-more-count').length) {
-                                        $wrapper.css('position', 'relative').append('<span class="gallery-more-count">+' + moreCount + '</span>')
-                                        console.log('✔️ Counter added to 5th image')
-                                    }
+                                if ($fifthImage.length && !$fifthImage.find('.gallery-more-count').length) {
+                                    $fifthImage.css('position', 'relative').append('<span class="gallery-more-count">+' + moreCount + '</span>')
+                                    console.log('✔️ Counter added to 5th image')
                                 }
                             } else {
                                 console.log('ℹ️ Not enough images for counter (need >4, have ' + $imageSlides.length + ')')
@@ -1140,13 +1136,9 @@ class Ecommerce {
                                 console.log('➕ Adding counter to 3rd video, more count:', moreCount)
                                 const $thirdVideo = $videoSlides.eq(2)
                                 console.log('🎯 Third video element:', $thirdVideo)
-                                if ($thirdVideo.length) {
-                                    // Wrap the slide content in a relative positioned container if not already wrapped
-                                    const $wrapper = $thirdVideo.find('> img').first().parent()
-                                    if (!$wrapper.find('.gallery-more-count').length) {
-                                        $wrapper.css('position', 'relative').append('<span class="gallery-more-count">+' + moreCount + '</span>')
-                                        console.log('✔️ Counter added to 3rd video')
-                                    }
+                                if ($thirdVideo.length && !$thirdVideo.find('.gallery-more-count').length) {
+                                    $thirdVideo.css('position', 'relative').append('<span class="gallery-more-count">+' + moreCount + '</span>')
+                                    console.log('✔️ Counter added to 3rd video')
                                 }
                             } else {
                                 console.log('ℹ️ Not enough videos for counter (need >2, have ' + $videoSlides.length + ')')

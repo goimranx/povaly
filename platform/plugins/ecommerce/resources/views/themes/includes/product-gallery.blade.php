@@ -11,22 +11,25 @@
 @endphp
 
 <style>
+.bb-product-gallery-thumbnails .slick-slide {
+    position: relative;
+}
 .bb-product-gallery-thumbnails .gallery-more-count {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    z-index: 10;
-    border-radius: 10px;
-    pointer-events: none;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background-color: rgba(0, 0, 0, 0.75) !important;
+    color: #fff !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    z-index: 100 !important;
+    border-radius: 10px !important;
+    pointer-events: none !important;
 }
 </style>
 
