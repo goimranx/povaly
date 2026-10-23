@@ -24,6 +24,7 @@
     $debugInfo = [
         'product_image' => $product->image ?? 'NULL',
         'product_images_count' => !empty($product->images) ? count($product->images) : 0,
+        'product_images_list' => !empty($product->images) ? array_map(fn($i) => basename($i), $product->images) : [],
         'has_variation' => $product->has_variation,
     ];
 
@@ -49,21 +50,37 @@
     $productVariations = null;
     
     if ($product->has_variation) {
-        // Load ALL variations with their products
-        $productVariations = $product->variations()->with('product')->get();
+        // Load ALL variations with their products - SAME QUERY AS QUICK-SHOP
+        $productVariations = \Botble\Ecommerce\Models\ProductVariation::query()
+            ->where('configurable_product_id', $product->getKey())
+            ->with([
+                'product:id,image,images,stock_status,quantity,with_storehouse_management,allow_checkout_when_out_of_stock,price,sale_price,sale_type,start_date,end_date',
+                'productAttributes',
+                'productAttributes.productAttributeSet',
+            ])
+            ->select('id', 'product_id', 'configurable_product_id', 'is_default')
+            ->get();
         $debugInfo['variations_loaded'] = $productVariations->count();
         
         foreach ($productVariations as $pv) {
             if (!$pv->product) continue;
             $varImages = [];
-            // Featured image first
-            if (!empty($pv->product->image)) $varImages[] = $pv->product->image;
-            // Gallery images
+            
+            // Variation featured image first
+            if (!empty($pv->product->image)) {
+                $varImages[] = $pv->product->image;
+            }
+            
+            // Variation gallery images
             if (!empty($pv->product->images) && is_array($pv->product->images)) {
                 foreach ($pv->product->images as $vi) {
-                    if ($vi && !in_array($vi, $varImages)) $varImages[] = $vi;
+                    if ($vi && !in_array($vi, $varImages)) {
+                        $varImages[] = $vi;
+                    }
                 }
             }
+            
+            // Add each unique image to the collection
             foreach ($varImages as $img) {
                 if (!$allImages->contains('src', $img)) {
                     $idx = $allImages->count();
@@ -72,6 +89,7 @@
                         $variationImageMap[$pv->product_id] = $idx;
                     }
                 } elseif (!isset($variationImageMap[$pv->product_id])) {
+                    // Image already exists, just map this variation to it
                     $variationImageMap[$pv->product_id] = $allImages->search(fn($i) => $i['src'] === $img);
                 }
             }
@@ -86,6 +104,8 @@
     
     // DEBUG: Output to console
     $debugJson = json_encode($debugInfo);
+    $allImagesList = $allImages->map(fn($i) => ['src' => basename($i['src']), 'type' => $i['type']])->toArray();
+    $allImagesJson = json_encode($allImagesList);
 
     // ── Determine the default jump index (same logic as quick-shop) ────────────────────────────
     $defaultJumpIndex = 0;
@@ -121,6 +141,7 @@
 
 <script>
 console.log('[PV Gallery Debug]', {!! $debugJson !!});
+console.log('[PV Gallery] All images:', {!! $allImagesJson !!});
 console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
 </script>
 
