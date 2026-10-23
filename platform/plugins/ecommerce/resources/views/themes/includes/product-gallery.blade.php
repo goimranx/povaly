@@ -21,7 +21,8 @@
         if ($img) $allImages->push(['src' => $img, 'type' => 'gallery', 'variationId' => null]);
     }
 
-    // 2. Featured image (if not already in gallery)
+    // 2. Featured image (CRITICAL: Add this to match quick-shop!)
+    // Always add featured image first if not already in collection
     if (!empty($product->image) && !$allImages->contains('src', $product->image)) {
         $allImages->prepend(['src' => $product->image, 'type' => 'featured', 'variationId' => null]);
     }

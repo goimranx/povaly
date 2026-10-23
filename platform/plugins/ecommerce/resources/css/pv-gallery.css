@@ -97,11 +97,11 @@
 }
 
 /* Hide thumbnails with .pv-thumb-hidden class */
-.pv-thumb.pv-thumb-hidden {
+.pv-thumb.pv-thumb-hidden:not(.pv-thumb-video) {
     display: none !important;
 }
 
-/* Show the 4th image thumbnail (index 3) even if hidden, for counter display */
+/* Show items with counter overlay even if hidden */
 .pv-thumb.pv-thumb-hidden:has(.pv-thumb-overlay) {
     display: flex !important;
 }
