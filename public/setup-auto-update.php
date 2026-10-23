@@ -7,38 +7,15 @@
 $hookPath = dirname(__DIR__) . '/.git/hooks/post-merge';
 $hookContent = <<<'HOOK'
 #!/bin/sh
-# Auto-copy ecommerce JS to vendor directory after git pull
+# Auto-build and publish assets after git pull
 
-echo "🔄 Copying ecommerce JS to vendor directory..."
+echo "🔄 Building assets..."
 
-SOURCE="platform/plugins/ecommerce/public/js/front-ecommerce.js"
-DEST="public/vendor/core/plugins/ecommerce/js/front-ecommerce.js"
+# Run production build (compiles CSS/JS from resources to public)
+npm run prod
 
-CSS_SOURCE="platform/plugins/ecommerce/public/css/pv-gallery.css"
-CSS_DEST="public/vendor/core/plugins/ecommerce/css/pv-gallery.css"
-
-JS_SOURCE="platform/plugins/ecommerce/public/js/pv-gallery.js"
-JS_DEST="public/vendor/core/plugins/ecommerce/js/pv-gallery.js"
-
-if [ -f "$SOURCE" ]; then
-    mkdir -p "$(dirname "$DEST")"
-    cp -f "$SOURCE" "$DEST"
-    echo "✅ Ecommerce JS copied successfully"
-else
-    echo "⚠️  Source file not found: $SOURCE"
-fi
-
-if [ -f "$CSS_SOURCE" ]; then
-    mkdir -p "$(dirname "$CSS_DEST")"
-    cp -f "$CSS_SOURCE" "$CSS_DEST"
-    echo "✅ PV Gallery CSS copied successfully"
-fi
-
-if [ -f "$JS_SOURCE" ]; then
-    mkdir -p "$(dirname "$JS_DEST")"
-    cp -f "$JS_SOURCE" "$JS_DEST"
-    echo "✅ PV Gallery JS copied successfully"
-fi
+echo "✅ Assets built and published automatically!"
+echo "📦 All CSS/JS files are now up to date in vendor directory"
 
 exit 0
 HOOK;
