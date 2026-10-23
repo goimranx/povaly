@@ -229,13 +229,11 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
                     data-index="video-{{ $vIndex }}"
                     data-video-url="{{ $video['url'] }}"
                     data-video-provider="{{ $video['provider'] ?? 'video' }}"
-                >
+                    data-video-thumbnail="{{ $video['thumbnail'] ?? '' }}"
                     @if (!empty($video['thumbnail']))
-                        <img src="{{ $video['thumbnail'] }}" alt="{{ $product->name }}">
-                    @else
-                        <div style="width:100%;height:100%;background:#111;"></div>
+                        style="background-image:url({{ $video['thumbnail'] }});background-size:cover;background-position:center;"
                     @endif
-                    
+                >
                     <svg class="pv-play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"/>
                     </svg>

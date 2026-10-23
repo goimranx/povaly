@@ -138,53 +138,60 @@
         showVideoPreview(videoThumb) {
             const videoUrl = videoThumb.getAttribute('data-video-url');
             const videoProvider = videoThumb.getAttribute('data-video-provider');
+            const videoThumbnail = videoThumb.getAttribute('data-video-thumbnail');
             
             if (!videoUrl || !this.mainImage) return;
             
             const mainContainer = this.mainImage.parentElement;
             if (!mainContainer) return;
             
-            // Create or get video preview container
-            let videoPreview = mainContainer.querySelector('.pv-video-preview');
-            if (!videoPreview) {
-                videoPreview = document.createElement('div');
-                videoPreview.className = 'pv-video-preview';
-                videoPreview.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;background:#000;display:none;border-radius:10px;overflow:hidden;';
-                mainContainer.appendChild(videoPreview);
+            // Create or get video preview facade (thumbnail + play button)
+            let videoFacade = mainContainer.querySelector('.pv-video-facade');
+            if (!videoFacade) {
+                videoFacade = document.createElement('div');
+                videoFacade.className = 'pv-video-facade';
+                videoFacade.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:none;cursor:pointer;background:#000;border-radius:10px;overflow:hidden;';
+                mainContainer.appendChild(videoFacade);
             }
             
-            // Clear previous content
-            videoPreview.innerHTML = '';
+            // Build facade content: thumbnail + play button
+            let facadeHtml = '';
             
-            // Create appropriate video element based on provider
-            if (videoProvider === 'video') {
-                // Direct video file
-                const video = document.createElement('video');
-                video.controls = true;
-                video.style.cssText = 'width:100%;height:100%;object-fit:contain;';
-                video.src = videoUrl;
-                videoPreview.appendChild(video);
-            } else if (videoProvider === 'youtube' || videoProvider === 'vimeo') {
-                // Embedded iframe
-                const iframe = document.createElement('iframe');
-                iframe.style.cssText = 'width:100%;height:100%;border:0;';
-                iframe.src = videoUrl;
-                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-                iframe.allowFullscreen = true;
-                videoPreview.appendChild(iframe);
+            if (videoThumbnail) {
+                facadeHtml += `<img src="${videoThumbnail}" style="width:100%;height:100%;object-fit:contain;display:block;" alt="Video thumbnail" />`;
+            } else {
+                facadeHtml += '<div style="width:100%;height:100%;background:#111;"></div>';
             }
             
-            // Hide main image, show video preview
+            // Add large play button overlay
+            facadeHtml += `
+                <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;pointer-events:none;">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="rgba(255,255,255,0.9)" style="filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));">
+                        <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"/>
+                    </svg>
+                </div>
+            `;
+            
+            videoFacade.innerHTML = facadeHtml;
+            videoFacade.dataset.videoUrl = videoUrl;
+            videoFacade.dataset.videoProvider = videoProvider;
+            
+            // Hide main image, show video facade
             this.mainImage.style.display = 'none';
-            videoPreview.style.display = 'block';
+            videoFacade.style.display = 'block';
+            
+            // Click facade to load actual video
+            videoFacade.onclick = () => {
+                this.loadActualVideo(videoFacade, videoUrl, videoProvider);
+            };
             
             // Set active state on video thumbnail
             this.videoThumbs.forEach(v => v.classList.remove('pv-active'));
             videoThumb.classList.add('pv-active');
             
-            // Hide video preview when hovering back to image thumbnails
+            // Hide video facade when hovering back to image thumbnails
             const resetVideo = () => {
-                if (videoPreview) videoPreview.style.display = 'none';
+                if (videoFacade) videoFacade.style.display = 'none';
                 if (this.mainImage) this.mainImage.style.display = 'block';
                 this.videoThumbs.forEach(v => v.classList.remove('pv-active'));
             };
@@ -193,6 +200,32 @@
                 thumb.removeEventListener('mouseenter', resetVideo);
                 thumb.addEventListener('mouseenter', resetVideo, { once: false });
             });
+        }
+        
+        loadActualVideo(container, videoUrl, videoProvider) {
+            // Replace facade with actual video player
+            container.innerHTML = '';
+            container.style.cursor = 'default';
+            container.onclick = null;
+            
+            if (videoProvider === 'video') {
+                // Direct video file
+                const video = document.createElement('video');
+                video.controls = true;
+                video.autoplay = true;
+                video.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+                video.src = videoUrl;
+                container.appendChild(video);
+            } else if (videoProvider === 'youtube' || videoProvider === 'vimeo') {
+                // Embedded iframe with autoplay
+                const iframe = document.createElement('iframe');
+                iframe.style.cssText = 'width:100%;height:100%;border:0;';
+                const separator = videoUrl.includes('?') ? '&' : '?';
+                iframe.src = videoUrl + separator + 'autoplay=1';
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                iframe.allowFullscreen = true;
+                container.appendChild(iframe);
+            }
         }
         
         handleVariationChange(data) {
