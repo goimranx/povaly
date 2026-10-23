@@ -300,19 +300,19 @@ class SystemUpdateController extends Controller
 
     /**
      * Publish ALL plugin/core compiled assets to public/vendor directory
-     * This copies everything from platform/*/public/ to public/vendor/
+     * This copies everything from platform directories to public/vendor
      */
     private function publishPluginAssets(array &$output)
     {
         $sources = [
-            // Core packages
+            // Core
             'platform/core/base/public' => 'public/vendor/core/core/base',
             'platform/core/media/public' => 'public/vendor/core/core/media',
             'platform/core/table/public' => 'public/vendor/core/core/table',
             'platform/core/dashboard/public' => 'public/vendor/core/core/dashboard',
             'platform/core/setting/public' => 'public/vendor/core/core/setting',
             
-            // Core packages
+            // Packages
             'platform/packages/menu/public' => 'public/vendor/core/packages/menu',
             'platform/packages/page/public' => 'public/vendor/core/packages/page',
             'platform/packages/plugin-management/public' => 'public/vendor/core/packages/plugin-management',
@@ -320,7 +320,7 @@ class SystemUpdateController extends Controller
             'platform/packages/theme/public' => 'public/vendor/core/packages/theme',
             'platform/packages/get-started/public' => 'public/vendor/core/packages/get-started',
             
-            // Plugins (especially ecommerce with our PV Gallery)
+            // Plugins
             'platform/plugins/ecommerce/public' => 'public/vendor/core/plugins/ecommerce',
             'platform/plugins/contact/public' => 'public/vendor/core/plugins/contact',
             'platform/plugins/newsletter/public' => 'public/vendor/core/plugins/newsletter',
