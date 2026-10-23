@@ -309,6 +309,9 @@
         
         // Initialize share button
         initShareButton();
+        
+        // Initialize wishlist/compare button handlers
+        initActionButtons();
     }
     
     // Share button handler
@@ -342,6 +345,86 @@
                     });
                 }
             });
+        });
+    }
+    
+    // Wishlist and Compare button handlers
+    function initActionButtons() {
+        // Listen for successful compare add (after theme's handler completes)
+        $(document).on('ajax:success', '.pv-action-btn.js-add-to-compare-button', function(e, res) {
+            if (res && res.data) {
+                const btn = this;
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.className = 'ph ph-fill ph-arrow-counter-clockwise';
+                }
+                btn.classList.add('active');
+            }
+        });
+        
+        // Listen for successful compare remove
+        $(document).on('ajax:success', '.pv-action-btn.js-remove-from-compare-button', function(e, res) {
+            if (res && res.data) {
+                const btn = this;
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.className = 'ph ph-arrow-counter-clockwise';
+                }
+                btn.classList.remove('active');
+            }
+        });
+        
+        // Monitor class changes on compare button (theme's handler adds/removes classes)
+        const observeCompareButton = () => {
+            document.querySelectorAll('.pv-action-btn.js-add-to-compare-button, .pv-action-btn.js-remove-from-compare-button').forEach(btn => {
+                if (btn._pvObserved) return;
+                btn._pvObserved = true;
+                
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            const icon = btn.querySelector('i');
+                            if (!icon) return;
+                            
+                            if (btn.classList.contains('active') || btn.classList.contains('js-remove-from-compare-button')) {
+                                icon.className = 'ph ph-fill ph-arrow-counter-clockwise';
+                            } else {
+                                icon.className = 'ph ph-arrow-counter-clockwise';
+                            }
+                        }
+                    });
+                });
+                
+                observer.observe(btn, { attributes: true });
+            });
+        };
+        
+        // Observe compare buttons
+        observeCompareButton();
+        
+        // Listen for wishlist events
+        $(document).on('added-to-wishlist', function(e, productId) {
+            // Find button and update icon
+            const btn = document.querySelector(`.pv-action-btn.js-add-to-wishlist-button[data-product-id="${productId}"]`);
+            if (btn) {
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.className = 'ph ph-fill ph-heart';
+                }
+                btn.classList.add('active');
+            }
+        });
+        
+        $(document).on('removed-from-wishlist', function(e, productId) {
+            // Find button and update icon
+            const btn = document.querySelector(`.pv-action-btn.js-add-to-wishlist-button[data-product-id="${productId}"]`);
+            if (btn) {
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.className = 'ph ph-heart';
+                }
+                btn.classList.remove('active');
+            }
         });
     }
     
