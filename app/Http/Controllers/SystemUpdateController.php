@@ -50,19 +50,24 @@ class SystemUpdateController extends Controller
             Artisan::call('down', ['--render' => 'errors::503']);
             $output[] = "✓ Maintenance mode enabled";
 
-            // Step 2: Reset local changes and pull from GitHub
-            $output[] = "\n=== Resetting Local Changes ===";
-            $this->executeCommand('git reset --hard HEAD', $returnCode);
-            $this->executeCommand('git clean -fd', $returnCode);
-            $output[] = "✓ Local changes reset";
-            
-            $output[] = "\n=== Pulling from GitHub ===";
-            $gitOutput = $this->executeCommand('git pull origin ' . env('GITHUB_BRANCH', 'main'), $returnCode);
-            $output = array_merge($output, $gitOutput);
+            // Step 2: Fetch and reset to remote branch (handles divergent branches)
+            $output[] = "\n=== Fetching from GitHub ===";
+            $fetchOutput = $this->executeCommand('git fetch origin ' . env('GITHUB_BRANCH', 'main'), $returnCode);
+            $output = array_merge($output, $fetchOutput);
             
             if ($returnCode !== 0) {
-                throw new \Exception("Git pull failed with code {$returnCode}");
+                throw new \Exception("Git fetch failed with code {$returnCode}");
             }
+            
+            $output[] = "\n=== Resetting to Remote Branch ===";
+            $resetOutput = $this->executeCommand('git reset --hard origin/' . env('GITHUB_BRANCH', 'main'), $returnCode);
+            $output = array_merge($output, $resetOutput);
+            
+            if ($returnCode !== 0) {
+                throw new \Exception("Git reset failed with code {$returnCode}");
+            }
+            
+            $output[] = "✓ Local repository synced with remote";
 
             // Step 3: Install/Update Composer dependencies
             $output[] = "\n=== Updating Composer Dependencies ===";
