@@ -9,6 +9,23 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Process;
 
+/**
+ * Custom System Updater for Povaly CMS
+ * 
+ * This controller handles automated deployments from GitHub.
+ * 
+ * WORKFLOW:
+ * 1. Edit code locally in platform/ directory
+ * 2. Build assets: npm run prod
+ * 3. Commit and push to GitHub
+ * 4. Click "System Updater" button in CMS
+ * 5. Done! System auto-publishes assets and clears caches
+ * 
+ * NOTE: Server has Node v18 (too old), so assets are pre-compiled locally
+ * and committed to git. Server just copies from platform/public/ to public/vendor/
+ * 
+ * See: DEVELOPMENT-WORKFLOW.md for full documentation
+ */
 class SystemUpdateController extends Controller
 {
     /**
