@@ -125,7 +125,7 @@
     $allImagesList = $allImages->map(fn($i) => ['src' => basename($i['src']), 'type' => $i['type']])->toArray();
     $allImagesJson = json_encode($allImagesList);
 
-    // ── Determine selected variation and reorder images if needed ────────────────────────────
+    // ── Determine selected variation and reorder with smart deduplication ────────────────────
     $defaultJumpIndex = 0;
     $displayProduct = $product;
     $selectedVariationId = null;
@@ -135,12 +135,24 @@
         $displayProduct = $productVariation;
         $selectedVariationId = $productVariation->id;
         
-        // REORDER: Move selected variation's images to the TOP
+        // SMART REORDER WITH DEDUPLICATION:
+        // 1. Extract selected variation images
+        // 2. Remove duplicates from other groups (top group wins)
+        // 3. Rebuild: Selected Variation → Featured → Gallery → Other Variations
+        
         $variationImages = $allImages->filter(fn($i) => $i['variationId'] === $selectedVariationId)->values();
-        $otherImages = $allImages->filter(fn($i) => $i['variationId'] !== $selectedVariationId)->values();
         
         if ($variationImages->isNotEmpty()) {
-            // Rebuild collection: variation images FIRST, then everything else
+            // Get all image URLs from selected variation
+            $variationImageUrls = $variationImages->pluck('src')->toArray();
+            
+            // Filter out duplicates from other groups (variation wins)
+            $otherImages = $allImages
+                ->filter(fn($i) => $i['variationId'] !== $selectedVariationId)
+                ->filter(fn($i) => !in_array($i['src'], $variationImageUrls))
+                ->values();
+            
+            // Rebuild collection: selected variation images FIRST, then deduplicated others
             $allImages = $variationImages->concat($otherImages);
             
             // Rebuild variationImageMap with new indices
@@ -154,7 +166,9 @@
             // Default jump is now index 0 (first variation image)
             $defaultJumpIndex = 0;
             $debugInfo['reordered'] = 'YES';
-            $debugInfo['variation_images_count'] = $variationImages->count();
+            $debugInfo['variation_images_moved'] = $variationImages->count();
+            $debugInfo['duplicates_removed'] = $allImages->count() - $variationImages->count() - $otherImages->count();
+            $debugInfo['final_total'] = $allImages->count();
         } else {
             $debugInfo['reordered'] = 'NO - no variation images found';
         }
