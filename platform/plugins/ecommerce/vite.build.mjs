@@ -39,6 +39,7 @@ export default {
         'tax',
         'invoice',
         'front-ecommerce',
+        'pv-gallery',
         'product-license-codes',
     ],
     sass: [
@@ -60,5 +61,6 @@ export default {
         { src: 'resources/sass/front-theme.scss', out: 'front-theme.css' },
         { src: 'resources/sass/front-theme-rtl.scss', out: 'front-theme-rtl.css' },
         { src: 'resources/sass/front-upsale-crosssale.scss', out: 'front-upsale-crosssale.css' },
+        { src: 'resources/css/pv-gallery.css', out: 'pv-gallery.css' },
     ],
 }
