@@ -2,9 +2,14 @@
     EcommerceHelper::registerThemeAssets();
     $version = EcommerceHelper::getAssetVersion();
     
-    // Load custom PV gallery assets
-    Theme::asset()->add('pv-gallery-css', 'vendor/core/plugins/ecommerce/css/pv-gallery.css', version: $version);
-    Theme::asset()->container('footer')->add('pv-gallery-js', 'vendor/core/plugins/ecommerce/js/pv-gallery.js', ['jquery'], version: $version);
+    // Load custom PV gallery assets with file-based cache busting
+    $pvCssPath = public_path('vendor/core/plugins/ecommerce/css/pv-gallery.css');
+    $pvJsPath = public_path('vendor/core/plugins/ecommerce/js/pv-gallery.js');
+    $pvCssVersion = file_exists($pvCssPath) ? filemtime($pvCssPath) : $version;
+    $pvJsVersion = file_exists($pvJsPath) ? filemtime($pvJsPath) : $version;
+    
+    Theme::asset()->add('pv-gallery-css', 'vendor/core/plugins/ecommerce/css/pv-gallery.css', version: $pvCssVersion);
+    Theme::asset()->container('footer')->add('pv-gallery-js', 'vendor/core/plugins/ecommerce/js/pv-gallery.js', ['jquery'], version: $pvJsVersion);
     
     // Keep lightgallery for zoom functionality
     Theme::asset()->add('lightgallery-css', 'vendor/core/plugins/ecommerce/libraries/lightgallery/css/lightgallery.min.css', version: $version);
