@@ -321,6 +321,9 @@
                             icon.removeClass('ph').addClass('ph-fill')
                         }
                     }
+                    
+                    // Trigger custom event for other handlers
+                    $(document).trigger('added-to-wishlist', [_self.data('product-id')])
                 },
                 error: res => {
                     _self.removeClass('button-loading')
@@ -363,6 +366,9 @@
                             icon.removeClass('ph-fill').addClass('ph')
                         }
                     }
+                    
+                    // Trigger custom event for other handlers
+                    $(document).trigger('removed-from-wishlist', [_self.data('product-id')])
                 },
                 error: res => {
                     _self.removeClass('button-loading')
@@ -404,6 +410,9 @@
                             icon.removeClass('ph').addClass('ph-fill')
                         }
                     }
+                    
+                    // Trigger custom event for other handlers
+                    $(document).trigger('added-to-compare', [_self.data('product-id')])
                 },
                 error: res => {
                     _self.removeClass('button-loading')
@@ -447,6 +456,9 @@
                             icon.removeClass('ph-fill').addClass('ph')
                         }
                     }
+                    
+                    // Trigger custom event for other handlers
+                    $(document).trigger('removed-from-compare', [_self.data('product-id')])
                 },
                 error: res => {
                     _self.removeClass('button-loading')

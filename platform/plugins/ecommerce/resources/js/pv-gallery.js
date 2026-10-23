@@ -350,126 +350,50 @@
     
     // Wishlist and Compare button handlers
     function initActionButtons() {
-        // Override compare button handler to update count instantly
-        $(document).off('click', '.pv-action-btn.js-add-to-compare-button, .pv-action-btn.js-remove-from-compare-button');
+        // DO NOT override the global handlers - let main.js handle all compare/wishlist buttons
+        // The global handlers in main.js already work for ALL buttons including .pv-action-btn
         
-        $(document).on('click', '.pv-action-btn.js-add-to-compare-button', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            
-            let _self = $(this);
-            let icon = this.querySelector('i');
-            
-            _self.addClass('button-loading');
-            
-            $.ajax({
-                url: _self.data('url'),
-                method: 'POST',
-                success: res => {
-                    if (res.error) {
-                        _self.removeClass('button-loading');
-                        if (typeof Theme !== 'undefined' && typeof Theme.showError === 'function') {
-                            Theme.showError(res.message);
-                        }
-                        return false;
-                    }
-                    
-                    if (typeof Theme !== 'undefined' && typeof Theme.showSuccess === 'function') {
-                        Theme.showSuccess(res.message);
-                    }
-                    
-                    // Update count instantly
-                    $('.btn-compare span i').text(res.data.count);
-                    
-                    // Update button state and icon
-                    _self.removeClass('button-loading js-add-to-compare-button').addClass('js-remove-from-compare-button active');
-                    
-                    // Replace icon: ph ph-chart-bar → ph-fill ph-chart-bar
-                    if (icon) {
+        // Only handle icon toggling for PV gallery buttons specifically on success events
+        $(document).on('added-to-compare removed-from-compare', function(e, productId) {
+            const btn = document.querySelector(`.pv-action-btn[data-product-id="${productId}"]`);
+            if (btn) {
+                const icon = btn.querySelector('i');
+                if (icon && icon.classList.contains('ph-chart-bar')) {
+                    if (e.type === 'added-to-compare') {
                         icon.className = 'ph-fill ph-chart-bar';
-                    }
-                },
-                error: res => {
-                    _self.removeClass('button-loading');
-                    if (typeof Theme !== 'undefined' && typeof Theme.showError === 'function') {
-                        Theme.showError(res.message || 'Error adding to compare');
-                    }
-                }
-            });
-        });
-        
-        $(document).on('click', '.pv-action-btn.js-remove-from-compare-button', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            
-            let _self = $(this);
-            let icon = this.querySelector('i');
-            
-            _self.addClass('button-loading');
-            
-            $.ajax({
-                url: _self.data('remove-url'),
-                method: 'POST',
-                success: res => {
-                    if (res.error) {
-                        _self.removeClass('button-loading');
-                        if (typeof Theme !== 'undefined' && typeof Theme.showError === 'function') {
-                            Theme.showError(res.message);
-                        }
-                        return false;
-                    }
-                    
-                    // Update button state and icon
-                    _self.removeClass('button-loading js-remove-from-compare-button active').addClass('js-add-to-compare-button');
-                    
-                    if (typeof Theme !== 'undefined' && typeof Theme.showSuccess === 'function') {
-                        Theme.showSuccess(res.message);
-                    }
-                    
-                    // Update count instantly
-                    $('.btn-compare span i').text(res.data.count);
-                    
-                    // Replace icon: ph-fill ph-chart-bar → ph ph-chart-bar
-                    if (icon) {
+                        btn.classList.add('active');
+                        btn.classList.remove('js-add-to-compare-button');
+                        btn.classList.add('js-remove-from-compare-button');
+                    } else {
                         icon.className = 'ph ph-chart-bar';
-                    }
-                    
-                    // Reload compare table if on compare page
-                    if ($('.ps-table--compare').length) {
-                        $('.ps-table--compare').load(window.location.href + ' .ps-table--compare > *');
-                    }
-                },
-                error: res => {
-                    _self.removeClass('button-loading');
-                    if (typeof Theme !== 'undefined' && typeof Theme.showError === 'function') {
-                        Theme.showError(res.message || 'Error removing from compare');
+                        btn.classList.remove('active');
+                        btn.classList.remove('js-remove-from-compare-button');
+                        btn.classList.add('js-add-to-compare-button');
                     }
                 }
-            });
+            }
         });
         
         // Listen for wishlist events
         $(document).on('added-to-wishlist', function(e, productId) {
-            const btn = document.querySelector(`.pv-action-btn.js-add-to-wishlist-button[data-product-id="${productId}"]`);
+            const btn = document.querySelector(`.pv-action-btn[data-product-id="${productId}"]`);
             if (btn) {
                 const icon = btn.querySelector('i');
-                if (icon) {
-                    // Replace icon: ph ph-heart → ph-fill ph-heart
+                if (icon && icon.classList.contains('ph-heart')) {
                     icon.className = 'ph-fill ph-heart';
+                    btn.classList.add('active');
                 }
-                btn.classList.add('active');
             }
         });
         
         $(document).on('removed-from-wishlist', function(e, productId) {
-            const btn = document.querySelector(`.pv-action-btn.js-add-to-wishlist-button[data-product-id="${productId}"]`);
+            const btn = document.querySelector(`.pv-action-btn[data-product-id="${productId}"]`);
             if (btn) {
                 const icon = btn.querySelector('i');
-                if (icon) {
-                    // Replace icon: ph-fill ph-heart → ph ph-heart
+                if (icon && icon.classList.contains('ph-heart')) {
                     icon.className = 'ph ph-heart';
+                    btn.classList.remove('active');
                 }
-                btn.classList.remove('active');
             }
         });
     }
