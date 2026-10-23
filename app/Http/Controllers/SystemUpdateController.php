@@ -62,9 +62,9 @@ class SystemUpdateController extends Controller
             $buildOutput = $this->executeCommand('npm run prod', $returnCode);
             $output = array_merge($output, $buildOutput);
 
-            // Step 5b: Copy PV Gallery files to vendor directory
-            $output[] = "\n=== Publishing PV Gallery Assets ===";
-            $this->publishPVGalleryAssets($output);
+            // Step 5b: Publish ALL plugin assets to vendor directory
+            $output[] = "\n=== Publishing Plugin Assets to Vendor ===";
+            $this->publishPluginAssets($output);
 
             // Step 6: Clear all caches
             $output[] = "\n=== Clearing All Caches ===";
@@ -299,53 +299,72 @@ class SystemUpdateController extends Controller
     }
 
     /**
-     * Publish PV Gallery assets from platform to public/vendor
+     * Publish ALL plugin/core compiled assets to public/vendor directory
+     * This copies everything from platform/*/public/ to public/vendor/
      */
-    private function publishPVGalleryAssets(array &$output)
+    private function publishPluginAssets(array &$output)
     {
-        $files = [
-            [
-                'source' => base_path('platform/plugins/ecommerce/public/css/pv-gallery.css'),
-                'dest' => public_path('vendor/core/plugins/ecommerce/css/pv-gallery.css'),
-            ],
-            [
-                'source' => base_path('platform/plugins/ecommerce/public/js/pv-gallery.js'),
-                'dest' => public_path('vendor/core/plugins/ecommerce/js/pv-gallery.js'),
-            ],
+        $sources = [
+            // Core packages
+            'platform/core/base/public' => 'public/vendor/core/core/base',
+            'platform/core/media/public' => 'public/vendor/core/core/media',
+            'platform/core/table/public' => 'public/vendor/core/core/table',
+            'platform/core/dashboard/public' => 'public/vendor/core/core/dashboard',
+            'platform/core/setting/public' => 'public/vendor/core/core/setting',
+            
+            // Core packages
+            'platform/packages/menu/public' => 'public/vendor/core/packages/menu',
+            'platform/packages/page/public' => 'public/vendor/core/packages/page',
+            'platform/packages/plugin-management/public' => 'public/vendor/core/packages/plugin-management',
+            'platform/packages/shortcode/public' => 'public/vendor/core/packages/shortcode',
+            'platform/packages/theme/public' => 'public/vendor/core/packages/theme',
+            'platform/packages/get-started/public' => 'public/vendor/core/packages/get-started',
+            
+            // Plugins (especially ecommerce with our PV Gallery)
+            'platform/plugins/ecommerce/public' => 'public/vendor/core/plugins/ecommerce',
+            'platform/plugins/contact/public' => 'public/vendor/core/plugins/contact',
+            'platform/plugins/newsletter/public' => 'public/vendor/core/plugins/newsletter',
+            'platform/plugins/payment/public' => 'public/vendor/core/plugins/payment',
+            'platform/plugins/marketplace/public' => 'public/vendor/core/plugins/marketplace',
+            'platform/plugins/blog/public' => 'public/vendor/core/plugins/blog',
         ];
 
-        $success = 0;
-        $failed = 0;
+        $totalFiles = 0;
+        $copiedFiles = 0;
 
-        foreach ($files as $file) {
-            $source = $file['source'];
-            $dest = $file['dest'];
+        foreach ($sources as $source => $dest) {
+            $sourcePath = base_path($source);
+            $destPath = base_path($dest);
             
-            if (!File::exists($source)) {
-                $output[] = "⚠ PV Gallery source not found: " . basename($source);
-                $failed++;
-                continue;
+            if (!File::isDirectory($sourcePath)) {
+                continue; // Skip if source doesn't exist
             }
             
-            // Create destination directory if needed
-            File::ensureDirectoryExists(dirname($dest));
+            // Create destination directory
+            File::ensureDirectoryExists($destPath);
             
-            // Copy file
-            if (File::copy($source, $dest)) {
-                $output[] = "✓ Published " . basename($source) . " (" . File::size($dest) . " bytes)";
-                $success++;
-            } else {
-                $output[] = "✗ Failed to publish " . basename($source);
-                $failed++;
+            // Copy entire directory recursively
+            try {
+                File::copyDirectory($sourcePath, $destPath);
+                
+                // Count files
+                $files = File::allFiles($destPath);
+                $fileCount = count($files);
+                $totalFiles += $fileCount;
+                $copiedFiles += $fileCount;
+                
+                $pluginName = basename(dirname($source)) . '/' . basename(dirname(dirname($source)));
+                $output[] = "✓ Published {$pluginName}: {$fileCount} files";
+                
+            } catch (\Exception $e) {
+                $output[] = "✗ Failed to publish " . basename(dirname($source));
             }
         }
 
-        if ($success > 0) {
-            $output[] = "✓ PV Gallery assets published: {$success} files";
-        }
-        
-        if ($failed > 0) {
-            $output[] = "⚠ Failed to publish {$failed} PV Gallery files";
+        if ($copiedFiles > 0) {
+            $output[] = "✓ Total assets published: {$copiedFiles} files";
+        } else {
+            $output[] = "⚠ No plugin assets found to publish";
         }
     }
 
