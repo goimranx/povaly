@@ -301,8 +301,8 @@ class SystemUpdateController extends Controller
         
         $returnCode = $result->exitCode();
         
-        // Split output by newlines and return as array
-        $output = array_filter(explode("\n", $result->output()));
+        // Combine stdout and stderr to capture all output
+        $output = array_filter(explode("\n", $result->output() . "\n" . $result->errorOutput()));
         
         return $output;
     }
