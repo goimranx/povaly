@@ -7,12 +7,16 @@
 
     // Define show message functions using Theme's toast notifications
     MartApp.showSuccess = function(message) {
+        console.log('🔔 showSuccess called:', message);
+        console.trace('Called from:');
         if (typeof Theme !== 'undefined' && Theme.showSuccess) {
             Theme.showSuccess(message);
         }
     };
 
     MartApp.showError = function(message) {
+        console.log('❌ showError called:', message);
+        console.trace('Called from:');
         if (typeof Theme !== 'undefined' && Theme.showError) {
             Theme.showError(message);
         }
