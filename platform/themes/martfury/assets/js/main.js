@@ -1054,12 +1054,12 @@
         }
     }
 
-})(jQuery)
+    // Initialize Owl Carousel on page load
+    $(document).ready(function() {
+        owlCarouselConfig($('.owl-slider'));
+    });
 
-// Initialize Owl Carousel on page load
-$(document).ready(function() {
-    owlCarouselConfig($('.owl-slider'));
-});
+})(jQuery)
 
 // Enhanced Product Card - Mobile cart button handler
 $(document).on('click', '.ps-enhanced-actions .ps-enhanced-btn--cart', function(event) {
