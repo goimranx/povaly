@@ -1056,6 +1056,10 @@
 
 })(jQuery)
 
+// Initialize Owl Carousel on page load
+$(document).ready(function() {
+    owlCarouselConfig($('.owl-slider'));
+});
 
 // Enhanced Product Card - Mobile cart button handler
 $(document).on('click', '.ps-enhanced-actions .ps-enhanced-btn--cart', function(event) {
