@@ -105,40 +105,42 @@
                                     data-url="{{ route('public.ajax.quick-view', $product->id) }}"
                                 @endif
                                 title="{{ __('Quick View') }}">
-                            <i class="icon-eye"></i>
+                            <i class="ph ph-eye"></i>
                         </button>
                         @if (EcommerceHelper::isWishlistEnabled())
-                            <button type="button" class="ec-card__float-btn js-add-to-wishlist-button"
+                            <button type="button" class="ec-card__float-btn ec-card__float-btn--wishlist js-add-to-wishlist-button"
                                     data-url="{{ route('public.wishlist.add', $product->id) }}"
                                     data-product-id="{{ $product->id }}"
                                     title="{{ __('Add to Wishlist') }}">
-                                <i class="icon-heart"></i>
+                                <i class="ph ph-heart"></i>
                             </button>
                         @endif
                         @if (EcommerceHelper::isCompareEnabled())
-                            <button type="button" class="ec-card__float-btn js-add-to-compare-button"
+                            <button type="button" class="ec-card__float-btn ec-card__float-btn--compare js-add-to-compare-button"
                                     data-url="{{ route('public.compare.add', $product->id) }}"
                                     data-product-id="{{ $product->id }}"
                                     title="{{ __('Compare') }}">
-                                <i class="icon-chart-bars"></i>
+                                <i class="ph ph-git-compare"></i>
                             </button>
                         @endif
                         @if (EcommerceHelper::isCartEnabled())
                             @if ($product->has_variation)
-                                <button type="button" class="ec-card__float-btn"
+                                <button type="button" class="ec-card__float-btn ec-card__float-btn--cart"
                                         data-bb-toggle="quick-shop"
                                         data-url="{{ route('public.ajax.quick-shop', $product->slug) }}"
+                                        data-product-id="{{ $product->id }}"
                                         {!! EcommerceHelper::jsAttributes('quick-shop', $product) !!}
                                         title="{{ __('Select Options') }}">
-                                    <i class="icon-bag2"></i>
+                                    <i class="ph ph-shopping-bag"></i>
                                 </button>
                             @else
-                                <button type="button" class="ec-card__float-btn"
+                                <button type="button" class="ec-card__float-btn ec-card__float-btn--cart"
                                         data-id="{{ $product->id }}"
+                                        data-product-id="{{ $product->id }}"
                                         data-url="{{ route('public.cart.add-to-cart') }}"
                                         {!! EcommerceHelper::jsAttributes('add-to-cart', $product) !!}
                                         title="{{ __('Add To Cart') }}">
-                                    <i class="icon-bag2"></i>
+                                    <i class="ph ph-shopping-bag"></i>
                                 </button>
                             @endif
                         @endif

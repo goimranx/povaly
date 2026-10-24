@@ -530,3 +530,308 @@
     }
 
 })(jQuery);
+
+
+    // ── Icon State Management (Phosphor Icons) ───────────────────────────
+    
+    /**
+     * Update icon state to filled or outline
+     * @param {jQuery} $button - The button element
+     * @param {boolean} isFilled - True for filled, false for outline
+     */
+    function updateIconState($button, isFilled) {
+        var $icon = $button.find('i');
+        
+        if (isFilled) {
+            // Add ph-fill class for filled state
+            if (!$icon.hasClass('ph-fill')) {
+                $icon.addClass('ph-fill');
+            }
+        } else {
+            // Remove ph-fill class for outline state
+            $icon.removeClass('ph-fill');
+        }
+    }
+    
+    /**
+     * Initialize icon states based on current cart/wishlist/compare
+     */
+    function initializeIconStates() {
+        // Initialize cart icon states
+        syncCartIconStates();
+        
+        // Initialize wishlist icon states
+        syncWishlistIconStates();
+        
+        // Initialize compare icon states
+        syncCompareIconStates();
+    }
+    
+    /**
+     * Sync cart icon states
+     */
+    function syncCartIconStates() {
+        $.ajax({
+            url: '/ajax/cart',
+            method: 'GET',
+            success: function(cartResponse) {
+                if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
+                    return;
+                }
+                
+                var $html = $(cartResponse.data.html);
+                var cartProductIds = [];
+                
+                // Parse cart items to get product IDs
+                $html.find('.ps-product--cart-mobile').each(function() {
+                    var $item = $(this);
+                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    
+                    if (!$productLink.length) return;
+                    
+                    var productUrl = $productLink.attr('href');
+                    var urlParts = productUrl.split('/products/');
+                    if (urlParts.length < 2) return;
+                    
+                    var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    cartProductIds.push(productIdentifier);
+                });
+                
+                // Update all cart button icons
+                $('.ec-card__float-btn--cart').each(function() {
+                    var $btn = $(this);
+                    var productId = $btn.data('product-id') || $btn.data('id');
+                    var productSlug = $btn.closest('.ec-card').find('a[href*="/products/"]').first().attr('href');
+                    
+                    if (productSlug) {
+                        var parts = productSlug.split('/products/');
+                        productSlug = parts.length > 1 ? parts[1].replace(/\/$/, '') : null;
+                    }
+                    
+                    // Check if product is in cart
+                    var isInCart = cartProductIds.includes(String(productId)) || 
+                                   (productSlug && cartProductIds.includes(productSlug));
+                    
+                    updateIconState($btn, isInCart);
+                });
+            }
+        });
+    }
+    
+    /**
+     * Sync wishlist icon states
+     */
+    function syncWishlistIconStates() {
+        // Get wishlist items from server
+        $.ajax({
+            url: '/ajax/wishlist',
+            method: 'GET',
+            success: function(response) {
+                if (!response || !response.data) return;
+                
+                var wishlistProductIds = [];
+                
+                // Parse wishlist items
+                if (response.data.products && Array.isArray(response.data.products)) {
+                    wishlistProductIds = response.data.products.map(function(product) {
+                        return String(product.id);
+                    });
+                } else if (response.data.html) {
+                    // Parse HTML if products array not available
+                    var $html = $(response.data.html);
+                    $html.find('[data-id], [data-product-id]').each(function() {
+                        var id = $(this).data('id') || $(this).data('product-id');
+                        if (id) wishlistProductIds.push(String(id));
+                    });
+                }
+                
+                // Update all wishlist button icons
+                $('.ec-card__float-btn--wishlist').each(function() {
+                    var $btn = $(this);
+                    var productId = String($btn.data('product-id'));
+                    var isInWishlist = wishlistProductIds.includes(productId);
+                    
+                    updateIconState($btn, isInWishlist);
+                    
+                    // Also update button state class for backend.js compatibility
+                    if (isInWishlist) {
+                        $btn.removeClass('js-add-to-wishlist-button')
+                            .addClass('js-remove-from-wishlist-button active');
+                    } else {
+                        $btn.removeClass('js-remove-from-wishlist-button active')
+                            .addClass('js-add-to-wishlist-button');
+                    }
+                });
+            },
+            error: function() {
+                // If wishlist endpoint doesn't exist, try to infer from button state
+                $('.ec-card__float-btn--wishlist.js-remove-from-wishlist-button, .ec-card__float-btn--wishlist.active').each(function() {
+                    updateIconState($(this), true);
+                });
+            }
+        });
+    }
+    
+    /**
+     * Sync compare icon states
+     */
+    function syncCompareIconStates() {
+        // Get compare items from server
+        $.ajax({
+            url: '/ajax/compare-list',
+            method: 'GET',
+            success: function(response) {
+                if (!response || !response.data) return;
+                
+                var compareProductIds = [];
+                
+                // Parse compare items
+                if (response.data.products && Array.isArray(response.data.products)) {
+                    compareProductIds = response.data.products.map(function(product) {
+                        return String(product.id);
+                    });
+                } else if (response.data.html) {
+                    // Parse HTML if products array not available
+                    var $html = $(response.data.html);
+                    $html.find('[data-id], [data-product-id]').each(function() {
+                        var id = $(this).data('id') || $(this).data('product-id');
+                        if (id) compareProductIds.push(String(id));
+                    });
+                }
+                
+                // Update all compare button icons
+                $('.ec-card__float-btn--compare').each(function() {
+                    var $btn = $(this);
+                    var productId = String($btn.data('product-id'));
+                    var isInCompare = compareProductIds.includes(productId);
+                    
+                    updateIconState($btn, isInCompare);
+                    
+                    // Also update button state class for backend.js compatibility
+                    if (isInCompare) {
+                        $btn.removeClass('js-add-to-compare-button')
+                            .addClass('js-remove-from-compare-button active');
+                    } else {
+                        $btn.removeClass('js-remove-from-compare-button active')
+                            .addClass('js-add-to-compare-button');
+                    }
+                });
+            },
+            error: function() {
+                // If compare endpoint doesn't exist, try to infer from button state
+                $('.ec-card__float-btn--compare.js-remove-from-compare-button, .ec-card__float-btn--compare.active').each(function() {
+                    updateIconState($(this), true);
+                });
+            }
+        });
+    }
+    
+    // ── Real-time Icon Updates ────────────────────────────────────────────
+    
+    // Update cart icon when item is added
+    document.addEventListener('ecommerce.cart.added', function (e) {
+        var element = e.detail && e.detail.element ? e.detail.element : null;
+        var productId = e.detail && e.detail.data && e.detail.data.id ? e.detail.data.id : null;
+        
+        if (element && $(element).hasClass('ec-card__float-btn--cart')) {
+            updateIconState($(element), true);
+        }
+        
+        // Update all cart buttons for this product
+        if (productId) {
+            $('.ec-card__float-btn--cart[data-product-id="' + productId + '"]').each(function() {
+                updateIconState($(this), true);
+            });
+        }
+        
+        // Sync all cart icons to be sure
+        setTimeout(syncCartIconStates, 500);
+    });
+    
+    // Update cart icon when item is removed
+    document.addEventListener('ecommerce.cart.removed', function(e) {
+        var productId = e.detail && e.detail.productId ? e.detail.productId : null;
+        
+        if (productId) {
+            $('.ec-card__float-btn--cart[data-product-id="' + productId + '"]').each(function() {
+                updateIconState($(this), false);
+            });
+        }
+        
+        // Sync all cart icons
+        setTimeout(syncCartIconStates, 500);
+    });
+    
+    // Update cart icons after cart update
+    document.addEventListener('ecommerce.cart.updated', function(e) {
+        syncCartIconStates();
+    });
+    
+    // Intercept wishlist add/remove to update icon state immediately
+    $(document).on('click', '.ec-card__float-btn--wishlist.js-add-to-wishlist-button', function(e) {
+        var $btn = $(this);
+        var productId = $btn.data('product-id');
+        
+        // Optimistically update icon
+        updateIconState($btn, true);
+        
+        // Update all wishlist buttons for this product
+        $('.ec-card__float-btn--wishlist[data-product-id="' + productId + '"]').each(function() {
+            updateIconState($(this), true);
+        });
+    });
+    
+    $(document).on('click', '.ec-card__float-btn--wishlist.js-remove-from-wishlist-button', function(e) {
+        var $btn = $(this);
+        var productId = $btn.data('product-id');
+        
+        // Optimistically update icon
+        updateIconState($btn, false);
+        
+        // Update all wishlist buttons for this product
+        $('.ec-card__float-btn--wishlist[data-product-id="' + productId + '"]').each(function() {
+            updateIconState($(this), false);
+        });
+    });
+    
+    // Intercept compare add/remove to update icon state immediately
+    $(document).on('click', '.ec-card__float-btn--compare.js-add-to-compare-button', function(e) {
+        var $btn = $(this);
+        var productId = $btn.data('product-id');
+        
+        // Optimistically update icon
+        updateIconState($btn, true);
+        
+        // Update all compare buttons for this product
+        $('.ec-card__float-btn--compare[data-product-id="' + productId + '"]').each(function() {
+            updateIconState($(this), true);
+        });
+    });
+    
+    $(document).on('click', '.ec-card__float-btn--compare.js-remove-from-compare-button', function(e) {
+        var $btn = $(this);
+        var productId = $btn.data('product-id');
+        
+        // Optimistically update icon
+        updateIconState($btn, false);
+        
+        // Update all compare buttons for this product
+        $('.ec-card__float-btn--compare[data-product-id="' + productId + '"]').each(function() {
+            updateIconState($(this), false);
+        });
+    });
+    
+    // Initialize icon states on page load
+    $(document).ready(function() {
+        initializeIconStates();
+    });
+    
+    // Re-initialize icon states when new products are loaded dynamically
+    $(document).on('DOMNodeInserted', '.ec-card', function() {
+        // Debounce to avoid too many calls
+        clearTimeout(window.iconStateInitTimeout);
+        window.iconStateInitTimeout = setTimeout(function() {
+            initializeIconStates();
+        }, 500);
+    });
+
