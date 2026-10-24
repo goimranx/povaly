@@ -42,8 +42,6 @@
     // ── Cart update after add-to-cart ─────────────────────────────────────
     // Suppress toast notification and transform button to quantity control
     document.addEventListener('ecommerce.cart.added', function (e) {
-        console.log('🛒 Cart added event fired', e.detail);
-        
         // Update mini-cart
         if (typeof window.loadCart === 'function') {
             window.loadCart();
@@ -581,16 +579,11 @@
      * Sync cart icon states
      */
     function syncCartIconStates() {
-        console.log('🔄 Syncing cart icon states...');
-        
         $.ajax({
             url: '/ajax/cart',
             method: 'GET',
             success: function(cartResponse) {
-                console.log('✅ Cart response:', cartResponse);
-                
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
-                    console.log('❌ No cart data - setting all icons to outline');
                     // No cart data - all icons should be outline
                     $('.ec-card__float-btn--cart').each(function() {
                         updateIconState($(this), false);
@@ -616,8 +609,6 @@
                     cartProductIds.push(productIdentifier);
                 });
                 
-                console.log('🛒 Products in cart:', cartProductIds);
-                
                 // Update all cart button icons
                 $('.ec-card__float-btn--cart').each(function() {
                     var $btn = $(this);
@@ -633,12 +624,10 @@
                     var isInCart = cartProductIds.includes(String(productId)) || 
                                    (productSlug && cartProductIds.includes(productSlug));
                     
-                    console.log('🔍 Product', productId, 'slug:', productSlug, 'isInCart:', isInCart);
                     updateIconState($btn, isInCart);
                 });
             },
             error: function() {
-                console.log('❌ Error fetching cart - setting all icons to outline');
                 // On error, set all icons to outline
                 $('.ec-card__float-btn--cart').each(function() {
                     updateIconState($(this), false);
@@ -779,16 +768,12 @@
     
     // Update cart icon when item is removed
     document.addEventListener('ecommerce.cart.removed', function(e) {
-        console.log('🗑️ Cart removed event fired', e.detail);
-        
         // Cart removed event doesn't include productId, so sync all icons from server
         syncCartIconStates();
     });
     
     // Listen to mini cart remove button clicks directly (fallback if event doesn't fire)
     $(document).on('click', '.remove-cart-item, .remove-cart-button, .ps-product__remove', function(e) {
-        console.log('🗑️ Mini cart remove button clicked');
-        
         // Give the cart a moment to update, then sync icons
         setTimeout(function() {
             syncCartIconStates();
@@ -797,7 +782,6 @@
     
     // Update cart icons after cart update
     document.addEventListener('ecommerce.cart.updated', function(e) {
-        console.log('🔄 Cart updated event fired', e.detail);
         syncCartIconStates();
     });
     
