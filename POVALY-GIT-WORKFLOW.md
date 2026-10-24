@@ -2245,3 +2245,64 @@ git branch -D feature/your-name-test
 ---
 
 **Keep this file! This is your single source of truth for Git workflow!** 📚
+
+
+---
+
+## 🔢 Automatic Versioning System
+
+### Overview
+
+Povaly now has **automatic version detection and cache busting** using Git:
+
+- **Production (povaly.com)**: Uses Git tags → v1.0.0, v1.1.0...
+- **Staging (stage.povaly.com)**: Uses branch + commit → stage-abc1234
+- **Automatic cache busting**: Assets load with ?v=1.0.0
+- **No manual version updates needed!**
+
+### How It Works
+
+```bash
+# When you deploy with a tag:
+git tag -a v1.1.0 -m "New features"
+git push origin v1.1.0
+
+# System automatically:
+✅ Reads Git tag: v1.1.0
+✅ Updates app version: v1.1.0  
+✅ Cache busts assets: style.css?v=1.1.0
+```
+
+### Using in Your Code
+
+```blade
+{{-- Display version --}}
+<p>Version: {{ app_version() }}</p>
+
+{{-- Cache-busting assets (automatically adds ?v=1.0.0) --}}
+<link href="{{ asset_v('css/style.css') }}" rel="stylesheet">
+<script src="{{ asset_v('js/app.js') }}"></script>
+
+{{-- Check environment --}}
+@if(is_production_env())
+    <span class="badge-success">Production</span>
+@endif
+```
+
+### Benefits
+
+✅ **No manual version updates** - Git tags become version numbers  
+✅ **Auto cache busting** - Users always see latest CSS/JS  
+✅ **Clear deployments** - Know exactly which version is live  
+✅ **Easy rollback** - `git checkout v1.0.0` to go back
+
+### Full Documentation
+
+See **VERSIONING-AND-DEPLOYMENT.md** for complete guide on:
+- Version Helper API
+- Cache busting strategies
+- Deployment workflows
+- Troubleshooting
+
+---
+
