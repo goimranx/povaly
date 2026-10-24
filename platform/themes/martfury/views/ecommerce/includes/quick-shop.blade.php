@@ -226,7 +226,7 @@
             <div class="pr_switch_wrap" id="product-option">{!! render_product_options($product) !!}</div>
         @endif
 
-        <form class="add-to-cart-form" method="POST" action="{{ route('public.cart.add-to-cart') }}" data-bb-toggle="product-form">
+        <form class="add-to-cart-form" method="POST" action="{{ route('public.cart.add-to-cart') }}" data-bb-toggle="product-form" data-show-toast-on-success="false">
             @csrf
             <input type="hidden" name="id" class="hidden-product-id" value="{{ $displayProduct->id }}" />
             <div class="qs-qty-row">

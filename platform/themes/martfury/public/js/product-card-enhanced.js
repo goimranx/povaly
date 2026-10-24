@@ -51,10 +51,15 @@
 
         // Check if this was from an enhanced card button
         var element = e.detail && e.detail.element ? e.detail.element : null;
-        if (element && element.hasClass('ec-card__btn--cart')) {
-            var productId = element.data('id');
-            if (productId) {
-                transformToQuantityControl(productId, 1);
+        if (element) {
+            // Ensure element is a jQuery object
+            var $element = element instanceof $ ? element : $(element);
+            
+            if ($element.hasClass('ec-card__btn--cart')) {
+                var productId = $element.data('id');
+                if (productId) {
+                    transformToQuantityControl(productId, 1);
+                }
             }
         }
         
