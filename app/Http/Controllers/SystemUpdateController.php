@@ -89,6 +89,28 @@ class SystemUpdateController extends Controller
                 $output[] = "⚠ CMS publish command skipped: " . $e->getMessage();
             }
 
+            // Step 4c: Publish theme assets (copies platform/themes/*/public/ → public/themes/)
+            $output[] = "\n=== Publishing Theme Assets ===";
+            try {
+                Artisan::call('cms:theme:assets:publish', ['name' => 'martfury']);
+                $output[] = "✓ Theme assets published via artisan";
+            } catch (\Throwable $e) {
+                // Fallback: copy manually if artisan command not available
+                try {
+                    $source = base_path('platform/themes/martfury/public');
+                    $dest   = public_path('themes/martfury');
+                    if (File::isDirectory($source)) {
+                        File::ensureDirectoryExists($dest);
+                        File::copyDirectory($source, $dest);
+                        $output[] = "✓ Theme assets published via direct copy";
+                    } else {
+                        $output[] = "⚠ Theme source directory not found, skipping";
+                    }
+                } catch (\Throwable $e2) {
+                    $output[] = "⚠ Theme asset publish failed: " . $e2->getMessage();
+                }
+            }
+
             // Step 5: Clear all caches (AFTER publishing assets)
             $output[] = "\n=== Clearing All Caches ===";
             $this->clearAllCaches();
