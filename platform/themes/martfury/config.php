@@ -84,8 +84,7 @@ return [
                 ->add('masonry-js', 'plugins/masonry.pkgd.min.js', ['jquery']);
 
             $theme->asset()->container('footer')->usePath()->add('main', 'js/main.js', ['jquery'], [], $version);
-            $theme->asset()->container('footer')->usePath()
-                ->add('carousel-init', 'js/carousel-init.js', ['jquery', 'owl-carousel-js'], [], $version);
+            
             $theme->asset()->container('footer')->usePath()
                 ->add('backend', 'js/backend.js', ['jquery'], [], $version);
             // Use timestamp for cache busting instead of version
