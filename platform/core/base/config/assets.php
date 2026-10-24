@@ -11,6 +11,7 @@ return [
     'version' => env('ASSETS_VERSION'),
     'scripts' => [
         'core-ui',
+        'sidebar-collapsed-fix',
         'excanvas',
         'ie8-fix',
         'modernizr',
@@ -43,6 +44,13 @@ return [
                 'location' => 'footer',
                 'src' => [
                     'local' => '/vendor/core/core/base/js/core-ui.js',
+                ],
+            ],
+            'sidebar-collapsed-fix' => [
+                'use_cdn' => false,
+                'location' => 'footer',
+                'src' => [
+                    'local' => '/vendor/core/core/base/js/sidebar-collapsed-fix.js',
                 ],
             ],
             'core' => [
