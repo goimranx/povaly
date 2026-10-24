@@ -137,11 +137,21 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    document.getElementById('version-details').innerHTML = `
-                        <p class="mb-1"><strong>Commit:</strong> ${data.version.commit}</p>
-                        <p class="mb-1"><strong>Branch:</strong> ${data.version.branch}</p>
-                        <p class="mb-0"><strong>Last Update:</strong> ${data.version.last_update}</p>
+                    const v = data.version;
+                    let versionHtml = `
+                        <p class="mb-1"><strong>Version:</strong> <code>${v.current}</code></p>
+                        <p class="mb-1"><strong>Branch:</strong> ${v.branch}</p>
+                        <p class="mb-1"><strong>Commit:</strong> ${v.commit}</p>
+                        <p class="mb-1"><strong>Environment:</strong> <span class="badge badge-${v.environment === 'production' ? 'success' : (v.environment === 'staging' ? 'warning' : 'secondary')}">${v.environment}</span></p>
+                        <p class="mb-0"><strong>Last Update:</strong> ${v.last_update}</p>
                     `;
+                    
+                    // Add tag info if production
+                    if (v.tag_info) {
+                        versionHtml += `<p class="mb-0 mt-2"><strong>Tag:</strong> ${v.tag_info.tag}</p>`;
+                    }
+                    
+                    document.getElementById('version-details').innerHTML = versionHtml;
                 } else {
                     document.getElementById('version-details').innerHTML = `
                         <p class="text-danger"><i class="fas fa-exclamation-circle"></i> ${data.message}</p>
@@ -172,10 +182,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     hasUpdates = data.has_updates;
 
+                    // Display environment and deployment method
+                    let envBadge = data.environment === 'production' ? 
+                        '<span class="badge badge-success">Production</span>' : 
+                        '<span class="badge badge-warning">Staging</span>';
+                    
+                    let methodBadge = data.deployment_method === 'tag-based' ? 
+                        '<span class="badge badge-info">Tag-based</span>' : 
+                        '<span class="badge badge-info">Branch-based</span>';
+
                     if (data.has_updates) {
                         statusDiv.className = 'alert alert-warning';
-                        let changesHtml = '<p><strong>New updates available!</strong></p>';
-                        changesHtml += '<p>Current: <code>' + data.current_commit + '</code> → Latest: <code>' + data.latest_commit + '</code></p>';
+                        let changesHtml = '<p><strong>New updates available!</strong> ' + envBadge + ' ' + methodBadge + '</p>';
+                        
+                        if (data.deployment_method === 'tag-based') {
+                            changesHtml += '<p>Current: <code>' + data.current_version + '</code> → Latest: <code>' + data.latest_version + '</code></p>';
+                            
+                            if (data.available_tags && data.available_tags.length > 0) {
+                                changesHtml += '<p><strong>Available tags:</strong> ' + data.available_tags.slice(0, 5).join(', ') + '</p>';
+                            }
+                        } else {
+                            changesHtml += '<p>Current: <code>' + data.current_commit + '</code> → Latest: <code>' + data.latest_commit + '</code></p>';
+                            changesHtml += '<p>Branch: <code>' + data.branch + '</code></p>';
+                        }
                         
                         if (data.changes && data.changes.length > 0) {
                             changesHtml += '<p><strong>Recent changes:</strong></p><ul>';
@@ -189,9 +218,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('update-btn').disabled = false;
                     } else {
                         statusDiv.className = 'alert alert-success';
+                        let currentDisplay = data.current_version || data.current_commit;
                         resultDiv.innerHTML = `
-                            <p><i class="fas fa-check-circle"></i> <strong>Your system is up to date!</strong></p>
-                            <p>Current version: <code>${data.current_commit}</code></p>
+                            <p><i class="fas fa-check-circle"></i> <strong>Your system is up to date!</strong> ${envBadge} ${methodBadge}</p>
+                            <p>Current version: <code>${currentDisplay}</code></p>
                         `;
                         document.getElementById('update-btn').disabled = true;
                     }
