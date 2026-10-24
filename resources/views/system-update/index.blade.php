@@ -229,46 +229,89 @@ document.addEventListener('DOMContentLoaded', function() {
         const progressSection = document.getElementById('progress-section');
         const outputDiv = document.getElementById('update-output');
         progressSection.style.display = 'block';
-        outputDiv.innerHTML = '⏳ Starting update process...\n';
+        outputDiv.innerHTML = '⏳ Connecting to update service...\n';
 
         // Scroll to progress section
         progressSection.scrollIntoView({ behavior: 'smooth' });
 
-        fetch('{{ route('system.update.perform') }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ force: force })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                outputDiv.innerHTML = formatOutput(data.output, true);
-                outputDiv.innerHTML += '\n\n✅ UPDATE COMPLETED SUCCESSFULLY!\n';
-                outputDiv.innerHTML += '\n🔄 Reloading page in 3 seconds...\n';
+        // Create EventSource for Server-Sent Events (using GET with query parameter)
+        const url = '{{ route('system.update.perform') }}' + (force ? '?force=1' : '');
+        const eventSource = new EventSource(url);
+        
+        eventSource.onmessage = function(event) {
+            try {
+                const data = JSON.parse(event.data);
                 
-                // Reload page after 3 seconds
-                setTimeout(() => {
-                    window.location.reload();
-                }, 3000);
-            } else {
-                outputDiv.innerHTML = formatOutput(data.output, false);
-                outputDiv.innerHTML += '\n\n❌ UPDATE FAILED!\n';
-                outputDiv.innerHTML += '\nError: ' + data.message + '\n';
-                
-                // Re-enable buttons
-                enableAllButtons();
+                if (data.type === 'complete') {
+                    // Update completed or failed
+                    eventSource.close();
+                    
+                    if (data.success) {
+                        outputDiv.innerHTML += '\n\n✅ UPDATE COMPLETED SUCCESSFULLY!\n';
+                        outputDiv.innerHTML += '\n🔄 Reloading page in 3 seconds...\n';
+                        
+                        // Auto-scroll to bottom
+                        outputDiv.scrollTop = outputDiv.scrollHeight;
+                        
+                        // Reload page after 3 seconds
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 3000);
+                    } else {
+                        outputDiv.innerHTML += '\n\n❌ UPDATE FAILED!\n';
+                        if (data.error) {
+                            outputDiv.innerHTML += '\nError: ' + data.error + '\n';
+                        }
+                        
+                        // Auto-scroll to bottom
+                        outputDiv.scrollTop = outputDiv.scrollHeight;
+                        
+                        // Re-enable buttons
+                        enableAllButtons();
+                    }
+                } else {
+                    // Progress message
+                    const line = formatLine(data.message, data.type);
+                    outputDiv.innerHTML += line + '\n';
+                    
+                    // Auto-scroll to bottom
+                    outputDiv.scrollTop = outputDiv.scrollHeight;
+                }
+            } catch (e) {
+                console.error('Error parsing SSE data:', e);
             }
-        })
-        .catch(error => {
-            outputDiv.innerHTML += '\n\n❌ FATAL ERROR!\n';
-            outputDiv.innerHTML += '\nError: ' + error.message + '\n';
+        };
+        
+        eventSource.onerror = function(error) {
+            console.error('EventSource error:', error);
+            eventSource.close();
+            
+            outputDiv.innerHTML += '\n\n❌ CONNECTION ERROR!\n';
+            outputDiv.innerHTML += '\nThe connection to the server was lost.\n';
+            outputDiv.innerHTML += '\nPlease check the server logs for details.\n';
+            
+            // Auto-scroll to bottom
+            outputDiv.scrollTop = outputDiv.scrollHeight;
             
             // Re-enable buttons
             enableAllButtons();
-        });
+        };
+    }
+
+    function formatLine(text, type) {
+        switch (type) {
+            case 'success':
+                return '<span class="success-line">' + escapeHtml(text) + '</span>';
+            case 'error':
+                return '<span class="error-line">' + escapeHtml(text) + '</span>';
+            case 'warning':
+                return '<span style="color: #ffa500;">' + escapeHtml(text) + '</span>';
+            case 'header':
+                return '<span style="color: #00d4ff; font-weight: bold;">' + escapeHtml(text) + '</span>';
+            case 'info':
+            default:
+                return escapeHtml(text);
+        }
     }
 
     function clearCacheOnly() {
@@ -298,23 +341,6 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             outputDiv.innerHTML += '\n❌ Error: ' + error.message + '\n';
         });
-    }
-
-    function formatOutput(output, success) {
-        const lines = output.split('\n');
-        let formatted = '';
-        
-        lines.forEach(line => {
-            if (line.includes('✓') || line.includes('SUCCESS')) {
-                formatted += '<span class="success-line">' + escapeHtml(line) + '</span>\n';
-            } else if (line.includes('ERROR') || line.includes('✗') || line.includes('Failed')) {
-                formatted += '<span class="error-line">' + escapeHtml(line) + '</span>\n';
-            } else {
-                formatted += escapeHtml(line) + '\n';
-            }
-        });
-        
-        return formatted;
     }
 
     function escapeHtml(text) {

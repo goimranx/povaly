@@ -38,140 +38,179 @@ class SystemUpdateController extends Controller
 
     /**
      * Pull latest changes from GitHub and update the system
+     * Uses Server-Sent Events (SSE) for real-time progress updates
      */
     public function update(Request $request)
     {
-        try {
-            $output = [];
-            $returnCode = 0;
+        return response()->stream(function () {
+            // Helper function to send a message to the client
+            $sendMessage = function ($message, $type = 'info') {
+                echo "data: " . json_encode([
+                    'type' => $type,
+                    'message' => $message,
+                    'timestamp' => now()->format('H:i:s')
+                ]) . "\n\n";
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+                flush();
+                usleep(100000); // 100ms delay for better visual feedback
+            };
 
-            // Step 1: Put the site in maintenance mode
-            $output[] = "=== Enabling Maintenance Mode ===";
-            Artisan::call('down', ['--render' => 'errors::503']);
-            $output[] = "✓ Maintenance mode enabled";
-
-            // Step 2: Fetch and reset to remote branch (handles divergent branches)
-            $output[] = "\n=== Fetching from GitHub ===";
-            $fetchOutput = $this->executeCommand('git fetch origin ' . env('GITHUB_BRANCH', 'main'), $returnCode);
-            $output = array_merge($output, $fetchOutput);
-            
-            if ($returnCode !== 0) {
-                throw new \Exception("Git fetch failed with code {$returnCode}");
-            }
-            
-            $output[] = "\n=== Resetting to Remote Branch ===";
-            $resetOutput = $this->executeCommand('git reset --hard origin/' . env('GITHUB_BRANCH', 'main'), $returnCode);
-            $output = array_merge($output, $resetOutput);
-            
-            if ($returnCode !== 0) {
-                throw new \Exception("Git reset failed with code {$returnCode}");
-            }
-            
-            $output[] = "✓ Local repository synced with remote";
-
-            // Step 3: Install/Update Composer dependencies
-            $output[] = "\n=== Updating Composer Dependencies ===";
-            $composerOutput = $this->executeCommand('composer install --no-dev --optimize-autoloader --no-interaction', $returnCode);
-            $output = array_merge($output, $composerOutput);
-
-            // Step 4: Publish ALL plugin assets to vendor directory
-            // Note: Assets are pre-compiled locally and committed to git
-            // Server just copies from platform/*/public/ to public/vendor/
-            $output[] = "\n=== Publishing Plugin Assets to Vendor ===";
-            $this->publishPluginAssets($output);
-            
-            // Step 4b: Run Laravel's cms:publish:assets command (publishes all registered assets)
-            $output[] = "\n=== Publishing CMS Assets ===";
             try {
-                Artisan::call('cms:publish:assets');
-                $output[] = "✓ CMS assets published via artisan";
-            } catch (\Exception $e) {
-                $output[] = "⚠ CMS publish command skipped: " . $e->getMessage();
-            }
+                $returnCode = 0;
 
-            // Step 4c: Publish theme assets (copies platform/themes/*/public/ → public/themes/)
-            $output[] = "\n=== Publishing Theme Assets ===";
-            try {
-                Artisan::call('cms:theme:assets:publish', ['name' => 'martfury']);
-                $output[] = "✓ Theme assets published via artisan";
-            } catch (\Throwable $e) {
-                // Fallback: copy manually if artisan command not available
-                try {
-                    $source = base_path('platform/themes/martfury/public');
-                    $dest   = public_path('themes/martfury');
-                    if (File::isDirectory($source)) {
-                        File::ensureDirectoryExists($dest);
-                        File::copyDirectory($source, $dest);
-                        $output[] = "✓ Theme assets published via direct copy";
-                    } else {
-                        $output[] = "⚠ Theme source directory not found, skipping";
+                // Step 1: Put the site in maintenance mode
+                $sendMessage("=== Enabling Maintenance Mode ===", 'header');
+                Artisan::call('down', ['--render' => 'errors::503']);
+                $sendMessage("✓ Maintenance mode enabled", 'success');
+
+                // Step 2: Fetch and reset to remote branch
+                $sendMessage("\n=== Fetching from GitHub ===", 'header');
+                $fetchOutput = $this->executeCommand('git fetch origin ' . env('GITHUB_BRANCH', 'main'), $returnCode);
+                foreach ($fetchOutput as $line) {
+                    $sendMessage($line, 'info');
+                }
+                
+                if ($returnCode !== 0) {
+                    throw new \Exception("Git fetch failed with code {$returnCode}");
+                }
+                
+                $sendMessage("\n=== Resetting to Remote Branch ===", 'header');
+                $resetOutput = $this->executeCommand('git reset --hard origin/' . env('GITHUB_BRANCH', 'main'), $returnCode);
+                foreach ($resetOutput as $line) {
+                    $sendMessage($line, 'info');
+                }
+                
+                if ($returnCode !== 0) {
+                    throw new \Exception("Git reset failed with code {$returnCode}");
+                }
+                
+                $sendMessage("✓ Local repository synced with remote", 'success');
+
+                // Step 3: Install/Update Composer dependencies
+                $sendMessage("\n=== Updating Composer Dependencies ===", 'header');
+                $composerOutput = $this->executeCommand('composer install --no-dev --optimize-autoloader --no-interaction', $returnCode);
+                foreach ($composerOutput as $line) {
+                    if (!empty(trim($line))) {
+                        $sendMessage($line, 'info');
                     }
-                } catch (\Throwable $e2) {
-                    $output[] = "⚠ Theme asset publish failed: " . $e2->getMessage();
                 }
-            }
 
-            // Step 5: Run database migrations (skip errors if tables already exist)
-            $output[] = "\n=== Running Database Migrations ===";
-            try {
-                Artisan::call('migrate', ['--force' => true]);
-                $migrationOutput = Artisan::output();
-                if (!empty(trim($migrationOutput))) {
-                    $output[] = $migrationOutput;
+                // Step 4: Publish plugin assets
+                $sendMessage("\n=== Publishing Plugin Assets to Vendor ===", 'header');
+                $this->publishPluginAssets($sendMessage);
+                
+                // Step 4b: Publish CMS assets
+                $sendMessage("\n=== Publishing CMS Assets ===", 'header');
+                try {
+                    Artisan::call('cms:publish:assets');
+                    $sendMessage("✓ CMS assets published via artisan", 'success');
+                } catch (\Exception $e) {
+                    $sendMessage("⚠ CMS publish command skipped: " . $e->getMessage(), 'warning');
                 }
-                $output[] = "✓ Migrations completed";
+
+                // Step 4c: Publish theme assets
+                $sendMessage("\n=== Publishing Theme Assets ===", 'header');
+                try {
+                    Artisan::call('cms:theme:assets:publish', ['name' => 'martfury']);
+                    $sendMessage("✓ Theme assets published via artisan", 'success');
+                } catch (\Throwable $e) {
+                    try {
+                        $source = base_path('platform/themes/martfury/public');
+                        $dest   = public_path('themes/martfury');
+                        if (File::isDirectory($source)) {
+                            File::ensureDirectoryExists($dest);
+                            File::copyDirectory($source, $dest);
+                            $sendMessage("✓ Theme assets published via direct copy", 'success');
+                        } else {
+                            $sendMessage("⚠ Theme source directory not found, skipping", 'warning');
+                        }
+                    } catch (\Throwable $e2) {
+                        $sendMessage("⚠ Theme asset publish failed: " . $e2->getMessage(), 'warning');
+                    }
+                }
+
+                // Step 5: Run database migrations
+                $sendMessage("\n=== Running Database Migrations ===", 'header');
+                try {
+                    Artisan::call('migrate', ['--force' => true]);
+                    $migrationOutput = Artisan::output();
+                    if (!empty(trim($migrationOutput))) {
+                        foreach (explode("\n", $migrationOutput) as $line) {
+                            if (!empty(trim($line))) {
+                                $sendMessage($line, 'info');
+                            }
+                        }
+                    }
+                    $sendMessage("✓ Migrations completed", 'success');
+                } catch (\Exception $e) {
+                    if (str_contains($e->getMessage(), 'already exists')) {
+                        $sendMessage("⚠ Migrations skipped (tables already exist)", 'warning');
+                    } else {
+                        throw $e;
+                    }
+                }
+
+                // Step 6: Publish vendor assets
+                $sendMessage("\n=== Publishing Vendor Assets ===", 'header');
+                Artisan::call('vendor:publish', ['--tag' => 'public', '--force' => true]);
+                $sendMessage("✓ Vendor assets published", 'success');
+
+                // Step 7: Clear all caches
+                $sendMessage("\n=== Clearing All Caches ===", 'header');
+                $this->clearAllCachesWithProgress($sendMessage);
+                $sendMessage("✓ All caches cleared", 'success');
+
+                // Step 8: Optimize application
+                $sendMessage("\n=== Optimizing Application ===", 'header');
+                $this->optimizeApplicationWithProgress($sendMessage);
+                $sendMessage("✓ Application optimized", 'success');
+
+                // Step 9: Take the site out of maintenance mode
+                $sendMessage("\n=== Disabling Maintenance Mode ===", 'header');
+                Artisan::call('up');
+                $sendMessage("✓ Maintenance mode disabled", 'success');
+
+                $sendMessage("\n========================================", 'success');
+                $sendMessage("✓✓✓ UPDATE COMPLETED SUCCESSFULLY ✓✓✓", 'success');
+                $sendMessage("========================================", 'success');
+
+                // Send completion signal
+                echo "data: " . json_encode(['type' => 'complete', 'success' => true]) . "\n\n";
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+                flush();
+
             } catch (\Exception $e) {
-                // If migration fails due to existing tables, just note it and continue
-                if (str_contains($e->getMessage(), 'already exists')) {
-                    $output[] = "⚠ Migrations skipped (tables already exist)";
-                } else {
-                    // Re-throw if it's a different error
-                    throw $e;
+                // Make sure to take the site out of maintenance mode on error
+                Artisan::call('up');
+
+                Log::error('System update failed: ' . $e->getMessage());
+
+                $sendMessage("\n========================================", 'error');
+                $sendMessage("❌ UPDATE FAILED!", 'error');
+                $sendMessage("Error: " . $e->getMessage(), 'error');
+                $sendMessage("========================================", 'error');
+
+                // Send completion signal with error
+                echo "data: " . json_encode([
+                    'type' => 'complete',
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ]) . "\n\n";
+                if (ob_get_level() > 0) {
+                    ob_flush();
                 }
+                flush();
             }
-
-            // Step 6: Publish vendor assets
-            $output[] = "\n=== Publishing Vendor Assets ===";
-            Artisan::call('vendor:publish', ['--tag' => 'public', '--force' => true]);
-            $output[] = "✓ Vendor assets published";
-
-            // Step 7: Clear all caches (AFTER all assets published)
-            $output[] = "\n=== Clearing All Caches ===";
-            $this->clearAllCaches();
-            $output[] = "✓ All caches cleared";
-
-            // Step 8: Optimize application
-            $output[] = "\n=== Optimizing Application ===";
-            $this->optimizeApplication();
-            $output[] = "✓ Application optimized";
-
-            // Step 9: Take the site out of maintenance mode
-            $output[] = "\n=== Disabling Maintenance Mode ===";
-            Artisan::call('up');
-            $output[] = "✓ Maintenance mode disabled";
-
-            $output[] = "\n========================================";
-            $output[] = "✓✓✓ UPDATE COMPLETED SUCCESSFULLY ✓✓✓";
-            $output[] = "========================================";
-
-            return response()->json([
-                'success' => true,
-                'message' => 'System updated successfully!',
-                'output' => implode("\n", $output)
-            ]);
-
-        } catch (\Exception $e) {
-            // Make sure to take the site out of maintenance mode on error
-            Artisan::call('up');
-
-            Log::error('System update failed: ' . $e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Update failed: ' . $e->getMessage(),
-                'output' => implode("\n", $output) . "\n\nERROR: " . $e->getMessage()
-            ], 500);
-        }
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'X-Accel-Buffering' => 'no', // Disable nginx buffering
+            'Connection' => 'keep-alive',
+        ]);
     }
 
     /**
@@ -280,6 +319,94 @@ class SystemUpdateController extends Controller
     }
 
     /**
+     * Clear all application caches with progress messages
+     */
+    private function clearAllCachesWithProgress(callable $sendMessage)
+    {
+        // Clear application cache
+        $sendMessage("→ Clearing application cache...", 'info');
+        Artisan::call('cache:clear');
+        $sendMessage("✓ Application cache cleared", 'success');
+        
+        // Clear config cache
+        $sendMessage("→ Clearing config cache...", 'info');
+        Artisan::call('config:clear');
+        $sendMessage("✓ Config cache cleared", 'success');
+        
+        // Clear route cache
+        $sendMessage("→ Clearing route cache...", 'info');
+        Artisan::call('route:clear');
+        $sendMessage("✓ Route cache cleared", 'success');
+        
+        // Clear view cache
+        $sendMessage("→ Clearing view cache...", 'info');
+        Artisan::call('view:clear');
+        $sendMessage("✓ View cache cleared", 'success');
+        
+        // Clear compiled classes
+        $sendMessage("→ Clearing compiled classes...", 'info');
+        Artisan::call('clear-compiled');
+        $sendMessage("✓ Compiled classes cleared", 'success');
+        
+        // Clear event cache
+        $sendMessage("→ Clearing event cache...", 'info');
+        Artisan::call('event:clear');
+        $sendMessage("✓ Event cache cleared", 'success');
+        
+        // Clear CMS cache (Botble specific)
+        if (class_exists('\Botble\Base\Facades\BaseHelper')) {
+            try {
+                $sendMessage("→ Clearing CMS cache...", 'info');
+                Artisan::call('cms:cache:clear');
+                $sendMessage("✓ CMS cache cleared", 'success');
+            } catch (\Exception $e) {
+                $sendMessage("⚠ CMS cache not available", 'warning');
+            }
+        }
+
+        // Clear file cache manually
+        $sendMessage("→ Clearing file caches...", 'info');
+        $cacheDirectories = [
+            'framework/cache/data' => storage_path('framework/cache/data'),
+            'framework/views' => storage_path('framework/views'),
+            'framework/sessions' => storage_path('framework/sessions'),
+            'bootstrap/cache' => base_path('bootstrap/cache'),
+        ];
+
+        $clearedCount = 0;
+        foreach ($cacheDirectories as $name => $directory) {
+            if (File::exists($directory)) {
+                $files = File::allFiles($directory);
+                foreach ($files as $file) {
+                    if ($file->getFilename() !== '.gitignore') {
+                        try {
+                            File::delete($file->getRealPath());
+                            $clearedCount++;
+                        } catch (\Exception $e) {
+                            // Continue even if some files can't be deleted
+                        }
+                    }
+                }
+            }
+        }
+        $sendMessage("✓ Cleared {$clearedCount} cache files", 'success');
+
+        // Clear PHP OpCache if available
+        if (function_exists('opcache_reset')) {
+            $sendMessage("→ Resetting OpCache...", 'info');
+            opcache_reset();
+            $sendMessage("✓ OpCache reset", 'success');
+        }
+
+        // Clear APCu cache if available
+        if (function_exists('apcu_clear_cache')) {
+            $sendMessage("→ Clearing APCu cache...", 'info');
+            apcu_clear_cache();
+            $sendMessage("✓ APCu cache cleared", 'success');
+        }
+    }
+
+    /**
      * Optimize the application
      */
     private function optimizeApplication()
@@ -303,6 +430,39 @@ class SystemUpdateController extends Controller
     }
 
     /**
+     * Optimize the application with progress messages
+     */
+    private function optimizeApplicationWithProgress(callable $sendMessage)
+    {
+        // Cache config
+        $sendMessage("→ Caching configuration...", 'info');
+        Artisan::call('config:cache');
+        $sendMessage("✓ Configuration cached", 'success');
+        
+        // Cache routes (only in production)
+        if (app()->environment('production')) {
+            $sendMessage("→ Caching routes...", 'info');
+            Artisan::call('route:cache');
+            $sendMessage("✓ Routes cached", 'success');
+        }
+        
+        // Cache views
+        $sendMessage("→ Caching views...", 'info');
+        Artisan::call('view:cache');
+        $sendMessage("✓ Views cached", 'success');
+        
+        // Optimize autoloader
+        $sendMessage("→ Optimizing autoloader...", 'info');
+        Artisan::call('optimize');
+        $sendMessage("✓ Autoloader optimized", 'success');
+        
+        // Cache events
+        $sendMessage("→ Caching events...", 'info');
+        Artisan::call('event:cache');
+        $sendMessage("✓ Events cached", 'success');
+    }
+
+    /**
      * Execute a shell command and return output
      */
     private function executeCommand(string $command, &$returnCode = 0): array
@@ -322,7 +482,7 @@ class SystemUpdateController extends Controller
      * Publish ALL plugin/core compiled assets to public/vendor directory
      * This copies everything from platform directories to public/vendor
      */
-    private function publishPluginAssets(array &$output)
+    private function publishPluginAssets(callable $sendMessage)
     {
         $sources = [
             // Core
@@ -374,17 +534,17 @@ class SystemUpdateController extends Controller
                 $copiedFiles += $fileCount;
                 
                 $pluginName = basename(dirname($source)) . '/' . basename(dirname(dirname($source)));
-                $output[] = "✓ Published {$pluginName}: {$fileCount} files";
+                $sendMessage("✓ Published {$pluginName}: {$fileCount} files", 'success');
                 
             } catch (\Exception $e) {
-                $output[] = "✗ Failed to publish " . basename(dirname($source));
+                $sendMessage("✗ Failed to publish " . basename(dirname($source)), 'error');
             }
         }
 
         if ($copiedFiles > 0) {
-            $output[] = "✓ Total assets published: {$copiedFiles} files";
+            $sendMessage("✓ Total assets published: {$copiedFiles} files", 'success');
         } else {
-            $output[] = "⚠ No plugin assets found to publish";
+            $sendMessage("⚠ No plugin assets found to publish", 'warning');
         }
     }
 
