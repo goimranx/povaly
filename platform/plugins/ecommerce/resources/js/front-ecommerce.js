@@ -744,7 +744,12 @@ class Ecommerce {
 
                             return
                         }
-                        EcommerceApp.showSuccess(message)
+                        
+                        // Check if toast should be shown
+                        const showToast = form.data('show-toast-on-success')
+                        if (showToast !== false && showToast !== 'false') {
+                            EcommerceApp.showSuccess(message)
+                        }
 
                         form.find('input[name="qty"]').val(1)
 
