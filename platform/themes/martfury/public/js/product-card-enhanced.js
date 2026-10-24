@@ -641,35 +641,21 @@
      */
     function syncWishlistIconStates() {
         console.log('[Wishlist Sync] Starting...');
-        // Get wishlist items from server
+        // Get wishlist items from server - use the wishlist page route
         $.ajax({
-            url: '/ajax/wishlist',
+            url: '/wishlist',
             method: 'GET',
             success: function(response) {
-                console.log('[Wishlist Sync] Response:', response);
-                if (!response || !response.data) {
-                    console.log('[Wishlist Sync] No response data');
-                    return;
-                }
+                console.log('[Wishlist Sync] Got HTML response, parsing...');
                 
                 var wishlistProductIds = [];
                 
-                // Parse wishlist items
-                if (response.data.products && Array.isArray(response.data.products)) {
-                    wishlistProductIds = response.data.products.map(function(product) {
-                        return String(product.id);
-                    });
-                    console.log('[Wishlist Sync] Found products array:', wishlistProductIds);
-                } else if (response.data.html) {
-                    // Parse HTML if products array not available
-                    console.log('[Wishlist Sync] Parsing HTML...');
-                    var $html = $(response.data.html);
-                    $html.find('[data-id], [data-product-id]').each(function() {
-                        var id = $(this).data('id') || $(this).data('product-id');
-                        if (id) wishlistProductIds.push(String(id));
-                    });
-                    console.log('[Wishlist Sync] Parsed IDs from HTML:', wishlistProductIds);
-                }
+                // Parse HTML to extract product IDs
+                var $html = $(response);
+                $html.find('[data-id], [data-product-id]').each(function() {
+                    var id = $(this).data('id') || $(this).data('product-id');
+                    if (id) wishlistProductIds.push(String(id));
+                });
                 
                 console.log('[Wishlist Sync] Final product IDs:', wishlistProductIds);
                 
@@ -713,35 +699,21 @@
      */
     function syncCompareIconStates() {
         console.log('[Compare Sync] Starting...');
-        // Get compare items from server
+        // Get compare items from server - use the compare page route
         $.ajax({
-            url: '/ajax/compare-list',
+            url: '/compare',
             method: 'GET',
             success: function(response) {
-                console.log('[Compare Sync] Response:', response);
-                if (!response || !response.data) {
-                    console.log('[Compare Sync] No response data');
-                    return;
-                }
+                console.log('[Compare Sync] Got HTML response, parsing...');
                 
                 var compareProductIds = [];
                 
-                // Parse compare items
-                if (response.data.products && Array.isArray(response.data.products)) {
-                    compareProductIds = response.data.products.map(function(product) {
-                        return String(product.id);
-                    });
-                    console.log('[Compare Sync] Found products array:', compareProductIds);
-                } else if (response.data.html) {
-                    // Parse HTML if products array not available
-                    console.log('[Compare Sync] Parsing HTML...');
-                    var $html = $(response.data.html);
-                    $html.find('[data-id], [data-product-id]').each(function() {
-                        var id = $(this).data('id') || $(this).data('product-id');
-                        if (id) compareProductIds.push(String(id));
-                    });
-                    console.log('[Compare Sync] Parsed IDs from HTML:', compareProductIds);
-                }
+                // Parse HTML to extract product IDs
+                var $html = $(response);
+                $html.find('[data-id], [data-product-id]').each(function() {
+                    var id = $(this).data('id') || $(this).data('product-id');
+                    if (id) compareProductIds.push(String(id));
+                });
                 
                 console.log('[Compare Sync] Final product IDs:', compareProductIds);
                 
