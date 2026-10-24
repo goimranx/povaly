@@ -1059,6 +1059,8 @@
         owlCarouselConfig($('.owl-slider'));
     });
 
+})(jQuery)
+
     // ========================================
     // Sticky Header & Scroll to Top
     // ========================================
@@ -1106,6 +1108,4 @@
         $('html, body').animate({ scrollTop: 0 }, 600);
         return false;
     });
-
-})(jQuery)
 
