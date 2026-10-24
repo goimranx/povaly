@@ -350,69 +350,79 @@
     
     // Wishlist and Compare button handlers
     function initActionButtons() {
-        // DO NOT override the global handlers - let main.js handle all compare/wishlist buttons
-        // The global handlers in main.js already work for ALL buttons including .pv-action-btn
+        // Use the EXACT same optimistic update approach as flyout buttons (product-card-enhanced.js)
         
-        // Only handle additional UI updates for PV gallery buttons on success events
-        $(document).on('added-to-compare', function(e, productId) {
-            // Find PV gallery button by product-id
-            const btn = document.querySelector(`.pv-action-btn[data-product-id="${productId}"]`);
-            if (!btn) return;
+        /**
+         * Update icon state (same function as product-card-enhanced.js)
+         */
+        function updateIconState($button, isFilled) {
+            var $icon = $button.find('i.ph');
             
-            const icon = btn.querySelector('i');
-            if (!icon) return;
-            
-            // Handle Phosphor icons (PV gallery uses these)
-            if (icon.classList.contains('ph-chart-bar')) {
-                icon.className = 'ph-fill ph-chart-bar';
+            if (isFilled) {
+                // Add ph-fill class for filled state
+                if (!$icon.hasClass('ph-fill')) {
+                    $icon.addClass('ph-fill');
+                }
+            } else {
+                // Remove ph-fill class for outline state
+                $icon.removeClass('ph-fill');
             }
-            // Theme icons are handled by main.js, no need to change them here
+        }
+        
+        // Intercept wishlist add - update icon immediately (optimistic update)
+        $(document).on('click', '.pv-action-btn.js-add-to-wishlist-button', function(e) {
+            var $btn = $(this);
+            var productId = $btn.data('product-id');
+            
+            // Optimistically update icon (instant visual feedback)
+            updateIconState($btn, true);
+            
+            // Update ALL wishlist buttons for this product (including flyout buttons)
+            $('.ec-card__float-btn--wishlist[data-product-id="' + productId + '"], .pv-action-btn.js-add-to-wishlist-button[data-product-id="' + productId + '"], .pv-action-btn.js-remove-from-wishlist-button[data-product-id="' + productId + '"]').each(function() {
+                updateIconState($(this), true);
+            });
         });
         
-        $(document).on('removed-from-compare', function(e, productId) {
-            // Find PV gallery button by product-id
-            const btn = document.querySelector(`.pv-action-btn[data-product-id="${productId}"]`);
-            if (!btn) return;
+        // Intercept wishlist remove - update icon immediately (optimistic update)
+        $(document).on('click', '.pv-action-btn.js-remove-from-wishlist-button', function(e) {
+            var $btn = $(this);
+            var productId = $btn.data('product-id');
             
-            const icon = btn.querySelector('i');
-            if (!icon) return;
+            // Optimistically update icon (instant visual feedback)
+            updateIconState($btn, false);
             
-            // Handle Phosphor icons (PV gallery uses these)
-            if (icon.classList.contains('ph-chart-bar') || icon.classList.contains('ph-fill')) {
-                icon.className = 'ph ph-chart-bar';
-            }
-            // Theme icons are handled by main.js, no need to change them here
+            // Update ALL wishlist buttons for this product (including flyout buttons)
+            $('.ec-card__float-btn--wishlist[data-product-id="' + productId + '"], .pv-action-btn.js-add-to-wishlist-button[data-product-id="' + productId + '"], .pv-action-btn.js-remove-from-wishlist-button[data-product-id="' + productId + '"]').each(function() {
+                updateIconState($(this), false);
+            });
         });
         
-        // Listen for wishlist events
-        $(document).on('added-to-wishlist', function(e, productId) {
-            // Find PV gallery button by product-id
-            const btn = document.querySelector(`.pv-action-btn[data-product-id="${productId}"]`);
-            if (!btn) return;
+        // Intercept compare add - update icon immediately (optimistic update)
+        $(document).on('click', '.pv-action-btn.js-add-to-compare-button', function(e) {
+            var $btn = $(this);
+            var productId = $btn.data('product-id');
             
-            const icon = btn.querySelector('i');
-            if (!icon) return;
+            // Optimistically update icon (instant visual feedback)
+            updateIconState($btn, true);
             
-            // Handle Phosphor icons (PV gallery uses these)
-            if (icon.classList.contains('ph-heart')) {
-                icon.className = 'ph-fill ph-heart';
-            }
-            // Theme icons are handled by main.js, no need to change them here
+            // Update ALL compare buttons for this product (including flyout buttons)
+            $('.ec-card__float-btn--compare[data-product-id="' + productId + '"], .pv-action-btn.js-add-to-compare-button[data-product-id="' + productId + '"], .pv-action-btn.js-remove-from-compare-button[data-product-id="' + productId + '"]').each(function() {
+                updateIconState($(this), true);
+            });
         });
         
-        $(document).on('removed-from-wishlist', function(e, productId) {
-            // Find PV gallery button by product-id
-            const btn = document.querySelector(`.pv-action-btn[data-product-id="${productId}"]`);
-            if (!btn) return;
+        // Intercept compare remove - update icon immediately (optimistic update)
+        $(document).on('click', '.pv-action-btn.js-remove-from-compare-button', function(e) {
+            var $btn = $(this);
+            var productId = $btn.data('product-id');
             
-            const icon = btn.querySelector('i');
-            if (!icon) return;
+            // Optimistically update icon (instant visual feedback)
+            updateIconState($btn, false);
             
-            // Handle Phosphor icons (PV gallery uses these)
-            if (icon.classList.contains('ph-heart') || icon.classList.contains('ph-fill')) {
-                icon.className = 'ph ph-heart';
-            }
-            // Theme icons are handled by main.js, no need to change them here
+            // Update ALL compare buttons for this product (including flyout buttons)
+            $('.ec-card__float-btn--compare[data-product-id="' + productId + '"], .pv-action-btn.js-add-to-compare-button[data-product-id="' + productId + '"], .pv-action-btn.js-remove-from-compare-button[data-product-id="' + productId + '"]').each(function() {
+                updateIconState($(this), false);
+            });
         });
     }
     
