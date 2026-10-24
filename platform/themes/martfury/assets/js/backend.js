@@ -117,38 +117,6 @@
                     } else {
                         $product.find('[data-bb-value="product-original-price"]').hide()
                     }
-
-                    // Dispatch event for PV Gallery to update images
-                    document.dispatchEvent(new CustomEvent('ecommerce.change-variation', {
-                        detail: {
-                            variationId: data.id,
-                            product_id: data.id,
-                            id: data.id,
-                            data: data
-                        }
-                    }))
-
-                    // Ensure active state is properly applied to selected swatches
-                    if (data.selected_attributes && Array.isArray(data.selected_attributes)) {
-                        $('.product-attributes .attribute-swatches-wrapper').each(function() {
-                            const $wrapper = $(this)
-                            const wrapperSlug = $wrapper.find('.attribute-swatch').data('slug')
-                            
-                            // Find the matching selected attribute
-                            const selectedAttr = data.selected_attributes.find(attr => attr.set_slug === wrapperSlug)
-                            
-                            if (selectedAttr) {
-                                // Remove active class from all in this set
-                                $wrapper.find('.attribute-swatch').removeClass('active')
-                                
-                                // Add active class to the selected one
-                                const $selected = $wrapper.find('input[data-slug="' + selectedAttr.slug + '"]')
-                                if ($selected.length) {
-                                    $selected.closest('.attribute-swatch').addClass('active')
-                                }
-                            }
-                        })
-                    }
                 }
             }
         })
@@ -411,7 +379,7 @@
             })
         })
 
-        $(document).on('click', '.ps-product .ps-product__actions .add-to-cart-button, .ps-product__floating-actions .ps-floating-action.add-to-cart-button', function(event) {
+        $(document).on('click', '.ps-product .ps-product__actions .add-to-cart-button', function(event) {
             event.preventDefault()
             let _self = $(this)
 
@@ -991,12 +959,8 @@
         }
     }
 
-    // Initialize Owl Carousel on page load
-    $(document).ready(function() {
-        owlCarouselConfig($('.owl-slider'));
-    });
-
 })(jQuery)
+
 
 // ========================================
 // Sticky Header & Scroll to Top
@@ -1007,17 +971,37 @@
     $(document).ready(function() {
         let $window = $(window);
         let $header = $('.header');
+        let $headerTop = $header.find('.header__top');
         let $goTopBtn = $('.ps-btn--go-top, .back-to-top, [href="#top"]');
         let lastScrollTop = 0;
+        let headerHeight = $header.outerHeight() || 150;
+        
+        // Initially hide the sticky header above viewport
+        $headerTop.css({
+            'transform': 'translateY(-100%)',
+            'transition': 'transform 0.3s ease-in-out'
+        });
         
         function handleScroll() {
             let scrollTop = $window.scrollTop();
             
-            // Sticky Header
-            if (scrollTop > 200) {
-                $header.addClass('header--sticky');
+            // Sticky Header - only show when scrolling down past header
+            if (scrollTop > headerHeight) {
+                if (!$header.hasClass('header--sticky')) {
+                    $header.addClass('header--sticky');
+                    // Slide down smoothly
+                    setTimeout(function() {
+                        $headerTop.css('transform', 'translateY(0)');
+                    }, 10);
+                }
             } else {
-                $header.removeClass('header--sticky');
+                if ($header.hasClass('header--sticky')) {
+                    // Slide up before removing class
+                    $headerTop.css('transform', 'translateY(-100%)');
+                    setTimeout(function() {
+                        $header.removeClass('header--sticky');
+                    }, 300);
+                }
             }
             
             // Go to Top Button
@@ -1030,13 +1014,13 @@
             lastScrollTop = scrollTop;
         }
         
-        // Throttled scroll handler (runs max once per 100ms)
+        // Throttled scroll handler (runs max once per 50ms for smoother animation)
         let scrollTimeout;
         $window.on('scroll', function() {
             if (scrollTimeout) {
                 clearTimeout(scrollTimeout);
             }
-            scrollTimeout = setTimeout(handleScroll, 100);
+            scrollTimeout = setTimeout(handleScroll, 50);
         });
         
         // Initial check
@@ -1051,4 +1035,3 @@
     });
     
 })(jQuery);
-
