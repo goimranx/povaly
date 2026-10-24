@@ -68,7 +68,7 @@ class SystemUpdateController extends Controller
 
                 // Step 2: Determine deployment strategy based on branch
                 $currentBranch = VersionHelper::getCurrentBranch();
-                $isProduction = ($currentBranch === 'main');
+                $isProduction = VersionHelper::isProduction(); // Use helper method which checks both branch and detached HEAD on tag
                 
                 if ($isProduction) {
                     // PRODUCTION: Deploy using Git tags
@@ -272,7 +272,7 @@ class SystemUpdateController extends Controller
     {
         try {
             $currentBranch = VersionHelper::getCurrentBranch();
-            $isProduction = ($currentBranch === 'main');
+            $isProduction = VersionHelper::isProduction(); // Use helper method which checks both branch and detached HEAD on tag
             
             if ($isProduction) {
                 // Production: Check for new tags
@@ -281,6 +281,9 @@ class SystemUpdateController extends Controller
                 if ($returnCode !== 0) {
                     throw new \Exception("Failed to fetch tags from GitHub");
                 }
+                
+                // Clear version cache to get fresh data
+                VersionHelper::clearCache();
                 
                 $currentVersion = VersionHelper::getCurrentVersion();
                 $tags = VersionHelper::getAllTags();
