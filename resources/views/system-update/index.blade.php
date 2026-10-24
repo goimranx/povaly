@@ -229,73 +229,83 @@ document.addEventListener('DOMContentLoaded', function() {
         const progressSection = document.getElementById('progress-section');
         const outputDiv = document.getElementById('update-output');
         progressSection.style.display = 'block';
-        outputDiv.innerHTML = '⏳ Connecting to update service...\n';
+        outputDiv.innerHTML = '⏳ Starting update process...\n';
 
         // Scroll to progress section
         progressSection.scrollIntoView({ behavior: 'smooth' });
 
-        // Create EventSource for Server-Sent Events (using GET with query parameter)
-        const url = '{{ route('system.update.perform') }}' + (force ? '?force=1' : '');
-        const eventSource = new EventSource(url);
-        
-        eventSource.onmessage = function(event) {
-            try {
-                const data = JSON.parse(event.data);
-                
-                if (data.type === 'complete') {
-                    // Update completed or failed
-                    eventSource.close();
-                    
-                    if (data.success) {
-                        outputDiv.innerHTML += '\n\n✅ UPDATE COMPLETED SUCCESSFULLY!\n';
-                        outputDiv.innerHTML += '\n🔄 Reloading page in 3 seconds...\n';
-                        
-                        // Auto-scroll to bottom
-                        outputDiv.scrollTop = outputDiv.scrollHeight;
-                        
-                        // Reload page after 3 seconds
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 3000);
-                    } else {
-                        outputDiv.innerHTML += '\n\n❌ UPDATE FAILED!\n';
-                        if (data.error) {
-                            outputDiv.innerHTML += '\nError: ' + data.error + '\n';
-                        }
-                        
-                        // Auto-scroll to bottom
-                        outputDiv.scrollTop = outputDiv.scrollHeight;
-                        
-                        // Re-enable buttons
-                        enableAllButtons();
-                    }
-                } else {
-                    // Progress message
-                    const line = formatLine(data.message, data.type);
-                    outputDiv.innerHTML += line + '\n';
-                    
-                    // Auto-scroll to bottom
-                    outputDiv.scrollTop = outputDiv.scrollHeight;
-                }
-            } catch (e) {
-                console.error('Error parsing SSE data:', e);
+        // Use regular POST request (SSE not working on this server)
+        fetch('{{ route('system.update.perform') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'text/event-stream'
+            },
+            body: JSON.stringify({ force: force })
+        })
+        .then(async response => {
+            if (!response.ok) {
+                throw new Error('Server returned ' + response.status);
             }
-        };
-        
-        eventSource.onerror = function(error) {
-            console.error('EventSource error:', error);
-            eventSource.close();
-            
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const {done, value} = await reader.read();
+                
+                if (done) break;
+                
+                buffer += decoder.decode(value, {stream: true});
+                
+                // Process complete SSE messages
+                const lines = buffer.split('\n\n');
+                buffer = lines.pop(); // Keep incomplete message in buffer
+                
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const data = JSON.parse(line.substring(6));
+                            
+                            if (data.type === 'complete') {
+                                if (data.success) {
+                                    outputDiv.innerHTML += '\n\n✅ UPDATE COMPLETED SUCCESSFULLY!\n';
+                                    outputDiv.innerHTML += '\n🔄 Reloading page in 3 seconds...\n';
+                                    
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 3000);
+                                } else {
+                                    outputDiv.innerHTML += '\n\n❌ UPDATE FAILED!\n';
+                                    if (data.error) {
+                                        outputDiv.innerHTML += '\nError: ' + data.error + '\n';
+                                    }
+                                    enableAllButtons();
+                                }
+                            } else {
+                                const formattedLine = formatLine(data.message, data.type);
+                                outputDiv.innerHTML += formattedLine + '\n';
+                            }
+                            
+                            // Auto-scroll
+                            outputDiv.scrollTop = outputDiv.scrollHeight;
+                        } catch (e) {
+                            console.error('Parse error:', e);
+                        }
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
             outputDiv.innerHTML += '\n\n❌ CONNECTION ERROR!\n';
-            outputDiv.innerHTML += '\nThe connection to the server was lost.\n';
+            outputDiv.innerHTML += '\nError: ' + error.message + '\n';
             outputDiv.innerHTML += '\nPlease check the server logs for details.\n';
-            
-            // Auto-scroll to bottom
             outputDiv.scrollTop = outputDiv.scrollHeight;
-            
-            // Re-enable buttons
             enableAllButtons();
-        };
+        });
     }
 
     function formatLine(text, type) {
