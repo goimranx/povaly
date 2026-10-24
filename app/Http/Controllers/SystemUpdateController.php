@@ -79,8 +79,17 @@ class SystemUpdateController extends Controller
             // Server just copies from platform/*/public/ to public/vendor/
             $output[] = "\n=== Publishing Plugin Assets to Vendor ===";
             $this->publishPluginAssets($output);
+            
+            // Step 4b: Run Laravel's cms:publish:assets command (publishes all registered assets)
+            $output[] = "\n=== Publishing CMS Assets ===";
+            try {
+                Artisan::call('cms:publish:assets');
+                $output[] = "✓ CMS assets published via artisan";
+            } catch (\Exception $e) {
+                $output[] = "⚠ CMS publish command skipped: " . $e->getMessage();
+            }
 
-            // Step 5: Clear all caches
+            // Step 5: Clear all caches (AFTER publishing assets)
             $output[] = "\n=== Clearing All Caches ===";
             $this->clearAllCaches();
             $output[] = "✓ All caches cleared";
