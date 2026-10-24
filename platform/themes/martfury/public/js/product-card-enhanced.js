@@ -640,12 +640,17 @@
      * Sync wishlist icon states
      */
     function syncWishlistIconStates() {
+        console.log('[Wishlist Sync] Starting...');
         // Get wishlist items from server
         $.ajax({
             url: '/ajax/wishlist',
             method: 'GET',
             success: function(response) {
-                if (!response || !response.data) return;
+                console.log('[Wishlist Sync] Response:', response);
+                if (!response || !response.data) {
+                    console.log('[Wishlist Sync] No response data');
+                    return;
+                }
                 
                 var wishlistProductIds = [];
                 
@@ -654,20 +659,29 @@
                     wishlistProductIds = response.data.products.map(function(product) {
                         return String(product.id);
                     });
+                    console.log('[Wishlist Sync] Found products array:', wishlistProductIds);
                 } else if (response.data.html) {
                     // Parse HTML if products array not available
+                    console.log('[Wishlist Sync] Parsing HTML...');
                     var $html = $(response.data.html);
                     $html.find('[data-id], [data-product-id]').each(function() {
                         var id = $(this).data('id') || $(this).data('product-id');
                         if (id) wishlistProductIds.push(String(id));
                     });
+                    console.log('[Wishlist Sync] Parsed IDs from HTML:', wishlistProductIds);
                 }
                 
+                console.log('[Wishlist Sync] Final product IDs:', wishlistProductIds);
+                
                 // Update all wishlist button icons
+                var buttonsFound = 0;
                 $('.ec-card__float-btn--wishlist').each(function() {
                     var $btn = $(this);
                     var productId = String($btn.data('product-id'));
                     var isInWishlist = wishlistProductIds.includes(productId);
+                    
+                    console.log('[Wishlist Sync] Button product ID:', productId, 'In wishlist:', isInWishlist);
+                    buttonsFound++;
                     
                     updateIconState($btn, isInWishlist);
                     
@@ -675,13 +689,17 @@
                     if (isInWishlist) {
                         $btn.removeClass('js-add-to-wishlist-button')
                             .addClass('js-remove-from-wishlist-button active');
+                        console.log('[Wishlist Sync] Updated button to REMOVE state');
                     } else {
                         $btn.removeClass('js-remove-from-wishlist-button active')
                             .addClass('js-add-to-wishlist-button');
+                        console.log('[Wishlist Sync] Updated button to ADD state');
                     }
                 });
+                console.log('[Wishlist Sync] Total buttons updated:', buttonsFound);
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.log('[Wishlist Sync] ERROR:', status, error);
                 // If wishlist endpoint doesn't exist, try to infer from button state
                 $('.ec-card__float-btn--wishlist.js-remove-from-wishlist-button, .ec-card__float-btn--wishlist.active').each(function() {
                     updateIconState($(this), true);
@@ -694,12 +712,17 @@
      * Sync compare icon states
      */
     function syncCompareIconStates() {
+        console.log('[Compare Sync] Starting...');
         // Get compare items from server
         $.ajax({
             url: '/ajax/compare-list',
             method: 'GET',
             success: function(response) {
-                if (!response || !response.data) return;
+                console.log('[Compare Sync] Response:', response);
+                if (!response || !response.data) {
+                    console.log('[Compare Sync] No response data');
+                    return;
+                }
                 
                 var compareProductIds = [];
                 
@@ -708,20 +731,29 @@
                     compareProductIds = response.data.products.map(function(product) {
                         return String(product.id);
                     });
+                    console.log('[Compare Sync] Found products array:', compareProductIds);
                 } else if (response.data.html) {
                     // Parse HTML if products array not available
+                    console.log('[Compare Sync] Parsing HTML...');
                     var $html = $(response.data.html);
                     $html.find('[data-id], [data-product-id]').each(function() {
                         var id = $(this).data('id') || $(this).data('product-id');
                         if (id) compareProductIds.push(String(id));
                     });
+                    console.log('[Compare Sync] Parsed IDs from HTML:', compareProductIds);
                 }
                 
+                console.log('[Compare Sync] Final product IDs:', compareProductIds);
+                
                 // Update all compare button icons
+                var buttonsFound = 0;
                 $('.ec-card__float-btn--compare').each(function() {
                     var $btn = $(this);
                     var productId = String($btn.data('product-id'));
                     var isInCompare = compareProductIds.includes(productId);
+                    
+                    console.log('[Compare Sync] Button product ID:', productId, 'In compare:', isInCompare);
+                    buttonsFound++;
                     
                     updateIconState($btn, isInCompare);
                     
@@ -729,13 +761,17 @@
                     if (isInCompare) {
                         $btn.removeClass('js-add-to-compare-button')
                             .addClass('js-remove-from-compare-button active');
+                        console.log('[Compare Sync] Updated button to REMOVE state');
                     } else {
                         $btn.removeClass('js-remove-from-compare-button active')
                             .addClass('js-add-to-compare-button');
+                        console.log('[Compare Sync] Updated button to ADD state');
                     }
                 });
+                console.log('[Compare Sync] Total buttons updated:', buttonsFound);
             },
-            error: function() {
+            error: function(xhr, status, error) {
+                console.log('[Compare Sync] ERROR:', status, error);
                 // If compare endpoint doesn't exist, try to infer from button state
                 $('.ec-card__float-btn--compare.js-remove-from-compare-button, .ec-card__float-btn--compare.active').each(function() {
                     updateIconState($(this), true);
