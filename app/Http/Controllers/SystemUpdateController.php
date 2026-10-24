@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Process;
+use App\Helpers\VersionHelper;
 
 /**
  * Custom System Updater for Povaly CMS
@@ -65,28 +66,79 @@ class SystemUpdateController extends Controller
                 Artisan::call('down', ['--render' => 'errors::503']);
                 $sendMessage("✓ Maintenance mode enabled", 'success');
 
-                // Step 2: Fetch and reset to remote branch
-                $sendMessage("\n=== Fetching from GitHub ===", 'header');
-                $fetchOutput = $this->executeCommand('git fetch origin ' . env('GITHUB_BRANCH', 'main'), $returnCode);
-                foreach ($fetchOutput as $line) {
-                    $sendMessage($line, 'info');
+                // Step 2: Determine deployment strategy based on branch
+                $currentBranch = VersionHelper::getCurrentBranch();
+                $isProduction = ($currentBranch === 'main');
+                
+                if ($isProduction) {
+                    // PRODUCTION: Deploy using Git tags
+                    $sendMessage("\n=== Production Deployment (Tag-based) ===", 'header');
+                    $sendMessage("Current branch: {$currentBranch}", 'info');
+                    
+                    // Fetch all tags
+                    $sendMessage("\n→ Fetching tags from GitHub...", 'info');
+                    $fetchOutput = $this->executeCommand('git fetch --tags', $returnCode);
+                    foreach ($fetchOutput as $line) {
+                        $sendMessage($line, 'info');
+                    }
+                    
+                    if ($returnCode !== 0) {
+                        throw new \Exception("Git fetch tags failed with code {$returnCode}");
+                    }
+                    
+                    // Get latest tag
+                    $tags = VersionHelper::getAllTags();
+                    if (empty($tags)) {
+                        throw new \Exception("No tags found! Production must use tags.");
+                    }
+                    
+                    $latestTag = $tags[0];
+                    $sendMessage("→ Latest tag: {$latestTag}", 'info');
+                    
+                    // Checkout the latest tag
+                    $sendMessage("\n→ Deploying tag: {$latestTag}", 'info');
+                    $checkoutOutput = $this->executeCommand("git checkout {$latestTag}", $returnCode);
+                    foreach ($checkoutOutput as $line) {
+                        $sendMessage($line, 'info');
+                    }
+                    
+                    if ($returnCode !== 0) {
+                        throw new \Exception("Git checkout tag failed with code {$returnCode}");
+                    }
+                    
+                    $sendMessage("✓ Production deployed to tag: {$latestTag}", 'success');
+                    
+                } else {
+                    // STAGING/DEVELOPMENT: Deploy using branch
+                    $sendMessage("\n=== Staging Deployment (Branch-based) ===", 'header');
+                    $sendMessage("Current branch: {$currentBranch}", 'info');
+                    
+                    // Fetch and pull latest from branch
+                    $sendMessage("\n→ Fetching from GitHub...", 'info');
+                    $fetchOutput = $this->executeCommand("git fetch origin {$currentBranch}", $returnCode);
+                    foreach ($fetchOutput as $line) {
+                        $sendMessage($line, 'info');
+                    }
+                    
+                    if ($returnCode !== 0) {
+                        throw new \Exception("Git fetch failed with code {$returnCode}");
+                    }
+                    
+                    $sendMessage("\n→ Resetting to origin/{$currentBranch}...", 'info');
+                    $resetOutput = $this->executeCommand("git reset --hard origin/{$currentBranch}", $returnCode);
+                    foreach ($resetOutput as $line) {
+                        $sendMessage($line, 'info');
+                    }
+                    
+                    if ($returnCode !== 0) {
+                        throw new \Exception("Git reset failed with code {$returnCode}");
+                    }
+                    
+                    $sendMessage("✓ Staging synced with origin/{$currentBranch}", 'success');
                 }
                 
-                if ($returnCode !== 0) {
-                    throw new \Exception("Git fetch failed with code {$returnCode}");
-                }
-                
-                $sendMessage("\n=== Resetting to Remote Branch ===", 'header');
-                $resetOutput = $this->executeCommand('git reset --hard origin/' . env('GITHUB_BRANCH', 'main'), $returnCode);
-                foreach ($resetOutput as $line) {
-                    $sendMessage($line, 'info');
-                }
-                
-                if ($returnCode !== 0) {
-                    throw new \Exception("Git reset failed with code {$returnCode}");
-                }
-                
-                $sendMessage("✓ Local repository synced with remote", 'success');
+                // Clear version cache
+                VersionHelper::clearCache();
 
                 // Step 3: Install/Update Composer dependencies
                 $sendMessage("\n=== Updating Composer Dependencies ===", 'header');
@@ -219,29 +271,69 @@ class SystemUpdateController extends Controller
     public function checkUpdates()
     {
         try {
-            $output = $this->executeCommand('git fetch origin ' . env('GITHUB_BRANCH', 'main'), $returnCode);
+            $currentBranch = VersionHelper::getCurrentBranch();
+            $isProduction = ($currentBranch === 'main');
             
-            if ($returnCode !== 0) {
-                throw new \Exception("Failed to fetch from GitHub");
+            if ($isProduction) {
+                // Production: Check for new tags
+                $output = $this->executeCommand('git fetch --tags', $returnCode);
+                
+                if ($returnCode !== 0) {
+                    throw new \Exception("Failed to fetch tags from GitHub");
+                }
+                
+                $currentVersion = VersionHelper::getCurrentVersion();
+                $tags = VersionHelper::getAllTags();
+                $latestTag = $tags[0] ?? null;
+                
+                $hasUpdates = $latestTag && ($latestTag !== $currentVersion);
+                
+                $changesList = [];
+                if ($hasUpdates) {
+                    // Get tags between current and latest
+                    $changesList = array_slice($tags, 0, array_search($currentVersion, $tags) ?: 3);
+                }
+                
+                return response()->json([
+                    'success' => true,
+                    'environment' => 'production',
+                    'deployment_method' => 'tag-based',
+                    'has_updates' => $hasUpdates,
+                    'current_version' => $currentVersion,
+                    'latest_version' => $latestTag ?? $currentVersion,
+                    'available_tags' => array_slice($tags, 0, 5),
+                    'changes' => $changesList
+                ]);
+                
+            } else {
+                // Staging: Check for new commits
+                $output = $this->executeCommand("git fetch origin {$currentBranch}", $returnCode);
+                
+                if ($returnCode !== 0) {
+                    throw new \Exception("Failed to fetch from GitHub");
+                }
+
+                $localCommit = $this->executeCommand('git rev-parse HEAD', $returnCode)[0] ?? '';
+                $remoteCommit = $this->executeCommand("git rev-parse origin/{$currentBranch}", $returnCode)[0] ?? '';
+
+                $hasUpdates = trim($localCommit) !== trim($remoteCommit);
+                
+                $commitLog = [];
+                if ($hasUpdates) {
+                    $commitLog = $this->executeCommand("git log HEAD..origin/{$currentBranch} --oneline", $returnCode);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'environment' => 'staging',
+                    'deployment_method' => 'branch-based',
+                    'has_updates' => $hasUpdates,
+                    'current_commit' => substr(trim($localCommit), 0, 7),
+                    'latest_commit' => substr(trim($remoteCommit), 0, 7),
+                    'branch' => $currentBranch,
+                    'changes' => $commitLog
+                ]);
             }
-
-            $localCommit = $this->executeCommand('git rev-parse HEAD', $returnCode)[0] ?? '';
-            $remoteCommit = $this->executeCommand('git rev-parse origin/' . env('GITHUB_BRANCH', 'main'), $returnCode)[0] ?? '';
-
-            $hasUpdates = trim($localCommit) !== trim($remoteCommit);
-            
-            $commitLog = [];
-            if ($hasUpdates) {
-                $commitLog = $this->executeCommand('git log HEAD..origin/' . env('GITHUB_BRANCH', 'main') . ' --oneline', $returnCode);
-            }
-
-            return response()->json([
-                'success' => true,
-                'has_updates' => $hasUpdates,
-                'current_commit' => substr(trim($localCommit), 0, 7),
-                'latest_commit' => substr(trim($remoteCommit), 0, 7),
-                'changes' => $commitLog
-            ]);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -588,18 +680,31 @@ class SystemUpdateController extends Controller
     public function getVersion()
     {
         try {
-            $commit = $this->executeCommand('git rev-parse --short HEAD', $returnCode)[0] ?? 'Unknown';
-            $branch = $this->executeCommand('git rev-parse --abbrev-ref HEAD', $returnCode)[0] ?? 'Unknown';
-            $lastUpdate = $this->executeCommand('git log -1 --format=%cd --date=format:"%Y-%m-%d %H:%M:%S"', $returnCode)[0] ?? 'Unknown';
-
-            return response()->json([
+            $version = VersionHelper::getCurrentVersion();
+            $branch = VersionHelper::getCurrentBranch();
+            $commit = VersionHelper::getCurrentCommit();
+            $environment = VersionHelper::getEnvironment();
+            $lastUpdate = VersionHelper::getLastUpdateTime();
+            
+            $response = [
                 'success' => true,
                 'version' => [
-                    'commit' => trim($commit),
-                    'branch' => trim($branch),
-                    'last_update' => trim($lastUpdate)
+                    'current' => $version,
+                    'branch' => $branch,
+                    'commit' => $commit,
+                    'environment' => $environment,
+                    'last_update' => $lastUpdate,
+                    'cache_bust' => VersionHelper::getCacheBustVersion(),
                 ]
-            ]);
+            ];
+            
+            // Add tag info if on production
+            if (VersionHelper::isProduction()) {
+                $response['version']['tag_info'] = VersionHelper::getTagInfo();
+                $response['version']['all_tags'] = array_slice(VersionHelper::getAllTags(), 0, 10);
+            }
+
+            return response()->json($response);
 
         } catch (\Exception $e) {
             return response()->json([
