@@ -998,51 +998,57 @@
 
 })(jQuery)
 
-    // ========================================
-    // Sticky Header & Scroll to Top
-    // ========================================
-    let $window = $(window);
-    let $header = $('.header');
-    let $goTopBtn = $('.ps-btn--go-top, .back-to-top, [href="#top"]');
-    let headerHeight = $header.outerHeight() || 0;
-    let lastScrollTop = 0;
+// ========================================
+// Sticky Header & Scroll to Top
+// ========================================
+;(function($) {
+    'use strict';
     
-    function handleScroll() {
-        let scrollTop = $window.scrollTop();
+    $(document).ready(function() {
+        let $window = $(window);
+        let $header = $('.header');
+        let $goTopBtn = $('.ps-btn--go-top, .back-to-top, [href="#top"]');
+        let lastScrollTop = 0;
         
-        // Sticky Header
-        if (scrollTop > 200) {
-            $header.addClass('header--sticky');
-        } else {
-            $header.removeClass('header--sticky');
+        function handleScroll() {
+            let scrollTop = $window.scrollTop();
+            
+            // Sticky Header
+            if (scrollTop > 200) {
+                $header.addClass('header--sticky');
+            } else {
+                $header.removeClass('header--sticky');
+            }
+            
+            // Go to Top Button
+            if (scrollTop > 300) {
+                $goTopBtn.addClass('active').fadeIn();
+            } else {
+                $goTopBtn.removeClass('active').fadeOut();
+            }
+            
+            lastScrollTop = scrollTop;
         }
         
-        // Go to Top Button
-        if (scrollTop > 300) {
-            $goTopBtn.addClass('active').fadeIn();
-        } else {
-            $goTopBtn.removeClass('active').fadeOut();
-        }
+        // Throttled scroll handler (runs max once per 100ms)
+        let scrollTimeout;
+        $window.on('scroll', function() {
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
+            }
+            scrollTimeout = setTimeout(handleScroll, 100);
+        });
         
-        lastScrollTop = scrollTop;
-    }
-    
-    // Throttled scroll handler (runs max once per 100ms)
-    let scrollTimeout;
-    $window.on('scroll', function() {
-        if (scrollTimeout) {
-            clearTimeout(scrollTimeout);
-        }
-        scrollTimeout = setTimeout(handleScroll, 100);
+        // Initial check
+        handleScroll();
+        
+        // Go to top click handler
+        $goTopBtn.on('click', function(e) {
+            e.preventDefault();
+            $('html, body').animate({ scrollTop: 0 }, 600);
+            return false;
+        });
     });
     
-    // Initial check
-    handleScroll();
-    
-    // Go to top click handler
-    $goTopBtn.on('click', function(e) {
-        e.preventDefault();
-        $('html, body').animate({ scrollTop: 0 }, 600);
-        return false;
-    });
+})(jQuery);
 
