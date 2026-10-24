@@ -31,10 +31,20 @@ class VersionHelper
     {
         return Cache::remember('app_version', 3600, function () {
             try {
+                // First, try to get exact tag if we're on one (detached HEAD on tag)
+                $exactTag = Process::path(base_path())->run('git describe --exact-match --tags HEAD 2>/dev/null');
+                
+                if ($exactTag->successful()) {
+                    $tag = trim($exactTag->output());
+                    if (!empty($tag)) {
+                        return $tag; // Return exact tag (e.g., v1.1.0)
+                    }
+                }
+                
                 // Check if we're on main branch (production)
                 $branch = self::getCurrentBranch();
                 
-                if ($branch === 'main') {
+                if ($branch === 'main' || $branch === 'HEAD') {
                     // Production: Get latest Git tag
                     $result = Process::path(base_path())->run('git describe --tags --abbrev=0');
                     
@@ -148,8 +158,14 @@ class VersionHelper
     {
         $branch = self::getCurrentBranch();
         
+        // Check if we're on a production tag (detached HEAD on tag)
+        $exactTag = Process::path(base_path())->run('git describe --exact-match --tags HEAD 2>/dev/null');
+        if ($exactTag->successful()) {
+            return 'production'; // On a tag = production
+        }
+        
         return match ($branch) {
-            'main' => 'production',
+            'main', 'HEAD' => 'production',
             'stage' => 'staging',
             default => 'development',
         };
@@ -162,7 +178,15 @@ class VersionHelper
      */
     public static function isProduction(): bool
     {
-        return self::getCurrentBranch() === 'main';
+        $branch = self::getCurrentBranch();
+        
+        // Check if on a production tag
+        $exactTag = Process::path(base_path())->run('git describe --exact-match --tags HEAD 2>/dev/null');
+        if ($exactTag->successful()) {
+            return true; // On a tag = production
+        }
+        
+        return $branch === 'main' || $branch === 'HEAD';
     }
     
     /**
