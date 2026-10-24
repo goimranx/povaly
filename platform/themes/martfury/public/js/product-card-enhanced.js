@@ -540,10 +540,10 @@
      * @param {boolean} isFilled - True for filled, false for outline
      */
     function updateIconState($button, isFilled) {
-        var $icon = $button.find('i');
+        var $icon = $button.find('i.ph');
         
         if (isFilled) {
-            // Add ph-fill class for filled state
+            // Add ph-fill class directly (no duplicate ph)
             if (!$icon.hasClass('ph-fill')) {
                 $icon.addClass('ph-fill');
             }

@@ -467,24 +467,9 @@
     transition: font-weight 0.2s ease;
 }
 
-.ec-card__float-btn i.ph.ph-fill {
+.ec-card__float-btn i.ph-fill {
     font-weight: 700; /* Fill weight */
-}
-
-/* Active state colors for filled icons */
-.ec-card__float-btn--wishlist i.ph-fill,
-.ec-card__float-btn--wishlist.active i {
-    color: var(--global-color-alert, #e74c3c);
-}
-
-.ec-card__float-btn--compare i.ph-fill,
-.ec-card__float-btn--compare.active i {
-    color: var(--global-color-primary, #FD8D27);
-}
-
-.ec-card__float-btn--cart i.ph-fill,
-.ec-card__float-btn--cart.active i {
-    color: var(--global-color-success, #27ae60);
+    color: var(--global-color-text-main);
 }
 
 .ec-card__float-toggle {

@@ -120,7 +120,7 @@
                                     data-url="{{ route('public.compare.add', $product->id) }}"
                                     data-product-id="{{ $product->id }}"
                                     title="{{ __('Compare') }}">
-                                <i class="ph ph-git-compare"></i>
+                                <i class="ph ph-chart-bar"></i>
                             </button>
                         @endif
                         @if (EcommerceHelper::isCartEnabled())
@@ -131,7 +131,7 @@
                                         data-product-id="{{ $product->id }}"
                                         {!! EcommerceHelper::jsAttributes('quick-shop', $product) !!}
                                         title="{{ __('Select Options') }}">
-                                    <i class="ph ph-shopping-bag"></i>
+                                    <i class="ph ph-shopping-cart"></i>
                                 </button>
                             @else
                                 <button type="button" class="ec-card__float-btn ec-card__float-btn--cart"
@@ -140,7 +140,7 @@
                                         data-url="{{ route('public.cart.add-to-cart') }}"
                                         {!! EcommerceHelper::jsAttributes('add-to-cart', $product) !!}
                                         title="{{ __('Add To Cart') }}">
-                                    <i class="ph ph-shopping-bag"></i>
+                                    <i class="ph ph-shopping-cart"></i>
                                 </button>
                             @endif
                         @endif
