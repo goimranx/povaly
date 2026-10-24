@@ -461,6 +461,32 @@
 
 .ec-card__float-btn i { font-size: 14px; }
 
+/* Phosphor Icons Support */
+.ec-card__float-btn i.ph {
+    font-weight: 400; /* Regular/outline weight */
+    transition: font-weight 0.2s ease;
+}
+
+.ec-card__float-btn i.ph.ph-fill {
+    font-weight: 700; /* Fill weight */
+}
+
+/* Active state colors for filled icons */
+.ec-card__float-btn--wishlist i.ph-fill,
+.ec-card__float-btn--wishlist.active i {
+    color: var(--global-color-alert, #e74c3c);
+}
+
+.ec-card__float-btn--compare i.ph-fill,
+.ec-card__float-btn--compare.active i {
+    color: var(--global-color-primary, #FD8D27);
+}
+
+.ec-card__float-btn--cart i.ph-fill,
+.ec-card__float-btn--cart.active i {
+    color: var(--global-color-success, #27ae60);
+}
+
 .ec-card__float-toggle {
     width: 28px;
     height: 28px;
