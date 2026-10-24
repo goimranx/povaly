@@ -80,6 +80,8 @@ Theme.showError = function (message) {
 }
 
 Theme.showSuccess = function (message) {
+    console.log('✅ Theme.showSuccess called:', message);
+    console.trace('Theme showSuccess called from:');
     this.showNotice('success', message)
 }
 
