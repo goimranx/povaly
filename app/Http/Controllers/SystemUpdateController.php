@@ -111,12 +111,7 @@ class SystemUpdateController extends Controller
                 }
             }
 
-            // Step 5: Clear all caches (AFTER publishing assets)
-            $output[] = "\n=== Clearing All Caches ===";
-            $this->clearAllCaches();
-            $output[] = "✓ All caches cleared";
-
-            // Step 6: Run database migrations (skip errors if tables already exist)
+            // Step 5: Run database migrations (skip errors if tables already exist)
             $output[] = "\n=== Running Database Migrations ===";
             try {
                 Artisan::call('migrate', ['--force' => true]);
@@ -135,35 +130,15 @@ class SystemUpdateController extends Controller
                 }
             }
 
-            // Step 7: Publish assets
+            // Step 6: Publish vendor assets
             $output[] = "\n=== Publishing Vendor Assets ===";
             Artisan::call('vendor:publish', ['--tag' => 'public', '--force' => true]);
             $output[] = "✓ Vendor assets published";
 
-            // Step 7b: Publish theme assets (copies platform/themes/*/public/ → public/themes/)
-            // Note: our custom CSS is already tracked in git so the pull handles it.
-            // This step copies everything else (images, fonts, js) from the theme public folder.
-            $output[] = "\n=== Publishing Theme Assets ===";
-            try {
-                Artisan::call('cms:theme:assets:publish');
-                $output[] = "✓ Theme assets published via artisan";
-            } catch (\Throwable $e) {
-                // Fallback: copy manually if artisan command not registered
-                try {
-                    $source = base_path('platform/themes/martfury/public');
-                    $dest   = public_path('themes/martfury');
-                    if (File::isDirectory($source)) {
-                        File::ensureDirectoryExists($dest);
-                        File::copyDirectory($source, $dest);
-                        $output[] = "✓ Theme assets published via direct copy";
-                    } else {
-                        $output[] = "⚠ Theme source directory not found, skipping";
-                    }
-                } catch (\Throwable $e2) {
-                    // Non-fatal — git pull already updated tracked CSS/JS files
-                    $output[] = "⚠ Theme asset publish skipped: " . $e2->getMessage();
-                }
-            }
+            // Step 7: Clear all caches (AFTER all assets published)
+            $output[] = "\n=== Clearing All Caches ===";
+            $this->clearAllCaches();
+            $output[] = "✓ All caches cleared";
 
             // Step 8: Optimize application
             $output[] = "\n=== Optimizing Application ===";
