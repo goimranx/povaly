@@ -780,6 +780,16 @@
         syncCartIconStates();
     });
     
+    // Listen to mini cart remove button clicks directly (fallback if event doesn't fire)
+    $(document).on('click', '.remove-cart-item, .remove-cart-button, .ps-product__remove', function(e) {
+        console.log('🗑️ Mini cart remove button clicked');
+        
+        // Give the cart a moment to update, then sync icons
+        setTimeout(function() {
+            syncCartIconStates();
+        }, 300);
+    });
+    
     // Update cart icons after cart update
     document.addEventListener('ecommerce.cart.updated', function(e) {
         console.log('🔄 Cart updated event fired', e.detail);
