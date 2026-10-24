@@ -665,9 +665,9 @@
                 
                 console.log('[Wishlist Sync] Final product IDs:', wishlistProductIds);
                 
-                // Update all wishlist button icons
+                // Update all wishlist button icons (BOTH flyout AND PV gallery)
                 var buttonsFound = 0;
-                $('.ec-card__float-btn--wishlist').each(function() {
+                $('.ec-card__float-btn--wishlist, .pv-action-btn.js-add-to-wishlist-button, .pv-action-btn.js-remove-from-wishlist-button').each(function() {
                     var $btn = $(this);
                     var productId = String($btn.data('product-id'));
                     var isInWishlist = wishlistProductIds.includes(productId);
@@ -723,9 +723,9 @@
                 
                 console.log('[Compare Sync] Final product IDs:', compareProductIds);
                 
-                // Update all compare button icons
+                // Update all compare button icons (BOTH flyout AND PV gallery)
                 var buttonsFound = 0;
-                $('.ec-card__float-btn--compare').each(function() {
+                $('.ec-card__float-btn--compare, .pv-action-btn.js-add-to-compare-button, .pv-action-btn.js-remove-from-compare-button').each(function() {
                     var $btn = $(this);
                     var productId = String($btn.data('product-id'));
                     var isInCompare = compareProductIds.includes(productId);
