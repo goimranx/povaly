@@ -576,6 +576,10 @@
             method: 'GET',
             success: function(cartResponse) {
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
+                    // No cart data - all icons should be outline
+                    $('.ec-card__float-btn--cart').each(function() {
+                        updateIconState($(this), false);
+                    });
                     return;
                 }
                 
@@ -613,6 +617,12 @@
                                    (productSlug && cartProductIds.includes(productSlug));
                     
                     updateIconState($btn, isInCart);
+                });
+            },
+            error: function() {
+                // On error, set all icons to outline
+                $('.ec-card__float-btn--cart').each(function() {
+                    updateIconState($(this), false);
                 });
             }
         });
@@ -750,16 +760,8 @@
     
     // Update cart icon when item is removed
     document.addEventListener('ecommerce.cart.removed', function(e) {
-        var productId = e.detail && e.detail.productId ? e.detail.productId : null;
-        
-        if (productId) {
-            $('.ec-card__float-btn--cart[data-product-id="' + productId + '"]').each(function() {
-                updateIconState($(this), false);
-            });
-        }
-        
-        // Sync all cart icons
-        setTimeout(syncCartIconStates, 500);
+        // Cart removed event doesn't include productId, so sync all icons from server
+        syncCartIconStates();
     });
     
     // Update cart icons after cart update
