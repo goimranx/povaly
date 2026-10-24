@@ -652,8 +652,14 @@
                 
                 // Parse HTML to extract product IDs
                 var $html = $(response);
-                $html.find('[data-id], [data-product-id]').each(function() {
+                
+                // Debug: log what elements we find
+                var foundElements = $html.find('[data-id], [data-product-id]');
+                console.log('[Wishlist Sync] Found elements with data-id or data-product-id:', foundElements.length);
+                
+                foundElements.each(function() {
                     var id = $(this).data('id') || $(this).data('product-id');
+                    console.log('[Wishlist Sync] Found element with ID:', id, 'Element:', this.tagName, this.className);
                     if (id) wishlistProductIds.push(String(id));
                 });
                 
