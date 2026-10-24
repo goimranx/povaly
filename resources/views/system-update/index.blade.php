@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <p class="mb-1"><strong>Version:</strong> <code>${v.current}</code></p>
                         <p class="mb-1"><strong>Branch:</strong> ${v.branch}</p>
                         <p class="mb-1"><strong>Commit:</strong> ${v.commit}</p>
-                        <p class="mb-1"><strong>Environment:</strong> <span class="badge badge-${v.environment === 'production' ? 'success' : (v.environment === 'staging' ? 'warning' : 'secondary')}">${v.environment}</span></p>
+                        <p class="mb-1"><strong>Environment:</strong> <span class="badge badge-${v.environment === 'production' ? 'success' : (v.environment === 'staging' ? 'warning' : 'secondary')}">${v.environment.toUpperCase()}</span></p>
                         <p class="mb-0"><strong>Last Update:</strong> ${v.last_update}</p>
                     `;
                     
