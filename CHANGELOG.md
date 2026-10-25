@@ -5,6 +5,18 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2026-10-25
+
+### 🔀 Merged
+
+- Merged `stage` into `main` — staging changes (bulletproof updater, SSE deployment, VersionHelper fixes) promoted to production
+
+### 🔧 Changed
+
+- Bumped Povaly version to `v1.3.1` (Git tag)
+
+---
+
 ## [1.3.0] - 2026-10-25
 
 ### ✨ Added
