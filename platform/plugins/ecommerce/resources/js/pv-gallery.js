@@ -394,11 +394,11 @@
             // Base lens width on a comfortable size, derive height from zoom ratio
             const zoomRatio = zoomWidth / zoomHeight; // zoom panel aspect ratio
             // Start with a max lens width and derive height to match ratio
-            let lensW = Math.min(280, imgRect.width * 0.6);
+            let lensW = Math.min(200, imgRect.width * 0.45);
             let lensH = lensW / zoomRatio;
             // If height exceeds image, clamp and recompute width
-            if (lensH > imgRect.height * 0.6) {
-                lensH = imgRect.height * 0.6;
+            if (lensH > imgRect.height * 0.45) {
+                lensH = imgRect.height * 0.45;
                 lensW = lensH * zoomRatio;
             }
 
