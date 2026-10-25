@@ -245,8 +245,8 @@
         var(--global-color-link, #fcb800) 1px,
         transparent 1px
     );
-    background-size: 4px 4px;
-    opacity: 0.5;
+    background-size: 3px 3px;
+    opacity: 0.75;
 }
 
 /* The large zoom result panel — covers the info-wrapper area on the right */
