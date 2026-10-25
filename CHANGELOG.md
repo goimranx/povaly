@@ -5,6 +5,22 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2026-10-26
+
+### ✨ Added
+
+- Amazon-style image lens zoom on PV gallery — hover over main product image to see a magnified zoom panel on the right
+- Lens uses `global-color-link` dot grid pattern (polished halftone style)
+- Zoom panel covers the info-wrapper area, full viewport height with 10px top/bottom gap
+- Zoom panel border uses `global-color-border-strong`
+- Lens size matches zoom panel aspect ratio for identical proportions
+
+### 🐛 Fixed
+
+- Double toast on add-to-cart from quick-shop panel (main.js now defers to front-ecommerce.js when `data-bb-toggle="product-form"` is present)
+
+---
+
 ## [1.3.1] - 2026-10-25
 
 ### 🔀 Merged
