@@ -324,6 +324,16 @@
 
             mainContainer.addEventListener('mousemove', this._lensMouseMove);
             mainContainer.addEventListener('mouseleave', this._lensMouseLeave);
+
+            // Crosshair cursor on the whole container
+            mainContainer.style.cursor = 'crosshair';
+
+            // Container click opens lightbox (same as image click)
+            mainContainer.addEventListener('click', (e) => {
+                // Don't double-fire if click was directly on the img (it has its own listener)
+                if (e.target === this.mainImage) return;
+                this.openLightbox();
+            });
         }
 
         _onLensMouseMove(e) {
