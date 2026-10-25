@@ -5,6 +5,24 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-10-25
+
+### ✨ Added
+
+- Bulletproof update system with nuclear asset publishing
+- SSE-based real-time deployment progress streaming
+
+### 🔧 Changed
+
+- System updater now supports both tag-based (production) and branch-based (staging) deployment strategies
+- Improved `VersionHelper` to correctly detect detached HEAD on tags for production env detection
+
+### 🐛 Fixed
+
+- Missing closing brace in `SystemUpdateController` class
+
+---
+
 ## [1.0.0] - 2026-10-23
 
 ### 🎉 First Stable Release
