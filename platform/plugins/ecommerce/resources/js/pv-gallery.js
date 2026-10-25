@@ -363,26 +363,6 @@
             x = Math.max(0, Math.min(x, imgRect.width));
             y = Math.max(0, Math.min(y, imgRect.height));
 
-            // Lens size — slightly larger for better usability
-            const lensW = 200;
-            const lensH = 150;
-
-            // Clamp lens so it doesn't go outside the image
-            let lensLeft = x - lensW / 2;
-            let lensTop  = y - lensH / 2;
-            lensLeft = Math.max(0, Math.min(lensLeft, imgRect.width  - lensW));
-            lensTop  = Math.max(0, Math.min(lensTop,  imgRect.height - lensH));
-
-            // Position lens relative to container (not image, for absolute positioning)
-            const offsetLeft = imgRect.left - containerRect.left + lensLeft;
-            const offsetTop  = imgRect.top  - containerRect.top  + lensTop;
-
-            this.lensEl.style.left    = offsetLeft + 'px';
-            this.lensEl.style.top     = offsetTop  + 'px';
-            this.lensEl.style.width   = lensW + 'px';
-            this.lensEl.style.height  = lensH + 'px';
-            this.lensEl.style.display = 'block';
-
             // ─── Position and size the zoom panel ───────────────────────────────
             // Always 10px from top and bottom of viewport — full height minus gaps
             const GAP = 10;
@@ -408,6 +388,35 @@
                 zoomWidth  = Math.min(500, window.innerWidth - zoomLeft - 10);
                 zoomHeight = zoomPanelHeight;
             }
+
+            // ─── Lens size: match zoom panel aspect ratio ────────────────────────
+            // So the lens area maps 1:1 to what's shown in the zoom panel
+            // Base lens width on a comfortable size, derive height from zoom ratio
+            const zoomRatio = zoomWidth / zoomHeight; // zoom panel aspect ratio
+            // Start with a max lens width and derive height to match ratio
+            let lensW = Math.min(200, imgRect.width * 0.45);
+            let lensH = lensW / zoomRatio;
+            // If height exceeds image, clamp and recompute width
+            if (lensH > imgRect.height * 0.45) {
+                lensH = imgRect.height * 0.45;
+                lensW = lensH * zoomRatio;
+            }
+
+            // Clamp lens so it doesn't go outside the image
+            let lensLeft = x - lensW / 2;
+            let lensTop  = y - lensH / 2;
+            lensLeft = Math.max(0, Math.min(lensLeft, imgRect.width  - lensW));
+            lensTop  = Math.max(0, Math.min(lensTop,  imgRect.height - lensH));
+
+            // Position lens relative to container (absolute positioning)
+            const offsetLeft = imgRect.left - containerRect.left + lensLeft;
+            const offsetTop  = imgRect.top  - containerRect.top  + lensTop;
+
+            this.lensEl.style.left    = offsetLeft + 'px';
+            this.lensEl.style.top     = offsetTop  + 'px';
+            this.lensEl.style.width   = lensW + 'px';
+            this.lensEl.style.height  = lensH + 'px';
+            this.lensEl.style.display = 'block';
 
             this.zoomEl.style.left    = zoomLeft   + 'px';
             this.zoomEl.style.top     = zoomTop    + 'px';
