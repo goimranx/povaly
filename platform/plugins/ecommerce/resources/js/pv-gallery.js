@@ -384,17 +384,18 @@
             this.lensEl.style.display = 'block';
 
             // ─── Position and size the zoom panel ───────────────────────────────
-            // Top: just below the sticky header (re-read every mousemove for scroll accuracy)
+            // Top: just below the sticky header + 10px gap (same as bottom gap)
             // Bottom: viewport bottom minus 10px
-            const BOTTOM_GAP = 10;
+            const GAP = 10;
 
             // Re-read header bottom live so sticky header scroll position is respected
-            const headerEl = document.querySelector('.ps-header--sticky, .ps-header, header.header, #header, .site-header, nav.navbar');
+            // Target the full sticky header (header__top + nav.navigation combined)
+            const headerEl = document.querySelector('header.header--sticky, header.header--1, .ps-header--sticky, .ps-header, header.header, #header');
             const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : 0;
-            const zoomPanelTop = Math.max(headerBottom, 0);
+            const zoomPanelTop = headerBottom + GAP;
 
             const vpH     = window.innerHeight;
-            const zoomPanelHeight = vpH - zoomPanelTop - BOTTOM_GAP;
+            const zoomPanelHeight = vpH - zoomPanelTop - GAP;
 
             // Info-wrapper: sibling of gallery-wrapper inside ps-product__header
             const galleryWrapper = document.querySelector('.ps-product__gallery-wrapper');
