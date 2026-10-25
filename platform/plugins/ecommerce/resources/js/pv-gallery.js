@@ -367,12 +367,12 @@
             this.lensEl.style.display = 'block';
 
             // ─── Position and size the zoom panel ───────────────────────────────
-            // Top: just below the site header
+            // Top: just below the sticky header (re-read every mousemove for scroll accuracy)
             // Bottom: viewport bottom minus 10px
             const BOTTOM_GAP = 10;
 
-            // Detect site header height (below header, not full viewport)
-            const headerEl = document.querySelector('.ps-header, header.header, #header, .site-header, nav.navbar');
+            // Re-read header bottom live so sticky header scroll position is respected
+            const headerEl = document.querySelector('.ps-header--sticky, .ps-header, header.header, #header, .site-header, nav.navbar');
             const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : 0;
             const zoomPanelTop = Math.max(headerBottom, 0);
 
