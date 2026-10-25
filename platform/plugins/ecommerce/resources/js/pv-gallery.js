@@ -340,11 +340,18 @@
             let x = e.clientX - imgRect.left;
             let y = e.clientY - imgRect.top;
 
-            // Only activate when cursor is actually over the image
-            if (x < 0 || y < 0 || x > imgRect.width || y > imgRect.height) {
+            // If cursor is outside the container entirely, hide and bail
+            const cX = e.clientX - containerRect.left;
+            const cY = e.clientY - containerRect.top;
+            if (cX < 0 || cY < 0 || cX > containerRect.width || cY > containerRect.height) {
                 this._onLensMouseLeave();
                 return;
             }
+
+            // Clamp x/y to image bounds — lens never leaves the image area
+            // but follows cursor even when pointer is in container padding outside img
+            x = Math.max(0, Math.min(x, imgRect.width));
+            y = Math.max(0, Math.min(y, imgRect.height));
 
             // Lens size — slightly larger for better usability
             const lensW = 200;
