@@ -1026,3 +1026,4 @@ class SystemUpdateController extends Controller
         $sendMessage("✓ Asset version updated: {$version}", 'success');
         $sendMessage("  This will force browsers to reload all assets", 'info');
     }
+}
