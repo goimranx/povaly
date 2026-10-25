@@ -1570,6 +1570,12 @@
             const $form = $(this).closest('form.add-to-cart-form');
             const $btn = $(this);
 
+            // If front-ecommerce.js is already handling this form via data-bb-toggle="product-form",
+            // let it handle the AJAX and toast — just avoid duplicating the request.
+            if ($form.data('bb-toggle') === 'product-form') {
+                return;
+            }
+
             if (!$('.hidden-product-id').val()) {
                 $btn.prop('disabled', true).addClass('btn-disabled');
                 return;
@@ -1605,8 +1611,13 @@
                         return false;
                     }
 
-                    if (window.showSuccess) {
-                        window.showSuccess(res.message);
+                    // Respect data-show-toast-on-success="false" to avoid duplicate toasts
+                    // when front-ecommerce.js is also handling the same form
+                    var showToast = $form.data('show-toast-on-success');
+                    if (showToast !== false && showToast !== 'false') {
+                        if (window.showSuccess) {
+                            window.showSuccess(res.message);
+                        }
                     }
 
                     // Update cart count

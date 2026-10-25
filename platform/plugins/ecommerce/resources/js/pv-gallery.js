@@ -3,6 +3,7 @@
  * - Hover to preview AND activate (no click needed)
  * - Click counter overlay to open lightbox
  * - Variation change jumps to first variation image
+ * - Amazon-style image lens zoom on hover
  */
 (function() {
     'use strict';
@@ -89,11 +90,14 @@
             
             // Click on main preview opens lightbox
             if (this.mainImage) {
-                this.mainImage.style.cursor = 'pointer';
+                this.mainImage.style.cursor = 'crosshair';
                 this.mainImage.addEventListener('click', () => {
                     this.openLightbox();
                 });
             }
+            
+            // Lens zoom on main image
+            this.initLens();
             
             // Listen for variation changes
             document.addEventListener('ecommerce.change-variation', (e) => {
@@ -299,6 +303,160 @@
                 this.jumpToImage(targetIndex);
             }
         }
+
+        // ─── Lens Zoom ────────────────────────────────────────────────────────
+        initLens() {
+            const mainContainer = this.mainImage ? this.mainImage.parentElement : null;
+            if (!mainContainer || !this.mainImage) return;
+
+            // Create lens element
+            this.lensEl = document.createElement('div');
+            this.lensEl.className = 'pv-lens';
+            mainContainer.appendChild(this.lensEl);
+
+            // Create zoom result panel
+            this.zoomEl = document.createElement('div');
+            this.zoomEl.className = 'pv-zoom-result';
+            document.body.appendChild(this.zoomEl);
+
+            this._lensMouseMove = this._onLensMouseMove.bind(this);
+            this._lensMouseLeave = this._onLensMouseLeave.bind(this);
+
+            mainContainer.addEventListener('mousemove', this._lensMouseMove);
+            mainContainer.addEventListener('mouseleave', this._lensMouseLeave);
+
+            // Crosshair cursor on the whole container
+            mainContainer.style.cursor = 'crosshair';
+
+            // Container click opens lightbox (same as image click)
+            mainContainer.addEventListener('click', (e) => {
+                // Don't double-fire if click was directly on the img (it has its own listener)
+                if (e.target === this.mainImage) return;
+                this.openLightbox();
+            });
+        }
+
+        _onLensMouseMove(e) {
+            const img = this.mainImage;
+            if (!img || img.style.display === 'none') {
+                this._onLensMouseLeave();
+                return;
+            }
+
+            const imgRect = img.getBoundingClientRect();
+            const containerRect = img.parentElement.getBoundingClientRect();
+
+            // Cursor position relative to the image
+            let x = e.clientX - imgRect.left;
+            let y = e.clientY - imgRect.top;
+
+            // If cursor is outside the container entirely, hide and bail
+            const cX = e.clientX - containerRect.left;
+            const cY = e.clientY - containerRect.top;
+            if (cX < 0 || cY < 0 || cX > containerRect.width || cY > containerRect.height) {
+                this._onLensMouseLeave();
+                return;
+            }
+
+            // Clamp x/y to image bounds — lens never leaves the image area
+            // but follows cursor even when pointer is in container padding outside img
+            x = Math.max(0, Math.min(x, imgRect.width));
+            y = Math.max(0, Math.min(y, imgRect.height));
+
+            // ─── Position and size the zoom panel ───────────────────────────────
+            // Always 10px from top and bottom of viewport — full height minus gaps
+            const GAP = 10;
+            const zoomPanelTop    = GAP;
+            const zoomPanelHeight = window.innerHeight - GAP * 2;
+
+            // Info-wrapper: sibling of gallery-wrapper inside ps-product__header
+            const galleryWrapper = document.querySelector('.ps-product__gallery-wrapper');
+            const infoWrapper    = document.querySelector('.ps-product__info-wrapper');
+
+            let zoomLeft, zoomTop, zoomWidth, zoomHeight;
+
+            if (infoWrapper && galleryWrapper) {
+                const infoRect = infoWrapper.getBoundingClientRect();
+                zoomLeft   = infoRect.left;
+                zoomTop    = zoomPanelTop;
+                zoomWidth  = infoRect.width;
+                zoomHeight = zoomPanelHeight;
+            } else {
+                // Fallback: position right of the main container
+                zoomLeft   = containerRect.right + 10;
+                zoomTop    = zoomPanelTop;
+                zoomWidth  = Math.min(500, window.innerWidth - zoomLeft - 10);
+                zoomHeight = zoomPanelHeight;
+            }
+
+            // ─── Lens size: match zoom panel aspect ratio ────────────────────────
+            // So the lens area maps 1:1 to what's shown in the zoom panel
+            // Base lens width on a comfortable size, derive height from zoom ratio
+            const zoomRatio = zoomWidth / zoomHeight; // zoom panel aspect ratio
+            // Start with a max lens width and derive height to match ratio
+            let lensW = Math.min(200, imgRect.width * 0.45);
+            let lensH = lensW / zoomRatio;
+            // If height exceeds image, clamp and recompute width
+            if (lensH > imgRect.height * 0.45) {
+                lensH = imgRect.height * 0.45;
+                lensW = lensH * zoomRatio;
+            }
+
+            // Clamp lens so it doesn't go outside the image
+            let lensLeft = x - lensW / 2;
+            let lensTop  = y - lensH / 2;
+            lensLeft = Math.max(0, Math.min(lensLeft, imgRect.width  - lensW));
+            lensTop  = Math.max(0, Math.min(lensTop,  imgRect.height - lensH));
+
+            // Position lens relative to container (absolute positioning)
+            const offsetLeft = imgRect.left - containerRect.left + lensLeft;
+            const offsetTop  = imgRect.top  - containerRect.top  + lensTop;
+
+            this.lensEl.style.left    = offsetLeft + 'px';
+            this.lensEl.style.top     = offsetTop  + 'px';
+            this.lensEl.style.width   = lensW + 'px';
+            this.lensEl.style.height  = lensH + 'px';
+            this.lensEl.style.display = 'block';
+
+            this.zoomEl.style.left    = zoomLeft   + 'px';
+            this.zoomEl.style.top     = zoomTop    + 'px';
+            this.zoomEl.style.width   = zoomWidth  + 'px';
+            this.zoomEl.style.height  = zoomHeight + 'px';
+            this.zoomEl.style.display = 'block';
+
+            // ─── Compute background-size and background-position for zoom ───────
+            // Zoom ratio: how much bigger the result is vs. the lens
+            const ratioX = zoomWidth  / lensW;
+            const ratioY = zoomHeight / lensH;
+
+            const bgW = imgRect.width  * ratioX;
+            const bgH = imgRect.height * ratioY;
+
+            // The lens top-left in image coords maps to background offset
+            const bgX = lensLeft * ratioX;
+            const bgY = lensTop  * ratioY;
+
+            this.zoomEl.style.backgroundImage    = 'url(' + img.src + ')';
+            this.zoomEl.style.backgroundSize     = bgW + 'px ' + bgH + 'px';
+            this.zoomEl.style.backgroundPosition = '-' + bgX + 'px -' + bgY + 'px';
+        }
+
+        _onLensMouseLeave() {
+            if (this.lensEl) this.lensEl.style.display = 'none';
+            if (this.zoomEl) this.zoomEl.style.display = 'none';
+        }
+
+        // Destroy lens when gallery is re-initialized (e.g. variation switch)
+        destroyLens() {
+            const mainContainer = this.mainImage ? this.mainImage.parentElement : null;
+            if (mainContainer) {
+                mainContainer.removeEventListener('mousemove', this._lensMouseMove);
+                mainContainer.removeEventListener('mouseleave', this._lensMouseLeave);
+            }
+            if (this.lensEl)   this.lensEl.remove();
+            if (this.zoomEl)   this.zoomEl.remove();
+        }
+        // ─────────────────────────────────────────────────────────────────────
     }
     
     // Initialize
