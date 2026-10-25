@@ -235,17 +235,17 @@
     position: absolute;
     pointer-events: none;
     z-index: 20;
-    border: 1px solid var(--global-color-primary-border, #ddd);
-    border-radius: 2px;
+    border: 2px solid var(--global-color-link, #fcb800);
+    border-radius: 0;
     cursor: crosshair;
-    /* Dotted light background — semi-transparent so the image shows through */
-    background-color: rgba(255, 255, 255, 0.25);
+    /* Denser dotted background tinted with global-color-link */
+    background-color: rgba(252, 184, 0, 0.08);
     background-image: radial-gradient(
         circle,
-        rgba(0, 0, 0, 0.08) 1px,
-        transparent 1px
+        rgba(252, 184, 0, 0.35) 1.5px,
+        transparent 1.5px
     );
-    background-size: 8px 8px;
+    background-size: 5px 5px;
 }
 
 /* The large zoom result panel — covers the info-wrapper area on the right */
