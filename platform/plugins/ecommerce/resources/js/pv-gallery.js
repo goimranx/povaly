@@ -346,9 +346,9 @@
                 return;
             }
 
-            // Lens size
-            const lensW = 160;
-            const lensH = 120;
+            // Lens size — slightly larger for better usability
+            const lensW = 200;
+            const lensH = 150;
 
             // Clamp lens so it doesn't go outside the image
             let lensLeft = x - lensW / 2;
@@ -367,10 +367,17 @@
             this.lensEl.style.display = 'block';
 
             // ─── Position and size the zoom panel ───────────────────────────────
-            // Target: right side of gallery-wrapper, covering ps-product__info-wrapper
-            // Full viewport height minus 10-15px margins top and bottom
-            const MARGIN = 12;
-            const vpH    = window.innerHeight;
+            // Top: just below the site header
+            // Bottom: viewport bottom minus 10px
+            const BOTTOM_GAP = 10;
+
+            // Detect site header height (below header, not full viewport)
+            const headerEl = document.querySelector('.ps-header, header.header, #header, .site-header, nav.navbar');
+            const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : 0;
+            const zoomPanelTop = Math.max(headerBottom, 0);
+
+            const vpH     = window.innerHeight;
+            const zoomPanelHeight = vpH - zoomPanelTop - BOTTOM_GAP;
 
             // Info-wrapper: sibling of gallery-wrapper inside ps-product__header
             const galleryWrapper = document.querySelector('.ps-product__gallery-wrapper');
@@ -381,15 +388,15 @@
             if (infoWrapper && galleryWrapper) {
                 const infoRect = infoWrapper.getBoundingClientRect();
                 zoomLeft   = infoRect.left;
-                zoomTop    = MARGIN;
+                zoomTop    = zoomPanelTop;
                 zoomWidth  = infoRect.width;
-                zoomHeight = vpH - MARGIN * 2;
+                zoomHeight = zoomPanelHeight;
             } else {
                 // Fallback: position right of the main container
                 zoomLeft   = containerRect.right + 10;
-                zoomTop    = MARGIN;
+                zoomTop    = zoomPanelTop;
                 zoomWidth  = Math.min(500, window.innerWidth - zoomLeft - 10);
-                zoomHeight = vpH - MARGIN * 2;
+                zoomHeight = zoomPanelHeight;
             }
 
             this.zoomEl.style.left    = zoomLeft   + 'px';
