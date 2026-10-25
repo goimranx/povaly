@@ -149,41 +149,24 @@ class SystemUpdateController extends Controller
                     }
                 }
 
-                // Step 4: Publish plugin assets
-                $sendMessage("\n=== Publishing Plugin Assets to Vendor ===", 'header');
-                $this->publishPluginAssets($sendMessage);
+                // Step 4: Delete old assets (Nuclear approach)
+                $sendMessage("\n=== Removing Old Assets (Nuclear Clean) ===", 'header');
+                $this->deleteOldAssets($sendMessage);
                 
-                // Step 4b: Publish CMS assets
-                $sendMessage("\n=== Publishing CMS Assets ===", 'header');
+                // Step 5: Publish ALL assets fresh
+                $sendMessage("\n=== Publishing Fresh Assets ===", 'header');
+                $this->publishAllAssetsFresh($sendMessage);
+                
+                // Step 6: Verify assets
+                $sendMessage("\n=== Verifying Assets ===", 'header');
                 try {
-                    Artisan::call('cms:publish:assets');
-                    $sendMessage("✓ CMS assets published via artisan", 'success');
+                    $this->verifyAssets($sendMessage);
+                    $sendMessage("✓ All critical assets verified", 'success');
                 } catch (\Exception $e) {
-                    $sendMessage("⚠ CMS publish command skipped: " . $e->getMessage(), 'warning');
+                    $sendMessage("⚠ Asset verification: " . $e->getMessage(), 'warning');
                 }
 
-                // Step 4c: Publish theme assets
-                $sendMessage("\n=== Publishing Theme Assets ===", 'header');
-                try {
-                    Artisan::call('cms:theme:assets:publish', ['name' => 'martfury']);
-                    $sendMessage("✓ Theme assets published via artisan", 'success');
-                } catch (\Throwable $e) {
-                    try {
-                        $source = base_path('platform/themes/martfury/public');
-                        $dest   = public_path('themes/martfury');
-                        if (File::isDirectory($source)) {
-                            File::ensureDirectoryExists($dest);
-                            File::copyDirectory($source, $dest);
-                            $sendMessage("✓ Theme assets published via direct copy", 'success');
-                        } else {
-                            $sendMessage("⚠ Theme source directory not found, skipping", 'warning');
-                        }
-                    } catch (\Throwable $e2) {
-                        $sendMessage("⚠ Theme asset publish failed: " . $e2->getMessage(), 'warning');
-                    }
-                }
-
-                // Step 5: Run database migrations
+                // Step 7: Run database migrations
                 $sendMessage("\n=== Running Database Migrations ===", 'header');
                 try {
                     Artisan::call('migrate', ['--force' => true]);
@@ -204,22 +187,21 @@ class SystemUpdateController extends Controller
                     }
                 }
 
-                // Step 6: Publish vendor assets
-                $sendMessage("\n=== Publishing Vendor Assets ===", 'header');
-                Artisan::call('vendor:publish', ['--tag' => 'public', '--force' => true]);
-                $sendMessage("✓ Vendor assets published", 'success');
+                // Step 8: Nuclear cache clearing
+                $sendMessage("\n=== Nuclear Cache Clearing ===", 'header');
+                $this->nuclearCacheClear($sendMessage);
+                $sendMessage("✓ All caches nuked", 'success');
 
-                // Step 7: Clear all caches
-                $sendMessage("\n=== Clearing All Caches ===", 'header');
-                $this->clearAllCachesWithProgress($sendMessage);
-                $sendMessage("✓ All caches cleared", 'success');
-
-                // Step 8: Optimize application
-                $sendMessage("\n=== Optimizing Application ===", 'header');
+                // Step 9: Rebuild caches
+                $sendMessage("\n=== Rebuilding Caches ===", 'header');
                 $this->optimizeApplicationWithProgress($sendMessage);
                 $sendMessage("✓ Application optimized", 'success');
 
-                // Step 9: Take the site out of maintenance mode
+                // Step 10: Update cache bust version
+                $sendMessage("\n=== Updating Asset Version ===", 'header');
+                $this->updateAssetVersion($sendMessage);
+
+                // Step 11: Take the site out of maintenance mode
                 $sendMessage("\n=== Disabling Maintenance Mode ===", 'header');
                 Artisan::call('up');
                 $sendMessage("✓ Maintenance mode disabled", 'success');
@@ -716,4 +698,331 @@ class SystemUpdateController extends Controller
             ], 500);
         }
     }
-}
+
+    /**
+     * NUCLEAR APPROACH: Delete old assets completely before copying new ones
+     * This ensures no stale files remain that could cause caching issues
+     */
+    private function deleteOldAssets(callable $sendMessage)
+    {
+        $directories = [
+            'public/vendor/core/core',
+            'public/vendor/core/packages',
+            'public/vendor/core/plugins',
+            'public/themes/martfury',
+        ];
+        
+        $deletedCount = 0;
+        foreach ($directories as $dir) {
+            $fullPath = base_path($dir);
+            if (File::exists($fullPath)) {
+                try {
+                    $fileCount = count(File::allFiles($fullPath));
+                    File::deleteDirectory($fullPath);
+                    $deletedCount += $fileCount;
+                    $sendMessage("✓ Deleted: {$dir} ({$fileCount} files)", 'success');
+                } catch (\Exception $e) {
+                    $sendMessage("⚠ Failed to delete {$dir}: " . $e->getMessage(), 'warning');
+                }
+            }
+        }
+        
+        $sendMessage("✓ Total files deleted: {$deletedCount}", 'success');
+    }
+
+    /**
+     * Publish ALL assets fresh using multiple strategies
+     * 1. Laravel's vendor:publish system (cms-public tag)
+     * 2. Direct copy for themes
+     * 3. Verify all critical assets exist
+     */
+    private function publishAllAssetsFresh(callable $sendMessage)
+    {
+        // Strategy 1: Laravel vendor:publish system
+        $sendMessage("→ Publishing via Laravel service providers (cms-public tag)...", 'info');
+        try {
+            Artisan::call('vendor:publish', ['--tag' => 'cms-public', '--force' => true]);
+            $sendMessage("✓ CMS assets published", 'success');
+        } catch (\Exception $e) {
+            $sendMessage("⚠ vendor:publish failed: " . $e->getMessage(), 'warning');
+        }
+        
+        // Strategy 2: Direct copy for platform modules
+        $sendMessage("\n→ Publishing platform modules directly...", 'info');
+        $this->publishPlatformModules($sendMessage);
+        
+        // Strategy 3: Theme assets
+        $sendMessage("\n→ Publishing theme assets...", 'info');
+        $this->publishThemeAssets($sendMessage);
+        
+        // Strategy 4: Additional vendor publish tags
+        $sendMessage("\n→ Publishing additional vendor assets...", 'info');
+        try {
+            Artisan::call('vendor:publish', ['--tag' => 'public', '--force' => true]);
+            $sendMessage("✓ Additional vendor assets published", 'success');
+        } catch (\Exception $e) {
+            $sendMessage("⚠ Additional publish skipped", 'warning');
+        }
+    }
+
+    /**
+     * Publish platform modules (core, packages, plugins)
+     * Direct copy approach for maximum reliability
+     */
+    private function publishPlatformModules(callable $sendMessage)
+    {
+        $sources = [
+            // Core modules
+            'platform/core' => 'public/vendor/core/core',
+            
+            // Packages
+            'platform/packages' => 'public/vendor/core/packages',
+            
+            // Plugins
+            'platform/plugins' => 'public/vendor/core/plugins',
+        ];
+
+        $totalFiles = 0;
+
+        foreach ($sources as $sourceBase => $destBase) {
+            $sourcePath = base_path($sourceBase);
+            
+            if (!File::isDirectory($sourcePath)) {
+                continue;
+            }
+            
+            // Get all module directories
+            $modules = File::directories($sourcePath);
+            
+            foreach ($modules as $modulePath) {
+                $moduleName = basename($modulePath);
+                $modulePublicPath = $modulePath . '/public';
+                
+                if (!File::isDirectory($modulePublicPath)) {
+                    continue;
+                }
+                
+                $destPath = base_path($destBase . '/' . $moduleName);
+                
+                try {
+                    File::ensureDirectoryExists($destPath);
+                    File::copyDirectory($modulePublicPath, $destPath);
+                    
+                    $fileCount = count(File::allFiles($destPath));
+                    $totalFiles += $fileCount;
+                    
+                    $relativeSource = str_replace(base_path() . '/', '', $modulePath);
+                    $sendMessage("✓ Published {$relativeSource}: {$fileCount} files", 'success');
+                    
+                } catch (\Exception $e) {
+                    $sendMessage("✗ Failed to publish {$moduleName}: " . $e->getMessage(), 'error');
+                }
+            }
+        }
+
+        if ($totalFiles > 0) {
+            $sendMessage("✓ Total platform assets published: {$totalFiles} files", 'success');
+        }
+    }
+
+    /**
+     * Publish theme assets
+     */
+    private function publishThemeAssets(callable $sendMessage)
+    {
+        try {
+            Artisan::call('cms:theme:assets:publish', ['name' => 'martfury']);
+            $sendMessage("✓ Theme assets published via artisan", 'success');
+        } catch (\Throwable $e) {
+            // Fallback to manual copy
+            try {
+                $source = base_path('platform/themes/martfury/public');
+                $dest = public_path('themes/martfury');
+                
+                if (File::isDirectory($source)) {
+                    File::ensureDirectoryExists($dest);
+                    File::copyDirectory($source, $dest);
+                    
+                    $fileCount = count(File::allFiles($dest));
+                    $sendMessage("✓ Theme assets published via direct copy: {$fileCount} files", 'success');
+                } else {
+                    $sendMessage("⚠ Theme source directory not found", 'warning');
+                }
+            } catch (\Throwable $e2) {
+                $sendMessage("✗ Theme asset publish failed: " . $e2->getMessage(), 'error');
+            }
+        }
+    }
+
+    /**
+     * Verify critical assets were published correctly
+     */
+    private function verifyAssets(callable $sendMessage)
+    {
+        $criticalFiles = [
+            'public/vendor/core/packages/theme/js/toast.js',
+            'public/vendor/core/plugins/ecommerce/js/front-ecommerce.js',
+            'public/vendor/core/plugins/ecommerce/js/pv-gallery.js',
+            'public/themes/martfury/js/main.js',
+            'public/themes/martfury/js/product-card-enhanced.js',
+            'public/themes/martfury/css/style.css',
+        ];
+        
+        $verified = 0;
+        $missing = 0;
+        
+        foreach ($criticalFiles as $file) {
+            $fullPath = base_path($file);
+            if (File::exists($fullPath)) {
+                $size = File::size($fullPath);
+                if ($size > 100) { // At least 100 bytes
+                    $verified++;
+                    $sendMessage("✓ Verified: {$file} ({$size} bytes)", 'success');
+                } else {
+                    $missing++;
+                    $sendMessage("⚠ File too small: {$file} ({$size} bytes)", 'warning');
+                }
+            } else {
+                $missing++;
+                $sendMessage("⚠ Missing: {$file}", 'warning');
+            }
+        }
+        
+        $sendMessage("Verified: {$verified}/{" . count($criticalFiles) . "} critical assets", 'info');
+        
+        if ($missing > 0) {
+            throw new \Exception("{$missing} critical asset(s) missing or corrupted");
+        }
+    }
+
+    /**
+     * NUCLEAR CACHE CLEARING
+     * Clear ALL caches at every level: Laravel, PHP, File system
+     */
+    private function nuclearCacheClear(callable $sendMessage)
+    {
+        // 1. Laravel Artisan caches
+        $commands = [
+            'cache:clear' => 'Application cache',
+            'config:clear' => 'Config cache',
+            'route:clear' => 'Route cache',
+            'view:clear' => 'View cache',
+            'event:clear' => 'Event cache',
+            'clear-compiled' => 'Compiled classes',
+        ];
+        
+        foreach ($commands as $command => $label) {
+            try {
+                $sendMessage("→ Clearing {$label}...", 'info');
+                Artisan::call($command);
+                $sendMessage("✓ {$label} cleared", 'success');
+            } catch (\Exception $e) {
+                $sendMessage("⚠ {$label} clear failed", 'warning');
+            }
+        }
+        
+        // 2. CMS-specific cache
+        try {
+            if (class_exists('\Botble\Base\Facades\BaseHelper')) {
+                $sendMessage("→ Clearing CMS cache...", 'info');
+                Artisan::call('cms:cache:clear');
+                $sendMessage("✓ CMS cache cleared", 'success');
+            }
+        } catch (\Exception $e) {
+            $sendMessage("⚠ CMS cache not available", 'warning');
+        }
+        
+        // 3. Physical file deletion
+        $sendMessage("\n→ Deleting physical cache files...", 'info');
+        $cacheDirectories = [
+            'storage/framework/cache/data',
+            'storage/framework/views',
+            'storage/framework/sessions',
+        ];
+        
+        $deletedFiles = 0;
+        foreach ($cacheDirectories as $dir) {
+            $fullPath = base_path($dir);
+            if (File::exists($fullPath)) {
+                try {
+                    $files = File::allFiles($fullPath);
+                    foreach ($files as $file) {
+                        if ($file->getFilename() !== '.gitignore') {
+                            File::delete($file->getRealPath());
+                            $deletedFiles++;
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Continue even if some files can't be deleted
+                }
+            }
+        }
+        $sendMessage("✓ Deleted {$deletedFiles} cache files", 'success');
+        
+        // 4. Bootstrap cache files
+        $sendMessage("→ Clearing bootstrap cache...", 'info');
+        $bootstrapFiles = [
+            'bootstrap/cache/config.php',
+            'bootstrap/cache/routes-v7.php',
+            'bootstrap/cache/events.php',
+            'bootstrap/cache/packages.php',
+            'bootstrap/cache/services.php',
+        ];
+        
+        $deletedBootstrap = 0;
+        foreach ($bootstrapFiles as $file) {
+            $fullPath = base_path($file);
+            if (File::exists($fullPath)) {
+                try {
+                    File::delete($fullPath);
+                    $deletedBootstrap++;
+                } catch (\Exception $e) {
+                    // Continue
+                }
+            }
+        }
+        $sendMessage("✓ Deleted {$deletedBootstrap} bootstrap cache files", 'success');
+        
+        // 5. PHP OpCache
+        if (function_exists('opcache_reset')) {
+            $sendMessage("→ Resetting PHP OpCache...", 'info');
+            try {
+                opcache_reset();
+                $sendMessage("✓ OpCache reset", 'success');
+            } catch (\Exception $e) {
+                $sendMessage("⚠ OpCache reset failed", 'warning');
+            }
+        }
+        
+        // 6. APCu cache
+        if (function_exists('apcu_clear_cache')) {
+            $sendMessage("→ Clearing APCu cache...", 'info');
+            try {
+                apcu_clear_cache();
+                $sendMessage("✓ APCu cache cleared", 'success');
+            } catch (\Exception $e) {
+                $sendMessage("⚠ APCu clear failed", 'warning');
+            }
+        }
+        
+        // 7. Clear version cache
+        VersionHelper::clearCache();
+        $sendMessage("✓ Version cache cleared", 'success');
+    }
+
+    /**
+     * Update asset version for cache busting
+     * Stores current Git commit hash in config
+     */
+    private function updateAssetVersion(callable $sendMessage)
+    {
+        $version = VersionHelper::getCurrentCommit();
+        $timestamp = now()->timestamp;
+        
+        // Store in cache
+        Cache::forever('asset_version', $version);
+        Cache::forever('asset_version_timestamp', $timestamp);
+        
+        $sendMessage("✓ Asset version updated: {$version}", 'success');
+        $sendMessage("  This will force browsers to reload all assets", 'info');
+    }
