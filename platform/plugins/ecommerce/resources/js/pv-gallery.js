@@ -384,37 +384,10 @@
             this.lensEl.style.display = 'block';
 
             // ─── Position and size the zoom panel ───────────────────────────────
-            // Top: just below the sticky header + 10px gap (same as bottom gap)
-            // Bottom: viewport bottom minus 10px
+            // Always 10px from top and bottom of viewport — full height minus gaps
             const GAP = 10;
-
-            // The sticky header has TWO fixed children: .header__top and nav.navigation
-            // We must query the FIXED elements directly (not the <header> wrapper which scrolls)
-            // Take the maximum bottom of all fixed header parts currently visible
-            const fixedHeaderParts = [
-                document.querySelector('.header.header--sticky .header__top'),
-                document.querySelector('.header.header--sticky .navigation'),
-                document.querySelector('.header.header--1 .header__top'),
-                document.querySelector('.header.header--1 .navigation'),
-            ];
-            let headerBottom = 0;
-            fixedHeaderParts.forEach(el => {
-                if (!el) return;
-                const rect = el.getBoundingClientRect();
-                // Only count elements that are actually visible/fixed at top of viewport
-                if (rect.top <= 10 && rect.bottom > headerBottom) {
-                    headerBottom = rect.bottom;
-                }
-            });
-            // Fallback: if nothing detected, try the header element itself
-            if (headerBottom === 0) {
-                const headerEl = document.querySelector('header.header--sticky, header.header');
-                if (headerEl) headerBottom = Math.max(0, headerEl.getBoundingClientRect().bottom);
-            }
-            const zoomPanelTop = headerBottom + GAP;
-
-            const vpH     = window.innerHeight;
-            const zoomPanelHeight = vpH - zoomPanelTop - GAP;
+            const zoomPanelTop    = GAP;
+            const zoomPanelHeight = window.innerHeight - GAP * 2;
 
             // Info-wrapper: sibling of gallery-wrapper inside ps-product__header
             const galleryWrapper = document.querySelector('.ps-product__gallery-wrapper');
