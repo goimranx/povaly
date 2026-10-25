@@ -253,7 +253,7 @@
 .pv-zoom-result {
     display: none;
     position: fixed;
-    z-index: 9999;
+    z-index: 9999; /* Correct top position keeps it below header, high z-index needed for other overlays */
     background-repeat: no-repeat;
     background-color: #fff;
     border: 1px solid var(--global-color-border-strong, #333);

@@ -388,10 +388,29 @@
             // Bottom: viewport bottom minus 10px
             const GAP = 10;
 
-            // Re-read header bottom live so sticky header scroll position is respected
-            // Target the full sticky header (header__top + nav.navigation combined)
-            const headerEl = document.querySelector('header.header--sticky, header.header--1, .ps-header--sticky, .ps-header, header.header, #header');
-            const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : 0;
+            // The sticky header has TWO fixed children: .header__top and nav.navigation
+            // We must query the FIXED elements directly (not the <header> wrapper which scrolls)
+            // Take the maximum bottom of all fixed header parts currently visible
+            const fixedHeaderParts = [
+                document.querySelector('.header.header--sticky .header__top'),
+                document.querySelector('.header.header--sticky .navigation'),
+                document.querySelector('.header.header--1 .header__top'),
+                document.querySelector('.header.header--1 .navigation'),
+            ];
+            let headerBottom = 0;
+            fixedHeaderParts.forEach(el => {
+                if (!el) return;
+                const rect = el.getBoundingClientRect();
+                // Only count elements that are actually visible/fixed at top of viewport
+                if (rect.top <= 10 && rect.bottom > headerBottom) {
+                    headerBottom = rect.bottom;
+                }
+            });
+            // Fallback: if nothing detected, try the header element itself
+            if (headerBottom === 0) {
+                const headerEl = document.querySelector('header.header--sticky, header.header');
+                if (headerEl) headerBottom = Math.max(0, headerEl.getBoundingClientRect().bottom);
+            }
             const zoomPanelTop = headerBottom + GAP;
 
             const vpH     = window.innerHeight;
