@@ -97,6 +97,11 @@ class SystemUpdateController extends Controller
                     
                     // Checkout the latest tag
                     $sendMessage("\n→ Deploying tag: {$latestTag}", 'info');
+
+                    // Reset any local changes before checkout (server should never have local edits)
+                    $sendMessage("→ Resetting local changes...", 'info');
+                    $this->executeCommand('git reset --hard HEAD', $returnCode);
+
                     $checkoutOutput = $this->executeCommand("git checkout {$latestTag}", $returnCode);
                     foreach ($checkoutOutput as $line) {
                         $sendMessage($line, 'info');
