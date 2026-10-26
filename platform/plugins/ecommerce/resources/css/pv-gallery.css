@@ -23,6 +23,7 @@
     background-color: var(--global-color-card-bg, #f9f9f9);
     border-radius: 0;
     padding: 10px;
+    min-height: 300px;
 }
 
 .pv-gallery-main img {
@@ -209,21 +210,45 @@
     .ps-product__gallery-wrapper {
         padding-right: 0;
     }
-    
     .pv-gallery-vertical {
         flex-direction: column;
     }
-    
+    /* Hide thumbnail strip on mobile — replaced by swipe + dots */
     .pv-gallery-thumbnails {
-        flex-direction: row;
-        width: 100%;
-        max-width: 100%;
-        overflow-x: auto;
-        overflow-y: hidden;
+        display: none !important;
     }
-    
     .pv-gallery-main {
         width: 100%;
+        min-height: 260px;
+    }
+    /* Video needs explicit height on mobile */
+    .pv-gallery-main .pv-video-facade,
+    .pv-gallery-main video {
+        min-height: 240px;
+    }
+}
+
+/* ── Mobile swipe trail dots ──────────────────────────────────────────── */
+.pv-mobile-dots {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 0 4px;
+}
+
+.pv-dot {
+    display: inline-block;
+    border-radius: 50%;
+    background-color: var(--global-color-link, #fcb800);
+    cursor: pointer;
+    transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .pv-mobile-dots {
+        display: flex;
     }
 }
 
