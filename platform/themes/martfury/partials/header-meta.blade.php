@@ -23,45 +23,45 @@
             --bs-body-font-family: var(--bs-font-sans-serif);
             
             /* ══ SURFACES (60%) ══ */
-            --global-color-site-bg:        {{theme_option('global_color_site_bg', '#F4F9FD')}};
-            --global-color-card-bg:        {{theme_option('global_color_card_bg', '#FFFFFF')}};
-            --global-color-card-bg-raised: {{theme_option('global_color_card_bg_raised', '#FFF3EC')}};
-            --global-color-card-bg-dark:   {{theme_option('global_color_card_bg_dark', '#0D1B2A')}};
-            --global-color-border-light:   {{theme_option('global_color_border_light', '#F0D8CB')}};
-            --global-color-border-strong:  {{theme_option('global_color_border_strong', '#E8B49B')}};
+            --global-color-site-bg:        {{theme_option('global_color_site_bg', 'rgb(255, 255, 255)')}};
+            --global-color-card-bg:        {{theme_option('global_color_card_bg', '#f5f5f5')}};
+            --global-color-card-bg-raised: {{theme_option('global_color_card_bg_raised', 'rgb(233, 233, 233)')}};
+            --global-color-card-bg-dark:   {{theme_option('global_color_card_bg_dark', 'rgb(40, 49, 62)')}};
+            --global-color-border-light:   {{theme_option('global_color_border_light', 'rgb(243, 243, 243)')}};
+            --global-color-border-strong:  {{theme_option('global_color_border_strong', 'rgb(196, 198, 203)')}};
 
             /* ══ STRUCTURE (30%) ══ */
-            --global-color-secondary:      {{theme_option('secondary_color', '#0D1B2A')}};
-            --global-color-secondary-soft: {{theme_option('global_color_secondary_soft', '#182A3E')}};
-            --global-color-secondary-mid:  {{theme_option('global_color_secondary_mid', '#243B53')}};
-            --global-color-text-main:      {{theme_option('global_color_text_main', '#0D1B2A')}};
-            --global-color-text-body:      {{theme_option('global_color_text_body', '#2E3D52')}};
-            --global-color-text-muted:     {{theme_option('global_color_text_muted', '#7A8FA6')}};
-            --global-color-text-subtle:    {{theme_option('global_color_text_subtle', '#A8BED4')}};
-            --global-color-text-on-dark:   {{theme_option('global_color_text_on_dark', '#F4F9FD')}};
+            --global-color-secondary:      {{theme_option('secondary_color', '#11161c')}};
+            --global-color-secondary-soft: {{theme_option('global_color_secondary_soft', '#28313e')}};
+            --global-color-secondary-mid:  {{theme_option('global_color_secondary_mid', '#222933')}};
+            --global-color-text-main:      {{theme_option('global_color_text_main', 'rgb(19, 23, 29)')}};
+            --global-color-text-body:      {{theme_option('global_color_text_body', 'rgb(34, 41, 51)')}};
+            --global-color-text-muted:     {{theme_option('global_color_text_muted', '#6b7280')}};
+            --global-color-text-subtle:    {{theme_option('global_color_text_subtle', 'rgb(175, 176, 178)')}};
+            --global-color-text-on-dark:   {{theme_option('global_color_text_on_dark', 'rgb(255, 255, 255)')}};
 
             /* ══ ACCENT (10% - Primary) ══ */
-            --global-color-primary:        {{theme_option('primary_color', '#FF642C')}};
-            --global-color-primary-hover:  {{theme_option('global_color_primary_hover', '#E54E18')}};
-            --global-color-primary-active: {{theme_option('global_color_primary_active', '#C83C0A')}};
+            --global-color-primary:        {{theme_option('primary_color', '#ff642c')}};
+            --global-color-primary-hover:  {{theme_option('global_color_primary_hover', '#ff591e')}};
+            --global-color-primary-active: {{theme_option('global_color_primary_active', 'rgb(248, 91, 34)')}};
             --global-color-primary-subtle: {{theme_option('global_color_primary_subtle', '#FFF0EB')}};
-            --global-color-primary-border: {{theme_option('global_color_primary_border', '#FFB399')}};
+            --global-color-primary-border: {{theme_option('global_color_primary_border', 'rgb(239, 239, 239)')}};
 
             /* ══ STATUS COLORS ══ */
-            --global-color-success:        {{theme_option('global_color_success', '#2E7D32')}};
+            --global-color-success:        {{theme_option('global_color_success', 'rgb(57, 152, 62)')}};
             --global-color-success-subtle: {{theme_option('global_color_success_subtle', '#E8F5E9')}};
-            --global-color-success-text:   {{theme_option('global_color_success_text', '#1B5E20')}};
-            --global-color-alert:          {{theme_option('global_color_alert', '#FF5C5C')}};
-            --global-color-alert-hover:    {{theme_option('global_color_alert_hover', '#D94040')}};
+            --global-color-success-text:   {{theme_option('global_color_success_text', 'rgb(26, 113, 32)')}};
+            --global-color-alert:          {{theme_option('global_color_alert', 'rgb(255, 48, 67)')}};
+            --global-color-alert-hover:    {{theme_option('global_color_alert_hover', 'rgb(212, 17, 35)')}};
             --global-color-alert-subtle:   {{theme_option('global_color_alert_subtle', '#FDECEA')}};
-            --global-color-alert-text:     {{theme_option('global_color_alert_text', '#B71C1C')}};
-            --global-color-warning:        {{theme_option('global_color_warning', '#FBB13C')}};
+            --global-color-alert-text:     {{theme_option('global_color_alert_text', 'rgb(205, 16, 34)')}};
+            --global-color-warning:        {{theme_option('global_color_warning', '#fbb13c')}};
             --global-color-warning-subtle: {{theme_option('global_color_warning_subtle', '#FFFBEB')}};
 
             /* ══ LINK COLORS ══ */
-            --global-color-link:           {{theme_option('global_color_link', '#13acdf')}};
-            --global-color-link-hover:     {{theme_option('global_color_link_hover', '#1dbff5')}};
-            --global-color-link-subtle:    {{theme_option('global_color_link_subtle', '#FFF3EC')}};
+            --global-color-link:           {{theme_option('global_color_link', 'rgb(37, 107, 175)')}};
+            --global-color-link-hover:     {{theme_option('global_color_link_hover', 'rgb(15, 55, 94)')}};
+            --global-color-link-subtle:    {{theme_option('global_color_link_subtle', 'rgb(238, 246, 255)')}};
 
             /* ══ ECOMMERCE BUTTONS ══ */
             --ec-btn-cart-bg:       {{theme_option('ec_btn_cart_bg', '#FFD814')}};
