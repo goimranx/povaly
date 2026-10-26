@@ -56,7 +56,7 @@
                     this.jumpToImage(index);
                 });
                 
-                // Click opens lightbox (unless it's a counter overlay)
+                // Click opens lightbox only for counter overlay (+N), not regular thumbnails
                 thumb.addEventListener('click', (e) => {
                     const overlay = thumb.querySelector('.pv-thumb-overlay');
                     if (overlay) {
@@ -65,11 +65,8 @@
                         e.stopPropagation();
                         const index = parseInt(thumb.getAttribute('data-index'));
                         this.openLightboxAtIndex(index);
-                    } else {
-                        // Regular thumbnail - open lightbox
-                        e.preventDefault();
-                        this.openLightbox();
                     }
+                    // Regular thumbnail click - do nothing (just hover to preview)
                 });
             });
             
