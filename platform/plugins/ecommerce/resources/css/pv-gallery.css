@@ -23,7 +23,6 @@
     background-color: var(--global-color-card-bg, #f9f9f9);
     border-radius: 0;
     padding: 10px;
-    /* Ensure videos have a proper height */
     min-height: 300px;
 }
 
@@ -211,31 +210,27 @@
     .ps-product__gallery-wrapper {
         padding-right: 0;
     }
-    
     .pv-gallery-vertical {
         flex-direction: column;
     }
-
     /* Hide thumbnail strip on mobile — replaced by swipe + dots */
     .pv-gallery-thumbnails {
         display: none !important;
     }
-
     .pv-gallery-main {
         width: 100%;
-    }
-
-    /* Video slides need explicit height on mobile */
-    .pv-gallery-main .pv-video-facade,
-    .pv-gallery-main video,
-    .pv-gallery-main iframe {
         min-height: 260px;
+    }
+    /* Video needs explicit height on mobile */
+    .pv-gallery-main .pv-video-facade,
+    .pv-gallery-main video {
+        min-height: 240px;
     }
 }
 
-/* ── Mobile swipe dots ──────────────────────────────────────────────────── */
+/* ── Mobile swipe trail dots ──────────────────────────────────────────── */
 .pv-mobile-dots {
-    display: none; /* hidden on desktop */
+    display: none;
     justify-content: center;
     align-items: center;
     gap: 5px;
@@ -245,10 +240,17 @@
 .pv-dot {
     display: inline-block;
     border-radius: 50%;
-    background-color: var(--global-color-link, #fcb800);
+    background-color: var(--global-color-secondary, #666);
     cursor: pointer;
     transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
     flex-shrink: 0;
+}
+
+/* Slide track overflow clip for animation */
+.pv-slide-track {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
 }
 
 @media (max-width: 768px) {
