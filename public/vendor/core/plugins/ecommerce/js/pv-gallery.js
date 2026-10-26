@@ -95,6 +95,9 @@
             
             // Lens zoom on main image
             this.initLens();
+
+            // Mobile: swipe + dots
+            this.initMobile();
             
             // Listen for variation changes
             document.addEventListener('ecommerce.change-variation', (e) => {
@@ -302,6 +305,109 @@
         }
 
         // ─── Lens Zoom ────────────────────────────────────────────────────────
+        // ─── Mobile Swipe + Dots ─────────────────────────────────────────────
+        initMobile() {
+            const mainContainer = this.mainImage ? this.mainImage.parentElement : null;
+            if (!mainContainer) return;
+
+            // Build flat slide list: all images + video thumbs in order
+            this._mobileSlides = [];
+            this.allImages.forEach(img => this._mobileSlides.push({ type: 'image', data: img }));
+            this.videoThumbs.forEach((vt, i) => this._mobileSlides.push({ type: 'video', index: i, el: vt }));
+
+            this._mobileIndex = this.currentIndex;
+
+            // Create dots container
+            this._dotsEl = document.createElement('div');
+            this._dotsEl.className = 'pv-mobile-dots';
+            mainContainer.parentElement.insertBefore(this._dotsEl, mainContainer.nextSibling);
+
+            this._updateDots();
+
+            // Touch swipe
+            let startX = 0, startY = 0, isDragging = false;
+
+            mainContainer.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                isDragging = true;
+            }, { passive: true });
+
+            mainContainer.addEventListener('touchend', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                const dx = e.changedTouches[0].clientX - startX;
+                const dy = e.changedTouches[0].clientY - startY;
+                // Only horizontal swipes
+                if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx)) return;
+                if (dx < 0) this._mobileNext();
+                else this._mobilePrev();
+            }, { passive: true });
+        }
+
+        _mobileNext() {
+            if (this._mobileIndex < this._mobileSlides.length - 1) {
+                this._mobileGoTo(this._mobileIndex + 1);
+            }
+        }
+
+        _mobilePrev() {
+            if (this._mobileIndex > 0) {
+                this._mobileGoTo(this._mobileIndex - 1);
+            }
+        }
+
+        _mobileGoTo(index) {
+            this._mobileIndex = index;
+            const slide = this._mobileSlides[index];
+
+            if (slide.type === 'image') {
+                // Hide any video facade
+                const facade = this.mainImage ? this.mainImage.parentElement.querySelector('.pv-video-facade') : null;
+                if (facade) facade.style.display = 'none';
+                if (this.mainImage) this.mainImage.style.display = 'block';
+                this.jumpToImage(slide.data.index);
+            } else {
+                // Show video
+                this.showVideoPreview(slide.el);
+            }
+
+            this._updateDots();
+        }
+
+        _updateDots() {
+            if (!this._dotsEl) return;
+            const total = this._mobileSlides.length;
+            if (total <= 1) { this._dotsEl.innerHTML = ''; return; }
+
+            const active = this._mobileIndex;
+            // Show up to 5 dots centered around active
+            const MAX = 5;
+            let start = Math.max(0, active - Math.floor(MAX / 2));
+            let end = Math.min(total - 1, start + MAX - 1);
+            if (end - start < MAX - 1) start = Math.max(0, end - MAX + 1);
+
+            let html = '';
+            for (let i = start; i <= end; i++) {
+                const dist = Math.abs(i - active);
+                // active=10px, 1away=7px, 2away=5px
+                const size = dist === 0 ? 10 : dist === 1 ? 7 : 5;
+                const opacity = dist === 0 ? 1 : dist === 1 ? 0.6 : 0.35;
+                html += `<span class="pv-dot${i === active ? ' pv-dot--active' : ''}" 
+                    style="width:${size}px;height:${size}px;opacity:${opacity}"
+                    data-index="${i}"></span>`;
+            }
+            this._dotsEl.innerHTML = html;
+
+            // Dot click
+            this._dotsEl.querySelectorAll('.pv-dot').forEach(dot => {
+                dot.addEventListener('click', () => {
+                    this._mobileGoTo(parseInt(dot.dataset.index));
+                });
+            });
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         initLens() {
             const mainContainer = this.mainImage ? this.mainImage.parentElement : null;
             if (!mainContainer || !this.mainImage) return;
