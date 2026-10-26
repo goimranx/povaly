@@ -240,10 +240,17 @@
 .pv-dot {
     display: inline-block;
     border-radius: 50%;
-    background-color: var(--global-color-link, #fcb800);
+    background-color: var(--global-color-secondary, #666);
     cursor: pointer;
     transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
     flex-shrink: 0;
+}
+
+/* Slide track overflow clip for animation */
+.pv-slide-track {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
 }
 
 @media (max-width: 768px) {

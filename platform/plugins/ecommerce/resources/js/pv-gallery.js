@@ -316,13 +316,22 @@
             this.videoThumbs.forEach((vt, i) => this._mobileSlides.push({ type: 'video', index: i, el: vt }));
             this._mobileIndex = this.currentIndex;
 
-            // Create dots container below main image
+            // Wrap main image in a slide track for visual sliding
+            // The track holds the current slide + a clone next/prev for animation
+            this._slideTrack = document.createElement('div');
+            this._slideTrack.className = 'pv-slide-track';
+            this._slideTrack.style.cssText = 'position:relative;width:100%;height:100%;overflow:hidden;';
+            // Move mainImage inside the track
+            mainContainer.insertBefore(this._slideTrack, mainContainer.firstChild);
+            this._slideTrack.appendChild(this.mainImage);
+
+            // Create dots container below main container
             this._dotsEl = document.createElement('div');
             this._dotsEl.className = 'pv-mobile-dots';
             mainContainer.parentElement.insertBefore(this._dotsEl, mainContainer.nextSibling);
             this._updateDots();
 
-            // Touch swipe on main container
+            // Touch swipe
             let startX = 0, startY = 0, isDragging = false;
             mainContainer.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
@@ -335,24 +344,97 @@
                 const dx = e.changedTouches[0].clientX - startX;
                 const dy = e.changedTouches[0].clientY - startY;
                 if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx)) return;
-                if (dx < 0) this._mobileGoTo(Math.min(this._mobileIndex + 1, this._mobileSlides.length - 1));
-                else        this._mobileGoTo(Math.max(this._mobileIndex - 1, 0));
+                const total = this._mobileSlides.length;
+                if (dx < 0) {
+                    // swipe left → next (wrap to first)
+                    this._mobileGoTo((this._mobileIndex + 1) % total, 'left');
+                } else {
+                    // swipe right → prev (wrap to last)
+                    this._mobileGoTo((this._mobileIndex - 1 + total) % total, 'right');
+                }
             }, { passive: true });
         }
 
-        _mobileGoTo(index) {
-            if (index < 0 || index >= this._mobileSlides.length) return;
-            this._mobileIndex = index;
+        _mobileGoTo(index, direction) {
+            const total = this._mobileSlides.length;
+            if (total === 0) return;
+            // Wrap
+            index = ((index % total) + total) % total;
+            if (index === this._mobileIndex) return;
+
             const slide = this._mobileSlides[index];
+            const track = this._slideTrack;
+
+            // Get the new slide's content as an img element
+            let newEl;
             if (slide.type === 'image') {
-                const facade = this.mainImage && this.mainImage.parentElement.querySelector('.pv-video-facade');
-                if (facade) facade.style.display = 'none';
-                if (this.mainImage) this.mainImage.style.display = 'block';
-                this.jumpToImage(slide.data.index);
+                newEl = document.createElement('img');
+                newEl.src = slide.data.url;
+                newEl.alt = this.mainImage ? this.mainImage.alt : '';
+                newEl.style.cssText = 'width:100%;height:auto;display:block;';
             } else {
-                this.showVideoPreview(slide.el);
+                // For video, create a placeholder div — showVideoPreview will handle it after
+                newEl = document.createElement('div');
+                newEl.style.cssText = 'width:100%;height:100%;background:#000;';
             }
-            this._updateDots();
+
+            // Position new element off-screen in the swipe direction
+            const inFromLeft  = direction === 'right';
+            newEl.style.position = 'absolute';
+            newEl.style.top = '0';
+            newEl.style.left = inFromLeft ? '-100%' : '100%';
+            newEl.style.width = '100%';
+            newEl.style.height = '100%';
+            newEl.style.objectFit = 'contain';
+            newEl.style.transition = 'left 0.3s ease';
+            track.appendChild(newEl);
+
+            // Animate current out, new in
+            const currentEl = this.mainImage;
+            currentEl.style.position = 'absolute';
+            currentEl.style.top = '0';
+            currentEl.style.left = '0';
+            currentEl.style.width = '100%';
+            currentEl.style.height = '100%';
+            currentEl.style.objectFit = 'contain';
+            currentEl.style.transition = 'left 0.3s ease';
+
+            // Trigger animation on next frame
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    newEl.style.left = '0';
+                    currentEl.style.left = inFromLeft ? '100%' : '-100%';
+                });
+            });
+
+            setTimeout(() => {
+                // Clean up after animation
+                if (track.contains(currentEl)) track.removeChild(currentEl);
+                newEl.style.position = '';
+                newEl.style.top = '';
+                newEl.style.left = '';
+                newEl.style.width = '';
+                newEl.style.height = '';
+                newEl.style.transition = '';
+
+                if (slide.type === 'image') {
+                    // Replace mainImage reference with newEl
+                    this.mainImage = newEl;
+                    this.mainImage.style.cursor = 'crosshair';
+                    // Re-bind click for lightbox
+                    this.mainImage.addEventListener('click', () => this.openLightbox());
+                    this.jumpToImage(slide.data.index);
+                } else {
+                    // Remove placeholder, show video facade
+                    if (track.contains(newEl)) track.removeChild(newEl);
+                    // Restore mainImage into track
+                    track.appendChild(this.mainImage);
+                    this.showVideoPreview(slide.el);
+                }
+
+                this._mobileIndex = index;
+                this._updateDots();
+            }, 320);
         }
 
         _updateDots() {
@@ -377,7 +459,10 @@
             }
             this._dotsEl.innerHTML = html;
             this._dotsEl.querySelectorAll('.pv-dot').forEach(dot => {
-                dot.addEventListener('click', () => this._mobileGoTo(parseInt(dot.dataset.index)));
+                dot.addEventListener('click', () => {
+                    const to = parseInt(dot.dataset.index);
+                    this._mobileGoTo(to, to > this._mobileIndex ? 'left' : 'right');
+                });
             });
         }
         // ─────────────────────────────────────────────────────────────────────
