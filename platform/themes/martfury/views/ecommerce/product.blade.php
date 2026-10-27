@@ -18,72 +18,160 @@
                 <form class="add-to-cart-form ps-product__info-wrapper" method="POST" action="{{ route('public.cart.add-to-cart') }}">
                     @csrf
                     
-                    <!-- LEFT: Product Details (65%) -->
+                    <!-- LEFT: Product Details -->
                     <div class="ps-product__details">
-                        <h1>{{ $product->name }}</h1>
-                        
-                        <div class="ps-product__meta">
-                            <p @if (!$product->sku) style="display: none" @endif><strong>{{ __('SKU') }}:</strong> <span data-bb-value="product-sku">{{ $product->sku }}</span></p>
-                            
-                            @if ($product->brand_id)
-                                <p>{{ __('Brand') }}: <a href="{{ $product->brand->url }}">{{ $product->brand->name }}</a></p>
-                            @endif
+                        @php $product->loadMissing('productCollections'); @endphp
 
-                            @if (EcommerceHelper::isReviewEnabled() && $product->reviews_count > 0)
-                                <div class="rating_wrap">
-                                    <a href="#tab-reviews">
-                                        <div class="rating">
-                                            <div class="product_rate" style="width: {{ $product->reviews_avg * 20 }}%"></div>
-                                        </div>
-                                        <span class="rating_num">({{ $product->reviews_count }} {{ __('reviews') }})</span>
-                                    </a>
-                                </div>
-                            @endif
-                        </div>
-                        
-                        {!! Theme::partial('product-price', [
-                            'product' => $product,
-                            'priceWrapperTag' => 'h4',
-                            'priceWrapperClass' => 'ps-product__price',
-                        ]) !!}
-                        
-                        @if ($product->tax_description)
-                            <p class="ps-product__tax-text">
-                                <small class="text-secondary">
-                                    {{ $product->tax_description }}
-                                </small>
-                            </p>
-                        @endif
-                        
-                        <div class="ps-product__desc">
-                            @if (is_plugin_active('marketplace') && $product->store_id)
-                                <p>{{ __('Sold By') }}: <a href="{{ $product->store->url }}"><strong>{{ $product->store->name }} {!! $product->store->badge !!}</strong></a></p>
-                            @endif
-
-                            <div class="ps-list--dot">
-                                {!! apply_filters('ecommerce_before_product_description', null, $product) !!}
-                                {!! BaseHelper::clean($product->description) !!}
-                                {!! apply_filters('ecommerce_after_product_description', null, $product) !!}
+                        {{-- 1. Store link --}}
+                        @if (is_plugin_active('marketplace') && $product->store_id)
+                            <div class="pd-store-link">
+                                <i class="ph ph-storefront"></i>
+                                {{ __('Shop the') }}
+                                <a href="{{ $product->store->url }}">{{ $product->store->name }}</a>
+                                {{ __('store') }}
+                                {!! $product->store->badge !!}
                             </div>
+                        @endif
+
+                        {{-- 2. Product name --}}
+                        <h1 class="pd-title">{{ $product->name }}</h1>
+
+                        {{-- 3. Rating row --}}
+                        @if (EcommerceHelper::isReviewEnabled() && $product->reviews_count > 0)
+                            @php
+                                // Check free shipping: site-wide setting OR a price/weight rule that covers this product
+                                $hasFreeShipping = (bool) get_ecommerce_setting('free_shipping_enabled', false);
+                                if (!$hasFreeShipping) {
+                                    try {
+                                        $productPrice  = $product->front_sale_price ?: $product->price;
+                                        $productWeight = $product->weight ?? 0;
+                                        $defaultCountry = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                                        $shippingZone = \Botble\Ecommerce\Models\Shipping::query()
+                                            ->where(function ($q) use ($defaultCountry) {
+                                                $q->whereNull('country')->orWhere('country', $defaultCountry);
+                                            })
+                                            ->first();
+                                        if ($shippingZone) {
+                                            $freeRule = \Botble\Ecommerce\Models\ShippingRule::query()
+                                                ->where('shipping_id', $shippingZone->id)
+                                                ->where('price', 0)
+                                                ->where(function ($q) use ($productPrice, $productWeight) {
+                                                    $q->where(function ($sub) use ($productPrice) {
+                                                        $sub->where('type', 'based_on_price')
+                                                            ->where('from', '<=', $productPrice)
+                                                            ->where(function ($s) use ($productPrice) {
+                                                                $s->whereNull('to')->orWhere('to', '>=', $productPrice);
+                                                            });
+                                                    })->orWhere(function ($sub) use ($productWeight) {
+                                                        $sub->where('type', 'based_on_weight')
+                                                            ->where('from', '<=', $productWeight)
+                                                            ->where(function ($s) use ($productWeight) {
+                                                                $s->whereNull('to')->orWhere('to', '>=', $productWeight);
+                                                            });
+                                                    });
+                                                })
+                                                ->exists();
+                                            $hasFreeShipping = $freeRule;
+                                        }
+                                    } catch (\Exception $e) {}
+                                }
+                            @endphp
+                            <div class="pd-rating-row">
+                                <a href="#tab-reviews" class="pd-rating-link">
+                                    <span class="pd-rating-avg">{{ number_format($product->reviews_avg, 1) }}</span>
+                                    <span class="pd-rating-stars">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            @if ($i <= floor($product->reviews_avg))
+                                                <i class="ph-fill ph-star"></i>
+                                            @elseif ($i - $product->reviews_avg < 1)
+                                                <i class="ph-fill ph-star-half"></i>
+                                            @else
+                                                <i class="ph ph-star"></i>
+                                            @endif
+                                        @endfor
+                                    </span>
+                                    <span class="pd-rating-count">({{ number_format($product->reviews_count) }})</span>
+                                </a>
+                                @if ($hasFreeShipping)
+                                    <span class="pd-free-shipping">
+                                        <i class="ph ph-truck"></i> {{ __('Free Shipping') }}
+                                    </span>
+                                @endif
+                            </div>
+                        @endif
+
+                        {{-- 4. Brand --}}
+                        @if ($product->brand_id && $product->brand->name)
+                            <div class="pd-brand">
+                                <span class="pd-brand-label">{{ __('Brand') }}:</span>
+                                <a href="{{ $product->brand->url }}" class="pd-brand-value">{{ $product->brand->name }}</a>
+                            </div>
+                        @endif
+
+                        {{-- 5. Bought last month --}}
+                        @php
+                            $boughtLastMonth = \DB::table('ec_order_product')
+                                ->join('ec_orders', 'ec_orders.id', '=', 'ec_order_product.order_id')
+                                ->where('ec_order_product.product_id', $product->id)
+                                ->where('ec_orders.created_at', '>=', now()->subDays(30)->startOfDay())
+                                ->where('ec_orders.created_at', '<', now()->startOfDay())
+                                ->sum('ec_order_product.qty');
+                        @endphp
+                        @if ($boughtLastMonth > 0)
+                            <div class="pd-bought-count">
+                                <i class="ph ph-trend-up"></i>
+                                {{ number_format($boughtLastMonth) }} {{ __('bought in past month') }}
+                            </div>
+                        @endif
+
+                        {{-- 6. Separator + Price --}}
+                        <div class="pd-price-block">
+                            <div class="pd-separator"></div>
+                            @php
+                                $salePercent = $product->isOnSale()
+                                    ? round((1 - $product->front_sale_price / $product->price) * 100)
+                                    : 0;
+                            @endphp
+                            <div class="pd-price-row">
+                                @if ($product->isOnSale() && $salePercent > 0)
+                                    <span class="pd-price-badge">-{{ $salePercent }}%</span>
+                                @endif
+                                {!! Theme::partial('product-price', [
+                                    'product'           => $product,
+                                    'priceWrapperTag'   => 'span',
+                                    'priceWrapperClass' => 'pd-price-wrapper',
+                                    'priceClass'        => 'pd-price-current',
+                                    'priceOriginalClass'=> 'pd-price-original',
+                                    'showSalePercentage'=> false,
+                                ]) !!}
+                            </div>
+                            @if ($product->tax_description)
+                                <p class="pd-tax-note"><small>{{ $product->tax_description }}</small></p>
+                            @endif
                         </div>
 
+                        {{-- 7. Variations --}}
+                        @if ($product->has_variation)
+                            <div class="pd-variations pr_switch_wrap">
+                                {!! render_product_swatches($product, [
+                                    'selected' => $selectedAttrs,
+                                    'view'     => Theme::getThemeNamespace() . '::views.ecommerce.attributes.swatches-renderer'
+                                ]) !!}
+                            </div>
+                        @endif
+
+                        {!! render_product_options($product) !!}
+
+                        {{-- Flash sale countdown (keep existing) --}}
                         @if (($flashSale = $product->latestFlashSales()->first()) && $flashSale->end_date->isFuture())
                             <div class="ps-product__countdown">
                                 <figure>
-                                    <figcaption> {{ __("Don't Miss Out! This promotion will expires in") }}</figcaption>
+                                    <figcaption>{{ __("Don't Miss Out! This promotion will expires in") }}</figcaption>
                                     <ul class="ps-countdown" data-time="{{ $flashSale->end_date }}">
-                                        <li><span class="days"></span>
-                                            <p>{{ __('Days') }}</p>
-                                        </li>
-                                        <li><span class="hours"></span>
-                                            <p>{{ __('Hours') }}</p>
-                                        </li>
-                                        <li><span class="minutes"></span>
-                                            <p>{{ __('Minutes') }}</p>
-                                        </li>
-                                        <li><span class="seconds"></span>
-                                            <p>{{ __('Seconds') }}</p>
-                                        </li>
+                                        <li><span class="days"></span><p>{{ __('Days') }}</p></li>
+                                        <li><span class="hours"></span><p>{{ __('Hours') }}</p></li>
+                                        <li><span class="minutes"></span><p>{{ __('Minutes') }}</p></li>
+                                        <li><span class="seconds"></span><p>{{ __('Seconds') }}</p></li>
                                     </ul>
                                 </figure>
                                 <figure>
@@ -98,41 +186,198 @@
                             </div>
                         @endif
 
-                        @if ($product->has_variation)
-                            <div class="pr_switch_wrap">
-                                {!! render_product_swatches($product, [
-                                    'selected' => $selectedAttrs,
-                                    'view'     => Theme::getThemeNamespace() . '::views.ecommerce.attributes.swatches-renderer'
-                                ]) !!}
+                        {{-- 8. Product details accordion --}}
+                        <div class="pd-accordion" id="pd-accordion">
+
+                            {{-- 8a. About this item --}}
+                            @if ($product->description)
+                                <div class="pd-accordion-item">
+                                    <button class="pd-accordion-btn" type="button" data-bs-toggle="collapse" data-bs-target="#pd-about" aria-expanded="true">
+                                        <span>{{ __('About this item') }}</span>
+                                        <i class="ph ph-caret-down pd-accordion-icon"></i>
+                                    </button>
+                                    <div id="pd-about" class="collapse show" data-bs-parent="#pd-accordion">
+                                        <div class="pd-accordion-body ps-list--dot">
+                                            {!! apply_filters('ecommerce_before_product_description', null, $product) !!}
+                                            {!! BaseHelper::clean($product->description) !!}
+                                            {!! apply_filters('ecommerce_after_product_description', null, $product) !!}
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- 8b. Item details --}}
+                            @php
+                                $hasDetails = $product->brand_id
+                                    || $product->categories->isNotEmpty()
+                                    || $product->tags->isNotEmpty()
+                                    || $product->productCollections->isNotEmpty()
+                                    || $product->sku;
+                            @endphp
+                            @if ($hasDetails)
+                                <div class="pd-accordion-item">
+                                    <button class="pd-accordion-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pd-details" aria-expanded="false">
+                                        <span>{{ __('Item details') }}</span>
+                                        <i class="ph ph-caret-down pd-accordion-icon"></i>
+                                    </button>
+                                    <div id="pd-details" class="collapse" data-bs-parent="#pd-accordion">
+                                        <div class="pd-accordion-body pd-item-details">
+                                            @if ($product->sku)
+                                                <div class="pd-detail-row">
+                                                    <span class="pd-detail-label">{{ __('SKU') }}</span>
+                                                    <span class="pd-detail-value" data-bb-value="product-sku">{{ $product->sku }}</span>
+                                                </div>
+                                            @endif
+                                            @if ($product->brand_id && $product->brand->name)
+                                                <div class="pd-detail-row">
+                                                    <span class="pd-detail-label">{{ __('Brand') }}</span>
+                                                    <span class="pd-detail-value"><a href="{{ $product->brand->url }}">{{ $product->brand->name }}</a></span>
+                                                </div>
+                                            @endif
+                                            @if ($product->categories->isNotEmpty())
+                                                <div class="pd-detail-row">
+                                                    <span class="pd-detail-label">{{ __('Categories') }}</span>
+                                                    <span class="pd-detail-value">
+                                                        @foreach($product->categories as $category)
+                                                            <a href="{{ $category->url }}">{!! BaseHelper::clean($category->name) !!}</a>@if (!$loop->last), @endif
+                                                        @endforeach
+                                                    </span>
+                                                </div>
+                                            @endif
+                                            @if ($product->tags->isNotEmpty())
+                                                <div class="pd-detail-row">
+                                                    <span class="pd-detail-label">{{ __('Tags') }}</span>
+                                                    <span class="pd-detail-value">
+                                                        @foreach($product->tags as $tag)
+                                                            <a href="{{ $tag->url }}">{{ $tag->name }}</a>@if (!$loop->last), @endif
+                                                        @endforeach
+                                                    </span>
+                                                </div>
+                                            @endif
+                                            @if ($product->productCollections->isNotEmpty())
+                                                <div class="pd-detail-row">
+                                                    <span class="pd-detail-label">{{ __('Collections') }}</span>
+                                                    <span class="pd-detail-value">
+                                                        @foreach($product->productCollections as $col)
+                                                            {{ $col->name }}@if (!$loop->last), @endif
+                                                        @endforeach
+                                                    </span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- 8c. Return policy --}}
+                            <div class="pd-accordion-item">
+                                <button class="pd-accordion-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pd-return" aria-expanded="false">
+                                    <span>{{ __('Return policy') }}</span>
+                                    <i class="ph ph-caret-down pd-accordion-icon"></i>
+                                </button>
+                                <div id="pd-return" class="collapse" data-bs-parent="#pd-accordion">
+                                    <div class="pd-accordion-body pd-return-policy">
+                                        <div class="pd-return-icon"><i class="ph ph-arrow-counter-clockwise"></i></div>
+                                        <div class="pd-return-text">
+                                            <p><strong>{{ __('30-day returns') }}</strong></p>
+                                            <p>{{ __('Return within 7 days of receiving your order. We cover full refund minus the delivery charge. Simply contact us and we\'ll handle the rest.') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- 8d. Review highlights --}}
+                            @if (EcommerceHelper::isReviewEnabled() && $product->reviews_count > 0)
+                                @php
+                                    $topReviews = $product->reviews()
+                                        ->where('star', 5)
+                                        ->with('customer')
+                                        ->latest()
+                                        ->limit(4)
+                                        ->get();
+                                @endphp
+                                <div class="pd-accordion-item">
+                                    <button class="pd-accordion-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pd-reviews" aria-expanded="false">
+                                        <span>{{ __('Review highlights') }}</span>
+                                        <span class="pd-accordion-rating-inline">
+                                            <span class="pd-rating-avg-sm">{{ number_format($product->reviews_avg, 1) }}</span>
+                                            <span class="pd-rating-stars-sm">
+                                                @for ($i = 1; $i <= 5; $i++)
+                                                    @if ($i <= floor($product->reviews_avg))
+                                                        <i class="ph-fill ph-star"></i>
+                                                    @elseif ($i - $product->reviews_avg < 1)
+                                                        <i class="ph-fill ph-star-half"></i>
+                                                    @else
+                                                        <i class="ph ph-star"></i>
+                                                    @endif
+                                                @endfor
+                                            </span>
+                                            <span class="pd-rating-count-sm">({{ number_format($product->reviews_count) }})</span>
+                                        </span>
+                                        <i class="ph ph-caret-down pd-accordion-icon"></i>
+                                    </button>
+                                    <div id="pd-reviews" class="collapse" data-bs-parent="#pd-accordion">
+                                        <div class="pd-accordion-body">
+                                            @if ($topReviews->isNotEmpty())
+                                                <div class="pd-review-list">
+                                                    @foreach($topReviews as $review)
+                                                        <div class="pd-review-item">
+                                                            <div class="pd-review-header">
+                                                                <span class="pd-review-stars">
+                                                                    @for ($i = 1; $i <= 5; $i++)
+                                                                        <i class="{{ $i <= $review->star ? 'ph-fill' : 'ph' }} ph-star"></i>
+                                                                    @endfor
+                                                                </span>
+                                                                <span class="pd-review-author">{{ $review->customer->name ?? __('Customer') }}</span>
+                                                                <span class="pd-review-date">{{ $review->created_at->format('M d, Y') }}</span>
+                                                            </div>
+                                                            @if ($review->comment)
+                                                                <p class="pd-review-comment">{{ Str::limit($review->comment, 150) }}</p>
+                                                            @endif
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                            <a href="#tab-reviews" class="pd-read-reviews-btn">{{ __('Read all reviews') }}</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                        </div>
+                        {{-- END: pd-accordion --}}
+
+                        {{-- 9. FAQs --}}
+                        @if (is_plugin_active('faq') && count($product->faq_items) > 0)
+                            <div class="pd-faqs" id="pd-faq-accordion">
+                                <div class="pd-faqs-title">{{ __('Frequently Asked Questions') }}</div>
+                                @foreach($product->faq_items as $faq)
+                                    <div class="pd-accordion-item">
+                                        <button class="pd-accordion-btn {{ $loop->first ? '' : 'collapsed' }}" type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#pd-faq-{{ $loop->index }}"
+                                            aria-expanded="{{ $loop->first ? 'true' : 'false' }}">
+                                            <span>{!! BaseHelper::clean($faq[0]['value']) !!}</span>
+                                            <i class="ph ph-caret-down pd-accordion-icon"></i>
+                                        </button>
+                                        <div id="pd-faq-{{ $loop->index }}" class="collapse {{ $loop->first ? 'show' : '' }}" data-bs-parent="#pd-faq-accordion">
+                                            <div class="pd-accordion-body">
+                                                {!! BaseHelper::clean($faq[1]['value']) !!}
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </div>
                         @endif
 
-                        {!! render_product_options($product) !!}
-
-                        <div class="ps-product__specification">
-                            @if ($product->categories->isNotEmpty())
-                                <p class="categories"><strong> {{ __('Categories') }}:</strong>
-                                    @foreach($product->categories as $category)
-                                        <a href="{{ $category->url }}">{!! BaseHelper::clean($category->name) !!}</a>@if (!$loop->last),@endif
-                                    @endforeach
-                                </p>
-                            @endif
-
-                            @if ($product->tags->isNotEmpty())
-                                <p class="tags"><strong> {{ __('Tags') }}:</strong>
-                                    @foreach($product->tags as $tag)
-                                        <a href="{{ $tag->url }}">{{ $tag->name }}</a>@if (!$loop->last),@endif
-                                    @endforeach
-                                </p>
-                            @endif
-                        </div>
-                        
-                        <div class="ps-product__sharing">
+                        {{-- Sharing --}}
+                        <div class="pd-sharing">
                             <span>{{ __('Share:') }}</span>
                             {!! Theme::renderSocialSharing($product->url, SeoHelper::getDescription(), $product->image) !!}
                         </div>
+
                     </div>
-                    <!-- END: Product Details (65%) -->
+                    <!-- END: Product Details -->
                     
                     <!-- RIGHT: Purchase Box (35%) -->
                     <div class="ps-product__purchase">
