@@ -201,7 +201,12 @@
             
             if (!videoUrl || !this.mainImage) return;
             
-            const mainContainer = this.mainImage.parentElement;
+            // Always use .pv-gallery-main as the container for the facade
+            // On mobile, mainImage is inside .pv-slide-track which has no height after animation
+            const rawParent = this.mainImage.parentElement;
+            const mainContainer = (rawParent && rawParent.classList.contains('pv-slide-track'))
+                ? rawParent.parentElement
+                : rawParent;
             if (!mainContainer) return;
             
             // Create or get video preview facade (thumbnail + circled play button)
@@ -209,9 +214,9 @@
             if (!videoFacade) {
                 videoFacade = document.createElement('div');
                 videoFacade.className = 'pv-video-facade';
-                videoFacade.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:none;cursor:pointer;background:#000;border-radius:10px;overflow:hidden;';
                 mainContainer.appendChild(videoFacade);
             }
+            videoFacade.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:none;cursor:pointer;background:#000;border-radius:10px;overflow:hidden;z-index:5;';
             
             // Build facade content: thumbnail + circled play button
             let facadeHtml = '';
@@ -378,11 +383,12 @@
 
             const slide    = this._mobileSlides[index];
             const track    = this._slideTrack;
+            // mainContainer is .pv-gallery-main (track's parent)
             const mainContainer = track ? track.parentElement : null;
 
             // ── Determine currently visible element ─────────────────────────
-            // When a video is showing, the facade is visible — not mainImage
-            const facade = track ? track.querySelector('.pv-video-facade') : null;
+            // Facade lives in mainContainer (not track), check there
+            const facade = mainContainer ? mainContainer.querySelector('.pv-video-facade') : null;
             const currentEl = (facade && facade.style.display !== 'none') ? facade : this.mainImage;
 
             // Make sure currentEl is properly positioned for slide-out
@@ -431,6 +437,10 @@
             track.appendChild(newEl);
 
             // Pin current element for slide-out
+            // If currentEl is the facade (in mainContainer), move it into track for animation
+            if (currentEl && currentEl === facade && mainContainer && mainContainer.contains(facade)) {
+                track.insertBefore(facade, track.firstChild);
+            }
             if (currentEl) {
                 currentEl.style.position = 'absolute';
                 currentEl.style.top = '0';
@@ -474,16 +484,29 @@
                     this.mainImage.addEventListener('click', () => this.openLightbox());
                     this.jumpToImage(slide.data.index);
                 } else {
-                    // newEl is a preview div — replace it with proper facade via showVideoPreview
-                    // First restore mainImage into track (hidden)
-                    if (track && !track.contains(this.mainImage)) {
+                    // newEl already looks correct (thumbnail + play button)
+                    // Promote it to be the facade — give it facade class and behaviour
+                    newEl.className = 'pv-video-facade';
+                    newEl.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:block;cursor:pointer;background:#000;border-radius:10px;overflow:hidden;z-index:5;';
+                    // Make sure mainImage is in mainContainer (hidden)
+                    if (mainContainer && !mainContainer.contains(this.mainImage)) {
                         this.mainImage.style.display = 'none';
-                        track.appendChild(this.mainImage);
+                        mainContainer.appendChild(this.mainImage);
+                    } else if (this.mainImage) {
+                        this.mainImage.style.display = 'none';
                     }
-                    // Remove preview div
-                    if (track && track.contains(newEl)) track.removeChild(newEl);
-                    // Now show proper video facade
-                    this.showVideoPreview(slide.el);
+                    // Move newEl/facade from track to mainContainer if needed
+                    if (track && track.contains(newEl) && mainContainer && !mainContainer.contains(newEl)) {
+                        track.removeChild(newEl);
+                        mainContainer.appendChild(newEl);
+                    }
+                    // Bind click to open lightbox
+                    const videoIndex = Array.from(this.videoThumbs).indexOf(slide.el);
+                    newEl.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.openLightboxWithVideo(videoIndex);
+                    };
                 }
 
                 this._mobileIndex = index;
