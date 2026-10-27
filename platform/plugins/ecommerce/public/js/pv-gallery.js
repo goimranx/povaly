@@ -380,13 +380,18 @@
             const total = this._mobileSlides.length;
             if (total === 0) return;
             index = ((index % total) + total) % total;
+            console.log('🔵 _mobileGoTo called: from', this._mobileIndex, 'to', index);
             if (index === this._mobileIndex) return;
             // Prevent overlapping animations
-            if (this._mobileAnimating) return;
+            if (this._mobileAnimating) {
+                console.log('⏸️ Animation already running, skipped');
+                return;
+            }
             this._mobileAnimating = true;
 
             // Update index immediately so dots reflect new state right away
             this._mobileIndex = index;
+            console.log('🟢 Index updated to', this._mobileIndex, '— calling _updateDots()');
             this._updateDots();
 
             const slide = this._mobileSlides[index];
@@ -471,10 +476,12 @@
             if (total <= 1) { this._dotsEl.innerHTML = ''; return; }
 
             const active = this._mobileIndex;
+            console.log('🔴 _updateDots: active =', active, ', total =', total);
             const MAX = 5;
             let start = Math.max(0, active - Math.floor(MAX / 2));
             let end   = Math.min(total - 1, start + MAX - 1);
             if (end - start < MAX - 1) start = Math.max(0, end - MAX + 1);
+            console.log('   Dots range:', start, 'to', end);
 
             let html = '';
             for (let i = start; i <= end; i++) {
