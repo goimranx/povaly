@@ -478,18 +478,28 @@
             const active = this._mobileIndex;
             console.log('🔴 _updateDots: active =', active, ', total =', total);
             const MAX = 5;
-            let start = Math.max(0, active - Math.floor(MAX / 2));
-            let end   = Math.min(total - 1, start + MAX - 1);
-            if (end - start < MAX - 1) start = Math.max(0, end - MAX + 1);
-            console.log('   Dots range:', start, 'to', end);
+            
+            // Active dot slides from position 0→4, window shifts to keep it visible
+            let start, visualPos;
+            if (active < MAX) {
+                // First MAX slides: active dot moves from 0 to 4, window at 0
+                start = 0;
+                visualPos = active;
+            } else {
+                // After MAX: active dot stays at position 4, window shifts
+                start = active - (MAX - 1);
+                visualPos = MAX - 1;
+            }
+            let end = Math.min(total - 1, start + MAX - 1);
+            
+            console.log('   Dots range:', start, 'to', end, '| Active visual position:', visualPos);
 
             let html = '';
             for (let i = start; i <= end; i++) {
-                const dist = Math.abs(i - active);
-                const size    = dist === 0 ? 10 : dist === 1 ? 7 : 5;
-                const opacity = dist === 0 ? 1   : dist === 1 ? 0.6 : 0.35;
-                // Add data-slide-index as a visual key to force browser to see dots changed
-                html += `<span class="pv-dot${i === active ? ' pv-dot--active' : ''}"
+                const isActive = (i === active);
+                const size    = isActive ? 10 : (Math.abs((i - start) - visualPos) === 1 ? 7 : 5);
+                const opacity = isActive ? 1  : (Math.abs((i - start) - visualPos) === 1 ? 0.6 : 0.35);
+                html += `<span class="pv-dot${isActive ? ' pv-dot--active' : ''}"
                     style="width:${size}px;height:${size}px;opacity:${opacity}"
                     data-index="${i}"
                     data-slide-index="${i}"></span>`;
@@ -502,7 +512,6 @@
             this._dotsEl.innerHTML = html;
             console.log('   Generated HTML:', html.substring(0, 250) + '...');
             console.log('   Dots container children:', this._dotsEl.children.length);
-            console.log('   Active dot index:', active, 'Visual position:', active - start);
             
             this._dotsEl.querySelectorAll('.pv-dot').forEach(dot => {
                 dot.addEventListener('click', () => {
