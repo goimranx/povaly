@@ -38,6 +38,44 @@
 
                         {{-- 3. Rating row --}}
                         @if (EcommerceHelper::isReviewEnabled() && $product->reviews_count > 0)
+                            @php
+                                // Check free shipping: site-wide setting OR a price/weight rule that covers this product
+                                $hasFreeShipping = (bool) get_ecommerce_setting('free_shipping_enabled', false);
+                                if (!$hasFreeShipping) {
+                                    try {
+                                        $productPrice  = $product->front_sale_price ?: $product->price;
+                                        $productWeight = $product->weight ?? 0;
+                                        $defaultCountry = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                                        $shippingZone = \Botble\Ecommerce\Models\Shipping::query()
+                                            ->where(function ($q) use ($defaultCountry) {
+                                                $q->whereNull('country')->orWhere('country', $defaultCountry);
+                                            })
+                                            ->first();
+                                        if ($shippingZone) {
+                                            $freeRule = \Botble\Ecommerce\Models\ShippingRule::query()
+                                                ->where('shipping_id', $shippingZone->id)
+                                                ->where('price', 0)
+                                                ->where(function ($q) use ($productPrice, $productWeight) {
+                                                    $q->where(function ($sub) use ($productPrice) {
+                                                        $sub->where('type', 'based_on_price')
+                                                            ->where('from', '<=', $productPrice)
+                                                            ->where(function ($s) use ($productPrice) {
+                                                                $s->whereNull('to')->orWhere('to', '>=', $productPrice);
+                                                            });
+                                                    })->orWhere(function ($sub) use ($productWeight) {
+                                                        $sub->where('type', 'based_on_weight')
+                                                            ->where('from', '<=', $productWeight)
+                                                            ->where(function ($s) use ($productWeight) {
+                                                                $s->whereNull('to')->orWhere('to', '>=', $productWeight);
+                                                            });
+                                                    });
+                                                })
+                                                ->exists();
+                                            $hasFreeShipping = $freeRule;
+                                        }
+                                    } catch (\Exception $e) {}
+                                }
+                            @endphp
                             <div class="pd-rating-row">
                                 <a href="#tab-reviews" class="pd-rating-link">
                                     <span class="pd-rating-avg">{{ number_format($product->reviews_avg, 1) }}</span>
@@ -54,8 +92,7 @@
                                     </span>
                                     <span class="pd-rating-count">({{ number_format($product->reviews_count) }})</span>
                                 </a>
-                                @php $isFreeShipping = get_ecommerce_setting('free_shipping_enabled', false); @endphp
-                                @if ($isFreeShipping)
+                                @if ($hasFreeShipping)
                                     <span class="pd-free-shipping">
                                         <i class="ph ph-truck"></i> {{ __('Free Shipping') }}
                                     </span>
