@@ -488,19 +488,21 @@
                 const dist = Math.abs(i - active);
                 const size    = dist === 0 ? 10 : dist === 1 ? 7 : 5;
                 const opacity = dist === 0 ? 1   : dist === 1 ? 0.6 : 0.35;
+                // Add data-slide-index as a visual key to force browser to see dots changed
                 html += `<span class="pv-dot${i === active ? ' pv-dot--active' : ''}"
                     style="width:${size}px;height:${size}px;opacity:${opacity}"
-                    data-index="${i}"></span>`;
+                    data-index="${i}"
+                    data-slide-index="${i}"></span>`;
             }
-            // Force browser to recognize the DOM change by using requestAnimationFrame
+            // Clear first to ensure complete rebuild
+            this._dotsEl.innerHTML = '';
+            // Force a reflow before adding new content
+            void this._dotsEl.offsetHeight;
+            // Now set the new HTML
             this._dotsEl.innerHTML = html;
-            console.log('   Generated HTML:', html.substring(0, 200) + '...');
+            console.log('   Generated HTML:', html.substring(0, 250) + '...');
             console.log('   Dots container children:', this._dotsEl.children.length);
-            
-            // Force repaint by reading a layout property
-            requestAnimationFrame(() => {
-                void this._dotsEl.offsetHeight;
-            });
+            console.log('   Active dot index:', active, 'Visual position:', active - start);
             
             this._dotsEl.querySelectorAll('.pv-dot').forEach(dot => {
                 dot.addEventListener('click', () => {
