@@ -256,6 +256,22 @@
     overflow: hidden;
 }
 
+/* Dots slide animation when window shifts */
+@keyframes pv-dots-slide {
+    from {
+        transform: translateX(12px);
+        opacity: 0.7;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.pv-dots-slide {
+    animation: pv-dots-slide 0.2s ease-out;
+}
+
 @media (max-width: 768px) {
     .pv-mobile-dots {
         display: flex;
