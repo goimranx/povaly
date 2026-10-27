@@ -245,7 +245,7 @@
     border-radius: 50%;
     background-color: var(--global-color-secondary, #666);
     cursor: pointer;
-    transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+    /* Transitions disabled - dots rebuilt on each swipe with inline styles */
     flex-shrink: 0;
 }
 
