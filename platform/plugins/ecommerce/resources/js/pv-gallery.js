@@ -327,6 +327,14 @@
             this._mainContainer.parentElement.insertBefore(this._dotsEl, this._mainContainer.nextSibling);
             this._updateDots();
 
+            // Lock container height immediately and make mainImage fill it absolutely
+            const mc = this._mainContainer;
+            mc.style.height = mc.offsetHeight + 'px';
+            mc._heightLocked = true;
+            if (this.mainImage) {
+                this.mainImage.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;cursor:crosshair;';
+            }
+
             // Touch
             let startX = 0, startY = 0, isDragging = false, liveEl = null;
 
@@ -403,7 +411,10 @@
             }
 
             // Lock container height
-            mc.style.height = mc.offsetHeight + 'px';
+            if (!mc._heightLocked) {
+                mc.style.height = mc.offsetHeight + 'px';
+                mc._heightLocked = true;
+            }
 
             // Place inEl off-screen
             const fromRight = direction === 'left';
@@ -431,25 +442,16 @@
                 // Remove outgoing
                 if (outEl && mc.contains(outEl)) mc.removeChild(outEl);
 
-                // Reset inEl to normal flow
-                inEl.style.position = '';
-                inEl.style.top = '';
-                inEl.style.left = '';
-                inEl.style.width = '';
-                inEl.style.height = '';
-                inEl.style.transition = '';
-
-                // Unlock height
-                mc.style.height = '';
+                // Just clear transition — keep position:absolute filling container
+                inEl.style.transition = 'none';
+                inEl.style.left = '0';
 
                 if (slide.type === 'image') {
-                    // Make inEl the new mainImage
                     this.mainImage = inEl;
-                    this.mainImage.style.cssText = 'width:100%;height:auto;display:block;cursor:crosshair;';
                     this.mainImage.addEventListener('click', () => this.openLightbox());
                     this.jumpToImage(slide.data.index);
                 }
-                // For video: inEl is already the facade with correct class/click, leave it
+                // For video: inEl is already the facade, leave it
 
                 this._mobileIndex = index;
                 this._updateDots();
