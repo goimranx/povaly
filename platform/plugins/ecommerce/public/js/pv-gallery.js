@@ -381,10 +381,17 @@
             if (total === 0) return;
             index = ((index % total) + total) % total;
             if (index === this._mobileIndex) return;
+            // Prevent overlapping animations
+            if (this._mobileAnimating) return;
+            this._mobileAnimating = true;
+
+            // Update index immediately so dots reflect new state right away
+            this._mobileIndex = index;
+            this._updateDots();
 
             const slide = this._mobileSlides[index];
             const mc    = this._mainContainer;
-            if (!mc) return;
+            if (!mc) { this._mobileAnimating = false; return; }
 
             // Current visible element
             const outEl = this._getVisibleEl();
@@ -453,8 +460,8 @@
                 }
                 // For video: inEl is already the facade, leave it
 
-                this._mobileIndex = index;
-                this._updateDots();
+                // Release animation lock
+                this._mobileAnimating = false;
             }, 300);
         }
 
@@ -512,9 +519,10 @@
             mainContainer.style.cursor = 'crosshair';
 
             // Container click opens lightbox (same as image click)
+            // Exclude action buttons (share/wishlist/compare) — they handle their own clicks
             mainContainer.addEventListener('click', (e) => {
-                // Don't double-fire if click was directly on the img (it has its own listener)
                 if (e.target === this.mainImage) return;
+                if (e.target.closest('.pv-gallery-actions, .pv-action-btn')) return;
                 this.openLightbox();
             });
         }
