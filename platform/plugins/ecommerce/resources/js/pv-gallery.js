@@ -376,19 +376,29 @@
             index = ((index % total) + total) % total;
             if (index === this._mobileIndex) return;
 
-            const slide = this._mobileSlides[index];
-            const track = this._slideTrack;
+            const slide    = this._mobileSlides[index];
+            const track    = this._slideTrack;
             const mainContainer = track ? track.parentElement : null;
 
-            // Lock container height during animation to prevent collapse
-            if (mainContainer) {
-                mainContainer.style.height = mainContainer.offsetHeight + 'px';
+            // ── Determine currently visible element ─────────────────────────
+            // When a video is showing, the facade is visible — not mainImage
+            const facade = track ? track.querySelector('.pv-video-facade') : null;
+            const currentEl = (facade && facade.style.display !== 'none') ? facade : this.mainImage;
+
+            // Make sure currentEl is properly positioned for slide-out
+            if (currentEl) {
+                currentEl.style.display = 'block';
             }
-            if (track) {
-                track.style.height = (track.offsetHeight || (mainContainer ? mainContainer.offsetHeight : 300)) + 'px';
+            // Hide mainImage if facade is the current (avoid double elements)
+            if (currentEl === facade && this.mainImage) {
+                this.mainImage.style.display = 'none';
             }
 
-            // Get the new slide's element
+            // Lock container height during animation
+            if (mainContainer) mainContainer.style.height = mainContainer.offsetHeight + 'px';
+            if (track) track.style.height = (track.offsetHeight || 300) + 'px';
+
+            // ── Build the incoming element ───────────────────────────────────
             let newEl;
             if (slide.type === 'image') {
                 newEl = document.createElement('img');
@@ -396,44 +406,56 @@
                 newEl.alt = this.mainImage ? this.mainImage.alt : '';
                 newEl.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block;';
             } else {
+                // Build a proper video preview (thumbnail + play button) for animation
+                const vt = slide.el;
+                const thumbnail = vt.getAttribute('data-video-thumbnail');
                 newEl = document.createElement('div');
-                newEl.style.cssText = 'width:100%;height:100%;background:#000;';
+                newEl.style.cssText = 'width:100%;height:100%;background:#000;position:relative;overflow:hidden;border-radius:10px;';
+                if (thumbnail) {
+                    newEl.innerHTML = `<img src="${thumbnail}" style="width:100%;height:100%;object-fit:contain;display:block;" />
+                        <div class="pv-play-button-large"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"/></svg></div>`;
+                } else {
+                    newEl.innerHTML = `<div style="width:100%;height:100%;background:#111;"></div>
+                        <div class="pv-play-button-large"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"/></svg></div>`;
+                }
             }
 
-            // Position new element off-screen in the swipe direction
+            // ── Position new element off-screen ──────────────────────────────
             const inFromLeft = direction === 'right';
             newEl.style.position = 'absolute';
             newEl.style.top = '0';
             newEl.style.left = inFromLeft ? '-100%' : '100%';
             newEl.style.width = '100%';
             newEl.style.height = '100%';
-            newEl.style.objectFit = 'contain';
             newEl.style.transition = 'left 0.3s ease';
             track.appendChild(newEl);
 
             // Pin current element for slide-out
-            const currentEl = this.mainImage;
-            currentEl.style.position = 'absolute';
-            currentEl.style.top = '0';
-            currentEl.style.left = '0';
-            currentEl.style.width = '100%';
-            currentEl.style.height = '100%';
-            currentEl.style.objectFit = 'contain';
-            currentEl.style.transition = 'left 0.3s ease';
+            if (currentEl) {
+                currentEl.style.position = 'absolute';
+                currentEl.style.top = '0';
+                currentEl.style.left = '0';
+                currentEl.style.width = '100%';
+                currentEl.style.height = '100%';
+                currentEl.style.transition = 'left 0.3s ease';
+            }
 
-            // Trigger animation on next frame
+            // Trigger animation
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
                     newEl.style.left = '0';
-                    currentEl.style.left = inFromLeft ? '100%' : '-100%';
+                    if (currentEl) currentEl.style.left = inFromLeft ? '100%' : '-100%';
                 });
             });
 
             setTimeout(() => {
                 // Remove old element
-                if (track && track.contains(currentEl)) track.removeChild(currentEl);
+                if (currentEl && track && track.contains(currentEl)) track.removeChild(currentEl);
+                // Also clean up any leftover facade
+                const oldFacade = track ? track.querySelector('.pv-video-facade') : null;
+                if (oldFacade && oldFacade !== newEl) oldFacade.remove();
 
-                // Reset new element styles
+                // Reset new element positioning
                 newEl.style.position = '';
                 newEl.style.top = '';
                 newEl.style.left = '';
@@ -441,18 +463,26 @@
                 newEl.style.height = '';
                 newEl.style.transition = '';
 
-                // Unlock container height
+                // Unlock container
                 if (mainContainer) mainContainer.style.height = '';
                 if (track) track.style.height = '';
 
                 if (slide.type === 'image') {
+                    // newEl is the img — make it the main image
                     this.mainImage = newEl;
                     this.mainImage.style.cursor = 'crosshair';
                     this.mainImage.addEventListener('click', () => this.openLightbox());
                     this.jumpToImage(slide.data.index);
                 } else {
+                    // newEl is a preview div — replace it with proper facade via showVideoPreview
+                    // First restore mainImage into track (hidden)
+                    if (track && !track.contains(this.mainImage)) {
+                        this.mainImage.style.display = 'none';
+                        track.appendChild(this.mainImage);
+                    }
+                    // Remove preview div
                     if (track && track.contains(newEl)) track.removeChild(newEl);
-                    if (track) track.appendChild(this.mainImage);
+                    // Now show proper video facade
                     this.showVideoPreview(slide.el);
                 }
 
