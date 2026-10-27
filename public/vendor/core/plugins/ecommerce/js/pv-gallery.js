@@ -201,7 +201,12 @@
             
             if (!videoUrl || !this.mainImage) return;
             
-            const mainContainer = this.mainImage.parentElement;
+            // Always use .pv-gallery-main as the container for the facade
+            // On mobile, mainImage is inside .pv-slide-track which has no height after animation
+            const rawParent = this.mainImage.parentElement;
+            const mainContainer = (rawParent && rawParent.classList.contains('pv-slide-track'))
+                ? rawParent.parentElement
+                : rawParent;
             if (!mainContainer) return;
             
             // Create or get video preview facade (thumbnail + circled play button)
@@ -209,9 +214,9 @@
             if (!videoFacade) {
                 videoFacade = document.createElement('div');
                 videoFacade.className = 'pv-video-facade';
-                videoFacade.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:none;cursor:pointer;background:#000;border-radius:10px;overflow:hidden;';
                 mainContainer.appendChild(videoFacade);
             }
+            videoFacade.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:none;cursor:pointer;background:#000;border-radius:10px;overflow:hidden;z-index:5;';
             
             // Build facade content: thumbnail + circled play button
             let facadeHtml = '';
@@ -307,72 +312,157 @@
         // ─── Lens Zoom ────────────────────────────────────────────────────────
         // ─── Mobile Swipe + Dots ─────────────────────────────────────────────
         initMobile() {
-            const mainContainer = this.mainImage ? this.mainImage.parentElement : null;
-            if (!mainContainer) return;
+            this._mainContainer = this.mainImage ? this.mainImage.parentElement : null;
+            if (!this._mainContainer) return;
 
-            // Build flat slide list: all images + video thumbs in order
+            // Build flat slide list: images then videos
             this._mobileSlides = [];
             this.allImages.forEach(img => this._mobileSlides.push({ type: 'image', data: img }));
             this.videoThumbs.forEach((vt, i) => this._mobileSlides.push({ type: 'video', index: i, el: vt }));
-
             this._mobileIndex = this.currentIndex;
 
-            // Create dots container
+            // Dots container
             this._dotsEl = document.createElement('div');
             this._dotsEl.className = 'pv-mobile-dots';
-            mainContainer.parentElement.insertBefore(this._dotsEl, mainContainer.nextSibling);
-
+            this._mainContainer.parentElement.insertBefore(this._dotsEl, this._mainContainer.nextSibling);
             this._updateDots();
 
-            // Touch swipe
-            let startX = 0, startY = 0, isDragging = false;
+            // Lock container height immediately and make mainImage fill it absolutely
+            const mc = this._mainContainer;
+            mc.style.height = mc.offsetHeight + 'px';
+            mc._heightLocked = true;
+            if (this.mainImage) {
+                this.mainImage.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;cursor:crosshair;';
+            }
 
-            mainContainer.addEventListener('touchstart', (e) => {
+            // Touch
+            let startX = 0, startY = 0, isDragging = false, liveEl = null;
+
+            this._mainContainer.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
                 startY = e.touches[0].clientY;
                 isDragging = true;
+                liveEl = this._getVisibleEl();
             }, { passive: true });
 
-            mainContainer.addEventListener('touchend', (e) => {
+            this._mainContainer.addEventListener('touchmove', (e) => {
+                if (!isDragging || !liveEl) return;
+                const dx = e.touches[0].clientX - startX;
+                const dy = e.touches[0].clientY - startY;
+                if (Math.abs(dy) > Math.abs(dx)) return;
+                liveEl.style.transform = `translateX(${dx}px)`;
+                liveEl.style.transition = 'none';
+            }, { passive: true });
+
+            this._mainContainer.addEventListener('touchend', (e) => {
                 if (!isDragging) return;
                 isDragging = false;
+                if (liveEl) { liveEl.style.transform = ''; liveEl.style.transition = ''; }
                 const dx = e.changedTouches[0].clientX - startX;
                 const dy = e.changedTouches[0].clientY - startY;
-                // Only horizontal swipes
                 if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx)) return;
-                if (dx < 0) this._mobileNext();
-                else this._mobilePrev();
+                const total = this._mobileSlides.length;
+                if (dx < 0) this._mobileGoTo((this._mobileIndex + 1) % total, 'left');
+                else        this._mobileGoTo((this._mobileIndex - 1 + total) % total, 'right');
             }, { passive: true });
         }
 
-        _mobileNext() {
-            if (this._mobileIndex < this._mobileSlides.length - 1) {
-                this._mobileGoTo(this._mobileIndex + 1);
-            }
+        // Returns the currently visible element in the main container
+        _getVisibleEl() {
+            const mc = this._mainContainer;
+            if (!mc) return this.mainImage;
+            const facade = mc.querySelector('.pv-video-facade');
+            if (facade && facade.style.display !== 'none') return facade;
+            return this.mainImage;
         }
 
-        _mobilePrev() {
-            if (this._mobileIndex > 0) {
-                this._mobileGoTo(this._mobileIndex - 1);
-            }
-        }
+        _mobileGoTo(index, direction) {
+            const total = this._mobileSlides.length;
+            if (total === 0) return;
+            index = ((index % total) + total) % total;
+            if (index === this._mobileIndex) return;
+            // Prevent overlapping animations
+            if (this._mobileAnimating) return;
+            this._mobileAnimating = true;
 
-        _mobileGoTo(index) {
+            // Update index immediately so dots reflect new state right away
             this._mobileIndex = index;
-            const slide = this._mobileSlides[index];
+            this._updateDots();
 
+            const slide = this._mobileSlides[index];
+            const mc    = this._mainContainer;
+            if (!mc) { this._mobileAnimating = false; return; }
+
+            // Current visible element
+            const outEl = this._getVisibleEl();
+
+            // Build incoming element
+            let inEl;
             if (slide.type === 'image') {
-                // Hide any video facade
-                const facade = this.mainImage ? this.mainImage.parentElement.querySelector('.pv-video-facade') : null;
-                if (facade) facade.style.display = 'none';
-                if (this.mainImage) this.mainImage.style.display = 'block';
-                this.jumpToImage(slide.data.index);
+                inEl = document.createElement('img');
+                inEl.src = slide.data.url;
+                inEl.alt = this.mainImage ? this.mainImage.alt : '';
+                inEl.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;cursor:crosshair;';
             } else {
-                // Show video
-                this.showVideoPreview(slide.el);
+                const vt = slide.el;
+                const thumb = vt.getAttribute('data-video-thumbnail');
+                inEl = document.createElement('div');
+                inEl.className = 'pv-video-facade';
+                inEl.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;background:#000;border-radius:10px;overflow:hidden;cursor:pointer;z-index:5;';
+                inEl.innerHTML = thumb
+                    ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:contain;display:block;" />`
+                    : `<div style="width:100%;height:100%;background:#111;"></div>`;
+                inEl.innerHTML += `<div class="pv-play-button-large"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"/></svg></div>`;
+                const vi = Array.from(this.videoThumbs).indexOf(vt);
+                inEl.onclick = (e) => { e.preventDefault(); e.stopPropagation(); this.openLightboxWithVideo(vi); };
             }
 
-            this._updateDots();
+            // Lock container height
+            if (!mc._heightLocked) {
+                mc.style.height = mc.offsetHeight + 'px';
+                mc._heightLocked = true;
+            }
+
+            // Place inEl off-screen
+            const fromRight = direction === 'left';
+            inEl.style.left = fromRight ? '100%' : '-100%';
+            mc.appendChild(inEl);
+
+            // Pin outEl
+            if (outEl) {
+                outEl.style.position = 'absolute';
+                outEl.style.top = '0';
+                outEl.style.left = '0';
+                outEl.style.width = '100%';
+                outEl.style.height = '100%';
+                outEl.style.transition = 'left 0.28s ease';
+            }
+            inEl.style.transition = 'left 0.28s ease';
+
+            // Animate
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                inEl.style.left = '0';
+                if (outEl) outEl.style.left = fromRight ? '-100%' : '100%';
+            }));
+
+            setTimeout(() => {
+                // Remove outgoing
+                if (outEl && mc.contains(outEl)) mc.removeChild(outEl);
+
+                // Just clear transition — keep position:absolute filling container
+                inEl.style.transition = 'none';
+                inEl.style.left = '0';
+
+                if (slide.type === 'image') {
+                    this.mainImage = inEl;
+                    this.mainImage.addEventListener('click', () => this.openLightbox());
+                    this.jumpToImage(slide.data.index);
+                }
+                // For video: inEl is already the facade, leave it
+
+                // Release animation lock
+                this._mobileAnimating = false;
+            }, 300);
         }
 
         _updateDots() {
@@ -381,28 +471,25 @@
             if (total <= 1) { this._dotsEl.innerHTML = ''; return; }
 
             const active = this._mobileIndex;
-            // Show up to 5 dots centered around active
             const MAX = 5;
             let start = Math.max(0, active - Math.floor(MAX / 2));
-            let end = Math.min(total - 1, start + MAX - 1);
+            let end   = Math.min(total - 1, start + MAX - 1);
             if (end - start < MAX - 1) start = Math.max(0, end - MAX + 1);
 
             let html = '';
             for (let i = start; i <= end; i++) {
                 const dist = Math.abs(i - active);
-                // active=10px, 1away=7px, 2away=5px
-                const size = dist === 0 ? 10 : dist === 1 ? 7 : 5;
-                const opacity = dist === 0 ? 1 : dist === 1 ? 0.6 : 0.35;
-                html += `<span class="pv-dot${i === active ? ' pv-dot--active' : ''}" 
+                const size    = dist === 0 ? 10 : dist === 1 ? 7 : 5;
+                const opacity = dist === 0 ? 1   : dist === 1 ? 0.6 : 0.35;
+                html += `<span class="pv-dot${i === active ? ' pv-dot--active' : ''}"
                     style="width:${size}px;height:${size}px;opacity:${opacity}"
                     data-index="${i}"></span>`;
             }
             this._dotsEl.innerHTML = html;
-
-            // Dot click
             this._dotsEl.querySelectorAll('.pv-dot').forEach(dot => {
                 dot.addEventListener('click', () => {
-                    this._mobileGoTo(parseInt(dot.dataset.index));
+                    const to = parseInt(dot.dataset.index);
+                    this._mobileGoTo(to, to > this._mobileIndex ? 'left' : 'right');
                 });
             });
         }
@@ -432,9 +519,10 @@
             mainContainer.style.cursor = 'crosshair';
 
             // Container click opens lightbox (same as image click)
+            // Exclude action buttons (share/wishlist/compare) — they handle their own clicks
             mainContainer.addEventListener('click', (e) => {
-                // Don't double-fire if click was directly on the img (it has its own listener)
                 if (e.target === this.mainImage) return;
+                if (e.target.closest('.pv-gallery-actions, .pv-action-btn')) return;
                 this.openLightbox();
             });
         }
