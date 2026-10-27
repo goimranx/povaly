@@ -492,14 +492,16 @@
                     style="width:${size}px;height:${size}px;opacity:${opacity}"
                     data-index="${i}"></span>`;
             }
-            // Force reflow before setting HTML to ensure transitions work correctly
-            this._dotsEl.style.display = 'none';
-            void this._dotsEl.offsetHeight; // Trigger reflow
-            this._dotsEl.style.display = '';
-            
+            // Force browser to recognize the DOM change by using requestAnimationFrame
             this._dotsEl.innerHTML = html;
             console.log('   Generated HTML:', html.substring(0, 200) + '...');
             console.log('   Dots container children:', this._dotsEl.children.length);
+            
+            // Force repaint by reading a layout property
+            requestAnimationFrame(() => {
+                void this._dotsEl.offsetHeight;
+            });
+            
             this._dotsEl.querySelectorAll('.pv-dot').forEach(dot => {
                 dot.addEventListener('click', () => {
                     const to = parseInt(dot.dataset.index);
