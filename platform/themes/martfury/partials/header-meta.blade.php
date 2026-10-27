@@ -2873,6 +2873,12 @@
             height: 42px;
         }
     }
+
+    @media (max-width: 768px) {
+        .ps-page--product {
+            padding-top: 10px !important;
+        }
+    }
     </style>
 
     {{-- Product Lightbox Styles - Standalone Component --}}

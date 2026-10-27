@@ -221,6 +221,8 @@
     .pv-gallery-main {
         width: 100%;
         min-height: 260px;
+        padding: 0;
+        background-color: transparent;
     }
     /* Video needs explicit height on mobile */
     .pv-gallery-main .pv-video-facade,
