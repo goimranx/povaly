@@ -493,6 +493,8 @@
                     data-index="${i}"></span>`;
             }
             this._dotsEl.innerHTML = html;
+            console.log('   Generated HTML:', html.substring(0, 200) + '...');
+            console.log('   Dots container children:', this._dotsEl.children.length);
             this._dotsEl.querySelectorAll('.pv-dot').forEach(dot => {
                 dot.addEventListener('click', () => {
                     const to = parseInt(dot.dataset.index);
