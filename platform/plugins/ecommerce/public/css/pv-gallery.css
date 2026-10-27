@@ -1,3 +1,4 @@
+/* PV Custom Gallery System */
 .ps-product__gallery-wrapper {
     padding-right: 30px;
 }
@@ -33,7 +34,7 @@
     border-radius: 0;
 }
 
-
+/* Action buttons overlay - top right */
 .pv-gallery-actions {
     position: absolute;
     top: 15px;
@@ -63,7 +64,7 @@
     color: var(--global-color-text-body, #333);
 }
 
-
+/* No hover change */
 .pv-action-btn:hover {
     border-color: var(--global-color-primary-border, #ddd);
 }
@@ -72,7 +73,7 @@
     color: var(--global-color-text-body, #333);
 }
 
-
+/* Active state - filled icon with text-main color */
 .pv-action-btn.active {
     border-color: var(--global-color-primary-border, #ddd);
 }
@@ -94,7 +95,7 @@
 .pv-thumb {
     position: relative;
     width: 50px;
-    height: 66.67px; 
+    height: 66.67px; /* 3:4 ratio */
     border-radius: 10px;
     overflow: hidden;
     cursor: pointer;
@@ -136,7 +137,7 @@
     height: 20px;
 }
 
-
+/* Large play button for video facade in main preview */
 .pv-video-facade .pv-play-button-large {
     position: absolute;
     top: 50%;
@@ -164,7 +165,7 @@
     width: 32px;
     height: 32px;
     fill: rgba(255, 255, 255, 0.9);
-    margin-left: 4px; 
+    margin-left: 4px; /* Slight offset for visual centering */
 }
 
 .pv-thumb-overlay {
@@ -181,27 +182,27 @@
     font-size: 16px;
     font-weight: 700;
     z-index: 10;
-    pointer-events: all; 
+    pointer-events: all; /* Allow clicks on overlay */
     border-radius: 10px;
     cursor: pointer;
 }
 
-
+/* Hide image thumbnails after 3rd (indices 3+) */
 .pv-thumb:not(.pv-thumb-video):nth-child(n+4) {
     display: none !important;
 }
 
-
+/* Show 4th image thumbnail (index 3) if it has counter */
 .pv-thumb:not(.pv-thumb-video):nth-child(4):has(.pv-thumb-overlay) {
     display: flex !important;
 }
 
-
+/* Hide video thumbnails: Keep first 2 visible, hide from 3rd onward */
 .pv-gallery-thumbnails .pv-thumb-video ~ .pv-thumb-video ~ .pv-thumb-video {
     display: none !important;
 }
 
-
+/* Show 3rd video if it has counter overlay */
 .pv-gallery-thumbnails .pv-thumb-video ~ .pv-thumb-video ~ .pv-thumb-video:has(.pv-thumb-overlay) {
     display: flex !important;
 }
@@ -213,7 +214,7 @@
     .pv-gallery-vertical {
         flex-direction: column;
     }
-    
+    /* Hide thumbnail strip on mobile — replaced by swipe + dots */
     .pv-gallery-thumbnails {
         display: none !important;
     }
@@ -223,14 +224,14 @@
         padding: 0;
         background-color: transparent;
     }
-    
+    /* Video needs explicit height on mobile */
     .pv-gallery-main .pv-video-facade,
     .pv-gallery-main video {
         min-height: 240px;
     }
 }
 
-
+/* ── Mobile swipe trail dots ──────────────────────────────────────────── */
 .pv-mobile-dots {
     display: none;
     justify-content: center;
@@ -244,11 +245,11 @@
     border-radius: 50%;
     background-color: var(--global-color-secondary, #666);
     cursor: pointer;
-    transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+    /* Transitions disabled - dots rebuilt on each swipe with inline styles */
     flex-shrink: 0;
 }
 
-
+/* Slide track overflow clip for animation */
 .pv-slide-track {
     position: relative;
     width: 100%;
@@ -261,9 +262,9 @@
     }
 }
 
+/* ── Lens Zoom ──────────────────────────────────────────────────────────── */
 
-
-
+/* The small cursor-following lens box on the main image */
 .pv-lens {
     display: none;
     position: absolute;
@@ -272,7 +273,7 @@
     border: none;
     border-radius: 0;
     cursor: crosshair;
-    
+    /* Polished fine dot grid — tiny dots, low opacity, tight spacing */
     background-color: transparent;
     background-image: radial-gradient(
         circle,
@@ -283,15 +284,15 @@
     opacity: 1;
 }
 
-
+/* The large zoom result panel — covers the info-wrapper area on the right */
 .pv-zoom-result {
     display: none;
     position: fixed;
-    z-index: 9999; 
+    z-index: 9999; /* Correct top position keeps it below header, high z-index needed for other overlays */
     background-repeat: no-repeat;
     background-color: #fff;
     border: 1px solid var(--global-color-border-strong, #333);
-    
+    /* Box shadow: right, bottom, left — no top shadow */
     box-shadow:
         4px 0   8px -2px rgba(0, 0, 0, 0.10),
         0   4px 8px -2px rgba(0, 0, 0, 0.10),
@@ -299,7 +300,7 @@
     overflow: hidden;
 }
 
-
+/* Hide lens on mobile — no hover on touch */
 @media (max-width: 991px) {
     .pv-lens,
     .pv-zoom-result {
