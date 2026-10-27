@@ -291,7 +291,7 @@
                                 @php
                                     $topReviews = $product->reviews()
                                         ->where('star', 5)
-                                        ->with('customer')
+                                        ->with('user')
                                         ->latest()
                                         ->limit(4)
                                         ->get();
@@ -328,7 +328,7 @@
                                                                         <i class="{{ $i <= $review->star ? 'ph-fill' : 'ph' }} ph-star"></i>
                                                                     @endfor
                                                                 </span>
-                                                                <span class="pd-review-author">{{ $review->customer->name ?? __('Customer') }}</span>
+                                                                <span class="pd-review-author">{{ $review->user_name ?: __('Customer') }}</span>
                                                                 <span class="pd-review-date">{{ $review->created_at->format('M d, Y') }}</span>
                                                             </div>
                                                             @if ($review->comment)
