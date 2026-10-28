@@ -493,14 +493,17 @@
                     // Forward: shift window left so active appears at position 4 (index 4 from tempStart)
                     tempStart = active - 4;
                     tempEnd = tempStart + MAX - 1;
+                    console.log('🔵 FORWARD: active=', active, 'tempStart=', tempStart, 'tempEnd=', tempEnd, 'active will be at visual position:', active - tempStart);
                 } else {
                     // Backward: shift window right so active appears at position 2 (index 2 from tempStart)  
                     tempStart = active - 2;
                     tempEnd = tempStart + MAX - 1;
+                    console.log('🔴 BACKWARD: active=', active, 'tempStart=', tempStart, 'tempEnd=', tempEnd, 'active will be at visual position:', active - tempStart);
                 }
                 // Clamp to valid range
                 tempStart = Math.max(0, tempStart);
                 tempEnd = Math.min(total - 1, tempEnd);
+                console.log('   After clamp: tempStart=', tempStart, 'tempEnd=', tempEnd, 'active visual position:', active - tempStart);
             }
 
             // Build initial dots (with active at off-center position if animating)
@@ -513,6 +516,10 @@
                     style="width:${size}px;height:${size}px;opacity:${opacity}"
                     data-index="${i}"
                     data-slide-index="${i}"></span>`;
+            }
+            
+            if (didShift) {
+                console.log('   Initial dots range:', (didShift ? tempStart : start), 'to', (didShift ? tempEnd : end));
             }
             
             this._dotsEl.innerHTML = html;
@@ -530,6 +537,8 @@
                         data-index="${i}"
                         data-slide-index="${i}"></span>`;
                 }
+                
+                console.log('   Final dots range:', start, 'to', end, 'active visual position:', active - start);
                 
                 // Wait a bit so user can SEE the initial state, then transition to final state
                 setTimeout(() => {
