@@ -1990,8 +1990,10 @@ class Ecommerce {
                 const enabledTitle = $enabled.data('title')
                 console.log('      Enabled item ID:', enabledId, 'Title:', enabledTitle)
                 
-                // Update visual selection
+                // Remove .selected from ALL items in this wrapper first
                 $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
+                
+                // Add .selected to the enabled item
                 $enabled.addClass('selected')
                 console.log('      ✅ Added .selected class to enabled item')
                 
@@ -2132,14 +2134,26 @@ class Ecommerce {
                 }
                 
                 const isUnavailable = !hasValidCombination
+                const isCurrentlySelected = $item.hasClass('selected')
+                const $input = $item.find('input[type="radio"]')
+                const isInputChecked = $input.prop('checked')
                 
                 console.log(`      Item ${itemIndex + 1}: ID=${itemId}, Title="${itemTitle}"`)
                 console.log(`         hasValidCombination=${hasValidCombination}, finalDecision: unavailable=${isUnavailable}`)
+                console.log(`         isSelected=${isCurrentlySelected}, isInputChecked=${isInputChecked}`)
                 
                 if (isUnavailable) {
                     // Hide unavailable item
                     $item.addClass('disabled')
                     $item.css('display', 'none')
+                    
+                    // If this unavailable item is currently selected, deselect it
+                    if (isCurrentlySelected || isInputChecked) {
+                        $item.removeClass('selected')
+                        $input.prop('checked', false)
+                        console.log(`         ❌ DESELECTED unavailable item ${itemId}`)
+                    }
+                    
                     console.log(`         ❌ HIDING item ${itemId}`)
                 } else {
                     // Show available item
@@ -2149,6 +2163,44 @@ class Ecommerce {
                     console.log(`         ✅ SHOWING item ${itemId}`)
                 }
             })
+            
+            // After hiding unavailable items, check if we need to auto-select an available one
+            const $availableItems = $wrapper.find('.bb-product-attribute-swatch-item:not(.disabled)')
+            const $selectedItem = $wrapper.find('.bb-product-attribute-swatch-item.selected')
+            const $checkedInput = $wrapper.find('input[type="radio"]:checked')
+            
+            console.log('      Available items after filtering:', $availableItems.length)
+            console.log('      Currently selected item exists?', $selectedItem.length > 0)
+            console.log('      Currently checked input exists?', $checkedInput.length > 0)
+            
+            // If no item is selected OR the selected item is hidden, auto-select the first available
+            if ($availableItems.length > 0 && (!$selectedItem.length || $selectedItem.hasClass('disabled') || !$checkedInput.length)) {
+                const $firstAvailable = $availableItems.first()
+                const firstAvailableId = $firstAvailable.data('id')
+                const firstAvailableTitle = $firstAvailable.data('title')
+                
+                console.log(`      🔄 Auto-selecting first available: ID=${firstAvailableId}, Title="${firstAvailableTitle}"`)
+                
+                // Remove .selected from all items
+                $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
+                
+                // Add .selected to first available
+                $firstAvailable.addClass('selected')
+                
+                // Check the radio button
+                const $firstInput = $firstAvailable.find('input[type="radio"]')
+                if ($firstInput.length) {
+                    $wrapper.find('input[type="radio"]').prop('checked', false)
+                    $firstInput.prop('checked', true)
+                    console.log('      ✅ Auto-selected and checked first available item')
+                    
+                    // Trigger change to update the variation
+                    if (!window._isAutoSelecting) {
+                        $firstInput.trigger('change')
+                        console.log('      🔄 Triggered change event')
+                    }
+                }
+            }
         })
         
         console.log('   ✅ updateVisualItemsVisibility complete')
