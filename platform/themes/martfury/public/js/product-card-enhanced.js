@@ -249,7 +249,6 @@
             method: 'GET',
             success: function(cartResponse) {
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
-                    console.error('No cart HTML available');
                     return;
                 }
                 
@@ -286,7 +285,6 @@
                 });
                 
                 if (!rowId) {
-                    console.error('Could not find rowId for product', productId, 'slug:', productSlug);
                     return;
                 }
                 
@@ -309,15 +307,13 @@
                         }
                     },
                     error: function(xhr) {
-                        console.error('Failed to update cart', xhr.responseText);
                         // On error, sync from server to get correct state
                         syncCartState();
                     }
                 });
             },
             error: function(xhr) {
-                console.error('Failed to get cart', xhr.responseText);
-            }
+                }
         });
     }
 
@@ -333,7 +329,6 @@
             method: 'GET',
             success: function(cartResponse) {
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
-                    console.error('No cart HTML available for remove operation');
                     return;
                 }
                 
@@ -362,7 +357,6 @@
                 });
                 
                 if (!removeUrl) {
-                    console.error('Remove link not found for product', productId, 'slug:', productSlug);
                     return;
                 }
                 
@@ -388,13 +382,11 @@
                         }
                     },
                     error: function(xhr) {
-                        console.error('Failed to remove from cart', xhr.responseText);
-                    }
+                        }
                 });
             },
             error: function(xhr) {
-                console.error('Failed to get cart HTML', xhr.responseText);
-            }
+                }
         });
     }
 
@@ -532,8 +524,7 @@
                 });
             },
             error: function(xhr) {
-                console.error('Failed to sync cart state', xhr.responseText);
-            }
+                }
         });
     }
 
@@ -640,14 +631,11 @@
      * Sync wishlist icon states
      */
     function syncWishlistIconStates() {
-        console.log('[Wishlist Sync] Starting...');
         // Get wishlist items from server - use the wishlist page route
         $.ajax({
             url: '/wishlist',
             method: 'GET',
             success: function(response) {
-                console.log('[Wishlist Sync] Got HTML response, parsing...');
-                
                 var wishlistProductIds = [];
                 
                 // Parse HTML to extract product IDs
@@ -655,15 +643,10 @@
                 
                 // Debug: log what elements we find
                 var foundElements = $html.find('[data-id], [data-product-id]');
-                console.log('[Wishlist Sync] Found elements with data-id or data-product-id:', foundElements.length);
-                
                 foundElements.each(function() {
                     var id = $(this).data('id') || $(this).data('product-id');
-                    console.log('[Wishlist Sync] Found element with ID:', id, 'Element:', this.tagName, this.className);
                     if (id) wishlistProductIds.push(String(id));
                 });
-                
-                console.log('[Wishlist Sync] Final product IDs:', wishlistProductIds);
                 
                 // Update all wishlist button icons (BOTH flyout AND PV gallery)
                 var buttonsFound = 0;
@@ -672,7 +655,6 @@
                     var productId = String($btn.data('product-id'));
                     var isInWishlist = wishlistProductIds.includes(productId);
                     
-                    console.log('[Wishlist Sync] Button product ID:', productId, 'In wishlist:', isInWishlist);
                     buttonsFound++;
                     
                     updateIconState($btn, isInWishlist);
@@ -681,17 +663,13 @@
                     if (isInWishlist) {
                         $btn.removeClass('js-add-to-wishlist-button')
                             .addClass('js-remove-from-wishlist-button active');
-                        console.log('[Wishlist Sync] Updated button to REMOVE state');
-                    } else {
+                        } else {
                         $btn.removeClass('js-remove-from-wishlist-button active')
                             .addClass('js-add-to-wishlist-button');
-                        console.log('[Wishlist Sync] Updated button to ADD state');
-                    }
+                        }
                 });
-                console.log('[Wishlist Sync] Total buttons updated:', buttonsFound);
-            },
+                },
             error: function(xhr, status, error) {
-                console.log('[Wishlist Sync] ERROR:', status, error);
                 // If wishlist endpoint doesn't exist, try to infer from button state
                 $('.ec-card__float-btn--wishlist.js-remove-from-wishlist-button, .ec-card__float-btn--wishlist.active').each(function() {
                     updateIconState($(this), true);
@@ -704,14 +682,11 @@
      * Sync compare icon states
      */
     function syncCompareIconStates() {
-        console.log('[Compare Sync] Starting...');
         // Get compare items from server - use the compare page route
         $.ajax({
             url: '/compare',
             method: 'GET',
             success: function(response) {
-                console.log('[Compare Sync] Got HTML response, parsing...');
-                
                 var compareProductIds = [];
                 
                 // Parse HTML to extract product IDs
@@ -721,8 +696,6 @@
                     if (id) compareProductIds.push(String(id));
                 });
                 
-                console.log('[Compare Sync] Final product IDs:', compareProductIds);
-                
                 // Update all compare button icons (BOTH flyout AND PV gallery)
                 var buttonsFound = 0;
                 $('.ec-card__float-btn--compare, .pv-action-btn.js-add-to-compare-button, .pv-action-btn.js-remove-from-compare-button').each(function() {
@@ -730,7 +703,6 @@
                     var productId = String($btn.data('product-id'));
                     var isInCompare = compareProductIds.includes(productId);
                     
-                    console.log('[Compare Sync] Button product ID:', productId, 'In compare:', isInCompare);
                     buttonsFound++;
                     
                     updateIconState($btn, isInCompare);
@@ -739,17 +711,13 @@
                     if (isInCompare) {
                         $btn.removeClass('js-add-to-compare-button')
                             .addClass('js-remove-from-compare-button active');
-                        console.log('[Compare Sync] Updated button to REMOVE state');
-                    } else {
+                        } else {
                         $btn.removeClass('js-remove-from-compare-button active')
                             .addClass('js-add-to-compare-button');
-                        console.log('[Compare Sync] Updated button to ADD state');
-                    }
+                        }
                 });
-                console.log('[Compare Sync] Total buttons updated:', buttonsFound);
-            },
+                },
             error: function(xhr, status, error) {
-                console.log('[Compare Sync] ERROR:', status, error);
                 // If compare endpoint doesn't exist, try to infer from button state
                 $('.ec-card__float-btn--compare.js-remove-from-compare-button, .ec-card__float-btn--compare.active').each(function() {
                     updateIconState($(this), true);
@@ -866,4 +834,5 @@
             initializeIconStates();
         }, 500);
     });
+
 
