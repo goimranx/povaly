@@ -487,9 +487,10 @@
             
             console.log('   Dots range:', start, 'to', end, '| Active visual position:', visualPos);
 
-            // Detect if window shifted (not first/last ranges)
+            // Detect if window shifted: animate until we reach the last 2 indices
             const prevStart = this._prevStart || 0;
-            const didShift = (start !== prevStart) && (start > 0) && (end < total - 1);
+            const isInMiddleRange = (active >= 2) && (active < total - 2);
+            const didShift = (start !== prevStart) && isInMiddleRange;
             this._prevStart = start;
 
             let html = '';
@@ -503,15 +504,18 @@
                     data-slide-index="${i}"></span>`;
             }
             
-            // Add slide animation class when window shifts
-            if (didShift) {
-                this._dotsEl.classList.add('pv-dots-slide');
-                setTimeout(() => this._dotsEl.classList.remove('pv-dots-slide'), 200);
-            }
-            
+            // Clear and rebuild
             this._dotsEl.innerHTML = '';
             void this._dotsEl.offsetHeight;
             this._dotsEl.innerHTML = html;
+            
+            // Add slide animation AFTER DOM update so new content slides in from right
+            if (didShift) {
+                requestAnimationFrame(() => {
+                    this._dotsEl.classList.add('pv-dots-slide');
+                    setTimeout(() => this._dotsEl.classList.remove('pv-dots-slide'), 200);
+                });
+            }
             console.log('   Generated HTML:', html.substring(0, 250) + '...');
             console.log('   Dots container children:', this._dotsEl.children.length);
             
