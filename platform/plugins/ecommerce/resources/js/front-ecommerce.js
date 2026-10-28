@@ -2033,16 +2033,13 @@ class Ecommerce {
                     $scope[0]._qsLastNonVisualWasDisabled = isDisabledNonVisual
                 }
                 
-                // Add to nonVisualSelected only if the CMS actually selected it (checkbox is checked OR dropdown value matches)
-                const isSelected = $clickedItem.is('option') 
-                    ? $clickedItem.is(':selected')
-                    : $clickedItem.find('input.product-filter-item:checked').length > 0
-                    
-                if (isSelected && nonVisualSelected.indexOf(window._qsLastClickedAttrId) === -1) {
+                // The user clicked this item, so record it regardless of current selected state
+                // (It may currently be disabled but the click will trigger CMS to update)
+                if (nonVisualSelected.indexOf(window._qsLastClickedAttrId) === -1) {
                     nonVisualSelected.push(window._qsLastClickedAttrId)
-                    console.log('   ✅ Added to nonVisualSelected (was selected by CMS)')
+                    console.log('   ✅ Added to nonVisualSelected (user clicked it)')
                 } else {
-                    console.log('   ⏭️ Not added to nonVisualSelected (not selected by CMS)')
+                    console.log('   ℹ️ Already in nonVisualSelected')
                 }
             } else {
                 console.log('   ⚠️ Clicked item not found in DOM (CMS may have changed product/variation)')
