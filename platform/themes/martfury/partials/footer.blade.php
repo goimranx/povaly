@@ -927,9 +927,7 @@
                             }
                         }
                     })();
-                    // Initial swatch visibility pass — apply show/hide + price based on
-                    // whatever non-visual attributes are already selected on render
-                    initQSVisualSwatchVisibility(offcanvasEl);
+                    // Initial swatch visibility handled by default CMS logic
                     document.dispatchEvent(new CustomEvent('ecommerce.quick-shop.completed', {
                         detail: { element: $(offcanvasEl), modal: $('#quick-shop-modal') }
                     }));
