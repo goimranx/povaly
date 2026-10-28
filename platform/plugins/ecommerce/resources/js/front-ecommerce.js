@@ -1886,6 +1886,11 @@ class Ecommerce {
             return
         }
 
+        // Prevent infinite loop - if we're already auto-selecting, exit
+        if (window._isAutoSelecting) {
+            return
+        }
+
         // Find which attribute was just clicked and is now selected
         const $allWrappers = $product.find('.qs-swatch-wrap')
         let clickedWrapper = null
@@ -1909,6 +1914,9 @@ class Ecommerce {
             return
         }
         
+        // Set flag to prevent infinite loop
+        window._isAutoSelecting = true
+        
         // Now auto-select enabled values for ALL OTHER attributes
         $allWrappers.each((index, wrapper) => {
             const $wrapper = $(wrapper)
@@ -1922,7 +1930,7 @@ class Ecommerce {
             const $enabled = $wrapper.find('.bb-product-attribute-swatch-item:not(.disabled)').first()
             
             if ($enabled.length) {
-                // Select this enabled item
+                // Select this enabled item WITHOUT triggering change event
                 $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
                 $wrapper.find('input[type="radio"]').prop('checked', false)
                 
@@ -1930,10 +1938,15 @@ class Ecommerce {
                 const $input = $enabled.find('input[type="radio"]')
                 if ($input.length) {
                     $input.prop('checked', true)
-                    $input.trigger('change')
+                    // DO NOT trigger change - let user's original click handle it
                 }
             }
         })
+        
+        // Clear flag after a short delay
+        setTimeout(() => {
+            window._isAutoSelecting = false
+        }, 100)
     }
     
     /**
