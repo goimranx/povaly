@@ -1,9 +1,1566 @@
-(function(){function A(t){"@babel/helpers - typeof";return A=typeof Symbol=="function"&&typeof Symbol.iterator=="symbol"?function(e){return typeof e}:function(e){return e&&typeof Symbol=="function"&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},A(t)}function V(t,e){if(A(t)!="object"||!t)return t;var i=t[Symbol.toPrimitive];if(i!==void 0){var n=i.call(t,e||"default");if(A(n)!="object")return n;throw new TypeError("@@toPrimitive must return a primitive value.")}return(e==="string"?String:Number)(t)}function W(t){var e=V(t,"string");return A(e)=="symbol"?e:e+""}function v(t,e,i){return(e=W(e))in t?Object.defineProperty(t,e,{value:i,enumerable:!0,configurable:!0,writable:!0}):t[e]=i,t}function R(t,e){if(e.has(t))throw new TypeError("Cannot initialize the same private elements twice on an object")}function P(t,e,i){R(t,e),e.set(t,i)}function U(t,e,i){if(typeof t=="function"?t===e:t.has(e))return arguments.length<3?e:i;throw new TypeError("Private element is not present on this object")}function C(t,e){return t.get(U(t,e))}var I=new WeakMap,G=new WeakMap,O=new WeakMap,M=new WeakMap,H=class{showError(t){typeof Theme!="undefined"&&Theme.showError(t)}showSuccess(t){typeof Theme!="undefined"&&Theme.showSuccess(t)}handleError(t,e=null){typeof Theme!="undefined"&&Theme.handleError(t,e)}updateLazyLoad(){typeof Theme!="undefined"&&Theme.lazyLoadInstance&&Theme.lazyLoadInstance.update()}getCsrfToken(t=null){if(t&&t.length){const e=t.find('input[name="_token"]').val();if(e)return e}return $('meta[name="csrf-token"]').attr("content")||""}getAjaxData(t={},e=null){const i=this.getCsrfToken(e);return i&&(t._token=i),t}constructor(){v(this,"quickSearchAjax",null),v(this,"filterAjax",null),v(this,"lastFilterFormData",null),v(this,"lastFilterFormAction",null),v(this,"filterTimeout",null),P(this,I,t=>{let e=[],i={},n={};return t.forEach(r=>{if(r.name.includes("attributes["))r.value&&e.push(r);else if(r.name.endsWith("[]")){const a=r.name.slice(0,-2);i[a]||(i[a]=new Set),r.value&&i[a].add(r.value)}else n[r.name]||(n[r.name]=!0,r.value&&e.push(r))}),Object.keys(i).forEach(r=>{const a=Array.from(i[r]);a.length>0&&e.push({name:r,value:a.join(",")})}),e}),v(this,"highlightSearchKeywords",(t,e)=>{if(!e.trim())return;let i=e.trim().split(/\s+/),n=new RegExp(`(${i.join("|")})`,"gi");t.html(t.text().replace(n,'<span class="bb-quick-search-highlight">$1</span>'))}),P(this,G,(t,e)=>{const i=t.find('button[type="submit"]'),n=t.find('input[name="q"]'),r=t.find(".bb-quick-search-results");if(!n.val()){r.removeClass("show").html("");return}this.quickSearchAjax=$.ajax({type:"GET",url:e||t.data("ajax-url"),data:t.serialize(),beforeSend:()=>{i.addClass("btn-loading"),e||r.removeClass("show").html(""),this.quickSearchAjax!==null&&this.quickSearchAjax.abort()},success:({error:a,message:o,data:l})=>{if(a){EcommerceApp.showError(o);return}r.addClass("show"),e?r.find(".bb-quick-search-list").append($(l).find(".bb-quick-search-list").html()):r.html(l);let s=this,c=n.val();r.find(".bb-quick-search-item-name").each(function(){$(this).html($(this).text()),c&&s.highlightSearchKeywords($(this),c)}),EcommerceApp.updateLazyLoad()},complete:()=>i.removeClass("btn-loading")})}),P(this,O,(t,e,i)=>{const n=$(".bb-product-form-filter");t&&!e&&(this.lastFilterFormData=null,this.lastFilterFormAction=null);let r=e;if(Array.isArray(e)){const a=new URLSearchParams,o={},l={};e.forEach(s=>{s.name&&s.value&&(s.name.includes("attributes[")&&s.name.endsWith("[]")?(l[s.name]||(l[s.name]=[]),l[s.name].push(s.value)):o[s.name]=s.value)}),Object.keys(o).forEach(s=>{a.set(s,o[s])}),Object.keys(l).forEach(s=>{l[s].forEach(c=>{a.append(s,c)})}),r={},Object.keys(o).forEach(s=>{r[s]=o[s]}),Object.keys(l).forEach(s=>{r[s]=l[s]})}this.filterAjax=$.ajax({url:t,type:"GET",data:r,beforeSend:()=>{document.dispatchEvent(new CustomEvent("ecommerce.product-filter.before",{detail:{data:r,element:n}}))},success:a=>{const{message:o,error:l}=a;if(l){EcommerceApp.showError(o),this.filterAjax=null;return}let s=i||t;if(s.includes("?")){const c=s.split("?"),d=c[0],p=new URLSearchParams(c[1]),m=new URLSearchParams,b={};for(const[f,h]of p.entries())f.includes("attributes[")&&f.endsWith("[]")?(b[f]||(b[f]=[]),b[f].push(h)):m.has(f)||m.set(f,h);Object.keys(b).forEach(f=>{b[f].forEach(h=>{m.append(f,h)})}),s=d+"?"+m.toString()}window.history.pushState(a,null,s),document.dispatchEvent(new CustomEvent("ecommerce.product-filter.success",{detail:{data:a,element:n}})),this.filterAjax=null,$(".bb-product-price-filter").length&&EcommerceApp.initPriceFilter()},error:a=>{a.statusText!=="abort"&&EcommerceApp.handleError(a)},complete:()=>{this.filterTimeout=null,this.filterAjax=null,EcommerceApp.updateLazyLoad(),document.dispatchEvent(new CustomEvent("ecommerce.product-filter.completed",{detail:{element:n}}))}})}),P(this,M,async()=>{const t=(i,n,r)=>{n(),fetch(i,{method:"GET",headers:{"Content-Type":"application/json",Accept:"application/json"}}).then(a=>{if(!a.ok)throw new Error("Network response was not ok");return a.json()}).then(({error:a,data:o})=>{a||(r(o),document.dispatchEvent(new CustomEvent("ecommerce.categories-dropdown.success",{detail:{data:o}})))}).catch(a=>{EcommerceApp.handleError(a)})},e=$(document).find('[data-bb-toggle="init-categories-dropdown"]');e.length&&t(e.first().data("url"),()=>{},i=>{e.each((n,r)=>{const a=$(r),o=$(a.data("bb-target"));o.length?o.html(i.dropdown):a.append(i.select),EcommerceApp.updateLazyLoad()})})}),v(this,"productQuantityToggle",()=>{$('[data-bb-toggle="product-quantity"]').on("click",'[data-bb-toggle="product-quantity-toggle"]',function(t){const e=$(t.currentTarget);let i=e.data("value");if(!i)return;let n=null;if(i==="plus"?n=e.prev():i==="minus"&&(n=e.next()),!n)return;let r=parseInt(n.val())||1;n.val(i==="plus"?r+1:r===1?1:r-1),document.dispatchEvent(new CustomEvent("ecommerce.cart.quantity.change",{detail:{element:e,action:i==="+"?"increase":"decrease"}}))})}),v(this,"defaultOnBeforeChangeSwatches",(t,e)=>{const i=e.closest("form");t&&(i.find('button[type="submit"]').prop("disabled",!0),i.find('button[data-bb-toggle="add-to-cart"]').prop("disabled",!0))}),v(this,"defaultOnChangeSwatchesSuccess",(t,e)=>{if(!t)return;let i=e&&e.length?e.closest(".bb-product-detail"):$();i.length||(i=$(".bb-product-detail").first());const n=e.closest("form"),r=n.find('button[type="submit"]'),a=n.find('input[name="qty"]'),o=i.find(".number-items-available"),l=i.find('[data-bb-value="product-sku"]'),{error:s,data:c}=t;if(s){r.prop("disabled",!0),a.prop("disabled",!0),n.find('input[name="id"]').val("");return}r.prop("disabled",!1),a.prop("disabled",!1),n.find('input[name="id"]').val(c.id),i.find('[data-bb-value="product-price"]').text(c.display_sale_price),c.sale_price!==c.price?i.find('[data-bb-value="product-original-price"]').text(c.display_price).show():i.find('[data-bb-value="product-original-price"]').hide(),c.sku?(l.text(c.sku),l.closest("div").show()):l.closest("div").hide(),c.error_message?(r.prop("disabled",!0),a.prop("disabled",!0),o.html(`<span class='text-danger'>${c.error_message}</span>`).show()):c.warning_message?o.html(`<span class='text-warning fw-medium fs-6'>${c.warning_message}</span>`).show():c.success_message?o.html(`<span class='text-success'>${c.success_message}</span>`).show():o.html("").hide(),i.find(".bb-product-attribute-swatch-item").removeClass("disabled"),i.find(".bb-product-attribute-swatch-list select option").prop("disabled",!1);const d=c.unavailable_attribute_ids||[];d.length&&d.map(w=>{let T=i.find(`.bb-product-attribute-swatch-item[data-id="${w}"]`);T.length?(T.addClass("disabled"),T.find("input").prop("checked",!1)):(T=i.find(`.bb-product-attribute-swatch-list select option[data-id="${w}"]`),T.length&&T.prop("disabled",!0))});let p="",m="";const b=window.siteConfig||{},f=i.find(".bb-product-gallery").data("placeholder")||b.img_placeholder;c.image_with_sizes||(c.image_with_sizes={origin:[],thumb:[]}),!c.image_with_sizes.origin.length&&f&&c.image_with_sizes.origin.push(f),c.image_with_sizes.origin.forEach(function(w){p+=`
-            <a href='${w}'>
-                <img src='${w}' alt='${c.name}'>
+(function() {
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/typeof.js
+	function _typeof(o) {
+		"@babel/helpers - typeof";
+		return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o) {
+			return typeof o;
+		} : function(o) {
+			return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+		}, _typeof(o);
+	}
+	//#endregion
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/toPrimitive.js
+	function toPrimitive(t, r) {
+		if ("object" != _typeof(t) || !t) return t;
+		var e = t[Symbol.toPrimitive];
+		if (void 0 !== e) {
+			var i = e.call(t, r || "default");
+			if ("object" != _typeof(i)) return i;
+			throw new TypeError("@@toPrimitive must return a primitive value.");
+		}
+		return ("string" === r ? String : Number)(t);
+	}
+	//#endregion
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/toPropertyKey.js
+	function toPropertyKey(t) {
+		var i = toPrimitive(t, "string");
+		return "symbol" == _typeof(i) ? i : i + "";
+	}
+	//#endregion
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/defineProperty.js
+	function _defineProperty(e, r, t) {
+		return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+			value: t,
+			enumerable: !0,
+			configurable: !0,
+			writable: !0
+		}) : e[r] = t, e;
+	}
+	//#endregion
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/checkPrivateRedeclaration.js
+	function _checkPrivateRedeclaration(e, t) {
+		if (t.has(e)) throw new TypeError("Cannot initialize the same private elements twice on an object");
+	}
+	//#endregion
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/classPrivateFieldInitSpec.js
+	function _classPrivateFieldInitSpec(e, t, a) {
+		_checkPrivateRedeclaration(e, t), t.set(e, a);
+	}
+	//#endregion
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/assertClassBrand.js
+	function _assertClassBrand(e, t, n) {
+		if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n;
+		throw new TypeError("Private element is not present on this object");
+	}
+	//#endregion
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/classPrivateFieldGet2.js
+	function _classPrivateFieldGet2(s, a) {
+		return s.get(_assertClassBrand(s, a));
+	}
+	//#endregion
+	//#region platform/plugins/ecommerce/resources/js/front-ecommerce.js
+	var _transformFormData = /* @__PURE__ */ new WeakMap();
+	var _ajaxSearchProducts = /* @__PURE__ */ new WeakMap();
+	var _ajaxFilterForm = /* @__PURE__ */ new WeakMap();
+	var _initCategoriesDropdown = /* @__PURE__ */ new WeakMap();
+	var Ecommerce = class {
+		showError(message) {
+			if (typeof Theme !== "undefined") Theme.showError(message);
+		}
+		showSuccess(message) {
+			if (typeof Theme !== "undefined") Theme.showSuccess(message);
+		}
+		handleError(error, $form = null) {
+			if (typeof Theme !== "undefined") Theme.handleError(error, $form);
+		}
+		updateLazyLoad() {
+			if (typeof Theme !== "undefined" && Theme.lazyLoadInstance) Theme.lazyLoadInstance.update();
+		}
+		getCsrfToken($form = null) {
+			if ($form && $form.length) {
+				const formToken = $form.find("input[name=\"_token\"]").val();
+				if (formToken) return formToken;
+			}
+			return $("meta[name=\"csrf-token\"]").attr("content") || "";
+		}
+		getAjaxData(data = {}, $form = null) {
+			const token = this.getCsrfToken($form);
+			if (token) data._token = token;
+			return data;
+		}
+		constructor() {
+			_defineProperty(this, "quickSearchAjax", null);
+			_defineProperty(this, "filterAjax", null);
+			_defineProperty(this, "lastFilterFormData", null);
+			_defineProperty(this, "lastFilterFormAction", null);
+			_defineProperty(this, "filterTimeout", null);
+			_classPrivateFieldInitSpec(this, _transformFormData, (formData) => {
+				let data = [];
+				let groupedData = {};
+				let seenParams = {};
+				formData.forEach((item) => {
+					if (item.name.includes("attributes[")) {
+						if (item.value) data.push(item);
+					} else if (item.name.endsWith("[]")) {
+						const baseName = item.name.slice(0, -2);
+						if (!groupedData[baseName]) groupedData[baseName] = /* @__PURE__ */ new Set();
+						if (item.value) groupedData[baseName].add(item.value);
+					} else if (!seenParams[item.name]) {
+						seenParams[item.name] = true;
+						if (item.value) data.push(item);
+					}
+				});
+				Object.keys(groupedData).forEach((key) => {
+					const values = Array.from(groupedData[key]);
+					if (values.length > 0) data.push({
+						name: key,
+						value: values.join(",")
+					});
+				});
+				return data;
+			});
+			_defineProperty(this, "highlightSearchKeywords", ($element, phrase) => {
+				if (!phrase.trim()) return;
+				let keywords = phrase.trim().split(/\s+/);
+				let regex = new RegExp(`(${keywords.join("|")})`, "gi");
+				$element.html($element.text().replace(regex, "<span class=\"bb-quick-search-highlight\">$1</span>"));
+			});
+			_classPrivateFieldInitSpec(this, _ajaxSearchProducts, (form, url) => {
+				const button = form.find("button[type=\"submit\"]");
+				const input = form.find("input[name=\"q\"]");
+				const results = form.find(".bb-quick-search-results");
+				if (!input.val()) {
+					results.removeClass("show").html("");
+					return;
+				}
+				this.quickSearchAjax = $.ajax({
+					type: "GET",
+					url: url || form.data("ajax-url"),
+					data: form.serialize(),
+					beforeSend: () => {
+						button.addClass("btn-loading");
+						if (!url) results.removeClass("show").html("");
+						if (this.quickSearchAjax !== null) this.quickSearchAjax.abort();
+					},
+					success: ({ error, message, data }) => {
+						if (error) {
+							EcommerceApp.showError(message);
+							return;
+						}
+						results.addClass("show");
+						if (url) results.find(".bb-quick-search-list").append($(data).find(".bb-quick-search-list").html());
+						else results.html(data);
+						let that = this;
+						let searchPhrase = input.val();
+						results.find(".bb-quick-search-item-name").each(function() {
+							$(this).html($(this).text());
+							if (searchPhrase) that.highlightSearchKeywords($(this), searchPhrase);
+						});
+						EcommerceApp.updateLazyLoad();
+					},
+					complete: () => button.removeClass("btn-loading")
+				});
+			});
+			_classPrivateFieldInitSpec(this, _ajaxFilterForm, (url, data, nextUrl) => {
+				const form = $(".bb-product-form-filter");
+				if (url && !data) {
+					this.lastFilterFormData = null;
+					this.lastFilterFormAction = null;
+				}
+				let ajaxData = data;
+				if (Array.isArray(data)) {
+					const params = new URLSearchParams();
+					const paramsByName = {};
+					const attributeArrays = {};
+					data.forEach((item) => {
+						if (item.name && item.value) {
+							if (item.name.includes("attributes[") && item.name.endsWith("[]")) {
+								if (!attributeArrays[item.name]) attributeArrays[item.name] = [];
+								attributeArrays[item.name].push(item.value);
+							} else paramsByName[item.name] = item.value;
+						}
+					});
+					Object.keys(paramsByName).forEach((name) => {
+						params.set(name, paramsByName[name]);
+					});
+					Object.keys(attributeArrays).forEach((name) => {
+						attributeArrays[name].forEach((value) => {
+							params.append(name, value);
+						});
+					});
+					ajaxData = {};
+					Object.keys(paramsByName).forEach((name) => {
+						ajaxData[name] = paramsByName[name];
+					});
+					Object.keys(attributeArrays).forEach((name) => {
+						ajaxData[name] = attributeArrays[name];
+					});
+				}
+				this.filterAjax = $.ajax({
+					url,
+					type: "GET",
+					data: ajaxData,
+					beforeSend: () => {
+						document.dispatchEvent(new CustomEvent("ecommerce.product-filter.before", { detail: {
+							data: ajaxData,
+							element: form
+						} }));
+					},
+					success: (data) => {
+						const { message, error } = data;
+						if (error) {
+							EcommerceApp.showError(message);
+							this.filterAjax = null;
+							return;
+						}
+						let finalUrl = nextUrl || url;
+						if (finalUrl.includes("?")) {
+							const urlParts = finalUrl.split("?");
+							const baseUrl = urlParts[0];
+							const params = new URLSearchParams(urlParts[1]);
+							const uniqueParams = new URLSearchParams();
+							const attributeArrays = {};
+							for (const [key, value] of params.entries()) if (key.includes("attributes[") && key.endsWith("[]")) {
+								if (!attributeArrays[key]) attributeArrays[key] = [];
+								attributeArrays[key].push(value);
+							} else if (!uniqueParams.has(key)) uniqueParams.set(key, value);
+							Object.keys(attributeArrays).forEach((key) => {
+								attributeArrays[key].forEach((value) => {
+									uniqueParams.append(key, value);
+								});
+							});
+							finalUrl = baseUrl + "?" + uniqueParams.toString();
+						}
+						window.history.pushState(data, null, finalUrl);
+						document.dispatchEvent(new CustomEvent("ecommerce.product-filter.success", { detail: {
+							data,
+							element: form
+						} }));
+						this.filterAjax = null;
+						if ($(".bb-product-price-filter").length) EcommerceApp.initPriceFilter();
+					},
+					error: (xhr) => {
+						if (xhr.statusText !== "abort") EcommerceApp.handleError(xhr);
+					},
+					complete: () => {
+						this.filterTimeout = null;
+						this.filterAjax = null;
+						EcommerceApp.updateLazyLoad();
+						document.dispatchEvent(new CustomEvent("ecommerce.product-filter.completed", { detail: { element: form } }));
+					}
+				});
+			});
+			_classPrivateFieldInitSpec(this, _initCategoriesDropdown, async () => {
+				const makeRequest = (url, beforeCallback, successCallback) => {
+					beforeCallback();
+					fetch(url, {
+						method: "GET",
+						headers: {
+							"Content-Type": "application/json",
+							"Accept": "application/json"
+						}
+					}).then((response) => {
+						if (!response.ok) throw new Error("Network response was not ok");
+						return response.json();
+					}).then(({ error, data }) => {
+						if (error) return;
+						successCallback(data);
+						document.dispatchEvent(new CustomEvent("ecommerce.categories-dropdown.success", { detail: { data } }));
+					}).catch((error) => {
+						EcommerceApp.handleError(error);
+					});
+				};
+				const initCategoriesDropdown = $(document).find("[data-bb-toggle=\"init-categories-dropdown\"]");
+				if (initCategoriesDropdown.length) makeRequest(initCategoriesDropdown.first().data("url"), () => {}, (data) => {
+					initCategoriesDropdown.each((index, element) => {
+						const currentTarget = $(element);
+						const target = $(currentTarget.data("bb-target"));
+						if (target.length) target.html(data.dropdown);
+						else currentTarget.append(data.select);
+						EcommerceApp.updateLazyLoad();
+					});
+				});
+			});
+			_defineProperty(this, "productQuantityToggle", () => {
+				$("[data-bb-toggle=\"product-quantity\"]").on("click", "[data-bb-toggle=\"product-quantity-toggle\"]", function(e) {
+					const $currentTarget = $(e.currentTarget);
+					let $calculation = $currentTarget.data("value");
+					if (!$calculation) return;
+					let $input = null;
+					if ($calculation === "plus") $input = $currentTarget.prev();
+					else if ($calculation === "minus") $input = $currentTarget.next();
+					if (!$input) return;
+					let $quantity = parseInt($input.val()) || 1;
+					$input.val($calculation === "plus" ? $quantity + 1 : $quantity === 1 ? 1 : $quantity - 1);
+					document.dispatchEvent(new CustomEvent("ecommerce.cart.quantity.change", { detail: {
+						element: $currentTarget,
+						action: $calculation === "+" ? "increase" : "decrease"
+					} }));
+				});
+			});
+			_defineProperty(
+				this,
+				/**
+				* Default handler invoked before a swatch change AJAX fires.
+				* Called unconditionally by change-product-swatches.js; user hook
+				* window.onBeforeChangeSwatches runs after this (additive).
+				*
+				* @param {Array<Number>} data
+				* @param {jQuery} element
+				*/
+				"defaultOnBeforeChangeSwatches",
+				(data, element) => {
+					const form = element.closest("form");
+					if (data) {
+						form.find("button[type=\"submit\"]").prop("disabled", true);
+						form.find("button[data-bb-toggle=\"add-to-cart\"]").prop("disabled", true);
+					}
+				}
+			);
+			_defineProperty(
+				this,
+				/**
+				* Default handler invoked on successful swatch change AJAX.
+				* Updates price, SKU, stock, disabled attributes, and the main product
+				* gallery (images + thumbs + quick-view). Called unconditionally by
+				* change-product-swatches.js; user hook window.onChangeSwatchesSuccess
+				* runs after this (additive).
+				*
+				* @param {{data: Object, error: Boolean, message: String}} response
+				* @param {jQuery} element
+				*/
+				"defaultOnChangeSwatchesSuccess",
+				(response, element) => {
+					if (!response) return;
+					let $product = element && element.length ? element.closest(".bb-product-detail") : $();
+					if (!$product.length) $product = $(".bb-product-detail").first();
+					const $form = element.closest("form");
+					const $button = $form.find("button[type=\"submit\"]");
+					const $quantity = $form.find("input[name=\"qty\"]");
+					const $available = $product.find(".number-items-available");
+					const $sku = $product.find("[data-bb-value=\"product-sku\"]");
+					const { error, data } = response;
+					if (error) {
+						$button.prop("disabled", true);
+						$quantity.prop("disabled", true);
+						$form.find("input[name=\"id\"]").val("");
+						return;
+					}
+					$button.prop("disabled", false);
+					$quantity.prop("disabled", false);
+					$form.find("input[name=\"id\"]").val(data.id);
+					$product.find("[data-bb-value=\"product-price\"]").text(data.display_sale_price);
+					if (data.sale_price !== data.price) $product.find("[data-bb-value=\"product-original-price\"]").text(data.display_price).show();
+					else $product.find("[data-bb-value=\"product-original-price\"]").hide();
+					if (data.sku) {
+						$sku.text(data.sku);
+						$sku.closest("div").show();
+					} else $sku.closest("div").hide();
+					if (data.error_message) {
+						$button.prop("disabled", true);
+						$quantity.prop("disabled", true);
+						$available.html(`<span class='text-danger'>${data.error_message}</span>`).show();
+					} else if (data.warning_message) $available.html(`<span class='text-warning fw-medium fs-6'>${data.warning_message}</span>`).show();
+					else if (data.success_message) $available.html(`<span class='text-success'>${data.success_message}</span>`).show();
+					else $available.html("").hide();
+					$product.find(".bb-product-attribute-swatch-item").removeClass("disabled");
+					$product.find(".bb-product-attribute-swatch-list select option").prop("disabled", false);
+					const unavailableAttributeIds = data.unavailable_attribute_ids || [];
+					if (unavailableAttributeIds.length) unavailableAttributeIds.map((id) => {
+						let $swatchItem = $product.find(`.bb-product-attribute-swatch-item[data-id="${id}"]`);
+						if ($swatchItem.length) {
+							$swatchItem.addClass("disabled");
+							$swatchItem.find("input").prop("checked", false);
+						} else {
+							$swatchItem = $product.find(`.bb-product-attribute-swatch-list select option[data-id="${id}"]`);
+							if ($swatchItem.length) $swatchItem.prop("disabled", true);
+						}
+					});
+					let imageHtml = "";
+					let thumbHtml = "";
+					const siteConfig = window.siteConfig || {};
+					const placeholder = $product.find(".bb-product-gallery").data("placeholder") || siteConfig.img_placeholder;
+					if (!data.image_with_sizes) data.image_with_sizes = {
+						origin: [],
+						thumb: []
+					};
+					if (!data.image_with_sizes.origin.length && placeholder) data.image_with_sizes.origin.push(placeholder);
+					data.image_with_sizes.origin.forEach(function(item) {
+						imageHtml += `
+            <a href='${item}'>
+                <img src='${item}' alt='${data.name}'>
             </a>
-        `}),!c.image_with_sizes.thumb.length&&f&&c.image_with_sizes.thumb.push(f),c.image_with_sizes.thumb.forEach(function(w){m+=`
+        `;
+					});
+					if (!data.image_with_sizes.thumb.length && placeholder) data.image_with_sizes.thumb.push(placeholder);
+					data.image_with_sizes.thumb.forEach(function(item) {
+						thumbHtml += `
             <div>
-                <img src='${w}' alt='${c.name}'>
+                <img src='${item}' alt='${data.name}'>
             </div>
-        `});const h=i.find(".bb-product-gallery"),y=h.find(".bb-product-gallery-images"),u=h.find(".bb-product-gallery-thumbnails"),g=y.find(".bb-product-video").clone(),E=u.find(".video-thumbnail").clone();let _="",S="";g.length>0&&g.each(function(){_+=$(this)[0].outerHTML}),E.length>0&&E.each(function(){S+=`<div>${$(this)[0].outerHTML}</div>`});const L=h.data("video-position")||"bottom";let x="",j="";const k=$("<div>").html(p).children().toArray().map(w=>w.outerHTML),D=$("<div>").html(m).children().toArray().map(w=>w.outerHTML);L==="top"||L==="after_first_image"&&k.length===0?(x=_+p,j=S+m):L==="after_first_image"&&k.length>0?(x=k[0]+_+k.slice(1).join(""),j=(D[0]||"")+S+D.slice(1).join("")):L==="before_last_image"&&k.length>1?(x=k.slice(0,-1).join("")+_+k.slice(-1).join(""),j=D.slice(0,-1).join("")+S+D.slice(-1).join("")):(x=p+_,j=m+S);const F=h.find(".bb-product-gallery-thumbnails");$.fn.slick&&F.length&&F.hasClass("slick-initialized")&&F.slick("unslick"),F.html(j);const q=i.find(".bb-quick-view-gallery-images");q.length&&($.fn.slick&&q.hasClass("slick-initialized")&&q.slick("unslick"),q.html(x));const z=h.find(".bb-product-gallery-images");$.fn.slick&&z.length&&z.hasClass("slick-initialized")&&z.slick("unslick"),z.html(x),q.length?typeof EcommerceApp!="undefined"&&EcommerceApp.initProductGallery(!0):typeof EcommerceApp!="undefined"&&EcommerceApp.initProductGallery(),this.autoSelectOtherAttributes(i,c),this.updateVisualItemsVisibility(i,c)}),v(this,"autoSelectOtherAttributes",(t,e)=>{if(!e||!e.unavailable_attribute_ids||window._isAutoSelecting)return;const i=t.find(".qs-swatch-wrap");let n=!1,r=null;i.each((a,o)=>{const l=$(o),s=l.find('input[type="radio"]:checked, select option:selected');if(!s.length)return;const c=parseInt(s.val());if(c&&e.unavailable_attribute_ids.includes(c))return n=!0,r=l,!1}),n&&(window._isAutoSelecting=!0,i.each((a,o)=>{const l=$(o);if(r&&l.is(r))return;const s=l.find(".bb-product-attribute-swatch-item:not(.disabled)").first();if(s.length){l.find(".bb-product-attribute-swatch-item").removeClass("selected"),s.addClass("selected");const d=s.find('input[type="radio"]');d.length&&(l.find('input[type="radio"]').prop("checked",!1),d.prop("checked",!0))}const c=l.find("select");if(c.length){const d=c.find("option:not(:disabled)").first();d.length&&d.val()&&c.val(d.val())}}),setTimeout(()=>{window._isAutoSelecting=!1},100))}),v(this,"updateVisualItemsVisibility",(t,e)=>{t.find('.qs-swatch-wrap[data-type="visual"]').each(function(){$(this).find(".bb-product-attribute-swatch-item").each(function(){const i=$(this);i.hasClass("disabled")?(i.css("display","none"),i.attr("style","display: none !important")):(i.css("display",""),i.removeAttr("style"))})})}),v(this,"onChangeProductAttribute",()=>{}),v(this,"handleUpdateCart",t=>{let e;t?e=$(t).closest("form"):e=$("form.cart-form"),$.ajax({type:"POST",url:e.prop("action"),data:e.serialize(),success:({error:i,message:n,data:r})=>{i&&EcommerceApp.showError(n),this.ajaxLoadCart(r)},error:i=>EcommerceApp.handleError(i)})}),v(this,"ajaxLoadCart",t=>{if(!t)return;const e=$('[data-bb-toggle="cart-content"]');t.count!==void 0&&$('[data-bb-value="cart-count"]').text(t.count),t.total_price!==void 0&&$('[data-bb-value="cart-total-price"]').text(t.total_price),e.length&&(e.replaceWith(t.cart_content),this.productQuantityToggle(),EcommerceApp.updateLazyLoad())}),this.initClipboard(),this.initFileUpload(),$(document).on("click",'[data-bb-toggle="toggle-product-categories-tree"]',t=>{t.preventDefault();const e=$(t.currentTarget);e.toggleClass("active"),e.closest(".bb-product-filter-item").find("> .bb-product-filter-items").slideToggle().toggleClass("active")}).on("click",'[data-bb-toggle="toggle-filter-sidebar"]',()=>{$(".bb-filter-offcanvas-area").toggleClass("offcanvas-opened"),$(".body-overlay").toggleClass("opened")}).on("click",".body-overlay",()=>{$(".bb-filter-offcanvas-area").removeClass("offcanvas-opened"),$(".body-overlay").removeClass("opened")}).on("submit","form.bb-product-form-filter",t=>{t.preventDefault();const e=$(t.currentTarget),i=C(I,this).call(this,e.serializeArray()),n=e.prop("action");let r=n;const a=new URLSearchParams,o={},l={},s=new URLSearchParams(window.location.search),c={};for(const[u,g]of s.entries())u!=="page"&&u!=="_"&&g&&(c[u]||(c[u]=[]),c[u].push(g));i.forEach(u=>{u.name.includes("attributes[")&&u.name.endsWith("[]")?(l[u.name]||(l[u.name]=[]),l[u.name].push(u.value)):o[u.name]||(o[u.name]=u.value)});const d={};Object.keys(o).forEach(u=>{u!=="page"&&u!=="_"&&o[u]&&(d[u]||(d[u]=[]),d[u].push(o[u]))}),Object.keys(l).forEach(u=>{d[u]||(d[u]=[]),d[u]=d[u].concat(l[u])}),Object.keys(c).forEach(u=>{Array.isArray(c[u])&&c[u].sort()}),Object.keys(d).forEach(u=>{Array.isArray(d[u])&&d[u].sort()});const p=JSON.stringify(c)!==JSON.stringify(d);p&&o.page&&delete o.page,Object.keys(o).forEach(u=>{o[u]&&a.set(u,o[u])}),Object.keys(l).forEach(u=>{l[u].forEach(g=>{a.append(u,g)})});const m=a.toString();m&&(r+=`?${m}`);let b=i;p&&i.some(u=>u.name==="page")&&(b=i.filter(u=>u.name!=="page"));const f=[...b,{name:"_",value:Date.now()}];if(window.location.href===r)return;const h=JSON.stringify(i),y=e.prop("action");this.lastFilterFormData===h&&this.lastFilterFormAction===y||(this.lastFilterFormData=h,this.lastFilterFormAction=y,this.filterAjax&&this.filterAjax.abort(),this.filterTimeout&&clearTimeout(this.filterTimeout),this.filterTimeout=setTimeout(()=>{C(O,this).call(this,n,f,r)},100))}).on("change","form.bb-product-form-filter input, form.bb-product-form-filter select",t=>{const e=$(t.currentTarget),i=e.closest("form"),n=e.attr("name");if(n.includes("attributes["))i.trigger("submit");else if(e.attr("type")==="checkbox"&&n&&n.endsWith("[]")){const r=n.slice(0,-2),a=i.find(`input[name="${n}"]`).filter(":checked");let o=i.find(`input[name="${r}"]`);o.length||(i.append(`<input type="hidden" name="${r}" value="">`),o=i.find(`input[name="${r}"]`));const l=a.map(function(){return $(this).val()}).get();o.val(l.join(","))}i.trigger("submit")}).on("keyup",".bb-form-quick-search input",t=>{C(G,this).call(this,$(t.currentTarget).closest("form"))}).on("click","body",t=>{$(t.target).closest(".bb-form-quick-search").length||$(".bb-quick-search-results").removeClass("show").html("")}).on("click",'[data-bb-toggle="quick-shop"]',t=>{t.preventDefault(),t.stopPropagation();const e=$(t.currentTarget),i=$("#quick-shop-modal");$.ajax({url:e.data("url"),type:"GET",beforeSend:()=>{i.find(".quick-shop-content").length?(i.find(".quick-shop-content").html(""),i.find(".modal-body").addClass("modal-empty"),i.find(".loading-spinner").removeClass("d-none").show(),i.find(".quick-shop-content").hide()):i.find(".modal-body").html(""),i.modal("show"),document.dispatchEvent(new CustomEvent("ecommerce.quick-shop.before-send",{detail:{element:e,modal:i}}))},success:({data:n})=>{i.find(".quick-shop-content").length?(i.find(".quick-shop-content").html(n),i.find(".loading-spinner").addClass("d-none").hide(),i.find(".modal-body").removeClass("modal-empty"),i.find(".quick-shop-content").show()):i.find(".modal-body").html(n)},error:n=>EcommerceApp.handleError(n),complete:()=>{document.dispatchEvent(new CustomEvent("ecommerce.quick-shop.completed",{detail:{element:e,modal:i}}))}})}).on("click",".bb-product-filter-link",t=>{const e=$(t.currentTarget),i=e.closest("form");if(!i.length)return;t.preventDefault();const n=e.closest(".bb-product-filter"),r=e.data("id");let a=i.find('input[name="categories"]');a.length||(a=i.find('input[name="categories[]"]')),n.find(".bb-product-filter-link").removeClass("active"),e.addClass("active"),i.find('input[name="page"]').remove(),i.find('input[name="per-page"]').remove(),a.length&&r?(a.attr("name"),a.val(r).trigger("change")):(r||a.length&&a.val(null),i.prop("action",e.prop("href")).trigger("submit"))}).on("click",".bb-product-filter-clear",t=>{t.preventDefault();const e=$(t.currentTarget);C(O,this).call(this,e.prop("href"))}).on("click",".bb-product-filter-clear-all",t=>{t.preventDefault();const e=$(".bb-product-form-filter");e.find('input[type="text"], input[type="hidden"], input[type="radio"], select').val(null),e.find('input[type="checkbox"]').prop("checked",!1),e.trigger("submit")}).on("submit","form#cancel-order-form",t=>{t.preventDefault();const e=$(t.currentTarget),i=e.closest(".modal"),n=i.find('button[type="submit"]');$.ajax({url:e.prop("action"),type:"POST",data:e.serialize(),beforeSend:()=>{n.addClass("btn-loading")},success:({error:r,message:a})=>{if(r){EcommerceApp.showError(a);return}EcommerceApp.showSuccess(a),i.modal("hide"),setTimeout(()=>window.location.reload(),1e3)},error:r=>EcommerceApp.handleError(r),complete:()=>n.removeClass("btn-loading")})}).on("click",'[data-bb-toggle="add-to-compare"]',function(t){t.preventDefault();const e=$(t.currentTarget),i=e.hasClass("active")?e.data("remove-url"):e.data("url");let n=e.hasClass("active")?{_method:"DELETE"}:{};const r=e.closest("form");$.ajax({url:i,method:"POST",data:EcommerceApp.getAjaxData(n,r),beforeSend:()=>e.addClass("btn-loading"),success:({error:a,message:o,data:l})=>{a?EcommerceApp.showError(o):(EcommerceApp.showSuccess(o),e.toggleClass("active"),l.count!==void 0&&$('[data-bb-value="compare-count"]').text(l.count),e.hasClass("active")?document.dispatchEvent(new CustomEvent("ecommerce.compare.added",{detail:{data:l,element:e,extraData:l.extra_data}})):document.dispatchEvent(new CustomEvent("ecommerce.compare.removed",{detail:{data:l,element:e,extraData:l.extra_data}})))},error:a=>EcommerceApp.handleError(a),complete:()=>e.removeClass("btn-loading")})}).on("click",'[data-bb-toggle="remove-from-compare"]',t=>{t.preventDefault();const e=$(t.currentTarget),i=e.closest("table"),n=e.closest("form");$.ajax({url:e.data("url"),method:"POST",data:EcommerceApp.getAjaxData({_method:"DELETE"},n),success:({error:r,message:a,data:o})=>{r?EcommerceApp.showError(a):(EcommerceApp.showSuccess(a),document.dispatchEvent(new CustomEvent("ecommerce.compare.removed",{detail:{data:o,element:e,extraData:o.extra_data}})),o.count!==void 0?($('[data-bb-value="compare-count"]').text(o.count),o.count>0&&i.find(`td:nth-child(${e.closest("td").index()+1})`).remove()):window.location.reload())},error:r=>EcommerceApp.handleError(r)})}).on("click",'[data-bb-toggle="add-to-wishlist"]',function(t){t.preventDefault();const e=$(t.currentTarget),i=e.data("url"),n=e.closest("form");$.ajax({url:i,method:"POST",data:EcommerceApp.getAjaxData({},n),beforeSend:()=>e.addClass("btn-loading"),success:({error:r,message:a,data:o})=>{r?EcommerceApp.showError(a):(o.count!==void 0&&$('[data-bb-value="wishlist-count"]').text(o.count),EcommerceApp.showSuccess(a),document.dispatchEvent(new CustomEvent("ecommerce.wishlist.added",{detail:{data:o,element:e,extraData:o.extra_data,added:o.added}})))},error:r=>EcommerceApp.handleError(r),complete:()=>e.removeClass("btn-loading")})}).on("click",'[data-bb-toggle="remove-from-wishlist"]',t=>{t.preventDefault();const e=$(t.currentTarget),i=e.closest("form");$.ajax({url:e.data("url"),method:"POST",data:EcommerceApp.getAjaxData({_method:"DELETE"},i),beforeSend:()=>e.addClass("btn-loading"),success:({error:n,message:r,data:a})=>{n?EcommerceApp.showError(r):(EcommerceApp.showSuccess(r),e.closest("tr").remove(),a.count!==void 0&&($('[data-bb-value="wishlist-count"]').text(a.count),a.count===0&&window.location.reload()),document.dispatchEvent(new CustomEvent("ecommerce.wishlist.removed",{detail:{data:a,element:e,extraData:a.extra_data}})))},error:n=>EcommerceApp.handleError(n),complete:()=>e.removeClass("btn-loading")})}).on("click",'[data-bb-toggle="add-to-cart"]',t=>{t.preventDefault();const e=$(t.currentTarget),i=e.closest("form"),n=e.closest("tr").find('input[name="qty"]'),r={id:e.data("id")};n&&(r.qty=n.val()),$.ajax({url:e.data("url"),method:"POST",data:EcommerceApp.getAjaxData(r,i),dataType:"json",beforeSend:()=>e.addClass("btn-loading").prop("disabled",!0),success:({error:a,message:o,data:l})=>{if(a)return EcommerceApp.showError(o),l.next_url!==void 0&&setTimeout(()=>{window.location.href=l.next_url},500),!1;let s=!0;e.data("show-toast-on-success")!==void 0&&(s=e.data("show-toast-on-success")),s&&EcommerceApp.showSuccess(o),l.count!==void 0&&$('[data-bb-value="cart-count"]').text(l.count),document.dispatchEvent(new CustomEvent("ecommerce.cart.added",{detail:{data:l,element:e,message:o,extraData:l.extra_data}})),l&&l.next_url!==void 0&&(window.location.href=l.next_url)},error:a=>EcommerceApp.handleError(a),complete:()=>e.removeClass("btn-loading").prop("disabled",!1)})}).on("click",'[data-bb-toggle="remove-from-cart"]',t=>{t.preventDefault();const e=$(t.currentTarget);$.ajax({url:e.prop("href")||e.data("url"),method:"GET",beforeSend:()=>e.addClass("btn-loading"),success:({error:i,message:n,data:r})=>{i?EcommerceApp.showError(n):(EcommerceApp.showSuccess(n),e.closest("tr").remove(),r.count!==void 0&&($('[data-bb-value="cart-count"]').text(r.count),r.count===0&&window.location.reload()),document.dispatchEvent(new CustomEvent("ecommerce.cart.removed",{detail:{data:r,element:e,extraData:r.extra_data}})))},error:i=>EcommerceApp.handleError(i),complete:()=>e.removeClass("btn-loading")})}).on("submit",'[data-bb-toggle="coupon-form"]',t=>{t.preventDefault();const e=$(t.currentTarget),i=e.find('button[type="submit"]');$.ajax({url:e.prop("action"),type:"POST",data:e.serialize(),beforeSend:()=>i.prop("disabled",!0).addClass("btn-loading"),success:({error:n,message:r,data:a})=>{n?EcommerceApp.showError(r):(EcommerceApp.showSuccess(r),document.dispatchEvent(new CustomEvent("ecommerce.coupon.applied",{detail:{data:a,element:e}})))},error:n=>EcommerceApp.handleError(n),complete:()=>i.prop("disabled",!1).removeClass("btn-loading")})}).on("click",'[data-bb-toggle="quick-view-product"]',t=>{t.preventDefault();const e=$(t.currentTarget);$.ajax({url:e.data("url"),type:"GET",beforeSend:()=>e.prop("disabled",!0).addClass("btn-loading"),success:({error:i,message:n,data:r})=>{if(i)EcommerceApp.showError(n);else{const a=$('[data-bb-toggle="quick-view-modal"]');a.modal("show"),a.find(".modal-body").html(r),document.dispatchEvent(new CustomEvent("ecommerce.quick-view.initialized",{detail:{data:r,element:e}})),setTimeout(()=>{this.initProductGallery(!0)},100)}},error:i=>EcommerceApp.handleError(i),complete:()=>e.prop("disabled",!1).removeClass("btn-loading")})}).on("click",'[data-bb-toggle="product-form"] button[type="submit"]',t=>{t.preventDefault();const e=$(t.currentTarget),i=e.closest("form"),n=i.serializeArray();i.find('input[name="id"]').val()!==""&&(n.push({name:"checkout",value:e.prop("name")==="checkout"?1:0}),$.ajax({type:"POST",url:i.prop("action"),data:n,beforeSend:()=>{e.prop("disabled",!0).addClass("btn-loading")},success:({error:r,message:a,data:o})=>{if(r){EcommerceApp.showError(a);return}const l=i.data("show-toast-on-success");l!==!1&&l!=="false"&&EcommerceApp.showSuccess(a),i.find('input[name="qty"]').val(1),o.count!==void 0&&$('[data-bb-value="cart-count"]').text(o.count),document.dispatchEvent(new CustomEvent("ecommerce.cart.added",{detail:{data:o,element:e,extraData:o.extra_data}})),o&&o.next_url!==void 0&&(window.location.href=o.next_url)},error:r=>EcommerceApp.handleError(r),complete:()=>e.prop("disabled",!1).removeClass("btn-loading")}))}).on("change",'[data-bb-toggle="product-form-filter-item"]',t=>{const e=$(t.currentTarget),i=$(".bb-product-form-filter"),n=e.prop("name"),r=e.val();if(n.endsWith("[]")&&!n.includes("attributes[")){const a=n.slice(0,-2);let o=i.find(`input[name="${a}"]`);o.length||(i.append(`<input type="hidden" name="${a}" value="">`),o=i.find(`input[name="${a}"]`));let l=o.val()?o.val().split(","):[];const s=new Set(l);s.add(r),o.val(Array.from(s).join(","))}else if(e.is(":checkbox")){const a=e.prop("checked"),o=i.find(`input[type="hidden"][name="${n}"]`);o.length?o.val(a?r:""):i.append(`<input type="hidden" name="${n}" value="${a?r:""}">`)}else{const a=i.find(`input[name="${n}"]`);a.length&&a.val(r)}i.trigger("submit")}),$(".bb-product-price-filter").length&&this.initPriceFilter(),C(M,this).call(this)}isRtl(){return document.body.getAttribute("dir")==="rtl"}initLightGallery(t){t.length&&(t.data("lightGallery")&&t.data("lightGallery").destroy(!0),t.lightGallery({selector:"a",thumbnail:!0,share:!1,fullScreen:!1,autoplay:!1,autoplayControls:!1,actualSize:!1}))}initProductGallery(t=!1){if(typeof $.fn.slick=="undefined")return;if(!t){const r=$(document).find(".bb-product-gallery-images");if(r.length){let o=function(s,c){if(!s||!c||!s.src)return;let d;try{d=new URL(s.src).origin}catch(p){return}s.contentWindow.postMessage(JSON.stringify(c),d)},l=function(s,c){let d,p,m,b,f;if(d=s.find(".slick-current"),p=d.data("provider"),b=d.get(0),m=d.data("video-start"),p==="vimeo")switch(c){case"play":m!=null&&m>0&&!d.hasClass("started")&&(d.addClass("started"),o(b,{method:"setCurrentTime",value:m})),o(b,{method:"play",value:1});break;case"pause":o(b,{method:"pause",value:1})}else if(p==="youtube")switch(c){case"play":o(b,{event:"command",func:"mute"}),o(b,{event:"command",func:"playVideo"});break;case"pause":o(b,{event:"command",func:"pauseVideo"})}else p==="video"&&(f=d.children("video").get(0),f!=null&&(c==="play"?f.play():f.pause()))};var i=o,n=l;const a=$(document).find(".bb-product-gallery-thumbnails");r.on("init",function(s){s=$(s.currentTarget),setTimeout(function(){l(s,"play")},1e3)}),r.on("beforeChange",function(s,c){c=$(c.$slider),l(c,"pause")}),r.on("afterChange",function(s,c){c=$(c.$slider),l(c,"play")}),$(document).on("click",".bb-button-trigger-play-video",function(s){const c=$(s.currentTarget),d=document.getElementById(c.data("target"));d.muted=!1,d.play(),c.closest(".bb-product-video").addClass("bb-product-video-playing")}),window.bbProductVideoEventsBound||(window.bbProductVideoEventsBound=!0,document.addEventListener("play",s=>{s.target.controls&&$(s.target).closest(".bb-product-video").addClass("bb-product-video-playing")},!0),document.addEventListener("pause",s=>{s.target.controls&&!s.target.ended&&$(s.target).closest(".bb-product-video").removeClass("bb-product-video-playing")},!0),document.addEventListener("ended",s=>{const c=$(s.target).closest(".bb-product-video");c.length&&(s.target.currentTime=0,s.target.pause(),c.removeClass("bb-product-video-playing"))},!0)),$(document).on("click",".bb-product-video-facade",function(s){s.preventDefault();const c=$(s.currentTarget),d=c.data("src");if(!d)return;const p=document.createElement("iframe");p.setAttribute("src",d),p.setAttribute("frameborder","0"),p.setAttribute("allow","accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"),p.setAttribute("referrerpolicy","strict-origin-when-cross-origin"),p.setAttribute("allowfullscreen",""),p.setAttribute("title",c.data("title")||""),p.style.cssText="position:absolute;top:0;left:0;width:100%;height:100%;border:0;",c.replaceWith(p)}),r.length&&r.each((s,c)=>{const d=$(c);if(d.hasClass("slick-initialized")&&d.slick("unslick"),d.removeClass("slick-initialized slick-slider slick-vertical slick-dotted"),!!d.children().length)try{d.slick({slidesToShow:1,slidesToScroll:1,arrows:!1,dots:!1,infinite:!1,fade:!0,lazyLoad:"ondemand",asNavFor:".bb-product-gallery-thumbnails",rtl:this.isRtl()})}catch(p){}}),a.length&&a.each((s,c)=>{const d=$(c);if(d.hasClass("slick-initialized")&&d.slick("unslick"),d.removeClass("slick-initialized slick-slider slick-vertical slick-dotted"),!d.children().length)return;let p=d.data("vertical")===1;window.innerWidth<768&&(p=!1);try{d.on("init",function(m,b){const f=$(b.$slides).not(".slick-cloned"),h=f.filter(":not(.video-thumbnail)"),y=f.filter(".video-thumbnail)");if(h.length>4){const u=h.length-4,g=h.eq(4);if(g.length&&!g.find(".gallery-more-count").length){const E=g.find("img");E.parent().hasClass("thumbnail-wrapper")||E.wrap('<div class="thumbnail-wrapper" style="position:relative;width:100%;height:100%;"></div>'),E.parent().append('<span class="gallery-more-count">+'+u+"</span>")}}if(y.length>2){const u=y.length-2,g=y.eq(2);if(g.length&&!g.find(".gallery-more-count").length){const E=g.find("img").first();E.parent().hasClass("thumbnail-wrapper")||E.wrap('<div class="thumbnail-wrapper" style="position:relative;width:100%;height:100%;"></div>'),E.parent().append('<span class="gallery-more-count">+'+u+"</span>")}}}),d.slick({slidesToShow:4,slidesToScroll:1,asNavFor:".bb-product-gallery-images",focusOnSelect:!0,infinite:!1,arrows:!1,rtl:this.isRtl()&&!p,vertical:p,verticalSwiping:p,responsive:[{breakpoint:768,settings:{slidesToShow:4,arrows:!1}}]})}catch(m){}}),this.initLightGallery(r),EcommerceApp.updateLazyLoad()}}const e=$(document).find(".bb-quick-view-gallery-images");e.length&&e.each((r,a)=>{const o=$(a);if(o.hasClass("slick-initialized")&&o.slick("unslick"),o.removeClass("slick-initialized slick-slider slick-vertical slick-dotted"),!!o.children().length)try{o.slick({slidesToShow:1,slidesToScroll:1,dots:!1,arrows:!0,adaptiveHeight:!1,rtl:this.isRtl()})}catch(l){}}),this.initLightGallery(e)}initPriceFilter(){if(typeof $.fn.slider=="undefined")throw new Error("jQuery UI slider is required for price filter");const t=$(document).find(".bb-product-price-filter"),e=t.find(".price-slider"),i=t.find(".input-range-label");if(t){const n=t.find('input[name="min_price"]'),r=t.find('input[name="max_price"]'),a=parseInt(n.val())||e.data("min"),o=parseInt(r.val())||e.data("max"),l=this.isRtl(),s=l?-e.data("max"):e.data("min"),c=l?-e.data("min"):e.data("max"),d=l?[-o,-a]:[a,o];e.slider({range:!0,min:s,max:c,values:d,slide:function(f,h){const y=l?-h.values[1]:h.values[0],u=l?-h.values[0]:h.values[1];i.find(".from").text(this.formatPrice(y)),i.find(".to").text(this.formatPrice(u))}.bind(this),change:function(f,h){const y=l?-h.values[1]:h.values[0],u=l?-h.values[0]:h.values[1];parseInt(a)!==y&&n.val(y).trigger("change"),parseInt(o)!==u&&r.val(u).trigger("change")}.bind(this)});const p=e.slider("values"),m=l?-p[1]:p[0],b=l?-p[0]:p[1];i.find(".from").text(this.formatPrice(m)),i.find(".to").text(this.formatPrice(b))}}formatPrice(t,e,i){const n=window.currencies||{};e||(e=n.number_after_dot!==void 0?n.number_after_dot:2);const r="\\d(?=(\\d{"+(i||3)+"})+$)";let a="";if(n.show_symbol_or_title&&(a=n.symbol||n.title||""),n.display_big_money){let o="";t>=1e6&&t<1e9?(t=t/1e6,o=n.million):t>=1e9&&(t=t/1e9,o=n.billion),a=o+(a?` ${a}`:"")}return t=t.toFixed(Math.max(0,~~e)).toString().split("."),t=t[0].toString().replace(new RegExp(r,"g"),`$&${n.thousands_separator}`)+(t[1]?n.decimal_separator+t[1]:""),n.show_symbol_or_title&&(t=n.is_prefix_symbol?a+t:t+a),t}initAttributeSwatchHoverLabels(){$(document).on("mouseenter",".bb-product-attribute-swatch-item",function(){const t=$(this),e=t.closest(".qs-swatch-wrap").find(".qs-swatch__selected-val");if(!e.length)return;const i=t.data("title")||t.attr("title")||"";i&&e.text(i)}),$(document).on("mouseleave",".bb-product-attribute-swatch-item",function(){const t=$(this).closest(".qs-swatch-wrap"),e=t.find(".qs-swatch__selected-val"),i=t.find(".bb-product-attribute-swatch-item.selected");if(e.length)if(i.length){const n=i.data("title")||i.attr("title")||"";e.text(n)}else{const n=e.data("default")||"";e.text(n)}})}initFileUpload(){$(document).on("change",".bb-file-input",t=>{const e=t.target,i=$(e).siblings(".bb-file-label"),n=i.find(".bb-file-name");if(i.find(".bb-file-placeholder"),e.files&&e.files.length>0){const r=e.files[0];n.text(r.name),i.addClass("has-file")}else n.text(""),i.removeClass("has-file")})}initClipboard(){$(document).on("click","[data-ecommerce-clipboard]",async t=>{t.preventDefault();const e=$(t.currentTarget),i=e.data("clipboard-message"),n=e.data("clipboard-text");if(!n)return;let r=!1;if(navigator.clipboard&&window.isSecureContext)try{await navigator.clipboard.writeText(n),r=!0}catch(a){}if(!r){const a=document.createElement("textarea");a.value=n,a.style.position="fixed",a.style.left="-999999px",a.style.top="-999999px",document.body.appendChild(a),a.focus(),a.select();try{document.execCommand("copy"),r=!0}catch(o){}document.body.removeChild(a)}if(r){i&&EcommerceApp.showSuccess(i);const a=e.html();e.html('<i class="ti ti-check"></i> '+(i||"Copied!")),setTimeout(()=>{e.html(a)},2e3)}else EcommerceApp.showError("Failed to copy to clipboard")})}};$(()=>{window.EcommerceApp=new H,EcommerceApp.productQuantityToggle(),EcommerceApp.initAttributeSwatchHoverLabels(),EcommerceApp.initProductGallery(),EcommerceApp.onChangeProductAttribute(),$(".bb-product-price-filter").length&&EcommerceApp.initPriceFilter(),document.addEventListener("ecommerce.quick-shop.completed",()=>{EcommerceApp.productQuantityToggle()}),document.addEventListener("ecommerce.cart.quantity.change",t=>{const{element:e}=t.detail;EcommerceApp.handleUpdateCart(e)}),document.addEventListener("ecommerce.product-filter.before",()=>{let t=$('[data-bb-toggle="product-list"]').find(".bb-product-items-wrapper");t.length&&t.append('<div class="loading-spinner"></div>')}),document.addEventListener("ecommerce.product-filter.success",t=>{const{data:e}=t.detail,i=$(".bb-product-items-wrapper");if(i.length&&i.html(e.data),e.additional){const r=$(".bb-product-listing-page-description"),a=e.additional.product_listing_page_description_html;a?r.length&&(r.html(a),document.dispatchEvent(new CustomEvent("shortcode.loaded",{detail:{name:null,attributes:[],html:a}})),EcommerceApp.updateLazyLoad()):r.html("");const o=$(".bb-shop-sidebar");let l=$("[data-bb-filter-sidebar]");l.length||(l=o);const s={};$(".bb-product-filter-link.active").each(function(){const d=$(this).closest(".bb-product-filter").data("filter-group");d&&(s[d]=$(this).data("id"))});const c=[];l.find('input[type="checkbox"]:checked').each(function(){const d=$(this),p=d.attr("name"),m=d.val(),b=d.attr("id");c.push({name:p,value:m,id:b})}),l.replaceWith(e.additional.filters_html),setTimeout(()=>{const d=$("[data-bb-filter-sidebar]").length?$("[data-bb-filter-sidebar]"):$(".bb-shop-sidebar");Object.keys(s).forEach(p=>{const m=s[p];d.find(`.bb-product-filter[data-filter-group="${p}"] .bb-product-filter-link[data-id="${m}"]`).addClass("active")}),c.forEach(p=>{let m=null;p.id&&(m=d.find(`#${p.id}`)),(!m||!m.length)&&(m=d.find(`input[type="checkbox"][name="${p.name}"][value="${p.value}"]`)),(!m||!m.length)&&(m=d.find(`input[type="checkbox"][value="${p.value}"]`).filter(function(){return $(this).attr("name")===p.name})),m&&m.length&&m.prop("checked",!0)})},10)}$(document).find(".bb-product-price-filter").length&&EcommerceApp.initPriceFilter(),i.length&&$("html, body").animate({scrollTop:i.offset().top-120});let n=$('[data-bb-toggle="product-list"]').find(".bb-product-items-wrapper");n.length&&n.find(".loading-spinner").remove()}),document.addEventListener("ecommerce.product-filter.completed",()=>{EcommerceApp.updateLazyLoad()})})})();
+        `;
+					});
+					const $galleryImages = $product.find(".bb-product-gallery");
+					const $existingGalleryImages = $galleryImages.find(".bb-product-gallery-images");
+					const $existingThumbnails = $galleryImages.find(".bb-product-gallery-thumbnails");
+					const existingVideoElements = $existingGalleryImages.find(".bb-product-video").clone();
+					const existingVideoThumbnails = $existingThumbnails.find(".video-thumbnail").clone();
+					let videoImageHtml = "";
+					let videoThumbHtml = "";
+					if (existingVideoElements.length > 0) existingVideoElements.each(function() {
+						videoImageHtml += $(this)[0].outerHTML;
+					});
+					if (existingVideoThumbnails.length > 0) existingVideoThumbnails.each(function() {
+						videoThumbHtml += `<div>${$(this)[0].outerHTML}</div>`;
+					});
+					const videoPosition = $galleryImages.data("video-position") || "bottom";
+					let finalImageHtml = "";
+					let finalThumbHtml = "";
+					const imageItems = $("<div>").html(imageHtml).children().toArray().map((el) => el.outerHTML);
+					const thumbItems = $("<div>").html(thumbHtml).children().toArray().map((el) => el.outerHTML);
+					if (videoPosition === "top" || videoPosition === "after_first_image" && imageItems.length === 0) {
+						finalImageHtml = videoImageHtml + imageHtml;
+						finalThumbHtml = videoThumbHtml + thumbHtml;
+					} else if (videoPosition === "after_first_image" && imageItems.length > 0) {
+						finalImageHtml = imageItems[0] + videoImageHtml + imageItems.slice(1).join("");
+						finalThumbHtml = (thumbItems[0] || "") + videoThumbHtml + thumbItems.slice(1).join("");
+					} else if (videoPosition === "before_last_image" && imageItems.length > 1) {
+						finalImageHtml = imageItems.slice(0, -1).join("") + videoImageHtml + imageItems.slice(-1).join("");
+						finalThumbHtml = thumbItems.slice(0, -1).join("") + videoThumbHtml + thumbItems.slice(-1).join("");
+					} else {
+						finalImageHtml = imageHtml + videoImageHtml;
+						finalThumbHtml = thumbHtml + videoThumbHtml;
+					}
+					const $thumbnails = $galleryImages.find(".bb-product-gallery-thumbnails");
+					if ($.fn.slick && $thumbnails.length && $thumbnails.hasClass("slick-initialized")) $thumbnails.slick("unslick");
+					$thumbnails.html(finalThumbHtml);
+					const $quickViewGalleryImages = $product.find(".bb-quick-view-gallery-images");
+					if ($quickViewGalleryImages.length) {
+						if ($.fn.slick && $quickViewGalleryImages.hasClass("slick-initialized")) $quickViewGalleryImages.slick("unslick");
+						$quickViewGalleryImages.html(finalImageHtml);
+					}
+					const $galleryImagesSlider = $galleryImages.find(".bb-product-gallery-images");
+					if ($.fn.slick && $galleryImagesSlider.length && $galleryImagesSlider.hasClass("slick-initialized")) $galleryImagesSlider.slick("unslick");
+					$galleryImagesSlider.html(finalImageHtml);
+					if (!$quickViewGalleryImages.length) {
+						if (typeof EcommerceApp !== "undefined") EcommerceApp.initProductGallery();
+					} else if (typeof EcommerceApp !== "undefined") EcommerceApp.initProductGallery(true);
+					console.log("🔄 === AUTO-SELECT START ===");
+					console.log("📦 Data received:", data);
+					this.autoSelectOtherAttributes($product, data);
+					console.log("👁️ === VISUAL ITEMS VISIBILITY START ===");
+					this.updateVisualItemsVisibility($product, data);
+					console.log("✅ === SWATCH UPDATE COMPLETE ===");
+				}
+			);
+			_defineProperty(
+				this,
+				/**
+				* When user clicks a DISABLED item, auto-select enabled values for OTHER attributes
+				* This runs AFTER CMS has marked items as disabled, so we check the RESULT
+				*/
+				"autoSelectOtherAttributes",
+				($product, data) => {
+					console.log("🎯 autoSelectOtherAttributes called");
+					console.log("   Product element:", $product.length ? "FOUND" : "NOT FOUND");
+					console.log("   Data:", data);
+					if (!data || !data.unavailable_attribute_ids) {
+						console.log("   ❌ No data or unavailable_attribute_ids, exiting");
+						return;
+					}
+					console.log("   🚫 Unavailable IDs:", data.unavailable_attribute_ids);
+					if (window._isAutoSelecting) {
+						console.log("   ⏸️ Already auto-selecting, preventing infinite loop");
+						return;
+					}
+					const $allWrappers = $product.find(".qs-swatch-wrap");
+					console.log("   📋 Found wrappers:", $allWrappers.length);
+					let hasDisabledSelection = false;
+					let clickedWrapper = null;
+					$allWrappers.each((index, wrapper) => {
+						const $wrapper = $(wrapper);
+						const wrapperType = $wrapper.data("type");
+						const wrapperSlug = $wrapper.data("slug");
+						console.log(`\n   🔍 Wrapper ${index + 1}: type="${wrapperType}", slug="${wrapperSlug}"`);
+						const $checkedInput = $wrapper.find("input[type=\"radio\"]:checked, select option:selected");
+						console.log("      Checked input found?", $checkedInput.length > 0);
+						if (!$checkedInput.length) {
+							console.log("      ⏭️ No checked input, skipping");
+							return;
+						}
+						const checkedId = parseInt($checkedInput.val());
+						console.log("      Checked ID:", checkedId);
+						console.log("      Is in unavailable list?", data.unavailable_attribute_ids.includes(checkedId));
+						if (checkedId && data.unavailable_attribute_ids.includes(checkedId)) {
+							console.log("      ⚠️ DISABLED selection detected!");
+							hasDisabledSelection = true;
+							clickedWrapper = $wrapper;
+							return false;
+						} else console.log("      ✅ Selection is enabled");
+					});
+					console.log("\n   📊 Has disabled selection?", hasDisabledSelection);
+					if (!hasDisabledSelection) {
+						console.log("   ⏭️ No disabled selection, exiting");
+						return;
+					}
+					console.log("   🔄 Starting auto-selection for OTHER attributes...");
+					window._isAutoSelecting = true;
+					console.log("   🔒 Set _isAutoSelecting flag");
+					$allWrappers.each((index, wrapper) => {
+						const $wrapper = $(wrapper);
+						const wrapperSlug = $wrapper.data("slug");
+						console.log(`\n   🔧 Processing wrapper ${index + 1}: "${wrapperSlug}"`);
+						if (clickedWrapper && $wrapper.is(clickedWrapper)) {
+							console.log("      ⏭️ This is the clicked wrapper, skipping");
+							return;
+						}
+						const $allItems = $wrapper.find(".bb-product-attribute-swatch-item");
+						console.log("      Total items:", $allItems.length);
+						const $disabledItems = $wrapper.find(".bb-product-attribute-swatch-item.disabled");
+						console.log("      Disabled items:", $disabledItems.length);
+						const $enabled = $wrapper.find(".bb-product-attribute-swatch-item:not(.disabled)").first();
+						console.log("      First enabled item found?", $enabled.length > 0);
+						if ($enabled.length) {
+							const enabledId = $enabled.data("id");
+							const enabledTitle = $enabled.data("title");
+							console.log("      Enabled item ID:", enabledId, "Title:", enabledTitle);
+							$wrapper.find(".bb-product-attribute-swatch-item").removeClass("selected");
+							$enabled.addClass("selected");
+							console.log("      ✅ Added .selected class to enabled item");
+							const $input = $enabled.find("input[type=\"radio\"]");
+							console.log("      Radio input found?", $input.length > 0);
+							if ($input.length) {
+								$wrapper.find("input[type=\"radio\"]").prop("checked", false);
+								$input.prop("checked", true);
+								console.log("      ✅ Radio button checked");
+							}
+						} else console.log("      ❌ No enabled items found!");
+						const $select = $wrapper.find("select");
+						if ($select.length) {
+							console.log("      Dropdown found, processing...");
+							const $enabledOption = $select.find("option:not(:disabled)").first();
+							if ($enabledOption.length && $enabledOption.val()) {
+								$select.val($enabledOption.val());
+								console.log("      ✅ Dropdown value set to:", $enabledOption.val());
+							}
+						}
+					});
+					console.log("\n   ✅ Auto-selection complete");
+					setTimeout(() => {
+						window._isAutoSelecting = false;
+						console.log("   🔓 Cleared _isAutoSelecting flag");
+					}, 100);
+				}
+			);
+			_defineProperty(
+				this,
+				/**
+				* Hide disabled visual items completely using display:none !important
+				*/
+				"updateVisualItemsVisibility",
+				($product, data) => {
+					console.log("👁️ updateVisualItemsVisibility called");
+					console.log("   Product element:", $product.length ? "FOUND" : "NOT FOUND");
+					const $visualWrappers = $product.find(".qs-swatch-wrap[data-type=\"visual\"]");
+					console.log("   📋 Found visual wrappers:", $visualWrappers.length);
+					$visualWrappers.each(function(wrapperIndex) {
+						const $wrapper = $(this);
+						const wrapperSlug = $wrapper.data("slug");
+						console.log(`\n   🔍 Visual Wrapper ${wrapperIndex + 1}: slug="${wrapperSlug}"`);
+						const $items = $wrapper.find(".bb-product-attribute-swatch-item");
+						console.log("      Total items:", $items.length);
+						$items.each(function(itemIndex) {
+							const $item = $(this);
+							const itemId = $item.data("id");
+							const itemTitle = $item.data("title");
+							const hasDisabledClass = $item.hasClass("disabled");
+							const currentDisplay = $item.css("display");
+							console.log(`      Item ${itemIndex + 1}: ID=${itemId}, Title="${itemTitle}", .disabled=${hasDisabledClass}, display="${currentDisplay}"`);
+							if (hasDisabledClass) {
+								$item.css("display", "none");
+								$item.attr("style", "display: none !important");
+								console.log(`         ❌ HIDING item ${itemId}`);
+							} else {
+								$item.css("display", "");
+								$item.removeAttr("style");
+								console.log(`         ✅ SHOWING item ${itemId}`);
+							}
+							const newDisplay = $item.css("display");
+							console.log(`         Final display: "${newDisplay}"`);
+						});
+					});
+					console.log("   ✅ updateVisualItemsVisibility complete");
+				}
+			);
+			_defineProperty(this, "onChangeProductAttribute", () => {});
+			_defineProperty(this, "handleUpdateCart", (element) => {
+				let form;
+				if (element) form = $(element).closest("form");
+				else form = $("form.cart-form");
+				$.ajax({
+					type: "POST",
+					url: form.prop("action"),
+					data: form.serialize(),
+					success: ({ error, message, data }) => {
+						if (error) EcommerceApp.showError(message);
+						this.ajaxLoadCart(data);
+					},
+					error: (error) => EcommerceApp.handleError(error)
+				});
+			});
+			_defineProperty(this, "ajaxLoadCart", (data) => {
+				if (!data) return;
+				const $cart = $("[data-bb-toggle=\"cart-content\"]");
+				if (data.count !== void 0) $("[data-bb-value=\"cart-count\"]").text(data.count);
+				if (data.total_price !== void 0) $("[data-bb-value=\"cart-total-price\"]").text(data.total_price);
+				if ($cart.length) {
+					$cart.replaceWith(data.cart_content);
+					this.productQuantityToggle();
+					EcommerceApp.updateLazyLoad();
+				}
+			});
+			this.initClipboard();
+			this.initFileUpload();
+			$(document).on("click", "[data-bb-toggle=\"toggle-product-categories-tree\"]", (e) => {
+				e.preventDefault();
+				const currentTarget = $(e.currentTarget);
+				currentTarget.toggleClass("active");
+				currentTarget.closest(".bb-product-filter-item").find("> .bb-product-filter-items").slideToggle().toggleClass("active");
+			}).on("click", "[data-bb-toggle=\"toggle-filter-sidebar\"]", () => {
+				$(".bb-filter-offcanvas-area").toggleClass("offcanvas-opened");
+				$(".body-overlay").toggleClass("opened");
+			}).on("click", ".body-overlay", () => {
+				$(".bb-filter-offcanvas-area").removeClass("offcanvas-opened");
+				$(".body-overlay").removeClass("opened");
+			}).on("submit", "form.bb-product-form-filter", (e) => {
+				e.preventDefault();
+				const form = $(e.currentTarget);
+				const formData = _classPrivateFieldGet2(_transformFormData, this).call(this, form.serializeArray());
+				const url = form.prop("action");
+				let nextUrl = url;
+				const searchParams = new URLSearchParams();
+				const paramsByName = {};
+				const attributeArrays = {};
+				const currentUrlParams = new URLSearchParams(window.location.search);
+				const currentFilterState = {};
+				for (const [key, value] of currentUrlParams.entries()) if (key !== "page" && key !== "_" && value) {
+					if (!currentFilterState[key]) currentFilterState[key] = [];
+					currentFilterState[key].push(value);
+				}
+				formData.forEach((item) => {
+					if (item.name.includes("attributes[") && item.name.endsWith("[]")) {
+						if (!attributeArrays[item.name]) attributeArrays[item.name] = [];
+						attributeArrays[item.name].push(item.value);
+					} else if (!paramsByName[item.name]) paramsByName[item.name] = item.value;
+				});
+				const newFilterState = {};
+				Object.keys(paramsByName).forEach((name) => {
+					if (name !== "page" && name !== "_" && paramsByName[name]) {
+						if (!newFilterState[name]) newFilterState[name] = [];
+						newFilterState[name].push(paramsByName[name]);
+					}
+				});
+				Object.keys(attributeArrays).forEach((name) => {
+					if (!newFilterState[name]) newFilterState[name] = [];
+					newFilterState[name] = newFilterState[name].concat(attributeArrays[name]);
+				});
+				Object.keys(currentFilterState).forEach((key) => {
+					if (Array.isArray(currentFilterState[key])) currentFilterState[key].sort();
+				});
+				Object.keys(newFilterState).forEach((key) => {
+					if (Array.isArray(newFilterState[key])) newFilterState[key].sort();
+				});
+				const filterStateChanged = JSON.stringify(currentFilterState) !== JSON.stringify(newFilterState);
+				if (filterStateChanged && paramsByName["page"]) delete paramsByName["page"];
+				Object.keys(paramsByName).forEach((name) => {
+					if (paramsByName[name]) searchParams.set(name, paramsByName[name]);
+				});
+				Object.keys(attributeArrays).forEach((name) => {
+					attributeArrays[name].forEach((value) => {
+						searchParams.append(name, value);
+					});
+				});
+				const queryString = searchParams.toString();
+				if (queryString) nextUrl += `?${queryString}`;
+				let filteredFormData = formData;
+				if (filterStateChanged && formData.some((item) => item.name === "page")) filteredFormData = formData.filter((item) => item.name !== "page");
+				const formDataWithTimestamp = [...filteredFormData, {
+					name: "_",
+					value: Date.now()
+				}];
+				if (window.location.href === nextUrl) return;
+				const formDataString = JSON.stringify(formData);
+				const currentFormAction = form.prop("action");
+				if (this.lastFilterFormData === formDataString && this.lastFilterFormAction === currentFormAction) return;
+				this.lastFilterFormData = formDataString;
+				this.lastFilterFormAction = currentFormAction;
+				if (this.filterAjax) this.filterAjax.abort();
+				if (this.filterTimeout) clearTimeout(this.filterTimeout);
+				this.filterTimeout = setTimeout(() => {
+					_classPrivateFieldGet2(_ajaxFilterForm, this).call(this, url, formDataWithTimestamp, nextUrl);
+				}, 100);
+			}).on("change", "form.bb-product-form-filter input, form.bb-product-form-filter select", (e) => {
+				const currentTarget = $(e.currentTarget);
+				const form = currentTarget.closest("form");
+				const inputName = currentTarget.attr("name");
+				if (inputName.includes("attributes[")) form.trigger("submit");
+				else if (currentTarget.attr("type") === "checkbox" && inputName && inputName.endsWith("[]")) {
+					const baseName = inputName.slice(0, -2);
+					const checkboxes = form.find(`input[name="${inputName}"]`).filter(":checked");
+					let singleInput = form.find(`input[name="${baseName}"]`);
+					if (!singleInput.length) {
+						form.append(`<input type="hidden" name="${baseName}" value="">`);
+						singleInput = form.find(`input[name="${baseName}"]`);
+					}
+					const values = checkboxes.map(function() {
+						return $(this).val();
+					}).get();
+					singleInput.val(values.join(","));
+				}
+				form.trigger("submit");
+			}).on("keyup", ".bb-form-quick-search input", (e) => {
+				_classPrivateFieldGet2(_ajaxSearchProducts, this).call(this, $(e.currentTarget).closest("form"));
+			}).on("click", "body", (e) => {
+				if (!$(e.target).closest(".bb-form-quick-search").length) $(".bb-quick-search-results").removeClass("show").html("");
+			}).on("click", "[data-bb-toggle=\"quick-shop\"]", (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				const currentTarget = $(e.currentTarget);
+				const modal = $("#quick-shop-modal");
+				$.ajax({
+					url: currentTarget.data("url"),
+					type: "GET",
+					beforeSend: () => {
+						if (modal.find(".quick-shop-content").length) {
+							modal.find(".quick-shop-content").html("");
+							modal.find(".modal-body").addClass("modal-empty");
+							modal.find(".loading-spinner").removeClass("d-none").show();
+							modal.find(".quick-shop-content").hide();
+						} else modal.find(".modal-body").html("");
+						modal.modal("show");
+						document.dispatchEvent(new CustomEvent("ecommerce.quick-shop.before-send", { detail: {
+							element: currentTarget,
+							modal
+						} }));
+					},
+					success: ({ data }) => {
+						if (modal.find(".quick-shop-content").length) {
+							modal.find(".quick-shop-content").html(data);
+							modal.find(".loading-spinner").addClass("d-none").hide();
+							modal.find(".modal-body").removeClass("modal-empty");
+							modal.find(".quick-shop-content").show();
+						} else modal.find(".modal-body").html(data);
+					},
+					error: (error) => EcommerceApp.handleError(error),
+					complete: () => {
+						document.dispatchEvent(new CustomEvent("ecommerce.quick-shop.completed", { detail: {
+							element: currentTarget,
+							modal
+						} }));
+					}
+				});
+			}).on("click", ".bb-product-filter-link", (e) => {
+				const currentTarget = $(e.currentTarget);
+				const form = currentTarget.closest("form");
+				if (!form.length) return;
+				e.preventDefault();
+				const parent = currentTarget.closest(".bb-product-filter");
+				const categoryId = currentTarget.data("id");
+				let categoriesInput = form.find("input[name=\"categories\"]");
+				if (!categoriesInput.length) categoriesInput = form.find("input[name=\"categories[]\"]");
+				parent.find(".bb-product-filter-link").removeClass("active");
+				currentTarget.addClass("active");
+				form.find("input[name=\"page\"]").remove();
+				form.find("input[name=\"per-page\"]").remove();
+				if (categoriesInput.length && categoryId) {
+					if (categoriesInput.attr("name") === "categories[]") categoriesInput.val(categoryId).trigger("change");
+					else categoriesInput.val(categoryId).trigger("change");
+				} else {
+					if (!categoryId) {
+						if (categoriesInput.length) categoriesInput.val(null);
+					}
+					form.prop("action", currentTarget.prop("href")).trigger("submit");
+				}
+			}).on("click", ".bb-product-filter-clear", (e) => {
+				e.preventDefault();
+				const currentTarget = $(e.currentTarget);
+				_classPrivateFieldGet2(_ajaxFilterForm, this).call(this, currentTarget.prop("href"));
+			}).on("click", ".bb-product-filter-clear-all", (e) => {
+				e.preventDefault();
+				const form = $(".bb-product-form-filter");
+				form.find("input[type=\"text\"], input[type=\"hidden\"], input[type=\"radio\"], select").val(null);
+				form.find("input[type=\"checkbox\"]").prop("checked", false);
+				form.trigger("submit");
+			}).on("submit", "form#cancel-order-form", (e) => {
+				e.preventDefault();
+				const currentTarget = $(e.currentTarget);
+				const modal = currentTarget.closest(".modal");
+				const button = modal.find("button[type=\"submit\"]");
+				$.ajax({
+					url: currentTarget.prop("action"),
+					type: "POST",
+					data: currentTarget.serialize(),
+					beforeSend: () => {
+						button.addClass("btn-loading");
+					},
+					success: ({ error, message }) => {
+						if (error) {
+							EcommerceApp.showError(message);
+							return;
+						}
+						EcommerceApp.showSuccess(message);
+						modal.modal("hide");
+						setTimeout(() => window.location.reload(), 1e3);
+					},
+					error: (error) => EcommerceApp.handleError(error),
+					complete: () => button.removeClass("btn-loading")
+				});
+			}).on("click", "[data-bb-toggle=\"add-to-compare\"]", function(e) {
+				e.preventDefault();
+				const currentTarget = $(e.currentTarget);
+				const url = currentTarget.hasClass("active") ? currentTarget.data("remove-url") : currentTarget.data("url");
+				let data = currentTarget.hasClass("active") ? { _method: "DELETE" } : {};
+				const $form = currentTarget.closest("form");
+				$.ajax({
+					url,
+					method: "POST",
+					data: EcommerceApp.getAjaxData(data, $form),
+					beforeSend: () => currentTarget.addClass("btn-loading"),
+					success: ({ error, message, data }) => {
+						if (error) EcommerceApp.showError(message);
+						else {
+							EcommerceApp.showSuccess(message);
+							currentTarget.toggleClass("active");
+							if (data.count !== void 0) $("[data-bb-value=\"compare-count\"]").text(data.count);
+							if (currentTarget.hasClass("active")) document.dispatchEvent(new CustomEvent("ecommerce.compare.added", { detail: {
+								data,
+								element: currentTarget,
+								extraData: data.extra_data
+							} }));
+							else document.dispatchEvent(new CustomEvent("ecommerce.compare.removed", { detail: {
+								data,
+								element: currentTarget,
+								extraData: data.extra_data
+							} }));
+						}
+					},
+					error: (error) => EcommerceApp.handleError(error),
+					complete: () => currentTarget.removeClass("btn-loading")
+				});
+			}).on("click", "[data-bb-toggle=\"remove-from-compare\"]", (e) => {
+				e.preventDefault();
+				const currentTarget = $(e.currentTarget);
+				const table = currentTarget.closest("table");
+				const $form = currentTarget.closest("form");
+				$.ajax({
+					url: currentTarget.data("url"),
+					method: "POST",
+					data: EcommerceApp.getAjaxData({ _method: "DELETE" }, $form),
+					success: ({ error, message, data }) => {
+						if (error) EcommerceApp.showError(message);
+						else {
+							EcommerceApp.showSuccess(message);
+							document.dispatchEvent(new CustomEvent("ecommerce.compare.removed", { detail: {
+								data,
+								element: currentTarget,
+								extraData: data.extra_data
+							} }));
+							if (data.count !== void 0) {
+								$("[data-bb-value=\"compare-count\"]").text(data.count);
+								if (data.count > 0) table.find(`td:nth-child(${currentTarget.closest("td").index() + 1})`).remove();
+							} else window.location.reload();
+						}
+					},
+					error: (error) => EcommerceApp.handleError(error)
+				});
+			}).on("click", "[data-bb-toggle=\"add-to-wishlist\"]", function(e) {
+				e.preventDefault();
+				const currentTarget = $(e.currentTarget);
+				const url = currentTarget.data("url");
+				const $form = currentTarget.closest("form");
+				$.ajax({
+					url,
+					method: "POST",
+					data: EcommerceApp.getAjaxData({}, $form),
+					beforeSend: () => currentTarget.addClass("btn-loading"),
+					success: ({ error, message, data }) => {
+						if (error) EcommerceApp.showError(message);
+						else {
+							if (data.count !== void 0) $("[data-bb-value=\"wishlist-count\"]").text(data.count);
+							EcommerceApp.showSuccess(message);
+							document.dispatchEvent(new CustomEvent("ecommerce.wishlist.added", { detail: {
+								data,
+								element: currentTarget,
+								extraData: data.extra_data,
+								added: data.added
+							} }));
+						}
+					},
+					error: (error) => EcommerceApp.handleError(error),
+					complete: () => currentTarget.removeClass("btn-loading")
+				});
+			}).on("click", "[data-bb-toggle=\"remove-from-wishlist\"]", (e) => {
+				e.preventDefault();
+				const currentTarget = $(e.currentTarget);
+				const $form = currentTarget.closest("form");
+				$.ajax({
+					url: currentTarget.data("url"),
+					method: "POST",
+					data: EcommerceApp.getAjaxData({ _method: "DELETE" }, $form),
+					beforeSend: () => currentTarget.addClass("btn-loading"),
+					success: ({ error, message, data }) => {
+						if (error) EcommerceApp.showError(message);
+						else {
+							EcommerceApp.showSuccess(message);
+							currentTarget.closest("tr").remove();
+							if (data.count !== void 0) {
+								$("[data-bb-value=\"wishlist-count\"]").text(data.count);
+								if (data.count === 0) window.location.reload();
+							}
+							document.dispatchEvent(new CustomEvent("ecommerce.wishlist.removed", { detail: {
+								data,
+								element: currentTarget,
+								extraData: data.extra_data
+							} }));
+						}
+					},
+					error: (error) => EcommerceApp.handleError(error),
+					complete: () => currentTarget.removeClass("btn-loading")
+				});
+			}).on("click", "[data-bb-toggle=\"add-to-cart\"]", (e) => {
+				e.preventDefault();
+				const currentTarget = $(e.currentTarget);
+				const $form = currentTarget.closest("form");
+				const quantity = currentTarget.closest("tr").find("input[name=\"qty\"]");
+				const data = { id: currentTarget.data("id") };
+				if (quantity) data.qty = quantity.val();
+				$.ajax({
+					url: currentTarget.data("url"),
+					method: "POST",
+					data: EcommerceApp.getAjaxData(data, $form),
+					dataType: "json",
+					beforeSend: () => currentTarget.addClass("btn-loading").prop("disabled", true),
+					success: ({ error, message, data }) => {
+						if (error) {
+							EcommerceApp.showError(message);
+							if (data.next_url !== void 0) setTimeout(() => {
+								window.location.href = data.next_url;
+							}, 500);
+							return false;
+						}
+						let showSuccess = true;
+						if (currentTarget.data("show-toast-on-success") !== void 0) showSuccess = currentTarget.data("show-toast-on-success");
+						if (showSuccess) EcommerceApp.showSuccess(message);
+						if (data.count !== void 0) $("[data-bb-value=\"cart-count\"]").text(data.count);
+						document.dispatchEvent(new CustomEvent("ecommerce.cart.added", { detail: {
+							data,
+							element: currentTarget,
+							message,
+							extraData: data.extra_data
+						} }));
+						if (data && data.next_url !== void 0) window.location.href = data.next_url;
+					},
+					error: (error) => EcommerceApp.handleError(error),
+					complete: () => currentTarget.removeClass("btn-loading").prop("disabled", false)
+				});
+			}).on("click", "[data-bb-toggle=\"remove-from-cart\"]", (e) => {
+				e.preventDefault();
+				const currentTarget = $(e.currentTarget);
+				$.ajax({
+					url: currentTarget.prop("href") || currentTarget.data("url"),
+					method: "GET",
+					beforeSend: () => currentTarget.addClass("btn-loading"),
+					success: ({ error, message, data }) => {
+						if (error) EcommerceApp.showError(message);
+						else {
+							EcommerceApp.showSuccess(message);
+							currentTarget.closest("tr").remove();
+							if (data.count !== void 0) {
+								$("[data-bb-value=\"cart-count\"]").text(data.count);
+								if (data.count === 0) window.location.reload();
+							}
+							document.dispatchEvent(new CustomEvent("ecommerce.cart.removed", { detail: {
+								data,
+								element: currentTarget,
+								extraData: data.extra_data
+							} }));
+						}
+					},
+					error: (error) => EcommerceApp.handleError(error),
+					complete: () => currentTarget.removeClass("btn-loading")
+				});
+			}).on("submit", "[data-bb-toggle=\"coupon-form\"]", (e) => {
+				e.preventDefault();
+				const currentTarget = $(e.currentTarget);
+				const button = currentTarget.find("button[type=\"submit\"]");
+				$.ajax({
+					url: currentTarget.prop("action"),
+					type: "POST",
+					data: currentTarget.serialize(),
+					beforeSend: () => button.prop("disabled", true).addClass("btn-loading"),
+					success: ({ error, message, data }) => {
+						if (error) EcommerceApp.showError(message);
+						else {
+							EcommerceApp.showSuccess(message);
+							document.dispatchEvent(new CustomEvent("ecommerce.coupon.applied", { detail: {
+								data,
+								element: currentTarget
+							} }));
+						}
+					},
+					error: (error) => EcommerceApp.handleError(error),
+					complete: () => button.prop("disabled", false).removeClass("btn-loading")
+				});
+			}).on("click", "[data-bb-toggle=\"quick-view-product\"]", (e) => {
+				e.preventDefault();
+				const currentTarget = $(e.currentTarget);
+				$.ajax({
+					url: currentTarget.data("url"),
+					type: "GET",
+					beforeSend: () => currentTarget.prop("disabled", true).addClass("btn-loading"),
+					success: ({ error, message, data }) => {
+						if (error) EcommerceApp.showError(message);
+						else {
+							const quickViewModal = $("[data-bb-toggle=\"quick-view-modal\"]");
+							quickViewModal.modal("show");
+							quickViewModal.find(".modal-body").html(data);
+							document.dispatchEvent(new CustomEvent("ecommerce.quick-view.initialized", { detail: {
+								data,
+								element: currentTarget
+							} }));
+							setTimeout(() => {
+								this.initProductGallery(true);
+							}, 100);
+						}
+					},
+					error: (error) => EcommerceApp.handleError(error),
+					complete: () => currentTarget.prop("disabled", false).removeClass("btn-loading")
+				});
+			}).on("click", "[data-bb-toggle=\"product-form\"] button[type=\"submit\"]", (e) => {
+				e.preventDefault();
+				const currentTarget = $(e.currentTarget);
+				const form = currentTarget.closest("form");
+				const data = form.serializeArray();
+				if (form.find("input[name=\"id\"]").val() === "") return;
+				data.push({
+					name: "checkout",
+					value: currentTarget.prop("name") === "checkout" ? 1 : 0
+				});
+				$.ajax({
+					type: "POST",
+					url: form.prop("action"),
+					data,
+					beforeSend: () => {
+						currentTarget.prop("disabled", true).addClass("btn-loading");
+					},
+					success: ({ error, message, data }) => {
+						if (error) {
+							EcommerceApp.showError(message);
+							return;
+						}
+						const showToast = form.data("show-toast-on-success");
+						if (showToast !== false && showToast !== "false") EcommerceApp.showSuccess(message);
+						form.find("input[name=\"qty\"]").val(1);
+						if (data.count !== void 0) $("[data-bb-value=\"cart-count\"]").text(data.count);
+						document.dispatchEvent(new CustomEvent("ecommerce.cart.added", { detail: {
+							data,
+							element: currentTarget,
+							extraData: data.extra_data
+						} }));
+						if (data && data.next_url !== void 0) window.location.href = data.next_url;
+					},
+					error: (error) => EcommerceApp.handleError(error),
+					complete: () => currentTarget.prop("disabled", false).removeClass("btn-loading")
+				});
+			}).on("change", "[data-bb-toggle=\"product-form-filter-item\"]", (e) => {
+				const currentTarget = $(e.currentTarget);
+				const $form = $(".bb-product-form-filter");
+				const name = currentTarget.prop("name");
+				const value = currentTarget.val();
+				if (name.endsWith("[]") && !name.includes("attributes[")) {
+					const baseName = name.slice(0, -2);
+					let $input = $form.find(`input[name="${baseName}"]`);
+					if (!$input.length) {
+						$form.append(`<input type="hidden" name="${baseName}" value="">`);
+						$input = $form.find(`input[name="${baseName}"]`);
+					}
+					let currentValues = $input.val() ? $input.val().split(",") : [];
+					const uniqueValues = new Set(currentValues);
+					uniqueValues.add(value);
+					$input.val(Array.from(uniqueValues).join(","));
+				} else if (currentTarget.is(":checkbox")) {
+					const isChecked = currentTarget.prop("checked");
+					const $input = $form.find(`input[type="hidden"][name="${name}"]`);
+					if ($input.length) $input.val(isChecked ? value : "");
+					else $form.append(`<input type="hidden" name="${name}" value="${isChecked ? value : ""}">`);
+				} else {
+					const $input = $form.find(`input[name="${name}"]`);
+					if ($input.length) $input.val(value);
+				}
+				$form.trigger("submit");
+			});
+			if ($(".bb-product-price-filter").length) this.initPriceFilter();
+			_classPrivateFieldGet2(_initCategoriesDropdown, this).call(this);
+		}
+		/**
+		* @returns {boolean}
+		*/
+		isRtl() {
+			return document.body.getAttribute("dir") === "rtl";
+		}
+		/**
+		* @param {JQuery} element
+		*/
+		initLightGallery(element) {
+			if (!element.length) return;
+			if (element.data("lightGallery")) element.data("lightGallery").destroy(true);
+			element.lightGallery({
+				selector: "a",
+				thumbnail: true,
+				share: false,
+				fullScreen: false,
+				autoplay: false,
+				autoplayControls: false,
+				actualSize: false
+			});
+		}
+		initProductGallery(onlyQuickView = false) {
+			if (typeof $.fn.slick === "undefined") return;
+			if (!onlyQuickView) {
+				const $gallery = $(document).find(".bb-product-gallery-images");
+				if ($gallery.length) {
+					const $thumbnails = $(document).find(".bb-product-gallery-thumbnails");
+					function postMessageToPlayer(player, command) {
+						if (!player || !command || !player.src) return;
+						let origin;
+						try {
+							origin = new URL(player.src).origin;
+						} catch (e) {
+							return;
+						}
+						player.contentWindow.postMessage(JSON.stringify(command), origin);
+					}
+					function playPauseVideo(slick, control) {
+						let currentSlide, slideType, startTime, player, video;
+						currentSlide = slick.find(".slick-current");
+						slideType = currentSlide.data("provider");
+						player = currentSlide.get(0);
+						startTime = currentSlide.data("video-start");
+						if (slideType === "vimeo") switch (control) {
+							case "play":
+								if (startTime != null && startTime > 0 && !currentSlide.hasClass("started")) {
+									currentSlide.addClass("started");
+									postMessageToPlayer(player, {
+										method: "setCurrentTime",
+										value: startTime
+									});
+								}
+								postMessageToPlayer(player, {
+									method: "play",
+									value: 1
+								});
+								break;
+							case "pause": postMessageToPlayer(player, {
+								method: "pause",
+								value: 1
+							});
+						}
+						else if (slideType === "youtube") switch (control) {
+							case "play":
+								postMessageToPlayer(player, {
+									event: "command",
+									func: "mute"
+								});
+								postMessageToPlayer(player, {
+									event: "command",
+									func: "playVideo"
+								});
+								break;
+							case "pause": postMessageToPlayer(player, {
+								event: "command",
+								func: "pauseVideo"
+							});
+						}
+						else if (slideType === "video") {
+							video = currentSlide.children("video").get(0);
+							if (video != null) {
+								if (control === "play") video.play();
+								else video.pause();
+							}
+						}
+					}
+					$gallery.on("init", function(slick) {
+						slick = $(slick.currentTarget);
+						setTimeout(function() {
+							playPauseVideo(slick, "play");
+						}, 1e3);
+					});
+					$gallery.on("beforeChange", function(event, slick) {
+						slick = $(slick.$slider);
+						playPauseVideo(slick, "pause");
+					});
+					$gallery.on("afterChange", function(event, slick) {
+						slick = $(slick.$slider);
+						playPauseVideo(slick, "play");
+					});
+					$(document).on("click", ".bb-button-trigger-play-video", function(e) {
+						const $button = $(e.currentTarget);
+						const videoElement = document.getElementById($button.data("target"));
+						videoElement.muted = false;
+						videoElement.play();
+						$button.closest(".bb-product-video").addClass("bb-product-video-playing");
+					});
+					if (!window.bbProductVideoEventsBound) {
+						window.bbProductVideoEventsBound = true;
+						document.addEventListener("play", (e) => {
+							if (e.target.controls) $(e.target).closest(".bb-product-video").addClass("bb-product-video-playing");
+						}, true);
+						document.addEventListener("pause", (e) => {
+							if (e.target.controls && !e.target.ended) $(e.target).closest(".bb-product-video").removeClass("bb-product-video-playing");
+						}, true);
+						document.addEventListener("ended", (e) => {
+							const $wrapper = $(e.target).closest(".bb-product-video");
+							if ($wrapper.length) {
+								e.target.currentTime = 0;
+								e.target.pause();
+								$wrapper.removeClass("bb-product-video-playing");
+							}
+						}, true);
+					}
+					$(document).on("click", ".bb-product-video-facade", function(e) {
+						e.preventDefault();
+						const $facade = $(e.currentTarget);
+						const src = $facade.data("src");
+						if (!src) return;
+						const iframe = document.createElement("iframe");
+						iframe.setAttribute("src", src);
+						iframe.setAttribute("frameborder", "0");
+						iframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+						iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+						iframe.setAttribute("allowfullscreen", "");
+						iframe.setAttribute("title", $facade.data("title") || "");
+						iframe.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:0;";
+						$facade.replaceWith(iframe);
+					});
+					if ($gallery.length) $gallery.each((index, item) => {
+						const $item = $(item);
+						if ($item.hasClass("slick-initialized")) $item.slick("unslick");
+						$item.removeClass("slick-initialized slick-slider slick-vertical slick-dotted");
+						if (!$item.children().length) return;
+						try {
+							$item.slick({
+								slidesToShow: 1,
+								slidesToScroll: 1,
+								arrows: false,
+								dots: false,
+								infinite: false,
+								fade: true,
+								lazyLoad: "ondemand",
+								asNavFor: ".bb-product-gallery-thumbnails",
+								rtl: this.isRtl()
+							});
+						} catch (e) {}
+					});
+					if ($thumbnails.length) $thumbnails.each((index, item) => {
+						const $item = $(item);
+						if ($item.hasClass("slick-initialized")) $item.slick("unslick");
+						$item.removeClass("slick-initialized slick-slider slick-vertical slick-dotted");
+						if (!$item.children().length) return;
+						let isVertical = $item.data("vertical") === 1;
+						if (window.innerWidth < 768) isVertical = false;
+						try {
+							$item.on("init", function(event, slick) {
+								const $slides = $(slick.$slides).not(".slick-cloned");
+								const $imageSlides = $slides.filter(":not(.video-thumbnail)");
+								const $videoSlides = $slides.filter(".video-thumbnail)");
+								if ($imageSlides.length > 4) {
+									const moreCount = $imageSlides.length - 4;
+									const $fifthImage = $imageSlides.eq(4);
+									if ($fifthImage.length && !$fifthImage.find(".gallery-more-count").length) {
+										const $img = $fifthImage.find("img");
+										if (!$img.parent().hasClass("thumbnail-wrapper")) $img.wrap("<div class=\"thumbnail-wrapper\" style=\"position:relative;width:100%;height:100%;\"></div>");
+										$img.parent().append("<span class=\"gallery-more-count\">+" + moreCount + "</span>");
+									}
+								}
+								if ($videoSlides.length > 2) {
+									const moreCount = $videoSlides.length - 2;
+									const $thirdVideo = $videoSlides.eq(2);
+									if ($thirdVideo.length && !$thirdVideo.find(".gallery-more-count").length) {
+										const $img = $thirdVideo.find("img").first();
+										if (!$img.parent().hasClass("thumbnail-wrapper")) $img.wrap("<div class=\"thumbnail-wrapper\" style=\"position:relative;width:100%;height:100%;\"></div>");
+										$img.parent().append("<span class=\"gallery-more-count\">+" + moreCount + "</span>");
+									}
+								}
+							});
+							$item.slick({
+								slidesToShow: 4,
+								slidesToScroll: 1,
+								asNavFor: ".bb-product-gallery-images",
+								focusOnSelect: true,
+								infinite: false,
+								arrows: false,
+								rtl: this.isRtl() && !isVertical,
+								vertical: isVertical,
+								verticalSwiping: isVertical,
+								responsive: [{
+									breakpoint: 768,
+									settings: {
+										slidesToShow: 4,
+										arrows: false
+									}
+								}]
+							});
+						} catch (e) {}
+					});
+					this.initLightGallery($gallery);
+					EcommerceApp.updateLazyLoad();
+				}
+			}
+			const $quickViewGallery = $(document).find(".bb-quick-view-gallery-images");
+			if ($quickViewGallery.length) $quickViewGallery.each((index, item) => {
+				const $item = $(item);
+				if ($item.hasClass("slick-initialized")) $item.slick("unslick");
+				$item.removeClass("slick-initialized slick-slider slick-vertical slick-dotted");
+				if (!$item.children().length) return;
+				try {
+					$item.slick({
+						slidesToShow: 1,
+						slidesToScroll: 1,
+						dots: false,
+						arrows: true,
+						adaptiveHeight: false,
+						rtl: this.isRtl()
+					});
+				} catch (e) {}
+			});
+			this.initLightGallery($quickViewGallery);
+		}
+		initPriceFilter() {
+			if (typeof $.fn.slider === "undefined") throw new Error("jQuery UI slider is required for price filter");
+			const $priceFilter = $(document).find(".bb-product-price-filter");
+			const $sliderRange = $priceFilter.find(".price-slider");
+			const $rangeLabel = $priceFilter.find(".input-range-label");
+			if ($priceFilter) {
+				const $minPrice = $priceFilter.find("input[name=\"min_price\"]");
+				const $maxPrice = $priceFilter.find("input[name=\"max_price\"]");
+				const currentMinPrice = parseInt($minPrice.val()) || $sliderRange.data("min");
+				const currentMaxPrice = parseInt($maxPrice.val()) || $sliderRange.data("max");
+				const isRtl = this.isRtl();
+				const sliderMin = isRtl ? -$sliderRange.data("max") : $sliderRange.data("min");
+				const sliderMax = isRtl ? -$sliderRange.data("min") : $sliderRange.data("max");
+				const sliderValues = isRtl ? [-currentMaxPrice, -currentMinPrice] : [currentMinPrice, currentMaxPrice];
+				$sliderRange.slider({
+					range: true,
+					min: sliderMin,
+					max: sliderMax,
+					values: sliderValues,
+					slide: function(_, ui) {
+						const realMin = isRtl ? -ui.values[1] : ui.values[0];
+						const realMax = isRtl ? -ui.values[0] : ui.values[1];
+						$rangeLabel.find(".from").text(this.formatPrice(realMin));
+						$rangeLabel.find(".to").text(this.formatPrice(realMax));
+					}.bind(this),
+					change: function(_, ui) {
+						const realMin = isRtl ? -ui.values[1] : ui.values[0];
+						const realMax = isRtl ? -ui.values[0] : ui.values[1];
+						if (parseInt(currentMinPrice) !== realMin) $minPrice.val(realMin).trigger("change");
+						if (parseInt(currentMaxPrice) !== realMax) $maxPrice.val(realMax).trigger("change");
+					}.bind(this)
+				});
+				const currentValues = $sliderRange.slider("values");
+				const displayMin = isRtl ? -currentValues[1] : currentValues[0];
+				const displayMax = isRtl ? -currentValues[0] : currentValues[1];
+				$rangeLabel.find(".from").text(this.formatPrice(displayMin));
+				$rangeLabel.find(".to").text(this.formatPrice(displayMax));
+			}
+		}
+		formatPrice(price, numberAfterDot, x) {
+			const currencies = window.currencies || {};
+			if (!numberAfterDot) numberAfterDot = currencies.number_after_dot !== void 0 ? currencies.number_after_dot : 2;
+			const regex = "\\d(?=(\\d{" + (x || 3) + "})+$)";
+			let priceUnit = "";
+			if (currencies.show_symbol_or_title) priceUnit = currencies.symbol || currencies.title || "";
+			if (currencies.display_big_money) {
+				let label = "";
+				if (price >= 1e6 && price < 1e9) {
+					price = price / 1e6;
+					label = currencies.million;
+				} else if (price >= 1e9) {
+					price = price / 1e9;
+					label = currencies.billion;
+				}
+				priceUnit = label + (priceUnit ? ` ${priceUnit}` : "");
+			}
+			price = price.toFixed(Math.max(0, ~~numberAfterDot)).toString().split(".");
+			price = price[0].toString().replace(new RegExp(regex, "g"), `$&${currencies.thousands_separator}`) + (price[1] ? currencies.decimal_separator + price[1] : "");
+			if (currencies.show_symbol_or_title) price = currencies.is_prefix_symbol ? priceUnit + price : price + priceUnit;
+			return price;
+		}
+		/**
+		* Initialize attribute swatch hover labels
+		* On hover: show the hovered item's title
+		* On leave: restore the selected item's title (or default)
+		*/
+		initAttributeSwatchHoverLabels() {
+			$(document).on("mouseenter", ".bb-product-attribute-swatch-item", function() {
+				const $item = $(this);
+				const $label = $item.closest(".qs-swatch-wrap").find(".qs-swatch__selected-val");
+				if (!$label.length) return;
+				const itemTitle = $item.data("title") || $item.attr("title") || "";
+				if (itemTitle) $label.text(itemTitle);
+			});
+			$(document).on("mouseleave", ".bb-product-attribute-swatch-item", function() {
+				const $wrapper = $(this).closest(".qs-swatch-wrap");
+				const $label = $wrapper.find(".qs-swatch__selected-val");
+				const $selected = $wrapper.find(".bb-product-attribute-swatch-item.selected");
+				if (!$label.length) return;
+				if ($selected.length) {
+					const selectedTitle = $selected.data("title") || $selected.attr("title") || "";
+					$label.text(selectedTitle);
+				} else {
+					const defaultValue = $label.data("default") || "";
+					$label.text(defaultValue);
+				}
+			});
+		}
+		initFileUpload() {
+			$(document).on("change", ".bb-file-input", (e) => {
+				const input = e.target;
+				const label = $(input).siblings(".bb-file-label");
+				const fileName = label.find(".bb-file-name");
+				label.find(".bb-file-placeholder");
+				if (input.files && input.files.length > 0) {
+					const file = input.files[0];
+					fileName.text(file.name);
+					label.addClass("has-file");
+				} else {
+					fileName.text("");
+					label.removeClass("has-file");
+				}
+			});
+		}
+		initClipboard() {
+			$(document).on("click", "[data-ecommerce-clipboard]", async (e) => {
+				e.preventDefault();
+				const target = $(e.currentTarget);
+				const copiedMessage = target.data("clipboard-message");
+				const text = target.data("clipboard-text");
+				if (!text) return;
+				let copied = false;
+				if (navigator.clipboard && window.isSecureContext) try {
+					await navigator.clipboard.writeText(text);
+					copied = true;
+				} catch (err) {}
+				if (!copied) {
+					const textArea = document.createElement("textarea");
+					textArea.value = text;
+					textArea.style.position = "fixed";
+					textArea.style.left = "-999999px";
+					textArea.style.top = "-999999px";
+					document.body.appendChild(textArea);
+					textArea.focus();
+					textArea.select();
+					try {
+						document.execCommand("copy");
+						copied = true;
+					} catch (err) {}
+					document.body.removeChild(textArea);
+				}
+				if (copied) {
+					if (copiedMessage) EcommerceApp.showSuccess(copiedMessage);
+					const originalHtml = target.html();
+					target.html("<i class=\"ti ti-check\"></i> " + (copiedMessage || "Copied!"));
+					setTimeout(() => {
+						target.html(originalHtml);
+					}, 2e3);
+				} else EcommerceApp.showError("Failed to copy to clipboard");
+			});
+		}
+	};
+	$(() => {
+		window.EcommerceApp = new Ecommerce();
+		EcommerceApp.productQuantityToggle();
+		EcommerceApp.initAttributeSwatchHoverLabels();
+		EcommerceApp.initProductGallery();
+		EcommerceApp.onChangeProductAttribute();
+		if ($(".bb-product-price-filter").length) EcommerceApp.initPriceFilter();
+		document.addEventListener("ecommerce.quick-shop.completed", () => {
+			EcommerceApp.productQuantityToggle();
+		});
+		document.addEventListener("ecommerce.cart.quantity.change", (e) => {
+			const { element } = e.detail;
+			EcommerceApp.handleUpdateCart(element);
+		});
+		document.addEventListener("ecommerce.product-filter.before", () => {
+			let $wrapper = $("[data-bb-toggle=\"product-list\"]").find(".bb-product-items-wrapper");
+			if ($wrapper.length) $wrapper.append("<div class=\"loading-spinner\"></div>");
+		});
+		document.addEventListener("ecommerce.product-filter.success", (e) => {
+			const { data } = e.detail;
+			const $productItemsWrapper = $(".bb-product-items-wrapper");
+			if ($productItemsWrapper.length) $productItemsWrapper.html(data.data);
+			if (data.additional) {
+				const $descriptionContainer = $(".bb-product-listing-page-description");
+				const descriptionHtml = data.additional.product_listing_page_description_html;
+				if (descriptionHtml) {
+					if ($descriptionContainer.length) {
+						$descriptionContainer.html(descriptionHtml);
+						document.dispatchEvent(new CustomEvent("shortcode.loaded", { detail: {
+							name: null,
+							attributes: [],
+							html: descriptionHtml
+						} }));
+						EcommerceApp.updateLazyLoad();
+					}
+				} else $descriptionContainer.html("");
+				const $defaultSidebar = $(".bb-shop-sidebar");
+				let $sidebar = $("[data-bb-filter-sidebar]");
+				if (!$sidebar.length) $sidebar = $defaultSidebar;
+				const activeFilterLinks = {};
+				$(".bb-product-filter-link.active").each(function() {
+					const filterGroup = $(this).closest(".bb-product-filter").data("filter-group");
+					if (filterGroup) activeFilterLinks[filterGroup] = $(this).data("id");
+				});
+				const checkedCheckboxes = [];
+				$sidebar.find("input[type=\"checkbox\"]:checked").each(function() {
+					const $checkbox = $(this);
+					const name = $checkbox.attr("name");
+					const value = $checkbox.val();
+					const id = $checkbox.attr("id");
+					checkedCheckboxes.push({
+						name,
+						value,
+						id
+					});
+				});
+				$sidebar.replaceWith(data.additional.filters_html);
+				setTimeout(() => {
+					const $newSidebar = $("[data-bb-filter-sidebar]").length ? $("[data-bb-filter-sidebar]") : $(".bb-shop-sidebar");
+					Object.keys(activeFilterLinks).forEach((group) => {
+						const id = activeFilterLinks[group];
+						$newSidebar.find(`.bb-product-filter[data-filter-group="${group}"] .bb-product-filter-link[data-id="${id}"]`).addClass("active");
+					});
+					checkedCheckboxes.forEach((checkbox) => {
+						let $targetCheckbox = null;
+						if (checkbox.id) $targetCheckbox = $newSidebar.find(`#${checkbox.id}`);
+						if (!$targetCheckbox || !$targetCheckbox.length) $targetCheckbox = $newSidebar.find(`input[type="checkbox"][name="${checkbox.name}"][value="${checkbox.value}"]`);
+						if (!$targetCheckbox || !$targetCheckbox.length) $targetCheckbox = $newSidebar.find(`input[type="checkbox"][value="${checkbox.value}"]`).filter(function() {
+							return $(this).attr("name") === checkbox.name;
+						});
+						if ($targetCheckbox && $targetCheckbox.length) $targetCheckbox.prop("checked", true);
+					});
+				}, 10);
+			}
+			if ($(document).find(".bb-product-price-filter").length) EcommerceApp.initPriceFilter();
+			if ($productItemsWrapper.length) $("html, body").animate({ scrollTop: $productItemsWrapper.offset().top - 120 });
+			let $wrapper = $("[data-bb-toggle=\"product-list\"]").find(".bb-product-items-wrapper");
+			if ($wrapper.length) $wrapper.find(".loading-spinner").remove();
+		});
+		document.addEventListener("ecommerce.product-filter.completed", () => {
+			EcommerceApp.updateLazyLoad();
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=front-ecommerce.js.map
