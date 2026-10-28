@@ -1988,10 +1988,6 @@ class Ecommerce {
             })
         })
     }
-                }
-            })
-        })
-    }
 
     // Retained as a no-op for backward compatibility. Default swatch handlers
     // are now class methods (defaultOnBeforeChangeSwatches / defaultOnChangeSwatchesSuccess)
