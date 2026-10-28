@@ -1570,23 +1570,48 @@
             if (visualSelected.length > 0) {
                 $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
                     var $wrap = $(this);
-                    $wrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').each(function() {
-                        var $item  = $(this);
-                        var itemId = parseInt($item.data('id'));
-                        // Does any variation contain BOTH this text attr AND ALL selected visuals?
-                        var hasMatch = priceMap.some(function(pv) {
-                            if (pv.attrs.indexOf(itemId) === -1) return false;
-                            return visualSelected.every(function(vid) { return pv.attrs.indexOf(vid) !== -1; });
+                    var wrapType = $wrap.data('type');
+                    
+                    // For dropdowns, check each option
+                    if (wrapType === 'dropdown') {
+                        var $dropdown = $wrap.find('.qs-dropdown');
+                        $dropdown.find('option[value!=""]').each(function() {
+                            var $option = $(this);
+                            var optionId = parseInt($option.attr('value'));
+                            
+                            // Does any variation contain this option + all selected visuals?
+                            var hasMatch = priceMap.some(function(pv) {
+                                if (pv.attrs.indexOf(optionId) === -1) return false;
+                                return visualSelected.every(function(vid) { return pv.attrs.indexOf(vid) !== -1; });
+                            });
+                            
+                            // Mark disabled state AND keep data attribute for dropdown handler
+                            if (hasMatch) {
+                                $option.prop('disabled', false).removeData('was-disabled');
+                            } else {
+                                $option.prop('disabled', true).data('was-disabled', true);
+                            }
                         });
-                        if (hasMatch) {
-                            $item.removeClass('disabled');
-                            $item.css('display', '');
-                        } else {
-                            // Keep visible + clickable, just mark disabled
-                            $item.addClass('disabled');
-                            $item.css('display', '');
-                        }
-                    });
+                    } else {
+                        // For text swatches
+                        $wrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').each(function() {
+                            var $item  = $(this);
+                            var itemId = parseInt($item.data('id'));
+                            // Does any variation contain BOTH this text attr AND ALL selected visuals?
+                            var hasMatch = priceMap.some(function(pv) {
+                                if (pv.attrs.indexOf(itemId) === -1) return false;
+                                return visualSelected.every(function(vid) { return pv.attrs.indexOf(vid) !== -1; });
+                            });
+                            if (hasMatch) {
+                                $item.removeClass('disabled');
+                                $item.css('display', '');
+                            } else {
+                                // Keep visible + clickable, just mark disabled
+                                $item.addClass('disabled');
+                                $item.css('display', '');
+                            }
+                        });
+                    }
                 });
             } else {
                 // No visual selected — restore all text/dropdown items to their server-rendered state
@@ -1620,7 +1645,12 @@
                                 return visualSelected.every(function(vid) { return pv.attrs.indexOf(vid) !== -1; });
                             });
                             
-                            $option.prop('disabled', !hasMatch);
+                            // Mark disabled state AND keep data attribute for dropdown handler
+                            if (hasMatch) {
+                                $option.prop('disabled', false).removeData('was-disabled');
+                            } else {
+                                $option.prop('disabled', true).data('was-disabled', true);
+                            }
                         });
                     } else {
                         // For text swatches
@@ -2031,6 +2061,10 @@
                 var title = $selected.data('title') || $selected.text() || '';
                 var attrId = parseInt($selected.val());
                 var setSlug = $wrap.data('slug') || '';
+                var $container = $dropdown.closest('.quick-shop-modal-wrapper, [data-bb-toggle="quick-shop"]').first();
+                
+                // Check if this option was disabled (marked by Rule A/A2)
+                var wasDisabled = $selected.data('was-disabled') || false;
                 
                 // Update label
                 $wrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
@@ -2044,6 +2078,11 @@
                 _qsLastClickedAttrId = attrId;
                 _qsLastClickedAttrType = 'nonvisual';
                 
+                // Mark if this was a disabled dropdown selection - Step 4 will use memory for disabled only
+                if ($container.length) {
+                    $container[0]._qsLastNonVisualWasDisabled = wasDisabled;
+                }
+                
                 // Remember visual pairing (like other non-visuals do)
                 var $visualWrap = $scope.find('.attribute-swatches-wrapper[data-type="visual"]').first();
                 var $selectedVisual = $visualWrap.find('.qs-var-item.selected, .qs-var-item:has(input:checked)').first();
@@ -2053,6 +2092,54 @@
                         _qsNonVisualToVisual[attrId] = visualId;
                     }
                 }
+                
+                // Remember other non-visuals selected at the same time
+                var otherNonVisuals = [];
+                $scope.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
+                    var $nvWrap = $(this);
+                    var wrapType = $nvWrap.data('type');
+                    if (wrapType === 'dropdown') {
+                        var $dd = $nvWrap.find('.qs-dropdown');
+                        var ddId = parseInt($dd.val());
+                        if (!isNaN(ddId) && ddId !== attrId && ddId > 0) {
+                            otherNonVisuals.push(ddId);
+                        }
+                    } else {
+                        var $checkedInput = $nvWrap.find('input.product-filter-item:checked');
+                        if ($checkedInput.length) {
+                            var checkedId = parseInt($checkedInput.val());
+                            if (!isNaN(checkedId) && checkedId !== attrId) {
+                                otherNonVisuals.push(checkedId);
+                            }
+                        }
+                    }
+                });
+                if (attrId) {
+                    _qsNonVisualToNonVisuals[attrId] = otherNonVisuals;
+                }
+            });
+            
+            // Allow selecting disabled dropdown options (like text swatches work)
+            $scope.on('mousedown.qs-swatches', '.qs-dropdown', function() {
+                var $dropdown = $(this);
+                // Temporarily enable all disabled options and mark them
+                $dropdown.find('option:disabled').each(function() {
+                    $(this).prop('disabled', false).data('was-disabled', true);
+                });
+            });
+            
+            // Re-disable options after selection (let change handler fire first)
+            $scope.on('blur.qs-swatches', '.qs-dropdown', function() {
+                var $dropdown = $(this);
+                setTimeout(function() {
+                    // Re-disable options that were marked as disabled, except the selected one
+                    $dropdown.find('option[data-was-disabled="true"]').each(function() {
+                        var $opt = $(this);
+                        if (!$opt.is(':selected')) {
+                            $opt.prop('disabled', true);
+                        }
+                    });
+                }, 100);
             });
 
             // On click: record which attr was clicked and its type BEFORE AJAX fires,
