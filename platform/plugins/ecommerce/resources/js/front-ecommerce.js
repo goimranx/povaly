@@ -2291,16 +2291,135 @@ class Ecommerce {
      * On leave: restore the selected item's title (or default)
      */
     initAttributeSwatchHoverLabels() {
-        // Handle .selected class for ALL attribute types on click
-        $(document).on('click', '.bb-product-attribute-swatch-item', function() {
+        // Handle clicks on attribute items - manage .selected class AND auto-select logic
+        $(document).on('click', '.bb-product-attribute-swatch-item', function(e) {
             const $item = $(this)
             const $wrapper = $item.closest('.qs-swatch-wrap')
+            const $product = $item.closest('.bb-product-detail')
             
-            // Remove .selected from all sibling items
+            // Don't handle if it's a disabled visual item (will be handled by variation logic)
+            const wrapperType = $wrapper.data('type')
+            if (wrapperType === 'visual' && $item.hasClass('disabled')) {
+                // Let the system handle disabled visual clicks through auto-select
+                return
+            }
+            
+            // For non-disabled items, update .selected immediately
             $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
-            
-            // Add .selected to clicked item
             $item.addClass('selected')
+            
+            // Get variation prices to check if we need to auto-select
+            const $attributesContainer = $product.find('.product-attributes')
+            const variationPricesStr = $attributesContainer.data('variation-prices')
+            let variationPrices = []
+            
+            try {
+                if (typeof variationPricesStr === 'string') {
+                    variationPrices = JSON.parse(variationPricesStr)
+                } else if (Array.isArray(variationPricesStr)) {
+                    variationPrices = variationPricesStr
+                }
+            } catch (e) {
+                // Can't parse, skip auto-select logic
+                return
+            }
+            
+            if (variationPrices.length === 0) {
+                return
+            }
+            
+            // Get current selections including this newly clicked item
+            const currentSelections = []
+            $product.find('.qs-swatch-wrap').each(function() {
+                const $w = $(this)
+                const wType = $w.data('type')
+                
+                if (wType === 'dropdown') {
+                    const $select = $w.find('select')
+                    const selectedValue = $select.val()
+                    if (selectedValue) {
+                        currentSelections.push(parseInt(selectedValue))
+                    }
+                } else {
+                    // For text/visual, use the item that was just clicked if it's in this wrapper
+                    if ($w.is($wrapper)) {
+                        currentSelections.push($item.data('id'))
+                    } else {
+                        // Use checked input for other wrappers
+                        const $checked = $w.find('input[type="radio"]:checked')
+                        if ($checked.length && $checked.val()) {
+                            currentSelections.push(parseInt($checked.val()))
+                        }
+                    }
+                }
+            })
+            
+            // Check if current selections form a valid combination
+            const hasValidCombination = variationPrices.some(variation => {
+                const attrs = variation.attrs || []
+                return currentSelections.every(id => attrs.includes(id)) &&
+                       currentSelections.length === attrs.length
+            })
+            
+            if (!hasValidCombination) {
+                // Need to auto-select from other attributes
+                console.log('🔄 Clicked item creates invalid combination, auto-selecting...')
+                
+                // Find a variation that includes the clicked item
+                const clickedId = $item.data('id')
+                const matchingVariation = variationPrices.find(variation => {
+                    return (variation.attrs || []).includes(clickedId)
+                })
+                
+                if (matchingVariation) {
+                    const targetAttrs = matchingVariation.attrs || []
+                    console.log('   Found matching variation:', targetAttrs)
+                    
+                    // Auto-select matching attributes in OTHER wrappers
+                    $product.find('.qs-swatch-wrap').each(function() {
+                        const $w = $(this)
+                        
+                        // Skip the clicked wrapper
+                        if ($w.is($wrapper)) {
+                            return
+                        }
+                        
+                        const wType = $w.data('type')
+                        
+                        if (wType === 'dropdown') {
+                            // Find the option that's in targetAttrs
+                            const $options = $w.find('select option')
+                            $options.each(function() {
+                                const $opt = $(this)
+                                const optId = parseInt($opt.val())
+                                if (targetAttrs.includes(optId)) {
+                                    $w.find('select').val(optId)
+                                    console.log('   Auto-selected dropdown:', optId)
+                                    return false // break
+                                }
+                            })
+                        } else {
+                            // Find the item that's in targetAttrs
+                            const $items = $w.find('.bb-product-attribute-swatch-item')
+                            $items.each(function() {
+                                const $targetItem = $(this)
+                                const targetId = $targetItem.data('id')
+                                if (targetAttrs.includes(targetId)) {
+                                    // Remove .selected from all
+                                    $w.find('.bb-product-attribute-swatch-item').removeClass('selected')
+                                    // Add to target
+                                    $targetItem.addClass('selected')
+                                    // Check radio
+                                    $w.find('input[type="radio"]').prop('checked', false)
+                                    $targetItem.find('input[type="radio"]').prop('checked', true)
+                                    console.log('   Auto-selected item:', targetId)
+                                    return false // break
+                                }
+                            })
+                        }
+                    })
+                }
+            }
         })
         
         // Hover label management
