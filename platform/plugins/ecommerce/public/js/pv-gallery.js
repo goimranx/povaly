@@ -473,8 +473,8 @@
             const active = this._mobileIndex;
             const MAX = 5;
             
-            // Active dot centered at position 2 (middle), window shifts to keep it there
-            let start = Math.max(0, active - Math.floor(MAX / 2));
+            // Active dot centered at position 2 (index 2), window shifts to keep it there
+            let start = Math.max(0, active - 2);
             let end   = Math.min(total - 1, start + MAX - 1);
             if (end - start < MAX - 1) start = Math.max(0, end - MAX + 1);
             
@@ -490,13 +490,13 @@
             let tempEnd = end;
             if (didShift) {
                 if (direction === 'left') {
-                    // Forward: shift window left so active appears at position 4 (index 4 from tempStart)
-                    tempStart = active - 4;
+                    // Forward: shift window left so active appears at position 3 (index 3 from tempStart)
+                    tempStart = active - 3;
                     tempEnd = tempStart + MAX - 1;
                     console.log('🔵 FORWARD: active=', active, 'tempStart=', tempStart, 'tempEnd=', tempEnd, 'active will be at visual position:', active - tempStart);
                 } else {
-                    // Backward: shift window LEFT so active appears at position 4 (same as forward initial), then slide RIGHT to position 2
-                    tempStart = active - 4;
+                    // Backward: shift window right so active appears at position 1 (index 1 from tempStart)  
+                    tempStart = active - 1;
                     tempEnd = tempStart + MAX - 1;
                     console.log('🔴 BACKWARD: active=', active, 'tempStart=', tempStart, 'tempEnd=', tempEnd, 'active will be at visual position:', active - tempStart);
                 }
