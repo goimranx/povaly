@@ -56,6 +56,7 @@ class Ecommerce {
     constructor() {
         this.initClipboard()
         this.initFileUpload()
+        this.initVariationSwatchHandlers()
 
         $(document)
             .on('click', '[data-bb-toggle="toggle-product-categories-tree"]', (e) => {
@@ -1900,6 +1901,665 @@ class Ecommerce {
         } else if (typeof EcommerceApp !== 'undefined') {
             EcommerceApp.initProductGallery(true)
         }
+
+        // Call custom variation update logic after default handling
+        this.updateVariationSwatches(response, element)
+    }
+
+    /**
+     * Custom variation swatch update logic
+     * Handles visual/text/dropdown attribute interactions and auto-selection
+     * Called after defaultOnChangeSwatchesSuccess completes
+     */
+    updateVariationSwatches = (response, element) => {
+        if (!response || !response.data) {
+            return
+        }
+
+        // Find the product container (quick-shop modal or product detail page)
+        const $scope = element && element.length 
+            ? element.closest('.quick-shop-modal-wrapper, [data-bb-toggle="quick-shop"], .bb-product-detail')
+            : $('.bb-product-detail').first()
+        
+        if (!$scope.length) {
+            return
+        }
+
+        const $container = $scope.find('.product-attribute-swatches')
+        if (!$container.length) {
+            return
+        }
+
+        // Parse price map once
+        let priceMap = null
+        try {
+            priceMap = JSON.parse($container.attr('data-variation-prices') || 'null')
+        } catch (e) {
+            console.error('Failed to parse variation prices:', e)
+        }
+        
+        if (!priceMap || !priceMap.length) {
+            return
+        }
+
+        // Initialize memory objects if not exists
+        if (!window._qsUserPick) window._qsUserPick = {}
+        if (!window._qsNonVisualToVisual) window._qsNonVisualToVisual = {}
+        if (!window._qsNonVisualToNonVisuals) window._qsNonVisualToNonVisuals = {}
+        if (!window._qsLastClickedAttrId) window._qsLastClickedAttrId = null
+        if (!window._qsLastClickedAttrType) window._qsLastClickedAttrType = null
+
+        // Step 0: Sync .selected class from checkbox state
+        $container.find('.attribute-swatches-wrapper').each(function () {
+            $(this).find('.qs-var-item, .qs-color-item, .bb-product-attribute-swatch-item').each(function () {
+                const $li = $(this)
+                const checked = $li.find('input.product-filter-item:checked').length > 0
+                $li.toggleClass('selected', checked)
+                if (checked) {
+                    const title = $li.data('title') || ''
+                    $li.closest('.qs-swatch-wrap').find('.qs-swatch__selected-val').text(title).attr('data-default', title)
+                }
+            })
+        })
+
+        // Step 1: Collect selected visual attributes
+        const visualSelected = []
+        $container.find('.attribute-swatches-wrapper[data-type="visual"] input.product-filter-item:checked').each(function () {
+            const v = parseInt($(this).val())
+            if (!isNaN(v) && v > 0) visualSelected.push(v)
+        })
+        if (window._qsLastClickedAttrType === 'visual' && window._qsLastClickedAttrId &&
+            visualSelected.indexOf(window._qsLastClickedAttrId) === -1) {
+            visualSelected.push(window._qsLastClickedAttrId)
+        }
+
+        // Step 1b: Collect selected non-visual attributes
+        const nonVisualSelected = []
+        $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function () {
+            const $wrap = $(this)
+            let val
+            if ($wrap.data('type') === 'dropdown') {
+                val = parseInt($wrap.find('select').val())
+            } else {
+                val = parseInt($wrap.find('input.product-filter-item:checked').val())
+            }
+            if (!isNaN(val) && val > 0) nonVisualSelected.push(val)
+        })
+
+        // Handle last clicked non-visual
+        if (window._qsLastClickedAttrType === 'nonvisual' && window._qsLastClickedAttrId &&
+            nonVisualSelected.indexOf(window._qsLastClickedAttrId) === -1) {
+            nonVisualSelected.push(window._qsLastClickedAttrId)
+            
+            const $clickedItem = $container.find(
+                `.qs-color-item[data-id="${window._qsLastClickedAttrId}"], ` +
+                `.bb-product-attribute-swatch-item[data-id="${window._qsLastClickedAttrId}"]:not(.qs-var-item)`
+            )
+            
+            const isDisabledNonVisual = $clickedItem.hasClass('disabled')
+            
+            $clickedItem.each(function () {
+                const $wrap = $(this).closest('.qs-swatch-wrap')
+                $wrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected')
+                $(this).addClass('selected')
+                const t = $(this).data('title') || ''
+                $wrap.find('.qs-swatch__selected-val').text(t).attr('data-default', t)
+                
+                const $input = $(this).find('input.product-filter-item')
+                if ($input.length) {
+                    $wrap.find('input.product-filter-item').prop('checked', false)
+                    $input.prop('disabled', false).prop('checked', true)
+                }
+            })
+            
+            if ($scope.length) {
+                $scope[0]._qsLastNonVisualWasDisabled = isDisabledNonVisual
+            }
+        }
+
+        // Rule A: Visual selected → mark text/dropdown enabled/disabled
+        if (visualSelected.length > 0) {
+            $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function () {
+                const $wrap = $(this)
+                const wrapType = $wrap.data('type')
+                
+                if (wrapType === 'dropdown') {
+                    const $dropdown = $wrap.find('.qs-dropdown')
+                    $dropdown.find('option[value!=""]').each(function () {
+                        const $option = $(this)
+                        const optionId = parseInt($option.attr('value'))
+                        
+                        const hasMatch = priceMap.some(function (pv) {
+                            if (pv.attrs.indexOf(optionId) === -1) return false
+                            return visualSelected.every(function (vid) { return pv.attrs.indexOf(vid) !== -1 })
+                        })
+                        
+                        if (hasMatch) {
+                            $option.prop('disabled', false).removeData('was-disabled')
+                        } else {
+                            $option.prop('disabled', true).data('was-disabled', true)
+                        }
+                    })
+                } else {
+                    $wrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').each(function () {
+                        const $item = $(this)
+                        const itemId = parseInt($item.data('id'))
+                        
+                        const hasMatch = priceMap.some(function (pv) {
+                            if (pv.attrs.indexOf(itemId) === -1) return false
+                            return visualSelected.every(function (vid) { return pv.attrs.indexOf(vid) !== -1 })
+                        })
+                        
+                        if (hasMatch) {
+                            $item.removeClass('disabled').css('display', '')
+                        } else {
+                            $item.addClass('disabled').css('display', '')
+                        }
+                    })
+                }
+            })
+        }
+
+        // Rule A2: Non-visual selected → mark OTHER non-visuals enabled/disabled
+        if (nonVisualSelected.length > 0) {
+            $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function () {
+                const $wrap = $(this)
+                const wrapType = $wrap.data('type')
+                
+                if (wrapType === 'dropdown') {
+                    const $dropdown = $wrap.find('.qs-dropdown')
+                    $dropdown.find('option[value!=""]').each(function () {
+                        const $option = $(this)
+                        const optionId = parseInt($option.attr('value'))
+                        
+                        const hasMatch = priceMap.some(function (pv) {
+                            if (pv.attrs.indexOf(optionId) === -1) return false
+                            const othersMatch = nonVisualSelected.every(function (id) {
+                                return id === optionId || pv.attrs.indexOf(id) !== -1
+                            })
+                            if (!othersMatch) return false
+                            return visualSelected.every(function (vid) { return pv.attrs.indexOf(vid) !== -1 })
+                        })
+                        
+                        if (hasMatch) {
+                            $option.prop('disabled', false).removeData('was-disabled')
+                        } else {
+                            $option.prop('disabled', true).data('was-disabled', true)
+                        }
+                    })
+                } else {
+                    $wrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').each(function () {
+                        const $item = $(this)
+                        const itemId = parseInt($item.data('id'))
+                        
+                        const hasMatch = priceMap.some(function (pv) {
+                            if (pv.attrs.indexOf(itemId) === -1) return false
+                            const othersMatch = nonVisualSelected.every(function (id) {
+                                return id === itemId || pv.attrs.indexOf(id) !== -1
+                            })
+                            if (!othersMatch) return false
+                            return visualSelected.every(function (vid) { return pv.attrs.indexOf(vid) !== -1 })
+                        })
+                        
+                        if (hasMatch) {
+                            $item.removeClass('disabled').css('display', '')
+                        } else {
+                            $item.addClass('disabled').css('display', '')
+                        }
+                    })
+                }
+            })
+        }
+
+        // Rule B & C: Non-visual selected → hide/show visuals + update prices
+        $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function () {
+            const $attrWrap = $(this)
+            $attrWrap.find('.qs-var-item').each(function () {
+                const $colorItem = $(this)
+                const colorId = parseInt($colorItem.data('id'))
+                
+                let shouldShow = false
+                let bestPrice = null
+                
+                priceMap.forEach(function (pv) {
+                    if (pv.attrs.indexOf(colorId) === -1) return
+                    
+                    const allNonVisualsMatch = nonVisualSelected.every(function (nvId) {
+                        return pv.attrs.indexOf(nvId) !== -1
+                    })
+                    
+                    if (allNonVisualsMatch) {
+                        shouldShow = true
+                        if (!bestPrice || pv.sale_price < bestPrice.sale_price) {
+                            bestPrice = pv
+                        }
+                    }
+                })
+                
+                if (nonVisualSelected.length === 0) {
+                    shouldShow = true
+                    priceMap.forEach(function (pv) {
+                        if (pv.attrs.indexOf(colorId) !== -1) {
+                            if (!bestPrice || pv.sale_price < bestPrice.sale_price) {
+                                bestPrice = pv
+                            }
+                        }
+                    })
+                }
+                
+                if (shouldShow) {
+                    $colorItem.show()
+                } else {
+                    $colorItem.hide()
+                }
+                
+                if (bestPrice) {
+                    const formatted = bestPrice.display_sale_price || bestPrice.formatted_sale_price || ''
+                    $colorItem.find('.qs-var-price').text(formatted)
+                }
+            })
+        })
+
+        // Step 3: Auto-select non-visuals if disabled or no selection
+        $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function () {
+            const $nvWrap = $(this)
+            const setSlug = $nvWrap.data('slug') || ''
+            const isDropdown = $nvWrap.data('type') === 'dropdown'
+            
+            let $currentSelected, currentId
+            if (isDropdown) {
+                const $dropdown = $nvWrap.find('.qs-dropdown')
+                currentId = parseInt($dropdown.val())
+                $currentSelected = $dropdown.find(`option[value="${currentId}"]`)
+            } else {
+                $currentSelected = $nvWrap.find('.qs-color-item.selected, .bb-product-attribute-swatch-item.selected:not(.qs-var-item)')
+                if (!$currentSelected.length) {
+                    $currentSelected = $nvWrap.find('input.product-filter-item:checked').closest('li')
+                }
+                currentId = parseInt($currentSelected.data('id'))
+            }
+            
+            let isDisabled = false
+            const noSelection = !currentId || currentId === 0 || isNaN(currentId)
+            
+            if (!noSelection) {
+                isDisabled = isDropdown ? $currentSelected.is(':disabled') : $currentSelected.hasClass('disabled')
+            }
+            
+            if (!noSelection && !isDisabled) return
+            
+            let $available, $all
+            if (isDropdown) {
+                $all = $nvWrap.find('.qs-dropdown option[value!=""]')
+                $available = $all.filter(':not(:disabled)')
+            } else {
+                $all = $nvWrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)')
+                $available = $all.filter(':not(.disabled)')
+            }
+            
+            if (!$available.length) return
+            
+            let $target = $()
+            
+            const rememberedId = setSlug ? window._qsUserPick[setSlug] : null
+            if (rememberedId) {
+                $target = isDropdown 
+                    ? $available.filter(`[value="${rememberedId}"]`)
+                    : $available.filter(`[data-id="${rememberedId}"]`)
+            }
+            
+            if (!$target.length && visualSelected.length === 1) {
+                const visualId = visualSelected[0]
+                for (const nvId in window._qsNonVisualToVisual) {
+                    if (window._qsNonVisualToVisual[nvId] === visualId) {
+                        $target = isDropdown
+                            ? $available.filter(`[value="${nvId}"]`)
+                            : $available.filter(`[data-id="${nvId}"]`)
+                        if ($target.length) break
+                    }
+                }
+            }
+            
+            if (!$target.length) {
+                $target = $available.first()
+            }
+            
+            if (!$target.length) return
+            
+            if (isDropdown) {
+                const newVal = $target.attr('value')
+                const $dropdown = $nvWrap.find('.qs-dropdown')
+                $dropdown.val(newVal)
+                
+                const title = $target.data('title') || $target.text() || ''
+                $nvWrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title)
+                
+                $dropdown[0]._qsAutoSelect = true
+                $dropdown.trigger('change')
+                setTimeout(() => { if ($dropdown[0]) $dropdown[0]._qsAutoSelect = false }, 100)
+            } else {
+                $nvWrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected')
+                $nvWrap.find('input.product-filter-item').prop('checked', false)
+                
+                $target.addClass('selected')
+                const $radio = $target.find('input.product-filter-item')
+                $radio.prop('checked', true)
+                
+                const title = $target.data('title') || ''
+                $nvWrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title)
+                
+                $radio[0]._qsAutoSelect = true
+                $radio.trigger('change')
+                setTimeout(() => { if ($radio[0]) $radio[0]._qsAutoSelect = false }, 100)
+            }
+        })
+
+        // Step 4: Auto-select visuals if current selection is hidden
+        $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function () {
+            const $attrWrap = $(this)
+            const setSlug = $attrWrap.data('slug') || ''
+            
+            const $allItems = $attrWrap.find('.qs-var-item')
+            const $selected = $allItems.filter('.selected, :has(input:checked)')
+            
+            if ($selected.length && $selected.is(':visible')) {
+                return
+            }
+            
+            const $visAvail = $allItems.filter(':visible')
+            const $visAll = $allItems
+            
+            if (!$visAvail.length && !$visAll.length) return
+            
+            const wasDisabledClick = $scope[0] && $scope[0]._qsLastNonVisualWasDisabled
+            
+            let $preferred = $()
+            
+            if (wasDisabledClick) {
+                const disabledNonVisualId = nonVisualSelected.length > 0 ? nonVisualSelected[0] : null
+                if (disabledNonVisualId && window._qsNonVisualToVisual[disabledNonVisualId]) {
+                    const rememberedVisualId = window._qsNonVisualToVisual[disabledNonVisualId]
+                    $preferred = $visAvail.filter(`[data-id="${rememberedVisualId}"]`)
+                    if (!$preferred.length) {
+                        $preferred = $visAll.filter(`[data-id="${rememberedVisualId}"]`)
+                    }
+                    
+                    if ($preferred.length && window._qsNonVisualToNonVisuals[disabledNonVisualId]) {
+                        const otherNonVisualIds = window._qsNonVisualToNonVisuals[disabledNonVisualId]
+                        otherNonVisualIds.forEach(otherId => {
+                            $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function () {
+                                const $nvWrap = $(this)
+                                const $item = $nvWrap.find(`[data-id="${otherId}"]`)
+                                if ($item.length && !$item.hasClass('disabled')) {
+                                    const $radio = $item.find('input.product-filter-item')
+                                    if ($radio.length) {
+                                        $nvWrap.find('input.product-filter-item').prop('checked', false)
+                                        $radio.prop('checked', true)
+                                        $nvWrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected')
+                                        $item.addClass('selected')
+                                        const title = $item.data('title') || ''
+                                        $nvWrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title)
+                                    }
+                                }
+                            })
+                        })
+                    }
+                }
+                
+                if (!$preferred.length) {
+                    const rememberedId = setSlug ? window._qsUserPick[setSlug] : null
+                    if (rememberedId) {
+                        $preferred = $visAvail.filter(`[data-id="${rememberedId}"]`)
+                        if (!$preferred.length) {
+                            $preferred = $visAll.filter(`[data-id="${rememberedId}"]`)
+                        }
+                    }
+                }
+            }
+            
+            const $target = $preferred.length ? $preferred : ($visAvail.length ? $visAvail.first() : $visAll.first())
+            if (!$target.length) return
+            
+            $allItems.removeClass('selected')
+            $attrWrap.find('input.product-filter-item').prop('checked', false)
+            $target.addClass('selected')
+            const $radio = $target.find('input.product-filter-item')
+            $radio.prop('checked', true)
+            
+            const title = $target.data('title') || ''
+            $attrWrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title)
+            
+            window._qsLastClickedAttrId = parseInt($target.data('id'))
+            window._qsLastClickedAttrType = 'visual'
+            
+            if (wasDisabledClick) {
+                const disabledNonVisualId = nonVisualSelected.length > 0 ? nonVisualSelected[0] : null
+                if (disabledNonVisualId) {
+                    window._qsNonVisualToVisual[disabledNonVisualId] = parseInt($target.data('id'))
+                }
+            }
+            
+            if ($scope[0]) {
+                $scope[0]._qsLastNonVisualWasDisabled = false
+            }
+            
+            $radio[0]._qsAutoSelect = true
+            $radio.trigger('change')
+            setTimeout(() => { if ($radio[0]) $radio[0]._qsAutoSelect = false }, 100)
+        })
+    }
+
+    /**
+     * Initialize variation swatch click and change handlers
+     * Sets up event delegation for visual/text/dropdown swatches
+     */
+    initVariationSwatchHandlers = () => {
+        const $doc = $(document)
+        
+        // Remove any previously-bound handlers
+        $doc.off('.qs-swatches')
+
+        // Hover: show attr title beside set name
+        $doc.on('mouseenter.qs-swatches', '.qs-var-item, .qs-color-item', function () {
+            const $label = $(this).closest('.qs-swatch-wrap').find('.qs-swatch__selected-val')
+            $label.text($(this).data('title') || '')
+        }).on('mouseleave.qs-swatches', '.qs-var-item, .qs-color-item', function () {
+            const $wrap = $(this).closest('.qs-swatch-wrap')
+            const cur = $wrap.find('.selected').first().data('title')
+                     || $wrap.find('input:checked').closest('li').data('title')
+                     || $wrap.find('.qs-swatch__selected-val').data('default') || ''
+            $wrap.find('.qs-swatch__selected-val').text(cur)
+        })
+
+        // Dropdown change handler
+        $doc.on('change.qs-swatches', '.qs-dropdown', function () {
+            if (this._qsAutoSelect) return
+            
+            const $dropdown = $(this)
+            const $wrap = $dropdown.closest('.qs-swatch-wrap')
+            const $selected = $dropdown.find('option:selected')
+            const title = $selected.data('title') || $selected.text() || ''
+            const attrId = parseInt($selected.val())
+            const setSlug = $wrap.data('slug') || ''
+            const $container = $dropdown.closest('.quick-shop-modal-wrapper, [data-bb-toggle="quick-shop"], .bb-product-detail').first()
+            
+            const wasDisabled = $selected.data('was-disabled') || false
+            
+            $wrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title)
+            
+            if (setSlug && attrId) {
+                window._qsUserPick[setSlug] = attrId
+            }
+            
+            window._qsLastClickedAttrId = attrId
+            window._qsLastClickedAttrType = 'nonvisual'
+            
+            if ($container.length) {
+                $container[0]._qsLastNonVisualWasDisabled = wasDisabled
+            }
+            
+            const $scope = $dropdown.closest('.quick-shop-modal-wrapper, [data-bb-toggle="quick-shop"], .bb-product-detail')
+            const $visualWrap = $scope.find('.attribute-swatches-wrapper[data-type="visual"]').first()
+            const $selectedVisual = $visualWrap.find('.qs-var-item.selected, .qs-var-item:has(input:checked)').first()
+            if ($selectedVisual.length && attrId) {
+                const visualId = parseInt($selectedVisual.data('id'))
+                if (!isNaN(visualId)) {
+                    window._qsNonVisualToVisual[attrId] = visualId
+                }
+            }
+            
+            const otherNonVisuals = []
+            $scope.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function () {
+                const $nvWrap = $(this)
+                const wrapType = $nvWrap.data('type')
+                if (wrapType === 'dropdown') {
+                    const $dd = $nvWrap.find('.qs-dropdown')
+                    const ddId = parseInt($dd.val())
+                    if (!isNaN(ddId) && ddId !== attrId && ddId > 0) {
+                        otherNonVisuals.push(ddId)
+                    }
+                } else {
+                    const $checkedInput = $nvWrap.find('input.product-filter-item:checked')
+                    if ($checkedInput.length) {
+                        const checkedId = parseInt($checkedInput.val())
+                        if (!isNaN(checkedId) && checkedId !== attrId) {
+                            otherNonVisuals.push(checkedId)
+                        }
+                    }
+                }
+            })
+            if (attrId) {
+                window._qsNonVisualToNonVisuals[attrId] = otherNonVisuals
+            }
+        })
+        
+        // Allow selecting disabled dropdown options (like text swatches work)
+        $doc.on('mousedown.qs-swatches', '.qs-dropdown', function () {
+            const $dropdown = $(this)
+            $dropdown.find('option:disabled').each(function () {
+                $(this).prop('disabled', false).data('was-disabled', true)
+            })
+        })
+        
+        $doc.on('blur.qs-swatches', '.qs-dropdown', function () {
+            const $dropdown = $(this)
+            setTimeout(() => {
+                $dropdown.find('option[data-was-disabled="true"]').each(function () {
+                    const $opt = $(this)
+                    if (!$opt.is(':selected')) {
+                        $opt.prop('disabled', true)
+                    }
+                })
+            }, 100)
+        })
+
+        // On click: record which attr was clicked BEFORE AJAX fires
+        $doc.on('click.qs-swatches', '.qs-var-item label, .qs-color-item label', function () {
+            const $li = $(this).closest('.qs-var-item, .qs-color-item')
+            const $wrap = $(this).closest('.attribute-swatches-wrapper')
+            const attrId = parseInt($li.data('id'))
+            const setSlug = $wrap.data('slug') || ''
+            const isVisual = $wrap.data('type') === 'visual'
+            const $scope = $wrap.closest('.quick-shop-modal-wrapper, [data-bb-toggle="quick-shop"], .bb-product-detail')
+
+            window._qsLastClickedAttrId = attrId
+            window._qsLastClickedAttrType = isVisual ? 'visual' : 'nonvisual'
+
+            if (setSlug) window._qsUserPick[setSlug] = attrId
+            
+            if (!isVisual) {
+                const $visualWrap = $scope.find('.attribute-swatches-wrapper[data-type="visual"]').first()
+                const $selectedVisual = $visualWrap.find('.qs-var-item.selected, .qs-var-item:has(input:checked)').first()
+                if ($selectedVisual.length) {
+                    const visualId = parseInt($selectedVisual.data('id'))
+                    if (!isNaN(visualId)) {
+                        window._qsNonVisualToVisual[attrId] = visualId
+                    }
+                }
+                
+                const otherNonVisuals = []
+                $scope.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function () {
+                    const $nvWrap = $(this)
+                    const wrapType = $nvWrap.data('type')
+                    
+                    if (wrapType === 'dropdown') {
+                        const $dd = $nvWrap.find('.qs-dropdown')
+                        const ddId = parseInt($dd.val())
+                        if (!isNaN(ddId) && ddId !== attrId && ddId > 0) {
+                            otherNonVisuals.push(ddId)
+                        }
+                    } else {
+                        const $checkedInput = $nvWrap.find('input.product-filter-item:checked')
+                        if ($checkedInput.length) {
+                            const checkedId = parseInt($checkedInput.val())
+                            if (!isNaN(checkedId) && checkedId !== attrId) {
+                                otherNonVisuals.push(checkedId)
+                            }
+                        }
+                    }
+                })
+                window._qsNonVisualToNonVisuals[attrId] = otherNonVisuals
+            } else {
+                $scope.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function () {
+                    const $nvWrap = $(this)
+                    const wrapType = $nvWrap.data('type')
+                    let nonVisualId
+                    
+                    if (wrapType === 'dropdown') {
+                        const $dd = $nvWrap.find('.qs-dropdown')
+                        nonVisualId = parseInt($dd.val())
+                    } else {
+                        const $selectedNonVisual = $nvWrap.find('.qs-color-item.selected, .bb-product-attribute-swatch-item.selected:not(.qs-var-item), .qs-color-item:has(input:checked), .bb-product-attribute-swatch-item:has(input:checked):not(.qs-var-item)').first()
+                        if ($selectedNonVisual.length) {
+                            nonVisualId = parseInt($selectedNonVisual.data('id'))
+                        }
+                    }
+                    
+                    if (!isNaN(nonVisualId) && nonVisualId > 0) {
+                        window._qsNonVisualToVisual[nonVisualId] = attrId
+                    }
+                })
+            }
+        })
+
+        // On selection change: update .selected class + label text
+        $doc.on('change.qs-swatches', '.product-filter-item', function () {
+            if (this._qsAutoSelect) return
+            const $wrap = $(this).closest('.qs-swatch-wrap')
+            $wrap.find('.qs-var-item, .qs-color-item').removeClass('selected')
+            $(this).closest('li').addClass('selected')
+            const title = $(this).closest('li').data('title') || ''
+            $wrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title)
+            
+            const $changedItem = $(this).closest('.qs-var-item, .qs-color-item')
+            const $attrWrap = $(this).closest('.attribute-swatches-wrapper')
+            const isVisual = $attrWrap.data('type') === 'visual'
+            const $scope = $attrWrap.closest('.quick-shop-modal-wrapper, [data-bb-toggle="quick-shop"], .bb-product-detail')
+            
+            if (isVisual) {
+                const visualId = parseInt($changedItem.data('id'))
+                if (!isNaN(visualId)) {
+                    $scope.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function () {
+                        const $nvWrap = $(this)
+                        const wrapType = $nvWrap.data('type')
+                        let nonVisualId
+                        
+                        if (wrapType === 'dropdown') {
+                            nonVisualId = parseInt($nvWrap.find('.qs-dropdown').val())
+                        } else {
+                            const $checkedInput = $nvWrap.find('input.product-filter-item:checked')
+                            if ($checkedInput.length) {
+                                nonVisualId = parseInt($checkedInput.val())
+                            }
+                        }
+                        
+                        if (!isNaN(nonVisualId) && nonVisualId > 0) {
+                            window._qsNonVisualToVisual[nonVisualId] = visualId
+                        }
+                    })
+                }
+            }
+        })
     }
 
     // Retained as a no-op for backward compatibility. Default swatch handlers
