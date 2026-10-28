@@ -1901,14 +1901,14 @@ class Ecommerce {
         console.log('   💾 Current memory:', window._qsAttrMemory)
 
         // Get all attribute wrappers
-        const $allWrappers = $product.find('.bb-product-attribute-swatch-list')
+        const $allWrappers = $product.find('.qs-swatch-wrap')
         console.log('   📋 Found wrappers:', $allWrappers.length)
 
         // Check each wrapper for disabled selection
         $allWrappers.each((index, wrapper) => {
             const $wrapper = $(wrapper)
-            const attrId = $wrapper.data('attribute-id')
-            console.log(`\n   🔍 Wrapper ${index + 1}:`, 'attribute-id:', attrId)
+            const attrSlug = $wrapper.data('slug')
+            console.log(`\n   🔍 Wrapper ${index + 1}:`, 'data-slug:', attrSlug)
             
             // Check if current selection is disabled
             const $selected = $wrapper.find('.bb-product-attribute-swatch-item.selected')
@@ -1934,9 +1934,9 @@ class Ecommerce {
 
             // Try to select previously paired value
             let $target = null
-            if (window._qsAttrMemory[attrId]) {
-                console.log('      💾 Found remembered ID:', window._qsAttrMemory[attrId])
-                $target = $enabled.filter(`[data-id="${window._qsAttrMemory[attrId]}"]`)
+            if (window._qsAttrMemory[attrSlug]) {
+                console.log('      💾 Found remembered ID:', window._qsAttrMemory[attrSlug])
+                $target = $enabled.filter(`[data-id="${window._qsAttrMemory[attrSlug]}"]`)
                 console.log('      💾 Remembered item found?', $target.length > 0)
             }
 
@@ -1948,8 +1948,8 @@ class Ecommerce {
 
             if ($target.length) {
                 // Remember this selection
-                window._qsAttrMemory[attrId] = $target.data('id')
-                console.log('      💾 Saved to memory:', attrId, '=', $target.data('id'))
+                window._qsAttrMemory[attrSlug] = $target.data('id')
+                console.log('      💾 Saved to memory:', attrSlug, '=', $target.data('id'))
                 
                 // Perform selection
                 $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
@@ -1986,26 +1986,32 @@ class Ecommerce {
         const unavailableIds = data.unavailable_attribute_ids || []
         console.log('   🚫 Unavailable IDs:', unavailableIds)
         
-        // Find all visual attribute wrappers (color swatches with images)
-        const $allWrappers = $product.find('.bb-product-attribute-swatch-list')
+        // Find all visual attribute wrappers (check for visual-swatch class or .qs-var-grid)
+        const $allWrappers = $product.find('.qs-swatch-wrap')
         console.log('   📋 Found wrappers:', $allWrappers.length)
         
         $allWrappers.each(function(index) {
             const $wrapper = $(this)
             const $items = $wrapper.find('.bb-product-attribute-swatch-item')
-            console.log(`\n   🔍 Wrapper ${index + 1}: has ${$items.length} items`)
+            const dataType = $wrapper.data('type')
+            console.log(`\n   🔍 Wrapper ${index + 1}: has ${$items.length} items, type=${dataType}`)
             
-            // Check if this is a visual attribute (has image background or is color swatch)
+            // Check if this is a visual attribute by checking:
+            // 1. Has .qs-var-grid class (visual grid layout)
+            // 2. Has .qs-var-item__thumb (visual thumbnail)
+            // 3. Has data-type="visual"
             const $firstItem = $items.first()
-            const hasImage = $firstItem.find('.bb-product-attribute-swatch-item__image').length > 0
-            const hasBackground = $firstItem.css('background-image') && $firstItem.css('background-image') !== 'none'
-            const hasVisuals = hasImage || hasBackground
+            const hasThumb = $firstItem.find('.qs-var-item__thumb').length > 0
+            const hasGrid = $wrapper.find('.qs-var-grid').length > 0
+            const isVisualType = dataType === 'visual'
+            const isVisual = hasThumb || hasGrid || isVisualType
             
-            console.log('      Has image element?', hasImage)
-            console.log('      Has background image?', hasBackground)
-            console.log('      Is visual attribute?', hasVisuals)
+            console.log('      Has thumbnail element?', hasThumb)
+            console.log('      Has grid layout?', hasGrid)
+            console.log('      data-type="visual"?', isVisualType)
+            console.log('      Is visual attribute?', isVisual)
             
-            if (hasVisuals) {
+            if (isVisual) {
                 console.log('      ✅ This is a VISUAL attribute, processing...')
                 // This is a visual attribute - hide disabled items
                 $items.each(function() {
@@ -2092,10 +2098,11 @@ class Ecommerce {
         
         $(document).on('mouseenter', '.bb-product-attribute-swatch-item', function() {
             const $item = $(this)
-            const $wrapper = $item.closest('.bb-product-attribute-swatch-list')
-            const $label = $wrapper.find('.bb-product-attribute-label')
+            const $wrapper = $item.closest('.qs-swatch-wrap')
+            const $label = $wrapper.find('.qs-swatch__selected-val')
             
             console.log('🖱️ HOVER ON:', $item.data('id'))
+            console.log('   Wrapper found?', $wrapper.length > 0)
             console.log('   Label found?', $label.length > 0)
             
             if (!$label.length) {
@@ -2103,39 +2110,37 @@ class Ecommerce {
                 return
             }
             
-            const attributeName = $label.text().replace(':', '').trim()
+            const $setName = $wrapper.find('.qs-swatch__set-name')
+            const attributeName = $setName.text().replace(':', '').trim()
             const itemTitle = $item.data('title') || $item.attr('title') || ''
             
             console.log('   Attribute name:', attributeName)
             console.log('   Item title:', itemTitle)
             
             if (itemTitle) {
-                const newText = attributeName + ': ' + itemTitle
-                console.log('   ✅ Setting label to:', newText)
-                $label.text(newText)
+                console.log('   ✅ Setting label to:', itemTitle)
+                $label.text(itemTitle)
             }
         })
         
         $(document).on('mouseleave', '.bb-product-attribute-swatch-item', function() {
             const $item = $(this)
-            const $wrapper = $item.closest('.bb-product-attribute-swatch-list')
-            const $label = $wrapper.find('.bb-product-attribute-label')
+            const $wrapper = $item.closest('.qs-swatch-wrap')
+            const $label = $wrapper.find('.qs-swatch__selected-val')
             const $selected = $wrapper.find('.bb-product-attribute-swatch-item.selected')
             
             console.log('🖱️ HOVER OFF:', $item.data('id'))
             
             if (!$label.length) return
             
-            const attributeName = $label.text().split(':')[0].trim()
-            
             if ($selected.length) {
                 const selectedTitle = $selected.data('title') || $selected.attr('title') || ''
-                const newText = attributeName + ': ' + selectedTitle
-                console.log('   ✅ Restoring to selected:', newText)
-                $label.text(newText)
+                console.log('   ✅ Restoring to selected:', selectedTitle)
+                $label.text(selectedTitle)
             } else {
-                console.log('   ℹ️ No selection, showing just name:', attributeName + ':')
-                $label.text(attributeName + ':')
+                const defaultValue = $label.data('default') || ''
+                console.log('   ℹ️ No selection, showing default:', defaultValue)
+                $label.text(defaultValue)
             }
         })
     }
