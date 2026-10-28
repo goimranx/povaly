@@ -24,10 +24,6 @@
         }
         
         init() {
-            console.log('✅ PV Gallery initialized');
-            console.log('📸 Image thumbnails:', this.thumbnails.length);
-            console.log('🎥 Video thumbnails:', this.videoThumbs.length);
-            
             // Collect all images data
             this.thumbnails.forEach((thumb) => {
                 const imageUrl = thumb.getAttribute('data-image');
@@ -304,7 +300,6 @@
             const targetIndex = this.variationMap[variationId];
             
             if (targetIndex !== undefined) {
-                console.log('✅ Variation jump to:', targetIndex);
                 this.jumpToImage(targetIndex);
             }
         }
@@ -380,18 +375,15 @@
             const total = this._mobileSlides.length;
             if (total === 0) return;
             index = ((index % total) + total) % total;
-            console.log('🔵 _mobileGoTo called: from', this._mobileIndex, 'to', index);
             if (index === this._mobileIndex) return;
             // Prevent overlapping animations
             if (this._mobileAnimating) {
-                console.log('⏸️ Animation already running, skipped');
                 return;
             }
             this._mobileAnimating = true;
 
             // Update index immediately so dots reflect new state right away
             this._mobileIndex = index;
-            console.log('🟢 Index updated to', this._mobileIndex, '— calling _updateDots()');
             this._updateDots();
 
             const slide = this._mobileSlides[index];
@@ -476,17 +468,13 @@
             if (total <= 1) { this._dotsEl.innerHTML = ''; return; }
 
             const active = this._mobileIndex;
-            console.log('🔴 _updateDots: active =', active, ', total =', total);
             const MAX = 5;
             
             // Active dot centered at position 2 (middle), window shifts to keep it there
             let start = Math.max(0, active - Math.floor(MAX / 2));
             let end   = Math.min(total - 1, start + MAX - 1);
             if (end - start < MAX - 1) start = Math.max(0, end - MAX + 1);
-            const visualPos = active - start;
             
-            console.log('   Dots range:', start, 'to', end, '| Active visual position:', visualPos);
-
             // Detect if window shifted: animate until we reach the last 2 indices
             const prevStart = this._prevStart || 0;
             const isInMiddleRange = (active >= 2) && (active < total - 2);
@@ -516,8 +504,6 @@
                     setTimeout(() => this._dotsEl.classList.remove('pv-dots-slide'), 200);
                 });
             }
-            console.log('   Generated HTML:', html.substring(0, 250) + '...');
-            console.log('   Dots container children:', this._dotsEl.children.length);
             
             this._dotsEl.querySelectorAll('.pv-dot').forEach(dot => {
                 dot.addEventListener('click', () => {
