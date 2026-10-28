@@ -1916,17 +1916,27 @@ class Ecommerce {
             return
         }
 
+        console.log('🔄 === updateVariationSwatches START ===')
+        console.log('📥 Response data:', response.data)
+        console.log('🎯 Element:', element)
+        console.log('🔍 Last clicked:', {
+            id: window._qsLastClickedAttrId,
+            type: window._qsLastClickedAttrType
+        })
+
         // Find the product container (quick-shop modal or product detail page)
         const $scope = element && element.length 
             ? element.closest('.quick-shop-modal-wrapper, [data-bb-toggle="quick-shop"], .bb-product-detail')
             : $('.bb-product-detail').first()
         
         if (!$scope.length) {
+            console.warn('⚠️ No scope found, exiting')
             return
         }
 
         const $container = $scope.find('.product-attribute-swatches')
         if (!$container.length) {
+            console.warn('⚠️ No attribute container found, exiting')
             return
         }
 
@@ -1950,6 +1960,7 @@ class Ecommerce {
         if (!window._qsLastClickedAttrType) window._qsLastClickedAttrType = null
 
         // Step 0: Sync .selected class from checkbox state
+        console.log('📍 Step 0: Syncing .selected classes from checkbox state')
         $container.find('.attribute-swatches-wrapper').each(function () {
             $(this).find('.qs-var-item, .qs-color-item, .bb-product-attribute-swatch-item').each(function () {
                 const $li = $(this)
@@ -1963,6 +1974,7 @@ class Ecommerce {
         })
 
         // Step 1: Collect selected visual attributes
+        console.log('📍 Step 1: Collecting selected visual attributes')
         const visualSelected = []
         $container.find('.attribute-swatches-wrapper[data-type="visual"] input.product-filter-item:checked').each(function () {
             const v = parseInt($(this).val())
@@ -1972,8 +1984,10 @@ class Ecommerce {
             visualSelected.indexOf(window._qsLastClickedAttrId) === -1) {
             visualSelected.push(window._qsLastClickedAttrId)
         }
+        console.log('👁️ Visual selected:', visualSelected)
 
         // Step 1b: Collect selected non-visual attributes
+        console.log('📍 Step 1b: Collecting selected non-visual attributes')
         const nonVisualSelected = []
         $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function () {
             const $wrap = $(this)
@@ -1985,37 +1999,42 @@ class Ecommerce {
             }
             if (!isNaN(val) && val > 0) nonVisualSelected.push(val)
         })
+        console.log('📝 Non-visual selected (before lastClicked):', nonVisualSelected)
+
+        console.log('📝 Non-visual selected (before lastClicked):', nonVisualSelected)
 
         // Handle last clicked non-visual
-        if (window._qsLastClickedAttrType === 'nonvisual' && window._qsLastClickedAttrId &&
-            nonVisualSelected.indexOf(window._qsLastClickedAttrId) === -1) {
-            nonVisualSelected.push(window._qsLastClickedAttrId)
-            
+        // Note: The CMS has already updated the DOM based on the clicked attribute
+        // We just need to track if it was a disabled click for Step 4 visual auto-selection
+        console.log('📍 Handling last clicked non-visual')
+        if (window._qsLastClickedAttrType === 'nonvisual' && window._qsLastClickedAttrId) {
+            console.log('🖱️ User just clicked non-visual ID:', window._qsLastClickedAttrId)
             const $clickedItem = $container.find(
                 `.qs-color-item[data-id="${window._qsLastClickedAttrId}"], ` +
                 `.bb-product-attribute-swatch-item[data-id="${window._qsLastClickedAttrId}"]:not(.qs-var-item)`
             )
             
-            const isDisabledNonVisual = $clickedItem.hasClass('disabled')
-            
-            $clickedItem.each(function () {
-                const $wrap = $(this).closest('.qs-swatch-wrap')
-                $wrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected')
-                $(this).addClass('selected')
-                const t = $(this).data('title') || ''
-                $wrap.find('.qs-swatch__selected-val').text(t).attr('data-default', t)
+            if ($clickedItem.length) {
+                const isDisabledNonVisual = $clickedItem.hasClass('disabled')
+                console.log('   Was disabled?', isDisabledNonVisual)
                 
-                const $input = $(this).find('input.product-filter-item')
-                if ($input.length) {
-                    $wrap.find('input.product-filter-item').prop('checked', false)
-                    $input.prop('disabled', false).prop('checked', true)
+                if ($scope.length) {
+                    $scope[0]._qsLastNonVisualWasDisabled = isDisabledNonVisual
                 }
-            })
-            
-            if ($scope.length) {
-                $scope[0]._qsLastNonVisualWasDisabled = isDisabledNonVisual
+                
+                // Add to nonVisualSelected only if the CMS actually selected it (checkbox is checked)
+                const $input = $clickedItem.find('input.product-filter-item:checked')
+                if ($input.length && nonVisualSelected.indexOf(window._qsLastClickedAttrId) === -1) {
+                    nonVisualSelected.push(window._qsLastClickedAttrId)
+                    console.log('   ✅ Added to nonVisualSelected (checkbox was checked by CMS)')
+                } else {
+                    console.log('   ⏭️ Not added to nonVisualSelected (checkbox not checked)')
+                }
+            } else {
+                console.log('   ⚠️ Clicked item not found in DOM')
             }
         }
+        console.log('📝 Non-visual selected (final):', nonVisualSelected)
 
         // Rule A: Visual selected → mark text/dropdown enabled/disabled
         if (visualSelected.length > 0) {
@@ -2161,10 +2180,34 @@ class Ecommerce {
         })
 
         // Step 3: Auto-select non-visuals if disabled or no selection
+        // BUT: Skip auto-selecting the attribute the user JUST clicked!
+        // Only auto-adjust OTHER attributes to match the user's choice
+        console.log('📍 Step 3: Auto-select non-visuals if needed')
+        let step3Count = 0
         $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function () {
             const $nvWrap = $(this)
             const setSlug = $nvWrap.data('slug') || ''
             const isDropdown = $nvWrap.data('type') === 'dropdown'
+            
+            console.log(`   🔍 Checking ${setSlug} (${isDropdown ? 'dropdown' : 'text'})`)
+            
+            // Check if this wrapper contains the attribute the user just clicked
+            let userJustClickedInThisWrapper = false
+            if (window._qsLastClickedAttrType === 'nonvisual' && window._qsLastClickedAttrId) {
+                if (isDropdown) {
+                    const $dropdown = $nvWrap.find('.qs-dropdown')
+                    const currentVal = parseInt($dropdown.val())
+                    userJustClickedInThisWrapper = (currentVal === window._qsLastClickedAttrId)
+                } else {
+                    const $item = $nvWrap.find(`[data-id="${window._qsLastClickedAttrId}"]`)
+                    userJustClickedInThisWrapper = $item.length > 0
+                }
+            }
+            
+            if (userJustClickedInThisWrapper) {
+                console.log('   ⏭️ SKIP: User just clicked this attribute')
+                return
+            }
             
             let $currentSelected, currentId
             if (isDropdown) {
@@ -2186,15 +2229,12 @@ class Ecommerce {
                 isDisabled = isDropdown ? $currentSelected.is(':disabled') : $currentSelected.hasClass('disabled')
             }
             
-            // CRITICAL: Don't auto-select if user JUST clicked this attribute!
-            // Only auto-select when:
-            // 1. No selection at all, OR
-            // 2. Selection became disabled due to ANOTHER attribute changing (not this one)
-            const userJustClickedThis = window._qsLastClickedAttrType === 'nonvisual' && 
-                                       window._qsLastClickedAttrId === currentId
+            console.log(`      Current: ${currentId}, NoSelection: ${noSelection}, IsDisabled: ${isDisabled}`)
             
-            if (!noSelection && !isDisabled) return // Keep current valid selection
-            if (!noSelection && isDisabled && userJustClickedThis) return // Keep user's intentional disabled choice
+            if (!noSelection && !isDisabled) {
+                console.log('      ✅ Keep current valid selection')
+                return
+            }
             
             let $available, $all
             if (isDropdown) {
@@ -2205,15 +2245,22 @@ class Ecommerce {
                 $available = $all.filter(':not(.disabled)')
             }
             
-            if (!$available.length) return
+            console.log(`      Available options: ${$available.length}`)
+            
+            if (!$available.length) {
+                console.log('      ⚠️ No available options to auto-select')
+                return
+            }
             
             let $target = $()
             
             const rememberedId = setSlug ? window._qsUserPick[setSlug] : null
+            console.log(`      User's previous pick for ${setSlug}:`, rememberedId)
             if (rememberedId) {
                 $target = isDropdown 
                     ? $available.filter(`[value="${rememberedId}"]`)
                     : $available.filter(`[data-id="${rememberedId}"]`)
+                if ($target.length) console.log(`      ✓ Found user's remembered choice`)
             }
             
             if (!$target.length && visualSelected.length === 1) {
@@ -2230,9 +2277,14 @@ class Ecommerce {
             
             if (!$target.length) {
                 $target = $available.first()
+                console.log(`      📌 Using fallback: first available`)
             }
             
             if (!$target.length) return
+            
+            const targetId = isDropdown ? $target.attr('value') : $target.data('id')
+            console.log(`      🎯 Auto-selecting: ${targetId}`)
+            step3Count++
             
             if (isDropdown) {
                 const newVal = $target.attr('value')
@@ -2261,6 +2313,8 @@ class Ecommerce {
                 setTimeout(() => { if ($radio[0]) $radio[0]._qsAutoSelect = false }, 100)
             }
         })
+        console.log(`✅ Step 3 complete. Auto-selected ${step3Count} attributes`)
+        console.log('🔄 === updateVariationSwatches END ===\n')
 
         // Step 4: Auto-select visuals if current selection is hidden
         $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function () {
