@@ -332,6 +332,7 @@
 
             // Touch
             let startX = 0, startY = 0, isDragging = false, liveEl = null, nextEl = null, prevEl = null;
+            const SENSITIVITY = 1.2; // Increase to make swipes more sensitive
 
             this._mainContainer.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
@@ -347,21 +348,23 @@
                 // Create next element (right)
                 nextEl = this._createSlideElement(this._mobileSlides[nextIndex]);
                 nextEl.style.left = '100%';
+                nextEl.dataset.preloaded = 'true';
                 mc.appendChild(nextEl);
                 
                 // Create prev element (left)
                 prevEl = this._createSlideElement(this._mobileSlides[prevIndex]);
                 prevEl.style.left = '-100%';
+                prevEl.dataset.preloaded = 'true';
                 mc.appendChild(prevEl);
             }, { passive: true });
 
             this._mainContainer.addEventListener('touchmove', (e) => {
                 if (!isDragging || !liveEl) return;
-                const dx = e.touches[0].clientX - startX;
+                const dx = (e.touches[0].clientX - startX) * SENSITIVITY;
                 const dy = e.touches[0].clientY - startY;
-                if (Math.abs(dy) > Math.abs(dx)) return;
+                if (Math.abs(dy) > Math.abs(dx / SENSITIVITY)) return;
                 
-                // Move all three elements together
+                // Move all three elements together with sensitivity multiplier
                 liveEl.style.transform = `translateX(${dx}px)`;
                 liveEl.style.transition = 'none';
                 
@@ -380,23 +383,31 @@
                 if (!isDragging) return;
                 isDragging = false;
                 
-                const dx = e.changedTouches[0].clientX - startX;
+                const dx = (e.changedTouches[0].clientX - startX) * SENSITIVITY;
                 const dy = e.changedTouches[0].clientY - startY;
                 
-                // Clean up transforms
-                if (liveEl) { liveEl.style.transform = ''; liveEl.style.transition = ''; }
-                
-                // Remove pre-created elements
-                if (nextEl && mc.contains(nextEl)) mc.removeChild(nextEl);
-                if (prevEl && mc.contains(prevEl)) mc.removeChild(prevEl);
-                nextEl = null;
-                prevEl = null;
-                
-                if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx)) return;
+                if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx / SENSITIVITY)) {
+                    // Not a valid swipe - reset everything
+                    if (liveEl) { liveEl.style.transform = ''; liveEl.style.transition = ''; }
+                    if (nextEl && mc.contains(nextEl)) mc.removeChild(nextEl);
+                    if (prevEl && mc.contains(prevEl)) mc.removeChild(prevEl);
+                    nextEl = null;
+                    prevEl = null;
+                    return;
+                }
                 
                 const total = this._mobileSlides.length;
-                if (dx < 0) this._mobileGoTo((this._mobileIndex + 1) % total, 'left');
-                else        this._mobileGoTo((this._mobileIndex - 1 + total) % total, 'right');
+                if (dx < 0) {
+                    // Swiping left (next)
+                    this._mobileGoTo((this._mobileIndex + 1) % total, 'left', { outEl: liveEl, inEl: nextEl, dx: dx });
+                    if (prevEl && mc.contains(prevEl)) mc.removeChild(prevEl);
+                } else {
+                    // Swiping right (prev)
+                    this._mobileGoTo((this._mobileIndex - 1 + total) % total, 'right', { outEl: liveEl, inEl: prevEl, dx: dx });
+                    if (nextEl && mc.contains(nextEl)) mc.removeChild(nextEl);
+                }
+                nextEl = null;
+                prevEl = null;
             }, { passive: true });
         }
 
@@ -433,7 +444,7 @@
             return this.mainImage;
         }
 
-        _mobileGoTo(index, direction) {
+        _mobileGoTo(index, direction, preloaded = null) {
             const total = this._mobileSlides.length;
             if (total === 0) return;
             index = ((index % total) + total) % total;
@@ -455,57 +466,61 @@
             const mc    = this._mainContainer;
             if (!mc) { this._mobileAnimating = false; return; }
 
-            // Current visible element
-            const outEl = this._getVisibleEl();
-
-            // Build incoming element
-            let inEl;
-            if (slide.type === 'image') {
-                inEl = document.createElement('img');
-                inEl.src = slide.data.url;
-                inEl.alt = this.mainImage ? this.mainImage.alt : '';
-                inEl.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;display:block;cursor:crosshair;';
-            } else {
-                const vt = slide.el;
-                const thumb = vt.getAttribute('data-video-thumbnail');
-                inEl = document.createElement('div');
-                inEl.className = 'pv-video-facade';
-                inEl.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;background:#000;border-radius:10px;overflow:hidden;cursor:pointer;z-index:5;';
-                inEl.innerHTML = thumb
-                    ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:contain;display:block;" />`
-                    : `<div style="width:100%;height:100%;background:#111;"></div>`;
-                inEl.innerHTML += `<div class="pv-play-button-large"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"/></svg></div>`;
-                const vi = Array.from(this.videoThumbs).indexOf(vt);
-                inEl.onclick = (e) => { e.preventDefault(); e.stopPropagation(); this.openLightboxWithVideo(vi); };
-            }
-
-            // Lock container height
-            if (!mc._heightLocked) {
-                mc.style.height = mc.offsetHeight + 'px';
-                mc._heightLocked = true;
-            }
-
-            // Place inEl off-screen
-            const fromRight = direction === 'left';
-            inEl.style.left = fromRight ? '100%' : '-100%';
-            mc.appendChild(inEl);
-
-            // Pin outEl
-            if (outEl) {
-                outEl.style.position = 'absolute';
-                outEl.style.top = '0';
-                outEl.style.left = '0';
-                outEl.style.width = '100%';
-                outEl.style.height = '100%';
+            // Use preloaded elements if available, otherwise create new ones
+            let outEl, inEl;
+            
+            if (preloaded && preloaded.outEl && preloaded.inEl) {
+                // Use pre-created elements from touch gesture
+                outEl = preloaded.outEl;
+                inEl = preloaded.inEl;
+                
+                // Clear transforms and prepare for final animation
+                outEl.style.transform = '';
+                inEl.style.transform = '';
                 outEl.style.transition = 'left 0.28s ease';
-            }
-            inEl.style.transition = 'left 0.28s ease';
+                inEl.style.transition = 'left 0.28s ease';
+                
+                // Animate to final positions
+                requestAnimationFrame(() => {
+                    const fromRight = direction === 'left';
+                    inEl.style.left = '0';
+                    outEl.style.left = fromRight ? '-100%' : '100%';
+                });
+            } else {
+                // Original behavior - create new elements
+                outEl = this._getVisibleEl();
 
-            // Animate
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-                inEl.style.left = '0';
-                if (outEl) outEl.style.left = fromRight ? '-100%' : '100%';
-            }));
+                // Build incoming element
+                inEl = this._createSlideElement(slide);
+
+                // Lock container height
+                if (!mc._heightLocked) {
+                    mc.style.height = mc.offsetHeight + 'px';
+                    mc._heightLocked = true;
+                }
+
+                // Place inEl off-screen
+                const fromRight = direction === 'left';
+                inEl.style.left = fromRight ? '100%' : '-100%';
+                mc.appendChild(inEl);
+
+                // Pin outEl
+                if (outEl) {
+                    outEl.style.position = 'absolute';
+                    outEl.style.top = '0';
+                    outEl.style.left = '0';
+                    outEl.style.width = '100%';
+                    outEl.style.height = '100%';
+                    outEl.style.transition = 'left 0.28s ease';
+                }
+                inEl.style.transition = 'left 0.28s ease';
+
+                // Animate
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    inEl.style.left = '0';
+                    if (outEl) outEl.style.left = fromRight ? '-100%' : '100%';
+                }));
+            }
 
             setTimeout(() => {
                 // Remove outgoing
