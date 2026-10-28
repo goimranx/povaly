@@ -2258,6 +2258,42 @@ class Ecommerce {
             
             console.log(`      Available options: ${$available.length}`)
             
+            // If no available options, check if we can find matches from priceMap based on clicked attribute
+            if (!$available.length && nonVisualSelected.length > 0 && priceMap) {
+                console.log('      🔍 No available options, checking priceMap for matches with clicked attribute')
+                
+                // Find all variations that contain the clicked non-visual attribute
+                const matchingVariations = priceMap.filter(function(pv) {
+                    return nonVisualSelected.some(function(nvId) {
+                        return pv.attrs.indexOf(nvId) !== -1
+                    })
+                })
+                
+                if (matchingVariations.length > 0) {
+                    // Extract available values for THIS attribute from matching variations
+                    const availableIds = []
+                    matchingVariations.forEach(function(pv) {
+                        pv.attrs.forEach(function(attrId) {
+                            // Check if this attrId belongs to current wrapper
+                            const $opt = isDropdown 
+                                ? $all.filter(`[value="${attrId}"]`)
+                                : $all.filter(`[data-id="${attrId}"]`)
+                            if ($opt.length && availableIds.indexOf(attrId) === -1) {
+                                availableIds.push(attrId)
+                            }
+                        })
+                    })
+                    
+                    if (availableIds.length > 0) {
+                        console.log(`      ✓ Found ${availableIds.length} options from priceMap:`, availableIds)
+                        // Use these IDs as available, even if currently marked disabled
+                        $available = isDropdown
+                            ? $all.filter(function() { return availableIds.indexOf(parseInt($(this).val())) !== -1 })
+                            : $all.filter(function() { return availableIds.indexOf(parseInt($(this).data('id'))) !== -1 })
+                    }
+                }
+            }
+            
             if (!$available.length) {
                 console.log('      ⚠️ No available options to auto-select')
                 return
