@@ -1870,16 +1870,70 @@ class Ecommerce {
             EcommerceApp.initProductGallery(true)
         }
 
+        // When user clicks a disabled item, auto-select enabled values for OTHER attributes
+        this.autoSelectOtherAttributes($product, data)
+        
         // Hide disabled visual items (CMS already marks them with .disabled class)
         this.updateVisualItemsVisibility($product, data)
     }
 
     /**
-     * REMOVED - Not needed. The CMS already handles attribute selection properly.
-     * When you click any attribute, the CMS automatically marks others as disabled/enabled.
+     * When user clicks a DISABLED item, auto-select enabled values for OTHER attributes
+     * Example: Click disabled "Green + XL" → auto-select enabled "Brown" (keep size unchanged)
      */
-    autoSelectEnabledAttributes = ($product, data) => {
-        // CMS handles this automatically - no custom logic needed
+    autoSelectOtherAttributes = ($product, data) => {
+        if (!data || !data.unavailable_attribute_ids) {
+            return
+        }
+
+        // Find which attribute was just clicked and is now selected
+        const $allWrappers = $product.find('.qs-swatch-wrap')
+        let clickedWrapper = null
+        let clickedIsDisabled = false
+        
+        $allWrappers.each((index, wrapper) => {
+            const $wrapper = $(wrapper)
+            const $selected = $wrapper.find('.bb-product-attribute-swatch-item.selected')
+            const selectedId = $selected.data('id')
+            
+            // Check if this selected item is in the unavailable list
+            if (selectedId && data.unavailable_attribute_ids.includes(selectedId)) {
+                clickedWrapper = $wrapper
+                clickedIsDisabled = true
+                return false // break the loop
+            }
+        })
+        
+        // Only auto-select if user clicked a disabled item
+        if (!clickedIsDisabled) {
+            return
+        }
+        
+        // Now auto-select enabled values for ALL OTHER attributes
+        $allWrappers.each((index, wrapper) => {
+            const $wrapper = $(wrapper)
+            
+            // Skip the wrapper that was just clicked
+            if (clickedWrapper && $wrapper.is(clickedWrapper)) {
+                return
+            }
+            
+            // Find the first enabled (non-disabled) item in this wrapper
+            const $enabled = $wrapper.find('.bb-product-attribute-swatch-item:not(.disabled)').first()
+            
+            if ($enabled.length) {
+                // Select this enabled item
+                $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
+                $wrapper.find('input[type="radio"]').prop('checked', false)
+                
+                $enabled.addClass('selected')
+                const $input = $enabled.find('input[type="radio"]')
+                if ($input.length) {
+                    $input.prop('checked', true)
+                    $input.trigger('change')
+                }
+            }
+        })
     }
     
     /**
