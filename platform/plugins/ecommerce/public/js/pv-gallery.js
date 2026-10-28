@@ -485,8 +485,24 @@
             const direction = this._swipeDirection || 'left';
             this._prevStart = start;
 
+            // For animation: temporarily shift the start window to show active at off-center position
+            let tempStart = start;
+            let tempEnd = end;
+            if (didShift) {
+                if (direction === 'left') {
+                    // Forward: show active at position 4, will slide to position 3
+                    tempStart = Math.max(0, active - 4);
+                    tempEnd = Math.min(total - 1, tempStart + MAX - 1);
+                } else {
+                    // Backward: show active at position 2, will slide to position 3
+                    tempStart = Math.max(0, active - 2);
+                    tempEnd = Math.min(total - 1, tempStart + MAX - 1);
+                }
+            }
+
+            // Build initial dots (with active at off-center position if animating)
             let html = '';
-            for (let i = start; i <= end; i++) {
+            for (let i = (didShift ? tempStart : start); i <= (didShift ? tempEnd : end); i++) {
                 const dist = Math.abs(i - active);
                 const size    = dist === 0 ? 10 : dist === 1 ? 7 : 5;
                 const opacity = dist === 0 ? 1   : dist === 1 ? 0.6 : 0.35;
@@ -496,35 +512,42 @@
                     data-slide-index="${i}"></span>`;
             }
             
-            // Clear and rebuild - NO inline styles that could block updates
             this._dotsEl.innerHTML = html;
             
-            // Add slide animation AFTER DOM update with direction-based animation
+            // Animate to final position if needed
             if (didShift) {
+                // Build final dots (with active centered at position 3)
+                let finalHtml = '';
+                for (let i = start; i <= end; i++) {
+                    const dist = Math.abs(i - active);
+                    const size    = dist === 0 ? 10 : dist === 1 ? 7 : 5;
+                    const opacity = dist === 0 ? 1   : dist === 1 ? 0.6 : 0.35;
+                    finalHtml += `<span class="pv-dot${i === active ? ' pv-dot--active' : ''}"
+                        style="width:${size}px;height:${size}px;opacity:${opacity}"
+                        data-index="${i}"
+                        data-slide-index="${i}"></span>`;
+                }
+                
+                // Transition to final state
                 requestAnimationFrame(() => {
-                    // Remove any existing animation classes
-                    this._dotsEl.classList.remove('pv-dots-slide-forward', 'pv-dots-slide-backward');
+                    this._dotsEl.classList.add(direction === 'left' ? 'pv-dots-slide-forward' : 'pv-dots-slide-backward');
+                    this._dotsEl.innerHTML = finalHtml;
                     
-                    // Add direction-specific animation class
-                    if (direction === 'left') {
-                        this._dotsEl.classList.add('pv-dots-slide-forward');
-                    } else {
-                        this._dotsEl.classList.add('pv-dots-slide-backward');
-                    }
-                    
-                    // Remove animation class after completion
                     setTimeout(() => {
                         this._dotsEl.classList.remove('pv-dots-slide-forward', 'pv-dots-slide-backward');
                     }, 200);
                 });
             }
             
-            this._dotsEl.querySelectorAll('.pv-dot').forEach(dot => {
-                dot.addEventListener('click', () => {
-                    const to = parseInt(dot.dataset.index);
-                    this._mobileGoTo(to, to > this._mobileIndex ? 'left' : 'right');
+            // Re-attach click handlers after final render
+            setTimeout(() => {
+                this._dotsEl.querySelectorAll('.pv-dot').forEach(dot => {
+                    dot.addEventListener('click', () => {
+                        const to = parseInt(dot.dataset.index);
+                        this._mobileGoTo(to, to > this._mobileIndex ? 'left' : 'right');
+                    });
                 });
-            });
+            }, didShift ? 210 : 0);
         }
         // ─────────────────────────────────────────────────────────────────────
 
