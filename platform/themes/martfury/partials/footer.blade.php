@@ -1699,12 +1699,19 @@
                     currentId = parseInt($currentSelected.data('id'));
                 }
                 
-                // Is currently selected item disabled?
-                var isDisabled = isDropdown 
-                    ? $currentSelected.is(':disabled')
-                    : $currentSelected.hasClass('disabled');
+                // Check if we need to auto-select:
+                // 1. No selection at all (currentId is empty/0)
+                // 2. Currently selected item is disabled
+                var noSelection = !currentId || currentId === 0 || isNaN(currentId);
+                var isDisabled = false;
+                if (!noSelection) {
+                    isDisabled = isDropdown 
+                        ? $currentSelected.is(':disabled')
+                        : $currentSelected.hasClass('disabled');
+                }
                 
-                if (!isDisabled || !currentId) return; // nothing to do
+                // Only auto-select if no selection OR disabled
+                if (!noSelection && !isDisabled) return; // nothing to do
                 
                 // Find available options
                 var $available, $all;
