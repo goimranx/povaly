@@ -490,14 +490,17 @@
             let tempEnd = end;
             if (didShift) {
                 if (direction === 'left') {
-                    // Forward: show active at position 4, will slide to position 3
-                    tempStart = Math.max(0, active - 4);
-                    tempEnd = Math.min(total - 1, tempStart + MAX - 1);
+                    // Forward: shift window left so active appears at position 4 (index 4 from tempStart)
+                    tempStart = active - 4;
+                    tempEnd = tempStart + MAX - 1;
                 } else {
-                    // Backward: show active at position 2, will slide to position 3
-                    tempStart = Math.max(0, active - 2);
-                    tempEnd = Math.min(total - 1, tempStart + MAX - 1);
+                    // Backward: shift window right so active appears at position 2 (index 2 from tempStart)  
+                    tempStart = active - 2;
+                    tempEnd = tempStart + MAX - 1;
                 }
+                // Clamp to valid range
+                tempStart = Math.max(0, tempStart);
+                tempEnd = Math.min(total - 1, tempEnd);
             }
 
             // Build initial dots (with active at off-center position if animating)
