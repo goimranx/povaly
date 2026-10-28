@@ -1873,6 +1873,9 @@ class Ecommerce {
         // Simple auto-selection: when a disabled attribute is clicked,
         // auto-select other attributes from their enabled options
         this.autoSelectEnabledAttributes($product, data)
+        
+        // Hide disabled visual items
+        this.updateVisualItemsVisibility($product, data)
     }
 
     /**
@@ -1938,6 +1941,41 @@ class Ecommerce {
             }
         })
     }
+    
+    /**
+     * Hide/show visual items based on disabled state
+     * Disabled visual items should be hidden instead of crossed out
+     */
+    updateVisualItemsVisibility = ($product, data) => {
+        if (!data || !data.unavailable_attribute_ids) {
+            return
+        }
+        
+        const unavailableIds = data.unavailable_attribute_ids || []
+        
+        // Find all visual attribute wrappers (color swatches with images)
+        $product.find('.bb-product-attribute-swatch-list').each(function() {
+            const $wrapper = $(this)
+            const $items = $wrapper.find('.bb-product-attribute-swatch-item')
+            
+            // Check if this is a visual attribute (has image background or is color swatch)
+            const hasVisuals = $items.first().find('.bb-product-attribute-swatch-item__image').length > 0
+            
+            if (hasVisuals) {
+                // This is a visual attribute - hide disabled items
+                $items.each(function() {
+                    const $item = $(this)
+                    const itemId = $item.data('id')
+                    
+                    if (unavailableIds.includes(itemId)) {
+                        $item.hide()
+                    } else {
+                        $item.show()
+                    }
+                })
+            }
+        })
+    }
 
     // Retained as a no-op for backward compatibility. Default swatch handlers
     // are now class methods (defaultOnBeforeChangeSwatches / defaultOnChangeSwatchesSuccess)
@@ -1990,6 +2028,45 @@ class Ecommerce {
 
             EcommerceApp.updateLazyLoad()
         }
+    }
+    
+    /**
+     * Initialize attribute swatch hover labels
+     * Shows "Label: Value" on hover, shows selected value when not hovering
+     */
+    initAttributeSwatchHoverLabels() {
+        $(document).on('mouseenter', '.bb-product-attribute-swatch-item', function() {
+            const $item = $(this)
+            const $wrapper = $item.closest('.bb-product-attribute-swatch-list')
+            const $label = $wrapper.find('.bb-product-attribute-label')
+            
+            if (!$label.length) return
+            
+            const attributeName = $label.text().replace(':', '').trim()
+            const itemTitle = $item.data('title') || $item.attr('title') || ''
+            
+            if (itemTitle) {
+                $label.text(attributeName + ': ' + itemTitle)
+            }
+        })
+        
+        $(document).on('mouseleave', '.bb-product-attribute-swatch-item', function() {
+            const $item = $(this)
+            const $wrapper = $item.closest('.bb-product-attribute-swatch-list')
+            const $label = $wrapper.find('.bb-product-attribute-label')
+            const $selected = $wrapper.find('.bb-product-attribute-swatch-item.selected')
+            
+            if (!$label.length) return
+            
+            const attributeName = $label.text().split(':')[0].trim()
+            
+            if ($selected.length) {
+                const selectedTitle = $selected.data('title') || $selected.attr('title') || ''
+                $label.text(attributeName + ': ' + selectedTitle)
+            } else {
+                $label.text(attributeName + ':')
+            }
+        })
     }
 
     initFileUpload() {
@@ -2075,6 +2152,7 @@ $(() => {
     window.EcommerceApp = new Ecommerce()
 
     EcommerceApp.productQuantityToggle()
+    EcommerceApp.initAttributeSwatchHoverLabels()
 
     EcommerceApp.initProductGallery()
 
