@@ -485,18 +485,6 @@
             const direction = this._swipeDirection || 'left';
             this._prevStart = start;
 
-            // For animation: briefly show active at off-center position, then slide to center
-            let tempActivePos = -1;
-            if (didShift) {
-                if (direction === 'left') {
-                    // Going forward: show active at position 2 first, will slide right to position 3
-                    tempActivePos = 2;
-                } else {
-                    // Going backward: show active at position 4 first, will slide left to position 3
-                    tempActivePos = 4;
-                }
-            }
-
             let html = '';
             for (let i = start; i <= end; i++) {
                 const dist = Math.abs(i - active);
@@ -508,32 +496,27 @@
                     data-slide-index="${i}"></span>`;
             }
             
-            // Clear and rebuild
-            this._dotsEl.innerHTML = '';
-            void this._dotsEl.offsetHeight;
+            // Clear and rebuild - NO inline styles that could block updates
             this._dotsEl.innerHTML = html;
             
-            // Add slide animation with direction
+            // Add slide animation AFTER DOM update with direction-based animation
             if (didShift) {
-                const dots = this._dotsEl.children;
-                const activeDot = dots[active - start];
-                
-                if (activeDot) {
-                    // Set initial position off-center
-                    const initialShift = direction === 'left' ? -20 : 20; // Negative = left, Positive = right
-                    this._dotsEl.style.transform = `translateX(${initialShift}px)`;
+                requestAnimationFrame(() => {
+                    // Remove any existing animation classes
+                    this._dotsEl.classList.remove('pv-dots-slide-forward', 'pv-dots-slide-backward');
                     
-                    // Animate to center position
-                    requestAnimationFrame(() => {
-                        this._dotsEl.style.transition = 'transform 0.2s ease';
-                        this._dotsEl.style.transform = 'translateX(0)';
-                        
-                        setTimeout(() => {
-                            this._dotsEl.style.transition = '';
-                            this._dotsEl.style.transform = '';
-                        }, 200);
-                    });
-                }
+                    // Add direction-specific animation class
+                    if (direction === 'left') {
+                        this._dotsEl.classList.add('pv-dots-slide-forward');
+                    } else {
+                        this._dotsEl.classList.add('pv-dots-slide-backward');
+                    }
+                    
+                    // Remove animation class after completion
+                    setTimeout(() => {
+                        this._dotsEl.classList.remove('pv-dots-slide-forward', 'pv-dots-slide-backward');
+                    }, 200);
+                });
             }
             
             this._dotsEl.querySelectorAll('.pv-dot').forEach(dot => {

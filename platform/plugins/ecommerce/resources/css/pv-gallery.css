@@ -256,7 +256,38 @@
     overflow: hidden;
 }
 
-/* Dots slide animation when window shifts */
+/* Dots slide animations when window shifts */
+@keyframes pv-dots-slide-forward {
+    from {
+        transform: translateX(-20px);
+        opacity: 0.5;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pv-dots-slide-backward {
+    from {
+        transform: translateX(20px);
+        opacity: 0.5;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.pv-dots-slide-forward {
+    animation: pv-dots-slide-forward 0.2s ease-out;
+}
+
+.pv-dots-slide-backward {
+    animation: pv-dots-slide-backward 0.2s ease-out;
+}
+
+/* Legacy animation - kept for compatibility */
 @keyframes pv-dots-slide {
     from {
         transform: translateX(20px);
