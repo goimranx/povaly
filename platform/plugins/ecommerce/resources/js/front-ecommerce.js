@@ -2031,18 +2031,14 @@ class Ecommerce {
     
     /**
      * Hide disabled visual items completely using display:none !important
-     * CMS doesn't add .disabled class to visual items, so we check unavailable_attribute_ids
+     * Works for both: initial page load (.disabled class) and after AJAX (unavailable_attribute_ids)
      */
     updateVisualItemsVisibility = ($product, data) => {
         console.log('👁️ updateVisualItemsVisibility called')
         console.log('   Product element:', $product.length ? 'FOUND' : 'NOT FOUND')
         
-        if (!data || !data.unavailable_attribute_ids) {
-            console.log('   ❌ No unavailable_attribute_ids data')
-            return
-        }
-        
-        const unavailableIds = data.unavailable_attribute_ids || []
+        // Get unavailable IDs from data (after AJAX) or empty array (on page load)
+        const unavailableIds = (data && data.unavailable_attribute_ids) ? data.unavailable_attribute_ids : []
         console.log('   🚫 Unavailable IDs:', unavailableIds)
         console.log('   🚫 Unavailable IDs array:', JSON.stringify(unavailableIds))
         
@@ -2058,23 +2054,22 @@ class Ecommerce {
             const $items = $wrapper.find('.bb-product-attribute-swatch-item')
             console.log('      Total items:', $items.length)
             
-            // Check each item against unavailable IDs
+            // Check each item against unavailable IDs AND .disabled class
             $items.each(function(itemIndex) {
                 const $item = $(this)
                 const itemId = $item.data('id')
                 const itemTitle = $item.data('title')
                 const hasDisabledClass = $item.hasClass('disabled')
                 
-                // Check if this item's ID is in the unavailable list
-                const isUnavailable = unavailableIds.includes(itemId)
-                const isUnavailableStrict = unavailableIds.includes(parseInt(itemId))
+                // Check if this item's ID is in the unavailable list OR already has .disabled class
+                const isInUnavailableList = unavailableIds.includes(itemId)
+                const isUnavailable = hasDisabledClass || isInUnavailableList
                 
                 console.log(`      Item ${itemIndex + 1}: ID=${itemId} (type:${typeof itemId}), Title="${itemTitle}", .disabled=${hasDisabledClass}`)
-                console.log(`         includes(${itemId})=${isUnavailable}, includes(parseInt(${itemId}))=${isUnavailableStrict}`)
-                console.log(`         unavailableIds content:`, unavailableIds)
+                console.log(`         inUnavailableList=${isInUnavailableList}, finalDecision: unavailable=${isUnavailable}`)
                 
                 if (isUnavailable) {
-                    // Add disabled class if CMS didn't
+                    // Add disabled class if not already there
                     if (!hasDisabledClass) {
                         $item.addClass('disabled')
                         console.log(`         ➕ Added .disabled class`)
@@ -2105,6 +2100,28 @@ class Ecommerce {
         })
         
         console.log('   ✅ updateVisualItemsVisibility complete')
+    }
+    
+    /**
+     * Initialize visual items visibility on page load
+     * Called once when page loads to hide initially disabled items
+     */
+    initVisualItemsVisibility = () => {
+        console.log('🎬 initVisualItemsVisibility - Running on page load')
+        
+        // Find all product detail containers
+        const $products = $('.bb-product-detail')
+        console.log('   Found product containers:', $products.length)
+        
+        $products.each((index, product) => {
+            const $product = $(product)
+            console.log(`   Processing product ${index + 1}`)
+            
+            // Call updateVisualItemsVisibility without data (will use .disabled class)
+            this.updateVisualItemsVisibility($product, null)
+        })
+        
+        console.log('   ✅ Initial visibility setup complete')
     }
 
     // Retained as a no-op for backward compatibility. Default swatch handlers
@@ -2281,6 +2298,9 @@ $(() => {
 
     EcommerceApp.productQuantityToggle()
     EcommerceApp.initAttributeSwatchHoverLabels()
+    
+    // Initialize visual items visibility on page load
+    EcommerceApp.initVisualItemsVisibility()
 
     EcommerceApp.initProductGallery()
 
