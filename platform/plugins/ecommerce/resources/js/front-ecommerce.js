@@ -1871,10 +1871,14 @@ class Ecommerce {
         }
 
         // When user clicks a disabled item, auto-select enabled values for OTHER attributes
+        console.log('🔄 === AUTO-SELECT START ===')
+        console.log('📦 Data received:', data)
         this.autoSelectOtherAttributes($product, data)
         
         // Hide disabled visual items (CMS already marks them with .disabled class)
+        console.log('👁️ === VISUAL ITEMS VISIBILITY START ===')
         this.updateVisualItemsVisibility($product, data)
+        console.log('✅ === SWATCH UPDATE COMPLETE ===')
     }
 
     /**
@@ -1882,83 +1886,139 @@ class Ecommerce {
      * This runs AFTER CMS has marked items as disabled, so we check the RESULT
      */
     autoSelectOtherAttributes = ($product, data) => {
+        console.log('🎯 autoSelectOtherAttributes called')
+        console.log('   Product element:', $product.length ? 'FOUND' : 'NOT FOUND')
+        console.log('   Data:', data)
+        
         if (!data || !data.unavailable_attribute_ids) {
+            console.log('   ❌ No data or unavailable_attribute_ids, exiting')
             return
         }
 
+        console.log('   🚫 Unavailable IDs:', data.unavailable_attribute_ids)
+
         // Prevent infinite loop
         if (window._isAutoSelecting) {
+            console.log('   ⏸️ Already auto-selecting, preventing infinite loop')
             return
         }
 
         // Check if the CURRENT selection (checked radio) is now disabled
         const $allWrappers = $product.find('.qs-swatch-wrap')
+        console.log('   📋 Found wrappers:', $allWrappers.length)
+        
         let hasDisabledSelection = false
         let clickedWrapper = null
         
         $allWrappers.each((index, wrapper) => {
             const $wrapper = $(wrapper)
+            const wrapperType = $wrapper.data('type')
+            const wrapperSlug = $wrapper.data('slug')
+            
+            console.log(`\n   🔍 Wrapper ${index + 1}: type="${wrapperType}", slug="${wrapperSlug}"`)
             
             // Find the checked radio input
             const $checkedInput = $wrapper.find('input[type="radio"]:checked, select option:selected')
-            if (!$checkedInput.length) return
+            console.log('      Checked input found?', $checkedInput.length > 0)
+            
+            if (!$checkedInput.length) {
+                console.log('      ⏭️ No checked input, skipping')
+                return
+            }
             
             const checkedId = parseInt($checkedInput.val())
+            console.log('      Checked ID:', checkedId)
+            console.log('      Is in unavailable list?', data.unavailable_attribute_ids.includes(checkedId))
             
             // Check if this checked item is in the unavailable list
             if (checkedId && data.unavailable_attribute_ids.includes(checkedId)) {
+                console.log('      ⚠️ DISABLED selection detected!')
                 hasDisabledSelection = true
                 clickedWrapper = $wrapper
                 return false // break
+            } else {
+                console.log('      ✅ Selection is enabled')
             }
         })
         
+        console.log('\n   📊 Has disabled selection?', hasDisabledSelection)
+        
         // Only proceed if current selection is disabled
         if (!hasDisabledSelection) {
+            console.log('   ⏭️ No disabled selection, exiting')
             return
         }
         
+        console.log('   🔄 Starting auto-selection for OTHER attributes...')
+        
         // Set flag to prevent infinite loop
         window._isAutoSelecting = true
+        console.log('   🔒 Set _isAutoSelecting flag')
         
         // Auto-select first enabled option in ALL OTHER attributes
         $allWrappers.each((index, wrapper) => {
             const $wrapper = $(wrapper)
+            const wrapperSlug = $wrapper.data('slug')
+            
+            console.log(`\n   🔧 Processing wrapper ${index + 1}: "${wrapperSlug}"`)
             
             // Skip the wrapper that has the disabled selection
             if (clickedWrapper && $wrapper.is(clickedWrapper)) {
+                console.log('      ⏭️ This is the clicked wrapper, skipping')
                 return
             }
             
             // Find first non-disabled item
+            const $allItems = $wrapper.find('.bb-product-attribute-swatch-item')
+            console.log('      Total items:', $allItems.length)
+            
+            const $disabledItems = $wrapper.find('.bb-product-attribute-swatch-item.disabled')
+            console.log('      Disabled items:', $disabledItems.length)
+            
             const $enabled = $wrapper.find('.bb-product-attribute-swatch-item:not(.disabled)').first()
+            console.log('      First enabled item found?', $enabled.length > 0)
             
             if ($enabled.length) {
+                const enabledId = $enabled.data('id')
+                const enabledTitle = $enabled.data('title')
+                console.log('      Enabled item ID:', enabledId, 'Title:', enabledTitle)
+                
                 // Update visual selection
                 $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
                 $enabled.addClass('selected')
+                console.log('      ✅ Added .selected class to enabled item')
                 
                 // Update radio button
                 const $input = $enabled.find('input[type="radio"]')
+                console.log('      Radio input found?', $input.length > 0)
+                
                 if ($input.length) {
                     $wrapper.find('input[type="radio"]').prop('checked', false)
                     $input.prop('checked', true)
+                    console.log('      ✅ Radio button checked')
                 }
+            } else {
+                console.log('      ❌ No enabled items found!')
             }
             
             // Handle dropdown
             const $select = $wrapper.find('select')
             if ($select.length) {
+                console.log('      Dropdown found, processing...')
                 const $enabledOption = $select.find('option:not(:disabled)').first()
                 if ($enabledOption.length && $enabledOption.val()) {
                     $select.val($enabledOption.val())
+                    console.log('      ✅ Dropdown value set to:', $enabledOption.val())
                 }
             }
         })
         
+        console.log('\n   ✅ Auto-selection complete')
+        
         // Clear flag
         setTimeout(() => {
             window._isAutoSelecting = false
+            console.log('   🔓 Cleared _isAutoSelecting flag')
         }, 100)
     }
     
@@ -1966,27 +2026,50 @@ class Ecommerce {
      * Hide disabled visual items completely using display:none !important
      */
     updateVisualItemsVisibility = ($product, data) => {
+        console.log('👁️ updateVisualItemsVisibility called')
+        console.log('   Product element:', $product.length ? 'FOUND' : 'NOT FOUND')
+        
         // Find all visual attribute wrappers
         const $visualWrappers = $product.find('.qs-swatch-wrap[data-type="visual"]')
+        console.log('   📋 Found visual wrappers:', $visualWrappers.length)
         
-        $visualWrappers.each(function() {
+        $visualWrappers.each(function(wrapperIndex) {
             const $wrapper = $(this)
+            const wrapperSlug = $wrapper.data('slug')
+            console.log(`\n   🔍 Visual Wrapper ${wrapperIndex + 1}: slug="${wrapperSlug}"`)
+            
             const $items = $wrapper.find('.bb-product-attribute-swatch-item')
+            console.log('      Total items:', $items.length)
             
             // Hide disabled items, show enabled ones
-            $items.each(function() {
+            $items.each(function(itemIndex) {
                 const $item = $(this)
-                if ($item.hasClass('disabled')) {
+                const itemId = $item.data('id')
+                const itemTitle = $item.data('title')
+                const hasDisabledClass = $item.hasClass('disabled')
+                const currentDisplay = $item.css('display')
+                
+                console.log(`      Item ${itemIndex + 1}: ID=${itemId}, Title="${itemTitle}", .disabled=${hasDisabledClass}, display="${currentDisplay}"`)
+                
+                if (hasDisabledClass) {
                     // Force hide with !important inline style
                     $item.css('display', 'none')
                     $item.attr('style', 'display: none !important')
+                    console.log(`         ❌ HIDING item ${itemId}`)
                 } else {
                     // Show enabled items
                     $item.css('display', '')
                     $item.removeAttr('style')
+                    console.log(`         ✅ SHOWING item ${itemId}`)
                 }
+                
+                // Verify the change
+                const newDisplay = $item.css('display')
+                console.log(`         Final display: "${newDisplay}"`)
             })
         })
+        
+        console.log('   ✅ updateVisualItemsVisibility complete')
     }
 
     // Retained as a no-op for backward compatibility. Default swatch handlers
