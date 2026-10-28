@@ -331,13 +331,28 @@
             }
 
             // Touch
-            let startX = 0, startY = 0, isDragging = false, liveEl = null;
+            let startX = 0, startY = 0, isDragging = false, liveEl = null, nextEl = null, prevEl = null;
 
             this._mainContainer.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
                 startY = e.touches[0].clientY;
                 isDragging = true;
                 liveEl = this._getVisibleEl();
+                
+                // Pre-create next and previous elements for smooth dragging
+                const total = this._mobileSlides.length;
+                const nextIndex = (this._mobileIndex + 1) % total;
+                const prevIndex = (this._mobileIndex - 1 + total) % total;
+                
+                // Create next element (right)
+                nextEl = this._createSlideElement(this._mobileSlides[nextIndex]);
+                nextEl.style.left = '100%';
+                mc.appendChild(nextEl);
+                
+                // Create prev element (left)
+                prevEl = this._createSlideElement(this._mobileSlides[prevIndex]);
+                prevEl.style.left = '-100%';
+                mc.appendChild(prevEl);
             }, { passive: true });
 
             this._mainContainer.addEventListener('touchmove', (e) => {
@@ -345,21 +360,68 @@
                 const dx = e.touches[0].clientX - startX;
                 const dy = e.touches[0].clientY - startY;
                 if (Math.abs(dy) > Math.abs(dx)) return;
+                
+                // Move all three elements together
                 liveEl.style.transform = `translateX(${dx}px)`;
                 liveEl.style.transition = 'none';
+                
+                if (nextEl) {
+                    nextEl.style.transform = `translateX(${dx}px)`;
+                    nextEl.style.transition = 'none';
+                }
+                
+                if (prevEl) {
+                    prevEl.style.transform = `translateX(${dx}px)`;
+                    prevEl.style.transition = 'none';
+                }
             }, { passive: true });
 
             this._mainContainer.addEventListener('touchend', (e) => {
                 if (!isDragging) return;
                 isDragging = false;
-                if (liveEl) { liveEl.style.transform = ''; liveEl.style.transition = ''; }
+                
                 const dx = e.changedTouches[0].clientX - startX;
                 const dy = e.changedTouches[0].clientY - startY;
+                
+                // Clean up transforms
+                if (liveEl) { liveEl.style.transform = ''; liveEl.style.transition = ''; }
+                
+                // Remove pre-created elements
+                if (nextEl && mc.contains(nextEl)) mc.removeChild(nextEl);
+                if (prevEl && mc.contains(prevEl)) mc.removeChild(prevEl);
+                nextEl = null;
+                prevEl = null;
+                
                 if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx)) return;
+                
                 const total = this._mobileSlides.length;
                 if (dx < 0) this._mobileGoTo((this._mobileIndex + 1) % total, 'left');
                 else        this._mobileGoTo((this._mobileIndex - 1 + total) % total, 'right');
             }, { passive: true });
+        }
+
+        // Helper to create a slide element
+        _createSlideElement(slide) {
+            let el;
+            if (slide.type === 'image') {
+                el = document.createElement('img');
+                el.src = slide.data.url;
+                el.alt = this.mainImage ? this.mainImage.alt : '';
+                el.style.cssText = 'position:absolute;top:0;width:100%;height:100%;object-fit:contain;display:block;cursor:crosshair;';
+            } else {
+                const vt = slide.el;
+                const thumb = vt.getAttribute('data-video-thumbnail');
+                el = document.createElement('div');
+                el.className = 'pv-video-facade';
+                el.style.cssText = 'position:absolute;top:0;width:100%;height:100%;background:#000;border-radius:10px;overflow:hidden;cursor:pointer;z-index:5;';
+                el.innerHTML = thumb
+                    ? `<img src="${thumb}" style="width:100%;height:100%;object-fit:contain;display:block;" />`
+                    : `<div style="width:100%;height:100%;background:#111;"></div>`;
+                el.innerHTML += `<div class="pv-play-button-large"><svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"/></svg></div>`;
+                const vi = Array.from(this.videoThumbs).indexOf(vt);
+                el.onclick = (e) => { e.preventDefault(); e.stopPropagation(); this.openLightboxWithVideo(vi); };
+            }
+            return el;
         }
 
         // Returns the currently visible element in the main container
