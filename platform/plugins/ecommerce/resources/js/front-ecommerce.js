@@ -2258,23 +2258,26 @@ class Ecommerce {
             
             console.log(`      Available options: ${$available.length}`)
             
-            // If no available options, check if we can find matches from priceMap based on clicked attribute
+            // If no available options AND user clicked a non-visual, search priceMap
             if (!$available.length && nonVisualSelected.length > 0 && priceMap) {
-                console.log('      🔍 No available options, checking priceMap for matches with clicked attribute')
+                console.log('      🔍 No available options, searching priceMap for valid combinations')
+                console.log('      📌 Currently selected non-visual IDs:', nonVisualSelected)
                 
-                // Find all variations that contain the clicked non-visual attribute
+                // Find variations that contain ANY of the selected non-visual attributes
                 const matchingVariations = priceMap.filter(function(pv) {
                     return nonVisualSelected.some(function(nvId) {
                         return pv.attrs.indexOf(nvId) !== -1
                     })
                 })
                 
+                console.log(`      📊 Found ${matchingVariations.length} matching variations in priceMap`)
+                
                 if (matchingVariations.length > 0) {
-                    // Extract available values for THIS attribute from matching variations
+                    // Extract IDs that belong to THIS wrapper from matching variations
                     const availableIds = []
                     matchingVariations.forEach(function(pv) {
                         pv.attrs.forEach(function(attrId) {
-                            // Check if this attrId belongs to current wrapper
+                            // Check if this attrId belongs to current wrapper's options
                             const $opt = isDropdown 
                                 ? $all.filter(`[value="${attrId}"]`)
                                 : $all.filter(`[data-id="${attrId}"]`)
@@ -2284,12 +2287,14 @@ class Ecommerce {
                         })
                     })
                     
+                    console.log(`      🎯 Available IDs for ${setSlug}:`, availableIds)
+                    
                     if (availableIds.length > 0) {
-                        console.log(`      ✓ Found ${availableIds.length} options from priceMap:`, availableIds)
-                        // Use these IDs as available, even if currently marked disabled
+                        // Build $available from these IDs
                         $available = isDropdown
                             ? $all.filter(function() { return availableIds.indexOf(parseInt($(this).val())) !== -1 })
                             : $all.filter(function() { return availableIds.indexOf(parseInt($(this).data('id'))) !== -1 })
+                        console.log(`      ✅ Rebuilt $available with ${$available.length} options from priceMap`)
                     }
                 }
             }
