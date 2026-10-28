@@ -1882,28 +1882,18 @@
         // Variation item
         .qs-var-item {
             list-style: none;
+            border: 2px solid var(--global-color-primary-border);
+            border-radius: 6px;
+            padding: 4px;
+            transition: all 0.2s ease;
+            position: relative;
+            cursor: pointer;
 
-            label {
-                display: block;
-                cursor: pointer;
-                border: 2px solid var(--global-color-primary-border);
-                border-radius: 6px;
-                padding: 4px;
-                transition: all 0.2s ease;
-                position: relative;
-
-                &:hover {
-                    border-color: var(--global-color-primary);
-                }
+            &:hover {
+                border-color: var(--global-color-primary);
             }
 
-            input[type="radio"] {
-                position: absolute;
-                opacity: 0;
-                pointer-events: none;
-            }
-
-            &.selected label {
+            &.selected {
                 border-color: var(--global-color-primary);
                 box-shadow: 0 0 0 2px rgba(var(--global-color-primary-rgb, 252, 13, 27), 0.1);
             }
@@ -1911,10 +1901,18 @@
             &.disabled {
                 opacity: 0.4;
                 pointer-events: none;
+                cursor: not-allowed;
+            }
 
-                label {
-                    cursor: not-allowed;
-                }
+            label {
+                display: block;
+                cursor: pointer;
+            }
+
+            input[type="radio"] {
+                position: absolute;
+                opacity: 0;
+                pointer-events: none;
             }
         }
 
