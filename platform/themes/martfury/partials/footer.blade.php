@@ -889,12 +889,21 @@
                     }
                     $content.html(res.data);
                     // Reset last-clicked state for each new product load
-                    _qsLastClickedAttrId   = null;
-                    _qsLastClickedAttrType = null;
-                    _qsUserPick            = {}; // clear per-set memory for new product
+                    window._qsLastClickedAttrId   = null;
+                    window._qsLastClickedAttrType = null;
+                    window._qsUserPick = {}; // clear per-set memory for new product (now global)
                     initQSGallery(offcanvasEl);
                     initQSQty(offcanvasEl);
-                    initQSSwatches(offcanvasEl);
+                    // Initialize variation state on modal open
+                    setTimeout(function() {
+                        if (window.EcommerceApp && typeof window.EcommerceApp.updateVariationSwatches === 'function') {
+                            var $firstInput = $(offcanvasEl).find('input.product-filter-item:checked').first();
+                            if ($firstInput.length) {
+                                var productId = $(offcanvasEl).find('.hidden-product-id').val();
+                                window.EcommerceApp.updateVariationSwatches({ data: { id: productId } }, $firstInput);
+                            }
+                        }
+                    }, 100);
                     initQSTitleExpand(offcanvasEl);
                     // Inject % discount badge on initial render
                     (function() {
