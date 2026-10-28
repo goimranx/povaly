@@ -243,7 +243,7 @@
     display: none;
     justify-content: center;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     padding: 10px 0 4px;
 }
 
@@ -267,7 +267,7 @@
 /* Forward: active dot slides from right (position 3) to center (position 2) while growing */
 @keyframes pv-dots-slide-forward {
     from {
-        transform: translateX(17px); /* Distance of one dot position (from pos 3 to pos 2) */
+        transform: translateX(10px); /* Reduced distance for subtler animation */
     }
     to {
         transform: translateX(0);
@@ -277,7 +277,7 @@
 /* Backward: active dot slides from left (position 1) to center (position 2) while growing */
 @keyframes pv-dots-slide-backward {
     from {
-        transform: translateX(-17px); /* Distance of one dot position (from pos 1 to pos 2) */
+        transform: translateX(-10px); /* Reduced distance for subtler animation */
     }
     to {
         transform: translateX(0);
