@@ -2091,58 +2091,12 @@ class Ecommerce {
     
     /**
      * Initialize attribute swatch hover labels
-     * Shows "Label: Value" on hover, shows selected value when not hovering
+     * The CMS automatically updates the label when selections change,
+     * so we don't need to do anything here. This is kept for compatibility.
      */
     initAttributeSwatchHoverLabels() {
-        console.log('🏷️ Initializing hover labels')
-        
-        $(document).on('mouseenter', '.bb-product-attribute-swatch-item', function() {
-            const $item = $(this)
-            const $wrapper = $item.closest('.qs-swatch-wrap')
-            const $label = $wrapper.find('.qs-swatch__selected-val')
-            
-            console.log('🖱️ HOVER ON:', $item.data('id'))
-            console.log('   Wrapper found?', $wrapper.length > 0)
-            console.log('   Label found?', $label.length > 0)
-            
-            if (!$label.length) {
-                console.log('   ❌ No label found')
-                return
-            }
-            
-            const $setName = $wrapper.find('.qs-swatch__set-name')
-            const attributeName = $setName.text().replace(':', '').trim()
-            const itemTitle = $item.data('title') || $item.attr('title') || ''
-            
-            console.log('   Attribute name:', attributeName)
-            console.log('   Item title:', itemTitle)
-            
-            if (itemTitle) {
-                console.log('   ✅ Setting label to:', itemTitle)
-                $label.text(itemTitle)
-            }
-        })
-        
-        $(document).on('mouseleave', '.bb-product-attribute-swatch-item', function() {
-            const $item = $(this)
-            const $wrapper = $item.closest('.qs-swatch-wrap')
-            const $label = $wrapper.find('.qs-swatch__selected-val')
-            const $selected = $wrapper.find('.bb-product-attribute-swatch-item.selected')
-            
-            console.log('🖱️ HOVER OFF:', $item.data('id'))
-            
-            if (!$label.length) return
-            
-            if ($selected.length) {
-                const selectedTitle = $selected.data('title') || $selected.attr('title') || ''
-                console.log('   ✅ Restoring to selected:', selectedTitle)
-                $label.text(selectedTitle)
-            } else {
-                const defaultValue = $label.data('default') || ''
-                console.log('   ℹ️ No selection, showing default:', defaultValue)
-                $label.text(defaultValue)
-            }
-        })
+        // Hover label updates are handled automatically by the theme's change handlers
+        // No additional hover logic needed
     }
 
     initFileUpload() {
