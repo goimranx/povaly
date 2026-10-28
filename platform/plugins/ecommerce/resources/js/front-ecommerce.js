@@ -2186,7 +2186,15 @@ class Ecommerce {
                 isDisabled = isDropdown ? $currentSelected.is(':disabled') : $currentSelected.hasClass('disabled')
             }
             
-            if (!noSelection && !isDisabled) return
+            // CRITICAL: Don't auto-select if user JUST clicked this attribute!
+            // Only auto-select when:
+            // 1. No selection at all, OR
+            // 2. Selection became disabled due to ANOTHER attribute changing (not this one)
+            const userJustClickedThis = window._qsLastClickedAttrType === 'nonvisual' && 
+                                       window._qsLastClickedAttrId === currentId
+            
+            if (!noSelection && !isDisabled) return // Keep current valid selection
+            if (!noSelection && isDisabled && userJustClickedThis) return // Keep user's intentional disabled choice
             
             let $available, $all
             if (isDropdown) {
