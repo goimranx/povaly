@@ -495,8 +495,8 @@
                     tempEnd = tempStart + MAX - 1;
                     console.log('🔵 FORWARD: active=', active, 'tempStart=', tempStart, 'tempEnd=', tempEnd, 'active will be at visual position:', active - tempStart);
                 } else {
-                    // Backward: shift window right so active appears at position 2 (index 2 from tempStart)  
-                    tempStart = active - 2;
+                    // Backward: shift window LEFT so active appears at position 4 (same as forward initial), then slide RIGHT to position 2
+                    tempStart = active - 4;
                     tempEnd = tempStart + MAX - 1;
                     console.log('🔴 BACKWARD: active=', active, 'tempStart=', tempStart, 'tempEnd=', tempEnd, 'active will be at visual position:', active - tempStart);
                 }
@@ -526,7 +526,7 @@
             
             // Animate to final position if needed
             if (didShift) {
-                // Build final dots (with active centered at position 3)
+                // Build final dots (with active centered at position 2)
                 let finalHtml = '';
                 for (let i = start; i <= end; i++) {
                     const dist = Math.abs(i - active);

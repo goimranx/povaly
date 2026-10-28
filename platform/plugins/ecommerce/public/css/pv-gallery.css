@@ -257,20 +257,20 @@
 }
 
 /* Dots slide animations when window shifts */
-/* Forward: active dot slides from right (position 4) to center (position 3) while growing */
+/* Forward: active dot slides from right (position 4) to center (position 2) while growing */
 @keyframes pv-dots-slide-forward {
     from {
-        transform: translateX(17px); /* Distance of one dot position */
+        transform: translateX(34px); /* Distance of two dot positions (from pos 4 to pos 2) */
     }
     to {
         transform: translateX(0);
     }
 }
 
-/* Backward: active dot slides from left (position 2) to center (position 3) while growing */
+/* Backward: active dot slides from left (position 4) to center (position 2) while growing - SAME initial position, opposite direction */
 @keyframes pv-dots-slide-backward {
     from {
-        transform: translateX(-17px); /* Distance of one dot position */
+        transform: translateX(-34px); /* Distance of two dot positions (from pos 4 to pos 2, but going right) */
     }
     to {
         transform: translateX(0);
