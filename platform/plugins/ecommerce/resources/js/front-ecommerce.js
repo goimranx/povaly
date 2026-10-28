@@ -1966,8 +1966,9 @@ class Ecommerce {
         $allWrappers.each((index, wrapper) => {
             const $wrapper = $(wrapper)
             const wrapperSlug = $wrapper.data('slug')
+            const wrapperType = $wrapper.data('type')
             
-            console.log(`\n   🔧 Processing wrapper ${index + 1}: "${wrapperSlug}"`)
+            console.log(`\n   🔧 Processing wrapper ${index + 1}: "${wrapperSlug}" (type: ${wrapperType})`)
             
             // Skip the wrapper that has the disabled selection
             if (clickedWrapper && $wrapper.is(clickedWrapper)) {
@@ -1975,7 +1976,21 @@ class Ecommerce {
                 return
             }
             
-            // Find first non-disabled item
+            // Handle dropdown separately
+            if (wrapperType === 'dropdown') {
+                const $select = $wrapper.find('select')
+                if ($select.length) {
+                    console.log('      Processing dropdown...')
+                    const $enabledOption = $select.find('option:not(:disabled)').filter((i, opt) => $(opt).val()).first()
+                    if ($enabledOption.length && $enabledOption.val()) {
+                        $select.val($enabledOption.val())
+                        console.log('      ✅ Dropdown value set to:', $enabledOption.val())
+                    }
+                }
+                return
+            }
+            
+            // Handle text and visual swatches
             const $allItems = $wrapper.find('.bb-product-attribute-swatch-item')
             console.log('      Total items:', $allItems.length)
             
@@ -1991,7 +2006,7 @@ class Ecommerce {
                 console.log('      Enabled item ID:', enabledId, 'Title:', enabledTitle)
                 
                 // Remove .selected from ALL items in this wrapper first
-                $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
+                $allItems.removeClass('selected')
                 
                 // Add .selected to the enabled item
                 $enabled.addClass('selected')
@@ -2008,17 +2023,6 @@ class Ecommerce {
                 }
             } else {
                 console.log('      ❌ No enabled items found!')
-            }
-            
-            // Handle dropdown
-            const $select = $wrapper.find('select')
-            if ($select.length) {
-                console.log('      Dropdown found, processing...')
-                const $enabledOption = $select.find('option:not(:disabled)').first()
-                if ($enabledOption.length && $enabledOption.val()) {
-                    $select.val($enabledOption.val())
-                    console.log('      ✅ Dropdown value set to:', $enabledOption.val())
-                }
             }
         })
         
@@ -2287,6 +2291,19 @@ class Ecommerce {
      * On leave: restore the selected item's title (or default)
      */
     initAttributeSwatchHoverLabels() {
+        // Handle .selected class for ALL attribute types on click
+        $(document).on('click', '.bb-product-attribute-swatch-item', function() {
+            const $item = $(this)
+            const $wrapper = $item.closest('.qs-swatch-wrap')
+            
+            // Remove .selected from all sibling items
+            $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
+            
+            // Add .selected to clicked item
+            $item.addClass('selected')
+        })
+        
+        // Hover label management
         $(document).on('mouseenter', '.bb-product-attribute-swatch-item', function() {
             const $item = $(this)
             const $wrapper = $item.closest('.qs-swatch-wrap')
