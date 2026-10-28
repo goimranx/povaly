@@ -1960,6 +1960,61 @@
             display: block;
             margin-top: 2px;
         }
+
+        // Text swatch list (Size, etc.)
+        .qs-color-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .qs-color-item {
+            list-style: none;
+
+            label {
+                display: inline-block;
+                min-width: 48px;
+                padding: 8px 16px;
+                border: 2px solid var(--global-color-primary-border);
+                border-radius: 6px;
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--global-color-text-body);
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                background: #fff;
+
+                &:hover {
+                    border-color: var(--global-color-primary);
+                    color: var(--global-color-primary);
+                }
+            }
+
+            input[type="radio"] {
+                position: absolute;
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            &.selected label {
+                border-color: var(--global-color-primary);
+                background: var(--global-color-primary);
+                color: #fff;
+            }
+
+            &.disabled {
+                opacity: 0.4;
+                pointer-events: none;
+
+                label {
+                    cursor: not-allowed;
+                }
+            }
+        }
     }
 
     // Accordion
