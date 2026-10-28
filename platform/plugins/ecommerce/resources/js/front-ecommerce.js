@@ -1879,79 +1879,91 @@ class Ecommerce {
 
     /**
      * When user clicks a DISABLED item, auto-select enabled values for OTHER attributes
-     * Example: Click disabled "Green + XL" → auto-select enabled "Brown" (keep size unchanged)
+     * This runs AFTER CMS has marked items as disabled, so we check the RESULT
      */
     autoSelectOtherAttributes = ($product, data) => {
         if (!data || !data.unavailable_attribute_ids) {
             return
         }
 
-        // Prevent infinite loop - if we're already auto-selecting, exit
+        // Prevent infinite loop
         if (window._isAutoSelecting) {
             return
         }
 
-        // Find which attribute was just clicked and is now selected
+        // Check if the CURRENT selection (checked radio) is now disabled
         const $allWrappers = $product.find('.qs-swatch-wrap')
+        let hasDisabledSelection = false
         let clickedWrapper = null
-        let clickedIsDisabled = false
         
         $allWrappers.each((index, wrapper) => {
             const $wrapper = $(wrapper)
-            const $selected = $wrapper.find('.bb-product-attribute-swatch-item.selected')
-            const selectedId = $selected.data('id')
             
-            // Check if this selected item is in the unavailable list
-            if (selectedId && data.unavailable_attribute_ids.includes(selectedId)) {
+            // Find the checked radio input
+            const $checkedInput = $wrapper.find('input[type="radio"]:checked, select option:selected')
+            if (!$checkedInput.length) return
+            
+            const checkedId = parseInt($checkedInput.val())
+            
+            // Check if this checked item is in the unavailable list
+            if (checkedId && data.unavailable_attribute_ids.includes(checkedId)) {
+                hasDisabledSelection = true
                 clickedWrapper = $wrapper
-                clickedIsDisabled = true
-                return false // break the loop
+                return false // break
             }
         })
         
-        // Only auto-select if user clicked a disabled item
-        if (!clickedIsDisabled) {
+        // Only proceed if current selection is disabled
+        if (!hasDisabledSelection) {
             return
         }
         
         // Set flag to prevent infinite loop
         window._isAutoSelecting = true
         
-        // Now auto-select enabled values for ALL OTHER attributes
+        // Auto-select first enabled option in ALL OTHER attributes
         $allWrappers.each((index, wrapper) => {
             const $wrapper = $(wrapper)
             
-            // Skip the wrapper that was just clicked
+            // Skip the wrapper that has the disabled selection
             if (clickedWrapper && $wrapper.is(clickedWrapper)) {
                 return
             }
             
-            // Find the first enabled (non-disabled) item in this wrapper
+            // Find first non-disabled item
             const $enabled = $wrapper.find('.bb-product-attribute-swatch-item:not(.disabled)').first()
             
             if ($enabled.length) {
-                // Select this enabled item WITHOUT triggering change event
+                // Update visual selection
                 $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
-                $wrapper.find('input[type="radio"]').prop('checked', false)
-                
                 $enabled.addClass('selected')
+                
+                // Update radio button
                 const $input = $enabled.find('input[type="radio"]')
                 if ($input.length) {
+                    $wrapper.find('input[type="radio"]').prop('checked', false)
                     $input.prop('checked', true)
-                    // DO NOT trigger change - let user's original click handle it
+                }
+            }
+            
+            // Handle dropdown
+            const $select = $wrapper.find('select')
+            if ($select.length) {
+                const $enabledOption = $select.find('option:not(:disabled)').first()
+                if ($enabledOption.length && $enabledOption.val()) {
+                    $select.val($enabledOption.val())
                 }
             }
         })
         
-        // Clear flag after a short delay
+        // Clear flag
         setTimeout(() => {
             window._isAutoSelecting = false
         }, 100)
     }
     
     /**
-     * Hide/show visual items based on disabled CLASS (not ID list)
-     * The CMS already adds .disabled class to unavailable items
+     * Hide disabled visual items completely using display:none !important
      */
     updateVisualItemsVisibility = ($product, data) => {
         // Find all visual attribute wrappers
@@ -1961,13 +1973,21 @@ class Ecommerce {
             const $wrapper = $(this)
             const $items = $wrapper.find('.bb-product-attribute-swatch-item')
             
-            // Hide items that have .disabled class, show others
+            // Hide disabled items, show enabled ones
             $items.each(function() {
                 const $item = $(this)
                 if ($item.hasClass('disabled')) {
-                    $item.hide()
+                    // Force hide with !important inline style
+                    $item.css('display', 'none')
+                    $item.attr('style', 'display: none !important')
                 } else {
-                    $item.show()
+                    // Show enabled items
+                    $item.css('display', '')
+                    $item.removeAttr('style')
+                }
+            })
+        })
+    }
                 }
             })
         })
