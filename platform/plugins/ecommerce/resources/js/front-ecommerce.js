@@ -2044,6 +2044,7 @@ class Ecommerce {
         
         const unavailableIds = data.unavailable_attribute_ids || []
         console.log('   🚫 Unavailable IDs:', unavailableIds)
+        console.log('   🚫 Unavailable IDs array:', JSON.stringify(unavailableIds))
         
         // Find all visual attribute wrappers
         const $visualWrappers = $product.find('.qs-swatch-wrap[data-type="visual"]')
@@ -2066,8 +2067,11 @@ class Ecommerce {
                 
                 // Check if this item's ID is in the unavailable list
                 const isUnavailable = unavailableIds.includes(itemId)
+                const isUnavailableStrict = unavailableIds.includes(parseInt(itemId))
                 
-                console.log(`      Item ${itemIndex + 1}: ID=${itemId}, Title="${itemTitle}", .disabled=${hasDisabledClass}, unavailable=${isUnavailable}`)
+                console.log(`      Item ${itemIndex + 1}: ID=${itemId} (type:${typeof itemId}), Title="${itemTitle}", .disabled=${hasDisabledClass}`)
+                console.log(`         includes(${itemId})=${isUnavailable}, includes(parseInt(${itemId}))=${isUnavailableStrict}`)
+                console.log(`         unavailableIds content:`, unavailableIds)
                 
                 if (isUnavailable) {
                     // Add disabled class if CMS didn't
