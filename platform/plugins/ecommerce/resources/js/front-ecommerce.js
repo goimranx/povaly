@@ -196,6 +196,11 @@ class Ecommerce {
                 }, 100)
             })
             .on('change', 'form.bb-product-form-filter input, form.bb-product-form-filter select', (e) => {
+                // Skip if this is an auto-selected attribute to prevent cascade
+                if (window._qsPreventFormSubmit) {
+                    return
+                }
+                
                 const currentTarget = $(e.currentTarget)
                 const form = currentTarget.closest('form')
 
@@ -2346,9 +2351,14 @@ class Ecommerce {
                 const title = $target.data('title') || $target.text() || ''
                 $nvWrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title)
                 
+                // Mark as auto-select to prevent triggering cascade
                 $dropdown[0]._qsAutoSelect = true
+                window._qsPreventFormSubmit = true
                 $dropdown.trigger('change')
-                setTimeout(() => { if ($dropdown[0]) $dropdown[0]._qsAutoSelect = false }, 100)
+                setTimeout(() => { 
+                    if ($dropdown[0]) $dropdown[0]._qsAutoSelect = false 
+                    window._qsPreventFormSubmit = false
+                }, 100)
             } else {
                 $nvWrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected')
                 $nvWrap.find('input.product-filter-item').prop('checked', false)
@@ -2361,8 +2371,12 @@ class Ecommerce {
                 $nvWrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title)
                 
                 $radio[0]._qsAutoSelect = true
+                window._qsPreventFormSubmit = true
                 $radio.trigger('change')
-                setTimeout(() => { if ($radio[0]) $radio[0]._qsAutoSelect = false }, 100)
+                setTimeout(() => { 
+                    if ($radio[0]) $radio[0]._qsAutoSelect = false 
+                    window._qsPreventFormSubmit = false
+                }, 100)
             }
         })
         console.log(`✅ Step 3 complete. Auto-selected ${step3Count} attributes`)
