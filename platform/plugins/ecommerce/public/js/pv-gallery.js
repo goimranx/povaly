@@ -528,15 +528,15 @@
                         data-slide-index="${i}"></span>`;
                 }
                 
-                // Transition to final state
-                requestAnimationFrame(() => {
+                // Wait a bit so user can SEE the initial state, then transition to final state
+                setTimeout(() => {
                     this._dotsEl.classList.add(direction === 'left' ? 'pv-dots-slide-forward' : 'pv-dots-slide-backward');
                     this._dotsEl.innerHTML = finalHtml;
                     
                     setTimeout(() => {
                         this._dotsEl.classList.remove('pv-dots-slide-forward', 'pv-dots-slide-backward');
-                    }, 200);
-                });
+                    }, 300);
+                }, 100); // 100ms pause to show initial state
             }
             
             // Re-attach click handlers after final render
@@ -547,7 +547,7 @@
                         this._mobileGoTo(to, to > this._mobileIndex ? 'left' : 'right');
                     });
                 });
-            }, didShift ? 210 : 0);
+            }, didShift ? 410 : 0);
         }
         // ─────────────────────────────────────────────────────────────────────
 
