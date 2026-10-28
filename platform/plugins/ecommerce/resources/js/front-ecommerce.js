@@ -2009,29 +2009,43 @@ class Ecommerce {
         console.log('📍 Handling last clicked non-visual')
         if (window._qsLastClickedAttrType === 'nonvisual' && window._qsLastClickedAttrId) {
             console.log('🖱️ User just clicked non-visual ID:', window._qsLastClickedAttrId)
-            const $clickedItem = $container.find(
+            
+            // Search in BOTH text swatches AND dropdown options
+            let $clickedItem = $container.find(
                 `.qs-color-item[data-id="${window._qsLastClickedAttrId}"], ` +
                 `.bb-product-attribute-swatch-item[data-id="${window._qsLastClickedAttrId}"]:not(.qs-var-item)`
             )
             
+            // Also check if it's a dropdown option
+            if (!$clickedItem.length) {
+                const $dropdownOption = $container.find(`.qs-dropdown option[value="${window._qsLastClickedAttrId}"]`)
+                if ($dropdownOption.length) {
+                    $clickedItem = $dropdownOption
+                    console.log('   ✓ Found in dropdown option')
+                }
+            }
+            
             if ($clickedItem.length) {
-                const isDisabledNonVisual = $clickedItem.hasClass('disabled')
+                const isDisabledNonVisual = $clickedItem.hasClass('disabled') || $clickedItem.is(':disabled') || $clickedItem.data('was-disabled')
                 console.log('   Was disabled?', isDisabledNonVisual)
                 
                 if ($scope.length) {
                     $scope[0]._qsLastNonVisualWasDisabled = isDisabledNonVisual
                 }
                 
-                // Add to nonVisualSelected only if the CMS actually selected it (checkbox is checked)
-                const $input = $clickedItem.find('input.product-filter-item:checked')
-                if ($input.length && nonVisualSelected.indexOf(window._qsLastClickedAttrId) === -1) {
+                // Add to nonVisualSelected only if the CMS actually selected it (checkbox is checked OR dropdown value matches)
+                const isSelected = $clickedItem.is('option') 
+                    ? $clickedItem.is(':selected')
+                    : $clickedItem.find('input.product-filter-item:checked').length > 0
+                    
+                if (isSelected && nonVisualSelected.indexOf(window._qsLastClickedAttrId) === -1) {
                     nonVisualSelected.push(window._qsLastClickedAttrId)
-                    console.log('   ✅ Added to nonVisualSelected (checkbox was checked by CMS)')
+                    console.log('   ✅ Added to nonVisualSelected (was selected by CMS)')
                 } else {
-                    console.log('   ⏭️ Not added to nonVisualSelected (checkbox not checked)')
+                    console.log('   ⏭️ Not added to nonVisualSelected (not selected by CMS)')
                 }
             } else {
-                console.log('   ⚠️ Clicked item not found in DOM')
+                console.log('   ⚠️ Clicked item not found in DOM (CMS may have changed product/variation)')
             }
         }
         console.log('📝 Non-visual selected (final):', nonVisualSelected)
