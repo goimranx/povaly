@@ -1900,6 +1900,74 @@ class Ecommerce {
         } else if (typeof EcommerceApp !== 'undefined') {
             EcommerceApp.initProductGallery(true)
         }
+
+        // Simple auto-selection: when a disabled attribute is clicked,
+        // auto-select other attributes from their enabled options
+        this.autoSelectEnabledAttributes($product, data)
+    }
+
+    /**
+     * Auto-select enabled attributes when user clicks a disabled option
+     * Finds pairs that match the clicked attribute and selects previously picked values if available
+     */
+    autoSelectEnabledAttributes = ($product, data) => {
+        if (!data || !data.unavailable_attribute_ids) {
+            return
+        }
+
+        // Initialize memory for tracking user selections
+        if (!window._qsAttrMemory) window._qsAttrMemory = {}
+
+        // Get all attribute wrappers
+        const $allWrappers = $product.find('.bb-product-attribute-swatch-list')
+
+        // Check each wrapper for disabled selection
+        $allWrappers.each((index, wrapper) => {
+            const $wrapper = $(wrapper)
+            const attrId = $wrapper.data('attribute-id')
+            
+            // Check if current selection is disabled
+            const $selected = $wrapper.find('.bb-product-attribute-swatch-item.selected')
+            const selectedId = $selected.data('id')
+            
+            if (!selectedId || !data.unavailable_attribute_ids.includes(selectedId)) {
+                return // Not disabled, skip
+            }
+
+            // Find enabled options in this wrapper
+            const $enabled = $wrapper.find('.bb-product-attribute-swatch-item:not(.disabled)')
+            
+            if (!$enabled.length) {
+                return // No enabled options
+            }
+
+            // Try to select previously paired value
+            let $target = null
+            if (window._qsAttrMemory[attrId]) {
+                $target = $enabled.filter(`[data-id="${window._qsAttrMemory[attrId]}"]`)
+            }
+
+            // Fallback to first enabled
+            if (!$target || !$target.length) {
+                $target = $enabled.first()
+            }
+
+            if ($target.length) {
+                // Remember this selection
+                window._qsAttrMemory[attrId] = $target.data('id')
+                
+                // Perform selection
+                $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
+                $wrapper.find('input[type="radio"]').prop('checked', false)
+                
+                $target.addClass('selected')
+                const $input = $target.find('input[type="radio"]')
+                if ($input.length) {
+                    $input.prop('checked', true)
+                    $input.trigger('change')
+                }
+            }
+        })
     }
 
     // Retained as a no-op for backward compatibility. Default swatch handlers
