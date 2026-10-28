@@ -493,17 +493,14 @@
                     // Forward: shift window left so active appears at position 3 (index 3 from tempStart)
                     tempStart = active - 3;
                     tempEnd = tempStart + MAX - 1;
-                    console.log('🔵 FORWARD: active=', active, 'tempStart=', tempStart, 'tempEnd=', tempEnd, 'active will be at visual position:', active - tempStart);
                 } else {
                     // Backward: shift window right so active appears at position 1 (index 1 from tempStart)  
                     tempStart = active - 1;
                     tempEnd = tempStart + MAX - 1;
-                    console.log('🔴 BACKWARD: active=', active, 'tempStart=', tempStart, 'tempEnd=', tempEnd, 'active will be at visual position:', active - tempStart);
                 }
                 // Clamp to valid range
                 tempStart = Math.max(0, tempStart);
                 tempEnd = Math.min(total - 1, tempEnd);
-                console.log('   After clamp: tempStart=', tempStart, 'tempEnd=', tempEnd, 'active visual position:', active - tempStart);
             }
 
             // Build initial dots (with active at off-center position if animating)
@@ -516,10 +513,6 @@
                     style="width:${size}px;height:${size}px;opacity:${opacity}"
                     data-index="${i}"
                     data-slide-index="${i}"></span>`;
-            }
-            
-            if (didShift) {
-                console.log('   Initial dots range:', (didShift ? tempStart : start), 'to', (didShift ? tempEnd : end));
             }
             
             this._dotsEl.innerHTML = html;
@@ -538,17 +531,17 @@
                         data-slide-index="${i}"></span>`;
                 }
                 
-                console.log('   Final dots range:', start, 'to', end, 'active visual position:', active - start);
-                
                 // Wait a bit so user can SEE the initial state, then transition to final state
                 setTimeout(() => {
+                    // Add smooth transition class before changing content
+                    this._dotsEl.classList.add('pv-dots-transitioning');
                     this._dotsEl.classList.add(direction === 'left' ? 'pv-dots-slide-forward' : 'pv-dots-slide-backward');
                     this._dotsEl.innerHTML = finalHtml;
                     
                     setTimeout(() => {
-                        this._dotsEl.classList.remove('pv-dots-slide-forward', 'pv-dots-slide-backward');
-                    }, 300);
-                }, 100); // 100ms pause to show initial state
+                        this._dotsEl.classList.remove('pv-dots-slide-forward', 'pv-dots-slide-backward', 'pv-dots-transitioning');
+                    }, 400);
+                }, 50); // Reduced pause to 50ms for smoother feel
             }
             
             // Re-attach click handlers after final render
@@ -559,7 +552,7 @@
                         this._mobileGoTo(to, to > this._mobileIndex ? 'left' : 'right');
                     });
                 });
-            }, didShift ? 410 : 0);
+            }, didShift ? 460 : 0);
         }
         // ─────────────────────────────────────────────────────────────────────
 
