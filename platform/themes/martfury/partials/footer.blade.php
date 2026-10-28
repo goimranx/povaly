@@ -2176,11 +2176,23 @@
                     var otherNonVisuals = [];
                     $scope.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
                         var $nvWrap = $(this);
-                        var $checkedInput = $nvWrap.find('input.product-filter-item:checked');
-                        if ($checkedInput.length) {
-                            var checkedId = parseInt($checkedInput.val());
-                            if (!isNaN(checkedId) && checkedId !== attrId) {
-                                otherNonVisuals.push(checkedId);
+                        var wrapType = $nvWrap.data('type');
+                        
+                        if (wrapType === 'dropdown') {
+                            // For dropdown, get selected value
+                            var $dd = $nvWrap.find('.qs-dropdown');
+                            var ddId = parseInt($dd.val());
+                            if (!isNaN(ddId) && ddId !== attrId && ddId > 0) {
+                                otherNonVisuals.push(ddId);
+                            }
+                        } else {
+                            // For text swatches, get checked input
+                            var $checkedInput = $nvWrap.find('input.product-filter-item:checked');
+                            if ($checkedInput.length) {
+                                var checkedId = parseInt($checkedInput.val());
+                                if (!isNaN(checkedId) && checkedId !== attrId) {
+                                    otherNonVisuals.push(checkedId);
+                                }
                             }
                         }
                     });
@@ -2190,12 +2202,23 @@
                     // E.g., M is selected, user clicks Brown → update M→Brown pairing
                     $scope.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
                         var $nvWrap = $(this);
-                        var $selectedNonVisual = $nvWrap.find('.qs-color-item.selected, .bb-product-attribute-swatch-item.selected:not(.qs-var-item), .qs-color-item:has(input:checked), .bb-product-attribute-swatch-item:has(input:checked):not(.qs-var-item)').first();
-                        if ($selectedNonVisual.length) {
-                            var nonVisualId = parseInt($selectedNonVisual.data('id'));
-                            if (!isNaN(nonVisualId)) {
-                                _qsNonVisualToVisual[nonVisualId] = attrId;
+                        var wrapType = $nvWrap.data('type');
+                        var nonVisualId;
+                        
+                        if (wrapType === 'dropdown') {
+                            // For dropdown, get selected value
+                            var $dd = $nvWrap.find('.qs-dropdown');
+                            nonVisualId = parseInt($dd.val());
+                        } else {
+                            // For text swatches, find selected item
+                            var $selectedNonVisual = $nvWrap.find('.qs-color-item.selected, .bb-product-attribute-swatch-item.selected:not(.qs-var-item), .qs-color-item:has(input:checked), .bb-product-attribute-swatch-item:has(input:checked):not(.qs-var-item)').first();
+                            if ($selectedNonVisual.length) {
+                                nonVisualId = parseInt($selectedNonVisual.data('id'));
                             }
+                        }
+                        
+                        if (!isNaN(nonVisualId) && nonVisualId > 0) {
+                            _qsNonVisualToVisual[nonVisualId] = attrId;
                         }
                     });
                 }
