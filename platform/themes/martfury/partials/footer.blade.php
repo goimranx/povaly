@@ -1839,6 +1839,38 @@
                 $wrap.find('.qs-swatch__selected-val').text(cur);
             });
 
+            // Dropdown change handler
+            $scope.on('change.qs-swatches', '.qs-dropdown', function() {
+                var $dropdown = $(this);
+                var $wrap = $dropdown.closest('.qs-swatch-wrap');
+                var $selected = $dropdown.find('option:selected');
+                var title = $selected.data('title') || $selected.text() || '';
+                var attrId = parseInt($selected.val());
+                var setSlug = $wrap.data('slug') || '';
+                
+                // Update label
+                $wrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
+                
+                // Record user's choice
+                if (setSlug && attrId) {
+                    _qsUserPick[setSlug] = attrId;
+                }
+                
+                // Record as last clicked (treated as non-visual)
+                _qsLastClickedAttrId = attrId;
+                _qsLastClickedAttrType = 'nonvisual';
+                
+                // Remember visual pairing (like other non-visuals do)
+                var $visualWrap = $scope.find('.attribute-swatches-wrapper[data-type="visual"]').first();
+                var $selectedVisual = $visualWrap.find('.qs-var-item.selected, .qs-var-item:has(input:checked)').first();
+                if ($selectedVisual.length && attrId) {
+                    var visualId = parseInt($selectedVisual.data('id'));
+                    if (!isNaN(visualId)) {
+                        _qsNonVisualToVisual[attrId] = visualId;
+                    }
+                }
+            });
+
             // On click: record which attr was clicked and its type BEFORE AJAX fires,
             // and save to per-set user-pick memory (only for genuine user clicks).
             $scope.on('click.qs-swatches', '.qs-var-item label, .qs-color-item label', function() {
