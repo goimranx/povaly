@@ -1677,7 +1677,14 @@ class Ecommerce {
      * @param {jQuery} element
      */
     defaultOnChangeSwatchesSuccess = (response, element) => {
+        console.log('🚀 ========================================')
+        console.log('🚀 defaultOnChangeSwatchesSuccess CALLED!')
+        console.log('🚀 ========================================')
+        console.log('Response:', response)
+        console.log('Element:', element)
+        
         if (!response) {
+            console.log('❌ No response, exiting')
             return
         }
 

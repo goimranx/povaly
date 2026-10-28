@@ -131,10 +131,21 @@ class VersionHelper
      * Get version for cache busting
      * Returns a short hash suitable for asset URLs
      * 
-     * @return string Short version string for cache busting (e.g., "1.0.0" or "abc1234")
+     * For production (main branch): Uses Git tag version (e.g., "1.0.0")
+     * For staging (stage branch): Uses current timestamp to force cache bust on every request
+     * 
+     * @return string Short version string for cache busting (e.g., "1.0.0" or "1730234567")
      */
     public static function getCacheBustVersion(): string
     {
+        $branch = self::getCurrentBranch();
+        
+        // For staging/development: Use timestamp to force fresh cache on every request
+        if ($branch === 'stage' || !in_array($branch, ['main', 'HEAD'])) {
+            return (string) time();
+        }
+        
+        // For production: Use Git tag version
         $version = self::getCurrentVersion();
         
         // Remove 'v' prefix if exists
