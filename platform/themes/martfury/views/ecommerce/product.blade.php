@@ -25,11 +25,10 @@
                         {{-- 1. Store link --}}
                         @if (is_plugin_active('marketplace') && $product->store_id)
                             <div class="pd-store-link">
-                                <i class="ph ph-storefront"></i>
-                                {{ __('Shop the') }}
-                                <a href="{{ $product->store->url }}">{{ $product->store->name }}</a>
-                                {{ __('store') }}
-                                {!! $product->store->badge !!}
+                                <a href="{{ $product->store->url }}">
+                                    {{ __('Shop the') }} {{ $product->store->name }} {{ __('store') }}
+                                    {!! $product->store->badge !!}
+                                </a>
                             </div>
                         @endif
 
