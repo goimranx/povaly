@@ -1678,7 +1678,122 @@
                 if (nextBtn) nextBtn.style.display = (totalPages > 1 && page < totalPages - 1) ? 'flex' : 'none';
             });
 
-            // ── Step 3: If the currently-selected visual item just got hidden,
+            // ── Step 3: Auto-select non-visuals (text/dropdown) when they become disabled ──
+            // Works when ANY attribute changes (visual OR non-visual)
+            // If any text/dropdown is selected but now disabled, auto-select an available option
+            $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
+                var $nvWrap = $(this);
+                var setSlug = $nvWrap.data('slug') || '';
+                var isDropdown = $nvWrap.data('type') === 'dropdown';
+                
+                var $currentSelected, currentId;
+                if (isDropdown) {
+                    var $dropdown = $nvWrap.find('.qs-dropdown');
+                    currentId = parseInt($dropdown.val());
+                    $currentSelected = $dropdown.find('option[value="' + currentId + '"]');
+                } else {
+                    $currentSelected = $nvWrap.find('.qs-color-item.selected, .bb-product-attribute-swatch-item.selected:not(.qs-var-item)');
+                    if (!$currentSelected.length) {
+                        $currentSelected = $nvWrap.find('input.product-filter-item:checked').closest('li');
+                    }
+                    currentId = parseInt($currentSelected.data('id'));
+                }
+                
+                // Is currently selected item disabled?
+                var isDisabled = isDropdown 
+                    ? $currentSelected.is(':disabled')
+                    : $currentSelected.hasClass('disabled');
+                
+                if (!isDisabled || !currentId) return; // nothing to do
+                
+                // Find available options
+                var $available, $all;
+                if (isDropdown) {
+                    $all = $nvWrap.find('.qs-dropdown option[value!=""]');
+                    $available = $all.filter(':not(:disabled)');
+                } else {
+                    $all = $nvWrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)');
+                    $available = $all.filter(':not(.disabled)');
+                }
+                
+                if (!$available.length) return; // no alternatives available
+                
+                // Priority selection logic:
+                // 1. Try the last user-picked option for this attribute set if still available
+                // 2. Try the pairing stored for current visual (reverse lookup: visualId→nonVisualId)
+                // 3. Fall back to first available
+                
+                var $target = $();
+                
+                // Check user's remembered pick for this set
+                var rememberedId = setSlug ? _qsUserPick[setSlug] : null;
+                if (rememberedId) {
+                    if (isDropdown) {
+                        $target = $available.filter('[value="' + rememberedId + '"]');
+                    } else {
+                        $target = $available.filter('[data-id="' + rememberedId + '"]');
+                    }
+                }
+                
+                // Check reverse pairing: does current visual have a remembered non-visual for this set?
+                if (!$target.length && visualSelected.length === 1) {
+                    var visualId = visualSelected[0];
+                    // Search for any non-visual that was paired with this visual
+                    for (var nvId in _qsNonVisualToVisual) {
+                        if (_qsNonVisualToVisual[nvId] === visualId) {
+                            // Found a pairing, check if this nvId is in current attribute set
+                            if (isDropdown) {
+                                $target = $available.filter('[value="' + nvId + '"]');
+                            } else {
+                                $target = $available.filter('[data-id="' + nvId + '"]');
+                            }
+                            if ($target.length) break;
+                        }
+                    }
+                }
+                
+                // Fallback to first available
+                if (!$target.length) {
+                    $target = $available.first();
+                }
+                
+                if (!$target.length) return;
+                
+                // Apply the selection
+                if (isDropdown) {
+                    var newVal = $target.attr('value');
+                    var $dropdown = $nvWrap.find('.qs-dropdown');
+                    $dropdown.val(newVal);
+                    
+                    // Update label
+                    var title = $target.data('title') || $target.text() || '';
+                    $nvWrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
+                    
+                    // Trigger change with auto-select flag
+                    $dropdown[0]._qsAutoSelect = true;
+                    $dropdown.trigger('change');
+                    setTimeout(function() { if ($dropdown[0]) $dropdown[0]._qsAutoSelect = false; }, 100);
+                } else {
+                    // Text swatch
+                    $nvWrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').removeClass('selected');
+                    $nvWrap.find('input.product-filter-item').prop('checked', false);
+                    
+                    $target.addClass('selected');
+                    var $radio = $target.find('input.product-filter-item');
+                    $radio.prop('checked', true);
+                    
+                    // Update label
+                    var title = $target.data('title') || '';
+                    $nvWrap.find('.qs-swatch__selected-val').text(title).attr('data-default', title);
+                    
+                    // Trigger change with auto-select flag
+                    $radio[0]._qsAutoSelect = true;
+                    $radio.trigger('change');
+                    setTimeout(function() { if ($radio[0]) $radio[0]._qsAutoSelect = false; }, 100);
+                }
+            });
+
+            // ── Step 4: If the currently-selected visual item just got hidden,
             // auto-select the best available visual item so the user
             // is never left with no visual selected after picking a non-visual (size/material/style/etc).
             // Priority (for DISABLED non-visual clicks):
