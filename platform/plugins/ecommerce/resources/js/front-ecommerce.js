@@ -2031,10 +2031,19 @@ class Ecommerce {
     
     /**
      * Hide disabled visual items completely using display:none !important
+     * CMS doesn't add .disabled class to visual items, so we check unavailable_attribute_ids
      */
     updateVisualItemsVisibility = ($product, data) => {
         console.log('👁️ updateVisualItemsVisibility called')
         console.log('   Product element:', $product.length ? 'FOUND' : 'NOT FOUND')
+        
+        if (!data || !data.unavailable_attribute_ids) {
+            console.log('   ❌ No unavailable_attribute_ids data')
+            return
+        }
+        
+        const unavailableIds = data.unavailable_attribute_ids || []
+        console.log('   🚫 Unavailable IDs:', unavailableIds)
         
         // Find all visual attribute wrappers
         const $visualWrappers = $product.find('.qs-swatch-wrap[data-type="visual"]')
@@ -2048,22 +2057,36 @@ class Ecommerce {
             const $items = $wrapper.find('.bb-product-attribute-swatch-item')
             console.log('      Total items:', $items.length)
             
-            // Hide disabled items, show enabled ones
+            // Check each item against unavailable IDs
             $items.each(function(itemIndex) {
                 const $item = $(this)
                 const itemId = $item.data('id')
                 const itemTitle = $item.data('title')
                 const hasDisabledClass = $item.hasClass('disabled')
-                const currentDisplay = $item.css('display')
                 
-                console.log(`      Item ${itemIndex + 1}: ID=${itemId}, Title="${itemTitle}", .disabled=${hasDisabledClass}, display="${currentDisplay}"`)
+                // Check if this item's ID is in the unavailable list
+                const isUnavailable = unavailableIds.includes(itemId)
                 
-                if (hasDisabledClass) {
+                console.log(`      Item ${itemIndex + 1}: ID=${itemId}, Title="${itemTitle}", .disabled=${hasDisabledClass}, unavailable=${isUnavailable}`)
+                
+                if (isUnavailable) {
+                    // Add disabled class if CMS didn't
+                    if (!hasDisabledClass) {
+                        $item.addClass('disabled')
+                        console.log(`         ➕ Added .disabled class`)
+                    }
+                    
                     // Force hide with !important inline style
                     $item.css('display', 'none')
                     $item.attr('style', 'display: none !important')
                     console.log(`         ❌ HIDING item ${itemId}`)
                 } else {
+                    // Remove disabled class if it exists
+                    if (hasDisabledClass) {
+                        $item.removeClass('disabled')
+                        console.log(`         ➖ Removed .disabled class`)
+                    }
+                    
                     // Show enabled items
                     $item.css('display', '')
                     $item.removeAttr('style')
@@ -2072,7 +2095,8 @@ class Ecommerce {
                 
                 // Verify the change
                 const newDisplay = $item.css('display')
-                console.log(`         Final display: "${newDisplay}"`)
+                const finalDisabledClass = $item.hasClass('disabled')
+                console.log(`         Final: display="${newDisplay}", .disabled=${finalDisabledClass}`)
             })
         })
         
