@@ -1593,6 +1593,64 @@
                 // (the CMS already marks truly-impossible ones disabled via variationInfo)
                 // We don't touch them here — leave as rendered.
             }
+            
+            // ── Rule A2: update text / dropdown swatches based on OTHER non-visual selections ──
+            // When a non-visual changes, mark OTHER non-visuals as enabled/disabled based on matching variations
+            if (nonVisualSelected.length > 0) {
+                $container.find('.attribute-swatches-wrapper:not([data-type="visual"])').each(function() {
+                    var $wrap = $(this);
+                    var wrapType = $wrap.data('type');
+                    
+                    // For dropdowns, check each option
+                    if (wrapType === 'dropdown') {
+                        var $dropdown = $wrap.find('.qs-dropdown');
+                        $dropdown.find('option[value!=""]').each(function() {
+                            var $option = $(this);
+                            var optionId = parseInt($option.attr('value'));
+                            
+                            // Does any variation contain this option + all selected non-visuals + selected visuals?
+                            var hasMatch = priceMap.some(function(pv) {
+                                if (pv.attrs.indexOf(optionId) === -1) return false;
+                                // Check all selected non-visuals match (except itself)
+                                var othersMatch = nonVisualSelected.every(function(id) {
+                                    return id === optionId || pv.attrs.indexOf(id) !== -1;
+                                });
+                                if (!othersMatch) return false;
+                                // Check visuals match
+                                return visualSelected.every(function(vid) { return pv.attrs.indexOf(vid) !== -1; });
+                            });
+                            
+                            $option.prop('disabled', !hasMatch);
+                        });
+                    } else {
+                        // For text swatches
+                        $wrap.find('.qs-color-item, .bb-product-attribute-swatch-item:not(.qs-var-item)').each(function() {
+                            var $item = $(this);
+                            var itemId = parseInt($item.data('id'));
+                            
+                            // Does any variation contain this item + all selected non-visuals + selected visuals?
+                            var hasMatch = priceMap.some(function(pv) {
+                                if (pv.attrs.indexOf(itemId) === -1) return false;
+                                // Check all selected non-visuals match (except itself)
+                                var othersMatch = nonVisualSelected.every(function(id) {
+                                    return id === itemId || pv.attrs.indexOf(id) !== -1;
+                                });
+                                if (!othersMatch) return false;
+                                // Check visuals match
+                                return visualSelected.every(function(vid) { return pv.attrs.indexOf(vid) !== -1; });
+                            });
+                            
+                            if (hasMatch) {
+                                $item.removeClass('disabled');
+                                $item.css('display', '');
+                            } else {
+                                $item.addClass('disabled');
+                                $item.css('display', '');
+                            }
+                        });
+                    }
+                });
+            }
 
             // ── Rule B & C: update visual swatches based on text/dropdown selection ──
             $container.find('.attribute-swatches-wrapper[data-type="visual"]').each(function() {
@@ -1699,19 +1757,23 @@
                     currentId = parseInt($currentSelected.data('id'));
                 }
                 
-                // Check if we need to auto-select:
-                // 1. No selection at all (currentId is empty/0)
-                // 2. Currently selected item is disabled
-                var noSelection = !currentId || currentId === 0 || isNaN(currentId);
+                // Check if currently selected option is disabled (no matching variation)
+                // Same logic as Rule A: check if this option has a variation matching current visual selection
                 var isDisabled = false;
+                var noSelection = !currentId || currentId === 0 || isNaN(currentId);
+                
                 if (!noSelection) {
-                    isDisabled = isDropdown 
-                        ? $currentSelected.is(':disabled')
-                        : $currentSelected.hasClass('disabled');
+                    if (isDropdown) {
+                        isDisabled = $currentSelected.is(':disabled');
+                    } else {
+                        isDisabled = $currentSelected.hasClass('disabled');
+                    }
                 }
                 
-                // Only auto-select if no selection OR disabled
-                if (!noSelection && !isDisabled) return; // nothing to do
+                // Only auto-select if:
+                // 1. No selection at all (noSelection = true), OR
+                // 2. Current selection is disabled (doesn't match available variations)
+                if (!noSelection && !isDisabled) return; // Keep current selection if it still matches
                 
                 // Find available options
                 var $available, $all;
