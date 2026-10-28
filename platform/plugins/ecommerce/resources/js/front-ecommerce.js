@@ -1872,10 +1872,14 @@ class Ecommerce {
 
         // Simple auto-selection: when a disabled attribute is clicked,
         // auto-select other attributes from their enabled options
+        console.log('🔄 === AUTO-SELECT START ===')
+        console.log('📦 Data received:', data)
         this.autoSelectEnabledAttributes($product, data)
         
         // Hide disabled visual items
+        console.log('👁️ === VISUAL ITEMS VISIBILITY START ===')
         this.updateVisualItemsVisibility($product, data)
+        console.log('✅ === SWATCH UPDATE COMPLETE ===')
     }
 
     /**
@@ -1883,50 +1887,69 @@ class Ecommerce {
      * Finds pairs that match the clicked attribute and selects previously picked values if available
      */
     autoSelectEnabledAttributes = ($product, data) => {
+        console.log('🎯 autoSelectEnabledAttributes called')
+        console.log('   Data:', data)
+        console.log('   unavailable_attribute_ids:', data?.unavailable_attribute_ids)
+        
         if (!data || !data.unavailable_attribute_ids) {
+            console.log('   ❌ No data or unavailable_attribute_ids, exiting')
             return
         }
 
         // Initialize memory for tracking user selections
         if (!window._qsAttrMemory) window._qsAttrMemory = {}
+        console.log('   💾 Current memory:', window._qsAttrMemory)
 
         // Get all attribute wrappers
         const $allWrappers = $product.find('.bb-product-attribute-swatch-list')
+        console.log('   📋 Found wrappers:', $allWrappers.length)
 
         // Check each wrapper for disabled selection
         $allWrappers.each((index, wrapper) => {
             const $wrapper = $(wrapper)
             const attrId = $wrapper.data('attribute-id')
+            console.log(`\n   🔍 Wrapper ${index + 1}:`, 'attribute-id:', attrId)
             
             // Check if current selection is disabled
             const $selected = $wrapper.find('.bb-product-attribute-swatch-item.selected')
             const selectedId = $selected.data('id')
+            console.log('      Selected item ID:', selectedId)
+            console.log('      Is in unavailable list?', data.unavailable_attribute_ids.includes(selectedId))
             
             if (!selectedId || !data.unavailable_attribute_ids.includes(selectedId)) {
+                console.log('      ⏭️ Not disabled, skipping')
                 return // Not disabled, skip
             }
 
+            console.log('      ⚠️ Current selection is DISABLED!')
+
             // Find enabled options in this wrapper
             const $enabled = $wrapper.find('.bb-product-attribute-swatch-item:not(.disabled)')
+            console.log('      ✅ Found enabled options:', $enabled.length)
             
             if (!$enabled.length) {
+                console.log('      ❌ No enabled options available')
                 return // No enabled options
             }
 
             // Try to select previously paired value
             let $target = null
             if (window._qsAttrMemory[attrId]) {
+                console.log('      💾 Found remembered ID:', window._qsAttrMemory[attrId])
                 $target = $enabled.filter(`[data-id="${window._qsAttrMemory[attrId]}"]`)
+                console.log('      💾 Remembered item found?', $target.length > 0)
             }
 
             // Fallback to first enabled
             if (!$target || !$target.length) {
                 $target = $enabled.first()
+                console.log('      📌 Using first enabled item, ID:', $target.data('id'))
             }
 
             if ($target.length) {
                 // Remember this selection
                 window._qsAttrMemory[attrId] = $target.data('id')
+                console.log('      💾 Saved to memory:', attrId, '=', $target.data('id'))
                 
                 // Perform selection
                 $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
@@ -1935,11 +1958,16 @@ class Ecommerce {
                 $target.addClass('selected')
                 const $input = $target.find('input[type="radio"]')
                 if ($input.length) {
+                    console.log('      ✅ Triggering change event on input')
                     $input.prop('checked', true)
                     $input.trigger('change')
+                } else {
+                    console.log('      ⚠️ No input found in target')
                 }
+                console.log('      ✅ Auto-selection complete for this wrapper')
             }
         })
+        console.log('   ✅ autoSelectEnabledAttributes complete\n')
     }
     
     /**
@@ -1947,34 +1975,59 @@ class Ecommerce {
      * Disabled visual items should be hidden instead of crossed out
      */
     updateVisualItemsVisibility = ($product, data) => {
+        console.log('👁️ updateVisualItemsVisibility called')
+        console.log('   Data:', data)
+        
         if (!data || !data.unavailable_attribute_ids) {
+            console.log('   ❌ No data or unavailable_attribute_ids, exiting')
             return
         }
         
         const unavailableIds = data.unavailable_attribute_ids || []
+        console.log('   🚫 Unavailable IDs:', unavailableIds)
         
         // Find all visual attribute wrappers (color swatches with images)
-        $product.find('.bb-product-attribute-swatch-list').each(function() {
+        const $allWrappers = $product.find('.bb-product-attribute-swatch-list')
+        console.log('   📋 Found wrappers:', $allWrappers.length)
+        
+        $allWrappers.each(function(index) {
             const $wrapper = $(this)
             const $items = $wrapper.find('.bb-product-attribute-swatch-item')
+            console.log(`\n   🔍 Wrapper ${index + 1}: has ${$items.length} items`)
             
             // Check if this is a visual attribute (has image background or is color swatch)
-            const hasVisuals = $items.first().find('.bb-product-attribute-swatch-item__image').length > 0
+            const $firstItem = $items.first()
+            const hasImage = $firstItem.find('.bb-product-attribute-swatch-item__image').length > 0
+            const hasBackground = $firstItem.css('background-image') && $firstItem.css('background-image') !== 'none'
+            const hasVisuals = hasImage || hasBackground
+            
+            console.log('      Has image element?', hasImage)
+            console.log('      Has background image?', hasBackground)
+            console.log('      Is visual attribute?', hasVisuals)
             
             if (hasVisuals) {
+                console.log('      ✅ This is a VISUAL attribute, processing...')
                 // This is a visual attribute - hide disabled items
                 $items.each(function() {
                     const $item = $(this)
                     const itemId = $item.data('id')
+                    const isUnavailable = unavailableIds.includes(itemId)
                     
-                    if (unavailableIds.includes(itemId)) {
+                    console.log(`         Item ID ${itemId}: unavailable=${isUnavailable}`)
+                    
+                    if (isUnavailable) {
+                        console.log(`         ❌ Hiding item ${itemId}`)
                         $item.hide()
                     } else {
+                        console.log(`         ✅ Showing item ${itemId}`)
                         $item.show()
                     }
                 })
+            } else {
+                console.log('      ⏭️ Not a visual attribute, skipping')
             }
         })
+        console.log('   ✅ updateVisualItemsVisibility complete\n')
     }
 
     // Retained as a no-op for backward compatibility. Default swatch handlers
@@ -2035,18 +2088,31 @@ class Ecommerce {
      * Shows "Label: Value" on hover, shows selected value when not hovering
      */
     initAttributeSwatchHoverLabels() {
+        console.log('🏷️ Initializing hover labels')
+        
         $(document).on('mouseenter', '.bb-product-attribute-swatch-item', function() {
             const $item = $(this)
             const $wrapper = $item.closest('.bb-product-attribute-swatch-list')
             const $label = $wrapper.find('.bb-product-attribute-label')
             
-            if (!$label.length) return
+            console.log('🖱️ HOVER ON:', $item.data('id'))
+            console.log('   Label found?', $label.length > 0)
+            
+            if (!$label.length) {
+                console.log('   ❌ No label found')
+                return
+            }
             
             const attributeName = $label.text().replace(':', '').trim()
             const itemTitle = $item.data('title') || $item.attr('title') || ''
             
+            console.log('   Attribute name:', attributeName)
+            console.log('   Item title:', itemTitle)
+            
             if (itemTitle) {
-                $label.text(attributeName + ': ' + itemTitle)
+                const newText = attributeName + ': ' + itemTitle
+                console.log('   ✅ Setting label to:', newText)
+                $label.text(newText)
             }
         })
         
@@ -2056,14 +2122,19 @@ class Ecommerce {
             const $label = $wrapper.find('.bb-product-attribute-label')
             const $selected = $wrapper.find('.bb-product-attribute-swatch-item.selected')
             
+            console.log('🖱️ HOVER OFF:', $item.data('id'))
+            
             if (!$label.length) return
             
             const attributeName = $label.text().split(':')[0].trim()
             
             if ($selected.length) {
                 const selectedTitle = $selected.data('title') || $selected.attr('title') || ''
-                $label.text(attributeName + ': ' + selectedTitle)
+                const newText = attributeName + ': ' + selectedTitle
+                console.log('   ✅ Restoring to selected:', newText)
+                $label.text(newText)
             } else {
+                console.log('   ℹ️ No selection, showing just name:', attributeName + ':')
                 $label.text(attributeName + ':')
             }
         })
