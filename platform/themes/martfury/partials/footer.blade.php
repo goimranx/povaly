@@ -2055,6 +2055,9 @@
 
             // Dropdown change handler
             $scope.on('change.qs-swatches', '.qs-dropdown', function() {
+                // Skip if this change was triggered programmatically by auto-select
+                if (this._qsAutoSelect) return;
+                
                 var $dropdown = $(this);
                 var $wrap = $dropdown.closest('.qs-swatch-wrap');
                 var $selected = $dropdown.find('option:selected');
