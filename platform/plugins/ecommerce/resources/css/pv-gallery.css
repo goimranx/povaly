@@ -278,19 +278,19 @@
 }
 
 .pv-dots-slide-forward {
-    animation: pv-dots-slide-forward 0.2s ease-out;
+    animation: pv-dots-slide-forward 0.3s ease-out;
 }
 
 .pv-dots-slide-forward .pv-dot {
-    transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+    transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
 }
 
 .pv-dots-slide-backward {
-    animation: pv-dots-slide-backward 0.2s ease-out;
+    animation: pv-dots-slide-backward 0.3s ease-out;
 }
 
 .pv-dots-slide-backward .pv-dot {
-    transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+    transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
 }
 
 /* Legacy animation - kept for compatibility */
