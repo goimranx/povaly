@@ -2031,16 +2031,63 @@ class Ecommerce {
     
     /**
      * Hide disabled visual items completely using display:none !important
-     * Works for both: initial page load (.disabled class) and after AJAX (unavailable_attribute_ids)
+     * Uses variation prices data to calculate which visual items are available
+     * based on current selection from OTHER attributes
      */
     updateVisualItemsVisibility = ($product, data) => {
         console.log('👁️ updateVisualItemsVisibility called')
         console.log('   Product element:', $product.length ? 'FOUND' : 'NOT FOUND')
         
-        // Get unavailable IDs from data (after AJAX) or empty array (on page load)
-        const unavailableIds = (data && data.unavailable_attribute_ids) ? data.unavailable_attribute_ids : []
-        console.log('   🚫 Unavailable IDs:', unavailableIds)
-        console.log('   🚫 Unavailable IDs array:', JSON.stringify(unavailableIds))
+        if (!$product || !$product.length) {
+            return
+        }
+        
+        // Get variation prices data from HTML
+        const $attributesContainer = $product.find('.product-attributes')
+        const variationPricesStr = $attributesContainer.data('variation-prices')
+        let variationPrices = []
+        
+        try {
+            if (typeof variationPricesStr === 'string') {
+                variationPrices = JSON.parse(variationPricesStr)
+            } else if (Array.isArray(variationPricesStr)) {
+                variationPrices = variationPricesStr
+            }
+            console.log('   💰 Variation prices loaded:', variationPrices.length, 'combinations')
+        } catch (e) {
+            console.warn('   ⚠️ Could not parse variation prices:', e)
+        }
+        
+        // Get currently selected attribute IDs from NON-VISUAL attributes
+        const otherSelections = []
+        $product.find('.qs-swatch-wrap').each(function() {
+            const $wrapper = $(this)
+            const wrapperType = $wrapper.data('type')
+            const wrapperSlug = $wrapper.data('slug')
+            
+            // Skip visual wrappers - we only want selections from text/dropdown attributes
+            if (wrapperType === 'visual') {
+                return
+            }
+            
+            // Get the checked/selected input
+            const $checkedInput = $wrapper.find('input:checked')
+            const $selectedOption = $wrapper.find('select option:selected')
+            
+            let selectedId = null
+            if ($checkedInput.length && $checkedInput.val()) {
+                selectedId = parseInt($checkedInput.val())
+            } else if ($selectedOption.length && $selectedOption.val()) {
+                selectedId = parseInt($selectedOption.val())
+            }
+            
+            if (selectedId) {
+                otherSelections.push(selectedId)
+                console.log(`   🎯 Non-visual selection: ${wrapperSlug}=${selectedId}`)
+            }
+        })
+        
+        console.log('   📋 Other selections (non-visual):', otherSelections)
         
         // Find all visual attribute wrappers
         const $visualWrappers = $product.find('.qs-swatch-wrap[data-type="visual"]')
@@ -2054,48 +2101,53 @@ class Ecommerce {
             const $items = $wrapper.find('.bb-product-attribute-swatch-item')
             console.log('      Total items:', $items.length)
             
-            // Check each item against unavailable IDs AND .disabled class
+            // Check each visual item
             $items.each(function(itemIndex) {
                 const $item = $(this)
                 const itemId = $item.data('id')
                 const itemTitle = $item.data('title')
-                const hasDisabledClass = $item.hasClass('disabled')
                 
-                // Check if this item's ID is in the unavailable list OR already has .disabled class
-                const isInUnavailableList = unavailableIds.includes(itemId)
-                const isUnavailable = hasDisabledClass || isInUnavailableList
+                // Check if this visual item has any valid combination with OTHER selections
+                let hasValidCombination = false
                 
-                console.log(`      Item ${itemIndex + 1}: ID=${itemId} (type:${typeof itemId}), Title="${itemTitle}", .disabled=${hasDisabledClass}`)
-                console.log(`         inUnavailableList=${isInUnavailableList}, finalDecision: unavailable=${isUnavailable}`)
+                if (variationPrices.length > 0) {
+                    if (otherSelections.length > 0) {
+                        // Check if there's a variation containing THIS visual item + ALL other selections
+                        hasValidCombination = variationPrices.some(variation => {
+                            const attrs = variation.attrs || []
+                            // Must include this visual item ID
+                            if (!attrs.includes(itemId)) return false
+                            // Must include ALL other selected attribute IDs
+                            return otherSelections.every(otherId => attrs.includes(otherId))
+                        })
+                    } else {
+                        // No other selections yet, show all visual items that exist in ANY variation
+                        hasValidCombination = variationPrices.some(variation => {
+                            return (variation.attrs || []).includes(itemId)
+                        })
+                    }
+                } else {
+                    // No variation data available, show all
+                    hasValidCombination = true
+                }
+                
+                const isUnavailable = !hasValidCombination
+                
+                console.log(`      Item ${itemIndex + 1}: ID=${itemId}, Title="${itemTitle}"`)
+                console.log(`         hasValidCombination=${hasValidCombination}, finalDecision: unavailable=${isUnavailable}`)
                 
                 if (isUnavailable) {
-                    // Add disabled class if not already there
-                    if (!hasDisabledClass) {
-                        $item.addClass('disabled')
-                        console.log(`         ➕ Added .disabled class`)
-                    }
-                    
-                    // Force hide with !important inline style
+                    // Hide unavailable item
+                    $item.addClass('disabled')
                     $item.css('display', 'none')
-                    $item.attr('style', 'display: none !important')
                     console.log(`         ❌ HIDING item ${itemId}`)
                 } else {
-                    // Remove disabled class if it exists
-                    if (hasDisabledClass) {
-                        $item.removeClass('disabled')
-                        console.log(`         ➖ Removed .disabled class`)
-                    }
-                    
-                    // Show enabled items
+                    // Show available item
+                    $item.removeClass('disabled')
                     $item.css('display', '')
                     $item.removeAttr('style')
                     console.log(`         ✅ SHOWING item ${itemId}`)
                 }
-                
-                // Verify the change
-                const newDisplay = $item.css('display')
-                const finalDisabledClass = $item.hasClass('disabled')
-                console.log(`         Final: display="${newDisplay}", .disabled=${finalDisabledClass}`)
             })
         })
         
