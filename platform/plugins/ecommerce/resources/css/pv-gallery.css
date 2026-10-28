@@ -277,20 +277,18 @@
     }
 }
 
-.pv-dots-slide-forward {
-    animation: pv-dots-slide-forward 0.3s ease-out;
+.pv-dots-transitioning .pv-dot {
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.pv-dots-slide-forward .pv-dot {
-    transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+.pv-dots-slide-forward {
+    animation: pv-dots-slide-forward 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .pv-dots-slide-backward {
-    animation: pv-dots-slide-backward 0.3s ease-out;
-}
-
-.pv-dots-slide-backward .pv-dot {
-    transition: width 0.3s ease, height 0.3s ease, opacity 0.3s ease;
+    animation: pv-dots-slide-backward 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Legacy animation - kept for compatibility */
