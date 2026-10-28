@@ -2375,6 +2375,9 @@ class Ecommerce {
                     const targetAttrs = matchingVariation.attrs || []
                     console.log('   Found matching variation:', targetAttrs)
                     
+                    // Set flag to prevent infinite loops
+                    window._isAutoSelecting = true
+                    
                     // Auto-select matching attributes in OTHER wrappers
                     $product.find('.qs-swatch-wrap').each(function() {
                         const $w = $(this)
@@ -2393,7 +2396,10 @@ class Ecommerce {
                                 const $opt = $(this)
                                 const optId = parseInt($opt.val())
                                 if (targetAttrs.includes(optId)) {
-                                    $w.find('select').val(optId)
+                                    const $select = $w.find('select')
+                                    $select.val(optId)
+                                    // Trigger change to update variation
+                                    $select.trigger('change')
                                     console.log('   Auto-selected dropdown:', optId)
                                     return false // break
                                 }
@@ -2411,13 +2417,21 @@ class Ecommerce {
                                     $targetItem.addClass('selected')
                                     // Check radio
                                     $w.find('input[type="radio"]').prop('checked', false)
-                                    $targetItem.find('input[type="radio"]').prop('checked', true)
+                                    const $radio = $targetItem.find('input[type="radio"]')
+                                    $radio.prop('checked', true)
+                                    // Trigger change to update variation
+                                    $radio.trigger('change')
                                     console.log('   Auto-selected item:', targetId)
                                     return false // break
                                 }
                             })
                         }
                     })
+                    
+                    // Clear flag after a short delay
+                    setTimeout(() => {
+                        window._isAutoSelecting = false
+                    }, 100)
                 }
             }
         })
