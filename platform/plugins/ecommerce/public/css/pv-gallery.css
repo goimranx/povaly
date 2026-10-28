@@ -45,6 +45,13 @@
     z-index: 10;
 }
 
+/* Mobile - closer to edge */
+@media (max-width: 768px) {
+    .pv-gallery-actions {
+        right: 3px;
+    }
+}
+
 .pv-action-btn {
     width: 35px;
     height: 35px;
