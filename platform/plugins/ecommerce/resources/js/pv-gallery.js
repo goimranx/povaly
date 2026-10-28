@@ -382,6 +382,9 @@
             }
             this._mobileAnimating = true;
 
+            // Store direction for _updateDots to determine animation
+            this._swipeDirection = direction;
+            
             // Update index immediately so dots reflect new state right away
             this._mobileIndex = index;
             this._updateDots();
@@ -475,11 +478,24 @@
             let end   = Math.min(total - 1, start + MAX - 1);
             if (end - start < MAX - 1) start = Math.max(0, end - MAX + 1);
             
-            // Detect if window shifted: animate until we reach the last 2 indices
+            // Detect if we're in middle range and should animate
             const prevStart = this._prevStart || 0;
             const isInMiddleRange = (active >= 2) && (active < total - 2);
             const didShift = (start !== prevStart) && isInMiddleRange;
+            const direction = this._swipeDirection || 'left';
             this._prevStart = start;
+
+            // For animation: briefly show active at off-center position, then slide to center
+            let tempActivePos = -1;
+            if (didShift) {
+                if (direction === 'left') {
+                    // Going forward: show active at position 2 first, will slide right to position 3
+                    tempActivePos = 2;
+                } else {
+                    // Going backward: show active at position 4 first, will slide left to position 3
+                    tempActivePos = 4;
+                }
+            }
 
             let html = '';
             for (let i = start; i <= end; i++) {
@@ -497,12 +513,27 @@
             void this._dotsEl.offsetHeight;
             this._dotsEl.innerHTML = html;
             
-            // Add slide animation AFTER DOM update so new content slides in from right
+            // Add slide animation with direction
             if (didShift) {
-                requestAnimationFrame(() => {
-                    this._dotsEl.classList.add('pv-dots-slide');
-                    setTimeout(() => this._dotsEl.classList.remove('pv-dots-slide'), 200);
-                });
+                const dots = this._dotsEl.children;
+                const activeDot = dots[active - start];
+                
+                if (activeDot) {
+                    // Set initial position off-center
+                    const initialShift = direction === 'left' ? -20 : 20; // Negative = left, Positive = right
+                    this._dotsEl.style.transform = `translateX(${initialShift}px)`;
+                    
+                    // Animate to center position
+                    requestAnimationFrame(() => {
+                        this._dotsEl.style.transition = 'transform 0.2s ease';
+                        this._dotsEl.style.transform = 'translateX(0)';
+                        
+                        setTimeout(() => {
+                            this._dotsEl.style.transition = '';
+                            this._dotsEl.style.transform = '';
+                        }, 200);
+                    });
+                }
             }
             
             this._dotsEl.querySelectorAll('.pv-dot').forEach(dot => {
