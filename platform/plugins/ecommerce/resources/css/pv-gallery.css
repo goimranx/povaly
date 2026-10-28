@@ -257,25 +257,23 @@
 }
 
 /* Dots slide animations when window shifts */
+/* Forward: active dot slides from right (position 4) to center (position 3) while growing */
 @keyframes pv-dots-slide-forward {
     from {
-        transform: translateX(-20px);
-        opacity: 0.5;
+        transform: translateX(17px); /* Distance of one dot position */
     }
     to {
         transform: translateX(0);
-        opacity: 1;
     }
 }
 
+/* Backward: active dot slides from left (position 2) to center (position 3) while growing */
 @keyframes pv-dots-slide-backward {
     from {
-        transform: translateX(20px);
-        opacity: 0.5;
+        transform: translateX(-17px); /* Distance of one dot position */
     }
     to {
         transform: translateX(0);
-        opacity: 1;
     }
 }
 
@@ -283,8 +281,16 @@
     animation: pv-dots-slide-forward 0.2s ease-out;
 }
 
+.pv-dots-slide-forward .pv-dot {
+    transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
+}
+
 .pv-dots-slide-backward {
     animation: pv-dots-slide-backward 0.2s ease-out;
+}
+
+.pv-dots-slide-backward .pv-dot {
+    transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease;
 }
 
 /* Legacy animation - kept for compatibility */
