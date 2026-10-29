@@ -25,13 +25,24 @@ class ChangeProductSwatches {
             const swatchImage = $item.data('variation-image')
             
             if (swatchImage) {
+                // Mark as hover preview (not selection)
+                $item.data('is-hover-preview', true)
                 _self.previewSwatchImage(swatchImage, $item)
             }
         })
 
-        // When mouse leaves all swatches, restore to selected variation
-        $body.on('mouseleave', '.product-attributes .visual-swatch', function(e) {
-            _self.restoreSelectedImage()
+        // When mouse leaves the swatch item, restore to selected variation
+        $body.on('mouseleave', '.product-attributes .visual-swatch label', function(e) {
+            const $label = $(this)
+            const $item = $label.closest('.bb-product-attribute-swatch-item')
+            
+            // Clear hover preview flag
+            $item.removeData('is-hover-preview')
+            
+            // Only restore if this item is not the selected one
+            if (!$item.find('input[type=radio]').is(':checked')) {
+                _self.restoreSelectedImage()
+            }
         })
 
         $body.on('click', '.product-attributes .visual-swatch label, .product-attributes .text-swatch label', (e) => {
@@ -390,23 +401,12 @@ class ChangeProductSwatches {
             return
         }
         
-        // For Quick Shop Offcanvas Gallery (Slick)
-        const $slickGallery = $product.find('.bb-quick-view-gallery-images')
-        if ($slickGallery.length && $slickGallery.hasClass('slick-initialized')) {
-            // Find the slide with matching image
-            const $slides = $slickGallery.find('.slick-slide:not(.slick-cloned)')
-            let targetIndex = -1
-            
-            $slides.each(function(index) {
-                const $img = $(this).find('img')
-                if ($img.attr('src') === imageUrl) {
-                    targetIndex = index
-                    return false // break
-                }
-            })
-            
-            if (targetIndex >= 0) {
-                $slickGallery.slick('slickGoTo', targetIndex, false) // false = don't animate
+        // For Quick Shop Offcanvas Gallery
+        const $quickShopModal = $('#quick-shop-modal')
+        if ($quickShopModal.length && $quickShopModal.hasClass('show')) {
+            // Use the existing updateQSGalleryImages function if available
+            if (typeof window.updateQSGalleryImages === 'function') {
+                window.updateQSGalleryImages([imageUrl])
             }
         }
     }
@@ -436,21 +436,12 @@ class ChangeProductSwatches {
             return
         }
         
-        // For Quick Shop - restore to first slide or selected variation
-        const $slickGallery = $product.find('.bb-quick-view-gallery-images')
-        if ($slickGallery.length && $slickGallery.hasClass('slick-initialized') && selectedImage) {
-            const $slides = $slickGallery.find('.slick-slide:not(.slick-cloned)')
-            let targetIndex = 0
-            
-            $slides.each(function(index) {
-                const $img = $(this).find('img')
-                if ($img.attr('src') === selectedImage) {
-                    targetIndex = index
-                    return false
-                }
-            })
-            
-            $slickGallery.slick('slickGoTo', targetIndex, false)
+        // For Quick Shop - restore to selected variation's first slide
+        const $quickShopModal = $('#quick-shop-modal')
+        if ($quickShopModal.length && $quickShopModal.hasClass('show') && selectedImage) {
+            if (typeof window.updateQSGalleryImages === 'function') {
+                window.updateQSGalleryImages([selectedImage])
+            }
         }
     }
 }

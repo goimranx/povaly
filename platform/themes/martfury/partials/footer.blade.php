@@ -1492,6 +1492,9 @@
             // If not found in strip — do nothing, keep current position
             // (variation images will be present once Bug 1 fix is deployed)
         }
+        
+        // Expose globally for swatch hover/click integration
+        window.updateQSGalleryImages = updateQSGalleryImages;
 
         // ── Title expand ────────────────────────────────────────────────
         function initQSTitleExpand(scope) {

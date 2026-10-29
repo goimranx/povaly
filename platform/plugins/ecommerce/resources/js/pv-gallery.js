@@ -297,22 +297,60 @@
             
             if (!variationId) return;
             
-            // Find the first image for this variation
-            let targetIndex = this.variationMap[variationId];
+            // Find all images for this variation
+            const variationImages = this.allImages.filter(img => img.variationId == variationId);
             
-            // If variationMap has the index, use it
-            if (targetIndex !== undefined) {
-                this.jumpToImage(targetIndex);
-                this.scrollThumbnailsToShow(targetIndex);
-                return;
-            }
-            
-            // Otherwise, try to find any image with this variation ID
-            const firstVariationImage = this.allImages.find(img => img.variationId == variationId);
-            if (firstVariationImage) {
+            if (variationImages.length > 0) {
+                // Reorganize thumbnails: show variation images first, then others
+                this.reorderThumbnails(variationId);
+                
+                // Jump to first image of this variation
+                const firstVariationImage = variationImages[0];
                 this.jumpToImage(firstVariationImage.index);
                 this.scrollThumbnailsToShow(firstVariationImage.index);
+            } else {
+                // If variationMap has the index, use it
+                let targetIndex = this.variationMap[variationId];
+                
+                if (targetIndex !== undefined) {
+                    this.jumpToImage(targetIndex);
+                    this.scrollThumbnailsToShow(targetIndex);
+                    return;
+                }
+                
+                // Try to find any image with this variation ID
+                const firstVariationImage = this.allImages.find(img => img.variationId == variationId);
+                if (firstVariationImage) {
+                    this.jumpToImage(firstVariationImage.index);
+                    this.scrollThumbnailsToShow(firstVariationImage.index);
+                }
             }
+        }
+        
+        reorderThumbnails(variationId) {
+            // Get container of thumbnails
+            const thumbContainer = this.container.querySelector('.pv-thumb-grid');
+            if (!thumbContainer) return;
+            
+            // Separate variation thumbnails from others
+            const variationThumbs = [];
+            const otherThumbs = [];
+            
+            this.thumbnails.forEach(thumb => {
+                const thumbVariationId = thumb.getAttribute('data-variation-id');
+                if (thumbVariationId == variationId) {
+                    variationThumbs.push(thumb);
+                } else {
+                    otherThumbs.push(thumb);
+                }
+            });
+            
+            // Re-append: variation thumbnails first, then others
+            variationThumbs.forEach(thumb => thumbContainer.appendChild(thumb));
+            otherThumbs.forEach(thumb => thumbContainer.appendChild(thumb));
+            
+            // Update the thumbnails NodeList reference
+            this.thumbnails = thumbContainer.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
         }
         
         scrollThumbnailsToShow(index) {
