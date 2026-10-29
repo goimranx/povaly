@@ -259,8 +259,59 @@ class ChangeProductSwatches {
                 _self.updateSelectingAttributes(slugAttributes, $('#' + id))
             }
 
-            // Auto-select and visual hide/show logic integrated with CMS system
-            _self.handleAttributeAutoSelection($productAttributes, data)
+            // Auto-select first non-disabled option in wrappers that have no valid selection
+            // This happens after server marks items as disabled/enabled
+            const $wrappers = $productAttributes.find('.attribute-swatches-wrapper')
+            
+            $wrappers.each(function() {
+                const $wrapper = $(this)
+                const wrapperType = $wrapper.data('type')
+                
+                // Handle dropdowns
+                if (wrapperType === 'dropdown') {
+                    const $select = $wrapper.find('select')
+                    const $selectedOption = $select.find('option:selected')
+                    
+                    // If selected option is disabled or nothing is selected
+                    if (!$selectedOption.length || $selectedOption.is(':disabled')) {
+                        // Find first enabled option
+                        const $firstEnabled = $select.find('option:not(:disabled)').first()
+                        if ($firstEnabled.length) {
+                            $select.val($firstEnabled.val())
+                        }
+                    }
+                    return
+                }
+                
+                // Handle radio buttons (text/visual)
+                const $checkedRadio = $wrapper.find('input[type=radio]:checked')
+                const $checkedItem = $checkedRadio.closest('.bb-product-attribute-swatch-item')
+                
+                // If no radio is checked OR the checked one has .disabled class
+                if (!$checkedRadio.length || $checkedItem.hasClass('disabled')) {
+                    // Find first non-disabled item
+                    const $items = $wrapper.find('.bb-product-attribute-swatch-item')
+                    const $firstAvailable = $items.filter(function() {
+                        return !$(this).hasClass('disabled')
+                    }).first()
+                    
+                    if ($firstAvailable.length) {
+                        const $radio = $firstAvailable.find('input[type=radio]')
+                        
+                        // Uncheck all radios in this wrapper
+                        $wrapper.find('input[type=radio]').prop('checked', false)
+                        
+                        // Check the first available
+                        $radio.prop('checked', true)
+                        
+                        // Update .selected class for styling
+                        $items.removeClass('selected')
+                        $firstAvailable.addClass('selected')
+                    }
+                }
+            })
+
+            // Visual hide/show for unavailable items
             _self.handleVisualItemsVisibility($productAttributes, data)
 
             // Skip URL updates if data-update-url="false" is set on the container
@@ -320,149 +371,6 @@ class ChangeProductSwatches {
             const firstKey = this.cache.keys().next().value
             this.cache.delete(firstKey)
         }
-    }
-
-    /**
-     * Auto-select other attributes when current selection is invalid
-     * Works WITH CMS's native system by checking unavailable_attribute_ids
-     * and finding matching variations from variation-prices data
-     */
-    handleAttributeAutoSelection = function($productAttributes, data) {
-        if (!data || !data.unavailable_attribute_ids || data.unavailable_attribute_ids.length === 0) {
-            return
-        }
-
-        // Get variation prices to find valid combinations
-        const variationPricesStr = $productAttributes.data('variation-prices')
-        let variationPrices = []
-        
-        try {
-            if (typeof variationPricesStr === 'string') {
-                variationPrices = JSON.parse(variationPricesStr)
-            } else if (Array.isArray(variationPricesStr)) {
-                variationPrices = variationPricesStr
-            }
-        } catch (e) {
-            console.warn('Could not parse variation prices:', e)
-            return
-        }
-
-        if (variationPrices.length === 0) {
-            return
-        }
-
-        // Get all attribute wrappers
-        const $wrappers = $productAttributes.find('.attribute-swatches-wrapper')
-        
-        // Check if any CHECKED attribute is in the unavailable list
-        let hasInvalidSelection = false
-        let changedWrapper = null
-        
-        $wrappers.each((index, wrapper) => {
-            const $wrapper = $(wrapper)
-            const wrapperType = $wrapper.data('type')
-            
-            let $checked
-            if (wrapperType === 'dropdown') {
-                $checked = $wrapper.find('select option:selected')
-            } else {
-                $checked = $wrapper.find('input[type=radio]:checked')
-            }
-            
-            if ($checked.length && $checked.val()) {
-                const checkedId = parseInt($checked.val())
-                if (data.unavailable_attribute_ids.includes(checkedId)) {
-                    hasInvalidSelection = true
-                    changedWrapper = $wrapper
-                    return false // break
-                }
-            }
-        })
-
-        // Only auto-select if the current selection is invalid
-        if (!hasInvalidSelection) {
-            return
-        }
-
-        // Get the currently checked attribute from the changed wrapper
-        let changedAttributeId = null
-        if (changedWrapper) {
-            const changedType = changedWrapper.data('type')
-            if (changedType === 'dropdown') {
-                const $selected = changedWrapper.find('select option:selected')
-                if ($selected.length && $selected.val()) {
-                    changedAttributeId = parseInt($selected.val())
-                }
-            } else {
-                const $checked = changedWrapper.find('input[type=radio]:checked')
-                if ($checked.length && $checked.val()) {
-                    changedAttributeId = parseInt($checked.val())
-                }
-            }
-        }
-
-        // If no valid attribute selected in changed wrapper, exit
-        if (!changedAttributeId) {
-            return
-        }
-
-        // Find a valid variation that includes the changed attribute
-        const matchingVariation = variationPrices.find(variation => {
-            return (variation.attrs || []).includes(changedAttributeId)
-        })
-
-        if (!matchingVariation) {
-            return
-        }
-
-        // Auto-select attributes from the matching variation in OTHER wrappers
-        const matchingAttrs = matchingVariation.attrs || []
-        
-        $wrappers.each((index, wrapper) => {
-            const $wrapper = $(wrapper)
-            
-            // Skip the wrapper that was just changed
-            if (changedWrapper && $wrapper.is(changedWrapper)) {
-                return
-            }
-            
-            const wrapperType = $wrapper.data('type')
-            
-            // Find which attribute from matchingAttrs belongs to this wrapper
-            const attributeToSelect = matchingAttrs.find(attrId => {
-                if (wrapperType === 'dropdown') {
-                    return $wrapper.find(`option[value="${attrId}"]`).length > 0
-                } else {
-                    return $wrapper.find(`input[value="${attrId}"]`).length > 0
-                }
-            })
-            
-            if (attributeToSelect) {
-                // Select this attribute
-                if (wrapperType === 'dropdown') {
-                    const $select = $wrapper.find('select')
-                    const $option = $select.find(`option[value="${attributeToSelect}"]`)
-                    if ($option.length && !$option.is(':disabled')) {
-                        $select.val(attributeToSelect)
-                    }
-                } else {
-                    const $input = $wrapper.find(`input[value="${attributeToSelect}"]`)
-                    if ($input.length && !$input.is(':disabled')) {
-                        // Uncheck all radios in this wrapper
-                        $wrapper.find('input[type=radio]').prop('checked', false)
-                        // Check the matching one
-                        $input.prop('checked', true)
-                        
-                        // Update visual state for text/visual swatches
-                        const $item = $input.closest('.attribute-swatch')
-                        if ($item.length) {
-                            $wrapper.find('.attribute-swatch').removeClass('selected')
-                            $item.addClass('selected')
-                        }
-                    }
-                }
-            }
-        })
     }
 
     /**
