@@ -175,13 +175,11 @@
     }
 
     /* Selected — change both border and outline to blue */
-    &.selected,
     &:has(input:checked) {
         border-color: var(--global-color-link, #007bff);
         outline-color: var(--global-color-link, #007bff);
     }
 
-    &.selected:hover,
     &:has(input:checked):hover {
         /* Keep same on hover when selected */
         border-color: var(--global-color-link, #007bff);
@@ -203,7 +201,6 @@
         }
 
         /* Disabled selected — full ring like normal selected, full opacity */
-        &.selected,
         &:has(input:checked) {
             opacity: 1;
             border-color: var(--global-color-link, #007bff);
@@ -308,14 +305,12 @@
     }
 
     /* Selected - change both border and outline to blue */
-    &.selected,
     &:has(input:checked) {
         border-color: var(--global-color-link, #007bff);
         outline-color: var(--global-color-link, #007bff);
         background: #fff;
     }
 
-    &.selected:hover,
     &:has(input:checked):hover { 
         border-color: var(--global-color-link, #007bff);
         outline-color: var(--global-color-link, #007bff);
@@ -336,7 +331,6 @@
         }
 
         /* Disabled selected — full ring, full opacity */
-        &.selected,
         &:has(input:checked) {
             opacity: 1;
             border-color: var(--global-color-link, #007bff);
