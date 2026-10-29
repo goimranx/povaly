@@ -340,8 +340,11 @@ $(() => {
                     $firstAvailable.prop('checked', true)
                 }
             })
+        }
 
-            // Trigger change to update product info
+        // ALWAYS trigger variation load on page load to get disabled states
+        // This ensures unavailable_attribute_ids is calculated even when default is selected
+        if (hasCheckedRadio || hasSelectedDropdown) {
             swatchInstance.getProductVariation($container)
         }
     })
