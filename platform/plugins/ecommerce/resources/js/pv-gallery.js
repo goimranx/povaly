@@ -359,9 +359,9 @@
             console.log('[PV GALLERY] reorderThumbnails called with variationId:', variationId)
             
             // Get container of thumbnails
-            const thumbContainer = this.container.querySelector('.pv-thumb-grid');
+            const thumbContainer = this.container.querySelector('.pv-gallery-thumbnails');
             if (!thumbContainer) {
-                console.log('[PV GALLERY] No .pv-thumb-grid found')
+                console.log('[PV GALLERY] No .pv-gallery-thumbnails found')
                 return;
             }
             
