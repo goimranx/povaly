@@ -1482,15 +1482,26 @@
             var slides   = Array.from(gallery.querySelectorAll('.qs-slide--image'));
             console.log('[QS GALLERY] Found slides:', slides.length);
 
+            // Helper to strip size suffixes like -150x150, -thumb, -small, etc.
+            function stripSizeSuffix(filename) {
+                // Remove patterns like -150x150, -thumb, -small, -medium, -large before the extension
+                return filename.replace(/-\d+x\d+(\.\w+)$/, '$1')
+                              .replace(/-(thumb|small|medium|large)(\.\w+)$/, '$2');
+            }
+
             for (var i = 0; i < slides.length; i++) {
                 var slideSrc = slides[i].dataset.src || '';
                 // Match by filename (URL may differ in query params)
                 var slideFile = slideSrc.split('/').pop().split('?')[0];
                 var targetFile = firstUrl.split('/').pop().split('?')[0];
                 
-                console.log('[QS GALLERY] Checking slide', i, 'src:', slideSrc, 'file:', slideFile, 'target:', targetFile);
+                // Strip size suffixes for comparison
+                var slideFileClean = stripSizeSuffix(slideFile);
+                var targetFileClean = stripSizeSuffix(targetFile);
                 
-                if (slideSrc === firstUrl || slideFile === targetFile) {
+                console.log('[QS GALLERY] Checking slide', i, 'slideFile:', slideFile, 'clean:', slideFileClean, 'vs target:', targetFileClean);
+                
+                if (slideSrc === firstUrl || slideFile === targetFile || slideFileClean === targetFileClean) {
                     // Jump to this slide's global index
                     var allSlides = Array.from(gallery.querySelector('.qs-track').querySelectorAll('.qs-slide'));
                     var globalIdx = allSlides.indexOf(slides[i]);
