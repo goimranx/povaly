@@ -120,14 +120,6 @@ class ChangeProductSwatches {
                 $input = $current.find('select option:selected')
             } else {
                 $input = $current.find('input[type=radio]:checked')
-                
-                // If no radio is checked, auto-select first available one
-                if (!$input.length || !$input.val()) {
-                    $input = $current.find('input[type=radio]:not(:disabled)').first()
-                    if ($input.length) {
-                        $input.prop('checked', true)
-                    }
-                }
             }
 
             let slug = $input.data('slug')
@@ -141,6 +133,12 @@ class ChangeProductSwatches {
 
                 referenceProduct = $input.data('reference-product')
             }
+        })
+
+        // DEBUG: Log what we're sending to server
+        console.log('[DEBUG] Sending to server:', {
+            attributes: attributes,
+            slugAttributes: slugAttributes
         })
 
         _self.callAjax(attributes, $productAttributes, slugAttributes, true, referenceProduct)
@@ -244,6 +242,12 @@ class ChangeProductSwatches {
     
     handleResponse = function(res, $productAttributes, slugAttributes, id, updateUrl) {
         let _self = this
+
+        // DEBUG: Log what server returned
+        console.log('[DEBUG] Server response:', {
+            unavailable_attribute_ids: res.data?.unavailable_attribute_ids,
+            selected_attributes: res.data?.selected_attributes
+        })
 
         if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnChangeSwatchesSuccess === 'function') {
             window.EcommerceApp.defaultOnChangeSwatchesSuccess(res, $productAttributes)
