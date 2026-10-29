@@ -1992,11 +1992,19 @@ class Ecommerce {
         
         // Dispatch variation change event for PV Gallery and other listeners
         if (data && data.id) {
+            console.log('[ECOMMERCE] Dispatching ecommerce.change-variation event', {
+                variationId: data.id,
+                imageUrls: data.image_with_sizes?.origin || [],
+                productElement: $product[0]
+            })
+            
             $(document).trigger('ecommerce.change-variation', {
                 variationId: data.id,
                 imageUrls: data.image_with_sizes?.origin || [],
                 productElement: $product
             })
+        } else {
+            console.log('[ECOMMERCE] Not dispatching event - data or data.id missing', { data })
         }
     }
 

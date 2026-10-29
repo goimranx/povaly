@@ -97,6 +97,7 @@
             
             // Listen for variation changes
             document.addEventListener('ecommerce.change-variation', (e) => {
+                console.log('[PV GALLERY] Received ecommerce.change-variation event', e.detail)
                 this.handleVariationChange(e.detail);
             });
         }
@@ -293,26 +294,41 @@
         }
         
         handleVariationChange(data) {
+            console.log('[PV GALLERY] handleVariationChange called', data)
+            
             const variationId = data.variationId || data.variation_id || data.id || data.productId || data.product_id;
             
-            if (!variationId) return;
+            console.log('[PV GALLERY] Extracted variationId:', variationId)
+            
+            if (!variationId) {
+                console.log('[PV GALLERY] No variationId found, exiting')
+                return;
+            }
             
             // Find all images for this variation
             const variationImages = this.allImages.filter(img => img.variationId == variationId);
             
+            console.log('[PV GALLERY] Found variation images:', variationImages.length, variationImages)
+            
             if (variationImages.length > 0) {
                 // Reorganize thumbnails: show variation images first, then others
+                console.log('[PV GALLERY] Calling reorderThumbnails with variationId:', variationId)
                 this.reorderThumbnails(variationId);
                 
                 // Jump to first image of this variation
                 const firstVariationImage = variationImages[0];
+                console.log('[PV GALLERY] Jumping to first variation image index:', firstVariationImage.index)
                 this.jumpToImage(firstVariationImage.index);
                 this.scrollThumbnailsToShow(firstVariationImage.index);
             } else {
+                console.log('[PV GALLERY] No variation images found, checking variationMap')
                 // If variationMap has the index, use it
                 let targetIndex = this.variationMap[variationId];
                 
+                console.log('[PV GALLERY] VariationMap lookup:', { variationId, targetIndex, fullMap: this.variationMap })
+                
                 if (targetIndex !== undefined) {
+                    console.log('[PV GALLERY] Found in variationMap, jumping to index:', targetIndex)
                     this.jumpToImage(targetIndex);
                     this.scrollThumbnailsToShow(targetIndex);
                     return;
@@ -321,16 +337,26 @@
                 // Try to find any image with this variation ID
                 const firstVariationImage = this.allImages.find(img => img.variationId == variationId);
                 if (firstVariationImage) {
+                    console.log('[PV GALLERY] Found variation image by ID match:', firstVariationImage.index)
                     this.jumpToImage(firstVariationImage.index);
                     this.scrollThumbnailsToShow(firstVariationImage.index);
+                } else {
+                    console.log('[PV GALLERY] No variation image found at all')
                 }
             }
         }
         
         reorderThumbnails(variationId) {
+            console.log('[PV GALLERY] reorderThumbnails called with variationId:', variationId)
+            
             // Get container of thumbnails
             const thumbContainer = this.container.querySelector('.pv-thumb-grid');
-            if (!thumbContainer) return;
+            if (!thumbContainer) {
+                console.log('[PV GALLERY] No .pv-thumb-grid found')
+                return;
+            }
+            
+            console.log('[PV GALLERY] Found thumb container, current thumbnails:', this.thumbnails.length)
             
             // Separate variation thumbnails from others
             const variationThumbs = [];
@@ -345,12 +371,22 @@
                 }
             });
             
+            console.log('[PV GALLERY] Separated thumbnails:', {
+                variation: variationThumbs.length,
+                other: otherThumbs.length
+            })
+            
             // Re-append: variation thumbnails first, then others
-            variationThumbs.forEach(thumb => thumbContainer.appendChild(thumb));
+            variationThumbs.forEach(thumb => {
+                console.log('[PV GALLERY] Moving variation thumb to top:', thumb.getAttribute('data-index'))
+                thumbContainer.appendChild(thumb)
+            });
             otherThumbs.forEach(thumb => thumbContainer.appendChild(thumb));
             
             // Update the thumbnails NodeList reference
             this.thumbnails = thumbContainer.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
+            
+            console.log('[PV GALLERY] Reordering complete, new thumbnail count:', this.thumbnails.length)
         }
         
         scrollThumbnailsToShow(index) {
