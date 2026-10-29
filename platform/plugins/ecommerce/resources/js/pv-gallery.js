@@ -10,6 +10,8 @@
     
     class PVGallery {
         constructor(container) {
+            console.log('[PV GALLERY] Constructor called with container:', container);
+            
             this.container = container;
             this.mainImage = container.querySelector('#pv-main-image');
             this.thumbnails = container.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
@@ -19,6 +21,13 @@
             this.allImages = [];
             this.imageUrls = [];
             this.lightboxVideos = [];
+            
+            console.log('[PV GALLERY] Initialized with:', {
+                mainImage: this.mainImage,
+                thumbnails: this.thumbnails.length,
+                videoThumbs: this.videoThumbs.length,
+                variationMap: this.variationMap
+            });
             
             this.init();
         }
@@ -893,7 +902,11 @@
     
     // Initialize
     function initGalleries() {
-        document.querySelectorAll('.pv-gallery').forEach(gallery => {
+        const galleries = document.querySelectorAll('.pv-gallery');
+        console.log('[PV GALLERY INIT] Found galleries:', galleries.length, galleries);
+        
+        galleries.forEach(gallery => {
+            console.log('[PV GALLERY INIT] Initializing gallery:', gallery);
             new PVGallery(gallery);
         });
         
