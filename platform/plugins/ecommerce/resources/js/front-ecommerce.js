@@ -1750,7 +1750,7 @@ class Ecommerce {
 
                 if ($swatchItem.length) {
                     $swatchItem.addClass('disabled')
-                    $swatchItem.find('input').prop('checked', false)
+                    $swatchItem.find('input').prop('checked', false).removeAttr('checked')
                 } else {
                     $swatchItem = $product.find(`select option[data-id="${id}"]`)
 
@@ -1761,7 +1761,14 @@ class Ecommerce {
             })
         }
 
-        // Auto-select first available option if current selection is disabled
+        // Auto-select first available option if current selection is disabled or empty
+        // Use data attribute to prevent infinite loops
+        if ($product.data('auto-selecting')) {
+            return
+        }
+        
+        let needsRefresh = false
+        
         $product.find('.bb-product-attribute-swatch').each(function() {
             const $wrapper = $(this)
             const type = $wrapper.data('type')
@@ -1783,6 +1790,7 @@ class Ecommerce {
                         if ($label.length) {
                             $label.text($firstAvailable.data('title') || $firstAvailable.text())
                         }
+                        needsRefresh = true
                     }
                 }
             } else {
@@ -1790,11 +1798,13 @@ class Ecommerce {
                 const $checkedInput = $wrapper.find('input[type=radio]:checked')
                 const $checkedItem = $checkedInput.closest('.bb-product-attribute-swatch-item')
                 
-                // Check if current selection is disabled
-                if ($checkedItem.hasClass('disabled')) {
-                    // Uncheck the disabled option
-                    $checkedInput.prop('checked', false)
-                    $checkedItem.removeClass('selected')
+                // Check if NO option is selected OR current selection is disabled
+                if (!$checkedInput.length || $checkedItem.hasClass('disabled')) {
+                    // Uncheck the disabled option if exists
+                    if ($checkedInput.length) {
+                        $checkedInput.prop('checked', false).removeAttr('checked')
+                        $checkedItem.removeClass('selected')
+                    }
                     
                     // Find first available option
                     const $firstAvailable = $wrapper.find('.bb-product-attribute-swatch-item:not(.disabled)').first()
@@ -1809,10 +1819,30 @@ class Ecommerce {
                         if ($label.length) {
                             $label.text($firstAvailable.data('title') || '')
                         }
+                        needsRefresh = true
                     }
                 }
             }
         })
+
+        // If we auto-selected something, trigger a refresh to update other attributes
+        if (needsRefresh) {
+            $product.data('auto-selecting', true)
+            
+            // Use a small delay to avoid race conditions
+            setTimeout(function() {
+                // Trigger change on the first changed element to refresh variations
+                const $changedElement = $product.find('.bb-product-attribute-swatch select, .bb-product-attribute-swatch input[type=radio]:checked').first()
+                if ($changedElement.length) {
+                    $changedElement.trigger('change')
+                }
+                
+                // Clear the flag after a delay
+                setTimeout(function() {
+                    $product.data('auto-selecting', false)
+                }, 500)
+            }, 100)
+        }
 
         let imageHtml = ''
         let thumbHtml = ''
