@@ -1,293 +1,348 @@
-'use strict'
-
-class FrontendProductOption {
+class ChangeProductSwatches {
     constructor() {
-        // Product options render on the product detail page and inside the
-        // quick-shop modal. Scope every lookup to whichever context the options
-        // live in so we never read/write a price from a related-product card.
-        const $modal = $('.product-option').first().closest('[data-bb-toggle="quick-shop-modal"], .modal')
-        this.$scope = $modal.length ? $modal : $(document)
+        this.xhr = null
+        this.cache = new Map() // Client-side cache for variation responses
+        this.cacheTimeout = 5 * 60 * 1000 // 5 minutes cache
 
-        // The price near the product title carries data-bb-value="product-price".
-        this.priceElement = this.$scope.find('[data-bb-value="product-price"]').first()
-        this.priceFormat = this.priceElement.length ? this.parsePriceFormat(this.priceElement.text()) : null
-        this.basePrice = this.priceFormat ? this.priceFormat.value : 0
-
-        this.eventListeners()
-        this.restoreOptionsFromUrl()
-
-        // Reflect any option already selected at load (e.g. a required radio's
-        // first value, or values restored from the URL).
-        this.changeDisplayedPrice()
+        this.handleEvents()
     }
 
-    isInModal($element) {
-        return $element.closest('[data-bb-toggle="quick-shop-modal"], .modal').length > 0
-    }
+    handleEvents() {
+        let _self = this
+        let $body = $('body')
 
-    // Detect currency formatting (symbol position, grouping, decimals) from the
-    // server-rendered base price. This keeps the live total in the exact same
-    // format and makes it currency-switch safe: when the storefront currency is
-    // changed the server re-renders the base price, and the option extras are
-    // emitted already converted (format_price(..., withoutCurrency: true)), so
-    // base and extras are always in the same currency - no hardcoded symbol.
-    parsePriceFormat(text) {
-        const raw = String(text).trim()
-        const firstDigit = raw.search(/\d/)
+        $body.on('click', '.product-attributes .visual-swatch label, .product-attributes .text-swatch label', (e) => {
+            e.preventDefault()
 
-        if (firstDigit === -1) {
-            return null
-        }
+            let $this = $(e.currentTarget)
+            let $radio = $this.find('input[type=radio]')
 
-        let lastDigit = firstDigit
-        for (let i = raw.length - 1; i >= 0; i--) {
-            if (/\d/.test(raw[i])) {
-                lastDigit = i
-                break
+            if ($radio.is(':checked')) {
+                return
             }
+
+            $radio.prop('checked', true)
+
+            if ($this.closest('.visual-swatch').find('input[type=radio]:checked').length < 1) {
+                $radio.prop('checked', true)
+            }
+
+            $radio.trigger('change')
+        })
+
+        $body
+            .off('change', '.product-attributes input, .product-attributes select')
+            .on('change', '.product-attributes input, .product-attributes select', (event) => {
+                const $parent = $(event.currentTarget).closest('.product-attributes')
+
+                _self.getProductVariation($parent)
+            })
+
+        if ($('.product-attribute-swatches').length) {
+            window.addEventListener(
+                'popstate',
+                function (e) {
+                    if (e.state?.product_attributes_id) {
+                        let $el = $('#' + e.state.product_attributes_id)
+
+                        if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnChangeSwatchesSuccess === 'function') {
+                            window.EcommerceApp.defaultOnChangeSwatchesSuccess(e.state.data, $el)
+                        }
+
+                        if (window.onChangeSwatchesSuccess && typeof window.onChangeSwatchesSuccess === 'function') {
+                            window.onChangeSwatchesSuccess(e.state.data, $el)
+                        }
+
+                        if (e.state.slugAttributes) {
+                            _self.updateSelectingAttributes(e.state.slugAttributes, $el)
+                        }
+                    } else {
+                        $('.product-attribute-swatches').each(function (i, el) {
+                            let params = _self.parseParamsSearch()
+                            let attributes = []
+                            let slugAttributes = {}
+                            let $el = $(el)
+
+                            if (params && Object.keys(params).length) {
+                                $.each(params, function (key, slug) {
+                                    let $parent = $el.find('.attribute-swatches-wrapper[data-slug="' + key + '"]')
+                                    if ($parent.length) {
+                                        let value
+                                        if ($parent.data('type') === 'dropdown') {
+                                            value = $parent.find('option[data-slug="' + slug + '"]').val()
+                                        } else {
+                                            value = $parent.find('input[data-slug="' + slug + '"]').val()
+                                        }
+
+                                        if (value) {
+                                            attributes.push(value)
+                                            slugAttributes[key] = value
+                                        }
+                                    }
+                                })
+                            }
+
+                            _self.callAjax(attributes, $el, slugAttributes, false)
+                        })
+                    }
+                },
+                false
+            )
         }
-
-        const prefix = raw.slice(0, firstDigit)
-        const suffix = raw.slice(lastDigit + 1)
-        const numberPart = raw.slice(firstDigit, lastDigit + 1)
-
-        // The decimal separator is the last "." or "," followed by 1-2 digits.
-        let decimals = 0
-        let decimalSep = ''
-        const decimalMatch = numberPart.match(/[.,](\d{1,2})$/)
-        if (decimalMatch) {
-            decimals = decimalMatch[1].length
-            decimalSep = decimalMatch[0][0]
-        }
-
-        // Anything else between digits is a grouping separator (",", ".", space, nbsp).
-        const integerStr = decimalSep ? numberPart.slice(0, -(decimals + 1)) : numberPart
-        const groupingMatch = integerStr.match(/\d([.,\s ])\d/)
-        const groupingSep = groupingMatch ? groupingMatch[1] : ''
-
-        // Strip grouping separators from the integer part and rejoin with a dot
-        // decimal so parseFloat is correct regardless of locale (e.g. "2 900",
-        // "2,900.50" and "2.900,50" all parse to their real numeric value).
-        const decimalStr = decimalSep ? numberPart.slice(-decimals) : ''
-        const value = parseFloat(
-            integerStr.replace(/[.,\s ]/g, '') + (decimalSep ? '.' + decimalStr : '')
-        )
-
-        return { prefix, suffix, decimals, decimalSep: decimalSep || '.', groupingSep, value }
     }
 
-    formatPriceValue(value) {
-        const fmt = this.priceFormat
-        const fixed = value.toFixed(fmt.decimals)
-        const parts = fixed.split('.')
-        const groupedInt = fmt.groupingSep
-            ? parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, fmt.groupingSep)
-            : parts[0]
+    getProductVariation($productAttributes) {
+        let _self = this
 
-        let out = groupedInt
-        if (fmt.decimals > 0) {
-            out += fmt.decimalSep + parts[1]
+        let attributes = []
+        let slugAttributes = {}
+
+        /**
+         * Break current request
+         */
+        if (_self.xhr) {
+            _self.xhr.abort()
+
+            _self.xhr = null
         }
 
-        return fmt.prefix + out + fmt.suffix
-    }
+        /**
+         * Get attributes
+         */
+        let $attributeSwatches = $productAttributes.find('.attribute-swatches-wrapper')
 
-    eventListeners() {
-        // The displayed total is always recomputed from the current DOM state in
-        // changeDisplayedPrice(), so each handler just triggers a recalculation
-        // and syncs the shareable URL.
-        $('.product-option input[type="radio"], .product-option input[type="checkbox"]').change((e) => {
-            const $input = $(e.target)
-            this.changeDisplayedPrice()
-            if (!this.isInModal($input)) {
-                this.updateUrlWithOptions()
+        let referenceProduct = null
+        $attributeSwatches.each((index, el) => {
+            let $current = $(el)
+
+            let $input
+            if ($current.data('type') === 'dropdown') {
+                $input = $current.find('select option:selected')
+            } else {
+                $input = $current.find('input[type=radio]:checked')
+            }
+
+            let slug = $input.data('slug')
+            let value = $input.val()
+
+            if (value) {
+                let setSlug = $current.find('.attribute-swatch').data('slug')
+
+                slugAttributes[setSlug] = slug
+                attributes.push(value)
+
+                referenceProduct = $input.data('reference-product')
             }
         })
 
-        $('.product-option select').change((e) => {
-            const $select = $(e.target)
-            this.changeDisplayedPrice()
-            if (!this.isInModal($select)) {
-                this.updateUrlWithOptions()
-            }
-        })
-
-        let fieldTimeout
-        $('.product-option input[type="text"]').on('input', (e) => {
-            const $input = $(e.target)
-            clearTimeout(fieldTimeout)
-            fieldTimeout = setTimeout(() => {
-                if (!this.isInModal($input)) {
-                    this.updateUrlWithOptions()
-                }
-            }, 500)
-        })
-
-        $(window).on('popstate', () => {
-            this.restoreOptionsFromUrl()
-        })
+        _self.callAjax(attributes, $productAttributes, slugAttributes, true, referenceProduct)
     }
 
-    changeDisplayedPrice() {
-        if (!this.priceFormat || !this.priceElement.length) {
+    callAjax = function (attributes, $productAttributes, slugAttributes, updateUrl = true, referenceProduct = null) {
+        let _self = this
+        let formData = {
+            attributes,
+            _: +new Date(),
+        }
+
+        if (referenceProduct) {
+            formData.reference_product = referenceProduct
+        }
+
+        let id = $productAttributes.prop('id')
+        
+        // Create cache key from attributes and language
+        const locale = document.documentElement.lang || 'en'
+        const cacheKey = JSON.stringify(attributes.sort()) + (referenceProduct || '') + '_v1_' + locale
+        
+        // Check cache first
+        const cached = _self.getFromCache(cacheKey)
+        if (cached) {
+            // Use cached response
+            _self.handleResponse(cached, $productAttributes, slugAttributes, id, updateUrl)
             return
         }
 
-        let extra = 0
+        _self.xhr = $.ajax({
+            url: $productAttributes.data('target'),
+            type: 'GET',
+            data: formData,
+            beforeSend: () => {
+                if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnBeforeChangeSwatches === 'function') {
+                    window.EcommerceApp.defaultOnBeforeChangeSwatches(attributes, $productAttributes)
+                }
 
-        this.$scope.find('.product-option').each((index, element) => {
-            const $option = $(element)
-
-            $option.find('input[type="radio"]:checked, input[type="checkbox"]:checked').each((i, input) => {
-                extra += parseFloat($(input).attr('data-extra-price')) || 0
-            })
-
-            $option.find('select').each((i, select) => {
-                extra += parseFloat($(select).find('option:selected').attr('data-extra-price')) || 0
-            })
+                if (window.onBeforeChangeSwatches && typeof window.onBeforeChangeSwatches === 'function') {
+                    window.onBeforeChangeSwatches(attributes, $productAttributes)
+                }
+            },
+            success: (res) => {
+                // Store in cache
+                _self.setCache(cacheKey, res)
+                
+                // Handle response
+                _self.handleResponse(res, $productAttributes, slugAttributes, id, updateUrl)
+            },
+            complete: (res) => {
+                if (window.onChangeSwatchesComplete && typeof window.onChangeSwatchesComplete === 'function') {
+                    window.onChangeSwatchesComplete(res, $productAttributes)
+                }
+            },
+            error: (res) => {
+                if (window.onChangeSwatchesError && typeof window.onChangeSwatchesError === 'function') {
+                    window.onChangeSwatchesError(res, $productAttributes)
+                }
+            },
         })
-
-        this.priceElement.text(this.formatPriceValue(this.basePrice + extra))
     }
 
-    updateUrlWithOptions() {
-        const url = new URL(window.location)
-        const optionSlugs = {}
+    updateSelectingAttributes = function (slugAttributes, $el) {
+        $.each(slugAttributes, function (key, slug) {
+            let $parent = $el.find('.attribute-swatches-wrapper[data-slug="' + key + '"]')
 
-        $('.product-option').each((index, element) => {
-            const $option = $(element)
-            const optionSlug = $option.data('option-slug')
-
-            if (!optionSlug) return
-
-            const $checkedRadio = $option.find('input[type="radio"]:checked')
-            if ($checkedRadio.length) {
-                const valueSlug = $checkedRadio.data('value-slug')
-                if (valueSlug) {
-                    optionSlugs[optionSlug] = valueSlug
+            if ($parent.length) {
+                if ($parent.data('type') === 'dropdown') {
+                    let selected = $parent.find('select option[data-slug="' + slug + '"]').val()
+                    $parent.find('select').val(selected)
+                } else {
+                    $parent.find('input:checked').prop('checked', false)
+                    $parent.find('input[data-slug=' + slug + ']').prop('checked', true)
                 }
-                return
             }
+        })
+    }
 
-            const $checkedCheckboxes = $option.find('input[type="checkbox"]:checked')
-            if ($checkedCheckboxes.length) {
-                const values = []
-                $checkedCheckboxes.each((i, cb) => {
-                    const valueSlug = $(cb).data('value-slug')
-                    if (valueSlug) {
-                        values.push(valueSlug)
-                    }
-                })
-                if (values.length) {
-                    optionSlugs[optionSlug] = values
+    parseParamsSearch = function (query, includeArray = false) {
+        let pairs = query || window.location.search.substring(1)
+        let re = /([^&=]+)=?([^&]*)/g
+        let decodeRE = /\+/g // Regex for replacing addition symbol with a space
+        let decode = function (str) {
+            return decodeURIComponent(str.replace(decodeRE, ' '))
+        }
+        let params = {},
+            e
+        while ((e = re.exec(pairs))) {
+            let k = decode(e[1]),
+                v = decode(e[2])
+            if (k.substring(k.length - 2) === '[]') {
+                if (includeArray) {
+                    k = k.substring(0, k.length - 2)
                 }
-                return
-            }
+                ;(params[k] || (params[k] = [])).push(v)
+            } else params[k] = v
+        }
+        return params
+    }
+    
+    handleResponse = function(res, $productAttributes, slugAttributes, id, updateUrl) {
+        let _self = this
 
-            const $select = $option.find('select')
-            if ($select.length) {
-                const $selectedOption = $select.find('option:selected')
-                const valueSlug = $selectedOption.data('value-slug')
-                if (valueSlug) {
-                    optionSlugs[optionSlug] = valueSlug
-                }
-                return
-            }
-
-            const $textField = $option.find('input[type="text"]')
-            if ($textField.length && $textField.val()) {
-                optionSlugs[optionSlug] = $textField.val()
-            }
-        })
-
-        const existingOptionSlugs = []
-        $('.product-option').each((index, element) => {
-            const slug = $(element).data('option-slug')
-            if (slug) existingOptionSlugs.push(slug)
-        })
-        existingOptionSlugs.forEach((slug) => {
-            url.searchParams.delete(slug)
-        })
-
-        Object.keys(optionSlugs).forEach((key) => {
-            const value = optionSlugs[key]
-            if (Array.isArray(value)) {
-                url.searchParams.set(key, value.join(','))
-            } else {
-                url.searchParams.set(key, value)
-            }
-        })
-
-        if (url.href !== window.location.href) {
-            window.history.pushState({ options: optionSlugs }, '', url)
+        if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnChangeSwatchesSuccess === 'function') {
+            window.EcommerceApp.defaultOnChangeSwatchesSuccess(res, $productAttributes)
         }
 
-        this.updateClipboardButton(url.href)
-    }
+        if (window.onChangeSwatchesSuccess && typeof window.onChangeSwatchesSuccess === 'function') {
+            window.onChangeSwatchesSuccess(res, $productAttributes)
+        }
 
-    updateClipboardButton(url) {
-        const $clipboardBtn = $('[data-bb-toggle="social-sharing-clipboard"]')
-        if ($clipboardBtn.length) {
-            $clipboardBtn.attr('data-clipboard-text', url)
+        const { data, message } = res
+
+        if (data && !data.error_message) {
+            if (data.selected_attributes) {
+                slugAttributes = {}
+                $.each(data.selected_attributes, (index, item) => {
+                    slugAttributes[item.set_slug] = item.slug
+                })
+            }
+
+            if (id) {
+                _self.updateSelectingAttributes(slugAttributes, $('#' + id))
+            }
+
+            // Skip URL updates if data-update-url="false" is set on the container
+            const shouldUpdateUrl = $productAttributes.data('update-url') !== false
+
+            if (shouldUpdateUrl) {
+                const url = new URL(window.location)
+
+                $.each(slugAttributes, (name, value) => {
+                    url.searchParams.set(name, value)
+                })
+
+                if (updateUrl && url != window.location.href) {
+                    window.history.pushState(
+                        { formData: { attributes: res.data.attributes }, data: res, product_attributes_id: id, slugAttributes },
+                        message,
+                        url
+                    )
+                } else {
+                    window.history.replaceState(
+                        { formData: { attributes: res.data.attributes }, data: res, product_attributes_id: id, slugAttributes },
+                        message,
+                        url
+                    )
+                }
+
+                const $clipboardBtn = $('[data-bb-toggle="social-sharing-clipboard"]')
+                if ($clipboardBtn.length) {
+                    $clipboardBtn.attr('data-clipboard-text', url.href)
+                }
+            }
         }
     }
-
-    restoreOptionsFromUrl() {
-        const url = new URL(window.location)
-        const params = url.searchParams
-
-        $('.product-option').each((index, element) => {
-            const $option = $(element)
-            const optionSlug = $option.data('option-slug')
-
-            if (!optionSlug || !params.has(optionSlug)) return
-
-            const paramValue = params.get(optionSlug)
-
-            const $radios = $option.find('input[type="radio"]')
-            if ($radios.length) {
-                $radios.each((i, radio) => {
-                    const $radio = $(radio)
-                    if ($radio.data('value-slug') === paramValue) {
-                        $radio.prop('checked', true).trigger('change')
-                    }
-                })
-                return
-            }
-
-            const $checkboxes = $option.find('input[type="checkbox"]')
-            if ($checkboxes.length) {
-                const values = paramValue.split(',')
-                $checkboxes.each((i, cb) => {
-                    const $cb = $(cb)
-                    const isChecked = values.includes($cb.data('value-slug'))
-                    $cb.prop('checked', isChecked)
-                })
-                $checkboxes.first().trigger('change')
-                return
-            }
-
-            const $select = $option.find('select')
-            if ($select.length) {
-                $select.find('option').each((i, opt) => {
-                    const $opt = $(opt)
-                    if ($opt.data('value-slug') === paramValue) {
-                        $select.val($opt.val()).trigger('change')
-                    }
-                })
-                return
-            }
-
-            const $textField = $option.find('input[type="text"]')
-            if ($textField.length) {
-                $textField.val(paramValue)
-            }
+    
+    getFromCache(key) {
+        const item = this.cache.get(key)
+        if (!item) return null
+        
+        // Check if cache is expired
+        if (Date.now() - item.timestamp > this.cacheTimeout) {
+            this.cache.delete(key)
+            return null
+        }
+        
+        return item.data
+    }
+    
+    setCache(key, data) {
+        this.cache.set(key, {
+            data: data,
+            timestamp: Date.now()
         })
+        
+        // Limit cache size to prevent memory issues
+        if (this.cache.size > 100) {
+            // Remove oldest entries
+            const firstKey = this.cache.keys().next().value
+            this.cache.delete(firstKey)
+        }
     }
 }
 
 $(() => {
-    if ($('.product-option').length) {
-        new FrontendProductOption()
-    }
+    const swatchInstance = new ChangeProductSwatches()
+    
+    // Check initial selection on page load
+    $('.product-attribute-swatches').each(function() {
+        const $container = $(this)
+        const hasCheckedRadio = $container.find('input[type=radio]:checked:not(:disabled)').length > 0
+        const hasSelectedDropdown = $container.find('select.product-filter-item').filter(function() {
+            return !!$(this).val()
+        }).length > 0
+
+        // If no valid variation is selected, select the first available one
+        if (!hasCheckedRadio && !hasSelectedDropdown) {
+            $container.find('.attribute-swatches-wrapper').each(function() {
+                const $wrapper = $(this)
+                const $firstAvailable = $wrapper.find('input[type=radio]:not(:disabled)').first()
+
+                if ($firstAvailable.length) {
+                    $firstAvailable.prop('checked', true)
+                }
+            })
+
+            // Trigger change to update product info
+            swatchInstance.getProductVariation($container)
+        }
+    })
 })
