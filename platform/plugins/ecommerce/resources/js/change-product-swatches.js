@@ -387,26 +387,27 @@ class ChangeProductSwatches {
         
         if (!$product.length) return
         
-        // For PV Gallery
-        const $pvGallery = $product.find('.pv-gallery-main')
-        if ($pvGallery.length) {
-            const $mainImage = $pvGallery.find('#pv-main-image')
-            if ($mainImage.length) {
-                // Store original src if not already stored
-                if (!$mainImage.data('original-src')) {
-                    $mainImage.data('original-src', $mainImage.attr('src'))
-                }
-                $mainImage.attr('src', imageUrl)
-            }
-            return
-        }
+        // Determine if we're in Quick Shop or PV Gallery
+        const $quickShopModal = $item.closest('#quick-shop-modal')
+        const isQuickShop = $quickShopModal.length > 0
         
-        // For Quick Shop Offcanvas Gallery
-        const $quickShopModal = $('#quick-shop-modal')
-        if ($quickShopModal.length && $quickShopModal.hasClass('show')) {
-            // Use the existing updateQSGalleryImages function if available
+        if (isQuickShop) {
+            // For Quick Shop Offcanvas Gallery
             if (typeof window.updateQSGalleryImages === 'function') {
                 window.updateQSGalleryImages([imageUrl])
+            }
+        } else {
+            // For PV Gallery
+            const $pvGallery = $product.find('.pv-gallery-main')
+            if ($pvGallery.length) {
+                const $mainImage = $pvGallery.find('#pv-main-image')
+                if ($mainImage.length) {
+                    // Store original src if not already stored
+                    if (!$mainImage.data('original-src')) {
+                        $mainImage.data('original-src', $mainImage.attr('src'))
+                    }
+                    $mainImage.attr('src', imageUrl)
+                }
             }
         }
     }
@@ -422,25 +423,27 @@ class ChangeProductSwatches {
         
         if (!$product.length) return
         
-        // For PV Gallery
-        const $pvGallery = $product.find('.pv-gallery-main')
-        if ($pvGallery.length) {
-            const $mainImage = $pvGallery.find('#pv-main-image')
-            if ($mainImage.length && selectedImage) {
-                $mainImage.attr('src', selectedImage)
-            } else if ($mainImage.length && $mainImage.data('original-src')) {
-                // Restore original if no selection
-                $mainImage.attr('src', $mainImage.data('original-src'))
-                $mainImage.removeData('original-src')
-            }
-            return
-        }
+        // Determine if we're in Quick Shop or PV Gallery
+        const $quickShopModal = $selectedSwatch.closest('#quick-shop-modal')
+        const isQuickShop = $quickShopModal.length > 0
         
-        // For Quick Shop - restore to selected variation's first slide
-        const $quickShopModal = $('#quick-shop-modal')
-        if ($quickShopModal.length && $quickShopModal.hasClass('show') && selectedImage) {
-            if (typeof window.updateQSGalleryImages === 'function') {
+        if (isQuickShop) {
+            // For Quick Shop - restore to selected variation's first slide
+            if (selectedImage && typeof window.updateQSGalleryImages === 'function') {
                 window.updateQSGalleryImages([selectedImage])
+            }
+        } else {
+            // For PV Gallery
+            const $pvGallery = $product.find('.pv-gallery-main')
+            if ($pvGallery.length) {
+                const $mainImage = $pvGallery.find('#pv-main-image')
+                if ($mainImage.length && selectedImage) {
+                    $mainImage.attr('src', selectedImage)
+                } else if ($mainImage.length && $mainImage.data('original-src')) {
+                    // Restore original if no selection
+                    $mainImage.attr('src', $mainImage.data('original-src'))
+                    $mainImage.removeData('original-src')
+                }
             }
         }
     }

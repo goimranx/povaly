@@ -1989,6 +1989,15 @@ class Ecommerce {
         }
 
         // Auto-selection and visual item hiding moved to change-product-swatches.js
+        
+        // Dispatch variation change event for PV Gallery and other listeners
+        if (data && data.id) {
+            $(document).trigger('ecommerce.change-variation', {
+                variationId: data.id,
+                imageUrls: data.image_with_sizes?.origin || [],
+                productElement: $product
+            })
+        }
     }
 
 
