@@ -1762,7 +1762,14 @@ class Ecommerce {
         }
 
         // Auto-select ALL empty or disabled attributes at once
-        // Don't cascade - just select them all in one pass
+        // Skip if we're in the middle of an auto-triggered cycle to prevent loops
+        const isProcessingAutoSelect = $product.data('processing-auto-select') === true
+        
+        if (isProcessingAutoSelect) {
+            // Already processing an auto-select, don't do it again
+            return
+        }
+        
         let anyAutoSelected = false
         
         $product.find('.bb-product-attribute-swatch').each(function() {
@@ -1822,25 +1829,22 @@ class Ecommerce {
         })
 
         // If we auto-selected anything, trigger ONE refresh to get final variation
-        // Use a flag to prevent re-triggering when this AJAX response comes back
-        if (anyAutoSelected && !$product.data('refreshing-variation')) {
-            $product.data('refreshing-variation', true)
+        if (anyAutoSelected) {
+            // Set flag to prevent loop
+            $product.data('processing-auto-select', true)
             
+            // Small delay to let DOM update
             setTimeout(function() {
-                // Get the product attributes container to trigger the variation refresh
-                const $attributes = $product.find('.product-attributes')
-                if ($attributes.length) {
-                    // Trigger change on any selected element to refresh the variation
-                    const $anySelected = $attributes.find('select, input[type=radio]:checked').first()
-                    if ($anySelected.length) {
-                        $anySelected.trigger('change')
-                    }
+                // Trigger change on any selected element to refresh the variation
+                const $anySelected = $product.find('.product-attributes select, .product-attributes input[type=radio]:checked').first()
+                if ($anySelected.length) {
+                    $anySelected.trigger('change')
                 }
                 
-                // Clear flag after processing
+                // Clear the flag after processing completes
                 setTimeout(function() {
-                    $product.data('refreshing-variation', false)
-                }, 300)
+                    $product.data('processing-auto-select', false)
+                }, 500)
             }, 50)
         }
 
