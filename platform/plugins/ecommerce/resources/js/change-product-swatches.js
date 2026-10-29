@@ -439,8 +439,11 @@ class ChangeProductSwatches {
                         $mainImage.data('original-src', $mainImage.attr('src'))
                         console.log('[PREVIEW] Stored original src:', $mainImage.data('original-src'))
                     }
-                    $mainImage.attr('src', imageUrl)
-                    console.log('[PREVIEW] Updated main image src to:', imageUrl)
+                    
+                    // Convert thumbnail URL to full-size URL (remove -150x150 suffix)
+                    const fullSizeUrl = imageUrl.replace(/-150x150(\.[^.]+)$/, '$1')
+                    $mainImage.attr('src', fullSizeUrl)
+                    console.log('[PREVIEW] Updated main image src to:', fullSizeUrl)
                 }
             } else {
                 console.log('[PREVIEW] No PV gallery found in product container')
