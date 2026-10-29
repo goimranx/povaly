@@ -461,9 +461,66 @@ class Botble {
                         _method: _self.data('method'),
                         minimal_sidebar: navbar.hasClass('navbar-minimal') ? 'yes' : 'no',
                     })
-                    .then(() => {})
+                    .then(() => {
+                        // Reinitialize dropdown hover behavior after toggle
+                        setTimeout(() => {
+                            Botble.initNavbarMinimalDropdowns()
+                        }, 100)
+                    })
                     .catch(() => {})
             }
+        })
+
+        // Initialize dropdown hover behavior for minimal sidebar
+        Botble.initNavbarMinimalDropdowns()
+    }
+
+    static initNavbarMinimalDropdowns() {
+        const navbar = $('.navbar-minimal')
+        
+        if (!navbar.length) {
+            return
+        }
+
+        // Enable hover behavior for dropdowns in minimal sidebar
+        navbar.find('.nav-item.dropdown').each(function() {
+            const $item = $(this)
+            const $toggle = $item.find('[data-bs-toggle="dropdown"]')
+            const $menu = $item.find('.dropdown-menu')
+            
+            if (!$toggle.length || !$menu.length) {
+                return
+            }
+
+            let hideTimeout
+
+            // Show dropdown on hover
+            $item.on('mouseenter', function() {
+                clearTimeout(hideTimeout)
+                
+                // Initialize Bootstrap dropdown if not already initialized
+                if (!bootstrap.Dropdown.getInstance($toggle[0])) {
+                    new bootstrap.Dropdown($toggle[0], {
+                        autoClose: 'outside'
+                    })
+                }
+                
+                const dropdown = bootstrap.Dropdown.getInstance($toggle[0])
+                if (dropdown && !$menu.hasClass('show')) {
+                    dropdown.show()
+                }
+            })
+
+            // Hide dropdown on mouse leave with delay
+            $item.on('mouseleave', function() {
+                const dropdown = bootstrap.Dropdown.getInstance($toggle[0])
+                
+                hideTimeout = setTimeout(function() {
+                    if (dropdown && $menu.hasClass('show')) {
+                        dropdown.hide()
+                    }
+                }, 300)
+            })
         })
     }
 
@@ -2204,4 +2261,7 @@ $(() => {
 
     new Botble()
     window.Botble = Botble
+    
+    // Initialize dropdown hover behavior for minimal sidebar
+    Botble.initNavbarMinimalDropdowns()
 })
