@@ -1761,18 +1761,9 @@ class Ecommerce {
             })
         }
 
-        // Auto-select first available option if current selection is disabled or empty
-        // Use counter to prevent infinite loops but allow cascading
-        const autoSelectCount = $product.data('auto-select-count') || 0
-        const maxAutoSelects = 10 // Allow up to 10 cascades (more than enough for any product)
-        
-        if (autoSelectCount >= maxAutoSelects) {
-            // Reset counter and stop to prevent infinite loop
-            $product.data('auto-select-count', 0)
-            return
-        }
-        
-        let needsRefresh = false
+        // Auto-select ALL empty or disabled attributes at once
+        // Don't cascade - just select them all in one pass
+        let anyAutoSelected = false
         
         $product.find('.bb-product-attribute-swatch').each(function() {
             const $wrapper = $(this)
@@ -1795,7 +1786,7 @@ class Ecommerce {
                         if ($label.length) {
                             $label.text($firstAvailable.data('title') || $firstAvailable.text())
                         }
-                        needsRefresh = true
+                        anyAutoSelected = true
                     }
                 }
             } else {
@@ -1824,30 +1815,33 @@ class Ecommerce {
                         if ($label.length) {
                             $label.text($firstAvailable.data('title') || '')
                         }
-                        needsRefresh = true
+                        anyAutoSelected = true
                     }
                 }
             }
         })
 
-        // If we auto-selected something, trigger a refresh to update other attributes
-        if (needsRefresh) {
-            // Increment counter
-            $product.data('auto-select-count', autoSelectCount + 1)
+        // If we auto-selected anything, trigger ONE refresh to get final variation
+        // Use a flag to prevent re-triggering when this AJAX response comes back
+        if (anyAutoSelected && !$product.data('refreshing-variation')) {
+            $product.data('refreshing-variation', true)
             
-            // Use a small delay to avoid race conditions
             setTimeout(function() {
-                // Trigger change on the first changed element to refresh variations
-                const $changedElement = $product.find('.bb-product-attribute-swatch select, .bb-product-attribute-swatch input[type=radio]:checked').first()
-                if ($changedElement.length) {
-                    $changedElement.trigger('change')
+                // Get the product attributes container to trigger the variation refresh
+                const $attributes = $product.find('.product-attributes')
+                if ($attributes.length) {
+                    // Trigger change on any selected element to refresh the variation
+                    const $anySelected = $attributes.find('select, input[type=radio]:checked').first()
+                    if ($anySelected.length) {
+                        $anySelected.trigger('change')
+                    }
                 }
-            }, 100)
-        } else {
-            // No more auto-selects needed, reset counter
-            setTimeout(function() {
-                $product.data('auto-select-count', 0)
-            }, 500)
+                
+                // Clear flag after processing
+                setTimeout(function() {
+                    $product.data('refreshing-variation', false)
+                }, 300)
+            }, 50)
         }
 
         let imageHtml = ''
