@@ -1973,6 +1973,19 @@ class Ecommerce {
             }
         } else if (typeof EcommerceApp !== 'undefined') {
             EcommerceApp.initProductGallery(true)
+            
+            // After reinitializing Quick Shop gallery, scroll to first slide
+            setTimeout(() => {
+                if ($quickViewGalleryImages.hasClass('slick-initialized')) {
+                    $quickViewGalleryImages.slick('slickGoTo', 0, false)
+                }
+                
+                // Also scroll thumbnails if they exist
+                const $quickViewThumbs = $product.find('.bb-product-gallery-thumbnails')
+                if ($quickViewThumbs.length && $quickViewThumbs.hasClass('slick-initialized')) {
+                    $quickViewThumbs.slick('slickGoTo', 0, false)
+                }
+            }, 100)
         }
 
         // Auto-selection and visual item hiding moved to change-product-swatches.js

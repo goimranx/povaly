@@ -297,11 +297,40 @@
             
             if (!variationId) return;
             
-            const targetIndex = this.variationMap[variationId];
+            // Find the first image for this variation
+            let targetIndex = this.variationMap[variationId];
             
+            // If variationMap has the index, use it
             if (targetIndex !== undefined) {
                 this.jumpToImage(targetIndex);
+                this.scrollThumbnailsToShow(targetIndex);
+                return;
             }
+            
+            // Otherwise, try to find any image with this variation ID
+            const firstVariationImage = this.allImages.find(img => img.variationId == variationId);
+            if (firstVariationImage) {
+                this.jumpToImage(firstVariationImage.index);
+                this.scrollThumbnailsToShow(firstVariationImage.index);
+            }
+        }
+        
+        scrollThumbnailsToShow(index) {
+            // Scroll the thumbnail grid to make the target thumbnail visible
+            const imageData = this.allImages.find(img => img.index === index);
+            if (!imageData || !imageData.thumb) return;
+            
+            const thumb = imageData.thumb;
+            const thumbContainer = thumb.parentElement;
+            
+            if (!thumbContainer) return;
+            
+            // Smooth scroll the thumbnail into view
+            thumb.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
         }
 
         // ─── Lens Zoom ────────────────────────────────────────────────────────
