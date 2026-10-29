@@ -410,55 +410,67 @@
                 videos: videoThumbs.length
             })
             
-            // Get the first video or image thumbnail as reference point
-            const firstItem = videoThumbs[0] || allThumbs[0];
-            if (!firstItem) {
-                console.log('[PV GALLERY] No thumbnails found to reorder')
+            if (variationThumbs.length === 0) {
+                console.log('[PV GALLERY] No variation thumbnails to reorder')
                 return;
             }
             
-            // Insert variation thumbnails at the beginning (after videos)
-            const insertAfter = videoThumbs.length > 0 ? videoThumbs[videoThumbs.length - 1] : null;
+            // STEP 1: Hide ALL other (non-variation) thumbnails
+            otherThumbs.forEach(thumb => {
+                thumb.classList.add('pv-thumb-hidden');
+                // Remove any overlay from other thumbs
+                const overlay = thumb.querySelector('.pv-thumb-overlay');
+                if (overlay) overlay.remove();
+            });
+            
+            console.log('[PV GALLERY] Hidden all non-variation thumbnails:', otherThumbs.length)
+            
+            // STEP 2: Move variation thumbnails to the VERY BEGINNING (before videos)
+            const firstItem = thumbContainer.firstChild;
             
             variationThumbs.forEach((thumb, idx) => {
-                console.log('[PV GALLERY] Moving variation thumb to top:', thumb.getAttribute('data-index'))
+                console.log('[PV GALLERY] Moving variation thumb to beginning:', thumb.getAttribute('data-index'))
                 
                 if (idx === 0) {
-                    if (insertAfter) {
-                        // Insert after last video
-                        thumbContainer.insertBefore(thumb, insertAfter.nextSibling);
-                    } else {
-                        // Insert at very beginning
-                        thumbContainer.insertBefore(thumb, firstItem);
-                    }
+                    // Insert at very beginning
+                    thumbContainer.insertBefore(thumb, firstItem);
                 } else {
                     // Insert after previous variation thumb
                     thumbContainer.insertBefore(thumb, variationThumbs[idx - 1].nextSibling);
                 }
                 
-                // Show only first 3 variation thumbnails, hide rest with +count
+                // STEP 3: Apply visibility logic - first 3 visible, rest hidden
                 if (idx < 3) {
+                    // Show first 3
                     thumb.classList.remove('pv-thumb-hidden');
                     // Remove overlay if exists
                     const overlay = thumb.querySelector('.pv-thumb-overlay');
                     if (overlay) overlay.remove();
-                } else if (idx === 3) {
-                    // Add +count overlay on 3rd thumb (index 2 becomes hidden, index 3 shows count)
-                    thumb.classList.add('pv-thumb-hidden');
-                    const remainingCount = variationThumbs.length - 3;
-                    if (remainingCount > 0 && variationThumbs[2]) {
-                        let overlay = variationThumbs[2].querySelector('.pv-thumb-overlay');
-                        if (!overlay) {
-                            overlay = document.createElement('span');
-                            overlay.className = 'pv-thumb-overlay';
-                            variationThumbs[2].appendChild(overlay);
-                        }
-                        overlay.textContent = `+${remainingCount}`;
-                    }
                 } else {
+                    // Hide from 4th onward
                     thumb.classList.add('pv-thumb-hidden');
                 }
             });
+            
+            // STEP 4: Add +count overlay on 3rd visible thumbnail (index 2)
+            if (variationThumbs.length > 3 && variationThumbs[2]) {
+                const remainingCount = variationThumbs.length - 3;
+                let overlay = variationThumbs[2].querySelector('.pv-thumb-overlay');
+                if (!overlay) {
+                    overlay = document.createElement('span');
+                    overlay.className = 'pv-thumb-overlay';
+                    variationThumbs[2].appendChild(overlay);
+                }
+                overlay.textContent = `+${remainingCount}`;
+                console.log('[PV GALLERY] Added overlay +' + remainingCount + ' to 3rd thumbnail')
+            }
+            
+            // STEP 5: Move videos AFTER variation thumbnails
+            videoThumbs.forEach(videoThumb => {
+                thumbContainer.appendChild(videoThumb);
+            });
+            
+            console.log('[PV GALLERY] Moved videos after variation thumbnails')
             
             // Update the thumbnails NodeList reference
             this.thumbnails = thumbContainer.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');

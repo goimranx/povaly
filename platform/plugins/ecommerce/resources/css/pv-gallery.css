@@ -194,23 +194,13 @@
     cursor: pointer;
 }
 
-/* Hide image thumbnails after 3rd (indices 3+) */
-.pv-thumb:not(.pv-thumb-video):nth-child(n+4) {
+/* Hide thumbnails with pv-thumb-hidden class */
+.pv-thumb.pv-thumb-hidden {
     display: none !important;
 }
 
-/* Show 4th image thumbnail (index 3) if it has counter */
-.pv-thumb:not(.pv-thumb-video):nth-child(4):has(.pv-thumb-overlay) {
-    display: flex !important;
-}
-
-/* Hide video thumbnails: Keep first 2 visible, hide from 3rd onward */
-.pv-gallery-thumbnails .pv-thumb-video ~ .pv-thumb-video ~ .pv-thumb-video {
-    display: none !important;
-}
-
-/* Show 3rd video if it has counter overlay */
-.pv-gallery-thumbnails .pv-thumb-video ~ .pv-thumb-video ~ .pv-thumb-video:has(.pv-thumb-overlay) {
+/* Show thumbnail if it has overlay (the +count indicator) even if hidden */
+.pv-thumb.pv-thumb-hidden:has(.pv-thumb-overlay) {
     display: flex !important;
 }
 
