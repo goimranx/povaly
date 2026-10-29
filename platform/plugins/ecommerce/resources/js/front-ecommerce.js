@@ -1762,10 +1762,10 @@ class Ecommerce {
         }
 
         // Auto-select ALL empty or disabled attributes at once
-        // Skip if we're in the middle of an auto-triggered cycle to prevent loops
-        const isProcessingAutoSelect = $product.data('processing-auto-select') === true
+        // Use counter to prevent infinite loops (max 5 iterations)
+        let autoSelectCount = $product.data('auto-select-count') || 0
         
-        if (!isProcessingAutoSelect) {
+        if (autoSelectCount < 5) {
             let anyAutoSelected = false
             
             $product.find('.bb-product-attribute-swatch').each(function() {
@@ -1832,8 +1832,8 @@ class Ecommerce {
 
             // If we auto-selected anything, trigger ONE refresh to get final variation
             if (anyAutoSelected) {
-                // Set flag to prevent loop
-                $product.data('processing-auto-select', true)
+                // Increment counter to track iterations
+                $product.data('auto-select-count', autoSelectCount + 1)
                 
                 // Small delay to let DOM update
                 setTimeout(function() {
@@ -1843,10 +1843,13 @@ class Ecommerce {
                         $anySelected.trigger('change')
                     }
                 }, 50)
+            } else {
+                // Nothing was auto-selected, reset counter for next user interaction
+                $product.data('auto-select-count', 0)
             }
         } else {
-            // This is the auto-triggered call, clear the flag now that we've processed the response
-            $product.data('processing-auto-select', false)
+            // Max iterations reached, reset counter
+            $product.data('auto-select-count', 0)
         }
 
         let imageHtml = ''
