@@ -1998,6 +1998,17 @@ class Ecommerce {
                 productElement: $product[0]
             })
             
+            // Dispatch as native CustomEvent (for PV Gallery native listener)
+            const customEvent = new CustomEvent('ecommerce.change-variation', {
+                detail: {
+                    variationId: data.id,
+                    imageUrls: data.image_with_sizes?.origin || [],
+                    productElement: $product[0]
+                }
+            })
+            document.dispatchEvent(customEvent)
+            
+            // Also trigger jQuery event (for backward compatibility)
             $(document).trigger('ecommerce.change-variation', {
                 variationId: data.id,
                 imageUrls: data.image_with_sizes?.origin || [],
