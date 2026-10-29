@@ -1737,7 +1737,10 @@ class Ecommerce {
         }
 
         $product.find('.bb-product-attribute-swatch-item').removeClass('disabled')
-        $product.find('.bb-product-attribute-swatch select option').prop('disabled', false)
+        // Re-enable ALL dropdown options (including previously disabled ones)
+        $product.find('.bb-product-attribute-swatch select option').each(function() {
+            $(this).prop('disabled', false).removeAttr('disabled')
+        })
 
         const unavailableAttributeIds = data.unavailable_attribute_ids || []
 
@@ -1752,7 +1755,7 @@ class Ecommerce {
                     $swatchItem = $product.find(`select option[data-id="${id}"]`)
 
                     if ($swatchItem.length) {
-                        $swatchItem.prop('disabled', true)
+                        $swatchItem.prop('disabled', true).attr('disabled', 'disabled')
                     }
                 }
             })
