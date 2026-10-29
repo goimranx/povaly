@@ -16,15 +16,13 @@ class ChangeProductSwatches {
             const $label = $(this)
             const $item = $label.closest('.bb-product-attribute-swatch-item')
             
-            console.log('[HOVER] Mouseenter on swatch label', {
-                disabled: $item.hasClass('disabled'),
+            ,
                 variationImage: $item.data('variation-image'),
                 item: $item[0]
             })
             
             // Don't preview disabled items
             if ($item.hasClass('disabled')) {
-                console.log('[HOVER] Skipping disabled item')
                 return
             }
 
@@ -32,13 +30,11 @@ class ChangeProductSwatches {
             const swatchImage = $item.data('variation-image')
             
             if (swatchImage) {
-                console.log('[HOVER] Calling previewSwatchImage with:', swatchImage)
                 // Mark as hover preview (not selection)
                 $item.data('is-hover-preview', true)
                 _self.previewSwatchImage(swatchImage, $item)
             } else {
-                console.log('[HOVER] No variation-image data found')
-            }
+                }
         })
 
         // When mouse leaves the swatch item, restore to selected variation
@@ -46,8 +42,7 @@ class ChangeProductSwatches {
             const $label = $(this)
             const $item = $label.closest('.bb-product-attribute-swatch-item')
             
-            console.log('[HOVER] Mouseleave from swatch label', {
-                isChecked: $item.find('input[type=radio]').is(':checked')
+            .is(':checked')
             })
             
             // Clear hover preview flag
@@ -55,7 +50,6 @@ class ChangeProductSwatches {
             
             // Only restore if this item is not the selected one
             if (!$item.find('input[type=radio]').is(':checked')) {
-                console.log('[HOVER] Calling restoreSelectedImage')
                 _self.restoreSelectedImage()
             }
         })
@@ -397,14 +391,9 @@ class ChangeProductSwatches {
     }
 
     previewSwatchImage(imageUrl, $item) {
-        console.log('[PREVIEW] previewSwatchImage called', { imageUrl, item: $item[0] })
-        
         // Preview image in main gallery without changing selection
         const $product = $item.closest('.bb-product-detail')
-        console.log('[PREVIEW] Found product container:', $product.length)
-        
         if (!$product.length) {
-            console.log('[PREVIEW] No product container found, exiting')
             return
         }
         
@@ -412,101 +401,71 @@ class ChangeProductSwatches {
         const $quickShopModal = $item.closest('#quick-shop-modal')
         const isQuickShop = $quickShopModal.length > 0
         
-        console.log('[PREVIEW] Context:', { isQuickShop, quickShopFound: $quickShopModal.length })
-        
         if (isQuickShop) {
             // For Quick Shop Offcanvas Gallery
-            console.log('[PREVIEW] Quick Shop mode - checking for updateQSGalleryImages')
             if (typeof window.updateQSGalleryImages === 'function') {
-                console.log('[PREVIEW] Calling window.updateQSGalleryImages with:', [imageUrl])
                 window.updateQSGalleryImages([imageUrl])
             } else {
-                console.log('[PREVIEW] window.updateQSGalleryImages not found!')
-            }
+                }
         } else {
             // For PV Gallery
-            console.log('[PREVIEW] PV Gallery mode')
             const $pvGallery = $product.find('.pv-gallery-main')
-            console.log('[PREVIEW] Found PV gallery:', $pvGallery.length)
-            
             if ($pvGallery.length) {
                 const $mainImage = $pvGallery.find('#pv-main-image')
-                console.log('[PREVIEW] Found main image:', $mainImage.length, 'src:', $mainImage.attr('src'))
+                )
                 
                 if ($mainImage.length) {
                     // Store original src if not already stored
                     if (!$mainImage.data('original-src')) {
                         $mainImage.data('original-src', $mainImage.attr('src'))
-                        console.log('[PREVIEW] Stored original src:', $mainImage.data('original-src'))
+                        )
                     }
                     
                     // Convert thumbnail URL to full-size URL (remove -150x150 suffix)
                     const fullSizeUrl = imageUrl.replace(/-150x150(\.[^.]+)$/, '$1')
                     $mainImage.attr('src', fullSizeUrl)
-                    console.log('[PREVIEW] Updated main image src to:', fullSizeUrl)
-                }
+                    }
             } else {
-                console.log('[PREVIEW] No PV gallery found in product container')
-            }
+                }
         }
     }
 
     restoreSelectedImage() {
-        console.log('[RESTORE] restoreSelectedImage called')
-        
         // Restore to currently selected variation's image
         const $selectedSwatch = $('.product-attributes .visual-swatch input:checked').closest('.bb-product-attribute-swatch-item')
-        console.log('[RESTORE] Found selected swatch:', $selectedSwatch.length)
-        
         if (!$selectedSwatch.length) {
-            console.log('[RESTORE] No selected swatch, exiting')
             return
         }
         
         const selectedImage = $selectedSwatch.data('variation-image')
         const $product = $selectedSwatch.closest('.bb-product-detail')
-        console.log('[RESTORE] Selected image:', selectedImage, 'Product:', $product.length)
-        
         if (!$product.length) {
-            console.log('[RESTORE] No product container, exiting')
             return
         }
         
         // Determine if we're in Quick Shop or PV Gallery
         const $quickShopModal = $selectedSwatch.closest('#quick-shop-modal')
         const isQuickShop = $quickShopModal.length > 0
-        console.log('[RESTORE] Context:', { isQuickShop })
-        
         if (isQuickShop) {
             // For Quick Shop - restore to selected variation's first slide
-            console.log('[RESTORE] Quick Shop mode')
             if (selectedImage && typeof window.updateQSGalleryImages === 'function') {
-                console.log('[RESTORE] Calling updateQSGalleryImages with:', [selectedImage])
                 window.updateQSGalleryImages([selectedImage])
             } else {
-                console.log('[RESTORE] Missing:', { selectedImage, hasFunction: typeof window.updateQSGalleryImages })
-            }
+                }
         } else {
             // For PV Gallery
-            console.log('[RESTORE] PV Gallery mode')
             const $pvGallery = $product.find('.pv-gallery-main')
-            console.log('[RESTORE] Found PV gallery:', $pvGallery.length)
-            
             if ($pvGallery.length) {
                 const $mainImage = $pvGallery.find('#pv-main-image')
-                console.log('[RESTORE] Found main image:', $mainImage.length)
-                
                 if ($mainImage.length && selectedImage) {
-                    console.log('[RESTORE] Restoring to selected image:', selectedImage)
                     $mainImage.attr('src', selectedImage)
                 } else if ($mainImage.length && $mainImage.data('original-src')) {
                     // Restore original if no selection
-                    console.log('[RESTORE] Restoring to original:', $mainImage.data('original-src'))
+                    )
                     $mainImage.attr('src', $mainImage.data('original-src'))
                     $mainImage.removeData('original-src')
                 } else {
-                    console.log('[RESTORE] Cannot restore - missing image or original-src')
-                }
+                    }
             }
         }
     }
