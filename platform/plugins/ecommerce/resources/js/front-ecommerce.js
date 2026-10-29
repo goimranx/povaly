@@ -1737,7 +1737,8 @@ class Ecommerce {
         }
 
         $product.find('.bb-product-attribute-swatch-item').removeClass('disabled')
-        $product.find('.bb-product-attribute-swatch-list select option').prop('disabled', false)
+        // Re-enable all dropdown options (dropdowns are in .bb-product-attribute-swatch select, not .bb-product-attribute-swatch-list)
+        $product.find('.bb-product-attribute-swatch select option').prop('disabled', false)
 
         const unavailableAttributeIds = data.unavailable_attribute_ids || []
 
@@ -1759,7 +1760,8 @@ class Ecommerce {
                     $swatchItem.find('input').prop('checked', false)
                     console.log('[VARIATION DEBUG] Added disabled class to visual swatch ID:', id)
                 } else {
-                    $swatchItem = $product.find(`.bb-product-attribute-swatch-list select option[data-id="${id}"]`)
+                    // Dropdown options are in .bb-product-attribute-swatch select (not .bb-product-attribute-swatch-list)
+                    $swatchItem = $product.find(`.bb-product-attribute-swatch select option[data-id="${id}"]`)
 
                     if ($swatchItem.length) {
                         $swatchItem.prop('disabled', true)
