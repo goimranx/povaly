@@ -1787,9 +1787,12 @@ class Ecommerce {
                     const $firstAvailable = $select.find('option[value!=""]:not(:disabled)').first()
                     
                     if ($firstAvailable.length) {
+                        // Clear all previous selections first
+                        $select.find('option').prop('selected', false).removeAttr('selected')
+                        
                         // Properly mark the option as selected (both property and attribute)
-                        $select.val($firstAvailable.val())
                         $firstAvailable.prop('selected', true).attr('selected', 'selected')
+                        $select.val($firstAvailable.val())
                         
                         // Update label if exists
                         const $label = $wrapper.find('.qs-swatch__selected-val')
