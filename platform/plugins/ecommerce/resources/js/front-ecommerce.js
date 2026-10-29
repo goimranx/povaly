@@ -1723,18 +1723,7 @@ class Ecommerce {
             $sku.closest('div').hide()
         }
 
-        if (data.error_message) {
-            $button.prop('disabled', true)
-            $quantity.prop('disabled', true)
-
-            $available.html(`<span class='text-danger'>${data.error_message}</span>`).show()
-        } else if (data.warning_message) {
-            $available.html(`<span class='text-warning fw-medium fs-6'>${data.warning_message}</span>`).show()
-        } else if (data.success_message) {
-            $available.html(`<span class='text-success'>${data.success_message}</span>`).show()
-        } else {
-            $available.html('').hide()
-        }
+        // Don't update availability message here - will be shown after auto-selection completes
 
         $product.find('.bb-product-attribute-swatch-item').removeClass('disabled')
         // Re-enable ALL dropdown options (including previously disabled ones)
@@ -1832,6 +1821,9 @@ class Ecommerce {
 
             // If we auto-selected anything, trigger ONE refresh to get final variation
             if (anyAutoSelected) {
+                // Hide availability message during auto-selection to prevent flickering
+                $available.hide()
+                
                 // Increment counter to track iterations
                 $product.data('auto-select-count', autoSelectCount + 1)
                 
@@ -1846,10 +1838,29 @@ class Ecommerce {
             } else {
                 // Nothing was auto-selected, reset counter for next user interaction
                 $product.data('auto-select-count', 0)
+                // Show the availability message now that all operations are complete
+                if (data.error_message) {
+                    $available.html(`<span class='text-danger'>${data.error_message}</span>`).show()
+                } else if (data.warning_message) {
+                    $available.html(`<span class='text-warning fw-medium fs-6'>${data.warning_message}</span>`).show()
+                } else if (data.success_message) {
+                    $available.html(`<span class='text-success'>${data.success_message}</span>`).show()
+                } else {
+                    $available.html('').hide()
+                }
             }
         } else {
-            // Max iterations reached, reset counter
+            // Max iterations reached, reset counter and show final message
             $product.data('auto-select-count', 0)
+            if (data.error_message) {
+                $available.html(`<span class='text-danger'>${data.error_message}</span>`).show()
+            } else if (data.warning_message) {
+                $available.html(`<span class='text-warning fw-medium fs-6'>${data.warning_message}</span>`).show()
+            } else if (data.success_message) {
+                $available.html(`<span class='text-success'>${data.success_message}</span>`).show()
+            } else {
+                $available.html('').hide()
+            }
         }
 
         let imageHtml = ''
