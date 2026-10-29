@@ -1765,93 +1765,90 @@ class Ecommerce {
         // Skip if we're in the middle of an auto-triggered cycle to prevent loops
         const isProcessingAutoSelect = $product.data('processing-auto-select') === true
         
-        if (isProcessingAutoSelect) {
-            // Already processing an auto-select, don't do it again
-            return
-        }
-        
-        let anyAutoSelected = false
-        
-        $product.find('.bb-product-attribute-swatch').each(function() {
-            const $wrapper = $(this)
-            const type = $wrapper.data('type')
-
-            if (type === 'dropdown') {
-                // Handle dropdown
-                const $select = $wrapper.find('select')
-                const $selectedOption = $select.find('option:selected')
-                
-                // Check if current selection is disabled or empty
-                if (!$selectedOption.val() || $selectedOption.prop('disabled')) {
-                    // Find first enabled option (skip the placeholder)
-                    const $firstAvailable = $select.find('option[value!=""]:not(:disabled)').first()
-                    
-                    if ($firstAvailable.length) {
-                        // Clear all previous selections first
-                        $select.find('option').prop('selected', false).removeAttr('selected')
-                        
-                        // Properly mark the option as selected (both property and attribute)
-                        $firstAvailable.prop('selected', true).attr('selected', 'selected')
-                        $select.val($firstAvailable.val())
-                        
-                        // Update label if exists
-                        const $label = $wrapper.find('.qs-swatch__selected-val')
-                        if ($label.length) {
-                            $label.text($firstAvailable.data('title') || $firstAvailable.text())
-                        }
-                        anyAutoSelected = true
-                    }
-                }
-            } else {
-                // Handle visual/text swatches
-                const $checkedInput = $wrapper.find('input[type=radio]:checked')
-                const $checkedItem = $checkedInput.closest('.bb-product-attribute-swatch-item')
-                
-                // Check if NO option is selected OR current selection is disabled
-                if (!$checkedInput.length || $checkedItem.hasClass('disabled')) {
-                    // Uncheck the disabled option if exists
-                    if ($checkedInput.length) {
-                        $checkedInput.prop('checked', false).removeAttr('checked')
-                        $checkedItem.removeClass('selected')
-                    }
-                    
-                    // Find first available option
-                    const $firstAvailable = $wrapper.find('.bb-product-attribute-swatch-item:not(.disabled)').first()
-                    
-                    if ($firstAvailable.length) {
-                        const $input = $firstAvailable.find('input[type=radio]')
-                        $input.prop('checked', true).attr('checked', 'checked')
-                        $firstAvailable.addClass('selected')
-                        
-                        // Update label if exists
-                        const $label = $wrapper.find('.qs-swatch__selected-val')
-                        if ($label.length) {
-                            $label.text($firstAvailable.data('title') || '')
-                        }
-                        anyAutoSelected = true
-                    }
-                }
-            }
-        })
-
-        // If we auto-selected anything, trigger ONE refresh to get final variation
-        if (anyAutoSelected) {
-            // Set flag to prevent loop
-            $product.data('processing-auto-select', true)
+        if (!isProcessingAutoSelect) {
+            let anyAutoSelected = false
             
-            // Small delay to let DOM update
-            setTimeout(function() {
-                // Trigger change on any selected element to refresh the variation
-                const $anySelected = $product.find('.product-attributes select, .product-attributes input[type=radio]:checked').first()
-                if ($anySelected.length) {
-                    $anySelected.trigger('change')
+            $product.find('.bb-product-attribute-swatch').each(function() {
+                const $wrapper = $(this)
+                const type = $wrapper.data('type')
+
+                if (type === 'dropdown') {
+                    // Handle dropdown
+                    const $select = $wrapper.find('select')
+                    const $selectedOption = $select.find('option:selected')
+                    
+                    // Check if current selection is disabled or empty
+                    if (!$selectedOption.val() || $selectedOption.prop('disabled')) {
+                        // Find first enabled option (skip the placeholder)
+                        const $firstAvailable = $select.find('option[value!=""]:not(:disabled)').first()
+                        
+                        if ($firstAvailable.length) {
+                            // Clear all previous selections first
+                            $select.find('option').prop('selected', false).removeAttr('selected')
+                            
+                            // Properly mark the option as selected (both property and attribute)
+                            $firstAvailable.prop('selected', true).attr('selected', 'selected')
+                            $select.val($firstAvailable.val())
+                            
+                            // Update label if exists
+                            const $label = $wrapper.find('.qs-swatch__selected-val')
+                            if ($label.length) {
+                                $label.text($firstAvailable.data('title') || $firstAvailable.text())
+                            }
+                            anyAutoSelected = true
+                        }
+                    }
+                } else {
+                    // Handle visual/text swatches
+                    const $checkedInput = $wrapper.find('input[type=radio]:checked')
+                    const $checkedItem = $checkedInput.closest('.bb-product-attribute-swatch-item')
+                    
+                    // Check if NO option is selected OR current selection is disabled
+                    if (!$checkedInput.length || $checkedItem.hasClass('disabled')) {
+                        // Uncheck the disabled option if exists
+                        if ($checkedInput.length) {
+                            $checkedInput.prop('checked', false).removeAttr('checked')
+                            $checkedItem.removeClass('selected')
+                        }
+                        
+                        // Find first available option
+                        const $firstAvailable = $wrapper.find('.bb-product-attribute-swatch-item:not(.disabled)').first()
+                        
+                        if ($firstAvailable.length) {
+                            const $input = $firstAvailable.find('input[type=radio]')
+                            $input.prop('checked', true).attr('checked', 'checked')
+                            $firstAvailable.addClass('selected')
+                            
+                            // Update label if exists
+                            const $label = $wrapper.find('.qs-swatch__selected-val')
+                            if ($label.length) {
+                                $label.text($firstAvailable.data('title') || '')
+                            }
+                            anyAutoSelected = true
+                        }
+                    }
                 }
+            })
+
+            // If we auto-selected anything, trigger ONE refresh to get final variation
+            if (anyAutoSelected) {
+                // Set flag to prevent loop
+                $product.data('processing-auto-select', true)
                 
-                // Clear the flag after processing completes
+                // Small delay to let DOM update
                 setTimeout(function() {
-                    $product.data('processing-auto-select', false)
-                }, 500)
-            }, 50)
+                    // Trigger change on any selected element to refresh the variation
+                    const $anySelected = $product.find('.product-attributes select, .product-attributes input[type=radio]:checked').first()
+                    if ($anySelected.length) {
+                        $anySelected.trigger('change')
+                    }
+                    
+                    // Clear the flag after processing completes
+                    setTimeout(function() {
+                        $product.data('processing-auto-select', false)
+                    }, 500)
+                }, 50)
+            }
         }
 
         let imageHtml = ''
