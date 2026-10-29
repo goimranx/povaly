@@ -135,6 +135,15 @@ class ChangeProductSwatches {
             }
         })
 
+        // DEBUG: Log what we're sending to server
+        console.log('[DEBUG] Sending to server:', {
+            attributes: attributes,
+            slugAttributes: slugAttributes
+        })
+        
+        // Also show alert for visibility
+        alert('DEBUG: Sending attributes: ' + JSON.stringify(attributes))
+
         _self.callAjax(attributes, $productAttributes, slugAttributes, true, referenceProduct)
     }
 
@@ -236,6 +245,15 @@ class ChangeProductSwatches {
     
     handleResponse = function(res, $productAttributes, slugAttributes, id, updateUrl) {
         let _self = this
+
+        // DEBUG: Log what server returned
+        console.log('[DEBUG] Server response:', {
+            unavailable_attribute_ids: res.data?.unavailable_attribute_ids,
+            selected_attributes: res.data?.selected_attributes
+        })
+        
+        // Also show alert for visibility
+        alert('DEBUG: Server returned unavailable IDs: ' + JSON.stringify(res.data?.unavailable_attribute_ids))
 
         if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnChangeSwatchesSuccess === 'function') {
             window.EcommerceApp.defaultOnChangeSwatchesSuccess(res, $productAttributes)

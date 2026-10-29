@@ -2207,6 +2207,10 @@ class EcommerceHelper
 
     public function getAssetVersion(): string
     {
-        return '3.11.10';
+        // Use cache_bust() helper which:
+        // - On main branch: uses Git tag version (e.g., "1.0.0")
+        // - On stage branch: uses commit hash (e.g., "ee27538")
+        // This ensures proper cache busting on deployments
+        return cache_bust();
     }
 }

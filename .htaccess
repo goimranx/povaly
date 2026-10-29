@@ -1,5 +1,13 @@
 RewriteEngine on
 
+# CORS Headers for Fonts and Assets
+<IfModule mod_headers.c>
+    # Allow fonts from any domain
+    <FilesMatch "\.(ttf|otf|eot|woff|woff2)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>
+
 # Redirect Trailing Slashes If Not A Folder...
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} (.+)/$
