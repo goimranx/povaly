@@ -1760,14 +1760,21 @@ class Ecommerce {
                     $swatchItem.find('input').prop('checked', false)
                     console.log('[VARIATION DEBUG] Added disabled class to visual swatch ID:', id)
                 } else {
-                    // Dropdown options are in .bb-product-attribute-swatch select (not .bb-product-attribute-swatch-list)
-                    $swatchItem = $product.find(`.bb-product-attribute-swatch select option[data-id="${id}"]`)
+                    // Try dropdown options - they're in select elements
+                    console.log('[VARIATION DEBUG] Searching for dropdown option with ID:', id)
+                    console.log('[VARIATION DEBUG] All selects found:', $product.find('select').length)
+                    console.log('[VARIATION DEBUG] All options found:', $product.find('select option').length)
+                    console.log('[VARIATION DEBUG] Options with data-id:', $product.find('select option[data-id]').length)
+                    
+                    $swatchItem = $product.find(`select option[data-id="${id}"]`)
+                    console.log('[VARIATION DEBUG] Selector used: select option[data-id="' + id + '"]')
+                    console.log('[VARIATION DEBUG] Found dropdown options:', $swatchItem.length)
 
                     if ($swatchItem.length) {
                         $swatchItem.prop('disabled', true)
                         console.log('[VARIATION DEBUG] Disabled dropdown option ID:', id)
                     } else {
-                        console.log('[VARIATION DEBUG] No element found for ID:', id)
+                        console.log('[VARIATION DEBUG] No dropdown element found for ID:', id)
                     }
                 }
             })
