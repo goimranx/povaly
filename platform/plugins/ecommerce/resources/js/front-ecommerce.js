@@ -1737,50 +1737,26 @@ class Ecommerce {
         }
 
         $product.find('.bb-product-attribute-swatch-item').removeClass('disabled')
-        // Re-enable all dropdown options (dropdowns are in .bb-product-attribute-swatch select, not .bb-product-attribute-swatch-list)
         $product.find('.bb-product-attribute-swatch select option').prop('disabled', false)
 
         const unavailableAttributeIds = data.unavailable_attribute_ids || []
 
-        console.log('[VARIATION DEBUG] Applying disabled classes...')
-        console.log('[VARIATION DEBUG] Product container:', $product.length)
-        console.log('[VARIATION DEBUG] Unavailable IDs:', unavailableAttributeIds)
-        console.log('[VARIATION DEBUG] All swatch items before:', $product.find('.bb-product-attribute-swatch-item').length)
-
         if (unavailableAttributeIds.length) {
             unavailableAttributeIds.map((id) => {
-                console.log('[VARIATION DEBUG] Processing unavailable ID:', id)
-                
                 let $swatchItem = $product.find(`.bb-product-attribute-swatch-item[data-id="${id}"]`)
-
-                console.log('[VARIATION DEBUG] Found swatch items for ID ' + id + ':', $swatchItem.length)
 
                 if ($swatchItem.length) {
                     $swatchItem.addClass('disabled')
                     $swatchItem.find('input').prop('checked', false)
-                    console.log('[VARIATION DEBUG] Added disabled class to visual swatch ID:', id)
                 } else {
-                    // Try dropdown options - they're in select elements
-                    console.log('[VARIATION DEBUG] Searching for dropdown option with ID:', id)
-                    console.log('[VARIATION DEBUG] All selects found:', $product.find('select').length)
-                    console.log('[VARIATION DEBUG] All options found:', $product.find('select option').length)
-                    console.log('[VARIATION DEBUG] Options with data-id:', $product.find('select option[data-id]').length)
-                    
                     $swatchItem = $product.find(`select option[data-id="${id}"]`)
-                    console.log('[VARIATION DEBUG] Selector used: select option[data-id="' + id + '"]')
-                    console.log('[VARIATION DEBUG] Found dropdown options:', $swatchItem.length)
 
                     if ($swatchItem.length) {
                         $swatchItem.prop('disabled', true)
-                        console.log('[VARIATION DEBUG] Disabled dropdown option ID:', id)
-                    } else {
-                        console.log('[VARIATION DEBUG] No dropdown element found for ID:', id)
                     }
                 }
             })
         }
-        
-        console.log('[VARIATION DEBUG] All swatch items after (should have disabled):', $product.find('.bb-product-attribute-swatch-item.disabled').length)
 
         let imageHtml = ''
         let thumbHtml = ''
