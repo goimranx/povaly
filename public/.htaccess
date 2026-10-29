@@ -5,6 +5,17 @@
 
     RewriteEngine On
 
+    # CORS Headers for Fonts and Assets
+    <IfModule mod_headers.c>
+        # Allow fonts from povaly.com domain
+        <FilesMatch "\.(ttf|otf|eot|woff|woff2)$">
+            Header set Access-Control-Allow-Origin "*"
+        </FilesMatch>
+        
+        # Remove Permissions-Policy warnings
+        Header always unset Permissions-Policy
+    </IfModule>
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
