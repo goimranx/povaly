@@ -1787,7 +1787,7 @@ class Ecommerce {
                     const $firstAvailable = $select.find('option[value!=""]:not(:disabled)').first()
                     
                     if ($firstAvailable.length) {
-                        // Set the value and ensure the option is marked as selected
+                        // Properly mark the option as selected (both property and attribute)
                         $select.val($firstAvailable.val())
                         $firstAvailable.prop('selected', true).attr('selected', 'selected')
                         
@@ -1836,25 +1836,19 @@ class Ecommerce {
             // Set flag to prevent loop
             $product.data('processing-auto-select', true)
             
-            // Hide availability message during auto-selection to prevent flickering
-            const $available = $product.find('.number-items-available')
-            $available.html('').hide()
-            
-            // Longer delay to ensure ALL DOM updates complete before triggering AJAX
+            // Small delay to let DOM update
             setTimeout(function() {
                 // Trigger change on any selected element to refresh the variation
-                // Use the LAST selected element (not first) to ensure all values are captured
-                const $allSelected = $product.find('.product-attributes select, .product-attributes input[type=radio]:checked')
-                if ($allSelected.length) {
-                    // Trigger on the last one to ensure all previous selections are in DOM
-                    $allSelected.last().trigger('change')
+                const $anySelected = $product.find('.product-attributes select, .product-attributes input[type=radio]:checked').first()
+                if ($anySelected.length) {
+                    $anySelected.trigger('change')
                 }
                 
                 // Clear the flag after processing completes
                 setTimeout(function() {
                     $product.data('processing-auto-select', false)
                 }, 500)
-            }, 150)
+            }, 50)
         }
 
         let imageHtml = ''
