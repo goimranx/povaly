@@ -35,14 +35,32 @@ class ChangeProductSwatches {
             $radio.trigger('change')
         })
 
+        // ORIGINAL event listener for all inputs/selects
         $body
             .off('change', '.product-attributes input, .product-attributes select')
             .on('change', '.product-attributes input, .product-attributes select', (event) => {
                 console.log('[VARIATION DEBUG] Change event fired!', {
                     type: event.target.tagName,
-                    value: event.target.value
+                    value: event.target.value,
+                    classes: event.target.className
                 })
-                alert('[VARIATION DEBUG] Change detected on: ' + event.target.tagName)
+                alert('[VARIATION DEBUG] Change detected on: ' + event.target.tagName + ' (value: ' + event.target.value + ')')
+                
+                const $parent = $(event.currentTarget).closest('.product-attributes')
+
+                _self.getProductVariation($parent)
+            })
+            
+        // ADDITIONAL: Direct listener for dropdown specifically (in case event doesn't bubble)
+        $body
+            .off('change', '.product-attributes .product-filter-item')
+            .on('change', '.product-attributes .product-filter-item', (event) => {
+                console.log('[VARIATION DEBUG] DROPDOWN SPECIFIC - Change event fired!', {
+                    type: event.target.tagName,
+                    value: event.target.value,
+                    classes: event.target.className
+                })
+                alert('[VARIATION DEBUG] DROPDOWN changed to: ' + event.target.value)
                 
                 const $parent = $(event.currentTarget).closest('.product-attributes')
 
