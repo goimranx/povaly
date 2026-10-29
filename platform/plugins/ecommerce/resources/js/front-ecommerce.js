@@ -1762,8 +1762,13 @@ class Ecommerce {
         }
 
         // Auto-select first available option if current selection is disabled or empty
-        // Use data attribute to prevent infinite loops
-        if ($product.data('auto-selecting')) {
+        // Use counter to prevent infinite loops but allow cascading
+        const autoSelectCount = $product.data('auto-select-count') || 0
+        const maxAutoSelects = 10 // Allow up to 10 cascades (more than enough for any product)
+        
+        if (autoSelectCount >= maxAutoSelects) {
+            // Reset counter and stop to prevent infinite loop
+            $product.data('auto-select-count', 0)
             return
         }
         
@@ -1827,7 +1832,8 @@ class Ecommerce {
 
         // If we auto-selected something, trigger a refresh to update other attributes
         if (needsRefresh) {
-            $product.data('auto-selecting', true)
+            // Increment counter
+            $product.data('auto-select-count', autoSelectCount + 1)
             
             // Use a small delay to avoid race conditions
             setTimeout(function() {
@@ -1836,12 +1842,12 @@ class Ecommerce {
                 if ($changedElement.length) {
                     $changedElement.trigger('change')
                 }
-                
-                // Clear the flag after a delay
-                setTimeout(function() {
-                    $product.data('auto-selecting', false)
-                }, 500)
             }, 100)
+        } else {
+            // No more auto-selects needed, reset counter
+            setTimeout(function() {
+                $product.data('auto-select-count', 0)
+            }, 500)
         }
 
         let imageHtml = ''
