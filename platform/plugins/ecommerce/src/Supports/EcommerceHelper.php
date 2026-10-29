@@ -2205,7 +2205,7 @@ class EcommerceHelper
             $this->isEnabledFilterProductsByRating();
     }
 
-    public function getAssetVersion(): string
+    public static function getAssetVersion(): string
     {
         // Use different versioning based on branch
         // - main branch: semantic version (e.g., "2.38.1.1")
