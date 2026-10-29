@@ -2207,7 +2207,9 @@ class EcommerceHelper
 
     public function getAssetVersion(): string
     {
-        // Use cache_bust() helper which:
+        // Manual cache bust for critical JS updates
+        return '2.38.1.1'; // Incremented for PV Gallery thumbnail fix
+    }
         // - On main branch: uses Git tag version (e.g., "1.0.0")
         // - On stage branch: uses commit hash (e.g., "ee27538")
         // This ensures proper cache busting on deployments
