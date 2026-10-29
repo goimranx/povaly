@@ -11,13 +11,17 @@ class ChangeProductSwatches {
         let _self = this
         let $body = $('body')
 
+        console.log('[VARIATION DEBUG] handleEvents() called - setting up listeners')
+
         $body.on('click', '.product-attributes .visual-swatch label, .product-attributes .text-swatch label', (e) => {
             e.preventDefault()
+            console.log('[VARIATION DEBUG] Visual/Text swatch clicked')
 
             let $this = $(e.currentTarget)
             let $radio = $this.find('input[type=radio]')
 
             if ($radio.is(':checked')) {
+                console.log('[VARIATION DEBUG] Radio already checked, returning')
                 return
             }
 
@@ -27,12 +31,19 @@ class ChangeProductSwatches {
                 $radio.prop('checked', true)
             }
 
+            console.log('[VARIATION DEBUG] Triggering change event on radio')
             $radio.trigger('change')
         })
 
         $body
             .off('change', '.product-attributes input, .product-attributes select')
             .on('change', '.product-attributes input, .product-attributes select', (event) => {
+                console.log('[VARIATION DEBUG] Change event fired!', {
+                    type: event.target.tagName,
+                    value: event.target.value
+                })
+                alert('[VARIATION DEBUG] Change detected on: ' + event.target.tagName)
+                
                 const $parent = $(event.currentTarget).closest('.product-attributes')
 
                 _self.getProductVariation($parent)
@@ -92,6 +103,9 @@ class ChangeProductSwatches {
     }
 
     getProductVariation($productAttributes) {
+        console.log('[VARIATION DEBUG] getProductVariation() called')
+        alert('[VARIATION DEBUG] getProductVariation() started!')
+        
         let _self = this
 
         let attributes = []
@@ -101,6 +115,7 @@ class ChangeProductSwatches {
          * Break current request
          */
         if (_self.xhr) {
+            console.log('[VARIATION DEBUG] Aborting previous XHR')
             _self.xhr.abort()
 
             _self.xhr = null
@@ -110,20 +125,29 @@ class ChangeProductSwatches {
          * Get attributes
          */
         let $attributeSwatches = $productAttributes.find('.attribute-swatches-wrapper')
+        console.log('[VARIATION DEBUG] Found attribute wrappers:', $attributeSwatches.length)
 
         let referenceProduct = null
         $attributeSwatches.each((index, el) => {
             let $current = $(el)
+            console.log('[VARIATION DEBUG] Processing attribute wrapper', index, {
+                type: $current.data('type'),
+                slug: $current.find('.attribute-swatch').data('slug')
+            })
 
             let $input
             if ($current.data('type') === 'dropdown') {
                 $input = $current.find('select option:selected')
+                console.log('[VARIATION DEBUG] Dropdown found, selected value:', $input.val())
             } else {
                 $input = $current.find('input[type=radio]:checked')
+                console.log('[VARIATION DEBUG] Radio found, checked value:', $input.val())
             }
 
             let slug = $input.data('slug')
             let value = $input.val()
+            
+            console.log('[VARIATION DEBUG] Input data:', { slug, value })
 
             if (value) {
                 let setSlug = $current.find('.attribute-swatch').data('slug')
@@ -132,13 +156,21 @@ class ChangeProductSwatches {
                 attributes.push(value)
 
                 referenceProduct = $input.data('reference-product')
+                
+                console.log('[VARIATION DEBUG] Added to attributes:', {
+                    setSlug,
+                    slug,
+                    value,
+                    referenceProduct
+                })
             }
         })
 
         // DEBUG: Log what we're sending to server
-        console.log('[DEBUG] Sending to server:', {
+        console.log('[VARIATION DEBUG] Final data to send:', {
             attributes: attributes,
-            slugAttributes: slugAttributes
+            slugAttributes: slugAttributes,
+            referenceProduct: referenceProduct
         })
         
         // Also show alert for visibility
@@ -148,6 +180,13 @@ class ChangeProductSwatches {
     }
 
     callAjax = function (attributes, $productAttributes, slugAttributes, updateUrl = true, referenceProduct = null) {
+        console.log('[VARIATION DEBUG] callAjax() called with:', {
+            attributes,
+            slugAttributes,
+            updateUrl,
+            referenceProduct
+        })
+        
         let _self = this
         let formData = {
             attributes,
@@ -164,19 +203,28 @@ class ChangeProductSwatches {
         const locale = document.documentElement.lang || 'en'
         const cacheKey = JSON.stringify(attributes.sort()) + (referenceProduct || '') + '_v1_' + locale
         
+        console.log('[VARIATION DEBUG] Cache key:', cacheKey)
+        
         // Check cache first
         const cached = _self.getFromCache(cacheKey)
         if (cached) {
+            console.log('[VARIATION DEBUG] Using cached response')
             // Use cached response
             _self.handleResponse(cached, $productAttributes, slugAttributes, id, updateUrl)
             return
         }
 
+        const ajaxUrl = $productAttributes.data('target')
+        console.log('[VARIATION DEBUG] Making AJAX request to:', ajaxUrl)
+        console.log('[VARIATION DEBUG] AJAX data:', formData)
+
         _self.xhr = $.ajax({
-            url: $productAttributes.data('target'),
+            url: ajaxUrl,
             type: 'GET',
             data: formData,
             beforeSend: () => {
+                console.log('[VARIATION DEBUG] AJAX beforeSend')
+                
                 if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnBeforeChangeSwatches === 'function') {
                     window.EcommerceApp.defaultOnBeforeChangeSwatches(attributes, $productAttributes)
                 }
@@ -186,6 +234,8 @@ class ChangeProductSwatches {
                 }
             },
             success: (res) => {
+                console.log('[VARIATION DEBUG] AJAX success! Response:', res)
+                
                 // Store in cache
                 _self.setCache(cacheKey, res)
                 
@@ -193,11 +243,15 @@ class ChangeProductSwatches {
                 _self.handleResponse(res, $productAttributes, slugAttributes, id, updateUrl)
             },
             complete: (res) => {
+                console.log('[VARIATION DEBUG] AJAX complete')
+                
                 if (window.onChangeSwatchesComplete && typeof window.onChangeSwatchesComplete === 'function') {
                     window.onChangeSwatchesComplete(res, $productAttributes)
                 }
             },
             error: (res) => {
+                console.error('[VARIATION DEBUG] AJAX error!', res)
+                alert('[VARIATION DEBUG] AJAX ERROR: ' + (res.responseText || res.statusText))
                 if (window.onChangeSwatchesError && typeof window.onChangeSwatchesError === 'function') {
                     window.onChangeSwatchesError(res, $productAttributes)
                 }
@@ -244,24 +298,36 @@ class ChangeProductSwatches {
     }
     
     handleResponse = function(res, $productAttributes, slugAttributes, id, updateUrl) {
+        console.log('[VARIATION DEBUG] handleResponse() called')
+        console.log('[VARIATION DEBUG] Full response object:', res)
+        
         let _self = this
 
         // DEBUG: Log what server returned
-        console.log('[DEBUG] Server response:', {
+        console.log('[VARIATION DEBUG] Server response data:', {
             unavailable_attribute_ids: res.data?.unavailable_attribute_ids,
-            selected_attributes: res.data?.selected_attributes
+            selected_attributes: res.data?.selected_attributes,
+            price: res.data?.price,
+            error_message: res.data?.error_message,
+            full_data: res.data
         })
         
         // Also show alert for visibility
         alert('DEBUG: Server returned unavailable IDs: ' + JSON.stringify(res.data?.unavailable_attribute_ids))
+        
+        console.log('[VARIATION DEBUG] Calling window callbacks...')
 
         if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnChangeSwatchesSuccess === 'function') {
+            console.log('[VARIATION DEBUG] Calling EcommerceApp.defaultOnChangeSwatchesSuccess')
             window.EcommerceApp.defaultOnChangeSwatchesSuccess(res, $productAttributes)
         }
 
         if (window.onChangeSwatchesSuccess && typeof window.onChangeSwatchesSuccess === 'function') {
+            console.log('[VARIATION DEBUG] Calling onChangeSwatchesSuccess')
             window.onChangeSwatchesSuccess(res, $productAttributes)
         }
+
+        console.log('[VARIATION DEBUG] Window callbacks completed')
 
         const { data, message } = res
 
