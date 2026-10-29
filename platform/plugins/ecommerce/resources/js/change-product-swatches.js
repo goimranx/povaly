@@ -212,6 +212,27 @@ class ChangeProductSwatches {
         })
     }
 
+    syncSelectedClass = function ($el) {
+        // For each attribute wrapper, sync the .selected class with the :checked state
+        $el.find('.attribute-swatches-wrapper').each(function() {
+            let $wrapper = $(this)
+            
+            if ($wrapper.data('type') === 'dropdown') {
+                // For dropdowns, we don't use .selected class
+                return
+            }
+            
+            // Remove .selected from all items in this wrapper
+            $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
+            
+            // Add .selected to the item that contains the checked radio
+            let $checkedInput = $wrapper.find('input[type=radio]:checked')
+            if ($checkedInput.length) {
+                $checkedInput.closest('.bb-product-attribute-swatch-item').addClass('selected')
+            }
+        })
+    }
+
     parseParamsSearch = function (query, includeArray = false) {
         let pairs = query || window.location.search.substring(1)
         let re = /([^&=]+)=?([^&]*)/g
@@ -257,6 +278,9 @@ class ChangeProductSwatches {
 
             if (id) {
                 _self.updateSelectingAttributes(slugAttributes, $('#' + id))
+                
+                // Sync .selected class with :checked state
+                _self.syncSelectedClass($('#' + id))
             }
 
             // Skip URL updates if data-update-url="false" is set on the container
