@@ -1842,13 +1842,11 @@ class Ecommerce {
                     if ($anySelected.length) {
                         $anySelected.trigger('change')
                     }
-                    
-                    // Clear the flag after processing completes
-                    setTimeout(function() {
-                        $product.data('processing-auto-select', false)
-                    }, 500)
                 }, 50)
             }
+        } else {
+            // This is the auto-triggered call, clear the flag now that we've processed the response
+            $product.data('processing-auto-select', false)
         }
 
         let imageHtml = ''
