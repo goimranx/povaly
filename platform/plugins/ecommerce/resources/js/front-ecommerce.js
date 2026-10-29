@@ -1761,6 +1761,59 @@ class Ecommerce {
             })
         }
 
+        // Auto-select first available option if current selection is disabled
+        $product.find('.bb-product-attribute-swatch').each(function() {
+            const $wrapper = $(this)
+            const type = $wrapper.data('type')
+
+            if (type === 'dropdown') {
+                // Handle dropdown
+                const $select = $wrapper.find('select')
+                const $selectedOption = $select.find('option:selected')
+                
+                // Check if current selection is disabled or empty
+                if (!$selectedOption.val() || $selectedOption.prop('disabled')) {
+                    // Find first enabled option (skip the placeholder)
+                    const $firstAvailable = $select.find('option[value!=""]:not(:disabled)').first()
+                    
+                    if ($firstAvailable.length) {
+                        $select.val($firstAvailable.val()).attr('value', $firstAvailable.val())
+                        // Update label if exists
+                        const $label = $wrapper.find('.qs-swatch__selected-val')
+                        if ($label.length) {
+                            $label.text($firstAvailable.data('title') || $firstAvailable.text())
+                        }
+                    }
+                }
+            } else {
+                // Handle visual/text swatches
+                const $checkedInput = $wrapper.find('input[type=radio]:checked')
+                const $checkedItem = $checkedInput.closest('.bb-product-attribute-swatch-item')
+                
+                // Check if current selection is disabled
+                if ($checkedItem.hasClass('disabled')) {
+                    // Uncheck the disabled option
+                    $checkedInput.prop('checked', false)
+                    $checkedItem.removeClass('selected')
+                    
+                    // Find first available option
+                    const $firstAvailable = $wrapper.find('.bb-product-attribute-swatch-item:not(.disabled)').first()
+                    
+                    if ($firstAvailable.length) {
+                        const $input = $firstAvailable.find('input[type=radio]')
+                        $input.prop('checked', true).attr('checked', 'checked')
+                        $firstAvailable.addClass('selected')
+                        
+                        // Update label if exists
+                        const $label = $wrapper.find('.qs-swatch__selected-val')
+                        if ($label.length) {
+                            $label.text($firstAvailable.data('title') || '')
+                        }
+                    }
+                }
+            }
+        })
+
         let imageHtml = ''
         let thumbHtml = ''
 

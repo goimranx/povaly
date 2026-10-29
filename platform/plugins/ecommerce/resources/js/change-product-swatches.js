@@ -16,15 +16,30 @@ class ChangeProductSwatches {
 
             let $this = $(e.currentTarget)
             let $radio = $this.find('input[type=radio]')
+            let $item = $this.closest('.bb-product-attribute-swatch-item')
+            let $wrapper = $this.closest('.bb-product-attribute-swatch')
+
+            // Don't allow clicking disabled items
+            if ($item.hasClass('disabled')) {
+                return
+            }
 
             if ($radio.is(':checked')) {
                 return
             }
 
-            $radio.prop('checked', true)
+            // Remove selected class and checked attribute from all items in this group
+            $wrapper.find('.bb-product-attribute-swatch-item').removeClass('selected')
+            $wrapper.find('input[type=radio]').prop('checked', false).removeAttr('checked')
 
-            if ($this.closest('.visual-swatch').find('input[type=radio]:checked').length < 1) {
-                $radio.prop('checked', true)
+            // Add selected class and checked attribute to clicked item
+            $item.addClass('selected')
+            $radio.prop('checked', true).attr('checked', 'checked')
+
+            // Update label
+            const $label = $wrapper.find('.qs-swatch__selected-val')
+            if ($label.length) {
+                $label.text($item.data('title') || '')
             }
 
             $radio.trigger('change')
@@ -33,7 +48,19 @@ class ChangeProductSwatches {
         $body
             .off('change', '.product-attributes input, .product-attributes select')
             .on('change', '.product-attributes input, .product-attributes select', (event) => {
-                const $parent = $(event.currentTarget).closest('.product-attributes')
+                const $element = $(event.currentTarget)
+                const $parent = $element.closest('.product-attributes')
+
+                // If it's a select dropdown, update the label
+                if ($element.is('select')) {
+                    const $wrapper = $element.closest('.bb-product-attribute-swatch')
+                    const $selectedOption = $element.find('option:selected')
+                    const $label = $wrapper.find('.qs-swatch__selected-val')
+                    
+                    if ($label.length && $selectedOption.val()) {
+                        $label.text($selectedOption.data('title') || $selectedOption.text())
+                    }
+                }
 
                 _self.getProductVariation($parent)
             })
