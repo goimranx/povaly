@@ -367,11 +367,12 @@
             
             console.log('[PV GALLERY] Found thumb container, current thumbnails:', this.thumbnails.length)
             
-            // Separate variation thumbnails from others
+            // Collect all thumbnails with their variation IDs
+            const allThumbs = Array.from(this.thumbnails);
             const variationThumbs = [];
             const otherThumbs = [];
             
-            this.thumbnails.forEach(thumb => {
+            allThumbs.forEach(thumb => {
                 const thumbVariationId = thumb.getAttribute('data-variation-id');
                 if (thumbVariationId == variationId) {
                     variationThumbs.push(thumb);
@@ -385,12 +386,22 @@
                 other: otherThumbs.length
             })
             
-            // Re-append: variation thumbnails first, then others
-            variationThumbs.forEach(thumb => {
-                console.log('[PV GALLERY] Moving variation thumb to top:', thumb.getAttribute('data-index'))
-                thumbContainer.appendChild(thumb)
+            // Get the first thumbnail as reference point for insertion
+            const firstThumb = allThumbs[0];
+            if (!firstThumb) {
+                console.log('[PV GALLERY] No thumbnails found to reorder')
+                return;
+            }
+            
+            // Insert variation thumbnails at the beginning
+            variationThumbs.forEach((thumb, idx) => {
+                console.log('[PV GALLERY] Inserting variation thumb at top:', thumb.getAttribute('data-index'))
+                if (idx === 0) {
+                    thumbContainer.insertBefore(thumb, firstThumb);
+                } else {
+                    thumbContainer.insertBefore(thumb, variationThumbs[idx - 1].nextSibling);
+                }
             });
-            otherThumbs.forEach(thumb => thumbContainer.appendChild(thumb));
             
             // Update the thumbnails NodeList reference
             this.thumbnails = thumbContainer.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
