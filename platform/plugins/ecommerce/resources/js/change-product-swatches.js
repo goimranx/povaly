@@ -120,6 +120,14 @@ class ChangeProductSwatches {
                 $input = $current.find('select option:selected')
             } else {
                 $input = $current.find('input[type=radio]:checked')
+                
+                // If no radio is checked, auto-select first available one
+                if (!$input.length || !$input.val()) {
+                    $input = $current.find('input[type=radio]:not(:disabled)').first()
+                    if ($input.length) {
+                        $input.prop('checked', true)
+                    }
+                }
             }
 
             let slug = $input.data('slug')
