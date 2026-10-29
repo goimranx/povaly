@@ -182,9 +182,29 @@
             
             if (!imageData || !this.mainImage) return;
             
+            // Hide video facade and show main image
+            const mainContainer = this.mainImage.parentElement.classList.contains('pv-slide-track')
+                ? this.mainImage.parentElement.parentElement
+                : this.mainImage.parentElement;
+            
+            const videoFacade = mainContainer?.querySelector('.pv-video-facade');
+            if (videoFacade) {
+                videoFacade.style.display = 'none';
+            }
+            
+            // Show loading state
+            this.mainImage.style.opacity = '0.5';
+            this.mainImage.style.display = 'block';
+            
             // Update main image
             this.mainImage.src = imageData.url;
             this.mainImage.srcset = '';
+            
+            // Remove loading state when image loads
+            this.mainImage.onload = () => {
+                this.mainImage.style.opacity = '1';
+                this.mainImage.style.transition = 'opacity 0.2s ease';
+            };
             
             // Update active state
             this.setActive(index);
@@ -376,6 +396,8 @@
                 const thumbVariationId = thumb.getAttribute('data-variation-id');
                 if (thumbVariationId == variationId) {
                     variationThumbs.push(thumb);
+                    // Show variation thumbnails
+                    thumb.classList.remove('pv-thumb-hidden');
                 } else {
                     otherThumbs.push(thumb);
                 }
@@ -395,7 +417,7 @@
             
             // Insert variation thumbnails at the beginning
             variationThumbs.forEach((thumb, idx) => {
-                console.log('[PV GALLERY] Inserting variation thumb at top:', thumb.getAttribute('data-index'))
+                console.log('[PV GALLERY] Moving variation thumb to top:', thumb.getAttribute('data-index'))
                 if (idx === 0) {
                     thumbContainer.insertBefore(thumb, firstThumb);
                 } else {
