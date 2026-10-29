@@ -259,57 +259,74 @@ class ChangeProductSwatches {
                 _self.updateSelectingAttributes(slugAttributes, $('#' + id))
             }
 
-            // Auto-select first non-disabled option in wrappers that have no valid selection
-            // This happens after server marks items as disabled/enabled
-            const $wrappers = $productAttributes.find('.attribute-swatches-wrapper')
-            
-            $wrappers.each(function() {
-                const $wrapper = $(this)
-                const wrapperType = $wrapper.data('type')
-                
-                // Handle dropdowns
-                if (wrapperType === 'dropdown') {
-                    const $select = $wrapper.find('select')
-                    const $selectedOption = $select.find('option:selected')
+            // Only auto-select if server didn't provide valid selections
+            // If server returned selected_attributes, CMS already applied them via updateSelectingAttributes
+            // We only auto-select when wrapper has disabled/missing selection
+            if (data.selected_attributes && data.selected_attributes.length > 0) {
+                // Server provided valid selections, sync .selected class only
+                const $wrappers = $productAttributes.find('.attribute-swatches-wrapper')
+                $wrappers.each(function() {
+                    const $wrapper = $(this)
+                    const $checkedRadio = $wrapper.find('input[type=radio]:checked')
                     
-                    // If selected option is disabled or nothing is selected
-                    if (!$selectedOption.length || $selectedOption.is(':disabled')) {
-                        // Find first enabled option
-                        const $firstEnabled = $select.find('option:not(:disabled)').first()
-                        if ($firstEnabled.length) {
-                            $select.val($firstEnabled.val())
+                    if ($checkedRadio.length) {
+                        const $items = $wrapper.find('.bb-product-attribute-swatch-item')
+                        $items.removeClass('selected')
+                        $checkedRadio.closest('.bb-product-attribute-swatch-item').addClass('selected')
+                    }
+                })
+            } else {
+                // No valid selection from server, auto-select first available in each wrapper
+                const $wrappers = $productAttributes.find('.attribute-swatches-wrapper')
+                
+                $wrappers.each(function() {
+                    const $wrapper = $(this)
+                    const wrapperType = $wrapper.data('type')
+                    
+                    // Handle dropdowns
+                    if (wrapperType === 'dropdown') {
+                        const $select = $wrapper.find('select')
+                        const $selectedOption = $select.find('option:selected')
+                        
+                        // If selected option is disabled or nothing is selected
+                        if (!$selectedOption.length || $selectedOption.is(':disabled')) {
+                            // Find first enabled option
+                            const $firstEnabled = $select.find('option:not(:disabled)').first()
+                            if ($firstEnabled.length) {
+                                $select.val($firstEnabled.val())
+                            }
+                        }
+                        return
+                    }
+                    
+                    // Handle radio buttons (text/visual)
+                    const $checkedRadio = $wrapper.find('input[type=radio]:checked')
+                    const $checkedItem = $checkedRadio.closest('.bb-product-attribute-swatch-item')
+                    
+                    // If no radio is checked OR the checked one has .disabled class
+                    if (!$checkedRadio.length || $checkedItem.hasClass('disabled')) {
+                        // Find first non-disabled item
+                        const $items = $wrapper.find('.bb-product-attribute-swatch-item')
+                        const $firstAvailable = $items.filter(function() {
+                            return !$(this).hasClass('disabled')
+                        }).first()
+                        
+                        if ($firstAvailable.length) {
+                            const $radio = $firstAvailable.find('input[type=radio]')
+                            
+                            // Uncheck all radios in this wrapper
+                            $wrapper.find('input[type=radio]').prop('checked', false)
+                            
+                            // Check the first available
+                            $radio.prop('checked', true)
+                            
+                            // Update .selected class for styling
+                            $items.removeClass('selected')
+                            $firstAvailable.addClass('selected')
                         }
                     }
-                    return
-                }
-                
-                // Handle radio buttons (text/visual)
-                const $checkedRadio = $wrapper.find('input[type=radio]:checked')
-                const $checkedItem = $checkedRadio.closest('.bb-product-attribute-swatch-item')
-                
-                // If no radio is checked OR the checked one has .disabled class
-                if (!$checkedRadio.length || $checkedItem.hasClass('disabled')) {
-                    // Find first non-disabled item
-                    const $items = $wrapper.find('.bb-product-attribute-swatch-item')
-                    const $firstAvailable = $items.filter(function() {
-                        return !$(this).hasClass('disabled')
-                    }).first()
-                    
-                    if ($firstAvailable.length) {
-                        const $radio = $firstAvailable.find('input[type=radio]')
-                        
-                        // Uncheck all radios in this wrapper
-                        $wrapper.find('input[type=radio]').prop('checked', false)
-                        
-                        // Check the first available
-                        $radio.prop('checked', true)
-                        
-                        // Update .selected class for styling
-                        $items.removeClass('selected')
-                        $firstAvailable.addClass('selected')
-                    }
-                }
-            })
+                })
+            }
 
             // Visual hide/show for unavailable items
             _self.handleVisualItemsVisibility($productAttributes, data)
