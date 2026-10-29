@@ -186,51 +186,13 @@
         outline-color: var(--global-color-link, #007bff);
     }
 
-    /* Disabled — diagonal strikethrough, dashed border normally */
+    /* Disabled — not clickable, not hoverable */
     &.disabled {
         opacity: .55;
-        cursor: pointer;
+        cursor: not-allowed;
+        pointer-events: none;
         border: 1px dashed #bbb;
         outline-color: transparent;
-
-        /* Disabled hover — same border change as normal hover, no extra outline weight */
-        &:hover {
-            opacity: 1;
-            border-color: var(--global-color-link, #007bff);
-            outline-color: transparent;
-        }
-
-        /* Disabled selected — full ring like normal selected, full opacity */
-        &:has(input:checked) {
-            opacity: 1;
-            border-color: var(--global-color-link, #007bff);
-            outline-color: var(--global-color-link, #007bff);
-        }
-
-        /* Diagonal strikethrough line over the thumbnail */
-        .qs-var-item__thumb {
-            position: relative;
-
-            &::after {
-                content: '';
-                position: absolute;
-                inset: 0;
-                background: linear-gradient(
-                    to top right,
-                    transparent calc(50% - 0.5px),
-                    rgba(180,0,0,0.55) calc(50% - 0.5px),
-                    rgba(180,0,0,0.55) calc(50% + 0.5px),
-                    transparent calc(50% + 0.5px)
-                );
-                pointer-events: none;
-            }
-        }
-
-        /* Price on disabled swatches — muted */
-        .qs-var-item__price-sale {
-            color: var(--global-color-text-muted, #767676) !important;
-            text-decoration: line-through;
-        }
     }
 }
 
@@ -316,43 +278,14 @@
         outline-color: var(--global-color-link, #007bff);
     }
 
-    /* Disabled — dashed border, still clickable */
+    /* Disabled — not clickable, not hoverable */
     &.disabled {
         opacity: .55;
-        cursor: pointer;
+        cursor: not-allowed;
+        pointer-events: none;
         border: 1px dashed #aaa;
         outline-color: transparent;
-
-        /* Disabled hover — match normal hover weight, restore opacity */
-        &:hover {
-            opacity: 1;
-            border-color: var(--global-color-link, #007bff);
-            outline-color: transparent;
-        }
-
-        /* Disabled selected — full ring, full opacity */
-        &:has(input:checked) {
-            opacity: 1;
-            border-color: var(--global-color-link, #007bff);
-            outline-color: var(--global-color-link, #007bff);
-        }
     }
-}
-
-/* Override plugin disabled pointer-events — keep clickable */
-#quick-shop-modal .bb-product-attribute-swatch-item.disabled,
-#quick-shop-modal .qs-var-item.disabled,
-#quick-shop-modal .qs-color-item.disabled,
-.bb-product-attribute-swatch-list .bb-product-attribute-swatch-item.disabled {
-    pointer-events: auto !important;
-    cursor: pointer !important;
-}
-
-/* Override plugin's swatch styles inside quick-shop */
-#quick-shop-modal .bb-product-attribute-swatch-list.visual-swatch .bb-product-attribute-swatch-item,
-#quick-shop-modal .qs-var-item {
-    border-radius: 4px !important;
-    box-shadow: none !important;
 }
 
 /* Dropdown variation styles */
