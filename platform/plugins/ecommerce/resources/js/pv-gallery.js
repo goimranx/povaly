@@ -387,7 +387,10 @@
             
             console.log('[PV GALLERY] Found thumb container, current thumbnails:', this.thumbnails.length)
             
-            // Collect all thumbnails with their variation IDs
+            // Get video thumbnails separately
+            const videoThumbs = Array.from(thumbContainer.querySelectorAll('.pv-thumb-video'));
+            
+            // Collect all image thumbnails with their variation IDs
             const allThumbs = Array.from(this.thumbnails);
             const variationThumbs = [];
             const otherThumbs = [];
@@ -396,8 +399,6 @@
                 const thumbVariationId = thumb.getAttribute('data-variation-id');
                 if (thumbVariationId == variationId) {
                     variationThumbs.push(thumb);
-                    // Show variation thumbnails
-                    thumb.classList.remove('pv-thumb-hidden');
                 } else {
                     otherThumbs.push(thumb);
                 }
@@ -405,23 +406,57 @@
             
             console.log('[PV GALLERY] Separated thumbnails:', {
                 variation: variationThumbs.length,
-                other: otherThumbs.length
+                other: otherThumbs.length,
+                videos: videoThumbs.length
             })
             
-            // Get the first thumbnail as reference point for insertion
-            const firstThumb = allThumbs[0];
-            if (!firstThumb) {
+            // Get the first video or image thumbnail as reference point
+            const firstItem = videoThumbs[0] || allThumbs[0];
+            if (!firstItem) {
                 console.log('[PV GALLERY] No thumbnails found to reorder')
                 return;
             }
             
-            // Insert variation thumbnails at the beginning
+            // Insert variation thumbnails at the beginning (after videos)
+            const insertAfter = videoThumbs.length > 0 ? videoThumbs[videoThumbs.length - 1] : null;
+            
             variationThumbs.forEach((thumb, idx) => {
                 console.log('[PV GALLERY] Moving variation thumb to top:', thumb.getAttribute('data-index'))
+                
                 if (idx === 0) {
-                    thumbContainer.insertBefore(thumb, firstThumb);
+                    if (insertAfter) {
+                        // Insert after last video
+                        thumbContainer.insertBefore(thumb, insertAfter.nextSibling);
+                    } else {
+                        // Insert at very beginning
+                        thumbContainer.insertBefore(thumb, firstItem);
+                    }
                 } else {
+                    // Insert after previous variation thumb
                     thumbContainer.insertBefore(thumb, variationThumbs[idx - 1].nextSibling);
+                }
+                
+                // Show only first 3 variation thumbnails, hide rest with +count
+                if (idx < 3) {
+                    thumb.classList.remove('pv-thumb-hidden');
+                    // Remove overlay if exists
+                    const overlay = thumb.querySelector('.pv-thumb-overlay');
+                    if (overlay) overlay.remove();
+                } else if (idx === 3) {
+                    // Add +count overlay on 3rd thumb (index 2 becomes hidden, index 3 shows count)
+                    thumb.classList.add('pv-thumb-hidden');
+                    const remainingCount = variationThumbs.length - 3;
+                    if (remainingCount > 0 && variationThumbs[2]) {
+                        let overlay = variationThumbs[2].querySelector('.pv-thumb-overlay');
+                        if (!overlay) {
+                            overlay = document.createElement('span');
+                            overlay.className = 'pv-thumb-overlay';
+                            variationThumbs[2].appendChild(overlay);
+                        }
+                        overlay.textContent = `+${remainingCount}`;
+                    }
+                } else {
+                    thumb.classList.add('pv-thumb-hidden');
                 }
             });
             
