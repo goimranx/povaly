@@ -232,45 +232,49 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
         </div>
         
         <div class="pv-gallery-thumbnails">
-            {{-- Render ALL image thumbnails (show first 3, 4th with counter) --}}
-            @foreach ($allImages as $index => $imgData)
-                <div 
-                    class="pv-thumb {{ $index === $defaultJumpIndex ? 'pv-active' : '' }} {{ $index >= 3 ? 'pv-thumb-hidden' : '' }}" 
-                    data-index="{{ $index }}" 
-                    data-image="{{ RvMedia::getImageUrl($imgData['src']) }}"
-                    data-variation-id="{{ $imgData['variationId'] }}"
-                >
-                    <img src="{{ RvMedia::getImageUrl($imgData['src'], 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
-                    
-                    {{-- Show counter on 4th item (index 3) if more exist --}}
-                    @if ($index === 3 && $totalImages > 3)
-                        <span class="pv-thumb-overlay">+{{ $totalImages - 3 }}</span>
-                    @endif
-                </div>
-            @endforeach
+            {{-- Photo thumbnails wrapper --}}
+            <div class="pv-thumbs-photos">
+                @foreach ($allImages as $index => $imgData)
+                    <div 
+                        class="pv-thumb {{ $index === $defaultJumpIndex ? 'pv-active' : '' }} {{ $index >= 3 ? 'pv-thumb-hidden' : '' }}" 
+                        data-index="{{ $index }}" 
+                        data-image="{{ RvMedia::getImageUrl($imgData['src']) }}"
+                        data-variation-id="{{ $imgData['variationId'] }}"
+                    >
+                        <img src="{{ RvMedia::getImageUrl($imgData['src'], 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
+                        
+                        {{-- Show counter on 4th item (index 3) if more exist --}}
+                        @if ($index === 3 && $totalImages > 3)
+                            <span class="pv-thumb-overlay">+{{ $totalImages - 3 }}</span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
             
-            {{-- Render ALL video thumbnails (show first 2, 3rd with counter) --}}
-            @foreach ($videoList as $vIndex => $video)
-                <div 
-                    class="pv-thumb pv-thumb-video {{ $vIndex >= 2 ? 'pv-thumb-hidden' : '' }}" 
-                    data-index="video-{{ $vIndex }}"
-                    data-video-url="{{ $video['url'] }}"
-                    data-video-provider="{{ $video['provider'] ?? 'video' }}"
-                    data-video-thumbnail="{{ $video['thumbnail'] ?? '' }}"
-                    @if (!empty($video['thumbnail']))
-                        style="background-image:url({{ $video['thumbnail'] }});background-size:cover;background-position:center;"
-                    @endif
-                >
-                    <svg class="pv-play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"/>
-                    </svg>
-                    
-                    {{-- Show counter on 3rd video (index 2) if more exist --}}
-                    @if ($vIndex === 2 && $totalVideos > 2)
-                        <span class="pv-thumb-overlay">+{{ $totalVideos - 2 }}</span>
-                    @endif
-                </div>
-            @endforeach
+            {{-- Video thumbnails wrapper --}}
+            <div class="pv-thumbs-videos">
+                @foreach ($videoList as $vIndex => $video)
+                    <div 
+                        class="pv-thumb pv-thumb-video {{ $vIndex >= 2 ? 'pv-thumb-hidden' : '' }}" 
+                        data-index="video-{{ $vIndex }}"
+                        data-video-url="{{ $video['url'] }}"
+                        data-video-provider="{{ $video['provider'] ?? 'video' }}"
+                        data-video-thumbnail="{{ $video['thumbnail'] ?? '' }}"
+                        @if (!empty($video['thumbnail']))
+                            style="background-image:url({{ $video['thumbnail'] }});background-size:cover;background-position:center;"
+                        @endif
+                    >
+                        <svg class="pv-play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"/>
+                        </svg>
+                        
+                        {{-- Show counter on 3rd video (index 2) if more exist --}}
+                        @if ($vIndex === 2 && $totalVideos > 2)
+                            <span class="pv-thumb-overlay">+{{ $totalVideos - 2 }}</span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 </div>

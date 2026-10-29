@@ -33,7 +33,7 @@
         }
         
         init() {
-            // Collect all images data
+            // Collect all images data from photo thumbnails
             this.thumbnails.forEach((thumb) => {
                 const imageUrl = thumb.getAttribute('data-image');
                 const variationId = thumb.getAttribute('data-variation-id');
@@ -378,104 +378,79 @@
         reorderThumbnails(variationId) {
             console.log('[PV GALLERY] reorderThumbnails called with variationId:', variationId)
             
-            // Get container of thumbnails
-            const thumbContainer = this.container.querySelector('.pv-gallery-thumbnails');
-            if (!thumbContainer) {
-                console.log('[PV GALLERY] No .pv-gallery-thumbnails found')
+            // Get photo thumbnails container
+            const photoContainer = this.container.querySelector('.pv-thumbs-photos');
+            if (!photoContainer) {
+                console.log('[PV GALLERY] No .pv-thumbs-photos found')
                 return;
             }
             
-            console.log('[PV GALLERY] Found thumb container, current thumbnails:', this.thumbnails.length)
+            const allThumbs = Array.from(photoContainer.querySelectorAll('.pv-thumb'));
+            console.log('[PV GALLERY] Found photo thumbnails:', allThumbs.length)
             
-            // Get video thumbnails separately
-            const videoThumbs = Array.from(thumbContainer.querySelectorAll('.pv-thumb-video'));
-            
-            // Collect all image thumbnails with their variation IDs
-            const allThumbs = Array.from(this.thumbnails);
+            // Separate variation and non-variation thumbnails
             const variationThumbs = [];
             const otherThumbs = [];
             
             allThumbs.forEach(thumb => {
                 const thumbVariationId = thumb.getAttribute('data-variation-id');
+                const imageUrl = thumb.getAttribute('data-image');
+                const index = thumb.getAttribute('data-index');
+                
                 if (thumbVariationId == variationId) {
-                    variationThumbs.push(thumb);
+                    variationThumbs.push({ thumb, imageUrl, index });
                 } else {
-                    otherThumbs.push(thumb);
+                    otherThumbs.push({ thumb, imageUrl, index });
                 }
             });
             
             console.log('[PV GALLERY] Separated thumbnails:', {
                 variation: variationThumbs.length,
-                other: otherThumbs.length,
-                videos: videoThumbs.length
+                other: otherThumbs.length
             })
             
             if (variationThumbs.length === 0) {
-                console.log('[PV GALLERY] No variation thumbnails to reorder')
+                console.log('[PV GALLERY] No variation thumbnails found')
                 return;
             }
             
-            // STEP 1: Hide ALL other (non-variation) thumbnails
-            otherThumbs.forEach(thumb => {
-                thumb.classList.add('pv-thumb-hidden');
-                // Remove any overlay from other thumbs
-                const overlay = thumb.querySelector('.pv-thumb-overlay');
-                if (overlay) overlay.remove();
-            });
+            // Build new order: variation images first, then others
+            const newOrder = [...variationThumbs, ...otherThumbs];
             
-            console.log('[PV GALLERY] Hidden all non-variation thumbnails:', otherThumbs.length)
-            
-            // STEP 2: Move variation thumbnails to the VERY BEGINNING (before videos)
-            const firstItem = thumbContainer.firstChild;
-            
-            variationThumbs.forEach((thumb, idx) => {
-                console.log('[PV GALLERY] Moving variation thumb to beginning:', thumb.getAttribute('data-index'))
-                
-                if (idx === 0) {
-                    // Insert at very beginning
-                    thumbContainer.insertBefore(thumb, firstItem);
-                } else {
-                    // Insert after previous variation thumb
-                    thumbContainer.insertBefore(thumb, variationThumbs[idx - 1].nextSibling);
-                }
-                
-                // STEP 3: Apply visibility logic - first 3 visible, rest hidden
-                if (idx < 3) {
-                    // Show first 3
-                    thumb.classList.remove('pv-thumb-hidden');
-                    // Remove overlay if exists
-                    const overlay = thumb.querySelector('.pv-thumb-overlay');
-                    if (overlay) overlay.remove();
-                } else {
-                    // Hide from 4th onward
-                    thumb.classList.add('pv-thumb-hidden');
+            // Now swap the image URLs in the existing thumbnails (keep HTML structure intact!)
+            allThumbs.forEach((thumb, visualIndex) => {
+                if (newOrder[visualIndex]) {
+                    const newImageUrl = newOrder[visualIndex].imageUrl;
+                    const newDataIndex = newOrder[visualIndex].index;
+                    const newVariationId = newOrder[visualIndex].thumb.getAttribute('data-variation-id');
+                    
+                    // Update data attributes
+                    thumb.setAttribute('data-image', newImageUrl);
+                    thumb.setAttribute('data-index', newDataIndex);
+                    thumb.setAttribute('data-variation-id', newVariationId || '');
+                    
+                    // Update image src (convert full URL to thumbnail size)
+                    const img = thumb.querySelector('img');
+                    if (img) {
+                        // Extract path and convert to thumb size
+                        const urlPath = newImageUrl.replace(/^https?:\/\/[^\/]+/, '');
+                        const thumbUrl = urlPath.replace(/(\.[^.]+)$/, '-150x150$1');
+                        img.src = window.location.origin + thumbUrl;
+                    }
+                    
+                    console.log(`[PV GALLERY] Swapped thumb ${visualIndex}: ${newImageUrl.substring(newImageUrl.lastIndexOf('/') + 1)}`)
                 }
             });
             
-            // STEP 4: Add +count overlay on 3rd visible thumbnail (index 2)
-            if (variationThumbs.length > 3 && variationThumbs[2]) {
-                const remainingCount = variationThumbs.length - 3;
-                let overlay = variationThumbs[2].querySelector('.pv-thumb-overlay');
-                if (!overlay) {
-                    overlay = document.createElement('span');
-                    overlay.className = 'pv-thumb-overlay';
-                    variationThumbs[2].appendChild(overlay);
-                }
-                overlay.textContent = `+${remainingCount}`;
-                console.log('[PV GALLERY] Added overlay +' + remainingCount + ' to 3rd thumbnail')
-            }
+            // Update allImages array to reflect new order
+            this.allImages = allThumbs.map((thumb, idx) => ({
+                index: parseInt(thumb.getAttribute('data-index')),
+                url: thumb.getAttribute('data-image'),
+                variationId: thumb.getAttribute('data-variation-id'),
+                thumb: thumb
+            }));
             
-            // STEP 5: Move videos AFTER variation thumbnails
-            videoThumbs.forEach(videoThumb => {
-                thumbContainer.appendChild(videoThumb);
-            });
-            
-            console.log('[PV GALLERY] Moved videos after variation thumbnails')
-            
-            // Update the thumbnails NodeList reference
-            this.thumbnails = thumbContainer.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
-            
-            console.log('[PV GALLERY] Reordering complete, new thumbnail count:', this.thumbnails.length)
+            console.log('[PV GALLERY] Reordering complete - URLs swapped, structure intact')
         }
         
         scrollThumbnailsToShow(index) {

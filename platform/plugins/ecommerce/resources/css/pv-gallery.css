@@ -99,6 +99,20 @@
     flex-shrink: 0;
 }
 
+/* Photo thumbnails wrapper */
+.pv-thumbs-photos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Video thumbnails wrapper */
+.pv-thumbs-videos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .pv-thumb {
     position: relative;
     width: 50px;
