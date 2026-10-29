@@ -1,6 +1,26 @@
 (function ($) {
     'use strict';
 
+    // ── Global Error Handlers ──────────────────────────────────────────────
+    
+    // Suppress 404 image errors in console
+    // These occur when jQuery parseHTML processes HTML with missing images
+    $(document).on('error', 'img', function() {
+        // Silently handle image load errors
+        // You can optionally set a placeholder here:
+        // $(this).attr('src', '/path/to/placeholder.png');
+    });
+    
+    // Global image error handler for dynamically added images
+    window.addEventListener('error', function(e) {
+        if (e.target && e.target.tagName === 'IMG') {
+            // Prevent error from appearing in console
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    }, true);
+
     // Create global MartApp object for plugin detection
     let MartApp = window.MartApp || {};
     window.MartApp = MartApp;
