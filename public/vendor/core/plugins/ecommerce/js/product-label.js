@@ -1,1 +1,110 @@
-(function(){$(()=>{if(!$(".box-search-advance").length)return;$(document).on("click",".box-search-advance .list-search-data .selectable-item",o=>{o.preventDefault();const e=$(o.currentTarget),a=e.closest(".box-search-advance"),t=a.find('input[name="label_products"]'),r=e.data("id"),c=t.val()?t.val().split(",").map(l=>parseInt(l.trim())).filter(Boolean):[];if(c.includes(r)){e.closest(".card").hide();return}c.push(r),t.val(c.join(","));const s=$("#selected_product_label_template").html().replace(/__id__/g,e.data("id")).replace(/__name__/g,e.data("name")).replace(/__url__/g,e.data("url")).replace(/__image__/g,e.data("image")).replace(/__attributes__/g,e.find("a span").text()||"");a.find(".list-selected-products").show().append(s),e.closest(".card").hide()}),$(document).on("click",'[data-bb-toggle="product-search-advanced"]',o=>{const e=$(o.currentTarget),a=e.closest(".box-search-advance").find(".card");a.show().addClass("active"),a.find(".card-body").length===0&&(Botble.showLoading(a),$.ajax({url:e.data("bb-target"),type:"GET",success:t=>{t.error?Botble.showError(t.message):a.html(t.data)},error:t=>{Botble.handleError(t)},complete:()=>{Botble.hideLoading(a)}}))});let n=null;$(document).on("keyup",'[data-bb-toggle="product-search-advanced"]',o=>{const e=$(o.currentTarget),a=e.closest(".box-search-advance").find(".card");clearTimeout(n),n=setTimeout(()=>{Botble.showLoading(a),$.ajax({url:`${e.data("bb-target")}?keyword=${e.val()}`,type:"GET",success:t=>{t.error?Botble.showError(t.message):a.html(t.data)},error:t=>{Botble.handleError(t)},complete:()=>{Botble.hideLoading(a)}})},300)}),$(document).on("click",".box-search-advance .page-link",o=>{o.preventDefault();const e=$(o.currentTarget),a=e.closest(".box-search-advance"),t=a.find('[data-bb-toggle="product-search-advanced"]'),r=a.find(".card");e.closest(".page-item").hasClass("disabled")||(Botble.showLoading(r),$.ajax({url:`${e.prop("href")}&keyword=${t.val()}`,type:"GET",success:c=>{c.error?Botble.showError(c.message):r.html(c.data)},error:c=>{Botble.handleError(c)},complete:()=>{Botble.hideLoading(r)}}))}),$(document).on("click",o=>{$(o.target).closest(".box-search-advance").length||$(".box-search-advance .card").hide()}),$(document).on("click",'[data-bb-toggle="product-delete-item"]',o=>{o.preventDefault();const e=$(o.currentTarget),a=e.closest(".box-search-advance"),t=a.find('input[name="label_products"]'),r=e.data("bb-target"),c=t.val().split(",").map(d=>parseInt(d.trim())).filter(Boolean).filter(d=>d!==r);t.val(c.join(","));const s=e.closest(".list-group-item"),l=s.closest(".list-group");s.remove(),l.find(".list-group-item").length===0&&a.find(".list-selected-products").hide()})})})();
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/product-label.js
+	$(() => {
+		if (!$(".box-search-advance").length) return;
+		$(document).on("click", ".box-search-advance .list-search-data .selectable-item", (event) => {
+			event.preventDefault();
+			const $item = $(event.currentTarget);
+			const $box = $item.closest(".box-search-advance");
+			const $input = $box.find("input[name=\"label_products\"]");
+			const productId = $item.data("id");
+			const existingIds = $input.val() ? $input.val().split(",").map((id) => parseInt(id.trim())).filter(Boolean) : [];
+			if (existingIds.includes(productId)) {
+				$item.closest(".card").hide();
+				return;
+			}
+			existingIds.push(productId);
+			$input.val(existingIds.join(","));
+			const productHtml = $("#selected_product_label_template").html().replace(/__id__/g, $item.data("id")).replace(/__name__/g, $item.data("name")).replace(/__url__/g, $item.data("url")).replace(/__image__/g, $item.data("image")).replace(/__attributes__/g, $item.find("a span").text() || "");
+			$box.find(".list-selected-products").show().append(productHtml);
+			$item.closest(".card").hide();
+		});
+		$(document).on("click", "[data-bb-toggle=\"product-search-advanced\"]", (event) => {
+			const $searchInput = $(event.currentTarget);
+			const $card = $searchInput.closest(".box-search-advance").find(".card");
+			$card.show().addClass("active");
+			if ($card.find(".card-body").length === 0) {
+				Botble.showLoading($card);
+				$.ajax({
+					url: $searchInput.data("bb-target"),
+					type: "GET",
+					success: (res) => {
+						if (res.error) Botble.showError(res.message);
+						else $card.html(res.data);
+					},
+					error: (data) => {
+						Botble.handleError(data);
+					},
+					complete: () => {
+						Botble.hideLoading($card);
+					}
+				});
+			}
+		});
+		let searchTimeout = null;
+		$(document).on("keyup", "[data-bb-toggle=\"product-search-advanced\"]", (event) => {
+			const $searchInput = $(event.currentTarget);
+			const $card = $searchInput.closest(".box-search-advance").find(".card");
+			clearTimeout(searchTimeout);
+			searchTimeout = setTimeout(() => {
+				Botble.showLoading($card);
+				$.ajax({
+					url: `${$searchInput.data("bb-target")}?keyword=${$searchInput.val()}`,
+					type: "GET",
+					success: (res) => {
+						if (res.error) Botble.showError(res.message);
+						else $card.html(res.data);
+					},
+					error: (data) => {
+						Botble.handleError(data);
+					},
+					complete: () => {
+						Botble.hideLoading($card);
+					}
+				});
+			}, 300);
+		});
+		$(document).on("click", ".box-search-advance .page-link", (event) => {
+			event.preventDefault();
+			const $link = $(event.currentTarget);
+			const $box = $link.closest(".box-search-advance");
+			const $searchInput = $box.find("[data-bb-toggle=\"product-search-advanced\"]");
+			const $card = $box.find(".card");
+			if ($link.closest(".page-item").hasClass("disabled")) return;
+			Botble.showLoading($card);
+			$.ajax({
+				url: `${$link.prop("href")}&keyword=${$searchInput.val()}`,
+				type: "GET",
+				success: (res) => {
+					if (res.error) Botble.showError(res.message);
+					else $card.html(res.data);
+				},
+				error: (data) => {
+					Botble.handleError(data);
+				},
+				complete: () => {
+					Botble.hideLoading($card);
+				}
+			});
+		});
+		$(document).on("click", (event) => {
+			if (!$(event.target).closest(".box-search-advance").length) $(".box-search-advance .card").hide();
+		});
+		$(document).on("click", "[data-bb-toggle=\"product-delete-item\"]", (event) => {
+			event.preventDefault();
+			const $btn = $(event.currentTarget);
+			const $box = $btn.closest(".box-search-advance");
+			const $input = $box.find("input[name=\"label_products\"]");
+			const productId = $btn.data("bb-target");
+			const newIds = $input.val().split(",").map((id) => parseInt(id.trim())).filter(Boolean).filter((id) => id !== productId);
+			$input.val(newIds.join(","));
+			const $listItem = $btn.closest(".list-group-item");
+			const $list = $listItem.closest(".list-group");
+			$listItem.remove();
+			if ($list.find(".list-group-item").length === 0) $box.find(".list-selected-products").hide();
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=product-label.js.map

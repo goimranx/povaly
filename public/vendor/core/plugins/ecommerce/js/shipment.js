@@ -1,1 +1,46 @@
-(function(){var i=class{init(){$(document).on("click",'[data-bb-toggle="update-shipping-status"]',()=>{$("#update-shipping-status-modal").modal("show")}),$(document).on("click",'[data-bb-toggle="update-shipping-cod-status"]',()=>{$("#update-shipping-cod-status-modal").modal("show")}),$(document).on("click","#confirm-update-shipping-status-button",o=>{o.preventDefault();const e=$(o.currentTarget),n=e.closest(".modal-dialog").find("form");$httpClient.make().withButtonLoading(e).post(n.prop("action"),n.serialize()).then(({data:t})=>{if(t.error)Botble.showError(t.message);else{Botble.showSuccess(t.message),e.closest(".modal").modal("hide");const s=$(".page-body");s.length?s.load(`${window.location.href} .page-body > *`):window.location.reload()}})}),this.handleShipmentInfoForm()}handleShipmentInfoForm(){const o=$("#botble-ecommerce-forms-shipment-info-form");o.length&&o.on("submit",e=>{e.preventDefault();const n=o.find('button[type="submit"]');$httpClient.make().withButtonLoading(n).post(o.prop("action"),o.serialize()).then(({data:t})=>{t.error?Botble.showError(t.message):Botble.showSuccess(t.message)})})}};$(()=>{new i().init()})})();
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/shipment.js
+	var ShipmentManagement = class {
+		init() {
+			$(document).on("click", "[data-bb-toggle=\"update-shipping-status\"]", () => {
+				$("#update-shipping-status-modal").modal("show");
+			});
+			$(document).on("click", "[data-bb-toggle=\"update-shipping-cod-status\"]", () => {
+				$("#update-shipping-cod-status-modal").modal("show");
+			});
+			$(document).on("click", "#confirm-update-shipping-status-button", (event) => {
+				event.preventDefault();
+				const _self = $(event.currentTarget);
+				const form = _self.closest(".modal-dialog").find("form");
+				$httpClient.make().withButtonLoading(_self).post(form.prop("action"), form.serialize()).then(({ data }) => {
+					if (!data.error) {
+						Botble.showSuccess(data.message);
+						_self.closest(".modal").modal("hide");
+						const $pageBody = $(".page-body");
+						if ($pageBody.length) $pageBody.load(`${window.location.href} .page-body > *`);
+						else window.location.reload();
+					} else Botble.showError(data.message);
+				});
+			});
+			this.handleShipmentInfoForm();
+		}
+		handleShipmentInfoForm() {
+			const form = $("#botble-ecommerce-forms-shipment-info-form");
+			if (!form.length) return;
+			form.on("submit", (event) => {
+				event.preventDefault();
+				const submitButton = form.find("button[type=\"submit\"]");
+				$httpClient.make().withButtonLoading(submitButton).post(form.prop("action"), form.serialize()).then(({ data }) => {
+					if (!data.error) Botble.showSuccess(data.message);
+					else Botble.showError(data.message);
+				});
+			});
+		}
+	};
+	$(() => {
+		new ShipmentManagement().init();
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=shipment.js.map

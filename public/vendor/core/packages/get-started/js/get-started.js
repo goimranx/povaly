@@ -1,1 +1,82 @@
-(function(){window.getStartedCookie=(()=>{const e="get_started_cookie",o=window.location.hostname;function s(a=1){n(e,1,a)}function i(){return document.cookie.split("; ").indexOf("get_started_cookie=1")!==-1}function n(a,c,l){const d=new Date;d.setTime(d.getTime()+l*24*60*60*1e3);const r=window.location.protocol==="https:"?";Secure":"";document.cookie=`${a}=${c};expires=${d.toUTCString()};domain=${o};path=/;SameSite=Lax${r}`}return{setupCookie:s,cookieExists:i}})(),$(()=>{window.getStartedCookie.cookieExists()||$('.get-started-modal[data-step="1"]').modal("show"),$(document).on("click",".get-started-modal button[type=submit]",function(t){t.preventDefault(),t.stopPropagation();let e=$(this),o=e.closest("form");Botble.showButtonLoading(e),$httpClient.make().postForm(o.prop("action"),new FormData(o[0])).then(({data:s})=>{e.closest(".get-started-modal").modal("hide"),$(`.get-started-modal[data-step="${s.data.step}"]`).modal("show"),s.message&&Botble.showSuccess(s.message)}).finally(()=>{Botble.hideButtonLoading(e)})}),$(document).on("click",".js-wizard-back",function(t){t.preventDefault();const e=$(this).data("back-to");$(this).closest(".get-started-modal").modal("hide"),$(`.get-started-modal[data-step="${e}"]`).modal("show")}),$(".get-started-modal .btn-close").on("click",function(t){t.preventDefault();let e=$(this).closest(".get-started-modal").data("step");$(".js-back-to-wizard").data("step",e),$(this).closest(".get-started-modal").modal("hide"),$(".close-get-started-modal").modal("show")}),$(document).on("click",".js-back-to-wizard",function(t){t.preventDefault(),$(this).closest(".close-get-started-modal").modal("hide"),$(`.get-started-modal[data-step="${$(this).data("step")}"]`).modal("show")}),$(document).on("click",".js-close-wizard",function(t){t.preventDefault(),window.getStartedCookie.setupCookie(),$(this).closest(".close-get-started-modal").modal("hide")}),$(document).on("click",".resume-setup-wizard",function(t){t.preventDefault(),$('.get-started-modal[data-step="1"]').modal("show")}),$(document).on("click",".dismiss-setup-wizard",function(t){t.preventDefault();const e=$(this);$httpClient.make().withButtonLoading(e).post(e.data("url")).then(({data:o})=>{$(".resume-setup-wizard-wrapper").remove(),o.message&&Botble.showSuccess(o.message)})}),$(".get-started-modal").on("hide.bs.modal",()=>{window.getStartedCookie.cookieExists()||window.getStartedCookie.setupCookie(.2)})})})();
+(function() {
+	//#region platform/packages/get-started/resources/js/get-started.js
+	window.getStartedCookie = (() => {
+		const COOKIE_VALUE = 1;
+		const COOKIE_NAME = "get_started_cookie";
+		const COOKIE_DOMAIN = window.location.hostname;
+		function setupCookie(expirationInDays = 1) {
+			setCookie(COOKIE_NAME, COOKIE_VALUE, expirationInDays);
+		}
+		function cookieExists() {
+			return document.cookie.split("; ").indexOf("get_started_cookie=1") !== -1;
+		}
+		function setCookie(name, value, expirationInDays) {
+			const date = /* @__PURE__ */ new Date();
+			date.setTime(date.getTime() + expirationInDays * 24 * 60 * 60 * 1e3);
+			const secure = window.location.protocol === "https:" ? ";Secure" : "";
+			document.cookie = `${name}=${value};expires=${date.toUTCString()};domain=${COOKIE_DOMAIN};path=/;SameSite=Lax${secure}`;
+		}
+		return {
+			setupCookie,
+			cookieExists
+		};
+	})();
+	$(() => {
+		if (!window.getStartedCookie.cookieExists()) $(".get-started-modal[data-step=\"1\"]").modal("show");
+		$(document).on("click", ".get-started-modal button[type=submit]", function(event) {
+			event.preventDefault();
+			event.stopPropagation();
+			let _self = $(this);
+			let _form = _self.closest("form");
+			Botble.showButtonLoading(_self);
+			$httpClient.make().postForm(_form.prop("action"), new FormData(_form[0])).then(({ data }) => {
+				_self.closest(".get-started-modal").modal("hide");
+				$(`.get-started-modal[data-step="${data.data.step}"]`).modal("show");
+				if (data.message) Botble.showSuccess(data.message);
+			}).finally(() => {
+				Botble.hideButtonLoading(_self);
+			});
+		});
+		$(document).on("click", ".js-wizard-back", function(event) {
+			event.preventDefault();
+			const target = $(this).data("back-to");
+			$(this).closest(".get-started-modal").modal("hide");
+			$(`.get-started-modal[data-step="${target}"]`).modal("show");
+		});
+		$(".get-started-modal .btn-close").on("click", function(event) {
+			event.preventDefault();
+			let step = $(this).closest(".get-started-modal").data("step");
+			$(".js-back-to-wizard").data("step", step);
+			$(this).closest(".get-started-modal").modal("hide");
+			$(".close-get-started-modal").modal("show");
+		});
+		$(document).on("click", ".js-back-to-wizard", function(event) {
+			event.preventDefault();
+			$(this).closest(".close-get-started-modal").modal("hide");
+			$(`.get-started-modal[data-step="${$(this).data("step")}"]`).modal("show");
+		});
+		$(document).on("click", ".js-close-wizard", function(event) {
+			event.preventDefault();
+			window.getStartedCookie.setupCookie();
+			$(this).closest(".close-get-started-modal").modal("hide");
+		});
+		$(document).on("click", ".resume-setup-wizard", function(event) {
+			event.preventDefault();
+			$(".get-started-modal[data-step=\"1\"]").modal("show");
+		});
+		$(document).on("click", ".dismiss-setup-wizard", function(event) {
+			event.preventDefault();
+			const _self = $(this);
+			$httpClient.make().withButtonLoading(_self).post(_self.data("url")).then(({ data }) => {
+				$(".resume-setup-wizard-wrapper").remove();
+				if (data.message) Botble.showSuccess(data.message);
+			});
+		});
+		$(".get-started-modal").on("hide.bs.modal", () => {
+			if (!window.getStartedCookie.cookieExists()) window.getStartedCookie.setupCookie(.2);
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=get-started.js.map

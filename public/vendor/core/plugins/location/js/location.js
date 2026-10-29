@@ -1,1 +1,218 @@
-(function(){var h=class i{static showError(t){typeof Botble!="undefined"&&Botble.showError?Botble.showError(t):typeof Theme!="undefined"&&Theme.showError?Theme.showError(t):typeof toastr!="undefined"?toastr.error(t):console.error(t)}static initAjaxSelect2(t){if(!jQuery().select2)return;t.hasClass("select2-hidden-accessible")&&t.select2("destroy");const c=t.data("type"),o=t.data("url"),d=t.find("option:first").text()||"Select...";let l={width:"100%",placeholder:d,allowClear:!0,minimumInputLength:0,ajax:{url:o,dataType:"json",delay:250,data:function(a){const e={term:a.term||"",page:a.page||1};return c==="state"?e.country_id=t.data("country-id")||"":c==="city"&&(e.state_id=t.data("state-id")||"",e.country_id=t.data("country-id")||""),e},processResults:function(a,e){var s,r;e.page=e.page||1;const u=((s=a.data)===null||s===void 0?void 0:s.data)||a.data||[],f=[];return e.page===1&&!e.term&&f.push({id:"",text:d}),$.each(u,function(y,p){p.id&&f.push({id:p.id,text:p.name})}),{results:f,pagination:{more:((r=a.data)===null||r===void 0||(r=r.pagination)===null||r===void 0?void 0:r.more)||!1}}},cache:!0}},n=t.closest("div[data-select2-dropdown-parent]")||t.closest(".modal");n.length&&(l.dropdownParent=n),t.select2(l)}static refreshSelect2(t){jQuery().select2&&t.hasClass("select2-hidden-accessible")&&(t.hasClass("select-location-ajax")?i.initAjaxSelect2(t):t.hasClass("select-search-location")&&(t.select2("destroy"),i.initSelect2(t)))}static initSelect2(t){if(!jQuery().select2||!t.hasClass("select-search-location")||t.hasClass("select2-hidden-accessible"))return;let c={width:"100%",placeholder:t.find("option:first").text()||"Select...",allowClear:!1,minimumResultsForSearch:0},o=t.closest("div[data-select2-dropdown-parent]")||t.closest(".modal");o.length&&(c.dropdownParent=o),t.select2(c)}static getStates(t,c,o=null){$.ajax({url:t.data("url"),data:{country_id:c},type:"GET",beforeSend:()=>{o&&o.prop("disabled",!0)},success:d=>{if(d.error)i.showError(d.message);else{let l="";$.each(d.data,(n,a)=>{l+='<option value="'+(a.id||"")+'">'+a.name+"</option>"}),t.html(l),i.refreshSelect2(t)}},complete:()=>{o&&o.prop("disabled",!1)}})}static getCities(t,c,o=null,d=null){$.ajax({url:t.data("url"),data:{state_id:c,country_id:d},type:"GET",beforeSend:()=>{o&&o.prop("disabled",!0)},success:l=>{if(l.error)i.showError(l.message);else{let n="";$.each(l.data,(a,e)=>{n+='<option value="'+(e.id||"")+'">'+e.name+"</option>"}),t.html(n),i.refreshSelect2(t),t.trigger("change")}},complete:()=>{o&&o.prop("disabled",!1)}})}init(){const t='select[data-type="country"]',c='select[data-type="state"]',o='select[data-type="city"]';function d(){jQuery().select2&&($(document).find("select.select-search-location[data-type]").each(function(n,a){i.initSelect2($(a))}),$(document).find("select.select-location-ajax[data-type]").each(function(n,a){i.initAjaxSelect2($(a))}))}d(),$(document).on("change",t,function(n){n.preventDefault();const a=l($(n.currentTarget)),e=a.find(c),s=a.find(o),r=$(n.currentTarget).val();if(e.hasClass("select-location-ajax"))e.data("country-id",r),e.val(null).trigger("change"),e.find("option:not(:first)").remove(),i.initAjaxSelect2(e),s.data("country-id",r),s.data("state-id",""),s.val(null).trigger("change"),s.find("option:not(:first)").remove(),i.initAjaxSelect2(s);else{e.find('option:not([value=""]):not([value="0"])').remove(),s.find('option:not([value=""]):not([value="0"])').remove(),i.refreshSelect2(e),i.refreshSelect2(s);const u=$(n.currentTarget).closest("form").find("button[type=submit], input[type=submit]");r&&(e.length&&i.getStates(e,r,u),i.getCities(s,null,u,r))}}),$(document).on("change",c,function(n){n.preventDefault();const a=l($(n.currentTarget)),e=a.find(o),s=$(n.currentTarget).val();if(e.length)if(e.hasClass("select-location-ajax"))e.data("state-id",s),e.val(null).trigger("change"),e.find("option:not(:first)").remove(),i.initAjaxSelect2(e);else{e.find('option:not([value=""]):not([value="0"])').remove(),i.refreshSelect2(e);const r=$(n.currentTarget).closest("form").find("button[type=submit], input[type=submit]");if(s)i.getCities(e,s,r);else{const u=a.find(t).val();i.getCities(e,null,r,u)}}});function l(n){let a=$(document),e=n.data("form-parent");return e&&$(e).length&&(a=$(e)),a}}};$(()=>{new h().init()})})();
+(function() {
+	//#region platform/plugins/location/resources/js/location.js
+	var Location = class Location {
+		static showError(message) {
+			if (typeof Botble !== "undefined" && Botble.showError) Botble.showError(message);
+			else if (typeof Theme !== "undefined" && Theme.showError) Theme.showError(message);
+			else if (typeof toastr !== "undefined") toastr.error(message);
+			else console.error(message);
+		}
+		static initAjaxSelect2($el) {
+			if (!jQuery().select2) return;
+			if ($el.hasClass("select2-hidden-accessible")) $el.select2("destroy");
+			const type = $el.data("type");
+			const url = $el.data("url");
+			const placeholder = $el.find("option:first").text() || "Select...";
+			let options = {
+				width: "100%",
+				placeholder,
+				allowClear: true,
+				minimumInputLength: 0,
+				ajax: {
+					url,
+					dataType: "json",
+					delay: 250,
+					data: function(params) {
+						const data = {
+							term: params.term || "",
+							page: params.page || 1
+						};
+						if (type === "state") data.country_id = $el.data("country-id") || "";
+						else if (type === "city") {
+							data.state_id = $el.data("state-id") || "";
+							data.country_id = $el.data("country-id") || "";
+						}
+						return data;
+					},
+					processResults: function(response, params) {
+						var _response$data, _response$data2;
+						params.page = params.page || 1;
+						const items = ((_response$data = response.data) === null || _response$data === void 0 ? void 0 : _response$data.data) || response.data || [];
+						const results = [];
+						if (params.page === 1 && !params.term) results.push({
+							id: "",
+							text: placeholder
+						});
+						$.each(items, function(index, item) {
+							if (item.id) results.push({
+								id: item.id,
+								text: item.name
+							});
+						});
+						return {
+							results,
+							pagination: { more: ((_response$data2 = response.data) === null || _response$data2 === void 0 || (_response$data2 = _response$data2.pagination) === null || _response$data2 === void 0 ? void 0 : _response$data2.more) || false }
+						};
+					},
+					cache: true
+				}
+			};
+			let parent = $el.closest("div[data-select2-dropdown-parent]") || $el.closest(".modal");
+			if (parent.length) options.dropdownParent = parent;
+			$el.select2(options);
+		}
+		static refreshSelect2($el) {
+			if (jQuery().select2 && $el.hasClass("select2-hidden-accessible")) {
+				if ($el.hasClass("select-location-ajax")) Location.initAjaxSelect2($el);
+				else if ($el.hasClass("select-search-location")) {
+					$el.select2("destroy");
+					Location.initSelect2($el);
+				}
+			}
+		}
+		static initSelect2($el) {
+			if (!jQuery().select2 || !$el.hasClass("select-search-location")) return;
+			if ($el.hasClass("select2-hidden-accessible")) return;
+			let options = {
+				width: "100%",
+				placeholder: $el.find("option:first").text() || "Select...",
+				allowClear: false,
+				minimumResultsForSearch: 0
+			};
+			let parent = $el.closest("div[data-select2-dropdown-parent]") || $el.closest(".modal");
+			if (parent.length) options.dropdownParent = parent;
+			$el.select2(options);
+		}
+		static getStates($el, countryId, $button = null) {
+			$.ajax({
+				url: $el.data("url"),
+				data: { country_id: countryId },
+				type: "GET",
+				beforeSend: () => {
+					$button && $button.prop("disabled", true);
+				},
+				success: (res) => {
+					if (res.error) Location.showError(res.message);
+					else {
+						let options = "";
+						$.each(res.data, (index, item) => {
+							options += "<option value=\"" + (item.id || "") + "\">" + item.name + "</option>";
+						});
+						$el.html(options);
+						Location.refreshSelect2($el);
+					}
+				},
+				complete: () => {
+					$button && $button.prop("disabled", false);
+				}
+			});
+		}
+		static getCities($el, stateId, $button = null, countryId = null) {
+			$.ajax({
+				url: $el.data("url"),
+				data: {
+					state_id: stateId,
+					country_id: countryId
+				},
+				type: "GET",
+				beforeSend: () => {
+					$button && $button.prop("disabled", true);
+				},
+				success: (res) => {
+					if (res.error) Location.showError(res.message);
+					else {
+						let options = "";
+						$.each(res.data, (index, item) => {
+							options += "<option value=\"" + (item.id || "") + "\">" + item.name + "</option>";
+						});
+						$el.html(options);
+						Location.refreshSelect2($el);
+						$el.trigger("change");
+					}
+				},
+				complete: () => {
+					$button && $button.prop("disabled", false);
+				}
+			});
+		}
+		init() {
+			const country = "select[data-type=\"country\"]";
+			const state = "select[data-type=\"state\"]";
+			const city = "select[data-type=\"city\"]";
+			function initLocationSelects() {
+				if (!jQuery().select2) return;
+				$(document).find("select.select-search-location[data-type]").each(function(index, el) {
+					Location.initSelect2($(el));
+				});
+				$(document).find("select.select-location-ajax[data-type]").each(function(index, el) {
+					Location.initAjaxSelect2($(el));
+				});
+			}
+			initLocationSelects();
+			$(document).on("change", country, function(e) {
+				e.preventDefault();
+				const $parent = getParent($(e.currentTarget));
+				const $state = $parent.find(state);
+				const $city = $parent.find(city);
+				const countryId = $(e.currentTarget).val();
+				if ($state.hasClass("select-location-ajax")) {
+					$state.data("country-id", countryId);
+					$state.val(null).trigger("change");
+					$state.find("option:not(:first)").remove();
+					Location.initAjaxSelect2($state);
+					$city.data("country-id", countryId);
+					$city.data("state-id", "");
+					$city.val(null).trigger("change");
+					$city.find("option:not(:first)").remove();
+					Location.initAjaxSelect2($city);
+				} else {
+					$state.find("option:not([value=\"\"]):not([value=\"0\"])").remove();
+					$city.find("option:not([value=\"\"]):not([value=\"0\"])").remove();
+					Location.refreshSelect2($state);
+					Location.refreshSelect2($city);
+					const $button = $(e.currentTarget).closest("form").find("button[type=submit], input[type=submit]");
+					if (countryId) {
+						if ($state.length) {
+							Location.getStates($state, countryId, $button);
+							Location.getCities($city, null, $button, countryId);
+						} else Location.getCities($city, null, $button, countryId);
+					}
+				}
+			});
+			$(document).on("change", state, function(e) {
+				e.preventDefault();
+				const $parent = getParent($(e.currentTarget));
+				const $city = $parent.find(city);
+				const stateId = $(e.currentTarget).val();
+				if (!$city.length) return;
+				if ($city.hasClass("select-location-ajax")) {
+					$city.data("state-id", stateId);
+					$city.val(null).trigger("change");
+					$city.find("option:not(:first)").remove();
+					Location.initAjaxSelect2($city);
+				} else {
+					$city.find("option:not([value=\"\"]):not([value=\"0\"])").remove();
+					Location.refreshSelect2($city);
+					const $button = $(e.currentTarget).closest("form").find("button[type=submit], input[type=submit]");
+					if (stateId) Location.getCities($city, stateId, $button);
+					else {
+						const countryId = $parent.find(country).val();
+						Location.getCities($city, null, $button, countryId);
+					}
+				}
+			});
+			function getParent($el) {
+				let $parent = $(document);
+				let formParent = $el.data("form-parent");
+				if (formParent && $(formParent).length) $parent = $(formParent);
+				return $parent;
+			}
+		}
+	};
+	$(() => {
+		new Location().init();
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=location.js.map

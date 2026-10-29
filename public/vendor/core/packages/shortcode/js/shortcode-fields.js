@@ -1,1 +1,32 @@
-"use strict";(function(){$(()=>{$(document).on("change",".shortcode-tabs-quantity-select",function(){const e=$(this),s=parseInt(e.val())||1,o=e.data("key");let a=e.closest(".shortcode-tabs-field-wrapper");a.length||(a=e.closest(".shortcode-admin-config")),a.find(".shortcode-template").first().clone().removeClass("shortcode-template");for(let n=1;n<=e.data("max");n++){const i=o?a.find(`[data-tab-id=${o}_${n}]`):a.find(`[data-tab-id=${n}]`);n<=s?i.is(":visible")||(i.slideDown(),i.find("[data-name]").map((d,t)=>$(t).prop("name",$(t).data("name")))):(i.slideUp(),i.find("[name]").map(function(d,t){$(t).data("name",$(t).prop("name")),$(t).removeProp("name")}))}})})})();
+"use strict";
+(function() {
+	//#region platform/packages/shortcode/resources/js/shortcode-fields.js
+	$(() => {
+		$(document).on("change", ".shortcode-tabs-quantity-select", function() {
+			const $this = $(this);
+			const quantity = parseInt($this.val()) || 1;
+			const key = $this.data("key");
+			let $section = $this.closest(".shortcode-tabs-field-wrapper");
+			if (!$section.length) $section = $this.closest(".shortcode-admin-config");
+			$section.find(".shortcode-template").first().clone().removeClass("shortcode-template");
+			for (let index = 1; index <= $this.data("max"); index++) {
+				const $el = key ? $section.find(`[data-tab-id=${key}_${index}]`) : $section.find(`[data-tab-id=${index}]`);
+				if (index <= quantity) {
+					if (!$el.is(":visible")) {
+						$el.slideDown();
+						$el.find("[data-name]").map((i, e) => $(e).prop("name", $(e).data("name")));
+					}
+				} else {
+					$el.slideUp();
+					$el.find("[name]").map(function(i, e) {
+						$(e).data("name", $(e).prop("name"));
+						$(e).removeProp("name");
+					});
+				}
+			}
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=shortcode-fields.js.map

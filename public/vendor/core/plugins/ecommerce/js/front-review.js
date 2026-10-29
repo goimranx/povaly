@@ -1,1 +1,378 @@
-(function(){var l={showError(n){typeof Theme!="undefined"?Theme.showError(n):console.error("[Review]",n)},showSuccess(n){typeof Theme!="undefined"?Theme.showSuccess(n):console.log("[Review]",n)},handleError(n,c=null){if(typeof Theme!="undefined")Theme.handleError(n,c);else{var m;console.error("[Review]",((m=n.responseJSON)===null||m===void 0?void 0:m.message)||n.statusText||n)}},updateLazyLoad(){typeof Theme!="undefined"&&Theme.lazyLoadInstance&&Theme.lazyLoadInstance.update()},getCsrfToken(n=null){if(n&&n.length){const c=n.find('input[name="_token"]').val();if(c)return c}return $('meta[name="csrf-token"]').attr("content")||""}};$(()=>{const n=$(".review-list-container");let c=[];const m=t=>{t.lightGallery({thumbnail:!0})},f=(t,e,r={})=>{if(!t)return;const o=new URL(t,window.location.origin);Object.keys(r).forEach(a=>{r[a]&&o.searchParams.set(a,r[a])}),$.ajax({url:o.toString(),method:"GET",beforeSend:()=>{n.append('<div class="loading-spinner"></div>')},success:({data:a,message:s})=>{n.find("h4").text(s),n.find(".review-list").html(a),l.updateLazyLoad(),m(n.find(".review-images")),e&&e()},error:()=>{},complete:()=>{n.find(".loading-spinner").remove()}})},u=()=>({search:$(".review-search-input").val()||"",sort_by:$(".review-sort-select").val()||"newest",star:$(".review-star-filter").val()||""}),v=()=>{const t=$(".review-search-input").val().trim()!=="",e=$(".review-star-filter").val()!=="",r=$(".review-sort-select").val()!=="newest";t||e||r?$(".review-clear-btn").removeClass("d-none"):$(".review-clear-btn").addClass("d-none")},g=function(t){const e=$(".image-upload__text"),r=$(t).data("max-files"),o=t.files.length;r?(o>=r?e.closest(".image-upload__uploader-container").addClass("d-none"):e.closest(".image-upload__uploader-container").removeClass("d-none"),e.text(o+"/"+r)):e.text(o);const a=$(".image-viewer__list"),s=$("#review-image-template").html();if(a.find(".image-viewer__item").remove(),o){for(let i=o-1;i>=0;i--)a.prepend(s.replace("__id__",i));for(let i=o-1;i>=0;i--){let d=new FileReader;d.onload=function(h){a.find(".image-viewer__item[data-id="+i+"]").find("img").attr("src",h.target.result)},d.readAsDataURL(t.files[i])}}},w=function(t){const e=new ClipboardEvent("").clipboardData||new DataTransfer;for(let r of c)e.items.add(r);t.files=e.files,g(t)};n.length&&(m($(".review-images")),f(n.data("ajax-url"),null,u())),n.on("click",".pagination a",t=>{t.preventDefault();const e=$(t.currentTarget).prop("href");f(e,()=>{$("html, body").animate({scrollTop:n.offset().top-130})},u())}),$(document).on("submit",".product-review-container form",t=>{t.preventDefault(),t.stopPropagation();const e=$(t.currentTarget),r=e.find('button[type="submit"]');$.ajax({type:"POST",cache:!1,url:e.prop("action"),data:new FormData(e[0]),contentType:!1,processData:!1,beforeSend:()=>{r.prop("disabled",!0).addClass("loading")},success:({error:o,message:a})=>{o?l.showError(a):(e.find("select").val(0),e.find("textarea").val(""),e.find("input[type=file]").val(""),e.find("input.custom-field").val(""),c=[],l.showSuccess(a),f(n.data("ajax-url"),()=>{$(".review-list").length||setTimeout(()=>window.location.reload(),1e3)},u()))},error:o=>{l.handleError(o,e)},complete:()=>{r.prop("disabled",!1).removeClass("loading")}})}),$(document).on("change",".product-review-container form input[type=file]",function(t){t.preventDefault();const e=this,r=$(e),o=r.data("max-size");Object.keys(e.files).map(function(i){if(o&&e.files[i].size/1024>o){const d=r.data("max-size-message").replace("__attribute__",e.files[i].name).replace("__max__",o);l.showError(d)}else c.push(e.files[i])});const a=c.length,s=r.data("max-files");s&&a>s&&c.splice(a-s-1,a-s),w(e)}),$(document).on("click",".product-review-container form .image-viewer__icon-remove",function(t){t.preventDefault();let e=$(t.currentTarget).closest(".image-viewer__item").data("id");c.splice(e,1);let r=$(".product-review-container form input[type=file]")[0];w(r)}),$(document).on("click",".delete-review-btn",function(t){t.preventDefault();const e=$(this),r=e.data("review-id"),o=e.data("confirm-message");if(!confirm(o))return;const a=`/review/delete/${r}`;$.ajax({url:a,type:"DELETE",headers:{"X-CSRF-TOKEN":l.getCsrfToken()},beforeSend:()=>{e.prop("disabled",!0).addClass("loading")},success:({message:s})=>{l.showSuccess(s),f(n.data("ajax-url"),()=>{$(".review-list .review-item").length||setTimeout(()=>window.location.reload(),1e3)},u())},error:s=>{let i="An error occurred while deleting the review.";s.responseJSON&&s.responseJSON.message&&(i=s.responseJSON.message),l.showError(i)},complete:()=>{e.prop("disabled",!1).removeClass("loading")}})});let p;$(document).on("input",'[data-bb-toggle="review-search"]',function(){clearTimeout(p),p=setTimeout(()=>{v(),n.length&&f(n.data("ajax-url"),null,u())},500)}),$(document).on("change",'[data-bb-toggle="review-sort"]',function(){v(),n.length&&f(n.data("ajax-url"),null,u())}),$(document).on("change",'[data-bb-toggle="review-star-filter"]',function(){v(),n.length&&f(n.data("ajax-url"),null,u())}),$(document).on("click",'[data-bb-toggle="review-star-filter-bar"]',function(){const t=$(this).data("star");$(".review-star-filter").val(t),n.length&&f(n.data("ajax-url"),null,u())}),$(document).on("keydown",'[data-bb-toggle="review-star-filter-bar"]',function(t){(t.key==="Enter"||t.key===" ")&&(t.preventDefault(),$(this).click())}),$(document).on("click",'[data-bb-toggle="review-search-toggle"]',function(){const t=$(".review-search-container"),e=$(this);t.hasClass("d-none")?($(".review-filter-container, .review-sort-container").addClass("d-none"),$(".review-control-buttons .btn").removeClass("active"),t.removeClass("d-none"),e.addClass("active"),$(".review-search-input").focus()):(t.addClass("d-none"),e.removeClass("active")),v()}),$(document).on("click",'[data-bb-toggle="review-filter-toggle"]',function(){const t=$(".review-filter-container"),e=$(this);t.hasClass("d-none")?($(".review-search-container, .review-sort-container").addClass("d-none"),$(".review-control-buttons .btn").removeClass("active"),t.removeClass("d-none"),e.addClass("active")):(t.addClass("d-none"),e.removeClass("active")),v()}),$(document).on("click",'[data-bb-toggle="review-sort-toggle"]',function(){const t=$(".review-sort-container"),e=$(this);t.hasClass("d-none")?($(".review-search-container, .review-filter-container").addClass("d-none"),$(".review-control-buttons .btn").removeClass("active"),t.removeClass("d-none"),e.addClass("active")):(t.addClass("d-none"),e.removeClass("active")),v()}),$(document).on("click",'[data-bb-toggle="review-clear-filters"]',function(){$(".review-search-input").val(""),$(".review-star-filter").val(""),$(".review-sort-select").val("newest"),$(".review-search-container, .review-filter-container, .review-sort-container").addClass("d-none"),$(".review-control-buttons .btn").removeClass("active"),v(),n.length&&f(n.data("ajax-url"),null,u())}),$(document).on("click",".vendor-reply-toggle-btn",function(){const t=$(this).data("review-id"),e=$(`.vendor-reply-form[data-review-id="${t}"]`);$(this).addClass("d-none"),e.removeClass("d-none"),e.find("textarea").focus()}),$(document).on("click",".vendor-reply-cancel-btn",function(){const t=$(this).data("review-id"),e=$(`.vendor-reply-form[data-review-id="${t}"]`),r=$(`.vendor-reply-toggle-btn[data-review-id="${t}"]`);e.addClass("d-none"),e.find("textarea").val(""),r.removeClass("d-none")}),$(document).on("click",".vendor-reply-submit-btn",function(t){t.preventDefault(),t.stopPropagation();const e=$(this),r=e.data("review-id"),o=$(`.vendor-reply-form[data-review-id="${r}"]`),a=o.data("url"),s=o.find(".vendor-reply-message").val();return!s||!s.trim()?(l.showError("Please enter a reply message."),!1):($.ajax({url:a,type:"POST",data:{message:s},headers:{"X-CSRF-TOKEN":l.getCsrfToken()},beforeSend:()=>{e.prop("disabled",!0).addClass("loading")},success:({error:i,message:d})=>{i?(l.showError(d),e.prop("disabled",!1).removeClass("loading")):(l.showSuccess(d),setTimeout(()=>{window.location.reload()},1e3))},error:i=>{let d="An error occurred while submitting the reply.";i.responseJSON&&i.responseJSON.message&&(d=i.responseJSON.message),l.showError(d),e.prop("disabled",!1).removeClass("loading")}}),!1)}),$(document).on("click",".vendor-delete-reply-btn",function(t){t.preventDefault();const e=$(this),r=e.data("url"),o=e.data("confirm-message");confirm(o)&&$.ajax({url:r,type:"DELETE",headers:{"X-CSRF-TOKEN":l.getCsrfToken()},beforeSend:()=>{e.prop("disabled",!0)},success:({error:a,message:s})=>{a?(l.showError(s),e.prop("disabled",!1)):(l.showSuccess(s),setTimeout(()=>{window.location.reload()},1e3))},error:a=>{let s="An error occurred while deleting the reply.";a.responseJSON&&a.responseJSON.message&&(s=a.responseJSON.message),l.showError(s),e.prop("disabled",!1)}})}),sessionStorage.reloadReviewsTab&&($('#product-detail-tabs a[href="#product-reviews"]').length&&new bootstrap.Tab($('#product-detail-tabs a[href="#product-reviews"]')[0]).show(),sessionStorage.reloadReviewsTab=!1)})})();
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/front-review.js
+	var Review = {
+		showError(message) {
+			if (typeof Theme !== "undefined") Theme.showError(message);
+			else console.error("[Review]", message);
+		},
+		showSuccess(message) {
+			if (typeof Theme !== "undefined") Theme.showSuccess(message);
+			else console.log("[Review]", message);
+		},
+		handleError(error, $form = null) {
+			if (typeof Theme !== "undefined") Theme.handleError(error, $form);
+			else {
+				var _error$responseJSON;
+				console.error("[Review]", ((_error$responseJSON = error.responseJSON) === null || _error$responseJSON === void 0 ? void 0 : _error$responseJSON.message) || error.statusText || error);
+			}
+		},
+		updateLazyLoad() {
+			if (typeof Theme !== "undefined" && Theme.lazyLoadInstance) Theme.lazyLoadInstance.update();
+		},
+		getCsrfToken($form = null) {
+			if ($form && $form.length) {
+				const formToken = $form.find("input[name=\"_token\"]").val();
+				if (formToken) return formToken;
+			}
+			return $("meta[name=\"csrf-token\"]").attr("content") || "";
+		}
+	};
+	$(() => {
+		const $reviewListContainer = $(".review-list-container");
+		let imagesReviewBuffer = [];
+		const initLightGallery = (element) => {
+			element.lightGallery({ thumbnail: true });
+		};
+		const getReviewList = (url, successCallback, additionalParams = {}) => {
+			if (!url) return;
+			const urlObj = new URL(url, window.location.origin);
+			Object.keys(additionalParams).forEach((key) => {
+				if (additionalParams[key]) urlObj.searchParams.set(key, additionalParams[key]);
+			});
+			$.ajax({
+				url: urlObj.toString(),
+				method: "GET",
+				beforeSend: () => {
+					$reviewListContainer.append("<div class=\"loading-spinner\"></div>");
+				},
+				success: ({ data, message }) => {
+					$reviewListContainer.find("h4").text(message);
+					$reviewListContainer.find(".review-list").html(data);
+					Review.updateLazyLoad();
+					initLightGallery($reviewListContainer.find(".review-images"));
+					if (successCallback) successCallback();
+				},
+				error: () => {},
+				complete: () => {
+					$reviewListContainer.find(".loading-spinner").remove();
+				}
+			});
+		};
+		const getCurrentSearchParams = () => {
+			return {
+				search: $(".review-search-input").val() || "",
+				sort_by: $(".review-sort-select").val() || "newest",
+				star: $(".review-star-filter").val() || ""
+			};
+		};
+		const updateClearButtonVisibility = () => {
+			const hasSearch = $(".review-search-input").val().trim() !== "";
+			const hasFilter = $(".review-star-filter").val() !== "";
+			const hasSort = $(".review-sort-select").val() !== "newest";
+			if (hasSearch || hasFilter || hasSort) $(".review-clear-btn").removeClass("d-none");
+			else $(".review-clear-btn").addClass("d-none");
+		};
+		const loadPreviewImage = function(input) {
+			const $uploadText = $(".image-upload__text");
+			const maxFiles = $(input).data("max-files");
+			const filesAmount = input.files.length;
+			if (maxFiles) {
+				if (filesAmount >= maxFiles) $uploadText.closest(".image-upload__uploader-container").addClass("d-none");
+				else $uploadText.closest(".image-upload__uploader-container").removeClass("d-none");
+				$uploadText.text(filesAmount + "/" + maxFiles);
+			} else $uploadText.text(filesAmount);
+			const viewerList = $(".image-viewer__list");
+			const $template = $("#review-image-template").html();
+			viewerList.find(".image-viewer__item").remove();
+			if (filesAmount) {
+				for (let i = filesAmount - 1; i >= 0; i--) viewerList.prepend($template.replace("__id__", i));
+				for (let j = filesAmount - 1; j >= 0; j--) {
+					let reader = new FileReader();
+					reader.onload = function(event) {
+						viewerList.find(".image-viewer__item[data-id=" + j + "]").find("img").attr("src", event.target.result);
+					};
+					reader.readAsDataURL(input.files[j]);
+				}
+			}
+		};
+		const setImagesFormReview = function(input) {
+			const dT = new ClipboardEvent("").clipboardData || new DataTransfer();
+			for (let file of imagesReviewBuffer) dT.items.add(file);
+			input.files = dT.files;
+			loadPreviewImage(input);
+		};
+		if ($reviewListContainer.length) {
+			initLightGallery($(".review-images"));
+			getReviewList($reviewListContainer.data("ajax-url"), null, getCurrentSearchParams());
+		}
+		$reviewListContainer.on("click", ".pagination a", (e) => {
+			e.preventDefault();
+			const url = $(e.currentTarget).prop("href");
+			getReviewList(url, () => {
+				$("html, body").animate({ scrollTop: $reviewListContainer.offset().top - 130 });
+			}, getCurrentSearchParams());
+		});
+		$(document).on("submit", ".product-review-container form", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			const $form = $(e.currentTarget);
+			const $button = $form.find("button[type=\"submit\"]");
+			$.ajax({
+				type: "POST",
+				cache: false,
+				url: $form.prop("action"),
+				data: new FormData($form[0]),
+				contentType: false,
+				processData: false,
+				beforeSend: () => {
+					$button.prop("disabled", true).addClass("loading");
+				},
+				success: ({ error, message }) => {
+					if (!error) {
+						$form.find("select").val(0);
+						$form.find("textarea").val("");
+						$form.find("input[type=file]").val("");
+						$form.find("input.custom-field").val("");
+						imagesReviewBuffer = [];
+						Review.showSuccess(message);
+						getReviewList($reviewListContainer.data("ajax-url"), () => {
+							if (!$(".review-list").length) setTimeout(() => window.location.reload(), 1e3);
+						}, getCurrentSearchParams());
+					} else Review.showError(message);
+				},
+				error: (error) => {
+					Review.handleError(error, $form);
+				},
+				complete: () => {
+					$button.prop("disabled", false).removeClass("loading");
+				}
+			});
+		});
+		$(document).on("change", ".product-review-container form input[type=file]", function(event) {
+			event.preventDefault();
+			const input = this;
+			const $input = $(input);
+			const maxSize = $input.data("max-size");
+			Object.keys(input.files).map(function(i) {
+				if (maxSize && input.files[i].size / 1024 > maxSize) {
+					const message = $input.data("max-size-message").replace("__attribute__", input.files[i].name).replace("__max__", maxSize);
+					Review.showError(message);
+				} else imagesReviewBuffer.push(input.files[i]);
+			});
+			const filesAmount = imagesReviewBuffer.length;
+			const maxFiles = $input.data("max-files");
+			if (maxFiles && filesAmount > maxFiles) imagesReviewBuffer.splice(filesAmount - maxFiles - 1, filesAmount - maxFiles);
+			setImagesFormReview(input);
+		});
+		$(document).on("click", ".product-review-container form .image-viewer__icon-remove", function(event) {
+			event.preventDefault();
+			let id = $(event.currentTarget).closest(".image-viewer__item").data("id");
+			imagesReviewBuffer.splice(id, 1);
+			let input = $(".product-review-container form input[type=file]")[0];
+			setImagesFormReview(input);
+		});
+		$(document).on("click", ".delete-review-btn", function(e) {
+			e.preventDefault();
+			const $button = $(this);
+			const reviewId = $button.data("review-id");
+			const confirmMessage = $button.data("confirm-message");
+			if (!confirm(confirmMessage)) return;
+			const deleteUrl = `/review/delete/${reviewId}`;
+			$.ajax({
+				url: deleteUrl,
+				type: "DELETE",
+				headers: { "X-CSRF-TOKEN": Review.getCsrfToken() },
+				beforeSend: () => {
+					$button.prop("disabled", true).addClass("loading");
+				},
+				success: ({ message }) => {
+					Review.showSuccess(message);
+					getReviewList($reviewListContainer.data("ajax-url"), () => {
+						if (!$(".review-list .review-item").length) setTimeout(() => window.location.reload(), 1e3);
+					}, getCurrentSearchParams());
+				},
+				error: (xhr) => {
+					let message = "An error occurred while deleting the review.";
+					if (xhr.responseJSON && xhr.responseJSON.message) message = xhr.responseJSON.message;
+					Review.showError(message);
+				},
+				complete: () => {
+					$button.prop("disabled", false).removeClass("loading");
+				}
+			});
+		});
+		let searchTimeout;
+		$(document).on("input", "[data-bb-toggle=\"review-search\"]", function() {
+			clearTimeout(searchTimeout);
+			searchTimeout = setTimeout(() => {
+				updateClearButtonVisibility();
+				if ($reviewListContainer.length) getReviewList($reviewListContainer.data("ajax-url"), null, getCurrentSearchParams());
+			}, 500);
+		});
+		$(document).on("change", "[data-bb-toggle=\"review-sort\"]", function() {
+			updateClearButtonVisibility();
+			if ($reviewListContainer.length) getReviewList($reviewListContainer.data("ajax-url"), null, getCurrentSearchParams());
+		});
+		$(document).on("change", "[data-bb-toggle=\"review-star-filter\"]", function() {
+			updateClearButtonVisibility();
+			if ($reviewListContainer.length) getReviewList($reviewListContainer.data("ajax-url"), null, getCurrentSearchParams());
+		});
+		$(document).on("click", "[data-bb-toggle=\"review-star-filter-bar\"]", function() {
+			const star = $(this).data("star");
+			$(".review-star-filter").val(star);
+			if ($reviewListContainer.length) getReviewList($reviewListContainer.data("ajax-url"), null, getCurrentSearchParams());
+		});
+		$(document).on("keydown", "[data-bb-toggle=\"review-star-filter-bar\"]", function(e) {
+			if (e.key === "Enter" || e.key === " ") {
+				e.preventDefault();
+				$(this).click();
+			}
+		});
+		$(document).on("click", "[data-bb-toggle=\"review-search-toggle\"]", function() {
+			const $container = $(".review-search-container");
+			const $button = $(this);
+			if ($container.hasClass("d-none")) {
+				$(".review-filter-container, .review-sort-container").addClass("d-none");
+				$(".review-control-buttons .btn").removeClass("active");
+				$container.removeClass("d-none");
+				$button.addClass("active");
+				$(".review-search-input").focus();
+			} else {
+				$container.addClass("d-none");
+				$button.removeClass("active");
+			}
+			updateClearButtonVisibility();
+		});
+		$(document).on("click", "[data-bb-toggle=\"review-filter-toggle\"]", function() {
+			const $container = $(".review-filter-container");
+			const $button = $(this);
+			if ($container.hasClass("d-none")) {
+				$(".review-search-container, .review-sort-container").addClass("d-none");
+				$(".review-control-buttons .btn").removeClass("active");
+				$container.removeClass("d-none");
+				$button.addClass("active");
+			} else {
+				$container.addClass("d-none");
+				$button.removeClass("active");
+			}
+			updateClearButtonVisibility();
+		});
+		$(document).on("click", "[data-bb-toggle=\"review-sort-toggle\"]", function() {
+			const $container = $(".review-sort-container");
+			const $button = $(this);
+			if ($container.hasClass("d-none")) {
+				$(".review-search-container, .review-filter-container").addClass("d-none");
+				$(".review-control-buttons .btn").removeClass("active");
+				$container.removeClass("d-none");
+				$button.addClass("active");
+			} else {
+				$container.addClass("d-none");
+				$button.removeClass("active");
+			}
+			updateClearButtonVisibility();
+		});
+		$(document).on("click", "[data-bb-toggle=\"review-clear-filters\"]", function() {
+			$(".review-search-input").val("");
+			$(".review-star-filter").val("");
+			$(".review-sort-select").val("newest");
+			$(".review-search-container, .review-filter-container, .review-sort-container").addClass("d-none");
+			$(".review-control-buttons .btn").removeClass("active");
+			updateClearButtonVisibility();
+			if ($reviewListContainer.length) getReviewList($reviewListContainer.data("ajax-url"), null, getCurrentSearchParams());
+		});
+		$(document).on("click", ".vendor-reply-toggle-btn", function() {
+			const reviewId = $(this).data("review-id");
+			const $form = $(`.vendor-reply-form[data-review-id="${reviewId}"]`);
+			$(this).addClass("d-none");
+			$form.removeClass("d-none");
+			$form.find("textarea").focus();
+		});
+		$(document).on("click", ".vendor-reply-cancel-btn", function() {
+			const reviewId = $(this).data("review-id");
+			const $form = $(`.vendor-reply-form[data-review-id="${reviewId}"]`);
+			const $button = $(`.vendor-reply-toggle-btn[data-review-id="${reviewId}"]`);
+			$form.addClass("d-none");
+			$form.find("textarea").val("");
+			$button.removeClass("d-none");
+		});
+		$(document).on("click", ".vendor-reply-submit-btn", function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			const $button = $(this);
+			const reviewId = $button.data("review-id");
+			const $container = $(`.vendor-reply-form[data-review-id="${reviewId}"]`);
+			const url = $container.data("url");
+			const message = $container.find(".vendor-reply-message").val();
+			if (!message || !message.trim()) {
+				Review.showError("Please enter a reply message.");
+				return false;
+			}
+			$.ajax({
+				url,
+				type: "POST",
+				data: { message },
+				headers: { "X-CSRF-TOKEN": Review.getCsrfToken() },
+				beforeSend: () => {
+					$button.prop("disabled", true).addClass("loading");
+				},
+				success: ({ error, message }) => {
+					if (!error) {
+						Review.showSuccess(message);
+						setTimeout(() => {
+							window.location.reload();
+						}, 1e3);
+					} else {
+						Review.showError(message);
+						$button.prop("disabled", false).removeClass("loading");
+					}
+				},
+				error: (xhr) => {
+					let errorMessage = "An error occurred while submitting the reply.";
+					if (xhr.responseJSON && xhr.responseJSON.message) errorMessage = xhr.responseJSON.message;
+					Review.showError(errorMessage);
+					$button.prop("disabled", false).removeClass("loading");
+				}
+			});
+			return false;
+		});
+		$(document).on("click", ".vendor-delete-reply-btn", function(e) {
+			e.preventDefault();
+			const $button = $(this);
+			const url = $button.data("url");
+			const confirmMessage = $button.data("confirm-message");
+			if (!confirm(confirmMessage)) return;
+			$.ajax({
+				url,
+				type: "DELETE",
+				headers: { "X-CSRF-TOKEN": Review.getCsrfToken() },
+				beforeSend: () => {
+					$button.prop("disabled", true);
+				},
+				success: ({ error, message }) => {
+					if (!error) {
+						Review.showSuccess(message);
+						setTimeout(() => {
+							window.location.reload();
+						}, 1e3);
+					} else {
+						Review.showError(message);
+						$button.prop("disabled", false);
+					}
+				},
+				error: (xhr) => {
+					let errorMessage = "An error occurred while deleting the reply.";
+					if (xhr.responseJSON && xhr.responseJSON.message) errorMessage = xhr.responseJSON.message;
+					Review.showError(errorMessage);
+					$button.prop("disabled", false);
+				}
+			});
+		});
+		if (sessionStorage.reloadReviewsTab) {
+			if ($("#product-detail-tabs a[href=\"#product-reviews\"]").length) new bootstrap.Tab($("#product-detail-tabs a[href=\"#product-reviews\"]")[0]).show();
+			sessionStorage.reloadReviewsTab = false;
+		}
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=front-review.js.map

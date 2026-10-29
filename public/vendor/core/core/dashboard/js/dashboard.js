@@ -1,1 +1,108 @@
-(function(){var l={},p=class s{static loadWidget(t,e,a,o){const i=t.closest(".widget-item"),r=i.prop("id"),f=i.find(".card");typeof o!="undefined"&&(l[r]=o);const m=i.find("a.collapse-expand");if(m.length&&m.hasClass("collapse"))return;Botble.showLoading(f),(typeof a=="undefined"||a==null)&&(a={});const h=i.find(".dropdown.predefined_range .dropdown-item.active");h.length&&(a.predefined_range=h.data("key")),$httpClient.makeWithoutErrorHandler().get(e,a).then(({data:d})=>{t.html(d.data),typeof o!="undefined"?o():l[r]&&l[r](),s.initSortable()}).catch(({response:d,message:u})=>{var c;let g=d==null||(c=d.data)===null||c===void 0?void 0:c.data;!g&&u&&(g=`<div class="empty"><p class="empty-subtitle text-muted">${u}</p></div>`),t.html(g)}).finally(()=>{Botble.hideLoading(f)})}static initSortable(){const t=$('[data-bb-toggle="widgets-list"]');t.length>0&&Sortable.create(t[0],{group:"widgets",sort:!0,delay:0,disabled:!1,store:null,animation:150,handle:".card-header",ghostClass:"sortable-ghost",chosenClass:"sortable-chosen",dataIdAttr:"data-id",forceFallback:!1,fallbackClass:"sortable-fallback",fallbackOnBody:!1,scroll:!0,scrollSensitivity:30,scrollSpeed:10,onUpdate:()=>{let e=[];$.each($(".widget-item"),(a,o)=>{e.push($(o).prop("id"))}),$httpClient.makeWithoutErrorHandler().post(t.data("url"),{items:e}).then(({data:a})=>{Botble.showSuccess(a.message)})}})}init(){$('[data-bb-toggle="widgets-list"]').on("click",".page-link",t=>{t.preventDefault();const e=$(t.currentTarget),a=e.prop("href");a&&s.loadWidget(e.closest(".widget-item").find(".widget-content"),a)}),$(document).on("click",".card-actions .dropdown.predefined_range .dropdown-item",t=>{t.preventDefault();const e=$(t.currentTarget);e.closest(".dropdown").find(".dropdown-toggle").text(e.data("label")),e.closest(".dropdown").find(".dropdown-item").removeClass("active"),e.addClass("active"),s.loadWidget(e.closest(".widget-item").find(".widget-content"),e.closest(".widget-item").data("url"),{changed_predefined_range:1})})}};$(()=>{new p().init(),window.BDashboard=p,$(document).on("submit",'[data-bb-toggle="widgets-management-modal"] form',function(n){n.preventDefault();const t=$(n.currentTarget),e=$(this).closest(".modal");$httpClient.make().withButtonLoading(t.find('button[type="submit"]')).postForm(t.prop("action"),new FormData(t[0])).then(({data:a})=>{Botble.showSuccess(a.message),setTimeout(()=>{window.location.reload()},1e3)}).finally(()=>{e.modal("hide")})}).on("change",'[data-bb-toggle="widgets-management-item"]',function(n){const t=$(n.currentTarget),e=t.closest('[data-bb-toggle="widgets-management-item-wrapper"]'),a=e.find(".avatar");t.prop("checked")?(e.removeClass("text-muted"),a.removeClass("bg-secondary-lt").addClass("bg-primary-lt")):(e.addClass("text-muted"),a.removeClass("bg-primary-lt").addClass("bg-secondary-lt"))})})})();
+(function() {
+	//#region platform/core/dashboard/resources/js/dashboard.js
+	var callbackWidgets = {};
+	var BDashboard = class BDashboard {
+		static loadWidget($widget, url, data, callback) {
+			const widget = $widget.closest(".widget-item");
+			const widgetId = widget.prop("id");
+			const loading = widget.find(".card");
+			if (typeof callback !== "undefined") callbackWidgets[widgetId] = callback;
+			const $collapseExpand = widget.find("a.collapse-expand");
+			if ($collapseExpand.length && $collapseExpand.hasClass("collapse")) return;
+			Botble.showLoading(loading);
+			if (typeof data === "undefined" || data == null) data = {};
+			const predefinedRange = widget.find(".dropdown.predefined_range .dropdown-item.active");
+			if (predefinedRange.length) data.predefined_range = predefinedRange.data("key");
+			$httpClient.makeWithoutErrorHandler().get(url, data).then(({ data }) => {
+				$widget.html(data.data);
+				if (typeof callback !== "undefined") callback();
+				else if (callbackWidgets[widgetId]) callbackWidgets[widgetId]();
+				BDashboard.initSortable();
+			}).catch(({ response, message }) => {
+				var _response$data;
+				let content = response === null || response === void 0 || (_response$data = response.data) === null || _response$data === void 0 ? void 0 : _response$data.data;
+				if (!content && message) content = `<div class="empty"><p class="empty-subtitle text-muted">${message}</p></div>`;
+				$widget.html(content);
+			}).finally(() => {
+				Botble.hideLoading(loading);
+			});
+		}
+		static initSortable() {
+			const $widgetsList = $("[data-bb-toggle=\"widgets-list\"]");
+			if ($widgetsList.length > 0) Sortable.create($widgetsList[0], {
+				group: "widgets",
+				sort: true,
+				delay: 0,
+				disabled: false,
+				store: null,
+				animation: 150,
+				handle: ".card-header",
+				ghostClass: "sortable-ghost",
+				chosenClass: "sortable-chosen",
+				dataIdAttr: "data-id",
+				forceFallback: false,
+				fallbackClass: "sortable-fallback",
+				fallbackOnBody: false,
+				scroll: true,
+				scrollSensitivity: 30,
+				scrollSpeed: 10,
+				onUpdate: () => {
+					let items = [];
+					$.each($(".widget-item"), (index, widget) => {
+						items.push($(widget).prop("id"));
+					});
+					$httpClient.makeWithoutErrorHandler().post($widgetsList.data("url"), { items }).then(({ data }) => {
+						Botble.showSuccess(data.message);
+					});
+				}
+			});
+		}
+		init() {
+			$("[data-bb-toggle=\"widgets-list\"]").on("click", ".page-link", (e) => {
+				e.preventDefault();
+				const $this = $(e.currentTarget);
+				const href = $this.prop("href");
+				if (href) BDashboard.loadWidget($this.closest(".widget-item").find(".widget-content"), href);
+			});
+			$(document).on("click", ".card-actions .dropdown.predefined_range .dropdown-item", (e) => {
+				e.preventDefault();
+				const $this = $(e.currentTarget);
+				$this.closest(".dropdown").find(".dropdown-toggle").text($this.data("label"));
+				$this.closest(".dropdown").find(".dropdown-item").removeClass("active");
+				$this.addClass("active");
+				BDashboard.loadWidget($this.closest(".widget-item").find(".widget-content"), $this.closest(".widget-item").data("url"), { changed_predefined_range: 1 });
+			});
+		}
+	};
+	$(() => {
+		new BDashboard().init();
+		window.BDashboard = BDashboard;
+		$(document).on("submit", "[data-bb-toggle=\"widgets-management-modal\"] form", function(event) {
+			event.preventDefault();
+			const form = $(event.currentTarget);
+			const modal = $(this).closest(".modal");
+			$httpClient.make().withButtonLoading(form.find("button[type=\"submit\"]")).postForm(form.prop("action"), new FormData(form[0])).then(({ data }) => {
+				Botble.showSuccess(data.message);
+				setTimeout(() => {
+					window.location.reload();
+				}, 1e3);
+			}).finally(() => {
+				modal.modal("hide");
+			});
+		}).on("change", "[data-bb-toggle=\"widgets-management-item\"]", function(event) {
+			const $this = $(event.currentTarget);
+			const $wrapper = $this.closest("[data-bb-toggle=\"widgets-management-item-wrapper\"]");
+			const $avatar = $wrapper.find(".avatar");
+			if ($this.prop("checked")) {
+				$wrapper.removeClass("text-muted");
+				$avatar.removeClass("bg-secondary-lt").addClass("bg-primary-lt");
+			} else {
+				$wrapper.addClass("text-muted");
+				$avatar.removeClass("bg-primary-lt").addClass("bg-secondary-lt");
+			}
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=dashboard.js.map

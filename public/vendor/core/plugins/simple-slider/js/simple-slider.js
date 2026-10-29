@@ -1,1 +1,69 @@
-(function(){var s=class m{static setAnimation(t,a){let o="webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend";t.each(function(){let e=$(this),n="animated "+e.data("animation-"+a);e.addClass(n).one(o,function(){e.removeClass(n)})})}init(){let t=$(document).find(".owl-slider");t.length>0&&t.each(function(){let a=$(this),o=a.data("owl-auto"),e=a.data("owl-loop"),n=a.data("owl-speed"),w=a.data("owl-gap"),c=a.data("owl-nav"),p=a.data("owl-dots"),f=a.data("owl-animate-in")?a.data("owl-animate-in"):"",g=a.data("owl-animate-out")?a.data("owl-animate-out"):"",r=a.data("owl-item"),h=a.data("owl-item-xs"),v=a.data("owl-item-sm"),S=a.data("owl-item-md"),A=a.data("owl-item-lg"),I=a.data("owl-item-xl"),E=a.data("owl-nav-left")?a.data("owl-nav-left"):'<i class="fa fa-angle-left"></i>',y=a.data("owl-nav-right")?a.data("owl-nav-right"):'<i class="fa fa-angle-right"></i>',i=a.data("owl-duration"),D=a.data("owl-mousedrag")==="on",M=a.data("owl-center");t.children("div, span, a, img, h1, h2, h3, h4, h5, h5").length>=1&&(a.owlCarousel({rtl:$("body").prop("dir")==="rtl",animateIn:f,animateOut:g,margin:w,autoplay:o,autoplayTimeout:n,autoplayHoverPause:!0,loop:e,nav:c,mouseDrag:D,touchDrag:!0,autoplaySpeed:i,navSpeed:i,dotsSpeed:i,dragEndSpeed:i,navText:[E,y],dots:p,items:r,center:!!M,responsive:{0:{items:h},480:{items:v},768:{items:S},992:{items:A},1200:{items:I},1680:{items:r}}}),a.on("change.owl.carousel",function(d){let l=$(".owl-item",a).eq(d.item.index).find("[data-animation-out]");m.setAnimation(l,"out")}),a.on("changed.owl.carousel",function(d){let l=$(".owl-item",a).eq(d.item.index).find("[data-animation-in]");m.setAnimation(l,"in")}))})}};$(()=>{new s().init(),document.addEventListener("shortcode.loaded",function(u){u.detail.name==="simple-slider"&&new s().init()})})})();
+(function() {
+	//#region platform/plugins/simple-slider/resources/js/simple-slider.js
+	var SimpleSliderManagement = class SimpleSliderManagement {
+		static setAnimation(_elem, _InOut) {
+			let animationEndEvent = "webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend";
+			_elem.each(function() {
+				let $elem = $(this);
+				let $animationType = "animated " + $elem.data("animation-" + _InOut);
+				$elem.addClass($animationType).one(animationEndEvent, function() {
+					$elem.removeClass($animationType);
+				});
+			});
+		}
+		init() {
+			let target = $(document).find(".owl-slider");
+			if (target.length > 0) target.each(function() {
+				let el = $(this), dataAuto = el.data("owl-auto"), dataLoop = el.data("owl-loop"), dataSpeed = el.data("owl-speed"), dataGap = el.data("owl-gap"), dataNav = el.data("owl-nav"), dataDots = el.data("owl-dots"), dataAnimateIn = el.data("owl-animate-in") ? el.data("owl-animate-in") : "", dataAnimateOut = el.data("owl-animate-out") ? el.data("owl-animate-out") : "", dataDefaultItem = el.data("owl-item"), dataItemXS = el.data("owl-item-xs"), dataItemSM = el.data("owl-item-sm"), dataItemMD = el.data("owl-item-md"), dataItemLG = el.data("owl-item-lg"), dataItemXL = el.data("owl-item-xl"), dataNavLeft = el.data("owl-nav-left") ? el.data("owl-nav-left") : "<i class=\"fa fa-angle-left\"></i>", dataNavRight = el.data("owl-nav-right") ? el.data("owl-nav-right") : "<i class=\"fa fa-angle-right\"></i>", duration = el.data("owl-duration"), dataMouseDrag = el.data("owl-mousedrag") === "on", center = el.data("owl-center");
+				if (target.children("div, span, a, img, h1, h2, h3, h4, h5, h5").length >= 1) {
+					el.owlCarousel({
+						rtl: $("body").prop("dir") === "rtl",
+						animateIn: dataAnimateIn,
+						animateOut: dataAnimateOut,
+						margin: dataGap,
+						autoplay: dataAuto,
+						autoplayTimeout: dataSpeed,
+						autoplayHoverPause: true,
+						loop: dataLoop,
+						nav: dataNav,
+						mouseDrag: dataMouseDrag,
+						touchDrag: true,
+						autoplaySpeed: duration,
+						navSpeed: duration,
+						dotsSpeed: duration,
+						dragEndSpeed: duration,
+						navText: [dataNavLeft, dataNavRight],
+						dots: dataDots,
+						items: dataDefaultItem,
+						center: Boolean(center),
+						responsive: {
+							0: { items: dataItemXS },
+							480: { items: dataItemSM },
+							768: { items: dataItemMD },
+							992: { items: dataItemLG },
+							1200: { items: dataItemXL },
+							1680: { items: dataDefaultItem }
+						}
+					});
+					el.on("change.owl.carousel", function(event) {
+						let $elementsToAnimation = $(".owl-item", el).eq(event.item.index).find("[data-animation-out]");
+						SimpleSliderManagement.setAnimation($elementsToAnimation, "out");
+					});
+					el.on("changed.owl.carousel", function(event) {
+						let $elementsToAnimation = $(".owl-item", el).eq(event.item.index).find("[data-animation-in]");
+						SimpleSliderManagement.setAnimation($elementsToAnimation, "in");
+					});
+				}
+			});
+		}
+	};
+	$(() => {
+		new SimpleSliderManagement().init();
+		document.addEventListener("shortcode.loaded", function(event) {
+			if (event.detail.name === "simple-slider") new SimpleSliderManagement().init();
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=simple-slider.js.map

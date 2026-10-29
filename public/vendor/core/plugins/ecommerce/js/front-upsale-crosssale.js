@@ -1,1 +1,510 @@
-"use strict";(function(){(function(c){if(typeof window.EcommerceUpSaleCrossSale!="undefined")return;const l=function(e,t={},o=!1){const i=new CustomEvent(e,{detail:t,cancelable:o});return document.dispatchEvent(i),!i.defaultPrevented},E=function(e,t){const o=document.createElement("template");o.innerHTML=t;const i=[];o.content.querySelectorAll("script[src]").forEach(h=>{i.push(h.getAttribute("src")),h.remove()}),e.replaceWith(o.innerHTML);const s=h=>{try{return new URL(h,window.location.href).pathname}catch(b){return h}};i.forEach(h=>{if(!h||Array.prototype.some.call(document.querySelectorAll("script[src]"),u=>s(u.getAttribute("src"))===s(h)))return;const b=document.createElement("script");b.src=h,b.async=!0,document.body.appendChild(b)})},k=function(e){e&&(window.Theme&&typeof window.Theme.showSuccess=="function"?window.Theme.showSuccess(e):window.MartApp&&typeof window.MartApp.showSuccess=="function"?window.MartApp.showSuccess(e):window.ShofyApp&&typeof window.ShofyApp.showSuccess=="function"?window.ShofyApp.showSuccess(e):typeof window.showSuccess=="function"&&window.showSuccess(e))},g=function(e){e&&(window.Theme&&typeof window.Theme.showError=="function"?window.Theme.showError(e):window.MartApp&&typeof window.MartApp.showError=="function"?window.MartApp.showError(e):window.ShofyApp&&typeof window.ShofyApp.showError=="function"?window.ShofyApp.showError(e):typeof window.showError=="function"?window.showError(e):console.error(e))},C=function(){return c('meta[name="csrf-token"]').attr("content")||""};window.EcommerceUpSaleCrossSale={upsellRefreshUrl:null,crossSaleRefreshUrl:null,init:function(){for(const e of["MartApp","ShofyApp","ThemeApp","App"])if(window[e]&&typeof window[e].initBlockLazyLoading=="function")return;this.initBlockLazyLoading(),this.bindCartEvents(),this.bindCrossSaleEvents()},initBlockLazyLoading:function(){const e=this;c(document).find('[data-bb-toggle="block-lazy-loading"]').each(function(){const t=c(this),o=t.data("url");o&&(o.includes("up-sale-products")&&(e.upsellRefreshUrl=o),o.includes("cross-sale-products")&&(e.crossSaleRefreshUrl=o),c.ajax({url:o,type:"GET",success:function(i){const s=i.data!==void 0?i.data:i;E(t,s),typeof window.LazyLoad!="undefined"&&window.lazyLoadInstance&&window.lazyLoadInstance.update(),l("ecommerce.block.loaded",{html:s,url:o}),o.includes("up-sale-products")&&(l("ecommerce.upsale.bundle.loaded",{html:s,url:o}),c(document).trigger("upsell-bundle-loaded"),e.initUpSaleBundle()),o.includes("cross-sale-products")&&(l("ecommerce.crosssale.loaded",{html:s,url:o}),e.initSlickCarousel())},error:function(i){console.error("Failed to load lazy content:",i)}}))})},initSlickCarousel:function(){const e=c(".ec-cross-sale-carousel.slick-slides-carousel");if(e.length&&typeof c.fn.slick!="undefined"&&!e.hasClass("slick-initialized")){const t=e.data("slick")||{};e.slick(t),l("ecommerce.crosssale.carousel.initialized",{element:e[0],config:t})}},bindCartEvents:function(){const e=this;document.addEventListener("ecommerce.cart.added",function(){e.refreshUpSaleSection()}),document.addEventListener("ecommerce.cart.removed",function(){e.refreshUpSaleSection()})},bindCrossSaleEvents:function(){c(document).on("click",'.ec-cross-sale-add-btn[data-bb-toggle="add-to-cart"]',function(e){e.preventDefault(),e.stopPropagation();const t=c(this),o=t.data("url"),i=t.data("id");t.hasClass("loading")||l("ecommerce.crosssale.add-to-cart.before",{element:t[0],productId:i,url:o},!0)&&(t.addClass("loading").prop("disabled",!0),c.ajax({url:o,type:"POST",data:{id:i,_token:C()},success:function(s){s.error?(g(s.message||"Failed to add product to cart"),l("ecommerce.crosssale.add-to-cart.error",{element:t[0],productId:i,error:s.message})):(k(s.message),l("ecommerce.crosssale.add-to-cart.success",{element:t[0],productId:i,data:s.data,message:s.message}),document.dispatchEvent(new CustomEvent("ecommerce.cart.added",{detail:{data:s.data,element:t[0]}})),typeof window.loadAjaxCart=="function"&&s.data&&window.loadAjaxCart(s.data))},error:function(s){g("Failed to add product to cart"),l("ecommerce.crosssale.add-to-cart.error",{element:t[0],productId:i,error:s})},complete:function(){t.removeClass("loading").prop("disabled",!1)}}))})},refreshUpSaleSection:function(){const e=this;if(!this.upsellRefreshUrl)return;const t=c("[data-upsale-bundle]");t.length!==0&&(t.css("opacity","0.5"),c.ajax({url:this.upsellRefreshUrl,type:"GET",success:function(o){const i=o.data!==void 0?o.data:o;E(t,i),l("ecommerce.upsale.section.refreshed",{html:i}),c(document).trigger("upsell-bundle-loaded"),e.initUpSaleBundle()},error:function(){t.css("opacity","1")}}))},initUpSaleBundle:function(){const e=this,t=c("[data-upsale-bundle]");if(t.length===0)return;const o=t.find("[data-upsale-checkbox]"),i=t.find("[data-upsale-total-price]"),s=t.find("[data-upsale-add-all]"),h=function(u){var a;const n=t.data("currency-config")||window.currencies||{},f=n.symbol||"$",p=n.is_prefix!==!1,r=(a=n.decimals)!==null&&a!==void 0?a:2,d=n.thousands_separator||",",m=n.decimal_separator||".",w=parseFloat(u).toFixed(r).replace(".",m).replace(/\B(?=(\d{3})+(?!\d))/g,d);return p?f+w:w+f},b=function(){let u=0,a=0;const n=[];o.filter(":checked").each(function(){const f=c(this);u+=parseFloat(f.attr("data-price"))||0,a++,n.push({id:f.attr("data-id"),price:parseFloat(f.attr("data-price"))||0})}),i.text(h(u)),s.prop("disabled",a===0),l("ecommerce.upsale.total.updated",{total:u,formattedTotal:h(u),selectedCount:a,selectedProducts:n})};o.off("change.upsale").on("change.upsale",b),t.find("[data-upsale-add-btn]").off("click.upsale").on("click.upsale",function(u){u.preventDefault();const a=c(this),n=a.closest("[data-upsale-bundle-item]").find("[data-upsale-checkbox]"),f=s.data("parent-product")||a.data("parent-product"),p=a.attr("data-id"),r=a.data("url");l("ecommerce.upsale.add-to-cart.before",{element:a[0],productId:p,parentProduct:f,url:r},!0)&&(a.addClass("loading").prop("disabled",!0),c.ajax({url:r,type:"POST",data:{id:p,reference_product_for_upsale:f,_token:C()},success:function(d){if(a.removeClass("loading"),d.error){a.prop("disabled",!1),g(d.message||"Failed to add product to cart"),l("ecommerce.upsale.add-to-cart.error",{element:a[0],productId:p,error:d.message});return}k(d.message),n.prop("checked",!1).prop("disabled",!0),b(),l("ecommerce.upsale.add-to-cart.success",{element:a[0],productId:p,parentProduct:f,data:d.data||{},message:d.message||""}),document.dispatchEvent(new CustomEvent("ecommerce.cart.added",{detail:{data:d.data||{},element:a[0],message:d.message||""}})),typeof window.loadAjaxCart=="function"&&d.data&&window.loadAjaxCart(d.data)},error:function(d){a.removeClass("loading").prop("disabled",!1),g("Failed to add product to cart"),l("ecommerce.upsale.add-to-cart.error",{element:a[0],productId:p,error:d})}}))}),s.off("click.upsale").on("click.upsale",function(u){u.preventDefault();const a=c(this),n=[],f=a.data("parent-product");if(o.filter(":checked").each(function(){n.push(c(this).attr("data-id"))}),n.length===0||!l("ecommerce.upsale.add-all.before",{element:a[0],productIds:n,parentProduct:f},!0))return;a.addClass("loading").prop("disabled",!0);let p=0,r=null,d=0;const m=function(){if(p>=n.length){a.removeClass("loading"),l("ecommerce.upsale.add-all.success",{element:a[0],productIds:n,successCount:d,lastResponse:r}),e.refreshUpSaleSection(),r&&!r.error&&r.data&&(document.dispatchEvent(new CustomEvent("ecommerce.cart.added",{detail:{data:r.data,element:a[0],message:r.message||""}})),typeof window.loadAjaxCart=="function"&&window.loadAjaxCart(r.data)),d>0&&k(`Added ${d} item(s) to cart`);return}c.ajax({url:a.data("url"),type:"POST",data:{id:n[p],reference_product_for_upsale:f,_token:C()},success:function(w){w.error?g(w.message||"Failed to add product to cart"):d++,r=w},complete:function(){p++,m()}})};m()}),t.find(".ec-upsell-attributes .product-filter-item").off("change.upsale").on("change.upsale",function(){if(c(this).prop("disabled"))return;const u=c(this),a=u.closest(".ec-upsell-attributes"),n=a.closest("[data-upsale-bundle-item]"),f=a.data("target");if(!f)return;const p={attributes:{}};a.find(".product-filter-item:checked").each(function(){const r=c(this).closest(".ec-upsell-attribute-group").data("slug");r&&(p.attributes[r]=c(this).val())}),c.ajax({url:f,type:"GET",data:p,success:function(r){if(r.data){const d=r.data.id;let m=r.data.sale_price||r.data.price;const w=r.data.error_message,A=r.data.unavailable_attribute_ids||[];if(a.find(".ec-upsell-attribute-option").each(function(){const y=c(this),S=parseInt(y.data("id")),v=y.find('input[type="radio"]');A.includes(S)?(y.addClass("disabled").attr("title",y.data("unavailable-text")||"Not available"),v.prop("disabled",!0)):(y.removeClass("disabled").removeAttr("title"),v.prop("disabled",!1))}),d&&!w){if(n.find(".ec-upsell-variation-id").val(d),n.find("[data-upsale-checkbox]").attr("data-id",d),n.find("[data-upsale-add-btn]").attr("data-id",d).prop("disabled",!1),m){const y=n.find("[data-upsale-checkbox]"),S=parseFloat(y.attr("data-bundle-discount"))||0,v=y.attr("data-bundle-discount-type");S>0&&(v==="percent"?m=m-m*S/100:m=Math.max(0,m-S)),y.attr("data-price",m),b()}l("ecommerce.upsale.variation.changed",{element:u[0],item:n[0],variationId:d,price:m,attributes:p.attributes,response:r.data})}else w&&(n.find("[data-upsale-add-btn]").prop("disabled",!0),l("ecommerce.upsale.variation.changed",{element:u[0],item:n[0],variationId:null,error:w,attributes:p.attributes,response:r.data}))}}})}),b(),l("ecommerce.upsale.bundle.initialized",{section:t[0],checkboxCount:o.length})}},c(function(){window.EcommerceUpSaleCrossSale.init()})})(jQuery)})();
+"use strict";
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/front-upsale-crosssale.js
+	(function($) {
+		if (typeof window.EcommerceUpSaleCrossSale !== "undefined") return;
+		/**
+		* Dispatch a custom event with optional cancelable support
+		* @param {string} eventName - Name of the event
+		* @param {object} detail - Event detail object
+		* @param {boolean} cancelable - Whether the event can be canceled
+		* @returns {boolean} - Returns false if event was canceled
+		*/
+		const dispatchEvent = function(eventName, detail = {}, cancelable = false) {
+			const event = new CustomEvent(eventName, {
+				detail,
+				cancelable
+			});
+			document.dispatchEvent(event);
+			return !event.defaultPrevented;
+		};
+		/**
+		* Replace an element with ajax HTML without triggering jQuery's synchronous
+		* XMLHttpRequest for embedded `<script src>` tags (a deprecated browser API).
+		* jQuery's replaceWith() loads external scripts found in the markup via a
+		* blocking sync XHR; here we strip those scripts and (re)load them
+		* asynchronously, only once (matched by path, ignoring the ?v= query). Inline
+		* scripts are left in place for jQuery to evaluate as before.
+		* @param {jQuery} $element - Element to replace
+		* @param {string} html - HTML returned from the ajax response
+		*/
+		const replaceWithSafe = function($element, html) {
+			const template = document.createElement("template");
+			template.innerHTML = html;
+			const sources = [];
+			template.content.querySelectorAll("script[src]").forEach((script) => {
+				sources.push(script.getAttribute("src"));
+				script.remove();
+			});
+			$element.replaceWith(template.innerHTML);
+			const pathOf = (src) => {
+				try {
+					return new URL(src, window.location.href).pathname;
+				} catch (e) {
+					return src;
+				}
+			};
+			sources.forEach((src) => {
+				if (!src) return;
+				if (Array.prototype.some.call(document.querySelectorAll("script[src]"), (existing) => pathOf(existing.getAttribute("src")) === pathOf(src))) return;
+				const script = document.createElement("script");
+				script.src = src;
+				script.async = true;
+				document.body.appendChild(script);
+			});
+		};
+		/**
+		* Show success message using available theme methods
+		* @param {string} message - Message to show
+		*/
+		const showSuccess = function(message) {
+			if (!message) return;
+			if (window.Theme && typeof window.Theme.showSuccess === "function") window.Theme.showSuccess(message);
+			else if (window.MartApp && typeof window.MartApp.showSuccess === "function") window.MartApp.showSuccess(message);
+			else if (window.ShofyApp && typeof window.ShofyApp.showSuccess === "function") window.ShofyApp.showSuccess(message);
+			else if (typeof window.showSuccess === "function") window.showSuccess(message);
+		};
+		/**
+		* Show error message using available theme methods
+		* @param {string} message - Message to show
+		*/
+		const showError = function(message) {
+			if (!message) return;
+			if (window.Theme && typeof window.Theme.showError === "function") window.Theme.showError(message);
+			else if (window.MartApp && typeof window.MartApp.showError === "function") window.MartApp.showError(message);
+			else if (window.ShofyApp && typeof window.ShofyApp.showError === "function") window.ShofyApp.showError(message);
+			else if (typeof window.showError === "function") window.showError(message);
+			else console.error(message);
+		};
+		const getCsrfToken = function() {
+			return $("meta[name=\"csrf-token\"]").attr("content") || "";
+		};
+		window.EcommerceUpSaleCrossSale = {
+			upsellRefreshUrl: null,
+			crossSaleRefreshUrl: null,
+			init: function() {
+				for (const appName of [
+					"MartApp",
+					"ShofyApp",
+					"ThemeApp",
+					"App"
+				]) if (window[appName] && typeof window[appName].initBlockLazyLoading === "function") return;
+				this.initBlockLazyLoading();
+				this.bindCartEvents();
+				this.bindCrossSaleEvents();
+			},
+			/**
+			* Initialize lazy loading for all block-lazy-loading elements.
+			* Handles up-sale, cross-sale, and any other lazy-loaded content (e.g. related products).
+			*/
+			initBlockLazyLoading: function() {
+				const self = this;
+				$(document).find("[data-bb-toggle=\"block-lazy-loading\"]").each(function() {
+					const $element = $(this);
+					const url = $element.data("url");
+					if (!url) return;
+					if (url.includes("up-sale-products")) self.upsellRefreshUrl = url;
+					if (url.includes("cross-sale-products")) self.crossSaleRefreshUrl = url;
+					$.ajax({
+						url,
+						type: "GET",
+						success: function(response) {
+							const data = response.data !== void 0 ? response.data : response;
+							replaceWithSafe($element, data);
+							if (typeof window.LazyLoad !== "undefined" && window.lazyLoadInstance) window.lazyLoadInstance.update();
+							dispatchEvent("ecommerce.block.loaded", {
+								html: data,
+								url
+							});
+							if (url.includes("up-sale-products")) {
+								dispatchEvent("ecommerce.upsale.bundle.loaded", {
+									html: data,
+									url
+								});
+								$(document).trigger("upsell-bundle-loaded");
+								self.initUpSaleBundle();
+							}
+							if (url.includes("cross-sale-products")) {
+								dispatchEvent("ecommerce.crosssale.loaded", {
+									html: data,
+									url
+								});
+								self.initSlickCarousel();
+							}
+						},
+						error: function(error) {
+							console.error("Failed to load lazy content:", error);
+						}
+					});
+				});
+			},
+			/**
+			* Initialize Slick carousel for cross-sale products
+			*/
+			initSlickCarousel: function() {
+				const $carousel = $(".ec-cross-sale-carousel.slick-slides-carousel");
+				if ($carousel.length && typeof $.fn.slick !== "undefined" && !$carousel.hasClass("slick-initialized")) {
+					const config = $carousel.data("slick") || {};
+					$carousel.slick(config);
+					dispatchEvent("ecommerce.crosssale.carousel.initialized", {
+						element: $carousel[0],
+						config
+					});
+				}
+			},
+			/**
+			* Bind cart events to refresh up-sale section
+			*/
+			bindCartEvents: function() {
+				const self = this;
+				document.addEventListener("ecommerce.cart.added", function() {
+					self.refreshUpSaleSection();
+				});
+				document.addEventListener("ecommerce.cart.removed", function() {
+					self.refreshUpSaleSection();
+				});
+			},
+			/**
+			* Bind cross-sale add to cart events
+			*/
+			bindCrossSaleEvents: function() {
+				$(document).on("click", ".ec-cross-sale-add-btn[data-bb-toggle=\"add-to-cart\"]", function(e) {
+					e.preventDefault();
+					e.stopPropagation();
+					const $btn = $(this);
+					const url = $btn.data("url");
+					const productId = $btn.data("id");
+					if ($btn.hasClass("loading")) return;
+					if (!dispatchEvent("ecommerce.crosssale.add-to-cart.before", {
+						element: $btn[0],
+						productId,
+						url
+					}, true)) return;
+					$btn.addClass("loading").prop("disabled", true);
+					$.ajax({
+						url,
+						type: "POST",
+						data: {
+							id: productId,
+							_token: getCsrfToken()
+						},
+						success: function(response) {
+							if (response.error) {
+								showError(response.message || "Failed to add product to cart");
+								dispatchEvent("ecommerce.crosssale.add-to-cart.error", {
+									element: $btn[0],
+									productId,
+									error: response.message
+								});
+							} else {
+								showSuccess(response.message);
+								dispatchEvent("ecommerce.crosssale.add-to-cart.success", {
+									element: $btn[0],
+									productId,
+									data: response.data,
+									message: response.message
+								});
+								document.dispatchEvent(new CustomEvent("ecommerce.cart.added", { detail: {
+									data: response.data,
+									element: $btn[0]
+								} }));
+								if (typeof window.loadAjaxCart === "function" && response.data) window.loadAjaxCart(response.data);
+							}
+						},
+						error: function(error) {
+							showError("Failed to add product to cart");
+							dispatchEvent("ecommerce.crosssale.add-to-cart.error", {
+								element: $btn[0],
+								productId,
+								error
+							});
+						},
+						complete: function() {
+							$btn.removeClass("loading").prop("disabled", false);
+						}
+					});
+				});
+			},
+			/**
+			* Refresh up-sale section when cart changes
+			*/
+			refreshUpSaleSection: function() {
+				const self = this;
+				if (!this.upsellRefreshUrl) return;
+				const $section = $("[data-upsale-bundle]");
+				if ($section.length === 0) return;
+				$section.css("opacity", "0.5");
+				$.ajax({
+					url: this.upsellRefreshUrl,
+					type: "GET",
+					success: function(response) {
+						const data = response.data !== void 0 ? response.data : response;
+						replaceWithSafe($section, data);
+						dispatchEvent("ecommerce.upsale.section.refreshed", { html: data });
+						$(document).trigger("upsell-bundle-loaded");
+						self.initUpSaleBundle();
+					},
+					error: function() {
+						$section.css("opacity", "1");
+					}
+				});
+			},
+			/**
+			* Initialize up-sale bundle checkboxes and functionality
+			*/
+			initUpSaleBundle: function() {
+				const self = this;
+				const $section = $("[data-upsale-bundle]");
+				if ($section.length === 0) return;
+				const $checkboxes = $section.find("[data-upsale-checkbox]");
+				const $totalPrice = $section.find("[data-upsale-total-price]");
+				const $addAllBtn = $section.find("[data-upsale-add-all]");
+				/**
+				* Format price according to currency settings
+				*/
+				const formatPrice = function(price) {
+					var _currencies$decimals;
+					const currencies = $section.data("currency-config") || window.currencies || {};
+					const symbol = currencies.symbol || "$";
+					const isPrefix = currencies.is_prefix !== false;
+					const decimals = (_currencies$decimals = currencies.decimals) !== null && _currencies$decimals !== void 0 ? _currencies$decimals : 2;
+					const thousandsSeparator = currencies.thousands_separator || ",";
+					const decimalSeparator = currencies.decimal_separator || ".";
+					const formattedNumber = parseFloat(price).toFixed(decimals).replace(".", decimalSeparator).replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator);
+					return isPrefix ? symbol + formattedNumber : formattedNumber + symbol;
+				};
+				/**
+				* Update total price and add all button state
+				*/
+				const updateTotal = function() {
+					let total = 0;
+					let selectedCount = 0;
+					const selectedProducts = [];
+					$checkboxes.filter(":checked").each(function() {
+						const $checkbox = $(this);
+						total += parseFloat($checkbox.attr("data-price")) || 0;
+						selectedCount++;
+						selectedProducts.push({
+							id: $checkbox.attr("data-id"),
+							price: parseFloat($checkbox.attr("data-price")) || 0
+						});
+					});
+					$totalPrice.text(formatPrice(total));
+					$addAllBtn.prop("disabled", selectedCount === 0);
+					dispatchEvent("ecommerce.upsale.total.updated", {
+						total,
+						formattedTotal: formatPrice(total),
+						selectedCount,
+						selectedProducts
+					});
+				};
+				$checkboxes.off("change.upsale").on("change.upsale", updateTotal);
+				$section.find("[data-upsale-add-btn]").off("click.upsale").on("click.upsale", function(e) {
+					e.preventDefault();
+					const $btn = $(this);
+					const $checkbox = $btn.closest("[data-upsale-bundle-item]").find("[data-upsale-checkbox]");
+					const parentProduct = $addAllBtn.data("parent-product") || $btn.data("parent-product");
+					const productId = $btn.attr("data-id");
+					const addUrl = $btn.data("url");
+					if (!dispatchEvent("ecommerce.upsale.add-to-cart.before", {
+						element: $btn[0],
+						productId,
+						parentProduct,
+						url: addUrl
+					}, true)) return;
+					$btn.addClass("loading").prop("disabled", true);
+					$.ajax({
+						url: addUrl,
+						type: "POST",
+						data: {
+							id: productId,
+							reference_product_for_upsale: parentProduct,
+							_token: getCsrfToken()
+						},
+						success: function(response) {
+							$btn.removeClass("loading");
+							if (response.error) {
+								$btn.prop("disabled", false);
+								showError(response.message || "Failed to add product to cart");
+								dispatchEvent("ecommerce.upsale.add-to-cart.error", {
+									element: $btn[0],
+									productId,
+									error: response.message
+								});
+								return;
+							}
+							showSuccess(response.message);
+							$checkbox.prop("checked", false).prop("disabled", true);
+							updateTotal();
+							dispatchEvent("ecommerce.upsale.add-to-cart.success", {
+								element: $btn[0],
+								productId,
+								parentProduct,
+								data: response.data || {},
+								message: response.message || ""
+							});
+							document.dispatchEvent(new CustomEvent("ecommerce.cart.added", { detail: {
+								data: response.data || {},
+								element: $btn[0],
+								message: response.message || ""
+							} }));
+							if (typeof window.loadAjaxCart === "function" && response.data) window.loadAjaxCart(response.data);
+						},
+						error: function(error) {
+							$btn.removeClass("loading").prop("disabled", false);
+							showError("Failed to add product to cart");
+							dispatchEvent("ecommerce.upsale.add-to-cart.error", {
+								element: $btn[0],
+								productId,
+								error
+							});
+						}
+					});
+				});
+				$addAllBtn.off("click.upsale").on("click.upsale", function(e) {
+					e.preventDefault();
+					const $btn = $(this);
+					const selectedProducts = [];
+					const parentProduct = $btn.data("parent-product");
+					$checkboxes.filter(":checked").each(function() {
+						selectedProducts.push($(this).attr("data-id"));
+					});
+					if (selectedProducts.length === 0) return;
+					if (!dispatchEvent("ecommerce.upsale.add-all.before", {
+						element: $btn[0],
+						productIds: selectedProducts,
+						parentProduct
+					}, true)) return;
+					$btn.addClass("loading").prop("disabled", true);
+					let index = 0;
+					let lastResponse = null;
+					let successCount = 0;
+					const addNextProduct = function() {
+						if (index >= selectedProducts.length) {
+							$btn.removeClass("loading");
+							dispatchEvent("ecommerce.upsale.add-all.success", {
+								element: $btn[0],
+								productIds: selectedProducts,
+								successCount,
+								lastResponse
+							});
+							self.refreshUpSaleSection();
+							if (lastResponse && !lastResponse.error && lastResponse.data) {
+								document.dispatchEvent(new CustomEvent("ecommerce.cart.added", { detail: {
+									data: lastResponse.data,
+									element: $btn[0],
+									message: lastResponse.message || ""
+								} }));
+								if (typeof window.loadAjaxCart === "function") window.loadAjaxCart(lastResponse.data);
+							}
+							if (successCount > 0) showSuccess(`Added ${successCount} item(s) to cart`);
+							return;
+						}
+						$.ajax({
+							url: $btn.data("url"),
+							type: "POST",
+							data: {
+								id: selectedProducts[index],
+								reference_product_for_upsale: parentProduct,
+								_token: getCsrfToken()
+							},
+							success: function(response) {
+								if (response.error) showError(response.message || "Failed to add product to cart");
+								else successCount++;
+								lastResponse = response;
+							},
+							complete: function() {
+								index++;
+								addNextProduct();
+							}
+						});
+					};
+					addNextProduct();
+				});
+				$section.find(".ec-upsell-attributes .product-filter-item").off("change.upsale").on("change.upsale", function() {
+					if ($(this).prop("disabled")) return;
+					const $input = $(this);
+					const $attrs = $input.closest(".ec-upsell-attributes");
+					const $item = $attrs.closest("[data-upsale-bundle-item]");
+					const url = $attrs.data("target");
+					if (!url) return;
+					const data = { attributes: {} };
+					$attrs.find(".product-filter-item:checked").each(function() {
+						const slug = $(this).closest(".ec-upsell-attribute-group").data("slug");
+						if (slug) data.attributes[slug] = $(this).val();
+					});
+					$.ajax({
+						url,
+						type: "GET",
+						data,
+						success: function(response) {
+							if (response.data) {
+								const variationId = response.data.id;
+								let price = response.data.sale_price || response.data.price;
+								const errorMessage = response.data.error_message;
+								const unavailableAttrIds = response.data.unavailable_attribute_ids || [];
+								$attrs.find(".ec-upsell-attribute-option").each(function() {
+									const $option = $(this);
+									const attrId = parseInt($option.data("id"));
+									const $optionInput = $option.find("input[type=\"radio\"]");
+									if (unavailableAttrIds.includes(attrId)) {
+										$option.addClass("disabled").attr("title", $option.data("unavailable-text") || "Not available");
+										$optionInput.prop("disabled", true);
+									} else {
+										$option.removeClass("disabled").removeAttr("title");
+										$optionInput.prop("disabled", false);
+									}
+								});
+								if (variationId && !errorMessage) {
+									$item.find(".ec-upsell-variation-id").val(variationId);
+									$item.find("[data-upsale-checkbox]").attr("data-id", variationId);
+									$item.find("[data-upsale-add-btn]").attr("data-id", variationId).prop("disabled", false);
+									if (price) {
+										const $checkbox = $item.find("[data-upsale-checkbox]");
+										const bundleDiscount = parseFloat($checkbox.attr("data-bundle-discount")) || 0;
+										const bundleDiscountType = $checkbox.attr("data-bundle-discount-type");
+										if (bundleDiscount > 0) {
+											if (bundleDiscountType === "percent") price = price - price * bundleDiscount / 100;
+											else price = Math.max(0, price - bundleDiscount);
+										}
+										$checkbox.attr("data-price", price);
+										updateTotal();
+									}
+									dispatchEvent("ecommerce.upsale.variation.changed", {
+										element: $input[0],
+										item: $item[0],
+										variationId,
+										price,
+										attributes: data.attributes,
+										response: response.data
+									});
+								} else if (errorMessage) {
+									$item.find("[data-upsale-add-btn]").prop("disabled", true);
+									dispatchEvent("ecommerce.upsale.variation.changed", {
+										element: $input[0],
+										item: $item[0],
+										variationId: null,
+										error: errorMessage,
+										attributes: data.attributes,
+										response: response.data
+									});
+								}
+							}
+						}
+					});
+				});
+				updateTotal();
+				dispatchEvent("ecommerce.upsale.bundle.initialized", {
+					section: $section[0],
+					checkboxCount: $checkboxes.length
+				});
+			}
+		};
+		$(function() {
+			window.EcommerceUpSaleCrossSale.init();
+		});
+	})(jQuery);
+	//#endregion
+})();
+
+//# sourceMappingURL=front-upsale-crosssale.js.map

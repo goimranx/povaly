@@ -135,8 +135,17 @@
 			jumpToImage(index) {
 				const imageData = this.allImages.find((img) => img.index === index);
 				if (!imageData || !this.mainImage) return;
+				const mainContainer = this.mainImage.parentElement.classList.contains("pv-slide-track") ? this.mainImage.parentElement.parentElement : this.mainImage.parentElement;
+				const videoFacade = mainContainer === null || mainContainer === void 0 ? void 0 : mainContainer.querySelector(".pv-video-facade");
+				if (videoFacade) videoFacade.style.display = "none";
+				this.mainImage.style.opacity = "0.5";
+				this.mainImage.style.display = "block";
 				this.mainImage.src = imageData.url;
 				this.mainImage.srcset = "";
+				this.mainImage.onload = () => {
+					this.mainImage.style.opacity = "1";
+					this.mainImage.style.transition = "opacity 0.2s ease";
+				};
 				this.setActive(index);
 				this.currentIndex = index;
 			}
@@ -260,6 +269,7 @@
 					return;
 				}
 				console.log("[PV GALLERY] Found thumb container, current thumbnails:", this.thumbnails.length);
+				const videoThumbs = Array.from(thumbContainer.querySelectorAll(".pv-thumb-video"));
 				const allThumbs = Array.from(this.thumbnails);
 				const variationThumbs = [];
 				const otherThumbs = [];
@@ -269,17 +279,38 @@
 				});
 				console.log("[PV GALLERY] Separated thumbnails:", {
 					variation: variationThumbs.length,
-					other: otherThumbs.length
+					other: otherThumbs.length,
+					videos: videoThumbs.length
 				});
-				const firstThumb = allThumbs[0];
-				if (!firstThumb) {
+				const firstItem = videoThumbs[0] || allThumbs[0];
+				if (!firstItem) {
 					console.log("[PV GALLERY] No thumbnails found to reorder");
 					return;
 				}
+				const insertAfter = videoThumbs.length > 0 ? videoThumbs[videoThumbs.length - 1] : null;
 				variationThumbs.forEach((thumb, idx) => {
-					console.log("[PV GALLERY] Inserting variation thumb at top:", thumb.getAttribute("data-index"));
-					if (idx === 0) thumbContainer.insertBefore(thumb, firstThumb);
-					else thumbContainer.insertBefore(thumb, variationThumbs[idx - 1].nextSibling);
+					console.log("[PV GALLERY] Moving variation thumb to top:", thumb.getAttribute("data-index"));
+					if (idx === 0) {
+						if (insertAfter) thumbContainer.insertBefore(thumb, insertAfter.nextSibling);
+						else thumbContainer.insertBefore(thumb, firstItem);
+					} else thumbContainer.insertBefore(thumb, variationThumbs[idx - 1].nextSibling);
+					if (idx < 3) {
+						thumb.classList.remove("pv-thumb-hidden");
+						const overlay = thumb.querySelector(".pv-thumb-overlay");
+						if (overlay) overlay.remove();
+					} else if (idx === 3) {
+						thumb.classList.add("pv-thumb-hidden");
+						const remainingCount = variationThumbs.length - 3;
+						if (remainingCount > 0 && variationThumbs[2]) {
+							let overlay = variationThumbs[2].querySelector(".pv-thumb-overlay");
+							if (!overlay) {
+								overlay = document.createElement("span");
+								overlay.className = "pv-thumb-overlay";
+								variationThumbs[2].appendChild(overlay);
+							}
+							overlay.textContent = `+${remainingCount}`;
+						}
+					} else thumb.classList.add("pv-thumb-hidden");
 				});
 				this.thumbnails = thumbContainer.querySelectorAll(".pv-thumb:not(.pv-thumb-video)");
 				console.log("[PV GALLERY] Reordering complete, new thumbnail count:", this.thumbnails.length);

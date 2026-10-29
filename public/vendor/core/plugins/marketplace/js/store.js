@@ -1,1 +1,27 @@
-(function(){$(()=>{$(document).on("keyup","#shop-url",function(){const s=$(this).closest(".shop-url-wrapper").find("small");s.html(`${s.data("base-url")}/<strong>${$(this).val().toLowerCase()}</strong>`)}).on("change","#shop-url",function(){const s=$(this).closest("form"),t=s.find("button[type=submit]"),n=s.find(".form-label-description");t.addClass("btn-disabled").prop("disabled",!0),$httpClient.make().withLoading(s.find(".shop-url-wrapper")).post($(this).data("url"),{url:$(this).val(),reference_id:s.find("input[name=reference_id]").val()}).then(({data:e})=>{e.error?n.removeClass("text-success").addClass("text-danger").text(e.message):(n.removeClass("text-danger").addClass("text-success").text(e.message),t.prop("disabled",!1).removeClass("btn-disabled"))})})})})();
+(function() {
+	//#region platform/plugins/marketplace/resources/js/store.js
+	$(() => {
+		$(document).on("keyup", "#shop-url", function() {
+			const displayURL = $(this).closest(".shop-url-wrapper").find("small");
+			displayURL.html(`${displayURL.data("base-url")}/<strong>${$(this).val().toLowerCase()}</strong>`);
+		}).on("change", "#shop-url", function() {
+			const $form = $(this).closest("form");
+			const $button = $form.find("button[type=submit]");
+			const $urlStatus = $form.find(".form-label-description");
+			$button.addClass("btn-disabled").prop("disabled", true);
+			$httpClient.make().withLoading($form.find(".shop-url-wrapper")).post($(this).data("url"), {
+				url: $(this).val(),
+				reference_id: $form.find("input[name=reference_id]").val()
+			}).then(({ data }) => {
+				if (data.error) $urlStatus.removeClass("text-success").addClass("text-danger").text(data.message);
+				else {
+					$urlStatus.removeClass("text-danger").addClass("text-success").text(data.message);
+					$button.prop("disabled", false).removeClass("btn-disabled");
+				}
+			});
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=store.js.map

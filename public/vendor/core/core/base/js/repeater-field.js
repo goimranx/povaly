@@ -1,1 +1,50 @@
-(function(){$(()=>{const i=r({"&amp;":"&","&lt;":"<","&gt;":">","&quot;":'"',"&#39;":"'"}),d=/&(?:amp|lt|gt|quot|#39);/g,c=RegExp(d.source);function r(e){return function(t){return e==null?void 0:e[t]}}function l(e){return e=e.toString(),e&&c.test(e)?e.replace(d,i):e}$(document).on("click",'[data-target="repeater-add"]',function(){const e=$(this).data("id"),t=$(`#${e}_group`),p=$(`#${e}_template`),s=$(`#${e}_fields`);let o=parseInt(t.data("nextIndex")),n=p.html(),a=s.text();n=n.replace(/__key__/g,o),a=a.replace(/__key__/g,o),n=n.replace(/__fields__/g,l(a)),t.append(n),t.data("nextIndex",o+1),window.Botble&&(window.Botble.initResources(),window.Botble.initMediaIntegrate(),window.Botble.initCoreIcon()),window.EditorManagement&&(window.EDITOR=new EditorManagement().init())}),$(document).on("click",'[data-target="repeater-remove"]',function(){const e=$(this).data("id");$(`[data-id="${e}"]`).remove()})})})();
+(function() {
+	//#region platform/core/base/resources/js/repeater-field.js
+	$(() => {
+		const unescapeHtmlChar = basePropertyOf({
+			"&amp;": "&",
+			"&lt;": "<",
+			"&gt;": ">",
+			"&quot;": "\"",
+			"&#39;": "'"
+		});
+		const reEscapedHtml = /&(?:amp|lt|gt|quot|#39);/g;
+		const reHasEscapedHtml = RegExp(reEscapedHtml.source);
+		function basePropertyOf(object) {
+			return function(key) {
+				return object == null ? void 0 : object[key];
+			};
+		}
+		function unescape(string) {
+			string = string.toString();
+			return string && reHasEscapedHtml.test(string) ? string.replace(reEscapedHtml, unescapeHtmlChar) : string;
+		}
+		$(document).on("click", "[data-target=\"repeater-add\"]", function() {
+			const id = $(this).data("id");
+			const $group = $(`#${id}_group`);
+			const $template = $(`#${id}_template`);
+			const $fields = $(`#${id}_fields`);
+			let nextIndex = parseInt($group.data("nextIndex"));
+			let content = $template.html();
+			let fields = $fields.text();
+			content = content.replace(/__key__/g, nextIndex);
+			fields = fields.replace(/__key__/g, nextIndex);
+			content = content.replace(/__fields__/g, unescape(fields));
+			$group.append(content);
+			$group.data("nextIndex", nextIndex + 1);
+			if (window.Botble) {
+				window.Botble.initResources();
+				window.Botble.initMediaIntegrate();
+				window.Botble.initCoreIcon();
+			}
+			if (window.EditorManagement) window.EDITOR = new EditorManagement().init();
+		});
+		$(document).on("click", "[data-target=\"repeater-remove\"]", function() {
+			const id = $(this).data("id");
+			$(`[data-id="${id}"]`).remove();
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=repeater-field.js.map

@@ -1,1 +1,22 @@
-(function(){$(()=>{$(document).on("click",'[data-bb-toggle="data-export"]',function(o){o.preventDefault();const t=$(o.currentTarget);$httpClient.make().withButtonLoading(t).withLoading(t.closest(".card")).withResponseType("blob").post(t.attr("href")).then(({data:a})=>{let e=document.createElement("a"),n=window.URL.createObjectURL(a);e.href=n,e.download=t.data("filename"),document.body.append(e),e.click(),e.remove(),window.URL.revokeObjectURL(n)})})})})();
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/export.js
+	$(() => {
+		$(document).on("click", "[data-bb-toggle=\"data-export\"]", function(event) {
+			event.preventDefault();
+			const _self = $(event.currentTarget);
+			$httpClient.make().withButtonLoading(_self).withLoading(_self.closest(".card")).withResponseType("blob").post(_self.attr("href")).then(({ data }) => {
+				let a = document.createElement("a");
+				let url = window.URL.createObjectURL(data);
+				a.href = url;
+				a.download = _self.data("filename");
+				document.body.append(a);
+				a.click();
+				a.remove();
+				window.URL.revokeObjectURL(url);
+			});
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=export.js.map

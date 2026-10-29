@@ -1,1 +1,91 @@
-(function(){$(function(){$(document).on("click",".btn-trigger-add-address",function(o){o.preventDefault(),$("#add-address-modal").modal("show")}),$(document).on("click","#confirm-add-address-button",o=>{o.preventDefault();let e=$(o.currentTarget);Botble.showButtonLoading(e);const t=e.closest(".modal-content").find("form"),s=t.prop("action"),r=t.serialize();$httpClient.make().post(s,r).then(({data:n})=>{n.error?Botble.showNotice("error",n.message):(Botble.showNotice("success",n.message),$("#add-address-modal").modal("hide"),t.get(0).reset(),$("#address-histories").load($(".page-wrapper form.js-base-form").prop("action")+" #address-histories > *"))}).finally(()=>{Botble.hideButtonLoading(e)})}),$(document).on("click",".btn-trigger-edit-address",o=>{o.preventDefault();let e=$(o.currentTarget);const t=$("#edit-address-modal"),s=t.find(".modal-loading-block"),r=$("#edit-address-modal .modal-body .modal-form-content");r.html(""),s.removeClass("d-none"),t.modal("show"),Botble.showButtonLoading(e),$httpClient.make().get(e.data("section")).then(({data:n})=>{n.error?Botble.showNotice("error",n.message):(s.addClass("d-none"),r.html(n),document.dispatchEvent(new Event("phone-number-field:init")))}).finally(()=>{Botble.hideButtonLoading(e)})}),$(document).on("click","#confirm-edit-address-button",o=>{o.preventDefault();let e=$(o.currentTarget);Botble.showButtonLoading(e);const t=e.closest(".modal-content").find("form"),s=t.prop("action"),r=t.serialize();$httpClient.make().post(s,r).then(({data:n})=>{n.error?Botble.showNotice("error",n.message):(Botble.showNotice("success",n.message),$("#edit-address-modal").modal("hide"),t.get(0).reset(),$("#address-histories").load($(".page-wrapper form.js-base-form").prop("action")+" #address-histories > *"))}).finally(()=>{Botble.hideButtonLoading(e)})}),$(document).on("click",".deleteDialog",function(o){o.preventDefault();const e=$(o.currentTarget);$(".delete-crud-entry").data("section",e.data("section")),$(".modal-confirm-delete").modal("show")}),$(".delete-crud-entry").on("click",function(o){o.preventDefault();const e=$(o.currentTarget);Botble.showButtonLoading(e);const t=e.data("section");$httpClient.make().post(t,{_method:"DELETE"}).then(({data:s})=>{s.error?Botble.showError(s.message):Botble.showSuccess(s.message)}).catch(()=>{Botble.showError("Something went wrong. Please try again.")}).finally(()=>{e.closest(".modal").modal("hide"),Botble.hideButtonLoading(e);const s=$(".page-wrapper form").prop("action");$("#address-histories").load(s+" #address-histories > *")})})})})();
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/address.js
+	$(function() {
+		$(document).on("click", ".btn-trigger-add-address", function(e) {
+			e.preventDefault();
+			$("#add-address-modal").modal("show");
+		});
+		$(document).on("click", "#confirm-add-address-button", (event) => {
+			event.preventDefault();
+			let _self = $(event.currentTarget);
+			Botble.showButtonLoading(_self);
+			const form = _self.closest(".modal-content").find("form");
+			const url = form.prop("action");
+			const formData = form.serialize();
+			$httpClient.make().post(url, formData).then(({ data }) => {
+				if (!data.error) {
+					Botble.showNotice("success", data.message);
+					$("#add-address-modal").modal("hide");
+					form.get(0).reset();
+					$("#address-histories").load($(".page-wrapper form.js-base-form").prop("action") + " #address-histories > *");
+				} else Botble.showNotice("error", data.message);
+			}).finally(() => {
+				Botble.hideButtonLoading(_self);
+			});
+		});
+		$(document).on("click", ".btn-trigger-edit-address", (event) => {
+			event.preventDefault();
+			let _self = $(event.currentTarget);
+			const $modal = $("#edit-address-modal");
+			const $modalLoading = $modal.find(".modal-loading-block");
+			const $modalFormContent = $("#edit-address-modal .modal-body .modal-form-content");
+			$modalFormContent.html("");
+			$modalLoading.removeClass("d-none");
+			$modal.modal("show");
+			Botble.showButtonLoading(_self);
+			$httpClient.make().get(_self.data("section")).then(({ data }) => {
+				if (!data.error) {
+					$modalLoading.addClass("d-none");
+					$modalFormContent.html(data);
+					document.dispatchEvent(new Event("phone-number-field:init"));
+				} else Botble.showNotice("error", data.message);
+			}).finally(() => {
+				Botble.hideButtonLoading(_self);
+			});
+		});
+		$(document).on("click", "#confirm-edit-address-button", (event) => {
+			event.preventDefault();
+			let _self = $(event.currentTarget);
+			Botble.showButtonLoading(_self);
+			const form = _self.closest(".modal-content").find("form");
+			const url = form.prop("action");
+			const formData = form.serialize();
+			$httpClient.make().post(url, formData).then(({ data }) => {
+				if (!data.error) {
+					Botble.showNotice("success", data.message);
+					$("#edit-address-modal").modal("hide");
+					form.get(0).reset();
+					$("#address-histories").load($(".page-wrapper form.js-base-form").prop("action") + " #address-histories > *");
+				} else Botble.showNotice("error", data.message);
+			}).finally(() => {
+				Botble.hideButtonLoading(_self);
+			});
+		});
+		$(document).on("click", ".deleteDialog", function(event) {
+			event.preventDefault();
+			const _self = $(event.currentTarget);
+			$(".delete-crud-entry").data("section", _self.data("section"));
+			$(".modal-confirm-delete").modal("show");
+		});
+		$(".delete-crud-entry").on("click", function(event) {
+			event.preventDefault();
+			const _self = $(event.currentTarget);
+			Botble.showButtonLoading(_self);
+			const deleteURL = _self.data("section");
+			$httpClient.make().post(deleteURL, { _method: "DELETE" }).then(({ data }) => {
+				if (data.error) Botble.showError(data.message);
+				else Botble.showSuccess(data.message);
+			}).catch(() => {
+				Botble.showError("Something went wrong. Please try again.");
+			}).finally(() => {
+				_self.closest(".modal").modal("hide");
+				Botble.hideButtonLoading(_self);
+				const formAction = $(".page-wrapper form").prop("action");
+				$("#address-histories").load(formAction + " #address-histories > *");
+			});
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=address.js.map

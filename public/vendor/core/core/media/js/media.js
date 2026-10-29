@@ -1,123 +1,4104 @@
-(function(){var ni=Object.create,ft=Object.defineProperty,si=Object.getOwnPropertyDescriptor,li=Object.getOwnPropertyNames,di=Object.getPrototypeOf,mt=Object.prototype.hasOwnProperty,ci=(d,e)=>()=>(e||(d((e={exports:{}}).exports,e,e.exports),d=null),e.exports),hi=(d,e,o,n)=>{if(e&&typeof e=="object"||typeof e=="function")for(var f=li(e),c=0,M=f.length,y;c<M;c++)y=f[c],!mt.call(d,y)&&y!==o&&ft(d,y,{get:(k=>e[k]).bind(null,y),enumerable:!(n=si(e,y))||n.enumerable});return d},pi=(d,e,o)=>(o=d!=null?ni(di(d)):{},hi(e||!d||!d.__esModule||!mt.call(d,"default")?ft(o,"default",{value:d,enumerable:!0}):o,d));(function(d){d.event.special.doubletap={bindType:"touchend",delegateType:"touchend",delay:300,handle:function(e){let o=e.handleObj,n=jQuery.data(e.target),f=new Date().getTime(),c=n.lastTouch?f-n.lastTouch:0;c<d.event.special.doubletap.delay&&c>30?(n.lastTouch=null,e.type=o.origType,["clientX","clientY","pageX","pageY"].forEach(function(M){e[M]=e.originalEvent.changedTouches[0][M]}),o.handler.apply(this,arguments)):n.lastTouch=f}}})(jQuery);var W=JSON.parse(localStorage.getItem("MediaConfig"))||{},ut={app_key:RV_MEDIA_CONFIG.random_hash?RV_MEDIA_CONFIG.random_hash:"21d06709fe1d3abdf0e35ddda89c4b282",request_params:{view_type:"tiles",filter:"everything",view_in:"all_media",sort_by:"created_at-desc",folder_id:0},hide_details_pane:!1,icons:{folder:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+(function() {
+	//#region \0rolldown/runtime.js
+	var __create = Object.create;
+	var __defProp = Object.defineProperty;
+	var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+	var __getOwnPropNames = Object.getOwnPropertyNames;
+	var __getProtoOf = Object.getPrototypeOf;
+	var __hasOwnProp = Object.prototype.hasOwnProperty;
+	var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod, mod.exports), cb = null), mod.exports);
+	var __copyProps = (to, from, except, desc) => {
+		if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
+			key = keys[i];
+			if (!__hasOwnProp.call(to, key) && key !== except) __defProp(to, key, {
+				get: ((k) => from[k]).bind(null, key),
+				enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+			});
+		}
+		return to;
+	};
+	var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default") ? __defProp(target, "default", {
+		value: mod,
+		enumerable: true
+	}) : target, mod));
+	//#endregion
+	//#region platform/core/media/resources/js/jquery.doubletap.js
+	(function($) {
+		$.event.special.doubletap = {
+			bindType: "touchend",
+			delegateType: "touchend",
+			delay: 300,
+			handle: function(event) {
+				let handleObj = event.handleObj, targetData = jQuery.data(event.target), now = (/* @__PURE__ */ new Date()).getTime(), delta = targetData.lastTouch ? now - targetData.lastTouch : 0;
+				if (delta < $.event.special.doubletap.delay && delta > 30) {
+					targetData.lastTouch = null;
+					event.type = handleObj.origType;
+					[
+						"clientX",
+						"clientY",
+						"pageX",
+						"pageY"
+					].forEach(function(property) {
+						event[property] = event.originalEvent.changedTouches[0][property];
+					});
+					handleObj.handler.apply(this, arguments);
+				} else targetData.lastTouch = now;
+			}
+		};
+	})(jQuery);
+	//#endregion
+	//#region platform/core/media/resources/js/App/Config/MediaConfig.js
+	var MediaConfig = JSON.parse(localStorage.getItem("MediaConfig")) || {};
+	var defaultConfig = {
+		app_key: RV_MEDIA_CONFIG.random_hash ? RV_MEDIA_CONFIG.random_hash : "21d06709fe1d3abdf0e35ddda89c4b282",
+		request_params: {
+			view_type: "tiles",
+			filter: "everything",
+			view_in: "all_media",
+			sort_by: "created_at-desc",
+			folder_id: 0
+		},
+		hide_details_pane: false,
+		icons: { folder: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
             <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
-        </svg>`},actions_list:{basic:[{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        </svg>` },
+		actions_list: {
+			basic: [{
+				icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
                     <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
-                </svg>`,name:"Preview",action:"preview",order:0,class:"rv-action-preview"},{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+				name: "Preview",
+				action: "preview",
+				order: 0,
+				class: "rv-action-preview"
+			}, {
+				icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M8 5v10a1 1 0 0 0 1 1h10"></path>
                     <path d="M5 8h10a1 1 0 0 1 1 1v10"></path>
-                </svg>`,name:"Crop",action:"crop",order:1,class:"rv-action-crop"}],file:[{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+				name: "Crop",
+				action: "crop",
+				order: 1,
+				class: "rv-action-crop"
+			}],
+			file: [
+				{
+					icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
                     <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
                     <path d="M16 5l3 3"></path>
-                </svg>`,name:"Rename",action:"rename",order:0,class:"rv-action-rename"},{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+					name: "Rename",
+					action: "rename",
+					order: 0,
+					class: "rv-action-rename"
+				},
+				{
+					icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M8 8m0 2a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2z"></path>
                     <path d="M16 8v-2a2 2 0 0 0 -2 -2h-8a2 2 0 0 0 -2 2v8a2 2 0 0 0 2 2h2"></path>
-                </svg>`,name:"Make a copy",action:"make_copy",order:1,class:"rv-action-make-copy"},{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+					name: "Make a copy",
+					action: "make_copy",
+					order: 1,
+					class: "rv-action-make-copy"
+				},
+				{
+					icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M12 21l-8 0a2 2 0 0 1 -2 -2l0 -14a2 2 0 0 1 2 -2l4 0l3 3l7 0a2 2 0 0 1 2 2l0 3"></path>
                     <path d="M16 19l3 -3l-3 -3"></path>
                     <path d="M21 16l-8 0"></path>
-                </svg>`,name:"Move",action:"move",order:2,class:"rv-action-move"},{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+					name: "Move",
+					action: "move",
+					order: 2,
+					class: "rv-action-move"
+				},
+				{
+					icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M15 8h.01"></path>
                     <path d="M11 20h-4a3 3 0 0 1 -3 -3v-10a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v4"></path>
                     <path d="M4 15l4 -4c.928 -.893 2.072 -.893 3 0l3 3"></path>
                     <path d="M14 14l1 -1c.31 -.298 .644 -.497 .987 -.596"></path>
                     <path d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39z"></path>
-                </svg>`,name:"Alt text",action:"alt_text",order:3,class:"rv-action-alt-text"},{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+					name: "Alt text",
+					action: "alt_text",
+					order: 3,
+					class: "rv-action-alt-text"
+				},
+				{
+					icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M9 15l6 -6"></path>
                     <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path>
                     <path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"></path>
-                </svg>`,name:"Copy link",action:"copy_link",order:4,class:"rv-action-copy-link"},{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+					name: "Copy link",
+					action: "copy_link",
+					order: 4,
+					class: "rv-action-copy-link"
+				},
+				{
+					icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M9 15l6 -6"></path>
                     <path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path>
                     <path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"></path>
-                </svg>`,name:"Copy indirect link",action:"copy_indirect_link",order:5,class:"rv-action-copy-indirect-link"},{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+					name: "Copy indirect link",
+					action: "copy_indirect_link",
+					order: 5,
+					class: "rv-action-copy-indirect-link"
+				},
+				{
+					icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                   <path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
                   <path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
                   <path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
                   <path d="M8.7 10.7l6.6 -3.4"></path>
                   <path d="M8.7 13.3l6.6 3.4"></path>
-                </svg>`,name:"Share",action:"share",order:6,class:"rv-action-share"}],user:[{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+					name: "Share",
+					action: "share",
+					order: 6,
+					class: "rv-action-share"
+				}
+			],
+			user: [{
+				icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
-                </svg>`,name:"Favorite",action:"favorite",order:2,class:"rv-action-favorite"},{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+				name: "Favorite",
+				action: "favorite",
+				order: 2,
+				class: "rv-action-favorite"
+			}, {
+				icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
-                </svg>`,name:"Remove favorite",action:"remove_favorite",order:3,class:"rv-action-favorite"}],other:[{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+				name: "Remove favorite",
+				action: "remove_favorite",
+				order: 3,
+				class: "rv-action-favorite"
+			}],
+			other: [
+				{
+					icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
                     <path d="M7 11l5 5l5 -5"></path>
                     <path d="M12 4l0 12"></path>
-                </svg>`,name:"Download",action:"download",order:0,class:"rv-action-download"},{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+					name: "Download",
+					action: "download",
+					order: 0,
+					class: "rv-action-download"
+				},
+				{
+					icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M4 7l16 0"></path>
                     <path d="M10 11l0 6"></path>
                     <path d="M14 11l0 6"></path>
                     <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
                     <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
-                </svg>`,name:"Move to trash",action:"trash",order:1,class:"rv-action-trash"},{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+					name: "Move to trash",
+					action: "trash",
+					order: 1,
+					class: "rv-action-trash"
+				},
+				{
+					icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3"></path>
                     <path d="M18 13.3l-6.3 -6.3"></path>
-                </svg>`,name:"Delete permanently",action:"delete",order:2,class:"rv-action-delete"},{icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+					name: "Delete permanently",
+					action: "delete",
+					order: 2,
+					class: "rv-action-delete"
+				},
+				{
+					icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M9 11l-4 4l4 4m-4 -4h11a4 4 0 0 0 0 -8h-1"></path>
-                </svg>`,name:"Restore",action:"restore",order:3,class:"rv-action-restore"},{icon:'<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-palette" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25" /><path d="M8.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M16.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>',name:"Properties",action:"properties",order:4,class:"rv-action-properties"}]}};(!W.app_key||W.app_key!==ut.app_key)&&(W=ut),W.request_params.search="";var gt=[];function Te(d){"@babel/helpers - typeof";return Te=typeof Symbol=="function"&&typeof Symbol.iterator=="symbol"?function(e){return typeof e}:function(e){return e&&typeof Symbol=="function"&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e},Te(d)}function fi(d,e){if(Te(d)!="object"||!d)return d;var o=d[Symbol.toPrimitive];if(o!==void 0){var n=o.call(d,e||"default");if(Te(n)!="object")return n;throw new TypeError("@@toPrimitive must return a primitive value.")}return(e==="string"?String:Number)(d)}function mi(d){var e=fi(d,"string");return Te(e)=="symbol"?e:e+""}function ui(d,e,o){return(e=mi(e))in d?Object.defineProperty(d,e,{value:o,enumerable:!0,configurable:!0,writable:!0}):d[e]=o,d}function vt(d,e){var o=Object.keys(d);if(Object.getOwnPropertySymbols){var n=Object.getOwnPropertySymbols(d);e&&(n=n.filter(function(f){return Object.getOwnPropertyDescriptor(d,f).enumerable})),o.push.apply(o,n)}return o}function q(d){for(var e=1;e<arguments.length;e++){var o=arguments[e]!=null?arguments[e]:{};e%2?vt(Object(o),!0).forEach(function(n){ui(d,n,o[n])}):Object.getOwnPropertyDescriptors?Object.defineProperties(d,Object.getOwnPropertyDescriptors(o)):vt(Object(o)).forEach(function(n){Object.defineProperty(d,n,Object.getOwnPropertyDescriptor(o,n))})}return d}var l=class Oe{static getUrlParam(e,o=null){o||(o=window.location.search);let n=new RegExp("(?:[?&]|&)"+e+"=([^&]+)","i"),f=o.match(n);return f&&f.length>1?f[1]:null}static asset(e){if(e.substring(0,2)==="//"||e.substring(0,7)==="http://"||e.substring(0,8)==="https://")return e;let o=RV_MEDIA_URL.base_url.substr(-1,1)!=="/"?RV_MEDIA_URL.base_url+"/":RV_MEDIA_URL.base_url;return e.substring(0,1)==="/"?o+e.substring(1):o+e}static showAjaxLoading(e=$(".rv-media-main")){e.addClass("on-loading").append($("#rv_media_loading").html())}static hideAjaxLoading(e=$(".rv-media-main")){e.removeClass("on-loading").find(".loading-spinner").remove()}static isOnAjaxLoading(e=$(".rv-media-items")){return e.hasClass("on-loading")}static jsonEncode(e){return typeof e=="undefined"&&(e=null),JSON.stringify(e)}static jsonDecode(e,o){if(!e)return o;if(typeof e=="string"){let n;try{n=JSON.parse(e)}catch(f){n=o}return n}return e}static getRequestParams(){return window.rvMedia.options&&window.rvMedia.options.open_in==="modal"?q(q({},W.request_params),window.rvMedia.options):W.request_params}static setSelectedFile(e){typeof window.rvMedia.options!="undefined"?window.rvMedia.options.selected_file_id=e:W.request_params.selected_file_id=e}static getConfigs(){return W}static storeConfig(){localStorage.setItem("MediaConfig",Oe.jsonEncode(W))}static storeRecentItems(){}static addToRecent(e,o=!1){if(isNaN(parseInt(e)))return;let n={id:e,is_folder:o};o||$(".js-media-list-title").each((f,c)=>{let M=$(c).data()||{};if(M.id==e)return n.is_folder=M.is_folder||!1,!1}),$httpClient.make().post(RV_MEDIA_URL.global_actions,{action:"add_recent",item:n}).then(({data:f})=>{e instanceof Array?Oe.each(e,c=>{gt.push(c)}):gt.push(e)}).catch(f=>{console.error("Error adding to recent items:",f)})}static getItems(){let e=[];return $(".js-media-list-title").each((o,n)=>{let f=$(n),c=f.data()||{};c.index_key=f.index(),e.push(c)}),e}static getSelectedItems(){let e=[];return $(".js-media-list-title input[type=checkbox]:checked").each((o,n)=>{let f=$(n).closest(".js-media-list-title"),c=f.data()||{};c.index_key=f.index(),e.push(c)}),e}static getSelectedFiles(){let e=[];return $(".js-media-list-title[data-context=file] input[type=checkbox]:checked").each((o,n)=>{let f=$(n).closest(".js-media-list-title"),c=f.data()||{};c.index_key=f.index(),e.push(c)}),e}static getSelectedFolder(){let e=[];return $(".js-media-list-title[data-context=folder] input[type=checkbox]:checked").each((o,n)=>{let f=$(n).closest(".js-media-list-title"),c=f.data()||{};c.index_key=f.index(),e.push(c)}),e}static isUseInModal(){return window.rvMedia&&window.rvMedia.options&&window.rvMedia.options.open_in==="modal"}static resetPagination(){RV_MEDIA_CONFIG.pagination={paged:1,posts_per_page:40,in_process_get_media:!1,has_more:!0}}static trans(e,o=null){return _.get(RV_MEDIA_CONFIG.translations,e,o!=null?o:e)}static config(e,o=null){return _.get(RV_MEDIA_CONFIG,e,o)}static hasPermission(e){return Oe.inArray(Oe.config("permissions",[]),e)}static inArray(e,o){return _.includes(e,o)}static each(e,o){return _.each(e,o)}static forEach(e,o){return _.forEach(e,o)}static arrayReject(e,o){return _.reject(e,o)}static arrayFilter(e,o){return _.filter(e,o)}static arrayFirst(e){return _.first(e)}static isArray(e){return _.isArray(e)}static isEmpty(e){return _.isEmpty(e)}static size(e){return _.size(e)}},gi=ci(((d,e,o)=>{(function(n,f){typeof d=="object"&&typeof e!="undefined"?e.exports=f():typeof define=="function"&&define.amd?define(f):(n=typeof globalThis!="undefined"?globalThis:n||self,n.Cropper=f())})(o,(function(){"use strict";function n(r,t){(t==null||t>r.length)&&(t=r.length);for(var a=0,i=Array(t);a<t;a++)i[a]=r[a];return i}function f(r){if(Array.isArray(r))return r}function c(r){if(Array.isArray(r))return n(r)}function M(r,t){if(!(r instanceof t))throw new TypeError("Cannot call a class as a function")}function y(r,t){for(var a=0;a<t.length;a++){var i=t[a];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(r,Mt(i.key),i)}}function k(r,t,a){return t&&y(r.prototype,t),a&&y(r,a),Object.defineProperty(r,"prototype",{writable:!1}),r}function C(r,t,a){return(t=Mt(t))in r?Object.defineProperty(r,t,{value:a,enumerable:!0,configurable:!0,writable:!0}):r[t]=a,r}function R(r){if(typeof Symbol!="undefined"&&r[Symbol.iterator]!=null||r["@@iterator"]!=null)return Array.from(r)}function j(r,t){var a=r==null?null:typeof Symbol!="undefined"&&r[Symbol.iterator]||r["@@iterator"];if(a!=null){var i,h,s,p,m=[],v=!0,w=!1;try{if(s=(a=a.call(r)).next,t===0){if(Object(a)!==a)return;v=!1}else for(;!(v=(i=s.call(a)).done)&&(m.push(i.value),m.length!==t);v=!0);}catch(u){w=!0,h=u}finally{try{if(!v&&a.return!=null&&(p=a.return(),Object(p)!==p))return}finally{if(w)throw h}}return m}}function A(){throw new TypeError(`Invalid attempt to destructure non-iterable instance.
-In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)}function pe(){throw new TypeError(`Invalid attempt to spread non-iterable instance.
-In order to be iterable, non-array objects must have a [Symbol.iterator]() method.`)}function le(r,t){var a=Object.keys(r);if(Object.getOwnPropertySymbols){var i=Object.getOwnPropertySymbols(r);t&&(i=i.filter(function(h){return Object.getOwnPropertyDescriptor(r,h).enumerable})),a.push.apply(a,i)}return a}function Re(r){for(var t=1;t<arguments.length;t++){var a=arguments[t]!=null?arguments[t]:{};t%2?le(Object(a),!0).forEach(function(i){C(r,i,a[i])}):Object.getOwnPropertyDescriptors?Object.defineProperties(r,Object.getOwnPropertyDescriptors(a)):le(Object(a)).forEach(function(i){Object.defineProperty(r,i,Object.getOwnPropertyDescriptor(a,i))})}return r}function Ci(r,t){return f(r)||j(r,t)||xt(r,t)||A()}function yt(r){return c(r)||R(r)||xt(r)||pe()}function Di(r,t){if(typeof r!="object"||!r)return r;var a=r[Symbol.toPrimitive];if(a!==void 0){var i=a.call(r,t||"default");if(typeof i!="object")return i;throw new TypeError("@@toPrimitive must return a primitive value.")}return(t==="string"?String:Number)(r)}function Mt(r){var t=Di(r,"string");return typeof t=="symbol"?t:t+""}function Ye(r){"@babel/helpers - typeof";return Ye=typeof Symbol=="function"&&typeof Symbol.iterator=="symbol"?function(t){return typeof t}:function(t){return t&&typeof Symbol=="function"&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t},Ye(r)}function xt(r,t){if(r){if(typeof r=="string")return n(r,t);var a={}.toString.call(r).slice(8,-1);return a==="Object"&&r.constructor&&(a=r.constructor.name),a==="Map"||a==="Set"?Array.from(r):a==="Arguments"||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(a)?n(r,t):void 0}}var Be=typeof window!="undefined"&&typeof window.document!="undefined",J=Be?window:{},Xe=Be&&J.document.documentElement?"ontouchstart"in J.document.documentElement:!1,Ge=Be?"PointerEvent"in J:!1,B="cropper",Ne="all",Fe="crop",qe="move",Ze="zoom",te="e",oe="w",ne="s",ie="n",fe="ne",_e="nw",de="se",me="sw",Ke="".concat(B,"-crop"),kt="".concat(B,"-disabled"),Z="".concat(B,"-hidden"),$t="".concat(B,"-hide"),Ei="".concat(B,"-invisible"),ze="".concat(B,"-modal"),Qe="".concat(B,"-move"),Se="".concat(B,"Action"),Le="".concat(B,"Preview"),Je="crop",Ct="move",Dt="none",et="blur",tt="crop",it="cropend",at="cropmove",rt="cropstart",Et="dblclick",It="error",Ii=Xe?"touchstart":"mousedown",Ti=Xe?"touchmove":"mousemove",Ri=Xe?"touchend touchcancel":"mouseup",Tt=Ge?"pointerdown":Ii,Rt=Ge?"pointermove":Ti,St=Ge?"pointerup pointercancel":Ri,jt="ready",At="resize",Ot="wheel",ot="zoom",Pt="image/jpeg",Si=/^(e|w|s|n|se|sw|ne|nw|all|crop|move|zoom)$/,ji=/^data:/,Ai=/^data:image\/jpeg;base64,/,He=/\s+/,Oi=/^(img|canvas)$/i,Bt=200,Nt=100,Ft={viewMode:0,dragMode:Je,initialAspectRatio:NaN,aspectRatio:NaN,borderRadius:0,data:null,preview:"",responsive:!0,restore:!0,checkCrossOrigin:!0,checkOrientation:!0,modal:!0,guides:!0,center:!0,highlight:!0,background:!0,autoCrop:!0,autoCropArea:.8,movable:!0,rotatable:!0,scalable:!0,zoomable:!0,zoomOnTouch:!0,zoomOnWheel:!0,zoomAroundCenter:!1,wheelZoomRatio:.1,cropBoxMovable:!0,cropBoxMoveMode:"cursor",cropBoxResizable:!0,cropBoxResizeAroundCenter:!1,toggleDragModeOnDblclick:!0,minCanvasWidth:0,minCanvasHeight:0,minCropBoxWidth:0,minCropBoxHeight:0,minContainerWidth:Bt,minContainerHeight:Nt,ready:null,error:null,cropstart:null,cropmove:null,cropend:null,crop:null,zoom:null},Pi='<div class="cropper-container" touch-action="none"><div class="cropper-wrap-box"><div class="cropper-canvas"></div></div><div class="cropper-drag-box"></div><div class="cropper-crop-box"><span class="cropper-view-box"></span><span class="cropper-dashed dashed-h"></span><span class="cropper-dashed dashed-v"></span><span class="cropper-center"></span><span class="cropper-face"></span><span class="cropper-line line-e" data-cropper-action="e"></span><span class="cropper-line line-n" data-cropper-action="n"></span><span class="cropper-line line-w" data-cropper-action="w"></span><span class="cropper-line line-s" data-cropper-action="s"></span><span class="cropper-point point-e" data-cropper-action="e"></span><span class="cropper-point point-n" data-cropper-action="n"></span><span class="cropper-point point-w" data-cropper-action="w"></span><span class="cropper-point point-s" data-cropper-action="s"></span><span class="cropper-point point-ne" data-cropper-action="ne"></span><span class="cropper-point point-nw" data-cropper-action="nw"></span><span class="cropper-point point-sw" data-cropper-action="sw"></span><span class="cropper-point point-se" data-cropper-action="se"></span></div></div>',Bi=Number.isNaN||J.isNaN,nt=Number.isFinite||J.isFinite;function T(r){return typeof r=="number"&&!Bi(r)}var zt=function(t){return t>0&&t<1/0};function st(r){return typeof r=="undefined"}function be(r){return Ye(r)==="object"&&r!==null}var Ni=Object.prototype.hasOwnProperty;function Ee(r){if(!be(r))return!1;try{var t=r.constructor,a=t.prototype;return t&&a&&Ni.call(a,"isPrototypeOf")}catch(i){return!1}}function z(r){return typeof r=="function"}var Fi=Array.prototype.slice;function Lt(r){return Array.from?Array.from(r):Fi.call(r)}function L(r,t){return r&&z(t)&&(Array.isArray(r)||T(r.length)?Lt(r).forEach(function(a,i){t.call(r,a,i,r)}):be(r)&&Object.keys(r).forEach(function(a){t.call(r,r[a],a,r)})),r}var N=Object.assign||function(t){for(var a=arguments.length,i=new Array(a>1?a-1:0),h=1;h<a;h++)i[h-1]=arguments[h];return be(t)&&i.length>0&&i.forEach(function(s){be(s)&&Object.keys(s).forEach(function(p){t[p]=s[p]})}),t},zi=/\.\d*(?:0|9){12}\d*$/;function ke(r){var t=arguments.length>1&&arguments[1]!==void 0?arguments[1]:1e11;return Math.abs(r)<1/t||zi.test(r)?Math.round(r*t)/t:r}var Li=/^width|height|left|top|marginLeft|marginTop$/;function ye(r,t){var a=r.style;L(t,function(i,h){Li.test(h)&&T(i)&&(i="".concat(i,"px")),a[h]=i})}function Hi(r,t){return r.classList?r.classList.contains(t):r.className.split(He).indexOf(t)>-1}function X(r,t){if(t){if(T(r.length)){L(r,function(i){X(i,t)});return}if(r.classList){r.classList.add(t);return}var a=r.className.trim();a?a.indexOf(t)<0&&(r.className="".concat(a," ").concat(t)):r.className=t}}function ce(r,t){if(t){if(T(r.length)){L(r,function(a){ce(a,t)});return}if(r.classList){r.classList.remove(t);return}r.className.indexOf(t)>=0&&(r.className=r.className.split(He).filter(function(a){return a&&a!==t}).join(" "))}}function Ie(r,t,a){if(t){if(T(r.length)){L(r,function(i){Ie(i,t,a)});return}a?X(r,t):ce(r,t)}}var Ui=/([a-z\d])([A-Z])/g;function lt(r){return typeof r=="string"?r.replace(Ui,"$1-$2").toLowerCase():""}function dt(r,t){return be(r[t])?r[t]:r.dataset?r.dataset[t]:r.getAttribute("data-".concat(lt(t)))}function je(r,t,a){be(a)?r[t]=a:r.dataset?r.dataset[t]=a:r.setAttribute("data-".concat(lt(t)),a)}function Vi(r,t){if(be(r[t]))try{delete r[t]}catch(a){r[t]=void 0}else if(r.dataset)try{delete r.dataset[t]}catch(a){r.dataset[t]=void 0}else r.removeAttribute("data-".concat(lt(t)))}var Ht=(function(){var r=!1;if(Be){var t=!1,a=function(){},i=Object.defineProperty({},"once",{get:function(){return r=!0,t},set:function(s){t=s}});J.addEventListener("test",a,i),J.removeEventListener("test",a,i)}return r})();function ae(r,t,a){var i=arguments.length>3&&arguments[3]!==void 0?arguments[3]:{};if(!(!r||!t||!z(r.removeEventListener))){var h=a;t.trim().split(He).forEach(function(s){if(!Ht){var p=r.__cropperListeners__||{};p[s]&&p[s][a]&&(h=p[s][a],delete p[s][a],Object.keys(p[s]).length===0&&delete p[s],Object.keys(p).length===0&&delete r.__cropperListeners__)}r.removeEventListener(s,h,i)})}}function K(r,t,a){var i=arguments.length>3&&arguments[3]!==void 0?arguments[3]:{};if(!(!r||!t||!z(r.addEventListener)||!z(a))){var h=a;t.trim().split(He).forEach(function(s){if(i.once&&!Ht){var p=r.__cropperListeners__||{};h=function(){p[s]&&p[s][a]&&delete p[s][a],r.removeEventListener(s,h,i);for(var v=arguments.length,w=new Array(v),u=0;u<v;u++)w[u]=arguments[u];a.apply(r,w)},p[s]||(p[s]={}),p[s][a]&&r.removeEventListener(s,p[s][a],i),p[s][a]=h,r.__cropperListeners__=p}r.addEventListener(s,h,i)})}}function $e(r,t,a){if(!r||!t||!z(r.dispatchEvent))return!1;var i;if(z(Event)&&z(CustomEvent))i=new CustomEvent(t,{detail:a,bubbles:!0,cancelable:!0});else if(be(document)&&z(document.createEvent))i=document.createEvent("CustomEvent"),i.initCustomEvent(t,!0,!0,a);else return!1;return r.dispatchEvent(i)}function Ut(r){if(!r||!z(r.getBoundingClientRect))return{left:0,top:0};var t=r.getBoundingClientRect(),a=(document||{}).documentElement,i=a===void 0?{}:a,h=J.pageXOffset||0,s=J.pageYOffset||0;return{left:t.left+(h-(i.clientLeft||0)),top:t.top+(s-(i.clientTop||0))}}var ct=J.location,Wi=/^(\w+:)\/\/([^:/?#]*):?(\d*)/i;function Vt(r){var t=r.match(Wi);return t!==null&&(t[1]!==ct.protocol||t[2]!==ct.hostname||t[3]!==ct.port)}function Wt(r){var t=r.indexOf("#"),a=t>=0?r.slice(t):"",i=t>=0?r.slice(0,t):r,h="timestamp=".concat(new Date().getTime());return"".concat(i).concat(i.indexOf("?")===-1?"?":"&").concat(h).concat(a)}function Ae(r){var t=r.rotate,a=r.scaleX,i=r.scaleY,h=r.translateX,s=r.translateY,p=[];T(h)&&h!==0&&p.push("translateX(".concat(h,"px)")),T(s)&&s!==0&&p.push("translateY(".concat(s,"px)")),T(t)&&t!==0&&p.push("rotate(".concat(t,"deg)")),T(a)&&a!==1&&p.push("scaleX(".concat(a,")")),T(i)&&i!==1&&p.push("scaleY(".concat(i,")"));var m=p.length?p.join(" "):"none";return{WebkitTransform:m,msTransform:m,transform:m}}function Yi(r){var t=Re({},r),a=0;return L(r,function(i,h){delete t[h],L(t,function(s){var p=Math.abs(i.startX-s.startX),m=Math.abs(i.startY-s.startY),v=Math.abs(i.endX-s.endX),w=Math.abs(i.endY-s.endY),u=Math.sqrt(p*p+m*m),g=Math.sqrt(v*v+w*w);if(!(!nt(u)||!nt(g)||u===0||g===u)){var b=(g-u)/u;nt(b)&&Math.abs(b)>Math.abs(a)&&(a=b)}})}),a}function Ue(r,t){var a=r.pageX,i=r.pageY,h={endX:a,endY:i};return t?h:Re({startX:a,startY:i},h)}function Xi(r){var t=0,a=0,i=0;return L(r,function(h){var s=h.startX,p=h.startY;t+=s,a+=p,i+=1}),t/=i,a/=i,{pageX:t,pageY:a}}function Me(r){var t=r.aspectRatio,a=r.height,i=r.width,h=arguments.length>1&&arguments[1]!==void 0?arguments[1]:"contain",s=zt(i),p=zt(a);if(s&&p){var m=a*t;h==="contain"&&m>i||h==="cover"&&m<i?a=i/t:i=a*t}else s?a=i/t:p&&(i=a*t);return{width:i,height:a}}function Gi(r){var t=r.width,a=r.height,i=r.degree;if(i=Math.abs(i)%180,i===90)return{width:a,height:t};var h=i%90*Math.PI/180,s=Math.sin(h),p=Math.cos(h),m=t*p+a*s,v=t*s+a*p;return i>90?{width:v,height:m}:{width:m,height:v}}function qi(r,t,a,i){var h=t.aspectRatio,s=t.naturalWidth,p=t.naturalHeight,m=t.rotate,v=m===void 0?0:m,w=t.scaleX,u=w===void 0?1:w,g=t.scaleY,b=g===void 0?1:g,E=a.aspectRatio,D=a.naturalWidth,S=a.naturalHeight,I=i.fillColor,P=I===void 0?"transparent":I,H=i.imageSmoothingEnabled,F=H===void 0?!0:H,ue=i.imageSmoothingQuality,ee=ue===void 0?"low":ue,se=i.maxWidth,x=se===void 0?1/0:se,Y=i.maxHeight,O=Y===void 0?1/0:Y,V=i.minWidth,ge=V===void 0?0:V,Ce=i.minHeight,xe=Ce===void 0?0:Ce,he=document.createElement("canvas"),Q=he.getContext("2d"),De=Me({aspectRatio:E,width:x,height:O}),Ve=Me({aspectRatio:E,width:ge,height:xe},"cover"),ht=Math.min(De.width,Math.max(Ve.width,D)),pt=Math.min(De.height,Math.max(Ve.height,S)),Jt=Me({aspectRatio:h,width:x,height:O}),ei=Me({aspectRatio:h,width:ge,height:xe},"cover"),ti=Math.min(Jt.width,Math.max(ei.width,s)),ii=Math.min(Jt.height,Math.max(ei.height,p)),fa=[-ti/2,-ii/2,ti,ii];return he.width=ke(ht),he.height=ke(pt),Q.fillStyle=P,Q.fillRect(0,0,ht,pt),Q.save(),Q.translate(ht/2,pt/2),Q.rotate(v*Math.PI/180),Q.scale(u,b),Q.imageSmoothingEnabled=F,Q.imageSmoothingQuality=ee,Q.drawImage.apply(Q,[r].concat(yt(fa.map(function(ma){return Math.floor(ke(ma))})))),Q.restore(),he}var Yt=String.fromCharCode;function Zi(r,t,a){var i="";a+=t;for(var h=t;h<a;h+=1)i+=Yt(r.getUint8(h));return i}var Ki=/^data:.*,/;function Qi(r){var t=r.replace(Ki,""),a=atob(t),i=new ArrayBuffer(a.length),h=new Uint8Array(i);return L(h,function(s,p){h[p]=a.charCodeAt(p)}),i}function Ji(r,t){for(var a=[],i=8192,h=new Uint8Array(r);h.length>0;)a.push(Yt.apply(null,Lt(h.subarray(0,i)))),h=h.subarray(i);return"data:".concat(t,";base64,").concat(btoa(a.join("")))}function ea(r){var t=new DataView(r),a;try{var i,h,s;if(t.getUint8(0)===255&&t.getUint8(1)===216)for(var p=t.byteLength,m=2;m+1<p;){if(t.getUint8(m)===255&&t.getUint8(m+1)===225){h=m;break}m+=1}if(h){var v=h+4,w=h+10;if(Zi(t,v,4)==="Exif"){var u=t.getUint16(w);if(i=u===18761,(i||u===19789)&&t.getUint16(w+2,i)===42){var g=t.getUint32(w+4,i);g>=8&&(s=w+g)}}}if(s){for(var b=t.getUint16(s,i),E,D=0;D<b;D+=1)if(E=s+D*12+2,t.getUint16(E,i)===274){E+=8,a=t.getUint16(E,i),t.setUint16(E,1,i);break}}}catch(S){a=1}return a}function ta(r){var t=0,a=1,i=1;switch(r){case 2:a=-1;break;case 3:t=-180;break;case 4:i=-1;break;case 5:t=90,i=-1;break;case 6:t=90;break;case 7:t=90,a=-1;break;case 8:t=-90}return{rotate:t,scaleX:a,scaleY:i}}var ia={render:function(){this.initContainer(),this.initCanvas(),this.initCropBox(),this.renderCanvas(),this.cropped&&this.renderCropBox()},initContainer:function(){var t=this.element,a=this.options,i=this.container,h=this.cropper,s=Number(a.minContainerWidth),p=Number(a.minContainerHeight);X(h,Z),ce(t,Z);var m={width:Math.max(i.offsetWidth,s>=0?s:Bt),height:Math.max(i.offsetHeight,p>=0?p:Nt)};this.containerData=m,ye(h,{width:m.width,height:m.height}),X(t,Z),ce(h,Z)},initCanvas:function(){var t=this.containerData,a=this.imageData,i=this.options.viewMode,h=Math.abs(a.rotate)%180===90,s=h?a.naturalHeight:a.naturalWidth,p=h?a.naturalWidth:a.naturalHeight,m=s/p,v=t.width,w=t.height;t.height*m>t.width?i===3?v=t.height*m:w=t.width/m:i===3?w=t.width/m:v=t.height*m;var u={aspectRatio:m,naturalWidth:s,naturalHeight:p,width:v,height:w};this.canvasData=u,this.limited=i===1||i===2,this.limitCanvas(!0,!0),u.width=Math.min(Math.max(u.width,u.minWidth),u.maxWidth),u.height=Math.min(Math.max(u.height,u.minHeight),u.maxHeight),u.left=(t.width-u.width)/2,u.top=(t.height-u.height)/2,u.oldLeft=u.left,u.oldTop=u.top,this.initialCanvasData=N({},u)},limitCanvas:function(t,a){var i=this.options,h=this.containerData,s=this.canvasData,p=this.cropBoxData,m=i.viewMode,v=s.aspectRatio,w=this.cropped&&p;if(t){var u=Number(i.minCanvasWidth)||0,g=Number(i.minCanvasHeight)||0;m>1?(u=Math.max(u,h.width),g=Math.max(g,h.height),m===3&&(g*v>u?u=g*v:g=u/v)):m>0&&(u?u=Math.max(u,w?p.width:0):g?g=Math.max(g,w?p.height:0):w&&(u=p.width,g=p.height,g*v>u?u=g*v:g=u/v));var b=Me({aspectRatio:v,width:u,height:g});u=b.width,g=b.height,s.minWidth=u,s.minHeight=g,s.maxWidth=1/0,s.maxHeight=1/0}if(a)if(m>(w?0:1)){var E=h.width-s.width,D=h.height-s.height;s.minLeft=Math.min(0,E),s.minTop=Math.min(0,D),s.maxLeft=Math.max(0,E),s.maxTop=Math.max(0,D),w&&this.limited&&(s.minLeft=Math.min(p.left,p.left+(p.width-s.width)),s.minTop=Math.min(p.top,p.top+(p.height-s.height)),s.maxLeft=p.left,s.maxTop=p.top,m===2&&(s.width>=h.width&&(s.minLeft=Math.min(0,E),s.maxLeft=Math.max(0,E)),s.height>=h.height&&(s.minTop=Math.min(0,D),s.maxTop=Math.max(0,D))))}else s.minLeft=-s.width,s.minTop=-s.height,s.maxLeft=h.width,s.maxTop=h.height},renderCanvas:function(t,a){var i=this.canvasData,h=this.imageData;if(a){var s=Gi({width:h.naturalWidth*Math.abs(h.scaleX||1),height:h.naturalHeight*Math.abs(h.scaleY||1),degree:h.rotate||0}),p=s.width,m=s.height,v=i.width*(p/i.naturalWidth),w=i.height*(m/i.naturalHeight);i.left-=(v-i.width)/2,i.top-=(w-i.height)/2,i.width=v,i.height=w,i.aspectRatio=p/m,i.naturalWidth=p,i.naturalHeight=m,this.limitCanvas(!0,!1)}(i.width>i.maxWidth||i.width<i.minWidth)&&(i.left=i.oldLeft),(i.height>i.maxHeight||i.height<i.minHeight)&&(i.top=i.oldTop),i.width=Math.min(Math.max(i.width,i.minWidth),i.maxWidth),i.height=Math.min(Math.max(i.height,i.minHeight),i.maxHeight),this.limitCanvas(!1,!0),i.left=Math.min(Math.max(i.left,i.minLeft),i.maxLeft),i.top=Math.min(Math.max(i.top,i.minTop),i.maxTop),i.oldLeft=i.left,i.oldTop=i.top,ye(this.canvas,N({width:i.width,height:i.height},Ae({translateX:i.left,translateY:i.top}))),this.renderImage(t),this.cropped&&this.limited&&this.limitCropBox(!0,!0)},renderImage:function(t){var a=this.canvasData,i=this.imageData,h=i.naturalWidth*(a.width/a.naturalWidth),s=i.naturalHeight*(a.height/a.naturalHeight);N(i,{width:h,height:s,left:(a.width-h)/2,top:(a.height-s)/2}),ye(this.image,N({width:i.width,height:i.height},Ae(N({translateX:i.left,translateY:i.top},i)))),t&&this.output()},initCropBox:function(){var t=this.options,a=this.canvasData,i=t.aspectRatio||t.initialAspectRatio,h=Number(t.autoCropArea)||.8,s={width:a.width,height:a.height};i&&(a.height*i>a.width?s.height=s.width/i:s.width=s.height*i),this.cropBoxData=s,this.limitCropBox(!0,!0),s.width=Math.min(Math.max(s.width,s.minWidth),s.maxWidth),s.height=Math.min(Math.max(s.height,s.minHeight),s.maxHeight),s.width=Math.max(s.minWidth,s.width*h),s.height=Math.max(s.minHeight,s.height*h),s.left=a.left+(a.width-s.width)/2,s.top=a.top+(a.height-s.height)/2,s.oldLeft=s.left,s.oldTop=s.top,this.initialCropBoxData=N({},s)},limitCropBox:function(t,a){var i=this.options,h=this.containerData,s=this.canvasData,p=this.cropBoxData,m=this.limited,v=i.aspectRatio;if(t){var w=Number(i.minCropBoxWidth)||0,u=Number(i.minCropBoxHeight)||0,g=m?Math.min(h.width,s.width,s.width+s.left,h.width-s.left):h.width,b=m?Math.min(h.height,s.height,s.height+s.top,h.height-s.top):h.height;w=Math.min(w,h.width),u=Math.min(u,h.height),v&&(w&&u?u*v>w?u=w/v:w=u*v:w?u=w/v:u&&(w=u*v),b*v>g?b=g/v:g=b*v),p.minWidth=Math.min(w,g),p.minHeight=Math.min(u,b),p.maxWidth=g,p.maxHeight=b}a&&(m?(p.minLeft=Math.max(0,s.left),p.minTop=Math.max(0,s.top),p.maxLeft=Math.min(h.width,s.left+s.width)-p.width,p.maxTop=Math.min(h.height,s.top+s.height)-p.height):(p.minLeft=0,p.minTop=0,p.maxLeft=h.width-p.width,p.maxTop=h.height-p.height))},renderCropBox:function(){var t=this.options,a=this.containerData,i=this.cropBoxData;(i.width>i.maxWidth||i.width<i.minWidth)&&(i.left=i.oldLeft),(i.height>i.maxHeight||i.height<i.minHeight)&&(i.top=i.oldTop),i.width=Math.min(Math.max(i.width,i.minWidth),i.maxWidth),i.height=Math.min(Math.max(i.height,i.minHeight),i.maxHeight),this.limitCropBox(!1,!0),i.left=Math.min(Math.max(i.left,i.minLeft),i.maxLeft),i.top=Math.min(Math.max(i.top,i.minTop),i.maxTop),i.oldLeft=i.left,i.oldTop=i.top,t.movable&&t.cropBoxMovable&&je(this.face,Se,i.width>=a.width&&i.height>=a.height?qe:Ne),ye(this.cropBox,N({width:i.width,height:i.height,borderRadius:t.borderRadius},Ae({translateX:i.left,translateY:i.top}))),this.cropped&&this.limited&&this.limitCanvas(!0,!0),this.disabled||this.output()},output:function(){this.preview(),$e(this.element,tt,this.getData())}},aa={initPreview:function(){var t=this.element,a=this.crossOrigin,i=this.options.preview,h=a?this.crossOriginUrl:this.url,s=t.alt||"The image to preview",p=document.createElement("img");if(a&&(p.crossOrigin=a),p.src=h,p.alt=s,this.viewBox.appendChild(p),this.viewBoxImage=p,!!i){var m=i;typeof i=="string"?m=t.ownerDocument.querySelectorAll(i):i.querySelector&&(m=[i]),this.previews=m,L(m,function(v){var w=document.createElement("img");je(v,Le,{width:v.offsetWidth,height:v.offsetHeight,html:v.innerHTML}),a&&(w.crossOrigin=a),w.src=h,w.alt=s,w.style.cssText="display:block;width:100%;height:auto;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;image-orientation:0deg!important;",v.innerHTML="",v.appendChild(w)})}},resetPreview:function(){L(this.previews,function(t){var a=dt(t,Le);ye(t,{width:a.width,height:a.height}),t.innerHTML=a.html,Vi(t,Le)})},preview:function(){var t=this.imageData,a=this.canvasData,i=this.cropBoxData,h=i.width,s=i.height,p=t.width,m=t.height,v=i.left-a.left-t.left,w=i.top-a.top-t.top;!this.cropped||this.disabled||(ye(this.viewBoxImage,N({width:p,height:m},Ae(N({translateX:-v,translateY:-w},t)))),L(this.previews,function(u){var g=dt(u,Le),b=g.width,E=g.height,D=b,S=E,I=1;h&&(I=b/h,S=s*I),s&&S>E&&(I=E/s,D=h*I,S=E),ye(u,{width:D,height:S}),ye(u.getElementsByTagName("img")[0],N({width:p*I,height:m*I},Ae(N({translateX:-v*I,translateY:-w*I},t))))}))}},ra={bind:function(){var t=this.element,a=this.options,i=this.cropper;z(a.cropstart)&&K(t,rt,a.cropstart),z(a.cropmove)&&K(t,at,a.cropmove),z(a.cropend)&&K(t,it,a.cropend),z(a.crop)&&K(t,tt,a.crop),z(a.zoom)&&K(t,ot,a.zoom),K(i,Tt,this.onCropStart=this.cropStart.bind(this)),a.zoomable&&a.zoomOnWheel&&K(i,Ot,this.onWheel=this.wheel.bind(this),{passive:!1,capture:!0}),a.toggleDragModeOnDblclick&&K(i,Et,this.onDblclick=this.dblclick.bind(this)),K(t.ownerDocument,Rt,this.onCropMove=this.cropMove.bind(this)),K(t.ownerDocument,St,this.onCropEnd=this.cropEnd.bind(this)),K(t.ownerDocument.defaultView,et,this.onCropBlur=this.cropEnd.bind(this)),a.responsive&&K(window,At,this.onResize=this.resize.bind(this))},unbind:function(){var t=this.element,a=this.options,i=this.cropper;z(a.cropstart)&&ae(t,rt,a.cropstart),z(a.cropmove)&&ae(t,at,a.cropmove),z(a.cropend)&&ae(t,it,a.cropend),z(a.crop)&&ae(t,tt,a.crop),z(a.zoom)&&ae(t,ot,a.zoom),ae(i,Tt,this.onCropStart),a.zoomable&&a.zoomOnWheel&&ae(i,Ot,this.onWheel,{passive:!1,capture:!0}),a.toggleDragModeOnDblclick&&ae(i,Et,this.onDblclick),ae(t.ownerDocument,Rt,this.onCropMove),ae(t.ownerDocument,St,this.onCropEnd),ae(t.ownerDocument.defaultView,et,this.onCropBlur),a.responsive&&ae(window,At,this.onResize)}},oa=.5522848;function Xt(r){return r.length===1?[r[0],r[0],r[0],r[0]]:r.length===2?[r[0],r[1],r[0],r[1]]:r.length===3?[r[0],r[1],r[2],r[1]]:r.slice(0,4)}function Gt(r,t,a){return r.trim().split(/\s+/).map(function(i){var h=Number.parseFloat(i);return i.endsWith("%")?h*t/100:(h||0)*a})}function na(r,t,a,i){var h=String(r||0).trim().split("/"),s=Xt(Gt(h[0],t,i)),p=Xt(Gt(h[1]||h[0],a,i)),m=[{x:s[0],y:p[0]},{x:s[1],y:p[1]},{x:s[2],y:p[2]},{x:s[3],y:p[3]}],v=Math.min(1,t/(m[0].x+m[1].x||1),t/(m[3].x+m[2].x||1),a/(m[0].y+m[3].y||1),a/(m[1].y+m[2].y||1));return m.map(function(w){var u=w.x,g=w.y;return{x:u*v,y:g*v}})}function sa(r,t,a,i,h){var s=Ci(na(i,t,a,h),4),p=s[0],m=s[1],v=s[2],w=s[3],u=oa;r.beginPath(),r.moveTo(p.x,0),r.lineTo(t-m.x,0),r.bezierCurveTo(t-m.x+m.x*u,0,t,m.y-m.y*u,t,m.y),r.lineTo(t,a-v.y),r.bezierCurveTo(t,a-v.y+v.y*u,t-v.x+v.x*u,a,t-v.x,a),r.lineTo(w.x,a),r.bezierCurveTo(w.x-w.x*u,a,0,a-w.y+w.y*u,0,a-w.y),r.lineTo(0,p.y),r.bezierCurveTo(0,p.y-p.y*u,p.x-p.x*u,0,p.x,0),r.closePath(),r.fill()}function qt(r,t,a){var i=this.options,h=this.canvasData,s=this.containerData,p=h.width,m=h.height,v=h.naturalWidth,w=h.naturalHeight;if(r=Number(r),r>=0&&this.ready&&!this.disabled&&i.zoomable){var u=v*r,g=w*r;if($e(this.element,ot,{ratio:r,oldRatio:p/v,originalEvent:a})===!1)return this;if(Ee(t)&&T(t.x)&&T(t.y))h.left-=(u-p)*((t.x-h.left)/p),h.top-=(g-m)*((t.y-h.top)/m);else if(i.zoomAroundCenter){var b=s.width/2,E=s.height/2;h.left-=(u-p)*((b-h.left)/p),h.top-=(g-m)*((E-h.top)/m)}else if(a){var D=this.pointers,S=Ut(this.cropper),I=D&&Object.keys(D).length?Xi(D):{pageX:a.pageX,pageY:a.pageY};h.left-=(u-p)*((I.pageX-S.left-h.left)/p),h.top-=(g-m)*((I.pageY-S.top-h.top)/m)}else h.left-=(u-p)/2,h.top-=(g-m)/2;h.width=u,h.height=g,this.renderCanvas(!0)}return this}function Zt(r,t){var a=this.canvasData;return r=Number(r),r<0?r=1/(1-r):r=1+r,qt.call(this,a.width*r/a.naturalWidth,null,t)}function Kt(r,t){return Zt.call(this,r,t)}var la={crop:function(){return this.ready&&!this.cropped&&!this.disabled&&(this.cropped=!0,this.limitCropBox(!0,!0),this.options.modal&&X(this.dragBox,ze),ce(this.cropBox,Z),this.setCropBoxData(this.initialCropBoxData)),this},reset:function(){return this.ready&&!this.disabled&&(this.imageData=N({},this.initialImageData),this.canvasData=N({},this.initialCanvasData),this.cropBoxData=N({},this.initialCropBoxData),this.renderCanvas(),this.cropped&&this.renderCropBox()),this},clear:function(){return this.cropped&&!this.disabled&&(N(this.cropBoxData,{left:0,top:0,width:0,height:0}),this.cropped=!1,this.renderCropBox(),this.limitCanvas(!0,!0),this.renderCanvas(),ce(this.dragBox,ze),X(this.cropBox,Z)),this},replace:function(t){var a=arguments.length>1&&arguments[1]!==void 0?arguments[1]:!1;return!this.disabled&&t&&(this.isImg&&(this.element.src=t),a?(this.url=t,this.image.src=t,this.ready&&(this.viewBoxImage.src=t,L(this.previews,function(i){i.getElementsByTagName("img")[0].src=t}))):(this.isImg&&(this.replaced=!0),this.options.data=null,this.uncreate(),this.load(t))),this},enable:function(){return this.ready&&this.disabled&&(this.disabled=!1,ce(this.cropper,kt)),this},disable:function(){return this.ready&&!this.disabled&&(this.disabled=!0,X(this.cropper,kt)),this},destroy:function(){var t=this.element;return t[B]?(t[B]=void 0,this.isImg&&this.replaced&&(t.src=this.originalUrl),this.uncreate(),this):this},move:function(t){var a=arguments.length>1&&arguments[1]!==void 0?arguments[1]:t,i=this.canvasData,h=i.left,s=i.top;return this.moveTo(st(t)?t:h+Number(t),st(a)?a:s+Number(a))},moveTo:function(t){var a=arguments.length>1&&arguments[1]!==void 0?arguments[1]:t,i=this.canvasData,h=!1;return t=Number(t),a=Number(a),this.ready&&!this.disabled&&this.options.movable&&(T(t)&&(i.left=t,h=!0),T(a)&&(i.top=a,h=!0),h&&this.renderCanvas(!0)),this},zoom:function(t){return Zt.call(this,t)},zoomTo:function(t,a){return qt.call(this,t,a)},rotate:function(t){return this.rotateTo((this.imageData.rotate||0)+Number(t))},rotateTo:function(t){return t=Number(t),T(t)&&this.ready&&!this.disabled&&this.options.rotatable&&(this.imageData.rotate=t%360,this.renderCanvas(!0,!0)),this},scaleX:function(t){var a=this.imageData.scaleY;return this.scale(t,T(a)?a:1)},scaleY:function(t){var a=this.imageData.scaleX;return this.scale(T(a)?a:1,t)},scale:function(t){var a=arguments.length>1&&arguments[1]!==void 0?arguments[1]:t,i=this.imageData,h=!1;return t=Number(t),a=Number(a),this.ready&&!this.disabled&&this.options.scalable&&(T(t)&&(i.scaleX=t,h=!0),T(a)&&(i.scaleY=a,h=!0),h&&this.renderCanvas(!0,!0)),this},getData:function(){var t=arguments.length>0&&arguments[0]!==void 0?arguments[0]:!1,a=this.options,i=this.imageData,h=this.canvasData,s=this.cropBoxData,p;if(this.ready&&this.cropped){p={x:s.left-h.left,y:s.top-h.top,width:s.width,height:s.height};var m=i.width/i.naturalWidth;if(L(p,function(u,g){p[g]=ke(u/m)}),t){var v=Math.round(p.y+p.height),w=Math.round(p.x+p.width);p.x=Math.round(p.x),p.y=Math.round(p.y),p.width=w-p.x,p.height=v-p.y}}else p={x:0,y:0,width:0,height:0};return a.rotatable&&(p.rotate=i.rotate||0),a.scalable&&(p.scaleX=i.scaleX||1,p.scaleY=i.scaleY||1),p},setData:function(t){var a=this.options,i=this.imageData,h=this.canvasData,s={};if(this.ready&&!this.disabled&&Ee(t)){var p=!1;a.rotatable&&T(t.rotate)&&t.rotate!==i.rotate&&(i.rotate=t.rotate,p=!0),a.scalable&&(T(t.scaleX)&&t.scaleX!==i.scaleX&&(i.scaleX=t.scaleX,p=!0),T(t.scaleY)&&t.scaleY!==i.scaleY&&(i.scaleY=t.scaleY,p=!0)),p&&this.renderCanvas(!0,!0);var m=i.width/i.naturalWidth;T(t.x)&&(s.left=t.x*m+h.left),T(t.y)&&(s.top=t.y*m+h.top),T(t.width)&&(s.width=t.width*m),T(t.height)&&(s.height=t.height*m),this.setCropBoxData(s)}return this},getContainerData:function(){return this.ready?N({},this.containerData):{}},getImageData:function(){return this.sized?N({},this.imageData):{}},getCanvasData:function(){var t=this.canvasData,a={};return this.ready&&L(["left","top","width","height","naturalWidth","naturalHeight"],function(i){a[i]=t[i]}),a},setCanvasData:function(t){var a=this.canvasData,i=a.aspectRatio;return this.ready&&!this.disabled&&Ee(t)&&(T(t.left)&&(a.left=t.left),T(t.top)&&(a.top=t.top),T(t.width)?(a.width=t.width,a.height=t.width/i):T(t.height)&&(a.height=t.height,a.width=t.height*i),this.renderCanvas(!0)),this},getCropBoxData:function(){var t=this.cropBoxData,a;return this.ready&&this.cropped&&(a={left:t.left,top:t.top,width:t.width,height:t.height}),a||{}},setCropBoxData:function(t){var a=this.cropBoxData,i=this.options.aspectRatio,h,s;return this.ready&&this.cropped&&!this.disabled&&Ee(t)&&(T(t.left)&&(a.left=t.left),T(t.top)&&(a.top=t.top),T(t.width)&&t.width!==a.width&&(h=!0,a.width=t.width),T(t.height)&&t.height!==a.height&&(s=!0,a.height=t.height),i&&(h?a.height=a.width/i:s&&(a.width=a.height*i)),this.renderCropBox()),this},getCroppedCanvas:function(){var t=arguments.length>0&&arguments[0]!==void 0?arguments[0]:{};if(!this.ready||!window.HTMLCanvasElement)return null;var a=this.canvasData,i=qi(this.image,this.imageData,a,t);if(!this.cropped)return i;var h=this.getData(t.rounded),s=h.x,p=h.y,m=h.width,v=h.height,w=i.width/Math.floor(a.naturalWidth);w!==1&&(s*=w,p*=w,m*=w,v*=w);var u=m/v,g=Me({aspectRatio:u,width:t.maxWidth||1/0,height:t.maxHeight||1/0}),b=Me({aspectRatio:u,width:t.minWidth||0,height:t.minHeight||0},"cover"),E=Me({aspectRatio:u,width:t.width||(w!==1?i.width:m),height:t.height||(w!==1?i.height:v)}),D=E.width,S=E.height;D=Math.min(g.width,Math.max(b.width,D)),S=Math.min(g.height,Math.max(b.height,S));var I=document.createElement("canvas"),P=I.getContext("2d");I.width=ke(D),I.height=ke(S),P.fillStyle=t.fillColor||"transparent",P.fillRect(0,0,D,S);var H=t.imageSmoothingEnabled,F=H===void 0?!0:H,ue=t.imageSmoothingQuality;P.imageSmoothingEnabled=F,ue&&(P.imageSmoothingQuality=ue),z(t.beforeDraw)&&t.beforeDraw.call(this,P,I);var ee=i.width,se=i.height,x=s,Y=p,O,V,ge,Ce,xe,he;x<=-m||x>ee?(x=0,O=0,ge=0,xe=0):x<=0?(ge=-x,x=0,O=Math.min(ee,m+x),xe=O):x<=ee&&(ge=0,O=Math.min(m,ee-x),xe=O),O<=0||Y<=-v||Y>se?(Y=0,V=0,Ce=0,he=0):Y<=0?(Ce=-Y,Y=0,V=Math.min(se,v+Y),he=V):Y<=se&&(Ce=0,V=Math.min(v,se-Y),he=V);var Q=[x,Y,O,V];if(xe>0&&he>0){var De=D/m;Q.push(ge*De,Ce*De,xe*De,he*De)}return P.drawImage.apply(P,[i].concat(yt(Q.map(function(Ve){return Math.floor(ke(Ve))})))),this.options.borderRadius&&(P.globalCompositeOperation="destination-in",P.fillStyle="#000",sa(P,D,S,this.options.borderRadius,D/this.cropBoxData.width)),I},setAspectRatio:function(t){var a=this.options;return!this.disabled&&!st(t)&&(a.aspectRatio=Math.max(0,t)||NaN,this.ready&&(this.initCropBox(),this.cropped&&this.renderCropBox())),this},setDragMode:function(t){var a=this.options,i=this.dragBox,h=this.face;if(this.ready&&!this.disabled){var s=t===Je,p=a.movable&&t===Ct;t=s||p?t:Dt,a.dragMode=t,je(i,Se,t),Ie(i,Ke,s),Ie(i,Qe,p),a.cropBoxMovable||(je(h,Se,t),Ie(h,Ke,s),Ie(h,Qe,p))}return this}},da={resize:function(){if(!this.disabled){var t=this.options,a=this.container,i=this.containerData,h=a.offsetWidth/i.width,s=a.offsetHeight/i.height,p=Math.abs(h-1)>Math.abs(s-1)?h:s;if(p!==1){var m,v;t.restore&&(m=this.getCanvasData(),v=this.getCropBoxData()),this.render(),t.restore&&(this.setCanvasData(L(m,function(w,u){m[u]=w*p})),this.setCropBoxData(L(v,function(w,u){v[u]=w*p})))}}},dblclick:function(){this.disabled||this.options.dragMode===Dt||this.setDragMode(Hi(this.dragBox,Ke)?Ct:Je)},wheel:function(t){var a=this,i=Number(this.options.wheelZoomRatio)||.1,h=1;this.disabled||(t.preventDefault(),!this.wheeling&&(this.wheeling=!0,setTimeout(function(){a.wheeling=!1},50),t.deltaY?h=t.deltaY>0?1:-1:t.wheelDelta?h=-t.wheelDelta/120:t.detail&&(h=t.detail>0?1:-1),Kt.call(this,-h*i,t)))},cropStart:function(t){var a=t.buttons,i=t.button;if(!(this.disabled||(t.type==="mousedown"||t.type==="pointerdown"&&t.pointerType==="mouse")&&(T(a)&&a!==1||T(i)&&i!==0||t.ctrlKey))){var h=this.options,s=this.pointers,p;t.changedTouches?L(t.changedTouches,function(m){s[m.identifier]=Ue(m)}):s[t.pointerId||0]=Ue(t),Object.keys(s).length>1&&h.zoomable&&h.zoomOnTouch?p=Ze:p=dt(t.target,Se),Si.test(p)&&$e(this.element,rt,{originalEvent:t,action:p})!==!1&&(t.preventDefault(),this.action=p,this.cropping=!1,this.cropBoxDragStartData=null,this.cropBoxDragStartAction=h.cropBoxMoveMode==="dragStart"&&p!==Fe&&p!==qe&&p!==Ze?p:"",p===Fe&&(this.cropping=!0,X(this.dragBox,ze)))}},cropMove:function(t){var a=this.action;if(!(this.disabled||!a)){var i=this.pointers;t.preventDefault(),$e(this.element,at,{originalEvent:t,action:a})!==!1&&(t.changedTouches?L(t.changedTouches,function(h){N(i[h.identifier]||{},Ue(h,!0))}):N(i[t.pointerId||0]||{},Ue(t,!0)),this.change(t))}},cropEnd:function(t){if(!this.disabled){var a=this.action,i=this.pointers;t.type===et?Object.keys(i).forEach(function(h){delete i[h]}):t.changedTouches?L(t.changedTouches,function(h){delete i[h.identifier]}):delete i[t.pointerId||0],a&&(t.preventDefault(),Object.keys(i).length||(this.action="",this.cropBoxDragStartData=null,this.cropBoxDragStartAction=""),this.cropping&&(this.cropping=!1,Ie(this.dragBox,ze,this.cropped&&this.options.modal)),$e(this.element,it,{originalEvent:t,action:a}))}}};function ca(r,t,a,i,h){var s=i.left+i.width/2,p=i.top+i.height/2,m=r===te||r===fe||r===de,v=r===ne||r===de||r===me,w=r===te||r===oe,u=r===ie||r===ne,g=i.width,b=i.height;a?w||!u&&v?(g+=(m?2:-2)*t.x,b=g/a):(b+=(v?2:-2)*t.y,g=b*a):(g+=(m?2:-2)*t.x,b+=(v?2:-2)*t.y),g<0&&(g=-g,(!a||w||!u&&v)&&(m=!m)),b<0&&(b=-b,(!a||u||!u&&!v)&&(v=!v));var E=Math.max(0,2*Math.min(s-h.minLeft,h.maxWidth-s)),D=Math.max(0,2*Math.min(p-h.minTop,h.maxHeight-p)),S=Math.min(i.minWidth,E),I=Math.min(i.minHeight,D);if(a){var P=Math.max(g?S/g:0,b?I/b:0,1),H=Math.min(g?E/g:0,b?D/b:0),F=Math.min(P,H);g*=F,b*=F}else g=Math.min(Math.max(g,S),E),b=Math.min(Math.max(b,I),D);return m?r=v?de:fe:r=v?me:_e,w?r=m?te:oe:u&&(r=v?ne:ie),{action:r,left:s-g/2,top:p-b/2,width:g,height:b}}var ha={change:function(t){var a=this.options,i=this.canvasData,h=this.containerData,s=this.cropBoxData,p=this.pointers,m=this.action,v=a.aspectRatio,w=s.left,u=s.top,g=s.width,b=s.height,E=w+g,D=u+b,S=0,I=0,P=h.width,H=h.height,F=!0,ue;!v&&t.shiftKey&&(v=g&&b?g/b:1),this.limited&&(S=s.minLeft,I=s.minTop,P=S+Math.min(h.width,i.width,i.left+i.width),H=I+Math.min(h.height,i.height,i.top+i.height));var ee=p[Object.keys(p)[0]],se=a.cropBoxMoveMode==="dragStart"&&this.cropBoxDragStartAction&&[Ne,te,ie,ne,oe,fe,_e,de,me].includes(m);se&&(this.cropBoxDragStartData||(this.cropBoxDragStartData=Re({},s)),Object.assign(s,this.cropBoxDragStartData),w=s.left,u=s.top,g=s.width,b=s.height,E=w+g,D=u+b,m=this.cropBoxDragStartAction);var x={x:ee.endX-ee.startX,y:ee.endY-ee.startY};if(a.cropBoxResizeAroundCenter&&[te,ie,ne,oe,fe,_e,de,me].includes(m)){var Y=ca(m,x,v,s,{minLeft:S,minTop:I,maxWidth:P,maxHeight:H});s.left=Y.left,s.top=Y.top,s.width=Y.width,s.height=Y.height,this.action=Y.action,this.renderCropBox(),se||L(p,function(V){V.startX=V.endX,V.startY=V.endY});return}var O=function(ge){switch(ge){case te:E+x.x>P&&(x.x=P-E);break;case oe:w+x.x<S&&(x.x=S-w);break;case ie:u+x.y<I&&(x.y=I-u);break;case ne:D+x.y>H&&(x.y=H-D)}};switch(m){case Ne:w+=x.x,u+=x.y;break;case te:if(x.x>=0&&(E>=P||v&&(u<=I||D>=H))){F=!1;break}O(te),g+=x.x,g<0&&(m=oe,g=-g,w-=g,g<s.minWidth&&(g=s.minWidth,w=s.left-g)),v&&(b=g/v,u+=(s.height-b)/2);break;case ie:if(x.y<=0&&(u<=I||v&&(w<=S||E>=P))){F=!1;break}O(ie),b-=x.y,u+=x.y,b<0&&(m=ne,b=-b,u-=b,b<s.minHeight&&(b=s.minHeight,u=D)),v&&(g=b*v,w+=(s.width-g)/2);break;case oe:if(x.x<=0&&(w<=S||v&&(u<=I||D>=H))){F=!1;break}O(oe),g-=x.x,w+=x.x,g<0&&(m=te,g=-g,w-=g,g<s.minWidth&&(g=s.minWidth,w=E)),v&&(b=g/v,u+=(s.height-b)/2);break;case ne:if(x.y>=0&&(D>=H||v&&(w<=S||E>=P))){F=!1;break}O(ne),b+=x.y,b<0&&(m=ie,b=-b,u-=b,b<s.minHeight&&(b=s.minHeight,u=s.top-b)),v&&(g=b*v,w+=(s.width-g)/2);break;case fe:if(v){if(x.y<=0&&(u<=I||E>=P)){F=!1;break}O(ie),b-=x.y,u+=x.y,g=b*v}else O(ie),O(te),x.x>=0?E<P?g+=x.x:x.y<=0&&u<=I&&(F=!1):g+=x.x,x.y<=0?u>I&&(b-=x.y,u+=x.y):(b-=x.y,u+=x.y);g<0&&b<0?(m=me,b=-b,g=-g,u-=b,w-=g):g<0?(m=_e,g=-g,w-=g):b<0&&(m=de,b=-b,u-=b);break;case _e:if(v){if(x.y<=0&&(u<=I||w<=S)){F=!1;break}O(ie),b-=x.y,u+=x.y,g=b*v,w+=s.width-g}else O(ie),O(oe),x.x<=0?w>S?(g-=x.x,w+=x.x):x.y<=0&&u<=I&&(F=!1):(g-=x.x,w+=x.x),x.y<=0?u>I&&(b-=x.y,u+=x.y):(b-=x.y,u+=x.y);g<0&&b<0?(m=de,b=-b,g=-g,u-=b,w-=g):g<0?(m=fe,g=-g,w-=g):b<0&&(m=me,b=-b,u-=b);break;case me:if(v){if(x.x<=0&&(w<=S||D>=H)){F=!1;break}O(oe),g-=x.x,w+=x.x,b=g/v}else O(ne),O(oe),x.x<=0?w>S?(g-=x.x,w+=x.x):x.y>=0&&D>=H&&(F=!1):(g-=x.x,w+=x.x),x.y>=0?D<H&&(b+=x.y):b+=x.y;g<0&&b<0?(m=fe,b=-b,g=-g,u-=b,w-=g):g<0?(m=de,g=-g,w-=g):b<0&&(m=_e,b=-b,u-=b);break;case de:if(v){if(x.x>=0&&(E>=P||D>=H)){F=!1;break}O(te),g+=x.x,b=g/v}else O(ne),O(te),x.x>=0?E<P?g+=x.x:x.y>=0&&D>=H&&(F=!1):g+=x.x,x.y>=0?D<H&&(b+=x.y):b+=x.y;g<0&&b<0?(m=_e,b=-b,g=-g,u-=b,w-=g):g<0?(m=me,g=-g,w-=g):b<0&&(m=fe,b=-b,u-=b);break;case qe:this.move(x.x,x.y),F=!1;break;case Ze:Kt.call(this,Yi(p),t),F=!1;break;case Fe:if(!x.x||!x.y){F=!1;break}ue=Ut(this.cropper),w=ee.startX-ue.left,u=ee.startY-ue.top,v?(g=Math.max(Math.abs(x.x),Math.abs(x.y)*v,s.minWidth,s.minHeight*v),b=g/v):(g=Math.max(Math.abs(x.x),s.minWidth),b=Math.max(Math.abs(x.y),s.minHeight)),x.x>0?m=x.y>0?de:fe:x.x<0&&(w-=g,m=x.y>0?me:_e),x.y<0&&(u-=b),this.cropped||(ce(this.cropBox,Z),this.cropped=!0,this.limited&&this.limitCropBox(!0,!0))}F&&(s.width=g,s.height=b,s.left=w,s.top=u,this.action=m,this.renderCropBox()),L(p,function(V){m!==Fe&&!se&&(V.startX=V.endX,V.startY=V.endY)})}},pa=J.Cropper,Qt=(function(){function r(t){var a=arguments.length>1&&arguments[1]!==void 0?arguments[1]:{};if(M(this,r),!t||!Oi.test(t.tagName))throw new Error("The first argument is required and must be an <img> or <canvas> element.");this.element=t,this.options=N({},Ft,Ee(a)&&a),this.cropped=!1,this.disabled=!1,this.pointers={},this.ready=!1,this.reloading=!1,this.replaced=!1,this.sized=!1,this.sizing=!1,this.init()}return k(r,[{key:"init",value:function(){var a=this.element,i=a.tagName.toLowerCase(),h;if(!a[B]){if(a[B]=this,i==="img"){if(this.isImg=!0,h=a.getAttribute("src")||"",this.originalUrl=h,!h)return;h=a.src}else i==="canvas"&&window.HTMLCanvasElement&&(h=a.toDataURL());this.load(h)}}},{key:"load",value:function(a){var i=this;if(a){this.url=a,this.imageData={};var h=this.element,s=this.options;if(!s.rotatable&&!s.scalable&&(s.checkOrientation=!1),!s.checkOrientation||!window.ArrayBuffer){this.clone();return}if(ji.test(a)){Ai.test(a)?this.read(Qi(a)):this.clone();return}var p=new XMLHttpRequest,m=this.clone.bind(this);this.reloading=!0,this.xhr=p,p.onabort=m,p.onerror=m,p.ontimeout=m,p.onprogress=function(){p.getResponseHeader("content-type")!==Pt&&p.abort()},p.onload=function(){i.read(p.response)},p.onloadend=function(){i.reloading=!1,i.xhr=null},s.checkCrossOrigin&&Vt(a)&&h.crossOrigin&&(a=Wt(a)),p.open("GET",a,!0),p.responseType="arraybuffer",p.withCredentials=h.crossOrigin==="use-credentials",p.send()}}},{key:"read",value:function(a){var i=this.options,h=this.imageData,s=ea(a),p=0,m=1,v=1;if(s>1){this.url=Ji(a,Pt);var w=ta(s);p=w.rotate,m=w.scaleX,v=w.scaleY}i.rotatable&&(h.rotate=p),i.scalable&&(h.scaleX=m,h.scaleY=v),this.clone()}},{key:"clone",value:function(){var a=this,i=this.element,h=this.options,s=this.url,p=i.crossOrigin,m=s;this.options.checkCrossOrigin&&Vt(s)&&(p||(p="anonymous"),m=Wt(s)),this.crossOrigin=p,this.crossOriginUrl=m;var v=document.createElement("img");p&&(v.crossOrigin=p),v.src=m||s,v.alt=i.alt||"The image to crop",this.image=v,v.onload=this.start.bind(this),z(h.error)&&K(i,It,h.error,{once:!0}),v.onerror=function(w){$e(i,It,w),a.stop()},X(v,$t),i.parentNode.insertBefore(v,i.nextSibling)}},{key:"start",value:function(){var a=this,i=this.image;i.onload=null,i.onerror=null,this.sizing=!0;var h=J.navigator&&/(?:iPad|iPhone|iPod).*?AppleWebKit/i.test(J.navigator.userAgent),s=function(w,u){N(a.imageData,{naturalWidth:w,naturalHeight:u,aspectRatio:w/u}),a.initialImageData=N({},a.imageData),a.sizing=!1,a.sized=!0,a.build()},p=document.createElement("img"),m=document.body||document.documentElement;this.sizingImage=p,p.onload=function(){s(p.width,p.height),h||m.removeChild(p)},p.src=i.src,h||(p.style.cssText="left:0;max-height:none!important;max-width:none!important;min-height:0!important;min-width:0!important;opacity:0;image-orientation:0deg;position:absolute;top:0;z-index:-1;",m.appendChild(p))}},{key:"stop",value:function(){var a=this.image;a.onload=null,a.onerror=null,a.parentNode.removeChild(a),this.image=null}},{key:"build",value:function(){if(!(!this.sized||this.ready)){var a=this.element,i=this.options,h=this.image,s=a.parentNode,p=document.createElement("div");p.innerHTML=Pi;var m=p.querySelector(".".concat(B,"-container")),v=m.querySelector(".".concat(B,"-canvas")),w=m.querySelector(".".concat(B,"-drag-box")),u=m.querySelector(".".concat(B,"-crop-box")),g=u.querySelector(".".concat(B,"-face"));this.container=s,this.cropper=m,this.canvas=v,this.dragBox=w,this.cropBox=u,this.viewBox=m.querySelector(".".concat(B,"-view-box")),this.face=g,v.appendChild(h),X(a,Z),s.insertBefore(m,a.nextSibling),ce(h,$t),this.initPreview(),this.bind(),i.initialAspectRatio=Math.max(0,i.initialAspectRatio)||NaN,i.aspectRatio=Math.max(0,i.aspectRatio)||NaN,i.viewMode=Math.max(0,Math.min(3,Math.round(i.viewMode)))||0,X(u,Z),i.guides||X(u.getElementsByClassName("".concat(B,"-dashed")),Z),i.center||X(u.getElementsByClassName("".concat(B,"-center")),Z),i.background&&X(m,"".concat(B,"-bg")),i.highlight||X(g,Ei),i.cropBoxMovable&&(X(g,Qe),je(g,Se,Ne)),i.cropBoxResizable||(X(u.getElementsByClassName("".concat(B,"-line")),Z),X(u.getElementsByClassName("".concat(B,"-point")),Z)),this.render(),this.ready=!0,this.setDragMode(i.dragMode),i.autoCrop&&this.crop(),this.setData(i.data),z(i.ready)&&K(a,jt,i.ready,{once:!0}),$e(a,jt)}}},{key:"unbuild",value:function(){if(this.ready){this.ready=!1,this.unbind(),this.resetPreview();var a=this.cropper.parentNode;a&&a.removeChild(this.cropper),ce(this.element,Z)}}},{key:"uncreate",value:function(){this.ready?(this.unbuild(),this.ready=!1,this.cropped=!1):this.sizing?(this.sizingImage.onload=null,this.sizing=!1,this.sized=!1):this.reloading?(this.xhr.onabort=null,this.xhr.abort()):this.image&&this.stop()}}],[{key:"create",value:function(a,i){return new r(a,i)}},{key:"setDefaults",value:function(a){N(Ft,Ee(a)&&a)}},{key:"noConflict",value:function(){return window.Cropper=pa,r}}])})();return N(Qt.prototype,ia,aa,ra,da,ha,la),Qt}))})),wt=pi(gi()),G=class{static showMessage(d,e){Botble.showNotice(d,e)}},U=class re{static handleDropdown(){let e=l.size(l.getSelectedItems());re.renderActions(),e>0?$(".rv-dropdown-actions > .dropdown-toggle").removeClass("disabled").prop("disabled",!1):$(".rv-dropdown-actions > .dropdown-toggle").addClass("disabled").prop("disabled",!0)}static handlePreview(){const e=l.getSelectedFiles();if(l.size(e)===1&&e[0].type==="image"){const n=re.getPreviewableImages(),f=n.findIndex(c=>c.id===e[0].id);if(n.length>1&&f!==-1){l.addToRecent(e[0].id),Botble.lightbox(n.map(c=>c.preview_url),f);return}}let o=[];l.each(e,n=>{if(n.preview_url){if(n.type==="document"){const f=document.createElement("iframe");f.src=n.preview_url,f.allowFullscreen=!0,f.style.width="100vh",f.style.height="100vh",o.push(f)}else o.push(n.preview_url);l.addToRecent(n.id)}}),l.size(o)>0?Botble.lightbox(o):this.handleGlobalAction("download")}static getPreviewableImages(){const e=[];return $(".js-media-list-title[data-context=file]").each((o,n)=>{const f=$(n).data()||{};f.type==="image"&&f.preview_url&&e.push(f)}),e}static renderCropImage(){const e=$("#rv_media_crop_image").html(),o=$("#modal_crop_image .crop-image").empty(),n=l.getSelectedItems()[0],f=$("#modal_crop_image .form-crop");let c;const M=e.replace(/__src__/gi,n.full_url);o.append(M);const y=o.find("img")[0],k={minContainerWidth:500,minContainerHeight:550,dragMode:"move",crop(A){c=A.detail,f.find('input[name="image_id"]').val(n.id),f.find('input[name="crop_data"]').val(JSON.stringify(c)),R(c.height),j(c.width)}};let C=new wt.default(y,k);f.find("#aspectRatio").on("click",function(){C.destroy(),$(this).is(":checked")?k.aspectRatio=c.width/c.height:k.aspectRatio=null,C=new wt.default(y,k)}),f.find("#dataHeight").on("change",function(){c.height=parseFloat($(this).val()),C.setData(c),R(c.height)}),f.find("#dataWidth").on("change",function(){c.width=parseFloat($(this).val()),C.setData(c),j(c.width)});const R=A=>{f.find("#dataHeight").val(parseInt(A))},j=A=>{f.find("#dataWidth").val(parseInt(A))}}static async handleCopyLink(){let e="";l.each(l.getSelectedFiles(),o=>{l.isEmpty(e)||(e+=`
-`),e+=o.full_url}),await Botble.copyToClipboard(e),G.showMessage("success",l.trans("clipboard.success"),l.trans("message.success_header"))}static async handleCopyIndirectLink(){let e="";l.each(l.getSelectedFiles(),o=>{l.isEmpty(e)||(e+=`
-`),e+=o.indirect_url}),await Botble.copyToClipboard(e),G.showMessage("success",l.trans("clipboard.success"),l.trans("message.success_header"))}static handleShare(){$("#modal_share_items").modal("show").find("form.form-alt-text").data("action",type)}static handleGlobalAction(e,o){let n=[];switch(l.each(l.getSelectedItems(),f=>{n.push({is_folder:f.is_folder,id:f.id,full_url:f.full_url})}),e){case"rename":$("#modal_rename_items").modal("show").find("form.form-rename").data("action",e);break;case"copy_link":re.handleCopyLink().then(()=>{});break;case"copy_indirect_link":re.handleCopyIndirectLink().then(()=>{});break;case"share":$("#modal_share_items").modal("show");break;case"preview":re.handlePreview();break;case"alt_text":$("#modal_alt_text_items").modal("show").find("form.form-alt-text").data("action",e);break;case"move":$("#modal_move_items").modal("show");break;case"crop":$("#modal_crop_image").modal("show").find("form.rv-form").data("action",e);break;case"trash":$("#modal_trash_items").modal("show").find("form.form-delete-items").data("action",e);break;case"delete":$("#modal_delete_items").modal("show").find("form.form-delete-items").data("action",e);break;case"empty_trash":$("#modal_empty_trash").modal("show").find("form.form-empty-trash").data("action",e);break;case"download":let f=[];l.each(l.getSelectedItems(),c=>{l.inArray(l.getConfigs().denied_download,c.mime_type)||f.push({id:c.id,is_folder:c.is_folder})}),f.length?re.handleDownload(f):G.showMessage("error",l.trans("download.error"),l.trans("message.error_header"));break;case"properties":$("#modal-properties").modal("show");break;case"manage_access":re.handleManageAccess();break;default:re.processAction({selected:n,action:e},o)}}static processAction(e,o=null){l.showAjaxLoading(),$httpClient.make().post(RV_MEDIA_URL.global_actions,e).then(({data:n})=>{l.resetPagination(),G.showMessage("success",n.message,l.trans("message.success_header")),o&&o(n)}).catch(({response:n})=>o&&o(n.data)).finally(()=>l.hideAjaxLoading())}static renderRenameItems(){let e=$("#rv_media_rename_item").html(),o=$("#modal_rename_items .rename-items").empty();l.each(l.getSelectedItems(),n=>{let f=e.replace(/__icon__/gi,n.icon||`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`,
+					name: "Restore",
+					action: "restore",
+					order: 3,
+					class: "rv-action-restore"
+				},
+				{
+					icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-palette" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25" /><path d="M8.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M16.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>`,
+					name: "Properties",
+					action: "properties",
+					order: 4,
+					class: "rv-action-properties"
+				}
+			]
+		}
+	};
+	if (!MediaConfig.app_key || MediaConfig.app_key !== defaultConfig.app_key) MediaConfig = defaultConfig;
+	MediaConfig.request_params.search = "";
+	var RecentItems = [];
+	//#endregion
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/typeof.js
+	function _typeof(o) {
+		"@babel/helpers - typeof";
+		return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o) {
+			return typeof o;
+		} : function(o) {
+			return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+		}, _typeof(o);
+	}
+	//#endregion
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/toPrimitive.js
+	function toPrimitive(t, r) {
+		if ("object" != _typeof(t) || !t) return t;
+		var e = t[Symbol.toPrimitive];
+		if (void 0 !== e) {
+			var i = e.call(t, r || "default");
+			if ("object" != _typeof(i)) return i;
+			throw new TypeError("@@toPrimitive must return a primitive value.");
+		}
+		return ("string" === r ? String : Number)(t);
+	}
+	//#endregion
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/toPropertyKey.js
+	function toPropertyKey(t) {
+		var i = toPrimitive(t, "string");
+		return "symbol" == _typeof(i) ? i : i + "";
+	}
+	//#endregion
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/defineProperty.js
+	function _defineProperty(e, r, t) {
+		return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+			value: t,
+			enumerable: !0,
+			configurable: !0,
+			writable: !0
+		}) : e[r] = t, e;
+	}
+	//#endregion
+	//#region \0@oxc-project+runtime@0.154.0/helpers/esm/objectSpread2.js
+	function ownKeys(e, r) {
+		var t = Object.keys(e);
+		if (Object.getOwnPropertySymbols) {
+			var o = Object.getOwnPropertySymbols(e);
+			r && (o = o.filter(function(r) {
+				return Object.getOwnPropertyDescriptor(e, r).enumerable;
+			})), t.push.apply(t, o);
+		}
+		return t;
+	}
+	function _objectSpread2(e) {
+		for (var r = 1; r < arguments.length; r++) {
+			var t = null != arguments[r] ? arguments[r] : {};
+			r % 2 ? ownKeys(Object(t), !0).forEach(function(r) {
+				_defineProperty(e, r, t[r]);
+			}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function(r) {
+				Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r));
+			});
+		}
+		return e;
+	}
+	//#endregion
+	//#region platform/core/media/resources/js/App/Helpers/Helpers.js
+	var Helpers = class Helpers {
+		static getUrlParam(paramName, url = null) {
+			if (!url) url = window.location.search;
+			let reParam = new RegExp("(?:[?&]|&)" + paramName + "=([^&]+)", "i");
+			let match = url.match(reParam);
+			return match && match.length > 1 ? match[1] : null;
+		}
+		static asset(url) {
+			if (url.substring(0, 2) === "//" || url.substring(0, 7) === "http://" || url.substring(0, 8) === "https://") return url;
+			let baseUrl = RV_MEDIA_URL.base_url.substr(-1, 1) !== "/" ? RV_MEDIA_URL.base_url + "/" : RV_MEDIA_URL.base_url;
+			if (url.substring(0, 1) === "/") return baseUrl + url.substring(1);
+			return baseUrl + url;
+		}
+		static showAjaxLoading($element = $(".rv-media-main")) {
+			$element.addClass("on-loading").append($("#rv_media_loading").html());
+		}
+		static hideAjaxLoading($element = $(".rv-media-main")) {
+			$element.removeClass("on-loading").find(".loading-spinner").remove();
+		}
+		static isOnAjaxLoading($element = $(".rv-media-items")) {
+			return $element.hasClass("on-loading");
+		}
+		static jsonEncode(object) {
+			if (typeof object === "undefined") object = null;
+			return JSON.stringify(object);
+		}
+		static jsonDecode(jsonString, defaultValue) {
+			if (!jsonString) return defaultValue;
+			if (typeof jsonString === "string") {
+				let result;
+				try {
+					result = JSON.parse(jsonString);
+				} catch (err) {
+					result = defaultValue;
+				}
+				return result;
+			}
+			return jsonString;
+		}
+		static getRequestParams() {
+			if (window.rvMedia.options && window.rvMedia.options.open_in === "modal") return _objectSpread2(_objectSpread2({}, MediaConfig.request_params), window.rvMedia.options);
+			return MediaConfig.request_params;
+		}
+		static setSelectedFile(fileId) {
+			if (typeof window.rvMedia.options !== "undefined") window.rvMedia.options.selected_file_id = fileId;
+			else MediaConfig.request_params.selected_file_id = fileId;
+		}
+		static getConfigs() {
+			return MediaConfig;
+		}
+		static storeConfig() {
+			localStorage.setItem("MediaConfig", Helpers.jsonEncode(MediaConfig));
+		}
+		static storeRecentItems() {}
+		static addToRecent(id, isFolder = false) {
+			if (isNaN(parseInt(id))) return;
+			let fileData = {
+				id,
+				is_folder: isFolder
+			};
+			if (!isFolder) $(".js-media-list-title").each((index, el) => {
+				let data = $(el).data() || {};
+				if (data.id == id) {
+					fileData.is_folder = data.is_folder || false;
+					return false;
+				}
+			});
+			$httpClient.make().post(RV_MEDIA_URL.global_actions, {
+				action: "add_recent",
+				item: fileData
+			}).then(({ data }) => {
+				if (id instanceof Array) Helpers.each(id, (value) => {
+					RecentItems.push(value);
+				});
+				else RecentItems.push(id);
+			}).catch((error) => {
+				console.error("Error adding to recent items:", error);
+			});
+		}
+		static getItems() {
+			let items = [];
+			$(".js-media-list-title").each((index, el) => {
+				let $box = $(el);
+				let data = $box.data() || {};
+				data.index_key = $box.index();
+				items.push(data);
+			});
+			return items;
+		}
+		static getSelectedItems() {
+			let selected = [];
+			$(".js-media-list-title input[type=checkbox]:checked").each((index, el) => {
+				let $box = $(el).closest(".js-media-list-title");
+				let data = $box.data() || {};
+				data.index_key = $box.index();
+				selected.push(data);
+			});
+			return selected;
+		}
+		static getSelectedFiles() {
+			let selected = [];
+			$(".js-media-list-title[data-context=file] input[type=checkbox]:checked").each((index, el) => {
+				let $box = $(el).closest(".js-media-list-title");
+				let data = $box.data() || {};
+				data.index_key = $box.index();
+				selected.push(data);
+			});
+			return selected;
+		}
+		static getSelectedFolder() {
+			let selected = [];
+			$(".js-media-list-title[data-context=folder] input[type=checkbox]:checked").each((index, el) => {
+				let $box = $(el).closest(".js-media-list-title");
+				let data = $box.data() || {};
+				data.index_key = $box.index();
+				selected.push(data);
+			});
+			return selected;
+		}
+		static isUseInModal() {
+			return window.rvMedia && window.rvMedia.options && window.rvMedia.options.open_in === "modal";
+		}
+		static resetPagination() {
+			RV_MEDIA_CONFIG.pagination = {
+				paged: 1,
+				posts_per_page: 40,
+				in_process_get_media: false,
+				has_more: true
+			};
+		}
+		static trans(key, fallback = null) {
+			return _.get(RV_MEDIA_CONFIG.translations, key, fallback !== null && fallback !== void 0 ? fallback : key);
+		}
+		static config(key, defaultValue = null) {
+			return _.get(RV_MEDIA_CONFIG, key, defaultValue);
+		}
+		static hasPermission(key) {
+			return Helpers.inArray(Helpers.config("permissions", []), key);
+		}
+		static inArray(array, value) {
+			return _.includes(array, value);
+		}
+		static each(array, callback) {
+			return _.each(array, callback);
+		}
+		static forEach(array, callback) {
+			return _.forEach(array, callback);
+		}
+		static arrayReject(array, callback) {
+			return _.reject(array, callback);
+		}
+		static arrayFilter(array, callback) {
+			return _.filter(array, callback);
+		}
+		static arrayFirst(array) {
+			return _.first(array);
+		}
+		static isArray(value) {
+			return _.isArray(value);
+		}
+		static isEmpty(value) {
+			return _.isEmpty(value);
+		}
+		static size(item) {
+			return _.size(item);
+		}
+	};
+	/*!
+	* Cropper.js v1.7.0
+	* https://fengyuanchen.github.io/cropperjs
+	*
+	* Copyright 2015-present Chen Fengyuan
+	* Released under the MIT license
+	*
+	* Date: 2026-10-07T07:21:57.525Z
+	*/
+	//#endregion
+	//#region platform/core/media/resources/js/App/Services/MessageService.js
+	var import_cropper = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((exports, module, this$1) => {
+		(function(global, factory) {
+			typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, global.Cropper = factory());
+		})(this$1, (function() {
+			"use strict";
+			function _arrayLikeToArray(r, a) {
+				(null == a || a > r.length) && (a = r.length);
+				for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
+				return n;
+			}
+			function _arrayWithHoles(r) {
+				if (Array.isArray(r)) return r;
+			}
+			function _arrayWithoutHoles(r) {
+				if (Array.isArray(r)) return _arrayLikeToArray(r);
+			}
+			function _classCallCheck(a, n) {
+				if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function");
+			}
+			function _defineProperties(e, r) {
+				for (var t = 0; t < r.length; t++) {
+					var o = r[t];
+					o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o);
+				}
+			}
+			function _createClass(e, r, t) {
+				return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e;
+			}
+			function _defineProperty(e, r, t) {
+				return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+					value: t,
+					enumerable: !0,
+					configurable: !0,
+					writable: !0
+				}) : e[r] = t, e;
+			}
+			function _iterableToArray(r) {
+				if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r);
+			}
+			function _iterableToArrayLimit(r, l) {
+				var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+				if (null != t) {
+					var e, n, i, u, a = [], f = !0, o = !1;
+					try {
+						if (i = (t = t.call(r)).next, 0 === l) {
+							if (Object(t) !== t) return;
+							f = !1;
+						} else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0);
+					} catch (r) {
+						o = !0, n = r;
+					} finally {
+						try {
+							if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return;
+						} finally {
+							if (o) throw n;
+						}
+					}
+					return a;
+				}
+			}
+			function _nonIterableRest() {
+				throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+			}
+			function _nonIterableSpread() {
+				throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+			}
+			function ownKeys(e, r) {
+				var t = Object.keys(e);
+				if (Object.getOwnPropertySymbols) {
+					var o = Object.getOwnPropertySymbols(e);
+					r && (o = o.filter(function(r) {
+						return Object.getOwnPropertyDescriptor(e, r).enumerable;
+					})), t.push.apply(t, o);
+				}
+				return t;
+			}
+			function _objectSpread2(e) {
+				for (var r = 1; r < arguments.length; r++) {
+					var t = null != arguments[r] ? arguments[r] : {};
+					r % 2 ? ownKeys(Object(t), !0).forEach(function(r) {
+						_defineProperty(e, r, t[r]);
+					}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function(r) {
+						Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r));
+					});
+				}
+				return e;
+			}
+			function _slicedToArray(r, e) {
+				return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest();
+			}
+			function _toConsumableArray(r) {
+				return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread();
+			}
+			function _toPrimitive(t, r) {
+				if ("object" != typeof t || !t) return t;
+				var e = t[Symbol.toPrimitive];
+				if (void 0 !== e) {
+					var i = e.call(t, r || "default");
+					if ("object" != typeof i) return i;
+					throw new TypeError("@@toPrimitive must return a primitive value.");
+				}
+				return ("string" === r ? String : Number)(t);
+			}
+			function _toPropertyKey(t) {
+				var i = _toPrimitive(t, "string");
+				return "symbol" == typeof i ? i : i + "";
+			}
+			function _typeof(o) {
+				"@babel/helpers - typeof";
+				return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o) {
+					return typeof o;
+				} : function(o) {
+					return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+				}, _typeof(o);
+			}
+			function _unsupportedIterableToArray(r, a) {
+				if (r) {
+					if ("string" == typeof r) return _arrayLikeToArray(r, a);
+					var t = {}.toString.call(r).slice(8, -1);
+					return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
+				}
+			}
+			var IS_BROWSER = typeof window !== "undefined" && typeof window.document !== "undefined";
+			var WINDOW = IS_BROWSER ? window : {};
+			var IS_TOUCH_DEVICE = IS_BROWSER && WINDOW.document.documentElement ? "ontouchstart" in WINDOW.document.documentElement : false;
+			var HAS_POINTER_EVENT = IS_BROWSER ? "PointerEvent" in WINDOW : false;
+			var NAMESPACE = "cropper";
+			var ACTION_ALL = "all";
+			var ACTION_CROP = "crop";
+			var ACTION_MOVE = "move";
+			var ACTION_ZOOM = "zoom";
+			var ACTION_EAST = "e";
+			var ACTION_WEST = "w";
+			var ACTION_SOUTH = "s";
+			var ACTION_NORTH = "n";
+			var ACTION_NORTH_EAST = "ne";
+			var ACTION_NORTH_WEST = "nw";
+			var ACTION_SOUTH_EAST = "se";
+			var ACTION_SOUTH_WEST = "sw";
+			var CLASS_CROP = "".concat(NAMESPACE, "-crop");
+			var CLASS_DISABLED = "".concat(NAMESPACE, "-disabled");
+			var CLASS_HIDDEN = "".concat(NAMESPACE, "-hidden");
+			var CLASS_HIDE = "".concat(NAMESPACE, "-hide");
+			var CLASS_INVISIBLE = "".concat(NAMESPACE, "-invisible");
+			var CLASS_MODAL = "".concat(NAMESPACE, "-modal");
+			var CLASS_MOVE = "".concat(NAMESPACE, "-move");
+			var DATA_ACTION = "".concat(NAMESPACE, "Action");
+			var DATA_PREVIEW = "".concat(NAMESPACE, "Preview");
+			var DRAG_MODE_CROP = "crop";
+			var DRAG_MODE_MOVE = "move";
+			var DRAG_MODE_NONE = "none";
+			var EVENT_BLUR = "blur";
+			var EVENT_CROP = "crop";
+			var EVENT_CROP_END = "cropend";
+			var EVENT_CROP_MOVE = "cropmove";
+			var EVENT_CROP_START = "cropstart";
+			var EVENT_DBLCLICK = "dblclick";
+			var EVENT_ERROR = "error";
+			var EVENT_TOUCH_START = IS_TOUCH_DEVICE ? "touchstart" : "mousedown";
+			var EVENT_TOUCH_MOVE = IS_TOUCH_DEVICE ? "touchmove" : "mousemove";
+			var EVENT_TOUCH_END = IS_TOUCH_DEVICE ? "touchend touchcancel" : "mouseup";
+			var EVENT_POINTER_DOWN = HAS_POINTER_EVENT ? "pointerdown" : EVENT_TOUCH_START;
+			var EVENT_POINTER_MOVE = HAS_POINTER_EVENT ? "pointermove" : EVENT_TOUCH_MOVE;
+			var EVENT_POINTER_UP = HAS_POINTER_EVENT ? "pointerup pointercancel" : EVENT_TOUCH_END;
+			var EVENT_READY = "ready";
+			var EVENT_RESIZE = "resize";
+			var EVENT_WHEEL = "wheel";
+			var EVENT_ZOOM = "zoom";
+			var MIME_TYPE_JPEG = "image/jpeg";
+			var REGEXP_ACTIONS = /^(e|w|s|n|se|sw|ne|nw|all|crop|move|zoom)$/;
+			var REGEXP_DATA_URL = /^data:/;
+			var REGEXP_DATA_URL_JPEG = /^data:image\/jpeg;base64,/;
+			var REGEXP_SPACES = /\s+/;
+			var REGEXP_TAG_NAME = /^(img|canvas)$/i;
+			var MIN_CONTAINER_WIDTH = 200;
+			var MIN_CONTAINER_HEIGHT = 100;
+			var DEFAULTS = {
+				viewMode: 0,
+				dragMode: DRAG_MODE_CROP,
+				initialAspectRatio: NaN,
+				aspectRatio: NaN,
+				borderRadius: 0,
+				data: null,
+				preview: "",
+				responsive: true,
+				restore: true,
+				checkCrossOrigin: true,
+				checkOrientation: true,
+				modal: true,
+				guides: true,
+				center: true,
+				highlight: true,
+				background: true,
+				autoCrop: true,
+				autoCropArea: .8,
+				movable: true,
+				rotatable: true,
+				scalable: true,
+				zoomable: true,
+				zoomOnTouch: true,
+				zoomOnWheel: true,
+				zoomAroundCenter: false,
+				wheelZoomRatio: .1,
+				cropBoxMovable: true,
+				cropBoxMoveMode: "cursor",
+				cropBoxResizable: true,
+				cropBoxResizeAroundCenter: false,
+				toggleDragModeOnDblclick: true,
+				minCanvasWidth: 0,
+				minCanvasHeight: 0,
+				minCropBoxWidth: 0,
+				minCropBoxHeight: 0,
+				minContainerWidth: MIN_CONTAINER_WIDTH,
+				minContainerHeight: MIN_CONTAINER_HEIGHT,
+				ready: null,
+				error: null,
+				cropstart: null,
+				cropmove: null,
+				cropend: null,
+				crop: null,
+				zoom: null
+			};
+			var TEMPLATE = "<div class=\"cropper-container\" touch-action=\"none\"><div class=\"cropper-wrap-box\"><div class=\"cropper-canvas\"></div></div><div class=\"cropper-drag-box\"></div><div class=\"cropper-crop-box\"><span class=\"cropper-view-box\"></span><span class=\"cropper-dashed dashed-h\"></span><span class=\"cropper-dashed dashed-v\"></span><span class=\"cropper-center\"></span><span class=\"cropper-face\"></span><span class=\"cropper-line line-e\" data-cropper-action=\"e\"></span><span class=\"cropper-line line-n\" data-cropper-action=\"n\"></span><span class=\"cropper-line line-w\" data-cropper-action=\"w\"></span><span class=\"cropper-line line-s\" data-cropper-action=\"s\"></span><span class=\"cropper-point point-e\" data-cropper-action=\"e\"></span><span class=\"cropper-point point-n\" data-cropper-action=\"n\"></span><span class=\"cropper-point point-w\" data-cropper-action=\"w\"></span><span class=\"cropper-point point-s\" data-cropper-action=\"s\"></span><span class=\"cropper-point point-ne\" data-cropper-action=\"ne\"></span><span class=\"cropper-point point-nw\" data-cropper-action=\"nw\"></span><span class=\"cropper-point point-sw\" data-cropper-action=\"sw\"></span><span class=\"cropper-point point-se\" data-cropper-action=\"se\"></span></div></div>";
+			/**
+			* Check if the given value is not a number.
+			*/
+			var isNaN = Number.isNaN || WINDOW.isNaN;
+			/**
+			* Check if the given value is a finite number.
+			*/
+			var isFinite = Number.isFinite || WINDOW.isFinite;
+			/**
+			* Check if the given value is a number.
+			* @param {*} value - The value to check.
+			* @returns {boolean} Returns `true` if the given value is a number, else `false`.
+			*/
+			function isNumber(value) {
+				return typeof value === "number" && !isNaN(value);
+			}
+			/**
+			* Check if the given value is a positive number.
+			* @param {*} value - The value to check.
+			* @returns {boolean} Returns `true` if the given value is a positive number, else `false`.
+			*/
+			var isPositiveNumber = function isPositiveNumber(value) {
+				return value > 0 && value < Infinity;
+			};
+			/**
+			* Check if the given value is undefined.
+			* @param {*} value - The value to check.
+			* @returns {boolean} Returns `true` if the given value is undefined, else `false`.
+			*/
+			function isUndefined(value) {
+				return typeof value === "undefined";
+			}
+			/**
+			* Check if the given value is an object.
+			* @param {*} value - The value to check.
+			* @returns {boolean} Returns `true` if the given value is an object, else `false`.
+			*/
+			function isObject(value) {
+				return _typeof(value) === "object" && value !== null;
+			}
+			var hasOwnProperty = Object.prototype.hasOwnProperty;
+			/**
+			* Check if the given value is a plain object.
+			* @param {*} value - The value to check.
+			* @returns {boolean} Returns `true` if the given value is a plain object, else `false`.
+			*/
+			function isPlainObject(value) {
+				if (!isObject(value)) return false;
+				try {
+					var constructor = value.constructor;
+					var prototype = constructor.prototype;
+					return constructor && prototype && hasOwnProperty.call(prototype, "isPrototypeOf");
+				} catch (error) {
+					return false;
+				}
+			}
+			/**
+			* Check if the given value is a function.
+			* @param {*} value - The value to check.
+			* @returns {boolean} Returns `true` if the given value is a function, else `false`.
+			*/
+			function isFunction(value) {
+				return typeof value === "function";
+			}
+			var slice = Array.prototype.slice;
+			/**
+			* Convert array-like or iterable object to an array.
+			* @param {*} value - The value to convert.
+			* @returns {Array} Returns a new array.
+			*/
+			function toArray(value) {
+				return Array.from ? Array.from(value) : slice.call(value);
+			}
+			/**
+			* Iterate the given data.
+			* @param {*} data - The data to iterate.
+			* @param {Function} callback - The process function for each element.
+			* @returns {*} The original data.
+			*/
+			function forEach(data, callback) {
+				if (data && isFunction(callback)) {
+					if (Array.isArray(data) || isNumber(data.length)) toArray(data).forEach(function(value, key) {
+						callback.call(data, value, key, data);
+					});
+					else if (isObject(data)) Object.keys(data).forEach(function(key) {
+						callback.call(data, data[key], key, data);
+					});
+				}
+				return data;
+			}
+			/**
+			* Extend the given object.
+			* @param {*} target - The target object to extend.
+			* @param {*} args - The rest objects for merging to the target object.
+			* @returns {Object} The extended object.
+			*/
+			var assign = Object.assign || function assign(target) {
+				for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) args[_key - 1] = arguments[_key];
+				if (isObject(target) && args.length > 0) args.forEach(function(arg) {
+					if (isObject(arg)) Object.keys(arg).forEach(function(key) {
+						target[key] = arg[key];
+					});
+				});
+				return target;
+			};
+			var REGEXP_DECIMALS = /\.\d*(?:0|9){12}\d*$/;
+			/**
+			* Normalize decimal number.
+			* Check out {@link https://0.30000000000000004.com/}
+			* @param {number} value - The value to normalize.
+			* @param {number} [times=100000000000] - The times for normalizing.
+			* @returns {number} Returns the normalized number.
+			*/
+			function normalizeDecimalNumber(value) {
+				var times = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 1e11;
+				return Math.abs(value) < 1 / times || REGEXP_DECIMALS.test(value) ? Math.round(value * times) / times : value;
+			}
+			var REGEXP_SUFFIX = /^width|height|left|top|marginLeft|marginTop$/;
+			/**
+			* Apply styles to the given element.
+			* @param {Element} element - The target element.
+			* @param {Object} styles - The styles for applying.
+			*/
+			function setStyle(element, styles) {
+				var style = element.style;
+				forEach(styles, function(value, property) {
+					if (REGEXP_SUFFIX.test(property) && isNumber(value)) value = "".concat(value, "px");
+					style[property] = value;
+				});
+			}
+			/**
+			* Check if the given element has a special class.
+			* @param {Element} element - The element to check.
+			* @param {string} value - The class to search.
+			* @returns {boolean} Returns `true` if the special class was found.
+			*/
+			function hasClass(element, value) {
+				return element.classList ? element.classList.contains(value) : element.className.split(REGEXP_SPACES).indexOf(value) > -1;
+			}
+			/**
+			* Add classes to the given element.
+			* @param {Element} element - The target element.
+			* @param {string} value - The classes to be added.
+			*/
+			function addClass(element, value) {
+				if (!value) return;
+				if (isNumber(element.length)) {
+					forEach(element, function(elem) {
+						addClass(elem, value);
+					});
+					return;
+				}
+				if (element.classList) {
+					element.classList.add(value);
+					return;
+				}
+				var className = element.className.trim();
+				if (!className) element.className = value;
+				else if (className.indexOf(value) < 0) element.className = "".concat(className, " ").concat(value);
+			}
+			/**
+			* Remove classes from the given element.
+			* @param {Element} element - The target element.
+			* @param {string} value - The classes to be removed.
+			*/
+			function removeClass(element, value) {
+				if (!value) return;
+				if (isNumber(element.length)) {
+					forEach(element, function(elem) {
+						removeClass(elem, value);
+					});
+					return;
+				}
+				if (element.classList) {
+					element.classList.remove(value);
+					return;
+				}
+				if (element.className.indexOf(value) >= 0) element.className = element.className.split(REGEXP_SPACES).filter(function(item) {
+					return item && item !== value;
+				}).join(" ");
+			}
+			/**
+			* Add or remove classes from the given element.
+			* @param {Element} element - The target element.
+			* @param {string} value - The classes to be toggled.
+			* @param {boolean} added - Add only.
+			*/
+			function toggleClass(element, value, added) {
+				if (!value) return;
+				if (isNumber(element.length)) {
+					forEach(element, function(elem) {
+						toggleClass(elem, value, added);
+					});
+					return;
+				}
+				if (added) addClass(element, value);
+				else removeClass(element, value);
+			}
+			var REGEXP_CAMEL_CASE = /([a-z\d])([A-Z])/g;
+			/**
+			* Transform the given string from camelCase to kebab-case
+			* @param {string} value - The value to transform.
+			* @returns {string} The transformed value.
+			*/
+			function toParamCase(value) {
+				return typeof value === "string" ? value.replace(REGEXP_CAMEL_CASE, "$1-$2").toLowerCase() : "";
+			}
+			/**
+			* Get data from the given element.
+			* @param {Element} element - The target element.
+			* @param {string} name - The data key to get.
+			* @returns {string} The data value.
+			*/
+			function getData(element, name) {
+				if (isObject(element[name])) return element[name];
+				if (element.dataset) return element.dataset[name];
+				return element.getAttribute("data-".concat(toParamCase(name)));
+			}
+			/**
+			* Set data to the given element.
+			* @param {Element} element - The target element.
+			* @param {string} name - The data key to set.
+			* @param {string} data - The data value.
+			*/
+			function setData(element, name, data) {
+				if (isObject(data)) element[name] = data;
+				else if (element.dataset) element.dataset[name] = data;
+				else element.setAttribute("data-".concat(toParamCase(name)), data);
+			}
+			/**
+			* Remove data from the given element.
+			* @param {Element} element - The target element.
+			* @param {string} name - The data key to remove.
+			*/
+			function removeData(element, name) {
+				if (isObject(element[name])) try {
+					delete element[name];
+				} catch (error) {
+					element[name] = void 0;
+				}
+				else if (element.dataset) try {
+					delete element.dataset[name];
+				} catch (error) {
+					element.dataset[name] = void 0;
+				}
+				else element.removeAttribute("data-".concat(toParamCase(name)));
+			}
+			var onceSupported = function() {
+				var supported = false;
+				if (IS_BROWSER) {
+					var once = false;
+					var listener = function listener() {};
+					var options = Object.defineProperty({}, "once", {
+						get: function get() {
+							supported = true;
+							return once;
+						},
+						/**
+						* This setter can fix a `TypeError` in strict mode
+						* {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Errors/Getter_only}
+						* @param {boolean} value - The value to set
+						*/
+						set: function set(value) {
+							once = value;
+						}
+					});
+					WINDOW.addEventListener("test", listener, options);
+					WINDOW.removeEventListener("test", listener, options);
+				}
+				return supported;
+			}();
+			/**
+			* Remove event listener from the target element.
+			* @param {Element} element - The event target.
+			* @param {string} type - The event type(s).
+			* @param {Function} listener - The event listener.
+			* @param {Object} options - The event options.
+			*/
+			function removeListener(element, type, listener) {
+				var options = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : {};
+				if (!element || !type || !isFunction(element.removeEventListener)) return;
+				var handler = listener;
+				type.trim().split(REGEXP_SPACES).forEach(function(event) {
+					if (!onceSupported) {
+						var listeners = element.__cropperListeners__ || {};
+						if (listeners[event] && listeners[event][listener]) {
+							handler = listeners[event][listener];
+							delete listeners[event][listener];
+							if (Object.keys(listeners[event]).length === 0) delete listeners[event];
+							if (Object.keys(listeners).length === 0) delete element.__cropperListeners__;
+						}
+					}
+					element.removeEventListener(event, handler, options);
+				});
+			}
+			/**
+			* Add event listener to the target element.
+			* @param {Element} element - The event target.
+			* @param {string} type - The event type(s).
+			* @param {Function} listener - The event listener.
+			* @param {Object} options - The event options.
+			*/
+			function addListener(element, type, listener) {
+				var options = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : {};
+				if (!element || !type || !isFunction(element.addEventListener) || !isFunction(listener)) return;
+				var _handler = listener;
+				type.trim().split(REGEXP_SPACES).forEach(function(event) {
+					if (options.once && !onceSupported) {
+						var listeners = element.__cropperListeners__ || {};
+						_handler = function handler() {
+							if (listeners[event] && listeners[event][listener]) delete listeners[event][listener];
+							element.removeEventListener(event, _handler, options);
+							for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) args[_key2] = arguments[_key2];
+							listener.apply(element, args);
+						};
+						if (!listeners[event]) listeners[event] = {};
+						if (listeners[event][listener]) element.removeEventListener(event, listeners[event][listener], options);
+						listeners[event][listener] = _handler;
+						element.__cropperListeners__ = listeners;
+					}
+					element.addEventListener(event, _handler, options);
+				});
+			}
+			/**
+			* Dispatch event on the target element.
+			* @param {Element} element - The event target.
+			* @param {string} type - The event type(s).
+			* @param {Object} data - The additional event data.
+			* @returns {boolean} Indicate if the event is default prevented or not.
+			*/
+			function dispatchEvent(element, type, data) {
+				if (!element || !type || !isFunction(element.dispatchEvent)) return false;
+				var event;
+				if (isFunction(Event) && isFunction(CustomEvent)) event = new CustomEvent(type, {
+					detail: data,
+					bubbles: true,
+					cancelable: true
+				});
+				else if (isObject(document) && isFunction(document.createEvent)) {
+					event = document.createEvent("CustomEvent");
+					event.initCustomEvent(type, true, true, data);
+				} else return false;
+				return element.dispatchEvent(event);
+			}
+			/**
+			* Get the offset based on the document.
+			* @param {Element} element - The target element.
+			* @returns {Object} The offset data.
+			*/
+			function getOffset(element) {
+				if (!element || !isFunction(element.getBoundingClientRect)) return {
+					left: 0,
+					top: 0
+				};
+				var box = element.getBoundingClientRect();
+				var _ref$documentElement = (document || {}).documentElement, documentElement = _ref$documentElement === void 0 ? {} : _ref$documentElement;
+				var pageXOffset = WINDOW.pageXOffset || 0;
+				var pageYOffset = WINDOW.pageYOffset || 0;
+				return {
+					left: box.left + (pageXOffset - (documentElement.clientLeft || 0)),
+					top: box.top + (pageYOffset - (documentElement.clientTop || 0))
+				};
+			}
+			var location = WINDOW.location;
+			var REGEXP_ORIGINS = /^(\w+:)\/\/([^:/?#]*):?(\d*)/i;
+			/**
+			* Check if the given URL is a cross origin URL.
+			* @param {string} url - The target URL.
+			* @returns {boolean} Returns `true` if the given URL is a cross origin URL, else `false`.
+			*/
+			function isCrossOriginURL(url) {
+				var parts = url.match(REGEXP_ORIGINS);
+				return parts !== null && (parts[1] !== location.protocol || parts[2] !== location.hostname || parts[3] !== location.port);
+			}
+			/**
+			* Add timestamp to the given URL.
+			* @param {string} url - The target URL.
+			* @returns {string} The result URL.
+			*/
+			function addTimestamp(url) {
+				var hashIndex = url.indexOf("#");
+				var hash = hashIndex >= 0 ? url.slice(hashIndex) : "";
+				var baseUrl = hashIndex >= 0 ? url.slice(0, hashIndex) : url;
+				var timestamp = "timestamp=".concat((/* @__PURE__ */ new Date()).getTime());
+				return "".concat(baseUrl).concat(baseUrl.indexOf("?") === -1 ? "?" : "&").concat(timestamp).concat(hash);
+			}
+			/**
+			* Get transforms based on the given object.
+			* @param {Object} obj - The target object.
+			* @returns {string} A string contains transform values.
+			*/
+			function getTransforms(_ref2) {
+				var rotate = _ref2.rotate, scaleX = _ref2.scaleX, scaleY = _ref2.scaleY, translateX = _ref2.translateX, translateY = _ref2.translateY;
+				var values = [];
+				if (isNumber(translateX) && translateX !== 0) values.push("translateX(".concat(translateX, "px)"));
+				if (isNumber(translateY) && translateY !== 0) values.push("translateY(".concat(translateY, "px)"));
+				if (isNumber(rotate) && rotate !== 0) values.push("rotate(".concat(rotate, "deg)"));
+				if (isNumber(scaleX) && scaleX !== 1) values.push("scaleX(".concat(scaleX, ")"));
+				if (isNumber(scaleY) && scaleY !== 1) values.push("scaleY(".concat(scaleY, ")"));
+				var transform = values.length ? values.join(" ") : "none";
+				return {
+					WebkitTransform: transform,
+					msTransform: transform,
+					transform
+				};
+			}
+			/**
+			* Get the max ratio of a group of pointers.
+			* @param {string} pointers - The target pointers.
+			* @returns {number} The result ratio.
+			*/
+			function getMaxZoomRatio(pointers) {
+				var pointers2 = _objectSpread2({}, pointers);
+				var maxRatio = 0;
+				forEach(pointers, function(pointer, pointerId) {
+					delete pointers2[pointerId];
+					forEach(pointers2, function(pointer2) {
+						var x1 = Math.abs(pointer.startX - pointer2.startX);
+						var y1 = Math.abs(pointer.startY - pointer2.startY);
+						var x2 = Math.abs(pointer.endX - pointer2.endX);
+						var y2 = Math.abs(pointer.endY - pointer2.endY);
+						var z1 = Math.sqrt(x1 * x1 + y1 * y1);
+						var z2 = Math.sqrt(x2 * x2 + y2 * y2);
+						if (!isFinite(z1) || !isFinite(z2) || z1 === 0 || z2 === z1) return;
+						var ratio = (z2 - z1) / z1;
+						if (isFinite(ratio) && Math.abs(ratio) > Math.abs(maxRatio)) maxRatio = ratio;
+					});
+				});
+				return maxRatio;
+			}
+			/**
+			* Get a pointer from an event object.
+			* @param {Object} event - The target event object.
+			* @param {boolean} endOnly - Indicates if only returns the end point coordinate or not.
+			* @returns {Object} The result pointer contains start and/or end point coordinates.
+			*/
+			function getPointer(_ref3, endOnly) {
+				var pageX = _ref3.pageX, pageY = _ref3.pageY;
+				var end = {
+					endX: pageX,
+					endY: pageY
+				};
+				return endOnly ? end : _objectSpread2({
+					startX: pageX,
+					startY: pageY
+				}, end);
+			}
+			/**
+			* Get the center point coordinate of a group of pointers.
+			* @param {Object} pointers - The target pointers.
+			* @returns {Object} The center point coordinate.
+			*/
+			function getPointersCenter(pointers) {
+				var pageX = 0;
+				var pageY = 0;
+				var count = 0;
+				forEach(pointers, function(_ref4) {
+					var startX = _ref4.startX, startY = _ref4.startY;
+					pageX += startX;
+					pageY += startY;
+					count += 1;
+				});
+				pageX /= count;
+				pageY /= count;
+				return {
+					pageX,
+					pageY
+				};
+			}
+			/**
+			* Get the max sizes in a rectangle under the given aspect ratio.
+			* @param {Object} data - The original sizes.
+			* @param {string} [type='contain'] - The adjust type.
+			* @returns {Object} The result sizes.
+			*/
+			function getAdjustedSizes(_ref5) {
+				var aspectRatio = _ref5.aspectRatio, height = _ref5.height, width = _ref5.width;
+				var type = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : "contain";
+				var isValidWidth = isPositiveNumber(width);
+				var isValidHeight = isPositiveNumber(height);
+				if (isValidWidth && isValidHeight) {
+					var adjustedWidth = height * aspectRatio;
+					if (type === "contain" && adjustedWidth > width || type === "cover" && adjustedWidth < width) height = width / aspectRatio;
+					else width = height * aspectRatio;
+				} else if (isValidWidth) height = width / aspectRatio;
+				else if (isValidHeight) width = height * aspectRatio;
+				return {
+					width,
+					height
+				};
+			}
+			/**
+			* Get the new sizes of a rectangle after rotated.
+			* @param {Object} data - The original sizes.
+			* @returns {Object} The result sizes.
+			*/
+			function getRotatedSizes(_ref6) {
+				var width = _ref6.width, height = _ref6.height, degree = _ref6.degree;
+				degree = Math.abs(degree) % 180;
+				if (degree === 90) return {
+					width: height,
+					height: width
+				};
+				var arc = degree % 90 * Math.PI / 180;
+				var sinArc = Math.sin(arc);
+				var cosArc = Math.cos(arc);
+				var newWidth = width * cosArc + height * sinArc;
+				var newHeight = width * sinArc + height * cosArc;
+				return degree > 90 ? {
+					width: newHeight,
+					height: newWidth
+				} : {
+					width: newWidth,
+					height: newHeight
+				};
+			}
+			/**
+			* Get a canvas which draws the given image.
+			* @param {HTMLImageElement} image - The image for drawing.
+			* @param {Object} imageData - The image data.
+			* @param {Object} canvasData - The canvas data.
+			* @param {Object} options - The options.
+			* @returns {HTMLCanvasElement} The result canvas.
+			*/
+			function getSourceCanvas(image, _ref7, _ref8, _ref9) {
+				var imageAspectRatio = _ref7.aspectRatio, imageNaturalWidth = _ref7.naturalWidth, imageNaturalHeight = _ref7.naturalHeight, _ref7$rotate = _ref7.rotate, rotate = _ref7$rotate === void 0 ? 0 : _ref7$rotate, _ref7$scaleX = _ref7.scaleX, scaleX = _ref7$scaleX === void 0 ? 1 : _ref7$scaleX, _ref7$scaleY = _ref7.scaleY, scaleY = _ref7$scaleY === void 0 ? 1 : _ref7$scaleY;
+				var aspectRatio = _ref8.aspectRatio, naturalWidth = _ref8.naturalWidth, naturalHeight = _ref8.naturalHeight;
+				var _ref9$fillColor = _ref9.fillColor, fillColor = _ref9$fillColor === void 0 ? "transparent" : _ref9$fillColor, _ref9$imageSmoothingE = _ref9.imageSmoothingEnabled, imageSmoothingEnabled = _ref9$imageSmoothingE === void 0 ? true : _ref9$imageSmoothingE, _ref9$imageSmoothingQ = _ref9.imageSmoothingQuality, imageSmoothingQuality = _ref9$imageSmoothingQ === void 0 ? "low" : _ref9$imageSmoothingQ, _ref9$maxWidth = _ref9.maxWidth, maxWidth = _ref9$maxWidth === void 0 ? Infinity : _ref9$maxWidth, _ref9$maxHeight = _ref9.maxHeight, maxHeight = _ref9$maxHeight === void 0 ? Infinity : _ref9$maxHeight, _ref9$minWidth = _ref9.minWidth, minWidth = _ref9$minWidth === void 0 ? 0 : _ref9$minWidth, _ref9$minHeight = _ref9.minHeight, minHeight = _ref9$minHeight === void 0 ? 0 : _ref9$minHeight;
+				var canvas = document.createElement("canvas");
+				var context = canvas.getContext("2d");
+				var maxSizes = getAdjustedSizes({
+					aspectRatio,
+					width: maxWidth,
+					height: maxHeight
+				});
+				var minSizes = getAdjustedSizes({
+					aspectRatio,
+					width: minWidth,
+					height: minHeight
+				}, "cover");
+				var width = Math.min(maxSizes.width, Math.max(minSizes.width, naturalWidth));
+				var height = Math.min(maxSizes.height, Math.max(minSizes.height, naturalHeight));
+				var destMaxSizes = getAdjustedSizes({
+					aspectRatio: imageAspectRatio,
+					width: maxWidth,
+					height: maxHeight
+				});
+				var destMinSizes = getAdjustedSizes({
+					aspectRatio: imageAspectRatio,
+					width: minWidth,
+					height: minHeight
+				}, "cover");
+				var destWidth = Math.min(destMaxSizes.width, Math.max(destMinSizes.width, imageNaturalWidth));
+				var destHeight = Math.min(destMaxSizes.height, Math.max(destMinSizes.height, imageNaturalHeight));
+				var params = [
+					-destWidth / 2,
+					-destHeight / 2,
+					destWidth,
+					destHeight
+				];
+				canvas.width = normalizeDecimalNumber(width);
+				canvas.height = normalizeDecimalNumber(height);
+				context.fillStyle = fillColor;
+				context.fillRect(0, 0, width, height);
+				context.save();
+				context.translate(width / 2, height / 2);
+				context.rotate(rotate * Math.PI / 180);
+				context.scale(scaleX, scaleY);
+				context.imageSmoothingEnabled = imageSmoothingEnabled;
+				context.imageSmoothingQuality = imageSmoothingQuality;
+				context.drawImage.apply(context, [image].concat(_toConsumableArray(params.map(function(param) {
+					return Math.floor(normalizeDecimalNumber(param));
+				}))));
+				context.restore();
+				return canvas;
+			}
+			var fromCharCode = String.fromCharCode;
+			/**
+			* Get string from char code in data view.
+			* @param {DataView} dataView - The data view for read.
+			* @param {number} start - The start index.
+			* @param {number} length - The read length.
+			* @returns {string} The read result.
+			*/
+			function getStringFromCharCode(dataView, start, length) {
+				var str = "";
+				length += start;
+				for (var i = start; i < length; i += 1) str += fromCharCode(dataView.getUint8(i));
+				return str;
+			}
+			var REGEXP_DATA_URL_HEAD = /^data:.*,/;
+			/**
+			* Transform Data URL to array buffer.
+			* @param {string} dataURL - The Data URL to transform.
+			* @returns {ArrayBuffer} The result array buffer.
+			*/
+			function dataURLToArrayBuffer(dataURL) {
+				var base64 = dataURL.replace(REGEXP_DATA_URL_HEAD, "");
+				var binary = atob(base64);
+				var arrayBuffer = new ArrayBuffer(binary.length);
+				var uint8 = new Uint8Array(arrayBuffer);
+				forEach(uint8, function(value, i) {
+					uint8[i] = binary.charCodeAt(i);
+				});
+				return arrayBuffer;
+			}
+			/**
+			* Transform array buffer to Data URL.
+			* @param {ArrayBuffer} arrayBuffer - The array buffer to transform.
+			* @param {string} mimeType - The mime type of the Data URL.
+			* @returns {string} The result Data URL.
+			*/
+			function arrayBufferToDataURL(arrayBuffer, mimeType) {
+				var chunks = [];
+				var chunkSize = 8192;
+				var uint8 = new Uint8Array(arrayBuffer);
+				while (uint8.length > 0) {
+					chunks.push(fromCharCode.apply(null, toArray(uint8.subarray(0, chunkSize))));
+					uint8 = uint8.subarray(chunkSize);
+				}
+				return "data:".concat(mimeType, ";base64,").concat(btoa(chunks.join("")));
+			}
+			/**
+			* Get orientation value from given array buffer.
+			* @param {ArrayBuffer} arrayBuffer - The array buffer to read.
+			* @returns {number} The read orientation value.
+			*/
+			function resetAndGetOrientation(arrayBuffer) {
+				var dataView = new DataView(arrayBuffer);
+				var orientation;
+				try {
+					var littleEndian;
+					var app1Start;
+					var ifdStart;
+					if (dataView.getUint8(0) === 255 && dataView.getUint8(1) === 216) {
+						var length = dataView.byteLength;
+						var offset = 2;
+						while (offset + 1 < length) {
+							if (dataView.getUint8(offset) === 255 && dataView.getUint8(offset + 1) === 225) {
+								app1Start = offset;
+								break;
+							}
+							offset += 1;
+						}
+					}
+					if (app1Start) {
+						var exifIDCode = app1Start + 4;
+						var tiffOffset = app1Start + 10;
+						if (getStringFromCharCode(dataView, exifIDCode, 4) === "Exif") {
+							var endianness = dataView.getUint16(tiffOffset);
+							littleEndian = endianness === 18761;
+							if (littleEndian || endianness === 19789) {
+								if (dataView.getUint16(tiffOffset + 2, littleEndian) === 42) {
+									var firstIFDOffset = dataView.getUint32(tiffOffset + 4, littleEndian);
+									if (firstIFDOffset >= 8) ifdStart = tiffOffset + firstIFDOffset;
+								}
+							}
+						}
+					}
+					if (ifdStart) {
+						var _length = dataView.getUint16(ifdStart, littleEndian);
+						var _offset;
+						var i = 0;
+						for (; i < _length; i += 1) {
+							_offset = ifdStart + i * 12 + 2;
+							if (dataView.getUint16(_offset, littleEndian) === 274) {
+								_offset += 8;
+								orientation = dataView.getUint16(_offset, littleEndian);
+								dataView.setUint16(_offset, 1, littleEndian);
+								break;
+							}
+						}
+					}
+				} catch (error) {
+					orientation = 1;
+				}
+				return orientation;
+			}
+			/**
+			* Parse Exif Orientation value.
+			* @param {number} orientation - The orientation to parse.
+			* @returns {Object} The parsed result.
+			*/
+			function parseOrientation(orientation) {
+				var rotate = 0;
+				var scaleX = 1;
+				var scaleY = 1;
+				switch (orientation) {
+					case 2:
+						scaleX = -1;
+						break;
+					case 3:
+						rotate = -180;
+						break;
+					case 4:
+						scaleY = -1;
+						break;
+					case 5:
+						rotate = 90;
+						scaleY = -1;
+						break;
+					case 6:
+						rotate = 90;
+						break;
+					case 7:
+						rotate = 90;
+						scaleX = -1;
+						break;
+					case 8: rotate = -90;
+				}
+				return {
+					rotate,
+					scaleX,
+					scaleY
+				};
+			}
+			var render = {
+				render: function render() {
+					this.initContainer();
+					this.initCanvas();
+					this.initCropBox();
+					this.renderCanvas();
+					if (this.cropped) this.renderCropBox();
+				},
+				initContainer: function initContainer() {
+					var element = this.element, options = this.options, container = this.container, cropper = this.cropper;
+					var minWidth = Number(options.minContainerWidth);
+					var minHeight = Number(options.minContainerHeight);
+					addClass(cropper, CLASS_HIDDEN);
+					removeClass(element, CLASS_HIDDEN);
+					var containerData = {
+						width: Math.max(container.offsetWidth, minWidth >= 0 ? minWidth : MIN_CONTAINER_WIDTH),
+						height: Math.max(container.offsetHeight, minHeight >= 0 ? minHeight : MIN_CONTAINER_HEIGHT)
+					};
+					this.containerData = containerData;
+					setStyle(cropper, {
+						width: containerData.width,
+						height: containerData.height
+					});
+					addClass(element, CLASS_HIDDEN);
+					removeClass(cropper, CLASS_HIDDEN);
+				},
+				initCanvas: function initCanvas() {
+					var containerData = this.containerData, imageData = this.imageData;
+					var viewMode = this.options.viewMode;
+					var rotated = Math.abs(imageData.rotate) % 180 === 90;
+					var naturalWidth = rotated ? imageData.naturalHeight : imageData.naturalWidth;
+					var naturalHeight = rotated ? imageData.naturalWidth : imageData.naturalHeight;
+					var aspectRatio = naturalWidth / naturalHeight;
+					var canvasWidth = containerData.width;
+					var canvasHeight = containerData.height;
+					if (containerData.height * aspectRatio > containerData.width) {
+						if (viewMode === 3) canvasWidth = containerData.height * aspectRatio;
+						else canvasHeight = containerData.width / aspectRatio;
+					} else if (viewMode === 3) canvasHeight = containerData.width / aspectRatio;
+					else canvasWidth = containerData.height * aspectRatio;
+					var canvasData = {
+						aspectRatio,
+						naturalWidth,
+						naturalHeight,
+						width: canvasWidth,
+						height: canvasHeight
+					};
+					this.canvasData = canvasData;
+					this.limited = viewMode === 1 || viewMode === 2;
+					this.limitCanvas(true, true);
+					canvasData.width = Math.min(Math.max(canvasData.width, canvasData.minWidth), canvasData.maxWidth);
+					canvasData.height = Math.min(Math.max(canvasData.height, canvasData.minHeight), canvasData.maxHeight);
+					canvasData.left = (containerData.width - canvasData.width) / 2;
+					canvasData.top = (containerData.height - canvasData.height) / 2;
+					canvasData.oldLeft = canvasData.left;
+					canvasData.oldTop = canvasData.top;
+					this.initialCanvasData = assign({}, canvasData);
+				},
+				limitCanvas: function limitCanvas(sizeLimited, positionLimited) {
+					var options = this.options, containerData = this.containerData, canvasData = this.canvasData, cropBoxData = this.cropBoxData;
+					var viewMode = options.viewMode;
+					var aspectRatio = canvasData.aspectRatio;
+					var cropped = this.cropped && cropBoxData;
+					if (sizeLimited) {
+						var minCanvasWidth = Number(options.minCanvasWidth) || 0;
+						var minCanvasHeight = Number(options.minCanvasHeight) || 0;
+						if (viewMode > 1) {
+							minCanvasWidth = Math.max(minCanvasWidth, containerData.width);
+							minCanvasHeight = Math.max(minCanvasHeight, containerData.height);
+							if (viewMode === 3) {
+								if (minCanvasHeight * aspectRatio > minCanvasWidth) minCanvasWidth = minCanvasHeight * aspectRatio;
+								else minCanvasHeight = minCanvasWidth / aspectRatio;
+							}
+						} else if (viewMode > 0) {
+							if (minCanvasWidth) minCanvasWidth = Math.max(minCanvasWidth, cropped ? cropBoxData.width : 0);
+							else if (minCanvasHeight) minCanvasHeight = Math.max(minCanvasHeight, cropped ? cropBoxData.height : 0);
+							else if (cropped) {
+								minCanvasWidth = cropBoxData.width;
+								minCanvasHeight = cropBoxData.height;
+								if (minCanvasHeight * aspectRatio > minCanvasWidth) minCanvasWidth = minCanvasHeight * aspectRatio;
+								else minCanvasHeight = minCanvasWidth / aspectRatio;
+							}
+						}
+						var _getAdjustedSizes = getAdjustedSizes({
+							aspectRatio,
+							width: minCanvasWidth,
+							height: minCanvasHeight
+						});
+						minCanvasWidth = _getAdjustedSizes.width;
+						minCanvasHeight = _getAdjustedSizes.height;
+						canvasData.minWidth = minCanvasWidth;
+						canvasData.minHeight = minCanvasHeight;
+						canvasData.maxWidth = Infinity;
+						canvasData.maxHeight = Infinity;
+					}
+					if (positionLimited) {
+						if (viewMode > (cropped ? 0 : 1)) {
+							var newCanvasLeft = containerData.width - canvasData.width;
+							var newCanvasTop = containerData.height - canvasData.height;
+							canvasData.minLeft = Math.min(0, newCanvasLeft);
+							canvasData.minTop = Math.min(0, newCanvasTop);
+							canvasData.maxLeft = Math.max(0, newCanvasLeft);
+							canvasData.maxTop = Math.max(0, newCanvasTop);
+							if (cropped && this.limited) {
+								canvasData.minLeft = Math.min(cropBoxData.left, cropBoxData.left + (cropBoxData.width - canvasData.width));
+								canvasData.minTop = Math.min(cropBoxData.top, cropBoxData.top + (cropBoxData.height - canvasData.height));
+								canvasData.maxLeft = cropBoxData.left;
+								canvasData.maxTop = cropBoxData.top;
+								if (viewMode === 2) {
+									if (canvasData.width >= containerData.width) {
+										canvasData.minLeft = Math.min(0, newCanvasLeft);
+										canvasData.maxLeft = Math.max(0, newCanvasLeft);
+									}
+									if (canvasData.height >= containerData.height) {
+										canvasData.minTop = Math.min(0, newCanvasTop);
+										canvasData.maxTop = Math.max(0, newCanvasTop);
+									}
+								}
+							}
+						} else {
+							canvasData.minLeft = -canvasData.width;
+							canvasData.minTop = -canvasData.height;
+							canvasData.maxLeft = containerData.width;
+							canvasData.maxTop = containerData.height;
+						}
+					}
+				},
+				renderCanvas: function renderCanvas(changed, transformed) {
+					var canvasData = this.canvasData, imageData = this.imageData;
+					if (transformed) {
+						var _getRotatedSizes = getRotatedSizes({
+							width: imageData.naturalWidth * Math.abs(imageData.scaleX || 1),
+							height: imageData.naturalHeight * Math.abs(imageData.scaleY || 1),
+							degree: imageData.rotate || 0
+						}), naturalWidth = _getRotatedSizes.width, naturalHeight = _getRotatedSizes.height;
+						var width = canvasData.width * (naturalWidth / canvasData.naturalWidth);
+						var height = canvasData.height * (naturalHeight / canvasData.naturalHeight);
+						canvasData.left -= (width - canvasData.width) / 2;
+						canvasData.top -= (height - canvasData.height) / 2;
+						canvasData.width = width;
+						canvasData.height = height;
+						canvasData.aspectRatio = naturalWidth / naturalHeight;
+						canvasData.naturalWidth = naturalWidth;
+						canvasData.naturalHeight = naturalHeight;
+						this.limitCanvas(true, false);
+					}
+					if (canvasData.width > canvasData.maxWidth || canvasData.width < canvasData.minWidth) canvasData.left = canvasData.oldLeft;
+					if (canvasData.height > canvasData.maxHeight || canvasData.height < canvasData.minHeight) canvasData.top = canvasData.oldTop;
+					canvasData.width = Math.min(Math.max(canvasData.width, canvasData.minWidth), canvasData.maxWidth);
+					canvasData.height = Math.min(Math.max(canvasData.height, canvasData.minHeight), canvasData.maxHeight);
+					this.limitCanvas(false, true);
+					canvasData.left = Math.min(Math.max(canvasData.left, canvasData.minLeft), canvasData.maxLeft);
+					canvasData.top = Math.min(Math.max(canvasData.top, canvasData.minTop), canvasData.maxTop);
+					canvasData.oldLeft = canvasData.left;
+					canvasData.oldTop = canvasData.top;
+					setStyle(this.canvas, assign({
+						width: canvasData.width,
+						height: canvasData.height
+					}, getTransforms({
+						translateX: canvasData.left,
+						translateY: canvasData.top
+					})));
+					this.renderImage(changed);
+					if (this.cropped && this.limited) this.limitCropBox(true, true);
+				},
+				renderImage: function renderImage(changed) {
+					var canvasData = this.canvasData, imageData = this.imageData;
+					var width = imageData.naturalWidth * (canvasData.width / canvasData.naturalWidth);
+					var height = imageData.naturalHeight * (canvasData.height / canvasData.naturalHeight);
+					assign(imageData, {
+						width,
+						height,
+						left: (canvasData.width - width) / 2,
+						top: (canvasData.height - height) / 2
+					});
+					setStyle(this.image, assign({
+						width: imageData.width,
+						height: imageData.height
+					}, getTransforms(assign({
+						translateX: imageData.left,
+						translateY: imageData.top
+					}, imageData))));
+					if (changed) this.output();
+				},
+				initCropBox: function initCropBox() {
+					var options = this.options, canvasData = this.canvasData;
+					var aspectRatio = options.aspectRatio || options.initialAspectRatio;
+					var autoCropArea = Number(options.autoCropArea) || .8;
+					var cropBoxData = {
+						width: canvasData.width,
+						height: canvasData.height
+					};
+					if (aspectRatio) {
+						if (canvasData.height * aspectRatio > canvasData.width) cropBoxData.height = cropBoxData.width / aspectRatio;
+						else cropBoxData.width = cropBoxData.height * aspectRatio;
+					}
+					this.cropBoxData = cropBoxData;
+					this.limitCropBox(true, true);
+					cropBoxData.width = Math.min(Math.max(cropBoxData.width, cropBoxData.minWidth), cropBoxData.maxWidth);
+					cropBoxData.height = Math.min(Math.max(cropBoxData.height, cropBoxData.minHeight), cropBoxData.maxHeight);
+					cropBoxData.width = Math.max(cropBoxData.minWidth, cropBoxData.width * autoCropArea);
+					cropBoxData.height = Math.max(cropBoxData.minHeight, cropBoxData.height * autoCropArea);
+					cropBoxData.left = canvasData.left + (canvasData.width - cropBoxData.width) / 2;
+					cropBoxData.top = canvasData.top + (canvasData.height - cropBoxData.height) / 2;
+					cropBoxData.oldLeft = cropBoxData.left;
+					cropBoxData.oldTop = cropBoxData.top;
+					this.initialCropBoxData = assign({}, cropBoxData);
+				},
+				limitCropBox: function limitCropBox(sizeLimited, positionLimited) {
+					var options = this.options, containerData = this.containerData, canvasData = this.canvasData, cropBoxData = this.cropBoxData, limited = this.limited;
+					var aspectRatio = options.aspectRatio;
+					if (sizeLimited) {
+						var minCropBoxWidth = Number(options.minCropBoxWidth) || 0;
+						var minCropBoxHeight = Number(options.minCropBoxHeight) || 0;
+						var maxCropBoxWidth = limited ? Math.min(containerData.width, canvasData.width, canvasData.width + canvasData.left, containerData.width - canvasData.left) : containerData.width;
+						var maxCropBoxHeight = limited ? Math.min(containerData.height, canvasData.height, canvasData.height + canvasData.top, containerData.height - canvasData.top) : containerData.height;
+						minCropBoxWidth = Math.min(minCropBoxWidth, containerData.width);
+						minCropBoxHeight = Math.min(minCropBoxHeight, containerData.height);
+						if (aspectRatio) {
+							if (minCropBoxWidth && minCropBoxHeight) {
+								if (minCropBoxHeight * aspectRatio > minCropBoxWidth) minCropBoxHeight = minCropBoxWidth / aspectRatio;
+								else minCropBoxWidth = minCropBoxHeight * aspectRatio;
+							} else if (minCropBoxWidth) minCropBoxHeight = minCropBoxWidth / aspectRatio;
+							else if (minCropBoxHeight) minCropBoxWidth = minCropBoxHeight * aspectRatio;
+							if (maxCropBoxHeight * aspectRatio > maxCropBoxWidth) maxCropBoxHeight = maxCropBoxWidth / aspectRatio;
+							else maxCropBoxWidth = maxCropBoxHeight * aspectRatio;
+						}
+						cropBoxData.minWidth = Math.min(minCropBoxWidth, maxCropBoxWidth);
+						cropBoxData.minHeight = Math.min(minCropBoxHeight, maxCropBoxHeight);
+						cropBoxData.maxWidth = maxCropBoxWidth;
+						cropBoxData.maxHeight = maxCropBoxHeight;
+					}
+					if (positionLimited) {
+						if (limited) {
+							cropBoxData.minLeft = Math.max(0, canvasData.left);
+							cropBoxData.minTop = Math.max(0, canvasData.top);
+							cropBoxData.maxLeft = Math.min(containerData.width, canvasData.left + canvasData.width) - cropBoxData.width;
+							cropBoxData.maxTop = Math.min(containerData.height, canvasData.top + canvasData.height) - cropBoxData.height;
+						} else {
+							cropBoxData.minLeft = 0;
+							cropBoxData.minTop = 0;
+							cropBoxData.maxLeft = containerData.width - cropBoxData.width;
+							cropBoxData.maxTop = containerData.height - cropBoxData.height;
+						}
+					}
+				},
+				renderCropBox: function renderCropBox() {
+					var options = this.options, containerData = this.containerData, cropBoxData = this.cropBoxData;
+					if (cropBoxData.width > cropBoxData.maxWidth || cropBoxData.width < cropBoxData.minWidth) cropBoxData.left = cropBoxData.oldLeft;
+					if (cropBoxData.height > cropBoxData.maxHeight || cropBoxData.height < cropBoxData.minHeight) cropBoxData.top = cropBoxData.oldTop;
+					cropBoxData.width = Math.min(Math.max(cropBoxData.width, cropBoxData.minWidth), cropBoxData.maxWidth);
+					cropBoxData.height = Math.min(Math.max(cropBoxData.height, cropBoxData.minHeight), cropBoxData.maxHeight);
+					this.limitCropBox(false, true);
+					cropBoxData.left = Math.min(Math.max(cropBoxData.left, cropBoxData.minLeft), cropBoxData.maxLeft);
+					cropBoxData.top = Math.min(Math.max(cropBoxData.top, cropBoxData.minTop), cropBoxData.maxTop);
+					cropBoxData.oldLeft = cropBoxData.left;
+					cropBoxData.oldTop = cropBoxData.top;
+					if (options.movable && options.cropBoxMovable) setData(this.face, DATA_ACTION, cropBoxData.width >= containerData.width && cropBoxData.height >= containerData.height ? ACTION_MOVE : ACTION_ALL);
+					setStyle(this.cropBox, assign({
+						width: cropBoxData.width,
+						height: cropBoxData.height,
+						borderRadius: options.borderRadius
+					}, getTransforms({
+						translateX: cropBoxData.left,
+						translateY: cropBoxData.top
+					})));
+					if (this.cropped && this.limited) this.limitCanvas(true, true);
+					if (!this.disabled) this.output();
+				},
+				output: function output() {
+					this.preview();
+					dispatchEvent(this.element, EVENT_CROP, this.getData());
+				}
+			};
+			var preview = {
+				initPreview: function initPreview() {
+					var element = this.element, crossOrigin = this.crossOrigin;
+					var preview = this.options.preview;
+					var url = crossOrigin ? this.crossOriginUrl : this.url;
+					var alt = element.alt || "The image to preview";
+					var image = document.createElement("img");
+					if (crossOrigin) image.crossOrigin = crossOrigin;
+					image.src = url;
+					image.alt = alt;
+					this.viewBox.appendChild(image);
+					this.viewBoxImage = image;
+					if (!preview) return;
+					var previews = preview;
+					if (typeof preview === "string") previews = element.ownerDocument.querySelectorAll(preview);
+					else if (preview.querySelector) previews = [preview];
+					this.previews = previews;
+					forEach(previews, function(el) {
+						var img = document.createElement("img");
+						setData(el, DATA_PREVIEW, {
+							width: el.offsetWidth,
+							height: el.offsetHeight,
+							html: el.innerHTML
+						});
+						if (crossOrigin) img.crossOrigin = crossOrigin;
+						img.src = url;
+						img.alt = alt;
+						/**
+						* Override img element styles
+						* Add `display:block` to avoid margin top issue
+						* Add `height:auto` to override `height` attribute on IE8
+						* (Occur only when margin-top <= -height)
+						*/
+						img.style.cssText = "display:block;width:100%;height:auto;min-width:0!important;min-height:0!important;max-width:none!important;max-height:none!important;image-orientation:0deg!important;";
+						el.innerHTML = "";
+						el.appendChild(img);
+					});
+				},
+				resetPreview: function resetPreview() {
+					forEach(this.previews, function(element) {
+						var data = getData(element, DATA_PREVIEW);
+						setStyle(element, {
+							width: data.width,
+							height: data.height
+						});
+						element.innerHTML = data.html;
+						removeData(element, DATA_PREVIEW);
+					});
+				},
+				preview: function preview() {
+					var imageData = this.imageData, canvasData = this.canvasData, cropBoxData = this.cropBoxData;
+					var cropBoxWidth = cropBoxData.width, cropBoxHeight = cropBoxData.height;
+					var width = imageData.width, height = imageData.height;
+					var left = cropBoxData.left - canvasData.left - imageData.left;
+					var top = cropBoxData.top - canvasData.top - imageData.top;
+					if (!this.cropped || this.disabled) return;
+					setStyle(this.viewBoxImage, assign({
+						width,
+						height
+					}, getTransforms(assign({
+						translateX: -left,
+						translateY: -top
+					}, imageData))));
+					forEach(this.previews, function(element) {
+						var data = getData(element, DATA_PREVIEW);
+						var originalWidth = data.width;
+						var originalHeight = data.height;
+						var newWidth = originalWidth;
+						var newHeight = originalHeight;
+						var ratio = 1;
+						if (cropBoxWidth) {
+							ratio = originalWidth / cropBoxWidth;
+							newHeight = cropBoxHeight * ratio;
+						}
+						if (cropBoxHeight && newHeight > originalHeight) {
+							ratio = originalHeight / cropBoxHeight;
+							newWidth = cropBoxWidth * ratio;
+							newHeight = originalHeight;
+						}
+						setStyle(element, {
+							width: newWidth,
+							height: newHeight
+						});
+						setStyle(element.getElementsByTagName("img")[0], assign({
+							width: width * ratio,
+							height: height * ratio
+						}, getTransforms(assign({
+							translateX: -left * ratio,
+							translateY: -top * ratio
+						}, imageData))));
+					});
+				}
+			};
+			var events = {
+				bind: function bind() {
+					var element = this.element, options = this.options, cropper = this.cropper;
+					if (isFunction(options.cropstart)) addListener(element, EVENT_CROP_START, options.cropstart);
+					if (isFunction(options.cropmove)) addListener(element, EVENT_CROP_MOVE, options.cropmove);
+					if (isFunction(options.cropend)) addListener(element, EVENT_CROP_END, options.cropend);
+					if (isFunction(options.crop)) addListener(element, EVENT_CROP, options.crop);
+					if (isFunction(options.zoom)) addListener(element, EVENT_ZOOM, options.zoom);
+					addListener(cropper, EVENT_POINTER_DOWN, this.onCropStart = this.cropStart.bind(this));
+					if (options.zoomable && options.zoomOnWheel) addListener(cropper, EVENT_WHEEL, this.onWheel = this.wheel.bind(this), {
+						passive: false,
+						capture: true
+					});
+					if (options.toggleDragModeOnDblclick) addListener(cropper, EVENT_DBLCLICK, this.onDblclick = this.dblclick.bind(this));
+					addListener(element.ownerDocument, EVENT_POINTER_MOVE, this.onCropMove = this.cropMove.bind(this));
+					addListener(element.ownerDocument, EVENT_POINTER_UP, this.onCropEnd = this.cropEnd.bind(this));
+					addListener(element.ownerDocument.defaultView, EVENT_BLUR, this.onCropBlur = this.cropEnd.bind(this));
+					if (options.responsive) addListener(window, EVENT_RESIZE, this.onResize = this.resize.bind(this));
+				},
+				unbind: function unbind() {
+					var element = this.element, options = this.options, cropper = this.cropper;
+					if (isFunction(options.cropstart)) removeListener(element, EVENT_CROP_START, options.cropstart);
+					if (isFunction(options.cropmove)) removeListener(element, EVENT_CROP_MOVE, options.cropmove);
+					if (isFunction(options.cropend)) removeListener(element, EVENT_CROP_END, options.cropend);
+					if (isFunction(options.crop)) removeListener(element, EVENT_CROP, options.crop);
+					if (isFunction(options.zoom)) removeListener(element, EVENT_ZOOM, options.zoom);
+					removeListener(cropper, EVENT_POINTER_DOWN, this.onCropStart);
+					if (options.zoomable && options.zoomOnWheel) removeListener(cropper, EVENT_WHEEL, this.onWheel, {
+						passive: false,
+						capture: true
+					});
+					if (options.toggleDragModeOnDblclick) removeListener(cropper, EVENT_DBLCLICK, this.onDblclick);
+					removeListener(element.ownerDocument, EVENT_POINTER_MOVE, this.onCropMove);
+					removeListener(element.ownerDocument, EVENT_POINTER_UP, this.onCropEnd);
+					removeListener(element.ownerDocument.defaultView, EVENT_BLUR, this.onCropBlur);
+					if (options.responsive) removeListener(window, EVENT_RESIZE, this.onResize);
+				}
+			};
+			var BORDER_RADIUS_CORNER_FACTOR = .5522848;
+			function expandBorderRadiusValues(values) {
+				if (values.length === 1) return [
+					values[0],
+					values[0],
+					values[0],
+					values[0]
+				];
+				if (values.length === 2) return [
+					values[0],
+					values[1],
+					values[0],
+					values[1]
+				];
+				if (values.length === 3) return [
+					values[0],
+					values[1],
+					values[2],
+					values[1]
+				];
+				return values.slice(0, 4);
+			}
+			function parseBorderRadiusValues(value, size, scale) {
+				return value.trim().split(/\s+/).map(function(part) {
+					var number = Number.parseFloat(part);
+					if (part.endsWith("%")) return number * size / 100;
+					return (number || 0) * scale;
+				});
+			}
+			function getBorderRadii(borderRadius, width, height, scale) {
+				var parts = String(borderRadius || 0).trim().split("/");
+				var horizontal = expandBorderRadiusValues(parseBorderRadiusValues(parts[0], width, scale));
+				var vertical = expandBorderRadiusValues(parseBorderRadiusValues(parts[1] || parts[0], height, scale));
+				var radii = [
+					{
+						x: horizontal[0],
+						y: vertical[0]
+					},
+					{
+						x: horizontal[1],
+						y: vertical[1]
+					},
+					{
+						x: horizontal[2],
+						y: vertical[2]
+					},
+					{
+						x: horizontal[3],
+						y: vertical[3]
+					}
+				];
+				var radiusScale = Math.min(1, width / (radii[0].x + radii[1].x || 1), width / (radii[3].x + radii[2].x || 1), height / (radii[0].y + radii[3].y || 1), height / (radii[1].y + radii[2].y || 1));
+				return radii.map(function(_ref) {
+					var x = _ref.x, y = _ref.y;
+					return {
+						x: x * radiusScale,
+						y: y * radiusScale
+					};
+				});
+			}
+			function drawRoundedRect(context, width, height, borderRadius, scale) {
+				var _getBorderRadii2 = _slicedToArray(getBorderRadii(borderRadius, width, height, scale), 4), topLeft = _getBorderRadii2[0], topRight = _getBorderRadii2[1], bottomRight = _getBorderRadii2[2], bottomLeft = _getBorderRadii2[3];
+				var factor = BORDER_RADIUS_CORNER_FACTOR;
+				context.beginPath();
+				context.moveTo(topLeft.x, 0);
+				context.lineTo(width - topRight.x, 0);
+				context.bezierCurveTo(width - topRight.x + topRight.x * factor, 0, width, topRight.y - topRight.y * factor, width, topRight.y);
+				context.lineTo(width, height - bottomRight.y);
+				context.bezierCurveTo(width, height - bottomRight.y + bottomRight.y * factor, width - bottomRight.x + bottomRight.x * factor, height, width - bottomRight.x, height);
+				context.lineTo(bottomLeft.x, height);
+				context.bezierCurveTo(bottomLeft.x - bottomLeft.x * factor, height, 0, height - bottomLeft.y + bottomLeft.y * factor, 0, height - bottomLeft.y);
+				context.lineTo(0, topLeft.y);
+				context.bezierCurveTo(0, topLeft.y - topLeft.y * factor, topLeft.x - topLeft.x * factor, 0, topLeft.x, 0);
+				context.closePath();
+				context.fill();
+			}
+			function _zoomTo(ratio, pivot, originalEvent) {
+				var options = this.options, canvasData = this.canvasData, containerData = this.containerData;
+				var width = canvasData.width, height = canvasData.height, naturalWidth = canvasData.naturalWidth, naturalHeight = canvasData.naturalHeight;
+				ratio = Number(ratio);
+				if (ratio >= 0 && this.ready && !this.disabled && options.zoomable) {
+					var newWidth = naturalWidth * ratio;
+					var newHeight = naturalHeight * ratio;
+					if (dispatchEvent(this.element, EVENT_ZOOM, {
+						ratio,
+						oldRatio: width / naturalWidth,
+						originalEvent
+					}) === false) return this;
+					if (isPlainObject(pivot) && isNumber(pivot.x) && isNumber(pivot.y)) {
+						canvasData.left -= (newWidth - width) * ((pivot.x - canvasData.left) / width);
+						canvasData.top -= (newHeight - height) * ((pivot.y - canvasData.top) / height);
+					} else if (options.zoomAroundCenter) {
+						var centerX = containerData.width / 2;
+						var centerY = containerData.height / 2;
+						canvasData.left -= (newWidth - width) * ((centerX - canvasData.left) / width);
+						canvasData.top -= (newHeight - height) * ((centerY - canvasData.top) / height);
+					} else if (originalEvent) {
+						var pointers = this.pointers;
+						var offset = getOffset(this.cropper);
+						var center = pointers && Object.keys(pointers).length ? getPointersCenter(pointers) : {
+							pageX: originalEvent.pageX,
+							pageY: originalEvent.pageY
+						};
+						canvasData.left -= (newWidth - width) * ((center.pageX - offset.left - canvasData.left) / width);
+						canvasData.top -= (newHeight - height) * ((center.pageY - offset.top - canvasData.top) / height);
+					} else {
+						canvasData.left -= (newWidth - width) / 2;
+						canvasData.top -= (newHeight - height) / 2;
+					}
+					canvasData.width = newWidth;
+					canvasData.height = newHeight;
+					this.renderCanvas(true);
+				}
+				return this;
+			}
+			function _zoom(ratio, originalEvent) {
+				var canvasData = this.canvasData;
+				ratio = Number(ratio);
+				if (ratio < 0) ratio = 1 / (1 - ratio);
+				else ratio = 1 + ratio;
+				return _zoomTo.call(this, canvasData.width * ratio / canvasData.naturalWidth, null, originalEvent);
+			}
+			function zoomWithEvent(ratio, originalEvent) {
+				return _zoom.call(this, ratio, originalEvent);
+			}
+			var methods = {
+				crop: function crop() {
+					if (this.ready && !this.cropped && !this.disabled) {
+						this.cropped = true;
+						this.limitCropBox(true, true);
+						if (this.options.modal) addClass(this.dragBox, CLASS_MODAL);
+						removeClass(this.cropBox, CLASS_HIDDEN);
+						this.setCropBoxData(this.initialCropBoxData);
+					}
+					return this;
+				},
+				reset: function reset() {
+					if (this.ready && !this.disabled) {
+						this.imageData = assign({}, this.initialImageData);
+						this.canvasData = assign({}, this.initialCanvasData);
+						this.cropBoxData = assign({}, this.initialCropBoxData);
+						this.renderCanvas();
+						if (this.cropped) this.renderCropBox();
+					}
+					return this;
+				},
+				clear: function clear() {
+					if (this.cropped && !this.disabled) {
+						assign(this.cropBoxData, {
+							left: 0,
+							top: 0,
+							width: 0,
+							height: 0
+						});
+						this.cropped = false;
+						this.renderCropBox();
+						this.limitCanvas(true, true);
+						this.renderCanvas();
+						removeClass(this.dragBox, CLASS_MODAL);
+						addClass(this.cropBox, CLASS_HIDDEN);
+					}
+					return this;
+				},
+				/**
+				* Replace the image's src and rebuild the cropper
+				* @param {string} url - The new URL.
+				* @param {boolean} [hasSameSize] - Indicate if the new image has the same size as the old one.
+				* @returns {Cropper} this
+				*/
+				replace: function replace(url) {
+					var hasSameSize = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : false;
+					if (!this.disabled && url) {
+						if (this.isImg) this.element.src = url;
+						if (hasSameSize) {
+							this.url = url;
+							this.image.src = url;
+							if (this.ready) {
+								this.viewBoxImage.src = url;
+								forEach(this.previews, function(element) {
+									element.getElementsByTagName("img")[0].src = url;
+								});
+							}
+						} else {
+							if (this.isImg) this.replaced = true;
+							this.options.data = null;
+							this.uncreate();
+							this.load(url);
+						}
+					}
+					return this;
+				},
+				enable: function enable() {
+					if (this.ready && this.disabled) {
+						this.disabled = false;
+						removeClass(this.cropper, CLASS_DISABLED);
+					}
+					return this;
+				},
+				disable: function disable() {
+					if (this.ready && !this.disabled) {
+						this.disabled = true;
+						addClass(this.cropper, CLASS_DISABLED);
+					}
+					return this;
+				},
+				/**
+				* Destroy the cropper and remove the instance from the image
+				* @returns {Cropper} this
+				*/
+				destroy: function destroy() {
+					var element = this.element;
+					if (!element[NAMESPACE]) return this;
+					element[NAMESPACE] = void 0;
+					if (this.isImg && this.replaced) element.src = this.originalUrl;
+					this.uncreate();
+					return this;
+				},
+				/**
+				* Move the canvas with relative offsets
+				* @param {number} offsetX - The relative offset distance on the x-axis.
+				* @param {number} [offsetY=offsetX] - The relative offset distance on the y-axis.
+				* @returns {Cropper} this
+				*/
+				move: function move(offsetX) {
+					var offsetY = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : offsetX;
+					var _this$canvasData = this.canvasData, left = _this$canvasData.left, top = _this$canvasData.top;
+					return this.moveTo(isUndefined(offsetX) ? offsetX : left + Number(offsetX), isUndefined(offsetY) ? offsetY : top + Number(offsetY));
+				},
+				/**
+				* Move the canvas to an absolute point
+				* @param {number} x - The x-axis coordinate.
+				* @param {number} [y=x] - The y-axis coordinate.
+				* @returns {Cropper} this
+				*/
+				moveTo: function moveTo(x) {
+					var y = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : x;
+					var canvasData = this.canvasData;
+					var changed = false;
+					x = Number(x);
+					y = Number(y);
+					if (this.ready && !this.disabled && this.options.movable) {
+						if (isNumber(x)) {
+							canvasData.left = x;
+							changed = true;
+						}
+						if (isNumber(y)) {
+							canvasData.top = y;
+							changed = true;
+						}
+						if (changed) this.renderCanvas(true);
+					}
+					return this;
+				},
+				/**
+				* Zoom the canvas with a relative ratio
+				* @param {number} ratio - The target ratio.
+				* @returns {Cropper} this
+				*/
+				zoom: function zoom(ratio) {
+					return _zoom.call(this, ratio);
+				},
+				/**
+				* Zoom the canvas to an absolute ratio
+				* @param {number} ratio - The target ratio.
+				* @param {Object} pivot - The zoom pivot point coordinate.
+				* @returns {Cropper} this
+				*/
+				zoomTo: function zoomTo(ratio, pivot) {
+					return _zoomTo.call(this, ratio, pivot);
+				},
+				/**
+				* Rotate the canvas with a relative degree
+				* @param {number} degree - The rotate degree.
+				* @returns {Cropper} this
+				*/
+				rotate: function rotate(degree) {
+					return this.rotateTo((this.imageData.rotate || 0) + Number(degree));
+				},
+				/**
+				* Rotate the canvas to an absolute degree
+				* @param {number} degree - The rotate degree.
+				* @returns {Cropper} this
+				*/
+				rotateTo: function rotateTo(degree) {
+					degree = Number(degree);
+					if (isNumber(degree) && this.ready && !this.disabled && this.options.rotatable) {
+						this.imageData.rotate = degree % 360;
+						this.renderCanvas(true, true);
+					}
+					return this;
+				},
+				/**
+				* Scale the image on the x-axis.
+				* @param {number} scaleX - The scale ratio on the x-axis.
+				* @returns {Cropper} this
+				*/
+				scaleX: function scaleX(_scaleX) {
+					var scaleY = this.imageData.scaleY;
+					return this.scale(_scaleX, isNumber(scaleY) ? scaleY : 1);
+				},
+				/**
+				* Scale the image on the y-axis.
+				* @param {number} scaleY - The scale ratio on the y-axis.
+				* @returns {Cropper} this
+				*/
+				scaleY: function scaleY(_scaleY) {
+					var scaleX = this.imageData.scaleX;
+					return this.scale(isNumber(scaleX) ? scaleX : 1, _scaleY);
+				},
+				/**
+				* Scale the image
+				* @param {number} scaleX - The scale ratio on the x-axis.
+				* @param {number} [scaleY=scaleX] - The scale ratio on the y-axis.
+				* @returns {Cropper} this
+				*/
+				scale: function scale(scaleX) {
+					var scaleY = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : scaleX;
+					var imageData = this.imageData;
+					var transformed = false;
+					scaleX = Number(scaleX);
+					scaleY = Number(scaleY);
+					if (this.ready && !this.disabled && this.options.scalable) {
+						if (isNumber(scaleX)) {
+							imageData.scaleX = scaleX;
+							transformed = true;
+						}
+						if (isNumber(scaleY)) {
+							imageData.scaleY = scaleY;
+							transformed = true;
+						}
+						if (transformed) this.renderCanvas(true, true);
+					}
+					return this;
+				},
+				/**
+				* Get the cropped area position and size data (base on the original image)
+				* @param {boolean} [rounded=false] - Indicate if round the data values or not.
+				* @returns {Object} The result cropped data.
+				*/
+				getData: function getData() {
+					var rounded = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : false;
+					var options = this.options, imageData = this.imageData, canvasData = this.canvasData, cropBoxData = this.cropBoxData;
+					var data;
+					if (this.ready && this.cropped) {
+						data = {
+							x: cropBoxData.left - canvasData.left,
+							y: cropBoxData.top - canvasData.top,
+							width: cropBoxData.width,
+							height: cropBoxData.height
+						};
+						var ratio = imageData.width / imageData.naturalWidth;
+						forEach(data, function(n, i) {
+							data[i] = normalizeDecimalNumber(n / ratio);
+						});
+						if (rounded) {
+							var bottom = Math.round(data.y + data.height);
+							var right = Math.round(data.x + data.width);
+							data.x = Math.round(data.x);
+							data.y = Math.round(data.y);
+							data.width = right - data.x;
+							data.height = bottom - data.y;
+						}
+					} else data = {
+						x: 0,
+						y: 0,
+						width: 0,
+						height: 0
+					};
+					if (options.rotatable) data.rotate = imageData.rotate || 0;
+					if (options.scalable) {
+						data.scaleX = imageData.scaleX || 1;
+						data.scaleY = imageData.scaleY || 1;
+					}
+					return data;
+				},
+				/**
+				* Set the cropped area position and size with new data
+				* @param {Object} data - The new data.
+				* @returns {Cropper} this
+				*/
+				setData: function setData(data) {
+					var options = this.options, imageData = this.imageData, canvasData = this.canvasData;
+					var cropBoxData = {};
+					if (this.ready && !this.disabled && isPlainObject(data)) {
+						var transformed = false;
+						if (options.rotatable) {
+							if (isNumber(data.rotate) && data.rotate !== imageData.rotate) {
+								imageData.rotate = data.rotate;
+								transformed = true;
+							}
+						}
+						if (options.scalable) {
+							if (isNumber(data.scaleX) && data.scaleX !== imageData.scaleX) {
+								imageData.scaleX = data.scaleX;
+								transformed = true;
+							}
+							if (isNumber(data.scaleY) && data.scaleY !== imageData.scaleY) {
+								imageData.scaleY = data.scaleY;
+								transformed = true;
+							}
+						}
+						if (transformed) this.renderCanvas(true, true);
+						var ratio = imageData.width / imageData.naturalWidth;
+						if (isNumber(data.x)) cropBoxData.left = data.x * ratio + canvasData.left;
+						if (isNumber(data.y)) cropBoxData.top = data.y * ratio + canvasData.top;
+						if (isNumber(data.width)) cropBoxData.width = data.width * ratio;
+						if (isNumber(data.height)) cropBoxData.height = data.height * ratio;
+						this.setCropBoxData(cropBoxData);
+					}
+					return this;
+				},
+				/**
+				* Get the container size data.
+				* @returns {Object} The result container data.
+				*/
+				getContainerData: function getContainerData() {
+					return this.ready ? assign({}, this.containerData) : {};
+				},
+				/**
+				* Get the image position and size data.
+				* @returns {Object} The result image data.
+				*/
+				getImageData: function getImageData() {
+					return this.sized ? assign({}, this.imageData) : {};
+				},
+				/**
+				* Get the canvas position and size data.
+				* @returns {Object} The result canvas data.
+				*/
+				getCanvasData: function getCanvasData() {
+					var canvasData = this.canvasData;
+					var data = {};
+					if (this.ready) forEach([
+						"left",
+						"top",
+						"width",
+						"height",
+						"naturalWidth",
+						"naturalHeight"
+					], function(n) {
+						data[n] = canvasData[n];
+					});
+					return data;
+				},
+				/**
+				* Set the canvas position and size with new data.
+				* @param {Object} data - The new canvas data.
+				* @returns {Cropper} this
+				*/
+				setCanvasData: function setCanvasData(data) {
+					var canvasData = this.canvasData;
+					var aspectRatio = canvasData.aspectRatio;
+					if (this.ready && !this.disabled && isPlainObject(data)) {
+						if (isNumber(data.left)) canvasData.left = data.left;
+						if (isNumber(data.top)) canvasData.top = data.top;
+						if (isNumber(data.width)) {
+							canvasData.width = data.width;
+							canvasData.height = data.width / aspectRatio;
+						} else if (isNumber(data.height)) {
+							canvasData.height = data.height;
+							canvasData.width = data.height * aspectRatio;
+						}
+						this.renderCanvas(true);
+					}
+					return this;
+				},
+				/**
+				* Get the crop box position and size data.
+				* @returns {Object} The result crop box data.
+				*/
+				getCropBoxData: function getCropBoxData() {
+					var cropBoxData = this.cropBoxData;
+					var data;
+					if (this.ready && this.cropped) data = {
+						left: cropBoxData.left,
+						top: cropBoxData.top,
+						width: cropBoxData.width,
+						height: cropBoxData.height
+					};
+					return data || {};
+				},
+				/**
+				* Set the crop box position and size with new data.
+				* @param {Object} data - The new crop box data.
+				* @returns {Cropper} this
+				*/
+				setCropBoxData: function setCropBoxData(data) {
+					var cropBoxData = this.cropBoxData;
+					var aspectRatio = this.options.aspectRatio;
+					var widthChanged;
+					var heightChanged;
+					if (this.ready && this.cropped && !this.disabled && isPlainObject(data)) {
+						if (isNumber(data.left)) cropBoxData.left = data.left;
+						if (isNumber(data.top)) cropBoxData.top = data.top;
+						if (isNumber(data.width) && data.width !== cropBoxData.width) {
+							widthChanged = true;
+							cropBoxData.width = data.width;
+						}
+						if (isNumber(data.height) && data.height !== cropBoxData.height) {
+							heightChanged = true;
+							cropBoxData.height = data.height;
+						}
+						if (aspectRatio) {
+							if (widthChanged) cropBoxData.height = cropBoxData.width / aspectRatio;
+							else if (heightChanged) cropBoxData.width = cropBoxData.height * aspectRatio;
+						}
+						this.renderCropBox();
+					}
+					return this;
+				},
+				/**
+				* Get a canvas drawn the cropped image.
+				* @param {Object} [options={}] - The config options.
+				* @returns {HTMLCanvasElement} - The result canvas.
+				*/
+				getCroppedCanvas: function getCroppedCanvas() {
+					var options = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+					if (!this.ready || !window.HTMLCanvasElement) return null;
+					var canvasData = this.canvasData;
+					var source = getSourceCanvas(this.image, this.imageData, canvasData, options);
+					if (!this.cropped) return source;
+					var _this$getData = this.getData(options.rounded), initialX = _this$getData.x, initialY = _this$getData.y, initialWidth = _this$getData.width, initialHeight = _this$getData.height;
+					var ratio = source.width / Math.floor(canvasData.naturalWidth);
+					if (ratio !== 1) {
+						initialX *= ratio;
+						initialY *= ratio;
+						initialWidth *= ratio;
+						initialHeight *= ratio;
+					}
+					var aspectRatio = initialWidth / initialHeight;
+					var maxSizes = getAdjustedSizes({
+						aspectRatio,
+						width: options.maxWidth || Infinity,
+						height: options.maxHeight || Infinity
+					});
+					var minSizes = getAdjustedSizes({
+						aspectRatio,
+						width: options.minWidth || 0,
+						height: options.minHeight || 0
+					}, "cover");
+					var _getAdjustedSizes = getAdjustedSizes({
+						aspectRatio,
+						width: options.width || (ratio !== 1 ? source.width : initialWidth),
+						height: options.height || (ratio !== 1 ? source.height : initialHeight)
+					}), width = _getAdjustedSizes.width, height = _getAdjustedSizes.height;
+					width = Math.min(maxSizes.width, Math.max(minSizes.width, width));
+					height = Math.min(maxSizes.height, Math.max(minSizes.height, height));
+					var canvas = document.createElement("canvas");
+					var context = canvas.getContext("2d");
+					canvas.width = normalizeDecimalNumber(width);
+					canvas.height = normalizeDecimalNumber(height);
+					context.fillStyle = options.fillColor || "transparent";
+					context.fillRect(0, 0, width, height);
+					var _options$imageSmoothi = options.imageSmoothingEnabled, imageSmoothingEnabled = _options$imageSmoothi === void 0 ? true : _options$imageSmoothi, imageSmoothingQuality = options.imageSmoothingQuality;
+					context.imageSmoothingEnabled = imageSmoothingEnabled;
+					if (imageSmoothingQuality) context.imageSmoothingQuality = imageSmoothingQuality;
+					if (isFunction(options.beforeDraw)) options.beforeDraw.call(this, context, canvas);
+					var sourceWidth = source.width;
+					var sourceHeight = source.height;
+					var srcX = initialX;
+					var srcY = initialY;
+					var srcWidth;
+					var srcHeight;
+					var dstX;
+					var dstY;
+					var dstWidth;
+					var dstHeight;
+					if (srcX <= -initialWidth || srcX > sourceWidth) {
+						srcX = 0;
+						srcWidth = 0;
+						dstX = 0;
+						dstWidth = 0;
+					} else if (srcX <= 0) {
+						dstX = -srcX;
+						srcX = 0;
+						srcWidth = Math.min(sourceWidth, initialWidth + srcX);
+						dstWidth = srcWidth;
+					} else if (srcX <= sourceWidth) {
+						dstX = 0;
+						srcWidth = Math.min(initialWidth, sourceWidth - srcX);
+						dstWidth = srcWidth;
+					}
+					if (srcWidth <= 0 || srcY <= -initialHeight || srcY > sourceHeight) {
+						srcY = 0;
+						srcHeight = 0;
+						dstY = 0;
+						dstHeight = 0;
+					} else if (srcY <= 0) {
+						dstY = -srcY;
+						srcY = 0;
+						srcHeight = Math.min(sourceHeight, initialHeight + srcY);
+						dstHeight = srcHeight;
+					} else if (srcY <= sourceHeight) {
+						dstY = 0;
+						srcHeight = Math.min(initialHeight, sourceHeight - srcY);
+						dstHeight = srcHeight;
+					}
+					var params = [
+						srcX,
+						srcY,
+						srcWidth,
+						srcHeight
+					];
+					if (dstWidth > 0 && dstHeight > 0) {
+						var scale = width / initialWidth;
+						params.push(dstX * scale, dstY * scale, dstWidth * scale, dstHeight * scale);
+					}
+					context.drawImage.apply(context, [source].concat(_toConsumableArray(params.map(function(param) {
+						return Math.floor(normalizeDecimalNumber(param));
+					}))));
+					if (this.options.borderRadius) {
+						context.globalCompositeOperation = "destination-in";
+						context.fillStyle = "#000";
+						drawRoundedRect(context, width, height, this.options.borderRadius, width / this.cropBoxData.width);
+					}
+					return canvas;
+				},
+				/**
+				* Change the aspect ratio of the crop box.
+				* @param {number} aspectRatio - The new aspect ratio.
+				* @returns {Cropper} this
+				*/
+				setAspectRatio: function setAspectRatio(aspectRatio) {
+					var options = this.options;
+					if (!this.disabled && !isUndefined(aspectRatio)) {
+						options.aspectRatio = Math.max(0, aspectRatio) || NaN;
+						if (this.ready) {
+							this.initCropBox();
+							if (this.cropped) this.renderCropBox();
+						}
+					}
+					return this;
+				},
+				/**
+				* Change the drag mode.
+				* @param {string} mode - The new drag mode.
+				* @returns {Cropper} this
+				*/
+				setDragMode: function setDragMode(mode) {
+					var options = this.options, dragBox = this.dragBox, face = this.face;
+					if (this.ready && !this.disabled) {
+						var croppable = mode === DRAG_MODE_CROP;
+						var movable = options.movable && mode === DRAG_MODE_MOVE;
+						mode = croppable || movable ? mode : DRAG_MODE_NONE;
+						options.dragMode = mode;
+						setData(dragBox, DATA_ACTION, mode);
+						toggleClass(dragBox, CLASS_CROP, croppable);
+						toggleClass(dragBox, CLASS_MOVE, movable);
+						if (!options.cropBoxMovable) {
+							setData(face, DATA_ACTION, mode);
+							toggleClass(face, CLASS_CROP, croppable);
+							toggleClass(face, CLASS_MOVE, movable);
+						}
+					}
+					return this;
+				}
+			};
+			var handlers = {
+				resize: function resize() {
+					if (this.disabled) return;
+					var options = this.options, container = this.container, containerData = this.containerData;
+					var ratioX = container.offsetWidth / containerData.width;
+					var ratioY = container.offsetHeight / containerData.height;
+					var ratio = Math.abs(ratioX - 1) > Math.abs(ratioY - 1) ? ratioX : ratioY;
+					if (ratio !== 1) {
+						var canvasData;
+						var cropBoxData;
+						if (options.restore) {
+							canvasData = this.getCanvasData();
+							cropBoxData = this.getCropBoxData();
+						}
+						this.render();
+						if (options.restore) {
+							this.setCanvasData(forEach(canvasData, function(n, i) {
+								canvasData[i] = n * ratio;
+							}));
+							this.setCropBoxData(forEach(cropBoxData, function(n, i) {
+								cropBoxData[i] = n * ratio;
+							}));
+						}
+					}
+				},
+				dblclick: function dblclick() {
+					if (this.disabled || this.options.dragMode === DRAG_MODE_NONE) return;
+					this.setDragMode(hasClass(this.dragBox, CLASS_CROP) ? DRAG_MODE_MOVE : DRAG_MODE_CROP);
+				},
+				wheel: function wheel(event) {
+					var _this = this;
+					var ratio = Number(this.options.wheelZoomRatio) || .1;
+					var delta = 1;
+					if (this.disabled) return;
+					event.preventDefault();
+					if (this.wheeling) return;
+					this.wheeling = true;
+					setTimeout(function() {
+						_this.wheeling = false;
+					}, 50);
+					if (event.deltaY) delta = event.deltaY > 0 ? 1 : -1;
+					else if (event.wheelDelta) delta = -event.wheelDelta / 120;
+					else if (event.detail) delta = event.detail > 0 ? 1 : -1;
+					zoomWithEvent.call(this, -delta * ratio, event);
+				},
+				cropStart: function cropStart(event) {
+					var buttons = event.buttons, button = event.button;
+					if (this.disabled || (event.type === "mousedown" || event.type === "pointerdown" && event.pointerType === "mouse") && (isNumber(buttons) && buttons !== 1 || isNumber(button) && button !== 0 || event.ctrlKey)) return;
+					var options = this.options, pointers = this.pointers;
+					var action;
+					if (event.changedTouches) forEach(event.changedTouches, function(touch) {
+						pointers[touch.identifier] = getPointer(touch);
+					});
+					else pointers[event.pointerId || 0] = getPointer(event);
+					if (Object.keys(pointers).length > 1 && options.zoomable && options.zoomOnTouch) action = ACTION_ZOOM;
+					else action = getData(event.target, DATA_ACTION);
+					if (!REGEXP_ACTIONS.test(action)) return;
+					if (dispatchEvent(this.element, EVENT_CROP_START, {
+						originalEvent: event,
+						action
+					}) === false) return;
+					event.preventDefault();
+					this.action = action;
+					this.cropping = false;
+					this.cropBoxDragStartData = null;
+					this.cropBoxDragStartAction = options.cropBoxMoveMode === "dragStart" && action !== ACTION_CROP && action !== ACTION_MOVE && action !== ACTION_ZOOM ? action : "";
+					if (action === ACTION_CROP) {
+						this.cropping = true;
+						addClass(this.dragBox, CLASS_MODAL);
+					}
+				},
+				cropMove: function cropMove(event) {
+					var action = this.action;
+					if (this.disabled || !action) return;
+					var pointers = this.pointers;
+					event.preventDefault();
+					if (dispatchEvent(this.element, EVENT_CROP_MOVE, {
+						originalEvent: event,
+						action
+					}) === false) return;
+					if (event.changedTouches) forEach(event.changedTouches, function(touch) {
+						assign(pointers[touch.identifier] || {}, getPointer(touch, true));
+					});
+					else assign(pointers[event.pointerId || 0] || {}, getPointer(event, true));
+					this.change(event);
+				},
+				cropEnd: function cropEnd(event) {
+					if (this.disabled) return;
+					var action = this.action, pointers = this.pointers;
+					if (event.type === EVENT_BLUR) Object.keys(pointers).forEach(function(pointerId) {
+						delete pointers[pointerId];
+					});
+					else if (event.changedTouches) forEach(event.changedTouches, function(touch) {
+						delete pointers[touch.identifier];
+					});
+					else delete pointers[event.pointerId || 0];
+					if (!action) return;
+					event.preventDefault();
+					if (!Object.keys(pointers).length) {
+						this.action = "";
+						this.cropBoxDragStartData = null;
+						this.cropBoxDragStartAction = "";
+					}
+					if (this.cropping) {
+						this.cropping = false;
+						toggleClass(this.dragBox, CLASS_MODAL, this.cropped && this.options.modal);
+					}
+					dispatchEvent(this.element, EVENT_CROP_END, {
+						originalEvent: event,
+						action
+					});
+				}
+			};
+			function resizeCropBoxFromCenter(action, range, aspectRatio, cropBoxData, bounds) {
+				var centerX = cropBoxData.left + cropBoxData.width / 2;
+				var centerY = cropBoxData.top + cropBoxData.height / 2;
+				var isEast = action === ACTION_EAST || action === ACTION_NORTH_EAST || action === ACTION_SOUTH_EAST;
+				var isSouth = action === ACTION_SOUTH || action === ACTION_SOUTH_EAST || action === ACTION_SOUTH_WEST;
+				var isHorizontal = action === ACTION_EAST || action === ACTION_WEST;
+				var isVertical = action === ACTION_NORTH || action === ACTION_SOUTH;
+				var width = cropBoxData.width, height = cropBoxData.height;
+				if (aspectRatio) {
+					if (isHorizontal || !isVertical && isSouth) {
+						width += (isEast ? 2 : -2) * range.x;
+						height = width / aspectRatio;
+					} else {
+						height += (isSouth ? 2 : -2) * range.y;
+						width = height * aspectRatio;
+					}
+				} else {
+					width += (isEast ? 2 : -2) * range.x;
+					height += (isSouth ? 2 : -2) * range.y;
+				}
+				if (width < 0) {
+					width = -width;
+					if (!aspectRatio || isHorizontal || !isVertical && isSouth) isEast = !isEast;
+				}
+				if (height < 0) {
+					height = -height;
+					if (!aspectRatio || isVertical || !isVertical && !isSouth) isSouth = !isSouth;
+				}
+				var maxWidth = Math.max(0, 2 * Math.min(centerX - bounds.minLeft, bounds.maxWidth - centerX));
+				var maxHeight = Math.max(0, 2 * Math.min(centerY - bounds.minTop, bounds.maxHeight - centerY));
+				var minWidth = Math.min(cropBoxData.minWidth, maxWidth);
+				var minHeight = Math.min(cropBoxData.minHeight, maxHeight);
+				if (aspectRatio) {
+					var minScale = Math.max(width ? minWidth / width : 0, height ? minHeight / height : 0, 1);
+					var maxScale = Math.min(width ? maxWidth / width : 0, height ? maxHeight / height : 0);
+					var scale = Math.min(minScale, maxScale);
+					width *= scale;
+					height *= scale;
+				} else {
+					width = Math.min(Math.max(width, minWidth), maxWidth);
+					height = Math.min(Math.max(height, minHeight), maxHeight);
+				}
+				if (isEast) action = isSouth ? ACTION_SOUTH_EAST : ACTION_NORTH_EAST;
+				else action = isSouth ? ACTION_SOUTH_WEST : ACTION_NORTH_WEST;
+				if (isHorizontal) action = isEast ? ACTION_EAST : ACTION_WEST;
+				else if (isVertical) action = isSouth ? ACTION_SOUTH : ACTION_NORTH;
+				return {
+					action,
+					left: centerX - width / 2,
+					top: centerY - height / 2,
+					width,
+					height
+				};
+			}
+			var change = { change: function change(event) {
+				var options = this.options, canvasData = this.canvasData, containerData = this.containerData, cropBoxData = this.cropBoxData, pointers = this.pointers;
+				var action = this.action;
+				var aspectRatio = options.aspectRatio;
+				var left = cropBoxData.left, top = cropBoxData.top, width = cropBoxData.width, height = cropBoxData.height;
+				var right = left + width;
+				var bottom = top + height;
+				var minLeft = 0;
+				var minTop = 0;
+				var maxWidth = containerData.width;
+				var maxHeight = containerData.height;
+				var renderable = true;
+				var offset;
+				if (!aspectRatio && event.shiftKey) aspectRatio = width && height ? width / height : 1;
+				if (this.limited) {
+					minLeft = cropBoxData.minLeft;
+					minTop = cropBoxData.minTop;
+					maxWidth = minLeft + Math.min(containerData.width, canvasData.width, canvasData.left + canvasData.width);
+					maxHeight = minTop + Math.min(containerData.height, canvasData.height, canvasData.top + canvasData.height);
+				}
+				var pointer = pointers[Object.keys(pointers)[0]];
+				var isCropBoxDrag = options.cropBoxMoveMode === "dragStart" && this.cropBoxDragStartAction && [
+					ACTION_ALL,
+					ACTION_EAST,
+					ACTION_NORTH,
+					ACTION_SOUTH,
+					ACTION_WEST,
+					ACTION_NORTH_EAST,
+					ACTION_NORTH_WEST,
+					ACTION_SOUTH_EAST,
+					ACTION_SOUTH_WEST
+				].includes(action);
+				if (isCropBoxDrag) {
+					if (!this.cropBoxDragStartData) this.cropBoxDragStartData = _objectSpread2({}, cropBoxData);
+					Object.assign(cropBoxData, this.cropBoxDragStartData);
+					left = cropBoxData.left;
+					top = cropBoxData.top;
+					width = cropBoxData.width;
+					height = cropBoxData.height;
+					right = left + width;
+					bottom = top + height;
+					action = this.cropBoxDragStartAction;
+				}
+				var range = {
+					x: pointer.endX - pointer.startX,
+					y: pointer.endY - pointer.startY
+				};
+				if (options.cropBoxResizeAroundCenter && [
+					ACTION_EAST,
+					ACTION_NORTH,
+					ACTION_SOUTH,
+					ACTION_WEST,
+					ACTION_NORTH_EAST,
+					ACTION_NORTH_WEST,
+					ACTION_SOUTH_EAST,
+					ACTION_SOUTH_WEST
+				].includes(action)) {
+					var cropBox = resizeCropBoxFromCenter(action, range, aspectRatio, cropBoxData, {
+						minLeft,
+						minTop,
+						maxWidth,
+						maxHeight
+					});
+					cropBoxData.left = cropBox.left;
+					cropBoxData.top = cropBox.top;
+					cropBoxData.width = cropBox.width;
+					cropBoxData.height = cropBox.height;
+					this.action = cropBox.action;
+					this.renderCropBox();
+					if (!isCropBoxDrag) forEach(pointers, function(p) {
+						p.startX = p.endX;
+						p.startY = p.endY;
+					});
+					return;
+				}
+				var check = function check(side) {
+					switch (side) {
+						case ACTION_EAST:
+							if (right + range.x > maxWidth) range.x = maxWidth - right;
+							break;
+						case ACTION_WEST:
+							if (left + range.x < minLeft) range.x = minLeft - left;
+							break;
+						case ACTION_NORTH:
+							if (top + range.y < minTop) range.y = minTop - top;
+							break;
+						case ACTION_SOUTH: if (bottom + range.y > maxHeight) range.y = maxHeight - bottom;
+					}
+				};
+				switch (action) {
+					case ACTION_ALL:
+						left += range.x;
+						top += range.y;
+						break;
+					case ACTION_EAST:
+						if (range.x >= 0 && (right >= maxWidth || aspectRatio && (top <= minTop || bottom >= maxHeight))) {
+							renderable = false;
+							break;
+						}
+						check(ACTION_EAST);
+						width += range.x;
+						if (width < 0) {
+							action = ACTION_WEST;
+							width = -width;
+							left -= width;
+							if (width < cropBoxData.minWidth) {
+								width = cropBoxData.minWidth;
+								left = cropBoxData.left - width;
+							}
+						}
+						if (aspectRatio) {
+							height = width / aspectRatio;
+							top += (cropBoxData.height - height) / 2;
+						}
+						break;
+					case ACTION_NORTH:
+						if (range.y <= 0 && (top <= minTop || aspectRatio && (left <= minLeft || right >= maxWidth))) {
+							renderable = false;
+							break;
+						}
+						check(ACTION_NORTH);
+						height -= range.y;
+						top += range.y;
+						if (height < 0) {
+							action = ACTION_SOUTH;
+							height = -height;
+							top -= height;
+							if (height < cropBoxData.minHeight) {
+								height = cropBoxData.minHeight;
+								top = bottom;
+							}
+						}
+						if (aspectRatio) {
+							width = height * aspectRatio;
+							left += (cropBoxData.width - width) / 2;
+						}
+						break;
+					case ACTION_WEST:
+						if (range.x <= 0 && (left <= minLeft || aspectRatio && (top <= minTop || bottom >= maxHeight))) {
+							renderable = false;
+							break;
+						}
+						check(ACTION_WEST);
+						width -= range.x;
+						left += range.x;
+						if (width < 0) {
+							action = ACTION_EAST;
+							width = -width;
+							left -= width;
+							if (width < cropBoxData.minWidth) {
+								width = cropBoxData.minWidth;
+								left = right;
+							}
+						}
+						if (aspectRatio) {
+							height = width / aspectRatio;
+							top += (cropBoxData.height - height) / 2;
+						}
+						break;
+					case ACTION_SOUTH:
+						if (range.y >= 0 && (bottom >= maxHeight || aspectRatio && (left <= minLeft || right >= maxWidth))) {
+							renderable = false;
+							break;
+						}
+						check(ACTION_SOUTH);
+						height += range.y;
+						if (height < 0) {
+							action = ACTION_NORTH;
+							height = -height;
+							top -= height;
+							if (height < cropBoxData.minHeight) {
+								height = cropBoxData.minHeight;
+								top = cropBoxData.top - height;
+							}
+						}
+						if (aspectRatio) {
+							width = height * aspectRatio;
+							left += (cropBoxData.width - width) / 2;
+						}
+						break;
+					case ACTION_NORTH_EAST:
+						if (aspectRatio) {
+							if (range.y <= 0 && (top <= minTop || right >= maxWidth)) {
+								renderable = false;
+								break;
+							}
+							check(ACTION_NORTH);
+							height -= range.y;
+							top += range.y;
+							width = height * aspectRatio;
+						} else {
+							check(ACTION_NORTH);
+							check(ACTION_EAST);
+							if (range.x >= 0) {
+								if (right < maxWidth) width += range.x;
+								else if (range.y <= 0 && top <= minTop) renderable = false;
+							} else width += range.x;
+							if (range.y <= 0) {
+								if (top > minTop) {
+									height -= range.y;
+									top += range.y;
+								}
+							} else {
+								height -= range.y;
+								top += range.y;
+							}
+						}
+						if (width < 0 && height < 0) {
+							action = ACTION_SOUTH_WEST;
+							height = -height;
+							width = -width;
+							top -= height;
+							left -= width;
+						} else if (width < 0) {
+							action = ACTION_NORTH_WEST;
+							width = -width;
+							left -= width;
+						} else if (height < 0) {
+							action = ACTION_SOUTH_EAST;
+							height = -height;
+							top -= height;
+						}
+						break;
+					case ACTION_NORTH_WEST:
+						if (aspectRatio) {
+							if (range.y <= 0 && (top <= minTop || left <= minLeft)) {
+								renderable = false;
+								break;
+							}
+							check(ACTION_NORTH);
+							height -= range.y;
+							top += range.y;
+							width = height * aspectRatio;
+							left += cropBoxData.width - width;
+						} else {
+							check(ACTION_NORTH);
+							check(ACTION_WEST);
+							if (range.x <= 0) {
+								if (left > minLeft) {
+									width -= range.x;
+									left += range.x;
+								} else if (range.y <= 0 && top <= minTop) renderable = false;
+							} else {
+								width -= range.x;
+								left += range.x;
+							}
+							if (range.y <= 0) {
+								if (top > minTop) {
+									height -= range.y;
+									top += range.y;
+								}
+							} else {
+								height -= range.y;
+								top += range.y;
+							}
+						}
+						if (width < 0 && height < 0) {
+							action = ACTION_SOUTH_EAST;
+							height = -height;
+							width = -width;
+							top -= height;
+							left -= width;
+						} else if (width < 0) {
+							action = ACTION_NORTH_EAST;
+							width = -width;
+							left -= width;
+						} else if (height < 0) {
+							action = ACTION_SOUTH_WEST;
+							height = -height;
+							top -= height;
+						}
+						break;
+					case ACTION_SOUTH_WEST:
+						if (aspectRatio) {
+							if (range.x <= 0 && (left <= minLeft || bottom >= maxHeight)) {
+								renderable = false;
+								break;
+							}
+							check(ACTION_WEST);
+							width -= range.x;
+							left += range.x;
+							height = width / aspectRatio;
+						} else {
+							check(ACTION_SOUTH);
+							check(ACTION_WEST);
+							if (range.x <= 0) {
+								if (left > minLeft) {
+									width -= range.x;
+									left += range.x;
+								} else if (range.y >= 0 && bottom >= maxHeight) renderable = false;
+							} else {
+								width -= range.x;
+								left += range.x;
+							}
+							if (range.y >= 0) {
+								if (bottom < maxHeight) height += range.y;
+							} else height += range.y;
+						}
+						if (width < 0 && height < 0) {
+							action = ACTION_NORTH_EAST;
+							height = -height;
+							width = -width;
+							top -= height;
+							left -= width;
+						} else if (width < 0) {
+							action = ACTION_SOUTH_EAST;
+							width = -width;
+							left -= width;
+						} else if (height < 0) {
+							action = ACTION_NORTH_WEST;
+							height = -height;
+							top -= height;
+						}
+						break;
+					case ACTION_SOUTH_EAST:
+						if (aspectRatio) {
+							if (range.x >= 0 && (right >= maxWidth || bottom >= maxHeight)) {
+								renderable = false;
+								break;
+							}
+							check(ACTION_EAST);
+							width += range.x;
+							height = width / aspectRatio;
+						} else {
+							check(ACTION_SOUTH);
+							check(ACTION_EAST);
+							if (range.x >= 0) {
+								if (right < maxWidth) width += range.x;
+								else if (range.y >= 0 && bottom >= maxHeight) renderable = false;
+							} else width += range.x;
+							if (range.y >= 0) {
+								if (bottom < maxHeight) height += range.y;
+							} else height += range.y;
+						}
+						if (width < 0 && height < 0) {
+							action = ACTION_NORTH_WEST;
+							height = -height;
+							width = -width;
+							top -= height;
+							left -= width;
+						} else if (width < 0) {
+							action = ACTION_SOUTH_WEST;
+							width = -width;
+							left -= width;
+						} else if (height < 0) {
+							action = ACTION_NORTH_EAST;
+							height = -height;
+							top -= height;
+						}
+						break;
+					case ACTION_MOVE:
+						this.move(range.x, range.y);
+						renderable = false;
+						break;
+					case ACTION_ZOOM:
+						zoomWithEvent.call(this, getMaxZoomRatio(pointers), event);
+						renderable = false;
+						break;
+					case ACTION_CROP:
+						if (!range.x || !range.y) {
+							renderable = false;
+							break;
+						}
+						offset = getOffset(this.cropper);
+						left = pointer.startX - offset.left;
+						top = pointer.startY - offset.top;
+						if (aspectRatio) {
+							width = Math.max(Math.abs(range.x), Math.abs(range.y) * aspectRatio, cropBoxData.minWidth, cropBoxData.minHeight * aspectRatio);
+							height = width / aspectRatio;
+						} else {
+							width = Math.max(Math.abs(range.x), cropBoxData.minWidth);
+							height = Math.max(Math.abs(range.y), cropBoxData.minHeight);
+						}
+						if (range.x > 0) action = range.y > 0 ? ACTION_SOUTH_EAST : ACTION_NORTH_EAST;
+						else if (range.x < 0) {
+							left -= width;
+							action = range.y > 0 ? ACTION_SOUTH_WEST : ACTION_NORTH_WEST;
+						}
+						if (range.y < 0) top -= height;
+						if (!this.cropped) {
+							removeClass(this.cropBox, CLASS_HIDDEN);
+							this.cropped = true;
+							if (this.limited) this.limitCropBox(true, true);
+						}
+				}
+				if (renderable) {
+					cropBoxData.width = width;
+					cropBoxData.height = height;
+					cropBoxData.left = left;
+					cropBoxData.top = top;
+					this.action = action;
+					this.renderCropBox();
+				}
+				forEach(pointers, function(p) {
+					if (action !== ACTION_CROP && !isCropBoxDrag) {
+						p.startX = p.endX;
+						p.startY = p.endY;
+					}
+				});
+			} };
+			var AnotherCropper = WINDOW.Cropper;
+			var Cropper = /*#__PURE__*/ function() {
+				/**
+				* Create a new Cropper.
+				* @param {Element} element - The target image or canvas element to crop.
+				* @param {Object} [options={}] - The configuration options.
+				*/
+				function Cropper(element) {
+					var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+					_classCallCheck(this, Cropper);
+					if (!element || !REGEXP_TAG_NAME.test(element.tagName)) throw new Error("The first argument is required and must be an <img> or <canvas> element.");
+					this.element = element;
+					this.options = assign({}, DEFAULTS, isPlainObject(options) && options);
+					this.cropped = false;
+					this.disabled = false;
+					this.pointers = {};
+					this.ready = false;
+					this.reloading = false;
+					this.replaced = false;
+					this.sized = false;
+					this.sizing = false;
+					this.init();
+				}
+				return _createClass(Cropper, [
+					{
+						key: "init",
+						value: function init() {
+							var element = this.element;
+							var tagName = element.tagName.toLowerCase();
+							var url;
+							if (element[NAMESPACE]) return;
+							element[NAMESPACE] = this;
+							if (tagName === "img") {
+								this.isImg = true;
+								url = element.getAttribute("src") || "";
+								this.originalUrl = url;
+								if (!url) return;
+								url = element.src;
+							} else if (tagName === "canvas" && window.HTMLCanvasElement) url = element.toDataURL();
+							this.load(url);
+						}
+					},
+					{
+						key: "load",
+						value: function load(url) {
+							var _this = this;
+							if (!url) return;
+							this.url = url;
+							this.imageData = {};
+							var element = this.element, options = this.options;
+							if (!options.rotatable && !options.scalable) options.checkOrientation = false;
+							if (!options.checkOrientation || !window.ArrayBuffer) {
+								this.clone();
+								return;
+							}
+							if (REGEXP_DATA_URL.test(url)) {
+								if (REGEXP_DATA_URL_JPEG.test(url)) this.read(dataURLToArrayBuffer(url));
+								else this.clone();
+								return;
+							}
+							var xhr = new XMLHttpRequest();
+							var clone = this.clone.bind(this);
+							this.reloading = true;
+							this.xhr = xhr;
+							xhr.onabort = clone;
+							xhr.onerror = clone;
+							xhr.ontimeout = clone;
+							xhr.onprogress = function() {
+								if (xhr.getResponseHeader("content-type") !== MIME_TYPE_JPEG) xhr.abort();
+							};
+							xhr.onload = function() {
+								_this.read(xhr.response);
+							};
+							xhr.onloadend = function() {
+								_this.reloading = false;
+								_this.xhr = null;
+							};
+							if (options.checkCrossOrigin && isCrossOriginURL(url) && element.crossOrigin) url = addTimestamp(url);
+							xhr.open("GET", url, true);
+							xhr.responseType = "arraybuffer";
+							xhr.withCredentials = element.crossOrigin === "use-credentials";
+							xhr.send();
+						}
+					},
+					{
+						key: "read",
+						value: function read(arrayBuffer) {
+							var options = this.options, imageData = this.imageData;
+							var orientation = resetAndGetOrientation(arrayBuffer);
+							var rotate = 0;
+							var scaleX = 1;
+							var scaleY = 1;
+							if (orientation > 1) {
+								this.url = arrayBufferToDataURL(arrayBuffer, MIME_TYPE_JPEG);
+								var _parseOrientation = parseOrientation(orientation);
+								rotate = _parseOrientation.rotate;
+								scaleX = _parseOrientation.scaleX;
+								scaleY = _parseOrientation.scaleY;
+							}
+							if (options.rotatable) imageData.rotate = rotate;
+							if (options.scalable) {
+								imageData.scaleX = scaleX;
+								imageData.scaleY = scaleY;
+							}
+							this.clone();
+						}
+					},
+					{
+						key: "clone",
+						value: function clone() {
+							var _this2 = this;
+							var element = this.element, options = this.options, url = this.url;
+							var crossOrigin = element.crossOrigin;
+							var crossOriginUrl = url;
+							if (this.options.checkCrossOrigin && isCrossOriginURL(url)) {
+								if (!crossOrigin) crossOrigin = "anonymous";
+								crossOriginUrl = addTimestamp(url);
+							}
+							this.crossOrigin = crossOrigin;
+							this.crossOriginUrl = crossOriginUrl;
+							var image = document.createElement("img");
+							if (crossOrigin) image.crossOrigin = crossOrigin;
+							image.src = crossOriginUrl || url;
+							image.alt = element.alt || "The image to crop";
+							this.image = image;
+							image.onload = this.start.bind(this);
+							if (isFunction(options.error)) addListener(element, EVENT_ERROR, options.error, { once: true });
+							image.onerror = function(error) {
+								dispatchEvent(element, EVENT_ERROR, error);
+								_this2.stop();
+							};
+							addClass(image, CLASS_HIDE);
+							element.parentNode.insertBefore(image, element.nextSibling);
+						}
+					},
+					{
+						key: "start",
+						value: function start() {
+							var _this3 = this;
+							var image = this.image;
+							image.onload = null;
+							image.onerror = null;
+							this.sizing = true;
+							var isIOSWebKit = WINDOW.navigator && /(?:iPad|iPhone|iPod).*?AppleWebKit/i.test(WINDOW.navigator.userAgent);
+							var done = function done(naturalWidth, naturalHeight) {
+								assign(_this3.imageData, {
+									naturalWidth,
+									naturalHeight,
+									aspectRatio: naturalWidth / naturalHeight
+								});
+								_this3.initialImageData = assign({}, _this3.imageData);
+								_this3.sizing = false;
+								_this3.sized = true;
+								_this3.build();
+							};
+							var sizingImage = document.createElement("img");
+							var body = document.body || document.documentElement;
+							this.sizingImage = sizingImage;
+							sizingImage.onload = function() {
+								done(sizingImage.width, sizingImage.height);
+								if (!isIOSWebKit) body.removeChild(sizingImage);
+							};
+							sizingImage.src = image.src;
+							if (!isIOSWebKit) {
+								sizingImage.style.cssText = "left:0;max-height:none!important;max-width:none!important;min-height:0!important;min-width:0!important;opacity:0;image-orientation:0deg;position:absolute;top:0;z-index:-1;";
+								body.appendChild(sizingImage);
+							}
+						}
+					},
+					{
+						key: "stop",
+						value: function stop() {
+							var image = this.image;
+							image.onload = null;
+							image.onerror = null;
+							image.parentNode.removeChild(image);
+							this.image = null;
+						}
+					},
+					{
+						key: "build",
+						value: function build() {
+							if (!this.sized || this.ready) return;
+							var element = this.element, options = this.options, image = this.image;
+							var container = element.parentNode;
+							var template = document.createElement("div");
+							template.innerHTML = TEMPLATE;
+							var cropper = template.querySelector(".".concat(NAMESPACE, "-container"));
+							var canvas = cropper.querySelector(".".concat(NAMESPACE, "-canvas"));
+							var dragBox = cropper.querySelector(".".concat(NAMESPACE, "-drag-box"));
+							var cropBox = cropper.querySelector(".".concat(NAMESPACE, "-crop-box"));
+							var face = cropBox.querySelector(".".concat(NAMESPACE, "-face"));
+							this.container = container;
+							this.cropper = cropper;
+							this.canvas = canvas;
+							this.dragBox = dragBox;
+							this.cropBox = cropBox;
+							this.viewBox = cropper.querySelector(".".concat(NAMESPACE, "-view-box"));
+							this.face = face;
+							canvas.appendChild(image);
+							addClass(element, CLASS_HIDDEN);
+							container.insertBefore(cropper, element.nextSibling);
+							removeClass(image, CLASS_HIDE);
+							this.initPreview();
+							this.bind();
+							options.initialAspectRatio = Math.max(0, options.initialAspectRatio) || NaN;
+							options.aspectRatio = Math.max(0, options.aspectRatio) || NaN;
+							options.viewMode = Math.max(0, Math.min(3, Math.round(options.viewMode))) || 0;
+							addClass(cropBox, CLASS_HIDDEN);
+							if (!options.guides) addClass(cropBox.getElementsByClassName("".concat(NAMESPACE, "-dashed")), CLASS_HIDDEN);
+							if (!options.center) addClass(cropBox.getElementsByClassName("".concat(NAMESPACE, "-center")), CLASS_HIDDEN);
+							if (options.background) addClass(cropper, "".concat(NAMESPACE, "-bg"));
+							if (!options.highlight) addClass(face, CLASS_INVISIBLE);
+							if (options.cropBoxMovable) {
+								addClass(face, CLASS_MOVE);
+								setData(face, DATA_ACTION, ACTION_ALL);
+							}
+							if (!options.cropBoxResizable) {
+								addClass(cropBox.getElementsByClassName("".concat(NAMESPACE, "-line")), CLASS_HIDDEN);
+								addClass(cropBox.getElementsByClassName("".concat(NAMESPACE, "-point")), CLASS_HIDDEN);
+							}
+							this.render();
+							this.ready = true;
+							this.setDragMode(options.dragMode);
+							if (options.autoCrop) this.crop();
+							this.setData(options.data);
+							if (isFunction(options.ready)) addListener(element, EVENT_READY, options.ready, { once: true });
+							dispatchEvent(element, EVENT_READY);
+						}
+					},
+					{
+						key: "unbuild",
+						value: function unbuild() {
+							if (!this.ready) return;
+							this.ready = false;
+							this.unbind();
+							this.resetPreview();
+							var parentNode = this.cropper.parentNode;
+							if (parentNode) parentNode.removeChild(this.cropper);
+							removeClass(this.element, CLASS_HIDDEN);
+						}
+					},
+					{
+						key: "uncreate",
+						value: function uncreate() {
+							if (this.ready) {
+								this.unbuild();
+								this.ready = false;
+								this.cropped = false;
+							} else if (this.sizing) {
+								this.sizingImage.onload = null;
+								this.sizing = false;
+								this.sized = false;
+							} else if (this.reloading) {
+								this.xhr.onabort = null;
+								this.xhr.abort();
+							} else if (this.image) this.stop();
+						}
+					}
+				], [
+					{
+						key: "create",
+						value: function create(element, options) {
+							return new Cropper(element, options);
+						}
+					},
+					{
+						key: "setDefaults",
+						value: function setDefaults(options) {
+							assign(DEFAULTS, isPlainObject(options) && options);
+						}
+					},
+					{
+						key: "noConflict",
+						value: function noConflict() {
+							window.Cropper = AnotherCropper;
+							return Cropper;
+						}
+					}
+				]);
+			}();
+			assign(Cropper.prototype, render, preview, events, handlers, change, methods);
+			return Cropper;
+		}));
+	})))());
+	var MessageService = class {
+		static showMessage(type, message) {
+			Botble.showNotice(type, message);
+		}
+	};
+	//#endregion
+	//#region platform/core/media/resources/js/App/Services/ActionsService.js
+	var ActionsService = class ActionsService {
+		static handleDropdown() {
+			let selected = Helpers.size(Helpers.getSelectedItems());
+			ActionsService.renderActions();
+			if (selected > 0) $(".rv-dropdown-actions > .dropdown-toggle").removeClass("disabled").prop("disabled", false);
+			else $(".rv-dropdown-actions > .dropdown-toggle").addClass("disabled").prop("disabled", true);
+		}
+		static handlePreview() {
+			const selectedFiles = Helpers.getSelectedFiles();
+			if (Helpers.size(selectedFiles) === 1 && selectedFiles[0].type === "image") {
+				const images = ActionsService.getPreviewableImages();
+				const index = images.findIndex((image) => image.id === selectedFiles[0].id);
+				if (images.length > 1 && index !== -1) {
+					Helpers.addToRecent(selectedFiles[0].id);
+					Botble.lightbox(images.map((image) => image.preview_url), index);
+					return;
+				}
+			}
+			let selected = [];
+			Helpers.each(selectedFiles, (value) => {
+				if (value.preview_url) {
+					if (value.type === "document") {
+						const iframe = document.createElement("iframe");
+						iframe.src = value.preview_url;
+						iframe.allowFullscreen = true;
+						iframe.style.width = "100vh";
+						iframe.style.height = "100vh";
+						selected.push(iframe);
+					} else selected.push(value.preview_url);
+					Helpers.addToRecent(value.id);
+				}
+			});
+			if (Helpers.size(selected) > 0) Botble.lightbox(selected);
+			else this.handleGlobalAction("download");
+		}
+		/**
+		* Images currently listed, in display order, that can be shown in the lightbox.
+		*
+		* Reads the rows directly rather than going through Helpers.getItems(), which
+		* computes a positional index per row and would walk the sibling list once per
+		* item on what is now a click-blocking path.
+		*/
+		static getPreviewableImages() {
+			const images = [];
+			$(".js-media-list-title[data-context=file]").each((index, el) => {
+				const data = $(el).data() || {};
+				if (data.type === "image" && data.preview_url) images.push(data);
+			});
+			return images;
+		}
+		static renderCropImage() {
+			const html = $("#rv_media_crop_image").html();
+			const modal = $("#modal_crop_image .crop-image").empty();
+			const item = Helpers.getSelectedItems()[0];
+			const form = $("#modal_crop_image .form-crop");
+			let cropData;
+			const el = html.replace(/__src__/gi, item.full_url);
+			modal.append(el);
+			const image = modal.find("img")[0];
+			const options = {
+				minContainerWidth: 500,
+				minContainerHeight: 550,
+				dragMode: "move",
+				crop(event) {
+					cropData = event.detail;
+					form.find("input[name=\"image_id\"]").val(item.id);
+					form.find("input[name=\"crop_data\"]").val(JSON.stringify(cropData));
+					setHeight(cropData.height);
+					setWidth(cropData.width);
+				}
+			};
+			let cropper = new import_cropper.default(image, options);
+			form.find("#aspectRatio").on("click", function() {
+				cropper.destroy();
+				if ($(this).is(":checked")) options.aspectRatio = cropData.width / cropData.height;
+				else options.aspectRatio = null;
+				cropper = new import_cropper.default(image, options);
+			});
+			form.find("#dataHeight").on("change", function() {
+				cropData.height = parseFloat($(this).val());
+				cropper.setData(cropData);
+				setHeight(cropData.height);
+			});
+			form.find("#dataWidth").on("change", function() {
+				cropData.width = parseFloat($(this).val());
+				cropper.setData(cropData);
+				setWidth(cropData.width);
+			});
+			const setHeight = (height) => {
+				form.find("#dataHeight").val(parseInt(height));
+			};
+			const setWidth = (width) => {
+				form.find("#dataWidth").val(parseInt(width));
+			};
+		}
+		static async handleCopyLink() {
+			let links = "";
+			Helpers.each(Helpers.getSelectedFiles(), (value) => {
+				if (!Helpers.isEmpty(links)) links += "\n";
+				links += value.full_url;
+			});
+			await Botble.copyToClipboard(links);
+			MessageService.showMessage("success", Helpers.trans("clipboard.success"), Helpers.trans("message.success_header"));
+		}
+		static async handleCopyIndirectLink() {
+			let links = "";
+			Helpers.each(Helpers.getSelectedFiles(), (value) => {
+				if (!Helpers.isEmpty(links)) links += "\n";
+				links += value.indirect_url;
+			});
+			await Botble.copyToClipboard(links);
+			MessageService.showMessage("success", Helpers.trans("clipboard.success"), Helpers.trans("message.success_header"));
+		}
+		static handleShare() {
+			$("#modal_share_items").modal("show").find("form.form-alt-text").data("action", type);
+		}
+		static handleGlobalAction(type, callback) {
+			let selected = [];
+			Helpers.each(Helpers.getSelectedItems(), (value) => {
+				selected.push({
+					is_folder: value.is_folder,
+					id: value.id,
+					full_url: value.full_url
+				});
+			});
+			switch (type) {
+				case "rename":
+					$("#modal_rename_items").modal("show").find("form.form-rename").data("action", type);
+					break;
+				case "copy_link":
+					ActionsService.handleCopyLink().then(() => {});
+					break;
+				case "copy_indirect_link":
+					ActionsService.handleCopyIndirectLink().then(() => {});
+					break;
+				case "share":
+					$("#modal_share_items").modal("show");
+					break;
+				case "preview":
+					ActionsService.handlePreview();
+					break;
+				case "alt_text":
+					$("#modal_alt_text_items").modal("show").find("form.form-alt-text").data("action", type);
+					break;
+				case "move":
+					$("#modal_move_items").modal("show");
+					break;
+				case "crop":
+					$("#modal_crop_image").modal("show").find("form.rv-form").data("action", type);
+					break;
+				case "trash":
+					$("#modal_trash_items").modal("show").find("form.form-delete-items").data("action", type);
+					break;
+				case "delete":
+					$("#modal_delete_items").modal("show").find("form.form-delete-items").data("action", type);
+					break;
+				case "empty_trash":
+					$("#modal_empty_trash").modal("show").find("form.form-empty-trash").data("action", type);
+					break;
+				case "download":
+					let files = [];
+					Helpers.each(Helpers.getSelectedItems(), (value) => {
+						if (!Helpers.inArray(Helpers.getConfigs().denied_download, value.mime_type)) files.push({
+							id: value.id,
+							is_folder: value.is_folder
+						});
+					});
+					if (files.length) ActionsService.handleDownload(files);
+					else MessageService.showMessage("error", Helpers.trans("download.error"), Helpers.trans("message.error_header"));
+					break;
+				case "properties":
+					$("#modal-properties").modal("show");
+					break;
+				case "manage_access":
+					ActionsService.handleManageAccess();
+					break;
+				default: ActionsService.processAction({
+					selected,
+					action: type
+				}, callback);
+			}
+		}
+		static processAction(data, callback = null) {
+			Helpers.showAjaxLoading();
+			$httpClient.make().post(RV_MEDIA_URL.global_actions, data).then(({ data }) => {
+				Helpers.resetPagination();
+				MessageService.showMessage("success", data.message, Helpers.trans("message.success_header"));
+				callback && callback(data);
+			}).catch(({ response }) => callback && callback(response.data)).finally(() => Helpers.hideAjaxLoading());
+		}
+		static renderRenameItems() {
+			let VIEW = $("#rv_media_rename_item").html();
+			let $itemsWrapper = $("#modal_rename_items .rename-items").empty();
+			Helpers.each(Helpers.getSelectedItems(), (value) => {
+				let item = VIEW.replace(/__icon__/gi, value.icon || `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
-                </svg>`).replace(/__placeholder__/gi,"Input file name").replace(/__value__/gi,n.name),c=$(f);c.data("id",n.id.toString()),c.data("is_folder",n.is_folder),c.data("name",n.name);const M=c.find('input[name="rename_physical_file"]');M.closest(".form-check").find("span").text(n.is_folder?M.data("folder-label"):M.data("file-label")),c.find('input[name="rename_physical_file"]').on("change",function(){c.data("rename_physical_file",$(this).is(":checked"))}),o.append(c),Botble.initFieldCollapse()})}static renderAltTextItems(){let e=$("#rv_media_alt_text_item").html(),o=$("#modal_alt_text_items .alt-text-items").empty();l.each(l.getSelectedItems(),n=>{let f=e.replace(/__icon__/gi,n.icon||`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`).replace(/__placeholder__/gi, "Input file name").replace(/__value__/gi, value.name);
+				let $item = $(item);
+				$item.data("id", value.id.toString());
+				$item.data("is_folder", value.is_folder);
+				$item.data("name", value.name);
+				const $renamePhysicalFile = $item.find("input[name=\"rename_physical_file\"]");
+				$renamePhysicalFile.closest(".form-check").find("span").text(value.is_folder ? $renamePhysicalFile.data("folder-label") : $renamePhysicalFile.data("file-label"));
+				$item.find("input[name=\"rename_physical_file\"]").on("change", function() {
+					$item.data("rename_physical_file", $(this).is(":checked"));
+				});
+				$itemsWrapper.append($item);
+				Botble.initFieldCollapse();
+			});
+		}
+		static renderAltTextItems() {
+			let VIEW = $("#rv_media_alt_text_item").html();
+			let $itemsWrapper = $("#modal_alt_text_items .alt-text-items").empty();
+			Helpers.each(Helpers.getSelectedItems(), (value) => {
+				let item = VIEW.replace(/__icon__/gi, value.icon || `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
-                </svg>`).replace(/__placeholder__/gi,"Input file alt").replace(/__value__/gi,n.alt===null?"":n.alt),c=$(f);c.data("id",n.id),c.data("alt",n.alt),o.append(c)})}static renderShareItems(){const e=$('#modal_share_items [data-bb-value="share-result"]'),o=$('#modal_share_items select[data-bb-value="share-type"]').val();e.val("");let n=[];l.each(l.getSelectedItems(),f=>{let c=f.full_url;switch((o==="html"||o==="markdown")&&c&&c.startsWith(window.location.origin)&&(c=c.replace(window.location.origin,"")),o){case"html":n.push(f.type==="image"?`<img src="${c}" alt="${f.alt}" />`:`<a href="${c}" target="_blank">${f.alt}</a>`);break;case"markdown":n.push((f.type==="image"?"!":"")+`[${f.alt}](${c})`);break;case"indirect_url":n.push(f.indirect_url);break;default:n.push(f.full_url)}}),e.val(n.join(`
-`))}static renderActions(){let e=l.getSelectedFolder().length>0,o=$("#rv_action_item").html(),n=0,f=$(".rv-dropdown-actions .dropdown-menu");f.empty();let c=$.extend({},!0,l.getConfigs().actions_list);if(e){const y=["preview","crop","alt_text","copy_link","copy_indirect_link","share"];c.basic=l.arrayReject(c.basic,k=>y.includes(k.action)),c.file=l.arrayReject(c.file,k=>y.includes(k.action)),l.hasPermission("folders.create")||(c.file=l.arrayReject(c.file,k=>k.action==="make_copy")),l.hasPermission("folders.edit")||(c.file=l.arrayReject(c.file,k=>l.inArray(["rename","move"],k.action)),c.user=l.arrayReject(c.user,k=>l.inArray(["rename"],k.action))),l.hasPermission("folders.trash")||(c.other=l.arrayReject(c.other,k=>l.inArray(["trash","restore"],k.action))),l.hasPermission("folders.destroy")||(c.other=l.arrayReject(c.other,k=>l.inArray(["delete"],k.action))),l.hasPermission("folders.favorite")||(c.other=l.arrayReject(c.other,k=>l.inArray(["favorite","remove_favorite"],k.action)))}let M=l.getSelectedFiles();l.arrayFilter(M,function(y){return y.preview_url}).length||(c.basic=l.arrayReject(c.basic,y=>y.action==="preview")),l.arrayFilter(M,function(y){return y.type==="image"}).length||(c.basic=l.arrayReject(c.basic,y=>y.action==="crop"),c.file=l.arrayReject(c.file,y=>y.action==="alt_text")),M.length>0&&(l.hasPermission("files.create")||(c.file=l.arrayReject(c.file,y=>y.action==="make_copy")),l.hasPermission("files.edit")||(c.file=l.arrayReject(c.file,y=>l.inArray(["rename","move"],y.action))),l.hasPermission("files.trash")||(c.other=l.arrayReject(c.other,y=>l.inArray(["trash","restore"],y.action))),l.hasPermission("files.destroy")||(c.other=l.arrayReject(c.other,y=>l.inArray(["delete"],y.action))),l.hasPermission("files.favorite")||(c.other=l.arrayReject(c.other,y=>l.inArray(["favorite","remove_favorite"],y.action))),M.length>1&&(c.basic=l.arrayReject(c.basic,y=>y.action==="crop"))),(!l.hasPermission("folders.edit")||M.length>0)&&(c.other=l.arrayReject(c.other,y=>l.inArray(["properties"],y.action))),l.each(c,(y,k)=>{l.each(y,(C,R)=>{let j=!1;switch(l.getRequestParams().view_in){case"all_media":l.inArray(["remove_favorite","delete","restore"],C.action)&&(j=!0);break;case"recent":l.inArray(["remove_favorite","delete","restore","make_copy"],C.action)&&(j=!0);break;case"favorites":l.inArray(["favorite","delete","restore","make_copy"],C.action)&&(j=!0);break;case"trash":l.inArray(["preview","delete","restore","rename","download"],C.action)||(j=!0)}if(!j){let A=o.replace(/__action__/gi,C.action||"").replace('<i class="__icon__ dropdown-item-icon dropdown-item-icon"></i>','<span class="icon-tabler-wrapper dropdown-item-icon">__icon__</span>').replace("__icon__",'<span class="icon-tabler-wrapper dropdown-item-icon">__icon__</span>').replace("__icon__",C.icon||"").replace(/__name__/gi,l.trans(`actions_list.${k}.${C.action}`,C.name));C.icon&&(A=A.replace("media-icon","media-icon dropdown-item-icon")),!R&&n&&(A=`<li role="separator" class="divider"></li>${A}`),f.append(A)}}),y.length>0&&n++})}static handleDownload(e){const o=$(".media-download-popup");let n=null;o.show(),$httpClient.make().withResponseType("blob").post(RV_MEDIA_URL.download,{selected:e}).then(f=>{let c="download";const M=f.headers["content-disposition"]||"";if(M){const C=M.match(/filename\*=UTF-8''(.+)|filename="?([^";\n]+)"?/i);C&&(c=decodeURIComponent(C[1]||C[2]))}const y=URL.createObjectURL(f.data),k=document.createElement("a");k.href=y,k.download=c,document.body.appendChild(k),k.click(),k.remove(),URL.revokeObjectURL(y)}).finally(()=>{o.hide(),clearTimeout(n)})}static handleManageAccess(){let e=l.getSelectedFolder();if(!e.length)return;let o=e[0].id,n=$("#modal_folder_permissions"),f=$("#folder-permissions-list"),c=RV_MEDIA_URL.folder_permissions.replace("__FOLDER_ID__",o);n.data("folder-id",o),n.modal("show"),$httpClient.make().get(RV_MEDIA_URL.folder_permissions_users).then(({data:M})=>{let y=$("#folder-permission-user-select");y.empty().append('<option value="">-- Select user --</option>'),M.data.forEach(k=>{let C=$("<option></option>").val(k.id).text(`${k.name} (${k.email})`);y.append(C)})}),re._loadFolderPermissions(o,f,c),$("#btn-grant-folder-permission").off("click").on("click",()=>{let M=$("#folder-permission-user-select").val(),y=$("#folder-permission-level-select").val();M&&$httpClient.make().post(c,{user_id:M,permission:y}).then(()=>{re._loadFolderPermissions(o,f,c),G.showMessage("success","Permission granted","Success")}).catch(({response:k})=>{var C;G.showMessage("error",(k==null||(C=k.data)===null||C===void 0?void 0:C.message)||"Error","Error")})})}static _loadFolderPermissions(e,o,n){o.html('<div class="text-muted text-center py-3">Loading...</div>'),$httpClient.make().get(n).then(({data:f})=>{if(o.empty(),!f.data||!f.data.length){o.html('<div class="text-muted text-center py-3">No permissions set</div>');return}f.data.forEach(c=>{let M=c.permission==="manage"?"bg-danger":c.permission==="upload"?"bg-warning":"bg-info",y=$('<div class="list-group-item d-flex justify-content-between align-items-center"></div>'),k=$("<div></div>");k.append($("<strong></strong>").text(c.user_name)),k.append($('<small class="text-muted d-block"></small>').text(c.user_email)),y.append(k);let C=$('<div class="d-flex align-items-center gap-2"></div>');C.append($(`<span class="badge ${M}"></span>`).text(c.permission)),C.append($('<button type="button" class="btn btn-sm btn-outline-danger btn-revoke-permission"><svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button>').data("user-id",c.user_id)),y.append(C),o.append(y)}),o.find(".btn-revoke-permission").on("click",function(){let c=$(this).data("user-id");$httpClient.make().delete(n+"/"+c).then(()=>{re._loadFolderPermissions(e,o,n),G.showMessage("success","Permission revoked","Success")})})})}},Pe=class We{static initContext(){jQuery().contextMenu&&($.contextMenu({selector:'.js-context-menu[data-context="file"]',build:()=>({items:We._fileContextMenu()})}),$.contextMenu({selector:'.js-context-menu[data-context="folder"]',build:()=>({items:We._folderContextMenu()})}))}static _fileContextMenu(){let e={preview:{name:"Preview",icon:(f,c,M,y)=>(c.html(`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`).replace(/__placeholder__/gi, "Input file alt").replace(/__value__/gi, value.alt === null ? "" : value.alt);
+				let $item = $(item);
+				$item.data("id", value.id);
+				$item.data("alt", value.alt);
+				$itemsWrapper.append($item);
+			});
+		}
+		static renderShareItems() {
+			const target = $("#modal_share_items [data-bb-value=\"share-result\"]");
+			const shareType = $("#modal_share_items select[data-bb-value=\"share-type\"]").val();
+			target.val("");
+			let results = [];
+			Helpers.each(Helpers.getSelectedItems(), (value) => {
+				let imageUrl = value.full_url;
+				if ((shareType === "html" || shareType === "markdown") && imageUrl && imageUrl.startsWith(window.location.origin)) imageUrl = imageUrl.replace(window.location.origin, "");
+				switch (shareType) {
+					case "html":
+						results.push(value.type === "image" ? `<img src="${imageUrl}" alt="${value.alt}" />` : `<a href="${imageUrl}" target="_blank">${value.alt}</a>`);
+						break;
+					case "markdown":
+						results.push((value.type === "image" ? "!" : "") + `[${value.alt}](${imageUrl})`);
+						break;
+					case "indirect_url":
+						results.push(value.indirect_url);
+						break;
+					default: results.push(value.full_url);
+				}
+			});
+			target.val(results.join("\n"));
+		}
+		static renderActions() {
+			let hasFolderSelected = Helpers.getSelectedFolder().length > 0;
+			let ACTION_TEMPLATE = $("#rv_action_item").html();
+			let initializedItem = 0;
+			let $dropdownActions = $(".rv-dropdown-actions .dropdown-menu");
+			$dropdownActions.empty();
+			let actionsList = $.extend({}, true, Helpers.getConfigs().actions_list);
+			if (hasFolderSelected) {
+				const ignoreActions = [
+					"preview",
+					"crop",
+					"alt_text",
+					"copy_link",
+					"copy_indirect_link",
+					"share"
+				];
+				actionsList.basic = Helpers.arrayReject(actionsList.basic, (item) => ignoreActions.includes(item.action));
+				actionsList.file = Helpers.arrayReject(actionsList.file, (item) => ignoreActions.includes(item.action));
+				if (!Helpers.hasPermission("folders.create")) actionsList.file = Helpers.arrayReject(actionsList.file, (item) => {
+					return item.action === "make_copy";
+				});
+				if (!Helpers.hasPermission("folders.edit")) {
+					actionsList.file = Helpers.arrayReject(actionsList.file, (item) => {
+						return Helpers.inArray(["rename", "move"], item.action);
+					});
+					actionsList.user = Helpers.arrayReject(actionsList.user, (item) => {
+						return Helpers.inArray(["rename"], item.action);
+					});
+				}
+				if (!Helpers.hasPermission("folders.trash")) actionsList.other = Helpers.arrayReject(actionsList.other, (item) => {
+					return Helpers.inArray(["trash", "restore"], item.action);
+				});
+				if (!Helpers.hasPermission("folders.destroy")) actionsList.other = Helpers.arrayReject(actionsList.other, (item) => {
+					return Helpers.inArray(["delete"], item.action);
+				});
+				if (!Helpers.hasPermission("folders.favorite")) actionsList.other = Helpers.arrayReject(actionsList.other, (item) => {
+					return Helpers.inArray(["favorite", "remove_favorite"], item.action);
+				});
+			}
+			let selectedFiles = Helpers.getSelectedFiles();
+			if (!Helpers.arrayFilter(selectedFiles, function(value) {
+				return value.preview_url;
+			}).length) actionsList.basic = Helpers.arrayReject(actionsList.basic, (item) => {
+				return item.action === "preview";
+			});
+			if (!Helpers.arrayFilter(selectedFiles, function(value) {
+				return value.type === "image";
+			}).length) {
+				actionsList.basic = Helpers.arrayReject(actionsList.basic, (item) => {
+					return item.action === "crop";
+				});
+				actionsList.file = Helpers.arrayReject(actionsList.file, (item) => {
+					return item.action === "alt_text";
+				});
+			}
+			if (selectedFiles.length > 0) {
+				if (!Helpers.hasPermission("files.create")) actionsList.file = Helpers.arrayReject(actionsList.file, (item) => {
+					return item.action === "make_copy";
+				});
+				if (!Helpers.hasPermission("files.edit")) actionsList.file = Helpers.arrayReject(actionsList.file, (item) => {
+					return Helpers.inArray(["rename", "move"], item.action);
+				});
+				if (!Helpers.hasPermission("files.trash")) actionsList.other = Helpers.arrayReject(actionsList.other, (item) => {
+					return Helpers.inArray(["trash", "restore"], item.action);
+				});
+				if (!Helpers.hasPermission("files.destroy")) actionsList.other = Helpers.arrayReject(actionsList.other, (item) => {
+					return Helpers.inArray(["delete"], item.action);
+				});
+				if (!Helpers.hasPermission("files.favorite")) actionsList.other = Helpers.arrayReject(actionsList.other, (item) => {
+					return Helpers.inArray(["favorite", "remove_favorite"], item.action);
+				});
+				if (selectedFiles.length > 1) actionsList.basic = Helpers.arrayReject(actionsList.basic, (item) => {
+					return item.action === "crop";
+				});
+			}
+			if (!Helpers.hasPermission("folders.edit") || selectedFiles.length > 0) actionsList.other = Helpers.arrayReject(actionsList.other, (item) => {
+				return Helpers.inArray(["properties"], item.action);
+			});
+			Helpers.each(actionsList, (action, key) => {
+				Helpers.each(action, (item, index) => {
+					let is_break = false;
+					switch (Helpers.getRequestParams().view_in) {
+						case "all_media":
+							if (Helpers.inArray([
+								"remove_favorite",
+								"delete",
+								"restore"
+							], item.action)) is_break = true;
+							break;
+						case "recent":
+							if (Helpers.inArray([
+								"remove_favorite",
+								"delete",
+								"restore",
+								"make_copy"
+							], item.action)) is_break = true;
+							break;
+						case "favorites":
+							if (Helpers.inArray([
+								"favorite",
+								"delete",
+								"restore",
+								"make_copy"
+							], item.action)) is_break = true;
+							break;
+						case "trash": if (!Helpers.inArray([
+							"preview",
+							"delete",
+							"restore",
+							"rename",
+							"download"
+						], item.action)) is_break = true;
+					}
+					if (!is_break) {
+						let template = ACTION_TEMPLATE.replace(/__action__/gi, item.action || "").replace("<i class=\"__icon__ dropdown-item-icon dropdown-item-icon\"></i>", "<span class=\"icon-tabler-wrapper dropdown-item-icon\">__icon__</span>").replace("__icon__", "<span class=\"icon-tabler-wrapper dropdown-item-icon\">__icon__</span>").replace("__icon__", item.icon || "").replace(/__name__/gi, Helpers.trans(`actions_list.${key}.${item.action}`, item.name));
+						if (item.icon) template = template.replace("media-icon", "media-icon dropdown-item-icon");
+						if (!index && initializedItem) template = `<li role="separator" class="divider"></li>${template}`;
+						$dropdownActions.append(template);
+					}
+				});
+				if (action.length > 0) initializedItem++;
+			});
+		}
+		static handleDownload(files) {
+			const html = $(".media-download-popup");
+			let downloadTimeout = null;
+			html.show();
+			$httpClient.make().withResponseType("blob").post(RV_MEDIA_URL.download, { selected: files }).then((response) => {
+				let fileName = "download";
+				const contentDisposition = response.headers["content-disposition"] || "";
+				if (contentDisposition) {
+					const fileNameMatch = contentDisposition.match(/filename\*=UTF-8''(.+)|filename="?([^";\n]+)"?/i);
+					if (fileNameMatch) fileName = decodeURIComponent(fileNameMatch[1] || fileNameMatch[2]);
+				}
+				const objectUrl = URL.createObjectURL(response.data);
+				const a = document.createElement("a");
+				a.href = objectUrl;
+				a.download = fileName;
+				document.body.appendChild(a);
+				a.click();
+				a.remove();
+				URL.revokeObjectURL(objectUrl);
+			}).finally(() => {
+				html.hide();
+				clearTimeout(downloadTimeout);
+			});
+		}
+		static handleManageAccess() {
+			let selectedFolders = Helpers.getSelectedFolder();
+			if (!selectedFolders.length) return;
+			let folderId = selectedFolders[0].id;
+			let modal = $("#modal_folder_permissions");
+			let permissionsList = $("#folder-permissions-list");
+			let permUrl = RV_MEDIA_URL.folder_permissions.replace("__FOLDER_ID__", folderId);
+			modal.data("folder-id", folderId);
+			modal.modal("show");
+			$httpClient.make().get(RV_MEDIA_URL.folder_permissions_users).then(({ data }) => {
+				let select = $("#folder-permission-user-select");
+				select.empty().append("<option value=\"\">-- Select user --</option>");
+				data.data.forEach((user) => {
+					let opt = $("<option></option>").val(user.id).text(`${user.name} (${user.email})`);
+					select.append(opt);
+				});
+			});
+			ActionsService._loadFolderPermissions(folderId, permissionsList, permUrl);
+			$("#btn-grant-folder-permission").off("click").on("click", () => {
+				let userId = $("#folder-permission-user-select").val();
+				let permission = $("#folder-permission-level-select").val();
+				if (!userId) return;
+				$httpClient.make().post(permUrl, {
+					user_id: userId,
+					permission
+				}).then(() => {
+					ActionsService._loadFolderPermissions(folderId, permissionsList, permUrl);
+					MessageService.showMessage("success", "Permission granted", "Success");
+				}).catch(({ response }) => {
+					var _response$data;
+					MessageService.showMessage("error", (response === null || response === void 0 || (_response$data = response.data) === null || _response$data === void 0 ? void 0 : _response$data.message) || "Error", "Error");
+				});
+			});
+		}
+		static _loadFolderPermissions(folderId, container, permUrl) {
+			container.html("<div class=\"text-muted text-center py-3\">Loading...</div>");
+			$httpClient.make().get(permUrl).then(({ data }) => {
+				container.empty();
+				if (!data.data || !data.data.length) {
+					container.html("<div class=\"text-muted text-center py-3\">No permissions set</div>");
+					return;
+				}
+				data.data.forEach((perm) => {
+					let levelBadge = perm.permission === "manage" ? "bg-danger" : perm.permission === "upload" ? "bg-warning" : "bg-info";
+					let row = $("<div class=\"list-group-item d-flex justify-content-between align-items-center\"></div>");
+					let info = $("<div></div>");
+					info.append($("<strong></strong>").text(perm.user_name));
+					info.append($("<small class=\"text-muted d-block\"></small>").text(perm.user_email));
+					row.append(info);
+					let actions = $("<div class=\"d-flex align-items-center gap-2\"></div>");
+					actions.append($(`<span class="badge ${levelBadge}"></span>`).text(perm.permission));
+					actions.append($(`<button type="button" class="btn btn-sm btn-outline-danger btn-revoke-permission"><svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button>`).data("user-id", perm.user_id));
+					row.append(actions);
+					container.append(row);
+				});
+				container.find(".btn-revoke-permission").on("click", function() {
+					let userId = $(this).data("user-id");
+					$httpClient.make().delete(permUrl + "/" + userId).then(() => {
+						ActionsService._loadFolderPermissions(folderId, container, permUrl);
+						MessageService.showMessage("success", "Permission revoked", "Success");
+					});
+				});
+			});
+		}
+	};
+	//#endregion
+	//#region platform/core/media/resources/js/App/Services/ContextMenuService.js
+	var ContextMenuService = class ContextMenuService {
+		static initContext() {
+			if (jQuery().contextMenu) {
+				$.contextMenu({
+					selector: ".js-context-menu[data-context=\"file\"]",
+					build: () => {
+						return { items: ContextMenuService._fileContextMenu() };
+					}
+				});
+				$.contextMenu({
+					selector: ".js-context-menu[data-context=\"folder\"]",
+					build: () => {
+						return { items: ContextMenuService._folderContextMenu() };
+					}
+				});
+			}
+		}
+		static _fileContextMenu() {
+			let items = { preview: {
+				name: "Preview",
+				icon: (opt, $itemElement, itemKey, item) => {
+					$itemElement.html(`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                         <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
                         <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
-                    </svg> ${y.name}`),"context-menu-icon-updated"),callback:()=>{U.handlePreview()}}};l.each(l.getConfigs().actions_list,(f,c)=>{l.each(f,M=>{e[M.action]={name:M.name,icon:(y,k,C,R)=>(k.html(`${M.icon} ${l.trans(`actions_list.${c}.${M.action}`,M.name)}`),`context-menu-icon-updated media-action-${M.action}`),callback:()=>{$(`.js-files-action[data-action="${M.action}"]`).trigger("click")}}})});let o=[];switch(l.getRequestParams().view_in){case"all_media":o=["remove_favorite","delete","restore"];break;case"recent":o=["remove_favorite","delete","restore","make_copy"];break;case"favorites":o=["favorite","delete","restore","make_copy"];break;case"trash":e={preview:e.preview,rename:e.rename,download:e.download,delete:e.delete,restore:e.restore}}l.each(o,f=>{e[f]=void 0}),l.getSelectedFolder().length>0&&(e.preview=void 0,e.crop=void 0,e.copy_link=void 0,e.copy_indirect_link=void 0,e.share=void 0,e.alt_text=void 0,l.hasPermission("folders.create")||(e.make_copy=void 0),l.hasPermission("folders.edit")||(e.rename=void 0),l.hasPermission("folders.trash")||(e.trash=void 0,e.restore=void 0),l.hasPermission("folders.destroy")||(e.delete=void 0),l.hasPermission("folders.favorite")||(e.favorite=void 0,e.remove_favorite=void 0));let n=l.getSelectedFiles();return n.length>0&&(l.hasPermission("files.create")||(e.make_copy=void 0),l.hasPermission("files.edit")||(e.rename=void 0),l.hasPermission("files.trash")||(e.trash=void 0,e.restore=void 0),l.hasPermission("files.destroy")||(e.delete=void 0),l.hasPermission("files.favorite")||(e.favorite=void 0,e.remove_favorite=void 0),n.length>1&&(e.crop=void 0),e.properties=void 0),l.arrayFilter(n,function(f){return f.preview_url}).length||(e.preview=void 0),l.arrayFilter(n,function(f){return f.type==="image"}).length||(e.crop=void 0,e.alt_text=void 0),l.arrayFilter(n,function(f){return f.full_url}).length||(e.copy_link=void 0),e}static _folderContextMenu(){let e=We._fileContextMenu();return e.preview=void 0,e.copy_link=void 0,e.manage_access={name:l.trans("manage_access","Manage Access"),icon:(o,n,f,c)=>(n.html(`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"></path><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"></path></svg> ${c.name}`),"context-menu-icon-updated"),callback:()=>{U.handleManageAccess()}},e}static destroyContext(){jQuery().contextMenu&&$.contextMenu("destroy")}},vi=class{constructor(){this.group={},this.group.list=$("#rv_media_items_list").html(),this.group.tiles=$("#rv_media_items_tiles").html(),this.item={},this.item.list=$("#rv_media_items_list_element").html(),this.item.tiles=$("#rv_media_items_tiles_element").html(),this.$groupContainer=$(".rv-media-items")}renderData(d,e=!1,o=!1){let n=this,f=l.getConfigs(),c=n.group[l.getRequestParams().view_type],M=l.getRequestParams().view_in;l.inArray(["all_media","public","trash","favorites","recent"],M)||(M="all_media");let y;switch(M){case"all_media":y=`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    </svg> ${item.name}`);
+					return "context-menu-icon-updated";
+				},
+				callback: () => {
+					ActionsService.handlePreview();
+				}
+			} };
+			Helpers.each(Helpers.getConfigs().actions_list, (actionGroup, key) => {
+				Helpers.each(actionGroup, (value) => {
+					items[value.action] = {
+						name: value.name,
+						icon: (opt, $itemElement, itemKey, item) => {
+							$itemElement.html(`${value.icon} ${Helpers.trans(`actions_list.${key}.${value.action}`, value.name)}`);
+							return `context-menu-icon-updated media-action-${value.action}`;
+						},
+						callback: () => {
+							$(`.js-files-action[data-action="${value.action}"]`).trigger("click");
+						}
+					};
+				});
+			});
+			let except = [];
+			switch (Helpers.getRequestParams().view_in) {
+				case "all_media":
+					except = [
+						"remove_favorite",
+						"delete",
+						"restore"
+					];
+					break;
+				case "recent":
+					except = [
+						"remove_favorite",
+						"delete",
+						"restore",
+						"make_copy"
+					];
+					break;
+				case "favorites":
+					except = [
+						"favorite",
+						"delete",
+						"restore",
+						"make_copy"
+					];
+					break;
+				case "trash": items = {
+					preview: items.preview,
+					rename: items.rename,
+					download: items.download,
+					delete: items.delete,
+					restore: items.restore
+				};
+			}
+			Helpers.each(except, (value) => {
+				items[value] = void 0;
+			});
+			if (Helpers.getSelectedFolder().length > 0) {
+				items.preview = void 0;
+				items.crop = void 0;
+				items.copy_link = void 0;
+				items.copy_indirect_link = void 0;
+				items.share = void 0;
+				items.alt_text = void 0;
+				if (!Helpers.hasPermission("folders.create")) items.make_copy = void 0;
+				if (!Helpers.hasPermission("folders.edit")) items.rename = void 0;
+				if (!Helpers.hasPermission("folders.trash")) {
+					items.trash = void 0;
+					items.restore = void 0;
+				}
+				if (!Helpers.hasPermission("folders.destroy")) items.delete = void 0;
+				if (!Helpers.hasPermission("folders.favorite")) {
+					items.favorite = void 0;
+					items.remove_favorite = void 0;
+				}
+			}
+			let selectedFiles = Helpers.getSelectedFiles();
+			if (selectedFiles.length > 0) {
+				if (!Helpers.hasPermission("files.create")) items.make_copy = void 0;
+				if (!Helpers.hasPermission("files.edit")) items.rename = void 0;
+				if (!Helpers.hasPermission("files.trash")) {
+					items.trash = void 0;
+					items.restore = void 0;
+				}
+				if (!Helpers.hasPermission("files.destroy")) items.delete = void 0;
+				if (!Helpers.hasPermission("files.favorite")) {
+					items.favorite = void 0;
+					items.remove_favorite = void 0;
+				}
+				if (selectedFiles.length > 1) items.crop = void 0;
+				items.properties = void 0;
+			}
+			if (!Helpers.arrayFilter(selectedFiles, function(value) {
+				return value.preview_url;
+			}).length) items.preview = void 0;
+			if (!Helpers.arrayFilter(selectedFiles, function(value) {
+				return value.type === "image";
+			}).length) {
+				items.crop = void 0;
+				items.alt_text = void 0;
+			}
+			if (!Helpers.arrayFilter(selectedFiles, function(value) {
+				return value.full_url;
+			}).length) items.copy_link = void 0;
+			return items;
+		}
+		static _folderContextMenu() {
+			let items = ContextMenuService._fileContextMenu();
+			items.preview = void 0;
+			items.copy_link = void 0;
+			items.manage_access = {
+				name: Helpers.trans("manage_access", "Manage Access"),
+				icon: (opt, $itemElement, itemKey, item) => {
+					$itemElement.html(`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"></path><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"></path></svg> ${item.name}`);
+					return "context-menu-icon-updated";
+				},
+				callback: () => {
+					ActionsService.handleManageAccess();
+				}
+			};
+			return items;
+		}
+		static destroyContext() {
+			if (jQuery().contextMenu) $.contextMenu("destroy");
+		}
+	};
+	//#endregion
+	//#region platform/core/media/resources/js/App/Views/MediaList.js
+	var MediaList = class {
+		constructor() {
+			this.group = {};
+			this.group.list = $("#rv_media_items_list").html();
+			this.group.tiles = $("#rv_media_items_tiles").html();
+			this.item = {};
+			this.item.list = $("#rv_media_items_list_element").html();
+			this.item.tiles = $("#rv_media_items_tiles_element").html();
+			this.$groupContainer = $(".rv-media-items");
+		}
+		renderData(data, reload = false, load_more_file = false) {
+			let _self = this;
+			let MediaConfig = Helpers.getConfigs();
+			let template = _self.group[Helpers.getRequestParams().view_type];
+			let view_in = Helpers.getRequestParams().view_in;
+			if (!Helpers.inArray([
+				"all_media",
+				"public",
+				"trash",
+				"favorites",
+				"recent"
+			], view_in)) view_in = "all_media";
+			let icon;
+			switch (view_in) {
+				case "all_media":
+					icon = `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
                     <path d="M7 9l5 -5l5 5"></path>
                     <path d="M12 4l0 12"></path>
-                </svg>`;break;case"public":y=`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`;
+					break;
+				case "public":
+					icon = `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
                     <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
-                </svg>`;break;case"trash":y=`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`;
+					break;
+				case "trash":
+					icon = `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M4 7l16 0"></path>
                     <path d="M10 11l0 6"></path>
                     <path d="M14 11l0 6"></path>
                     <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
                     <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
-                </svg>`;break;case"favorites":y=`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`;
+					break;
+				case "favorites":
+					icon = `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z" stroke-width="0" fill="currentColor"></path>
-                </svg>`;break;case"recent":y=`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`;
+					break;
+				case "recent": icon = `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
                     <path d="M12 7v5l3 3"></path>
-                </svg>`}c=c.replace(/__noItemIcon__/gi,y).replace(/__noItemTitle__/gi,l.trans(`no_item.${M}.title`)||"").replace(/__noItemMessage__/gi,l.trans(`no_item.${M}.message`)||"");let k=$(c),C=k.find("ul");o&&this.$groupContainer.find(".rv-media-grid ul").length>0&&(C=this.$groupContainer.find(".rv-media-grid ul")),l.size(d.folders)>0||l.size(d.files)>0||o?$(".rv-media-items").addClass("has-items"):$(".rv-media-items").removeClass("has-items"),l.forEach(d.folders,R=>{let j=n.item[l.getRequestParams().view_type];j=j.replace(/__type__/gi,"folder").replace(/__id__/gi,R.id).replace(/__name__/gi,R.name||"").replace(/__size__/gi,"").replace(/__date__/gi,R.created_at||"").replace(/__thumb__/gi,`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                </svg>`;
+			}
+			template = template.replace(/__noItemIcon__/gi, icon).replace(/__noItemTitle__/gi, Helpers.trans(`no_item.${view_in}.title`) || "").replace(/__noItemMessage__/gi, Helpers.trans(`no_item.${view_in}.message`) || "");
+			let $result = $(template);
+			let $itemsWrapper = $result.find("ul");
+			if (load_more_file && this.$groupContainer.find(".rv-media-grid ul").length > 0) $itemsWrapper = this.$groupContainer.find(".rv-media-grid ul");
+			if (Helpers.size(data.folders) > 0 || Helpers.size(data.files) > 0 || load_more_file) $(".rv-media-items").addClass("has-items");
+			else $(".rv-media-items").removeClass("has-items");
+			Helpers.forEach(data.folders, (value) => {
+				let item = _self.item[Helpers.getRequestParams().view_type];
+				item = item.replace(/__type__/gi, "folder").replace(/__id__/gi, value.id).replace(/__name__/gi, value.name || "").replace(/__size__/gi, "").replace(/__date__/gi, value.created_at || "").replace(/__thumb__/gi, `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
-                </svg>`);let A=$(j);l.forEach(R,(pe,le)=>{A.data(le,pe)}),A.data("is_folder",!0),A.data("icon",f.icons.folder),A.find(".rv-media-thumbnail").css("color",R.color),C.append(A)}),l.forEach(d.files,R=>{let j=n.item[l.getRequestParams().view_type];j=j.replace(/__type__/gi,"file").replace(/__id__/gi,R.id).replace(/__name__/gi,R.name||"").replace(/__size__/gi,R.size||"").replace(/__date__/gi,R.created_at||""),l.getRequestParams().view_type==="list"?j=j.replace(/__thumb__/gi,R.icon):j=j.replace(/__thumb__/gi,R.thumb?`<img src="${R.thumb?R.thumb:R.full_url}" alt="${R.name}">`:R.icon);let A=$(j);A.data("is_folder",!1),l.forEach(R,(pe,le)=>{A.data(le,pe)}),C.append(A)}),e!==!1&&n.$groupContainer.empty(),o&&this.$groupContainer.find(".rv-media-grid ul").length>0||n.$groupContainer.append(k),n.$groupContainer.find(".loading-spinner").remove(),U.handleDropdown(),$(`.js-media-list-title[data-id=${d.selected_file_id}]`).trigger("click")}},wi=class{constructor(){this.$detailsWrapper=$(".rv-media-main .rv-media-details"),this.descriptionItemTemplate=`<div class="mb-3 rv-media-name">
+                </svg>`);
+				let $item = $(item);
+				Helpers.forEach(value, (val, index) => {
+					$item.data(index, val);
+				});
+				$item.data("is_folder", true);
+				$item.data("icon", MediaConfig.icons.folder);
+				$item.find(".rv-media-thumbnail").css("color", value.color);
+				$itemsWrapper.append($item);
+			});
+			Helpers.forEach(data.files, (value) => {
+				let item = _self.item[Helpers.getRequestParams().view_type];
+				item = item.replace(/__type__/gi, "file").replace(/__id__/gi, value.id).replace(/__name__/gi, value.name || "").replace(/__size__/gi, value.size || "").replace(/__date__/gi, value.created_at || "");
+				if (Helpers.getRequestParams().view_type === "list") item = item.replace(/__thumb__/gi, value.icon);
+				else item = item.replace(/__thumb__/gi, value.thumb ? `<img src="${value.thumb ? value.thumb : value.full_url}" alt="${value.name}">` : value.icon);
+				let $item = $(item);
+				$item.data("is_folder", false);
+				Helpers.forEach(value, (val, index) => {
+					$item.data(index, val);
+				});
+				$itemsWrapper.append($item);
+			});
+			if (reload !== false) _self.$groupContainer.empty();
+			if (!(load_more_file && this.$groupContainer.find(".rv-media-grid ul").length > 0)) _self.$groupContainer.append($result);
+			_self.$groupContainer.find(".loading-spinner").remove();
+			ActionsService.handleDropdown();
+			$(`.js-media-list-title[data-id=${data.selected_file_id}]`).trigger("click");
+		}
+	};
+	//#endregion
+	//#region platform/core/media/resources/js/App/Views/MediaDetails.js
+	var MediaDetails = class {
+		constructor() {
+			this.$detailsWrapper = $(".rv-media-main .rv-media-details");
+			this.descriptionItemTemplate = `<div class="mb-3 rv-media-name">
             <label class="form-label">__title__</label>
             __url__
-        </div>`,this.onlyFields=["name","alt","full_url","size","mime_type","created_at","updated_at","nothing_selected"]}renderData(d){const e=this,o=d.type==="image"&&d.full_url?`<img src="${d.full_url}" alt="${d.name}">`:d.icon;let n="";l.forEach(d,(c,M)=>{l.inArray(e.onlyFields,M)&&c&&(l.inArray(["mime_type"],M)||(n+=e.descriptionItemTemplate.replace(/__title__/gi,l.trans(M)).replace(/__url__/gi,c?M==="full_url"?`<div class="input-group pe-1">
-                                        <input type="text" id="file_details_url" class="form-control" value="${c}" />
+        </div>`;
+			this.onlyFields = [
+				"name",
+				"alt",
+				"full_url",
+				"size",
+				"mime_type",
+				"created_at",
+				"updated_at",
+				"nothing_selected"
+			];
+		}
+		renderData(data) {
+			const _self = this;
+			const thumb = data.type === "image" && data.full_url ? `<img src="${data.full_url}" alt="${data.name}">` : data.icon;
+			let description = "";
+			Helpers.forEach(data, (val, index) => {
+				if (Helpers.inArray(_self.onlyFields, index) && val) {
+					if (!Helpers.inArray(["mime_type"], index)) description += _self.descriptionItemTemplate.replace(/__title__/gi, Helpers.trans(index)).replace(/__url__/gi, val ? index === "full_url" ? `<div class="input-group pe-1">
+                                        <input type="text" id="file_details_url" class="form-control" value="${val}" />
                                         <button class="input-group-text btn btn-default js-btn-copy-to-clipboard" type="button"
                                                 data-bb-toggle="clipboard"
                                                 data-clipboard-action="copy"
@@ -134,37 +4115,638 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                               <path d="M5 12l5 5l10 -10"></path>
                                             </svg>
                                         </button>
-                                    </div>`:`<span title="${c}">${c}</span>`:"")))}),e.$detailsWrapper.find(".rv-media-thumbnail").html(o),e.$detailsWrapper.find(".rv-media-thumbnail").css("color",d.color),e.$detailsWrapper.find(".rv-media-description").html(n);let f="";if(d.mime_type&&d.mime_type.indexOf("image")!==-1){const c=new Image;c.src=d.full_url,c.onload=()=>{f+=this.descriptionItemTemplate.replace(/__title__/gi,l.trans("width")).replace(/__url__/gi,`<span title="${c.width}">${c.width}px</span>`),f+=this.descriptionItemTemplate.replace(/__title__/gi,l.trans("height")).replace(/__url__/gi,`<span title="${c.height}">${c.height}px</span>`),e.$detailsWrapper.find(".rv-media-description").append(f)}}}},_i=class{render(d){if(!d||!d.labels)return;const e=$(".rv-media-status-bar");e.length&&(e.removeClass("d-none"),this.renderItem(e,"folders",d.total_folders,d.labels.folders),this.renderItem(e,"files",d.total_files,d.labels.files,!0),this.renderItem(e,"size",d.total_size,d.labels.total_size),this.renderItem(e,"images",d.image_count,d.labels.images),this.renderItem(e,"videos",d.video_count,d.labels.videos),this.renderItem(e,"documents",d.document_count,d.labels.documents))}renderItem(d,e,o,n,f=!1){const c=d.find(`.js-status-${e}`);if(!parseInt(o,10)&&!f){c.addClass("d-none");return}c.find(`.js-status-${e}-text`).text(n),c.removeClass("d-none")}},we=class ai{constructor(){this.MediaList=new vi,this.MediaDetails=new wi,this.MediaStatusBar=new _i,this.breadcrumbTemplate=$("#rv_media_breadcrumb_item").html()}getMedia(e=!1,o=!1,n=!1){if(typeof RV_MEDIA_CONFIG.pagination!="undefined"){if(RV_MEDIA_CONFIG.pagination.in_process_get_media)return;RV_MEDIA_CONFIG.pagination.in_process_get_media=!0}let f=this;f.getFileDetails({icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    </div>` : `<span title="${val}">${val}</span>` : "");
+				}
+			});
+			_self.$detailsWrapper.find(".rv-media-thumbnail").html(thumb);
+			_self.$detailsWrapper.find(".rv-media-thumbnail").css("color", data.color);
+			_self.$detailsWrapper.find(".rv-media-description").html(description);
+			let dimensions = "";
+			if (data.mime_type && data.mime_type.indexOf("image") !== -1) {
+				const image = new Image();
+				image.src = data.full_url;
+				image.onload = () => {
+					dimensions += this.descriptionItemTemplate.replace(/__title__/gi, Helpers.trans("width")).replace(/__url__/gi, `<span title="${image.width}">${image.width}px</span>`);
+					dimensions += this.descriptionItemTemplate.replace(/__title__/gi, Helpers.trans("height")).replace(/__url__/gi, `<span title="${image.height}">${image.height}px</span>`);
+					_self.$detailsWrapper.find(".rv-media-description").append(dimensions);
+				};
+			}
+		}
+	};
+	//#endregion
+	//#region platform/core/media/resources/js/App/Views/MediaStatusBar.js
+	/**
+	* Footer status bar summarising the current media view: folder/file counts,
+	* total size and per-type counts.
+	*
+	* The numbers and their labels come from the server (see
+	* MediaFileRepository::getStats), so they stay correct even though the list is
+	* paginated by infinite scroll, and pluralisation follows the active locale.
+	*/
+	var MediaStatusBar = class {
+		render(stats) {
+			if (!stats || !stats.labels) return;
+			const $container = $(".rv-media-status-bar");
+			if (!$container.length) return;
+			$container.removeClass("d-none");
+			this.renderItem($container, "folders", stats.total_folders, stats.labels.folders);
+			this.renderItem($container, "files", stats.total_files, stats.labels.files, true);
+			this.renderItem($container, "size", stats.total_size, stats.labels.total_size);
+			this.renderItem($container, "images", stats.image_count, stats.labels.images);
+			this.renderItem($container, "videos", stats.video_count, stats.labels.videos);
+			this.renderItem($container, "documents", stats.document_count, stats.labels.documents);
+		}
+		renderItem($container, name, count, label, alwaysShow = false) {
+			const $item = $container.find(`.js-status-${name}`);
+			if (!parseInt(count, 10) && !alwaysShow) {
+				$item.addClass("d-none");
+				return;
+			}
+			$item.find(`.js-status-${name}-text`).text(label);
+			$item.removeClass("d-none");
+		}
+	};
+	//#endregion
+	//#region platform/core/media/resources/js/App/Services/MediaService.js
+	var MediaService = class MediaService {
+		constructor() {
+			this.MediaList = new MediaList();
+			this.MediaDetails = new MediaDetails();
+			this.MediaStatusBar = new MediaStatusBar();
+			this.breadcrumbTemplate = $("#rv_media_breadcrumb_item").html();
+		}
+		getMedia(reload = false, is_popup = false, load_more_file = false) {
+			if (typeof RV_MEDIA_CONFIG.pagination != "undefined") {
+				if (RV_MEDIA_CONFIG.pagination.in_process_get_media) return;
+				RV_MEDIA_CONFIG.pagination.in_process_get_media = true;
+			}
+			let _self = this;
+			_self.getFileDetails({
+				icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M15 8h.01"></path>
                 <path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"></path>
                 <path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"></path>
                 <path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"></path>
-            </svg>`,nothing_selected:""});let c=l.getRequestParams();o===!0?c=q(q({},c),{},{is_popup:!0}):c=q(q({},c),{},{is_popup:void 0}),c=q(q({},c),{},{onSelectFiles:void 0}),typeof c.search!="undefined"&&c.search!==""&&typeof c.selected_file_id!="undefined"&&(c=q(q({},c),{},{selected_file_id:void 0})),c=q(q({},c),{},{load_more_file:n}),typeof RV_MEDIA_CONFIG.pagination!="undefined"&&(c=q(q({},c),{},{paged:RV_MEDIA_CONFIG.pagination.paged,posts_per_page:RV_MEDIA_CONFIG.pagination.posts_per_page})),l.showAjaxLoading(),$httpClient.make().get(RV_MEDIA_URL.get_media,c).then(({data:M})=>{f.MediaList.renderData(M.data,e,n),f.renderBreadcrumbs(M.data.breadcrumbs),f.MediaStatusBar.render(M.data.stats),ai.refreshFilter(),U.renderActions(),typeof RV_MEDIA_CONFIG.pagination!="undefined"&&(typeof RV_MEDIA_CONFIG.pagination.paged!="undefined"&&(RV_MEDIA_CONFIG.pagination.paged+=1),typeof RV_MEDIA_CONFIG.pagination.in_process_get_media!="undefined"&&(RV_MEDIA_CONFIG.pagination.in_process_get_media=!1),typeof RV_MEDIA_CONFIG.pagination.posts_per_page!="undefined"&&M.data.files.length+M.data.folders.length<RV_MEDIA_CONFIG.pagination.posts_per_page&&typeof RV_MEDIA_CONFIG.pagination.has_more!="undefined"&&(RV_MEDIA_CONFIG.pagination.has_more=!1))}).finally(()=>l.hideAjaxLoading())}getFileDetails(e){this.MediaDetails.renderData(e)}renderBreadcrumbs(e){let o=this,n=$(".rv-media-breadcrumb .breadcrumb");n.find("li").remove(),l.each(e,f=>{let c=o.breadcrumbTemplate;c=c.replace(/__name__/gi,f.name||"").replace(/__icon__/gi,(f==null?void 0:f.icon)||`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            </svg>`,
+				nothing_selected: ""
+			});
+			let params = Helpers.getRequestParams();
+			if (is_popup === true) params = _objectSpread2(_objectSpread2({}, params), {}, { is_popup: true });
+			else params = _objectSpread2(_objectSpread2({}, params), {}, { is_popup: void 0 });
+			params = _objectSpread2(_objectSpread2({}, params), {}, { onSelectFiles: void 0 });
+			if (typeof params.search != "undefined" && params.search !== "" && typeof params.selected_file_id != "undefined") params = _objectSpread2(_objectSpread2({}, params), {}, { selected_file_id: void 0 });
+			params = _objectSpread2(_objectSpread2({}, params), {}, { load_more_file });
+			if (typeof RV_MEDIA_CONFIG.pagination != "undefined") params = _objectSpread2(_objectSpread2({}, params), {}, {
+				paged: RV_MEDIA_CONFIG.pagination.paged,
+				posts_per_page: RV_MEDIA_CONFIG.pagination.posts_per_page
+			});
+			Helpers.showAjaxLoading();
+			$httpClient.make().get(RV_MEDIA_URL.get_media, params).then(({ data }) => {
+				_self.MediaList.renderData(data.data, reload, load_more_file);
+				_self.renderBreadcrumbs(data.data.breadcrumbs);
+				_self.MediaStatusBar.render(data.data.stats);
+				MediaService.refreshFilter();
+				ActionsService.renderActions();
+				if (typeof RV_MEDIA_CONFIG.pagination != "undefined") {
+					if (typeof RV_MEDIA_CONFIG.pagination.paged != "undefined") RV_MEDIA_CONFIG.pagination.paged += 1;
+					if (typeof RV_MEDIA_CONFIG.pagination.in_process_get_media != "undefined") RV_MEDIA_CONFIG.pagination.in_process_get_media = false;
+					if (typeof RV_MEDIA_CONFIG.pagination.posts_per_page != "undefined" && data.data.files.length + data.data.folders.length < RV_MEDIA_CONFIG.pagination.posts_per_page && typeof RV_MEDIA_CONFIG.pagination.has_more != "undefined") RV_MEDIA_CONFIG.pagination.has_more = false;
+				}
+			}).finally(() => Helpers.hideAjaxLoading());
+		}
+		getFileDetails(data) {
+			this.MediaDetails.renderData(data);
+		}
+		renderBreadcrumbs(breadcrumbItems) {
+			let _self = this;
+			let $breadcrumbContainer = $(".rv-media-breadcrumb .breadcrumb");
+			$breadcrumbContainer.find("li").remove();
+			Helpers.each(breadcrumbItems, (value) => {
+				let template = _self.breadcrumbTemplate;
+				template = template.replace(/__name__/gi, value.name || "").replace(/__icon__/gi, (value === null || value === void 0 ? void 0 : value.icon) || `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
-                </svg>`).replace(/__folderId__/gi,f.id||0),n.append($(c))}),$(".rv-media-container").attr("data-breadcrumb-count",l.size(e))}static refreshFilter(){const e=$(".rv-media-container"),o=l.getRequestParams().view_in,n=$('.rv-media-actions .btn:not([data-type="refresh"]):not([data-bs-toggle="offcanvas"])');o!=="all_media"&&!l.getRequestParams().folder_id?(n.addClass("disabled"),e.attr("data-allow-upload","false")):(n.removeClass("disabled"),e.attr("data-allow-upload","true")),$(".rv-media-actions .btn.js-rv-media-change-filter-group").removeClass("disabled");const f=$('.rv-media-actions .btn[data-action="empty_trash"]');f.hide(),o==="trash"&&l.size(l.getItems())>0&&f.removeClass("d-none disabled").show(),Pe.destroyContext(),Pe.initContext(),e.attr("data-view-in",o)}},bi=class ri{constructor(){this.MediaService=new we,$(document).on("shown.bs.modal","#modal_add_folder",e=>{$(e.currentTarget).find("form input[type=text]").focus()})}create(e){let o=this;$httpClient.make().withButtonLoading($(document).find("#modal_add_folder button[type=submit]")).post(RV_MEDIA_URL.create_folder,{parent_id:l.getRequestParams().folder_id,name:e}).then(({data:n})=>{G.showMessage("success",n.message,l.trans("message.success_header")),l.resetPagination(),o.MediaService.getMedia(!0),ri.closeModal()})}changeFolder(e){W.request_params.folder_id=e,l.storeConfig(),this.MediaService.getMedia(!0)}changeFolderAndAddToRecent(e){e>0&&l.addToRecent(e,!0),this.changeFolder(e)}static closeModal(){$(document).find("#modal_add_folder").modal("hide")}},yi=class ve{constructor(){this.$body=$("body"),this.dropZone=null,this.uploadUrl=RV_MEDIA_URL.upload_file,this.uploadProgressBox=$(".rv-upload-progress"),this.uploadProgressContainer=$(".rv-upload-progress .rv-upload-progress-table"),this.uploadProgressTemplate=$("#rv_media_upload_progress_item").html(),this.MediaService=new we,this.autoCloseTimer=null,this.clearRowsTimer=null,this.statusIcons=ve.buildStatusIcons()}static buildStatusIcons(){const e=$("<div></div>").html($("#rv_media_upload_icons").html()),o=n=>e.find(n).prop("outerHTML")||"";return{uploading:o(".js-icon-uploading"),uploaded:o(".js-icon-uploaded"),error:o(".js-icon-error"),canceled:o(".js-icon-canceled"),retry:o(".js-icon-retry")}}setFileIcon(e,o){e.find(".js-file-icon").toggleClass("rv-upload-file-icon--spin",o==="uploading").html(this.statusIcons[o]||"")}init(){l.hasPermission("files.create")&&$(".rv-media-items").length>0&&this.setupDropZone(),this.handleEvents()}setupDropZone(){let e=this,o=this.getDropZoneConfig();e.dropZone&&e.dropZone.destroy(),e.dropZone=new Dropzone(document.querySelector(".rv-media-items"),q(q({},o),{},{thumbnailWidth:!1,thumbnailHeight:!1,parallelUploads:1,autoQueue:!0,clickable:".js-dropzone-upload",previewsContainer:!1,sending:function(n,f,c){c.append("_token",$('meta[name="csrf-token"]').attr("content")),c.append("folder_id",l.getRequestParams().folder_id),c.append("view_in",l.getRequestParams().view_in),c.append("path",n.fullPath)},chunksUploaded:(n,f)=>{e.getProgressRow(n).find(".progress-percent").html('- <span class="text-info">100%</span>'),f()},uploadprogress:(n,f,c)=>{let M=c/n.size*100;n.upload.chunked&&M>99&&(M=M-1);let y=(M>100?"100":parseInt(M))+"%";e.getProgressRow(n).find(".progress-percent").html('- <span class="text-info">'+y+"</span>")}})),e.dropZone.on("addedfile",n=>{e.initProgress(n)}),e.dropZone.on("error",(n,f)=>{!n.accepted&&typeof f=="string"&&(n.clientErrorMessage=f)}),e.dropZone.on("complete",n=>{e.changeProgressStatus(n)}),e.dropZone.on("queuecomplete",()=>{l.resetPagination(),e.MediaService.getMedia(!0),e.renderSummary()})}handleEvents(){let e=this;e.$body.off("click",".rv-upload-progress .close-pane").on("click",".rv-upload-progress .close-pane",o=>{o.preventDefault(),$(".rv-upload-progress").addClass("hide-the-pane"),$(".rv-upload-progress .js-upload-summary").text(""),clearTimeout(e.autoCloseTimer),clearTimeout(e.clearRowsTimer),e.clearRowsTimer=setTimeout(()=>e.clearProgressRows(),300)})}initProgress(e){clearTimeout(this.autoCloseTimer),clearTimeout(this.clearRowsTimer);const o=this.uploadProgressTemplate.replace(/__fileSize__/gi,ve.formatFileSize(e.size)),n=$(o);n.find(".file-name").text(e.name).attr("title",e.name),n.find(".file-status").addClass("text-secondary").text(l.trans("upload_status.uploading","Uploading...")),this.setFileIcon(n,"uploading"),e.$progressRow=n,this.uploadProgressContainer.append(n),this.uploadProgressBox.removeClass("hide-the-pane"),this.uploadProgressBox.find(".js-upload-summary").text(""),this.uploadProgressBox.find(".table").animate({scrollTop:this.uploadProgressContainer.height()},150)}getProgressRow(e){return e.$progressRow||$()}clearProgressRows(){l.each(this.dropZone?this.dropZone.files:[],e=>{e.$progressRow=null}),this.uploadProgressContainer.empty()}changeProgressStatus(e){const o=this,n=o.getProgressRow(e);if(!n.length)return;const f=n.find(".file-status"),c=n.find(".file-error"),M=l.jsonDecode(e.xhr&&e.xhr.responseText||"",{}),y=e.status==="canceled",k=!y&&(M.error===!0||e.status==="error");e.uploadOutcome=y?"canceled":k?"failed":"uploaded";const C=y?"canceled":k?"error":"uploaded";if(o.setFileIcon(n,C),n.removeClass("rv-upload-row--error rv-upload-row--canceled").toggleClass("rv-upload-row--error",k).toggleClass("rv-upload-row--canceled",y),f.removeClass("text-success text-danger text-warning text-secondary text-muted").addClass(k?"text-danger":y?"text-secondary":"text-success").text(l.trans(`upload_status.${C}`,{uploaded:"Uploaded",error:"Error",canceled:"Canceled"}[C])),(k||y)&&n.find(".progress-percent").html(""),!y){if(e.status==="error"){const R=e.xhr?e.xhr.status:0;R===422?(c.empty(),$.each(M.errors,(j,A)=>{c.append(ve.renderError(A)).append("<br>")})):R===500?c.html(ve.renderError(e.xhr.statusText)):c.html(ve.renderError(ve.getUploadErrorMessage(e)))}else M.error?c.html(ve.renderError(M.message)):M.data&&M.data.id&&(l.addToRecent(M.data.id),l.setSelectedFile(M.data.id));k&&c.attr("title",c.text()),k&&ve.isRetryable(e)&&o.appendRetryButton(n,e)}}static isRetryable(e){if(e.status!=="error"||e.clientErrorMessage)return!1;const o=e.xhr?e.xhr.status:0;return o!==422&&o!==413}appendRetryButton(e,o){const n=this,f=$('<button type="button" class="btn btn-link btn-sm p-0 js-retry-upload"></button>').html(this.statusIcons.retry).append($("<span></span>").text(l.trans("upload_status.retry","Retry")));f.on("click",c=>{c.preventDefault(),n.retryUpload(o)}),e.find(".progress-percent").empty().append(f)}retryUpload(e){this.getProgressRow(e).remove(),e.$progressRow=null,e.uploadOutcome=null,this.dropZone.removeFile(e),this.dropZone.addFile(e)}renderSummary(){const e={uploaded:0,failed:0,canceled:0};l.each(this.dropZone.files,f=>{f.uploadOutcome&&this.getProgressRow(f).parent().length&&e[f.uploadOutcome]++});const o={uploaded:"text-success",failed:"text-danger",canceled:"text-secondary"},n=this.uploadProgressBox.find(".js-upload-summary").empty();["uploaded","failed","canceled"].filter(f=>e[f]>0).forEach((f,c)=>{c&&n.append(document.createTextNode(" · ")),n.append($("<span></span>").addClass(o[f]).text(l.trans(`upload_summary.${f}`,`:count ${f}`).replace(":count",e[f])))}),clearTimeout(this.autoCloseTimer),e.failed===0&&e.canceled===0&&(this.autoCloseTimer=setTimeout(()=>{$(".rv-upload-progress .close-pane").trigger("click")},5e3))}static renderError(e){return $('<span class="text-danger"></span>').text(e==null?"":e)}static getUploadErrorMessage(e){if(e.clientErrorMessage)return e.clientErrorMessage;const o=e.xhr?e.xhr.status:0;if(o===413){const n=l.config("max_upload_size");return n?l.trans("upload_error.too_large","This file is larger than the server upload limit of :size.").replace(":size",n):l.trans("upload_error.too_large_unknown_limit","This file is larger than the server upload limit.")}return o===0?l.trans("upload_error.incomplete","The upload did not complete. Please try again."):l.trans("upload_error.unknown","Upload failed (error :code).").replace(":code",o)}static formatFileSize(e,o=!1){let n=o?1e3:1024;if(Math.abs(e)<n)return e+" B";let f=["KB","MB","GB","TB","PB","EB","ZB","YB"],c=-1;do e/=n,++c;while(Math.abs(e)>=n&&c<f.length-1);return e.toFixed(1)+" "+f[c]}getDropZoneConfig(){return{url:this.uploadUrl,uploadMultiple:!RV_MEDIA_CONFIG.chunk.enabled,chunking:RV_MEDIA_CONFIG.chunk.enabled,forceChunking:!0,parallelChunkUploads:!1,chunkSize:RV_MEDIA_CONFIG.chunk.chunk_size,retryChunks:!0,retryChunksLimit:3,timeout:0,maxFilesize:RV_MEDIA_CONFIG.chunk.max_file_size,maxFiles:null}}},Mi=class oi{constructor(){this.MediaService=new we,$(document).on("shown.bs.modal","#modal_download_url",e=>{$(e.currentTarget).find('.form-download-url textarea[name="urls"]').trigger("focus")})}async download(e,o,n){let f=this;e=e.trim().split(/\r?\n/);let c=0;for(const M of e){let y="";try{y=new URL(M).pathname.split("/").pop()}catch(C){y=M}let k=o(`${c} / ${e.length}`,y,M);await new Promise((C,R)=>{$httpClient.make().post(RV_MEDIA_URL.download_url,{folderId:l.getRequestParams().folder_id,url:M}).then(({data:j})=>{var A;k(!0,j.message||((A=j.data)===null||A===void 0?void 0:A.message)),C()}).finally(()=>n()).catch(j=>R(j))}),c+=1}l.resetPagination(),f.MediaService.getMedia(!0),oi.closeModal(),G.showMessage("success",l.trans("message.success_header"))}static closeModal(){$(document).find("#modal_download_url").modal("hide")}},xi=class{constructor(){this.selectedFolderId=null,this.itemsToMove=[],this.excludeIds=[],this.expandedFolders=new Set,this.draggedFolderId=null,this.initEvents()}initEvents(){const d=this;$(document).on("shown.bs.modal","#modal_move_items",()=>{d.init()}),$(document).on("hidden.bs.modal","#modal_move_items",()=>{d.reset()}),$(document).on("click",".js-move-folder-toggle",function(e){e.stopPropagation();const o=$(this).closest(".js-move-folder-item").data("folder-id");d.toggleFolder(o)}),$(document).on("click",".js-move-folder-item",function(e){if($(e.target).closest(".js-move-folder-toggle").length)return;const o=$(this),n=o.data("folder-id");d.selectFolder(o,n)}),$(document).on("change","#move_to_root",function(){$(this).is(":checked")?($("#move-folder-list .js-move-folder-item").removeClass("active"),d.selectedFolderId=0):d.selectedFolderId=null}),$(document).on("click","#btn-confirm-move",()=>{d.confirmMove()}),$(document).on("dragstart",".js-move-folder-drag-handle",function(e){const o=$(this).closest(".js-move-folder-item");d.handleDragStart(e,o)}),$(document).on("dragend",".js-move-folder-drag-handle",function(e){const o=$(this).closest(".js-move-folder-item");d.handleDragEnd(e,o)}),$(document).on("dragover",".js-move-folder-item",function(e){d.handleDragOver(e,$(this))}),$(document).on("dragenter",".js-move-folder-item",function(e){d.handleDragEnter(e,$(this))}),$(document).on("dragleave",".js-move-folder-item",function(e){d.handleDragLeave(e,$(this))}),$(document).on("drop",".js-move-folder-item",function(e){d.handleDrop(e,$(this))})}init(){this.itemsToMove=[],this.excludeIds=[],this.expandedFolders=new Set,this.selectedFolderId=null,this.draggedFolderId=null,l.each(l.getSelectedItems(),d=>{this.itemsToMove.push({is_folder:d.is_folder,id:d.id}),d.is_folder&&this.excludeIds.push(d.id)}),$("#move_to_root").prop("checked",!1),this.loadFolderTree()}reset(){this.selectedFolderId=null,this.itemsToMove=[],this.excludeIds=[],this.expandedFolders=new Set,this.draggedFolderId=null}loadFolderTree(){const d=$("#move-folder-list");d.html(`
+                </svg>`).replace(/__folderId__/gi, value.id || 0);
+				$breadcrumbContainer.append($(template));
+			});
+			$(".rv-media-container").attr("data-breadcrumb-count", Helpers.size(breadcrumbItems));
+		}
+		static refreshFilter() {
+			const $rvMediaContainer = $(".rv-media-container");
+			const viewIn = Helpers.getRequestParams().view_in;
+			const $actionsTarget = $(".rv-media-actions .btn:not([data-type=\"refresh\"]):not([data-bs-toggle=\"offcanvas\"])");
+			if (viewIn !== "all_media" && !Helpers.getRequestParams().folder_id) {
+				$actionsTarget.addClass("disabled");
+				$rvMediaContainer.attr("data-allow-upload", "false");
+			} else {
+				$actionsTarget.removeClass("disabled");
+				$rvMediaContainer.attr("data-allow-upload", "true");
+			}
+			$(".rv-media-actions .btn.js-rv-media-change-filter-group").removeClass("disabled");
+			const $emptyTrashBtn = $(".rv-media-actions .btn[data-action=\"empty_trash\"]");
+			$emptyTrashBtn.hide();
+			if (viewIn === "trash" && Helpers.size(Helpers.getItems()) > 0) $emptyTrashBtn.removeClass("d-none disabled").show();
+			ContextMenuService.destroyContext();
+			ContextMenuService.initContext();
+			$rvMediaContainer.attr("data-view-in", viewIn);
+		}
+	};
+	//#endregion
+	//#region platform/core/media/resources/js/App/Services/FolderService.js
+	var FolderService = class FolderService {
+		constructor() {
+			this.MediaService = new MediaService();
+			$(document).on("shown.bs.modal", "#modal_add_folder", (event) => {
+				$(event.currentTarget).find("form input[type=text]").focus();
+			});
+		}
+		create(folderName) {
+			let _self = this;
+			$httpClient.make().withButtonLoading($(document).find("#modal_add_folder button[type=submit]")).post(RV_MEDIA_URL.create_folder, {
+				parent_id: Helpers.getRequestParams().folder_id,
+				name: folderName
+			}).then(({ data }) => {
+				MessageService.showMessage("success", data.message, Helpers.trans("message.success_header"));
+				Helpers.resetPagination();
+				_self.MediaService.getMedia(true);
+				FolderService.closeModal();
+			});
+		}
+		changeFolder(folderId) {
+			MediaConfig.request_params.folder_id = folderId;
+			Helpers.storeConfig();
+			this.MediaService.getMedia(true);
+		}
+		changeFolderAndAddToRecent(folderId) {
+			if (folderId > 0) Helpers.addToRecent(folderId, true);
+			this.changeFolder(folderId);
+		}
+		static closeModal() {
+			$(document).find("#modal_add_folder").modal("hide");
+		}
+	};
+	//#endregion
+	//#region platform/core/media/resources/js/App/Services/UploadService.js
+	var UploadService = class UploadService {
+		constructor() {
+			this.$body = $("body");
+			this.dropZone = null;
+			this.uploadUrl = RV_MEDIA_URL.upload_file;
+			this.uploadProgressBox = $(".rv-upload-progress");
+			this.uploadProgressContainer = $(".rv-upload-progress .rv-upload-progress-table");
+			this.uploadProgressTemplate = $("#rv_media_upload_progress_item").html();
+			this.MediaService = new MediaService();
+			this.autoCloseTimer = null;
+			this.clearRowsTimer = null;
+			this.statusIcons = UploadService.buildStatusIcons();
+		}
+		/**
+		* Pull the server-rendered status glyphs out of the icon template once, so each
+		* row can be given the right one without re-rendering SVG in JavaScript.
+		*/
+		static buildStatusIcons() {
+			const $icons = $("<div></div>").html($("#rv_media_upload_icons").html());
+			const pick = (selector) => $icons.find(selector).prop("outerHTML") || "";
+			return {
+				uploading: pick(".js-icon-uploading"),
+				uploaded: pick(".js-icon-uploaded"),
+				error: pick(".js-icon-error"),
+				canceled: pick(".js-icon-canceled"),
+				retry: pick(".js-icon-retry")
+			};
+		}
+		setFileIcon($row, state) {
+			$row.find(".js-file-icon").toggleClass("rv-upload-file-icon--spin", state === "uploading").html(this.statusIcons[state] || "");
+		}
+		init() {
+			if (Helpers.hasPermission("files.create") && $(".rv-media-items").length > 0) this.setupDropZone();
+			this.handleEvents();
+		}
+		setupDropZone() {
+			let _self = this;
+			let _dropZoneConfig = this.getDropZoneConfig();
+			if (_self.dropZone) _self.dropZone.destroy();
+			_self.dropZone = new Dropzone(document.querySelector(".rv-media-items"), _objectSpread2(_objectSpread2({}, _dropZoneConfig), {}, {
+				thumbnailWidth: false,
+				thumbnailHeight: false,
+				parallelUploads: 1,
+				autoQueue: true,
+				clickable: ".js-dropzone-upload",
+				previewsContainer: false,
+				sending: function(file, xhr, formData) {
+					formData.append("_token", $("meta[name=\"csrf-token\"]").attr("content"));
+					formData.append("folder_id", Helpers.getRequestParams().folder_id);
+					formData.append("view_in", Helpers.getRequestParams().view_in);
+					formData.append("path", file.fullPath);
+				},
+				chunksUploaded: (file, done) => {
+					_self.getProgressRow(file).find(".progress-percent").html(`- <span class="text-info">100%</span>`);
+					done();
+				},
+				uploadprogress: (file, progress, bytesSent) => {
+					let percent = bytesSent / file.size * 100;
+					if (file.upload.chunked && percent > 99) percent = percent - 1;
+					let percentShow = (percent > 100 ? "100" : parseInt(percent)) + "%";
+					_self.getProgressRow(file).find(".progress-percent").html(`- <span class="text-info">` + percentShow + `</span>`);
+				}
+			}));
+			_self.dropZone.on("addedfile", (file) => {
+				_self.initProgress(file);
+			});
+			_self.dropZone.on("error", (file, message) => {
+				if (!file.accepted && typeof message === "string") file.clientErrorMessage = message;
+			});
+			_self.dropZone.on("complete", (file) => {
+				_self.changeProgressStatus(file);
+			});
+			_self.dropZone.on("queuecomplete", () => {
+				Helpers.resetPagination();
+				_self.MediaService.getMedia(true);
+				_self.renderSummary();
+			});
+		}
+		handleEvents() {
+			let _self = this;
+			/**
+			* Close upload progress pane
+			*/
+			_self.$body.off("click", ".rv-upload-progress .close-pane").on("click", ".rv-upload-progress .close-pane", (event) => {
+				event.preventDefault();
+				$(".rv-upload-progress").addClass("hide-the-pane");
+				$(".rv-upload-progress .js-upload-summary").text("");
+				clearTimeout(_self.autoCloseTimer);
+				clearTimeout(_self.clearRowsTimer);
+				_self.clearRowsTimer = setTimeout(() => _self.clearProgressRows(), 300);
+			});
+		}
+		/**
+		* Create the progress row for a queued file and keep a reference to it on the
+		* file itself. Rows were previously matched by a running counter against
+		* nth-child, which silently addressed the wrong row (or none at all) whenever
+		* the table and the counter fell out of step.
+		*/
+		initProgress(file) {
+			clearTimeout(this.autoCloseTimer);
+			clearTimeout(this.clearRowsTimer);
+			const template = this.uploadProgressTemplate.replace(/__fileSize__/gi, UploadService.formatFileSize(file.size));
+			const $row = $(template);
+			$row.find(".file-name").text(file.name).attr("title", file.name);
+			$row.find(".file-status").addClass("text-secondary").text(Helpers.trans("upload_status.uploading", "Uploading..."));
+			this.setFileIcon($row, "uploading");
+			file.$progressRow = $row;
+			this.uploadProgressContainer.append($row);
+			this.uploadProgressBox.removeClass("hide-the-pane");
+			this.uploadProgressBox.find(".js-upload-summary").text("");
+			this.uploadProgressBox.find(".table").animate({ scrollTop: this.uploadProgressContainer.height() }, 150);
+		}
+		getProgressRow(file) {
+			return file.$progressRow || $();
+		}
+		/**
+		* Drop every progress row and release the element each file holds, so a
+		* dismissed batch is neither counted again nor retained in memory.
+		*/
+		clearProgressRows() {
+			Helpers.each(this.dropZone ? this.dropZone.files : [], (file) => {
+				file.$progressRow = null;
+			});
+			this.uploadProgressContainer.empty();
+		}
+		changeProgressStatus(file) {
+			const _self = this;
+			const $progressLine = _self.getProgressRow(file);
+			if (!$progressLine.length) return;
+			const $label = $progressLine.find(".file-status");
+			const $error = $progressLine.find(".file-error");
+			const response = Helpers.jsonDecode(file.xhr && file.xhr.responseText || "", {});
+			const isCanceled = file.status === "canceled";
+			const isError = !isCanceled && (response.error === true || file.status === "error");
+			file.uploadOutcome = isCanceled ? "canceled" : isError ? "failed" : "uploaded";
+			const state = isCanceled ? "canceled" : isError ? "error" : "uploaded";
+			_self.setFileIcon($progressLine, state);
+			$progressLine.removeClass("rv-upload-row--error rv-upload-row--canceled").toggleClass("rv-upload-row--error", isError).toggleClass("rv-upload-row--canceled", isCanceled);
+			$label.removeClass("text-success text-danger text-warning text-secondary text-muted").addClass(isError ? "text-danger" : isCanceled ? "text-secondary" : "text-success").text(Helpers.trans(`upload_status.${state}`, {
+				uploaded: "Uploaded",
+				error: "Error",
+				canceled: "Canceled"
+			}[state]));
+			if (isError || isCanceled) $progressLine.find(".progress-percent").html("");
+			if (isCanceled) return;
+			if (file.status === "error") {
+				const status = file.xhr ? file.xhr.status : 0;
+				if (status === 422) {
+					$error.empty();
+					$.each(response.errors, (key, item) => {
+						$error.append(UploadService.renderError(item)).append("<br>");
+					});
+				} else if (status === 500) $error.html(UploadService.renderError(file.xhr.statusText));
+				else $error.html(UploadService.renderError(UploadService.getUploadErrorMessage(file)));
+			} else if (response.error) $error.html(UploadService.renderError(response.message));
+			else if (response.data && response.data.id) {
+				Helpers.addToRecent(response.data.id);
+				Helpers.setSelectedFile(response.data.id);
+			}
+			if (isError) $error.attr("title", $error.text());
+			if (isError && UploadService.isRetryable(file)) _self.appendRetryButton($progressLine, file);
+		}
+		/**
+		* Only failures that could plausibly succeed on a second attempt get a retry
+		* button. Retry is offered for transport-level failures (dropped connection,
+		* 5xx, unexpected status) and withheld for anything deterministic:
+		*  - a client-side rejection (wrong type, too big), which never left the browser;
+		*  - a 422 or 413, which will be rejected the same way again;
+		*  - an application error, which the server returns with HTTP 200 and an error
+		*    payload (so Dropzone marks the file a success) and which is almost always a
+		*    validation failure that would repeat identically.
+		*/
+		static isRetryable(file) {
+			if (file.status !== "error" || file.clientErrorMessage) return false;
+			const status = file.xhr ? file.xhr.status : 0;
+			return status !== 422 && status !== 413;
+		}
+		appendRetryButton($row, file) {
+			const _self = this;
+			const $retry = $("<button type=\"button\" class=\"btn btn-link btn-sm p-0 js-retry-upload\"></button>").html(this.statusIcons.retry).append($("<span></span>").text(Helpers.trans("upload_status.retry", "Retry")));
+			$retry.on("click", (event) => {
+				event.preventDefault();
+				_self.retryUpload(file);
+			});
+			$row.find(".progress-percent").empty().append($retry);
+		}
+		/**
+		* Re-queue the same file for a fresh attempt. Removing then re-adding it resets
+		* Dropzone's per-file upload state; the old row is dropped so the retry gets a
+		* clean one through the normal addedfile -> initProgress path.
+		*/
+		retryUpload(file) {
+			this.getProgressRow(file).remove();
+			file.$progressRow = null;
+			file.uploadOutcome = null;
+			this.dropZone.removeFile(file);
+			this.dropZone.addFile(file);
+		}
+		/**
+		* Report the outcome of the whole queue, and keep the pane open when anything
+		* needs attention instead of hiding the result after a few seconds.
+		*/
+		renderSummary() {
+			const counts = {
+				uploaded: 0,
+				failed: 0,
+				canceled: 0
+			};
+			Helpers.each(this.dropZone.files, (file) => {
+				if (file.uploadOutcome && this.getProgressRow(file).parent().length) counts[file.uploadOutcome]++;
+			});
+			const partClass = {
+				uploaded: "text-success",
+				failed: "text-danger",
+				canceled: "text-secondary"
+			};
+			const $summary = this.uploadProgressBox.find(".js-upload-summary").empty();
+			[
+				"uploaded",
+				"failed",
+				"canceled"
+			].filter((key) => counts[key] > 0).forEach((key, index) => {
+				if (index) $summary.append(document.createTextNode(" · "));
+				$summary.append($("<span></span>").addClass(partClass[key]).text(Helpers.trans(`upload_summary.${key}`, `:count ${key}`).replace(":count", counts[key])));
+			});
+			clearTimeout(this.autoCloseTimer);
+			if (counts.failed === 0 && counts.canceled === 0) this.autoCloseTimer = setTimeout(() => {
+				$(".rv-upload-progress .close-pane").trigger("click");
+			}, 5e3);
+		}
+		/**
+		* Error messages carry no markup, and some of them echo back a file name the
+		* uploader chose, so they are rendered as text rather than as HTML.
+		*/
+		static renderError(message) {
+			return $("<span class=\"text-danger\"></span>").text(message == null ? "" : message);
+		}
+		/**
+		* Actionable text for an upload that failed without a usable response body.
+		*/
+		static getUploadErrorMessage(file) {
+			if (file.clientErrorMessage) return file.clientErrorMessage;
+			const status = file.xhr ? file.xhr.status : 0;
+			if (status === 413) {
+				const maxUploadSize = Helpers.config("max_upload_size");
+				if (!maxUploadSize) return Helpers.trans("upload_error.too_large_unknown_limit", "This file is larger than the server upload limit.");
+				return Helpers.trans("upload_error.too_large", "This file is larger than the server upload limit of :size.").replace(":size", maxUploadSize);
+			}
+			if (status === 0) return Helpers.trans("upload_error.incomplete", "The upload did not complete. Please try again.");
+			return Helpers.trans("upload_error.unknown", "Upload failed (error :code).").replace(":code", status);
+		}
+		static formatFileSize(bytes, si = false) {
+			let thresh = si ? 1e3 : 1024;
+			if (Math.abs(bytes) < thresh) return bytes + " B";
+			let units = [
+				"KB",
+				"MB",
+				"GB",
+				"TB",
+				"PB",
+				"EB",
+				"ZB",
+				"YB"
+			];
+			let u = -1;
+			do {
+				bytes /= thresh;
+				++u;
+			} while (Math.abs(bytes) >= thresh && u < units.length - 1);
+			return bytes.toFixed(1) + " " + units[u];
+		}
+		getDropZoneConfig() {
+			return {
+				url: this.uploadUrl,
+				uploadMultiple: !RV_MEDIA_CONFIG.chunk.enabled,
+				chunking: RV_MEDIA_CONFIG.chunk.enabled,
+				forceChunking: true,
+				parallelChunkUploads: false,
+				chunkSize: RV_MEDIA_CONFIG.chunk.chunk_size,
+				retryChunks: true,
+				retryChunksLimit: 3,
+				timeout: 0,
+				maxFilesize: RV_MEDIA_CONFIG.chunk.max_file_size,
+				maxFiles: null
+			};
+		}
+	};
+	//#endregion
+	//#region platform/core/media/resources/js/App/Services/DownloadService.js
+	var DownloadService = class DownloadService {
+		constructor() {
+			this.MediaService = new MediaService();
+			$(document).on("shown.bs.modal", "#modal_download_url", (event) => {
+				$(event.currentTarget).find(".form-download-url textarea[name=\"urls\"]").trigger("focus");
+			});
+		}
+		async download(urls, onProgress, onCompleted) {
+			let _self = this;
+			urls = urls.trim().split(/\r?\n/);
+			let index = 0;
+			for (const url of urls) {
+				let filename = "";
+				try {
+					filename = new URL(url).pathname.split("/").pop();
+				} catch (e) {
+					filename = url;
+				}
+				let ok = onProgress(`${index} / ${urls.length}`, filename, url);
+				await new Promise((resolve, reject) => {
+					$httpClient.make().post(RV_MEDIA_URL.download_url, {
+						folderId: Helpers.getRequestParams().folder_id,
+						url
+					}).then(({ data }) => {
+						var _data$data;
+						ok(true, data.message || ((_data$data = data.data) === null || _data$data === void 0 ? void 0 : _data$data.message));
+						resolve();
+					}).finally(() => onCompleted()).catch((error) => reject(error));
+				});
+				index += 1;
+			}
+			Helpers.resetPagination();
+			_self.MediaService.getMedia(true);
+			DownloadService.closeModal();
+			MessageService.showMessage("success", Helpers.trans("message.success_header"));
+		}
+		static closeModal() {
+			$(document).find("#modal_download_url").modal("hide");
+		}
+	};
+	//#endregion
+	//#region platform/core/media/resources/js/App/Services/MoveService.js
+	var MoveService = class {
+		constructor() {
+			this.selectedFolderId = null;
+			this.itemsToMove = [];
+			this.excludeIds = [];
+			this.expandedFolders = /* @__PURE__ */ new Set();
+			this.draggedFolderId = null;
+			this.initEvents();
+		}
+		initEvents() {
+			const _self = this;
+			$(document).on("shown.bs.modal", "#modal_move_items", () => {
+				_self.init();
+			});
+			$(document).on("hidden.bs.modal", "#modal_move_items", () => {
+				_self.reset();
+			});
+			$(document).on("click", ".js-move-folder-toggle", function(e) {
+				e.stopPropagation();
+				const folderId = $(this).closest(".js-move-folder-item").data("folder-id");
+				_self.toggleFolder(folderId);
+			});
+			$(document).on("click", ".js-move-folder-item", function(e) {
+				if ($(e.target).closest(".js-move-folder-toggle").length) return;
+				const $item = $(this);
+				const folderId = $item.data("folder-id");
+				_self.selectFolder($item, folderId);
+			});
+			$(document).on("change", "#move_to_root", function() {
+				if ($(this).is(":checked")) {
+					$("#move-folder-list .js-move-folder-item").removeClass("active");
+					_self.selectedFolderId = 0;
+				} else _self.selectedFolderId = null;
+			});
+			$(document).on("click", "#btn-confirm-move", () => {
+				_self.confirmMove();
+			});
+			$(document).on("dragstart", ".js-move-folder-drag-handle", function(e) {
+				const $item = $(this).closest(".js-move-folder-item");
+				_self.handleDragStart(e, $item);
+			});
+			$(document).on("dragend", ".js-move-folder-drag-handle", function(e) {
+				const $item = $(this).closest(".js-move-folder-item");
+				_self.handleDragEnd(e, $item);
+			});
+			$(document).on("dragover", ".js-move-folder-item", function(e) {
+				_self.handleDragOver(e, $(this));
+			});
+			$(document).on("dragenter", ".js-move-folder-item", function(e) {
+				_self.handleDragEnter(e, $(this));
+			});
+			$(document).on("dragleave", ".js-move-folder-item", function(e) {
+				_self.handleDragLeave(e, $(this));
+			});
+			$(document).on("drop", ".js-move-folder-item", function(e) {
+				_self.handleDrop(e, $(this));
+			});
+		}
+		init() {
+			this.itemsToMove = [];
+			this.excludeIds = [];
+			this.expandedFolders = /* @__PURE__ */ new Set();
+			this.selectedFolderId = null;
+			this.draggedFolderId = null;
+			Helpers.each(Helpers.getSelectedItems(), (value) => {
+				this.itemsToMove.push({
+					is_folder: value.is_folder,
+					id: value.id
+				});
+				if (value.is_folder) this.excludeIds.push(value.id);
+			});
+			$("#move_to_root").prop("checked", false);
+			this.loadFolderTree();
+		}
+		reset() {
+			this.selectedFolderId = null;
+			this.itemsToMove = [];
+			this.excludeIds = [];
+			this.expandedFolders = /* @__PURE__ */ new Set();
+			this.draggedFolderId = null;
+		}
+		loadFolderTree() {
+			const $list = $("#move-folder-list");
+			$list.html(`
             <li class="list-group-item text-center text-muted py-4">
                 <div class="spinner-border spinner-border-sm" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </li>
-        `),$httpClient.make().get(RV_MEDIA_URL.folder_tree,{exclude_ids:this.excludeIds}).then(({data:e})=>{this.renderTree(e.data.tree)}).catch(()=>{d.html(`
+        `);
+			$httpClient.make().get(RV_MEDIA_URL.folder_tree, { exclude_ids: this.excludeIds }).then(({ data }) => {
+				this.renderTree(data.data.tree);
+			}).catch(() => {
+				$list.html(`
                     <li class="list-group-item text-center text-danger py-4">
-                        ${l.trans("message.error_header")}
+                        ${Helpers.trans("message.error_header")}
                     </li>
-                `)})}renderTree(d){const e=$("#move-folder-list");if(e.empty(),!d||d.length===0){e.html(`
+                `);
+			});
+		}
+		renderTree(tree) {
+			const $list = $("#move-folder-list");
+			$list.empty();
+			if (!tree || tree.length === 0) {
+				$list.html(`
                 <li class="list-group-item text-center text-muted py-4">
-                    ${l.trans("no_item.default.message")||"No folders available"}
+                    ${Helpers.trans("no_item.default.message") || "No folders available"}
                 </li>
-            `);return}const o=this.buildTreeHtml(d,0);e.html(o)}buildTreeHtml(d,e){let o="";return d.forEach(n=>{const f=this.expandedFolders.has(n.id),c=n.has_children&&n.children&&n.children.length>0,M=e*20;o+=`
+            `);
+				return;
+			}
+			const html = this.buildTreeHtml(tree, 0);
+			$list.html(html);
+		}
+		buildTreeHtml(folders, level) {
+			let html = "";
+			folders.forEach((folder) => {
+				const isExpanded = this.expandedFolders.has(folder.id);
+				const hasChildren = folder.has_children && folder.children && folder.children.length > 0;
+				const paddingLeft = level * 20;
+				html += `
                 <li class="list-group-item list-group-item-action js-move-folder-item"
-                    data-folder-id="${n.id}"
-                    data-folder-name="${n.name}"
-                    data-has-children="${c}"
-                    data-level="${e}">
-                    <div class="d-flex align-items-center" style="padding-left: ${M}px;">
-                        <span class="js-move-folder-drag-handle" draggable="true" title="${l.trans("move.drag_to_move")||"Drag to move"}">
+                    data-folder-id="${folder.id}"
+                    data-folder-name="${folder.name}"
+                    data-has-children="${hasChildren}"
+                    data-level="${level}">
+                    <div class="d-flex align-items-center" style="padding-left: ${paddingLeft}px;">
+                        <span class="js-move-folder-drag-handle" draggable="true" title="${Helpers.trans("move.drag_to_move") || "Drag to move"}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-grip-vertical" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                 <path d="M9 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
@@ -175,25 +4757,541 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                 <path d="M15 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
                             </svg>
                         </span>
-                        <span class="js-move-folder-toggle me-1 ${c?"":"invisible"}" style="width: 20px; cursor: pointer;">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ${f?"icon-tabler-chevron-down":"icon-tabler-chevron-right"}" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                ${f?'<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 9l6 6l6 -6" />':'<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" />'}
+                        <span class="js-move-folder-toggle me-1 ${hasChildren ? "" : "invisible"}" style="width: 20px; cursor: pointer;">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler ${isExpanded ? "icon-tabler-chevron-down" : "icon-tabler-chevron-right"}" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                ${isExpanded ? "<path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M6 9l6 6l6 -6\" />" : "<path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M9 6l6 6l-6 6\" />"}
                             </svg>
                         </span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder me-2" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                             <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" />
                         </svg>
-                        <span class="folder-name">${n.name}</span>
+                        <span class="folder-name">${folder.name}</span>
                     </div>
                 </li>
-            `,c&&f&&(o+=this.buildTreeHtml(n.children,e+1))}),o}handleDragStart(d,e){this.draggedFolderId=e.data("folder-id"),e.addClass("dragging"),d.originalEvent.dataTransfer.effectAllowed="move",d.originalEvent.dataTransfer.setData("text/plain",this.draggedFolderId)}handleDragEnd(d,e){e.removeClass("dragging"),$(".js-move-folder-item").removeClass("drag-over"),this.draggedFolderId=null}handleDragOver(d,e){d.preventDefault(),d.originalEvent.dataTransfer.dropEffect="move"}handleDragEnter(d,e){d.preventDefault(),e.data("folder-id")!==this.draggedFolderId&&e.addClass("drag-over")}handleDragLeave(d,e){const o=d.originalEvent.relatedTarget;e[0].contains(o)||e.removeClass("drag-over")}handleDrop(d,e){d.preventDefault(),d.stopPropagation();const o=e.data("folder-id"),n=e.data("folder-name");$(".js-move-folder-item").removeClass("drag-over dragging"),!(o===this.draggedFolderId||!this.draggedFolderId)&&this.moveFolder(this.draggedFolderId,o,n)}moveFolder(d,e,o){$httpClient.make().post(RV_MEDIA_URL.global_actions,{action:"move",selected:[{is_folder:!0,id:d}],destination:e}).then(({data:n})=>{G.showMessage("success",n.message||`Moved folder to "${o}"`,l.trans("message.success_header")),this.loadFolderTree(),l.resetPagination(),new we().getMedia(!0)}).catch(()=>{G.showMessage("error",l.trans("move_error")||"Error moving folder",l.trans("message.error_header"))})}toggleFolder(d){this.expandedFolders.has(d)?this.expandedFolders.delete(d):this.expandedFolders.add(d),this.loadFolderTree()}selectFolder(d,e){$("#move_to_root").prop("checked",!1),$("#move-folder-list .js-move-folder-item").removeClass("active"),d.addClass("active"),this.selectedFolderId=e}confirmMove(){const d=$("#move_to_root").is(":checked")?0:this.selectedFolderId;if(d===null){G.showMessage("warning",l.trans("move.select_destination")||"Please select a destination folder",l.trans("message.error_header"));return}if(d===(l.getRequestParams().folder_id||0)){G.showMessage("warning",l.trans("move.same_location")||"Items are already in this location",l.trans("message.error_header"));return}$httpClient.make().withButtonLoading($("#btn-confirm-move")).post(RV_MEDIA_URL.global_actions,{action:"move",selected:this.itemsToMove,destination:d}).then(({data:e})=>{G.showMessage("success",e.message,l.trans("message.success_header")),$("#modal_move_items").modal("hide"),l.resetPagination(),new we().getMedia(!0)})}},ki=class{constructor(){this.draggedItem=null,this.initEvents()}initEvents(){const d=this;$(document).on("click",".js-media-list-title",function(){setTimeout(()=>d.enableDragging(),100)}),$(document).on("dragstart",".js-media-list-title.js-media-draggable",function(e){d.handleDragStart(e,$(this))}),$(document).on("dragend",".js-media-list-title.js-media-draggable",function(e){d.handleDragEnd(e,$(this))}),$(document).on("dragover",'.js-media-list-title[data-context="folder"]',function(e){d.handleDragOver(e,$(this))}),$(document).on("dragenter",'.js-media-list-title[data-context="folder"]',function(e){d.handleDragEnter(e,$(this))}),$(document).on("dragleave",'.js-media-list-title[data-context="folder"]',function(e){d.handleDragLeave(e,$(this))}),$(document).on("drop",'.js-media-list-title[data-context="folder"]',function(e){d.handleDrop(e,$(this))}),$(document).on("rv_media_loaded",()=>{d.enableDragging()})}enableDragging(){$(".js-media-list-title").each(function(){const d=$(this);d.hasClass("js-media-draggable")||(d.addClass("js-media-draggable"),d.attr("draggable","true"))})}handleDragStart(d,e){const o=e.data("context")==="folder",n=e.data("id");this.draggedItem={id:n,is_folder:o,name:e.find(".rv-media-name-item span").text()||e.find(".rv-media-text-name").text()};const f=e.find(".rv-media-item");if(f.length?f.addClass("rv-media-dragging"):e.addClass("rv-media-dragging"),d.originalEvent&&d.originalEvent.dataTransfer&&(d.originalEvent.dataTransfer.effectAllowed="move",d.originalEvent.dataTransfer.setData("text/plain",JSON.stringify(this.draggedItem)),f.length)){const c=f[0].getBoundingClientRect(),M=d.originalEvent.clientX-c.left,y=d.originalEvent.clientY-c.top;d.originalEvent.dataTransfer.setDragImage(f[0],M,y)}}handleDragEnd(d,e){e.removeClass("rv-media-dragging"),e.find(".rv-media-item").removeClass("rv-media-dragging"),$(".js-media-list-title").removeClass("rv-media-drag-over"),$(".rv-media-item").removeClass("rv-media-drag-over rv-media-dragging"),this.draggedItem=null}handleDragOver(d,e){d.preventDefault(),d.originalEvent&&d.originalEvent.dataTransfer&&(d.originalEvent.dataTransfer.dropEffect="move")}handleDragEnter(d,e){d.preventDefault();const o=e.data("id");if(!this.draggedItem||o===this.draggedItem.id)return;const n=e.find(".rv-media-item");n.length?n.addClass("rv-media-drag-over"):e.addClass("rv-media-drag-over")}handleDragLeave(d,e){const o=d.originalEvent?d.originalEvent.relatedTarget:null;e[0].contains(o)||(e.removeClass("rv-media-drag-over"),e.find(".rv-media-item").removeClass("rv-media-drag-over"))}handleDrop(d,e){d.preventDefault(),d.stopPropagation();const o=e.data("id"),n=e.find(".rv-media-name-item span").text()||e.find(".rv-media-text-name").text();if($(".js-media-list-title").removeClass("rv-media-drag-over rv-media-dragging"),$(".rv-media-item").removeClass("rv-media-drag-over rv-media-dragging"),!(!this.draggedItem||o===this.draggedItem.id)){if(this.draggedItem.is_folder&&o===this.draggedItem.id){G.showMessage("error",l.trans("move.cannot_move_to_itself")||"Cannot move a folder into itself",l.trans("message.error_header"));return}this.moveItem(this.draggedItem,o,n)}}moveItem(d,e,o){l.showAjaxLoading(),$httpClient.make().post(RV_MEDIA_URL.global_actions,{action:"move",selected:[{is_folder:d.is_folder,id:d.id}],destination:e}).then(({data:n})=>{G.showMessage("success",n.message||`Moved "${d.name}" to "${o}"`,l.trans("message.success_header")),l.resetPagination(),new we().getMedia(!0)}).catch(()=>{G.showMessage("error",l.trans("move_error")||"Error moving item",l.trans("message.error_header"))}).finally(()=>{l.hideAjaxLoading()})}},_t=class{static editorSelectFile(d){let e=l.getUrlParam("CKEditor")||l.getUrlParam("CKEditorFuncNum");if(window.opener&&e){let o=l.arrayFirst(d).full_url;o&&o.startsWith(window.location.origin)&&(o=o.replace(window.location.origin,"")),window.opener.CKEDITOR.tools.callFunction(l.getUrlParam("CKEditorFuncNum"),o),window.opener&&window.close()}}},bt=class{constructor(d,e){let o=window.RvMediaCustomCallback||null;if(typeof o=="function"){o(d,e);return}window.rvMedia=window.rvMedia||{};let n=$("body");e=$.extend(!0,{multiple:!0,type:"*",onSelectFiles:(c,M)=>{}},e);let f=c=>{c.preventDefault();let M=$(c.currentTarget);$("#rv_media_modal").modal("show"),window.rvMedia.options=e,window.rvMedia.options.open_in="modal",window.rvMedia.$el=M,W.request_params.filter="everything",l.storeConfig();let y=window.rvMedia.$el.data("rv-media");typeof y!="undefined"&&y.length>0&&(y=y[0],window.rvMedia.options=$.extend(!0,window.rvMedia.options,y||{}),typeof y.selected_file_id!="undefined"?window.rvMedia.options.is_popup=!0:typeof window.rvMedia.options.is_popup!="undefined"&&(window.rvMedia.options.is_popup=void 0)),$("#rv_media_body .rv-media-container").length===0?$("#rv_media_body").load(RV_MEDIA_URL.popup,k=>{k.error&&alert(k.message),$("#rv_media_body").removeClass("media-modal-loading").closest(".modal-content").removeClass("bb-loading"),$(document).find(".rv-media-container .js-change-action[data-type=refresh]").trigger("click"),l.getRequestParams().filter!=="everything"&&$(".rv-media-actions .btn.js-rv-media-change-filter-group.js-filter-by-type").hide(),Pe.destroyContext(),Pe.initContext(),l.isUseInModal()&&$(".rv-media-footer").removeClass("d-none")}):(l.isUseInModal()&&$(".rv-media-footer").removeClass("d-none"),$(document).find(".rv-media-container .js-change-action[data-type=refresh]").trigger("click"))};typeof d=="string"?n.off("click",d).on("click",d,f):d.off("click").on("click",f)}};window.RvMediaStandAlone=bt,$(".js-insert-to-editor").off("click").on("click",function(d){d.preventDefault();let e=l.getSelectedFiles();l.size(e)>0&&_t.editorSelectFile(e)}),$.fn.rvMedia=function(d){let e=$(this);W.request_params.filter="everything",$(document).find(".js-insert-to-editor").prop("disabled",W.request_params.view_in==="trash"),l.storeConfig();let o=window.RvMediaCustomCallback||null;if(typeof o=="function"){o(e,d);return}new bt(e,d)},document.dispatchEvent(new CustomEvent("core-media-loaded"));var $i=class{constructor(){this.Helpers=l,this.MediaService=new we,this.UploadService=new yi,this.FolderService=new bi,this.DownloadService=new Mi,this.MoveService=new xi,this.DragDropService=new ki,this.$body=$("body")}init(){l.resetPagination(),this.setupLayout(),this.handleMediaList(),this.changeViewType(),this.changeFilter(),this.search(),this.handleActions(),this.UploadService.init(),this.handleModals(),this.scrollGetMore()}setupLayout(){const d=$(`.js-rv-media-change-filter[data-type="filter"][data-value="${l.getRequestParams().filter}"]`);d.closest("button.dropdown-item").addClass("active").closest(".dropdown").find(".js-rv-media-filter-current").html(`(${d.html()})`);const e=$(`.js-rv-media-change-filter[data-type="view_in"][data-value="${l.getRequestParams().view_in}"]`);e.closest("button.dropdown-item").addClass("active").closest(".dropdown").find(".js-rv-media-filter-current").html(`(${e.html()})`),l.isUseInModal()&&$(".rv-media-footer").removeClass("d-none"),$(`.js-rv-media-change-filter[data-type="sort_by"][data-value="${l.getRequestParams().sort_by}"]`).closest("button.dropdown-item").addClass("active");let o=$("#media_details_collapse");o.prop("checked",W.hide_details_pane||!1),setTimeout(()=>{$(".rv-media-details").show()},300),o.on("change",n=>{n.preventDefault(),W.hide_details_pane=$(n.currentTarget).is(":checked"),l.storeConfig()}),$(document).on("click",".js-download-action",n=>{n.preventDefault(),$("#modal_download_url").modal("show")}),$(document).on("click",".js-create-folder-action",n=>{n.preventDefault(),$("#modal_add_folder").modal("show")})}handleMediaList(){let d=this,e=!1,o=!1,n=!1;$(document).on("keyup keydown",f=>{e=f.ctrlKey,o=f.metaKey,n=f.shiftKey}),$(document).on("keydown.rvMediaInsert",f=>{if(f.key!=="Enter"||f.isDefaultPrevented())return;let c=$(f.target);if(c.is("input, textarea, select")||c.closest('[contenteditable="true"]').length)return;let M=$("#rv_media_modal");if(!M.length||!M.is(":visible"))return;let y=M.find(".js-insert-to-editor:visible:not(:disabled)").first();!y.length||!l.getSelectedItems().length||(f.preventDefault(),y.trigger("click"))}),d.$body.off("click",".js-media-list-title").on("click",".js-media-list-title",f=>{f.preventDefault();let c=$(f.currentTarget);if(n){let M=l.arrayFirst(l.getSelectedItems());if(M){let y=M.index_key,k=c.index();$(".rv-media-items li").each((C,R)=>{C>y&&C<=k&&$(R).find("input[type=checkbox]").prop("checked",!0)})}}else!e&&!o&&c.closest(".rv-media-items").find("input[type=checkbox]").prop("checked",!1);c.find("input[type=checkbox]").prop("checked",!0),U.handleDropdown(),d.MediaService.getFileDetails(c.data()),c.data("is_folder")||l.addToRecent(c.data("id"))}).on("dblclick doubletap",".js-media-list-title",f=>{f.preventDefault();let c=$(f.currentTarget).data();if(c.is_folder===!0)l.resetPagination(),d.FolderService.changeFolderAndAddToRecent(c.id);else if(!l.isUseInModal())U.handlePreview();else if(l.getConfigs().request_params.view_in!=="trash"){let M=l.getSelectedFiles();l.size(M)>0&&_t.editorSelectFile(M)}return!1}).on("click",".js-up-one-level",f=>{f.preventDefault();let c=$(".rv-media-breadcrumb .breadcrumb li").length;$(`.rv-media-breadcrumb .breadcrumb li:nth-child(${c-1}) a`).trigger("click")}).on("contextmenu",".js-context-menu",f=>{$(f.currentTarget).find("input[type=checkbox]").is(":checked")||$(f.currentTarget).trigger("click")}).on("click contextmenu",".rv-media-items",f=>{l.size(f.target.closest(".js-context-menu"))||($('.rv-media-items input[type="checkbox"]').prop("checked",!1),U.handleDropdown(),d.MediaService.getFileDetails({icon:`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            `;
+				if (hasChildren && isExpanded) html += this.buildTreeHtml(folder.children, level + 1);
+			});
+			return html;
+		}
+		handleDragStart(e, $item) {
+			this.draggedFolderId = $item.data("folder-id");
+			$item.addClass("dragging");
+			e.originalEvent.dataTransfer.effectAllowed = "move";
+			e.originalEvent.dataTransfer.setData("text/plain", this.draggedFolderId);
+		}
+		handleDragEnd(e, $item) {
+			$item.removeClass("dragging");
+			$(".js-move-folder-item").removeClass("drag-over");
+			this.draggedFolderId = null;
+		}
+		handleDragOver(e, $item) {
+			e.preventDefault();
+			e.originalEvent.dataTransfer.dropEffect = "move";
+		}
+		handleDragEnter(e, $item) {
+			e.preventDefault();
+			if ($item.data("folder-id") !== this.draggedFolderId) $item.addClass("drag-over");
+		}
+		handleDragLeave(e, $item) {
+			const relatedTarget = e.originalEvent.relatedTarget;
+			if (!$item[0].contains(relatedTarget)) $item.removeClass("drag-over");
+		}
+		handleDrop(e, $item) {
+			e.preventDefault();
+			e.stopPropagation();
+			const targetFolderId = $item.data("folder-id");
+			const targetFolderName = $item.data("folder-name");
+			$(".js-move-folder-item").removeClass("drag-over dragging");
+			if (targetFolderId === this.draggedFolderId || !this.draggedFolderId) return;
+			this.moveFolder(this.draggedFolderId, targetFolderId, targetFolderName);
+		}
+		moveFolder(sourceFolderId, destinationFolderId, destinationName) {
+			$httpClient.make().post(RV_MEDIA_URL.global_actions, {
+				action: "move",
+				selected: [{
+					is_folder: true,
+					id: sourceFolderId
+				}],
+				destination: destinationFolderId
+			}).then(({ data }) => {
+				MessageService.showMessage("success", data.message || `Moved folder to "${destinationName}"`, Helpers.trans("message.success_header"));
+				this.loadFolderTree();
+				Helpers.resetPagination();
+				new MediaService().getMedia(true);
+			}).catch(() => {
+				MessageService.showMessage("error", Helpers.trans("move_error") || "Error moving folder", Helpers.trans("message.error_header"));
+			});
+		}
+		toggleFolder(folderId) {
+			if (this.expandedFolders.has(folderId)) this.expandedFolders.delete(folderId);
+			else this.expandedFolders.add(folderId);
+			this.loadFolderTree();
+		}
+		selectFolder($item, folderId) {
+			$("#move_to_root").prop("checked", false);
+			$("#move-folder-list .js-move-folder-item").removeClass("active");
+			$item.addClass("active");
+			this.selectedFolderId = folderId;
+		}
+		confirmMove() {
+			const destination = $("#move_to_root").is(":checked") ? 0 : this.selectedFolderId;
+			if (destination === null) {
+				MessageService.showMessage("warning", Helpers.trans("move.select_destination") || "Please select a destination folder", Helpers.trans("message.error_header"));
+				return;
+			}
+			if (destination === (Helpers.getRequestParams().folder_id || 0)) {
+				MessageService.showMessage("warning", Helpers.trans("move.same_location") || "Items are already in this location", Helpers.trans("message.error_header"));
+				return;
+			}
+			$httpClient.make().withButtonLoading($("#btn-confirm-move")).post(RV_MEDIA_URL.global_actions, {
+				action: "move",
+				selected: this.itemsToMove,
+				destination
+			}).then(({ data }) => {
+				MessageService.showMessage("success", data.message, Helpers.trans("message.success_header"));
+				$("#modal_move_items").modal("hide");
+				Helpers.resetPagination();
+				new MediaService().getMedia(true);
+			});
+		}
+	};
+	//#endregion
+	//#region platform/core/media/resources/js/App/Services/DragDropService.js
+	var DragDropService = class {
+		constructor() {
+			this.draggedItem = null;
+			this.initEvents();
+		}
+		initEvents() {
+			const _self = this;
+			$(document).on("click", ".js-media-list-title", function() {
+				setTimeout(() => _self.enableDragging(), 100);
+			});
+			$(document).on("dragstart", ".js-media-list-title.js-media-draggable", function(e) {
+				_self.handleDragStart(e, $(this));
+			});
+			$(document).on("dragend", ".js-media-list-title.js-media-draggable", function(e) {
+				_self.handleDragEnd(e, $(this));
+			});
+			$(document).on("dragover", ".js-media-list-title[data-context=\"folder\"]", function(e) {
+				_self.handleDragOver(e, $(this));
+			});
+			$(document).on("dragenter", ".js-media-list-title[data-context=\"folder\"]", function(e) {
+				_self.handleDragEnter(e, $(this));
+			});
+			$(document).on("dragleave", ".js-media-list-title[data-context=\"folder\"]", function(e) {
+				_self.handleDragLeave(e, $(this));
+			});
+			$(document).on("drop", ".js-media-list-title[data-context=\"folder\"]", function(e) {
+				_self.handleDrop(e, $(this));
+			});
+			$(document).on("rv_media_loaded", () => {
+				_self.enableDragging();
+			});
+		}
+		enableDragging() {
+			$(".js-media-list-title").each(function() {
+				const $item = $(this);
+				if (!$item.hasClass("js-media-draggable")) {
+					$item.addClass("js-media-draggable");
+					$item.attr("draggable", "true");
+				}
+			});
+		}
+		handleDragStart(e, $item) {
+			const isFolder = $item.data("context") === "folder";
+			const id = $item.data("id");
+			this.draggedItem = {
+				id,
+				is_folder: isFolder,
+				name: $item.find(".rv-media-name-item span").text() || $item.find(".rv-media-text-name").text()
+			};
+			const $mediaItem = $item.find(".rv-media-item");
+			if ($mediaItem.length) $mediaItem.addClass("rv-media-dragging");
+			else $item.addClass("rv-media-dragging");
+			if (e.originalEvent && e.originalEvent.dataTransfer) {
+				e.originalEvent.dataTransfer.effectAllowed = "move";
+				e.originalEvent.dataTransfer.setData("text/plain", JSON.stringify(this.draggedItem));
+				if ($mediaItem.length) {
+					const rect = $mediaItem[0].getBoundingClientRect();
+					const offsetX = e.originalEvent.clientX - rect.left;
+					const offsetY = e.originalEvent.clientY - rect.top;
+					e.originalEvent.dataTransfer.setDragImage($mediaItem[0], offsetX, offsetY);
+				}
+			}
+		}
+		handleDragEnd(e, $item) {
+			$item.removeClass("rv-media-dragging");
+			$item.find(".rv-media-item").removeClass("rv-media-dragging");
+			$(".js-media-list-title").removeClass("rv-media-drag-over");
+			$(".rv-media-item").removeClass("rv-media-drag-over rv-media-dragging");
+			this.draggedItem = null;
+		}
+		handleDragOver(e, $item) {
+			e.preventDefault();
+			if (e.originalEvent && e.originalEvent.dataTransfer) e.originalEvent.dataTransfer.dropEffect = "move";
+		}
+		handleDragEnter(e, $item) {
+			e.preventDefault();
+			const targetId = $item.data("id");
+			if (!this.draggedItem || targetId === this.draggedItem.id) return;
+			const $mediaItem = $item.find(".rv-media-item");
+			if ($mediaItem.length) $mediaItem.addClass("rv-media-drag-over");
+			else $item.addClass("rv-media-drag-over");
+		}
+		handleDragLeave(e, $item) {
+			const relatedTarget = e.originalEvent ? e.originalEvent.relatedTarget : null;
+			if (!$item[0].contains(relatedTarget)) {
+				$item.removeClass("rv-media-drag-over");
+				$item.find(".rv-media-item").removeClass("rv-media-drag-over");
+			}
+		}
+		handleDrop(e, $item) {
+			e.preventDefault();
+			e.stopPropagation();
+			const targetFolderId = $item.data("id");
+			const targetFolderName = $item.find(".rv-media-name-item span").text() || $item.find(".rv-media-text-name").text();
+			$(".js-media-list-title").removeClass("rv-media-drag-over rv-media-dragging");
+			$(".rv-media-item").removeClass("rv-media-drag-over rv-media-dragging");
+			if (!this.draggedItem || targetFolderId === this.draggedItem.id) return;
+			if (this.draggedItem.is_folder && targetFolderId === this.draggedItem.id) {
+				MessageService.showMessage("error", Helpers.trans("move.cannot_move_to_itself") || "Cannot move a folder into itself", Helpers.trans("message.error_header"));
+				return;
+			}
+			this.moveItem(this.draggedItem, targetFolderId, targetFolderName);
+		}
+		moveItem(item, destinationFolderId, destinationName) {
+			Helpers.showAjaxLoading();
+			$httpClient.make().post(RV_MEDIA_URL.global_actions, {
+				action: "move",
+				selected: [{
+					is_folder: item.is_folder,
+					id: item.id
+				}],
+				destination: destinationFolderId
+			}).then(({ data }) => {
+				MessageService.showMessage("success", data.message || `Moved "${item.name}" to "${destinationName}"`, Helpers.trans("message.success_header"));
+				Helpers.resetPagination();
+				new MediaService().getMedia(true);
+			}).catch(() => {
+				MessageService.showMessage("error", Helpers.trans("move_error") || "Error moving item", Helpers.trans("message.error_header"));
+			}).finally(() => {
+				Helpers.hideAjaxLoading();
+			});
+		}
+	};
+	//#endregion
+	//#region platform/core/media/resources/js/integrate.js
+	var EditorService = class {
+		static editorSelectFile(selectedFiles) {
+			let is_ckeditor = Helpers.getUrlParam("CKEditor") || Helpers.getUrlParam("CKEditorFuncNum");
+			if (window.opener && is_ckeditor) {
+				let imageUrl = Helpers.arrayFirst(selectedFiles).full_url;
+				if (imageUrl && imageUrl.startsWith(window.location.origin)) imageUrl = imageUrl.replace(window.location.origin, "");
+				window.opener.CKEDITOR.tools.callFunction(Helpers.getUrlParam("CKEditorFuncNum"), imageUrl);
+				if (window.opener) window.close();
+			}
+		}
+	};
+	var rvMedia = class {
+		constructor(selector, options) {
+			let customHandler = window.RvMediaCustomCallback || null;
+			if (typeof customHandler === "function") {
+				customHandler(selector, options);
+				return;
+			}
+			window.rvMedia = window.rvMedia || {};
+			let $body = $("body");
+			options = $.extend(true, {
+				multiple: true,
+				type: "*",
+				onSelectFiles: (files, $el) => {}
+			}, options);
+			let clickCallback = (event) => {
+				event.preventDefault();
+				let $current = $(event.currentTarget);
+				$("#rv_media_modal").modal("show");
+				window.rvMedia.options = options;
+				window.rvMedia.options.open_in = "modal";
+				window.rvMedia.$el = $current;
+				MediaConfig.request_params.filter = "everything";
+				Helpers.storeConfig();
+				let elementOptions = window.rvMedia.$el.data("rv-media");
+				if (typeof elementOptions !== "undefined" && elementOptions.length > 0) {
+					elementOptions = elementOptions[0];
+					window.rvMedia.options = $.extend(true, window.rvMedia.options, elementOptions || {});
+					if (typeof elementOptions.selected_file_id !== "undefined") window.rvMedia.options.is_popup = true;
+					else if (typeof window.rvMedia.options.is_popup !== "undefined") window.rvMedia.options.is_popup = void 0;
+				}
+				if ($("#rv_media_body .rv-media-container").length === 0) $("#rv_media_body").load(RV_MEDIA_URL.popup, (data) => {
+					if (data.error) alert(data.message);
+					$("#rv_media_body").removeClass("media-modal-loading").closest(".modal-content").removeClass("bb-loading");
+					$(document).find(".rv-media-container .js-change-action[data-type=refresh]").trigger("click");
+					if (Helpers.getRequestParams().filter !== "everything") $(".rv-media-actions .btn.js-rv-media-change-filter-group.js-filter-by-type").hide();
+					ContextMenuService.destroyContext();
+					ContextMenuService.initContext();
+					if (Helpers.isUseInModal()) $(".rv-media-footer").removeClass("d-none");
+				});
+				else {
+					if (Helpers.isUseInModal()) $(".rv-media-footer").removeClass("d-none");
+					$(document).find(".rv-media-container .js-change-action[data-type=refresh]").trigger("click");
+				}
+			};
+			if (typeof selector === "string") $body.off("click", selector).on("click", selector, clickCallback);
+			else selector.off("click").on("click", clickCallback);
+		}
+	};
+	window.RvMediaStandAlone = rvMedia;
+	$(".js-insert-to-editor").off("click").on("click", function(event) {
+		event.preventDefault();
+		let selectedFiles = Helpers.getSelectedFiles();
+		if (Helpers.size(selectedFiles) > 0) EditorService.editorSelectFile(selectedFiles);
+	});
+	$.fn.rvMedia = function(options) {
+		let $selector = $(this);
+		MediaConfig.request_params.filter = "everything";
+		$(document).find(".js-insert-to-editor").prop("disabled", MediaConfig.request_params.view_in === "trash");
+		Helpers.storeConfig();
+		let customHandler = window.RvMediaCustomCallback || null;
+		if (typeof customHandler === "function") {
+			customHandler($selector, options);
+			return;
+		}
+		new rvMedia($selector, options);
+	};
+	document.dispatchEvent(new CustomEvent("core-media-loaded"));
+	//#endregion
+	//#region platform/core/media/resources/js/media.js
+	var MediaManagement = class {
+		constructor() {
+			this.Helpers = Helpers;
+			this.MediaService = new MediaService();
+			this.UploadService = new UploadService();
+			this.FolderService = new FolderService();
+			this.DownloadService = new DownloadService();
+			this.MoveService = new MoveService();
+			this.DragDropService = new DragDropService();
+			this.$body = $("body");
+		}
+		init() {
+			Helpers.resetPagination();
+			this.setupLayout();
+			this.handleMediaList();
+			this.changeViewType();
+			this.changeFilter();
+			this.search();
+			this.handleActions();
+			this.UploadService.init();
+			this.handleModals();
+			this.scrollGetMore();
+		}
+		setupLayout() {
+			/**
+			* Sidebar
+			*/
+			const $currentFilter = $(`.js-rv-media-change-filter[data-type="filter"][data-value="${Helpers.getRequestParams().filter}"]`);
+			$currentFilter.closest("button.dropdown-item").addClass("active").closest(".dropdown").find(".js-rv-media-filter-current").html(`(${$currentFilter.html()})`);
+			const $currentViewIn = $(`.js-rv-media-change-filter[data-type="view_in"][data-value="${Helpers.getRequestParams().view_in}"]`);
+			$currentViewIn.closest("button.dropdown-item").addClass("active").closest(".dropdown").find(".js-rv-media-filter-current").html(`(${$currentViewIn.html()})`);
+			if (Helpers.isUseInModal()) $(".rv-media-footer").removeClass("d-none");
+			/**
+			* Sort
+			*/
+			$(`.js-rv-media-change-filter[data-type="sort_by"][data-value="${Helpers.getRequestParams().sort_by}"]`).closest("button.dropdown-item").addClass("active");
+			/**
+			* Details pane
+			*/
+			let $mediaDetailsCheckbox = $("#media_details_collapse");
+			$mediaDetailsCheckbox.prop("checked", MediaConfig.hide_details_pane || false);
+			setTimeout(() => {
+				$(".rv-media-details").show();
+			}, 300);
+			$mediaDetailsCheckbox.on("change", (event) => {
+				event.preventDefault();
+				MediaConfig.hide_details_pane = $(event.currentTarget).is(":checked");
+				Helpers.storeConfig();
+			});
+			$(document).on("click", ".js-download-action", (event) => {
+				event.preventDefault();
+				$("#modal_download_url").modal("show");
+			});
+			$(document).on("click", ".js-create-folder-action", (event) => {
+				event.preventDefault();
+				$("#modal_add_folder").modal("show");
+			});
+		}
+		handleMediaList() {
+			let _self = this;
+			let ctrl_key = false;
+			let meta_key = false;
+			let shift_key = false;
+			$(document).on("keyup keydown", (e) => {
+				ctrl_key = e.ctrlKey;
+				meta_key = e.metaKey;
+				shift_key = e.shiftKey;
+			});
+			$(document).on("keydown.rvMediaInsert", (e) => {
+				if (e.key !== "Enter" || e.isDefaultPrevented()) return;
+				let $target = $(e.target);
+				if ($target.is("input, textarea, select") || $target.closest("[contenteditable=\"true\"]").length) return;
+				let $modal = $("#rv_media_modal");
+				if (!$modal.length || !$modal.is(":visible")) return;
+				let $insertBtn = $modal.find(".js-insert-to-editor:visible:not(:disabled)").first();
+				if (!$insertBtn.length || !Helpers.getSelectedItems().length) return;
+				e.preventDefault();
+				$insertBtn.trigger("click");
+			});
+			_self.$body.off("click", ".js-media-list-title").on("click", ".js-media-list-title", (event) => {
+				event.preventDefault();
+				let $current = $(event.currentTarget);
+				if (shift_key) {
+					let firstItem = Helpers.arrayFirst(Helpers.getSelectedItems());
+					if (firstItem) {
+						let firstIndex = firstItem.index_key;
+						let currentIndex = $current.index();
+						$(".rv-media-items li").each((index, el) => {
+							if (index > firstIndex && index <= currentIndex) $(el).find("input[type=checkbox]").prop("checked", true);
+						});
+					}
+				} else if (!ctrl_key && !meta_key) $current.closest(".rv-media-items").find("input[type=checkbox]").prop("checked", false);
+				$current.find("input[type=checkbox]").prop("checked", true);
+				ActionsService.handleDropdown();
+				_self.MediaService.getFileDetails($current.data());
+				if (!$current.data("is_folder")) Helpers.addToRecent($current.data("id"));
+			}).on("dblclick doubletap", ".js-media-list-title", (event) => {
+				event.preventDefault();
+				let data = $(event.currentTarget).data();
+				if (data.is_folder === true) {
+					Helpers.resetPagination();
+					_self.FolderService.changeFolderAndAddToRecent(data.id);
+				} else if (!Helpers.isUseInModal()) ActionsService.handlePreview();
+				else if (Helpers.getConfigs().request_params.view_in !== "trash") {
+					let selectedFiles = Helpers.getSelectedFiles();
+					if (Helpers.size(selectedFiles) > 0) EditorService.editorSelectFile(selectedFiles);
+				}
+				return false;
+			}).on("click", ".js-up-one-level", (event) => {
+				event.preventDefault();
+				let count = $(".rv-media-breadcrumb .breadcrumb li").length;
+				$(`.rv-media-breadcrumb .breadcrumb li:nth-child(${count - 1}) a`).trigger("click");
+			}).on("contextmenu", ".js-context-menu", (event) => {
+				if (!$(event.currentTarget).find("input[type=checkbox]").is(":checked")) $(event.currentTarget).trigger("click");
+			}).on("click contextmenu", ".rv-media-items", (e) => {
+				if (!Helpers.size(e.target.closest(".js-context-menu"))) {
+					$(".rv-media-items input[type=\"checkbox\"]").prop("checked", false);
+					ActionsService.handleDropdown();
+					_self.MediaService.getFileDetails({
+						icon: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                             <path d="M15 8h.01"></path>
                             <path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12z"></path>
                             <path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"></path>
                             <path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"></path>
-                        </svg>`,nothing_selected:""}))})}changeViewType(){let d=this;d.$body.off("click",".js-rv-media-change-view-type button").on("click",".js-rv-media-change-view-type button",e=>{e.preventDefault();let o=$(e.currentTarget);o.hasClass("active")||(o.closest(".js-rv-media-change-view-type").find("button").removeClass("active"),o.addClass("active"),W.request_params.view_type=o.data("type"),o.data("type")==="trash"?$(document).find(".js-insert-to-editor").prop("disabled",!0):$(document).find(".js-insert-to-editor").prop("disabled",!1),l.storeConfig(),typeof RV_MEDIA_CONFIG.pagination!="undefined"&&typeof RV_MEDIA_CONFIG.pagination.paged!="undefined"&&(RV_MEDIA_CONFIG.pagination.paged=1),d.MediaService.getMedia(!0,!1))}),$(`.js-rv-media-change-view-type .btn[data-type="${l.getRequestParams().view_type}"]`).trigger("click"),this.bindIntegrateModalEvents()}changeFilter(){let d=this;d.$body.off("click",".js-rv-media-change-filter").on("click",".js-rv-media-change-filter",e=>{if(e.preventDefault(),!l.isOnAjaxLoading()){let o=$(e.currentTarget),n=o.data();W.request_params[n.type]=n.value,window.rvMedia.options&&n.type==="view_in"&&(window.rvMedia.options.view_in=n.value),n.type==="view_in"&&(W.request_params.folder_id=0,n.value==="trash"?$(document).find(".js-insert-to-editor").prop("disabled",!0):$(document).find(".js-insert-to-editor").prop("disabled",!1)),o.closest(".dropdown").find(".js-rv-media-filter-current").html(`(${o.html()})`),l.storeConfig(),we.refreshFilter(),l.resetPagination(),d.MediaService.getMedia(!0),o.addClass("active"),o.siblings().removeClass("active")}})}search(){let d=this;$('.input-search-wrapper input[type="text"]').val(l.getRequestParams().search||""),d.$body.off("submit",".input-search-wrapper").on("submit",".input-search-wrapper",e=>{e.preventDefault(),W.request_params.search=$(e.currentTarget).find('input[name="search"]').val(),l.storeConfig(),l.resetPagination(),d.MediaService.getMedia(!0)})}handleActions(){let d=this;d.$body.off("click",'.rv-media-actions .js-change-action[data-type="refresh"]').on("click",'.rv-media-actions .js-change-action[data-type="refresh"]',e=>{e.preventDefault(),l.resetPagination();let o=typeof window.rvMedia.$el!="undefined"?window.rvMedia.$el.data("rv-media"):void 0;typeof o!="undefined"&&o.length>0&&typeof o[0].selected_file_id!="undefined"?d.MediaService.getMedia(!0,!0):d.MediaService.getMedia(!0,!1)}).off("click",".rv-media-items li.no-items").on("click",".rv-media-items li.no-items",e=>{e.preventDefault(),$(".rv-media-header .rv-media-top-header .rv-media-actions .js-dropzone-upload").trigger("click")}).off("submit",".form-add-folder").on("submit",".form-add-folder",e=>{e.preventDefault();const o=$(e.currentTarget).find('input[name="name"]'),n=o.val();return d.FolderService.create(n),o.val(""),!1}).off("click",".js-change-folder").on("click",".js-change-folder",e=>{e.preventDefault();let o=$(e.currentTarget).data("folder");l.resetPagination(),d.FolderService.changeFolderAndAddToRecent(o)}).off("click",".js-files-action").on("click",".js-files-action",e=>{e.preventDefault(),U.handleGlobalAction($(e.currentTarget).data("action"),()=>{l.resetPagination(),d.MediaService.getMedia(!0)})}).off("submit",".form-download-url").on("submit",".form-download-url",async e=>{e.preventDefault();const o=$("#modal_download_url"),n=o.find("#download-form-wrapper"),f=o.find("#modal-notice").empty(),c=o.find(".modal-title"),M=o.find('textarea[name="urls"]').prop("disabled",!0),y=o.find('[type="submit"]'),k=M.val(),C=[];return Botble.showButtonLoading(y),n.slideUp(),await d.DownloadService.download(k,(R,j,A)=>{let pe=$(`
+                        </svg>`,
+						nothing_selected: ""
+					});
+				}
+			});
+		}
+		changeViewType() {
+			let _self = this;
+			_self.$body.off("click", ".js-rv-media-change-view-type button").on("click", ".js-rv-media-change-view-type button", (event) => {
+				event.preventDefault();
+				let $current = $(event.currentTarget);
+				if ($current.hasClass("active")) return;
+				$current.closest(".js-rv-media-change-view-type").find("button").removeClass("active");
+				$current.addClass("active");
+				MediaConfig.request_params.view_type = $current.data("type");
+				if ($current.data("type") === "trash") $(document).find(".js-insert-to-editor").prop("disabled", true);
+				else $(document).find(".js-insert-to-editor").prop("disabled", false);
+				Helpers.storeConfig();
+				if (typeof RV_MEDIA_CONFIG.pagination != "undefined") {
+					if (typeof RV_MEDIA_CONFIG.pagination.paged != "undefined") RV_MEDIA_CONFIG.pagination.paged = 1;
+				}
+				_self.MediaService.getMedia(true, false);
+			});
+			$(`.js-rv-media-change-view-type .btn[data-type="${Helpers.getRequestParams().view_type}"]`).trigger("click");
+			this.bindIntegrateModalEvents();
+		}
+		changeFilter() {
+			let _self = this;
+			_self.$body.off("click", ".js-rv-media-change-filter").on("click", ".js-rv-media-change-filter", (event) => {
+				event.preventDefault();
+				if (!Helpers.isOnAjaxLoading()) {
+					let $current = $(event.currentTarget);
+					let data = $current.data();
+					MediaConfig.request_params[data.type] = data.value;
+					if (window.rvMedia.options && data.type === "view_in") window.rvMedia.options.view_in = data.value;
+					if (data.type === "view_in") {
+						MediaConfig.request_params.folder_id = 0;
+						if (data.value === "trash") $(document).find(".js-insert-to-editor").prop("disabled", true);
+						else $(document).find(".js-insert-to-editor").prop("disabled", false);
+					}
+					$current.closest(".dropdown").find(".js-rv-media-filter-current").html(`(${$current.html()})`);
+					Helpers.storeConfig();
+					MediaService.refreshFilter();
+					Helpers.resetPagination();
+					_self.MediaService.getMedia(true);
+					$current.addClass("active");
+					$current.siblings().removeClass("active");
+				}
+			});
+		}
+		search() {
+			let _self = this;
+			$(".input-search-wrapper input[type=\"text\"]").val(Helpers.getRequestParams().search || "");
+			_self.$body.off("submit", ".input-search-wrapper").on("submit", ".input-search-wrapper", (event) => {
+				event.preventDefault();
+				MediaConfig.request_params.search = $(event.currentTarget).find("input[name=\"search\"]").val();
+				Helpers.storeConfig();
+				Helpers.resetPagination();
+				_self.MediaService.getMedia(true);
+			});
+		}
+		handleActions() {
+			let _self = this;
+			_self.$body.off("click", ".rv-media-actions .js-change-action[data-type=\"refresh\"]").on("click", ".rv-media-actions .js-change-action[data-type=\"refresh\"]", (event) => {
+				event.preventDefault();
+				Helpers.resetPagination();
+				let ele_options = typeof window.rvMedia.$el !== "undefined" ? window.rvMedia.$el.data("rv-media") : void 0;
+				if (typeof ele_options !== "undefined" && ele_options.length > 0 && typeof ele_options[0].selected_file_id !== "undefined") _self.MediaService.getMedia(true, true);
+				else _self.MediaService.getMedia(true, false);
+			}).off("click", ".rv-media-items li.no-items").on("click", ".rv-media-items li.no-items", (event) => {
+				event.preventDefault();
+				$(".rv-media-header .rv-media-top-header .rv-media-actions .js-dropzone-upload").trigger("click");
+			}).off("submit", ".form-add-folder").on("submit", ".form-add-folder", (event) => {
+				event.preventDefault();
+				const $input = $(event.currentTarget).find("input[name=\"name\"]");
+				const folderName = $input.val();
+				_self.FolderService.create(folderName);
+				$input.val("");
+				return false;
+			}).off("click", ".js-change-folder").on("click", ".js-change-folder", (event) => {
+				event.preventDefault();
+				let folderId = $(event.currentTarget).data("folder");
+				Helpers.resetPagination();
+				_self.FolderService.changeFolderAndAddToRecent(folderId);
+			}).off("click", ".js-files-action").on("click", ".js-files-action", (event) => {
+				event.preventDefault();
+				ActionsService.handleGlobalAction($(event.currentTarget).data("action"), () => {
+					Helpers.resetPagination();
+					_self.MediaService.getMedia(true);
+				});
+			}).off("submit", ".form-download-url").on("submit", ".form-download-url", async (event) => {
+				event.preventDefault();
+				const $el = $("#modal_download_url");
+				const $wrapper = $el.find("#download-form-wrapper");
+				const $notice = $el.find("#modal-notice").empty();
+				const $header = $el.find(".modal-title");
+				const $input = $el.find("textarea[name=\"urls\"]").prop("disabled", true);
+				const $button = $el.find("[type=\"submit\"]");
+				const url = $input.val();
+				const remainUrls = [];
+				Botble.showButtonLoading($button);
+				$wrapper.slideUp();
+				await _self.DownloadService.download(url, (progress, item, url) => {
+					let $noticeItem = $(`
                         <div class="p-2 text-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -201,20 +5299,242 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                 <path d="M12 9h.01"></path>
                                 <path d="M11 12h1v4h1"></path>
                             </svg>
-                            <span>${j}</span>
+                            <span>${item}</span>
                         </div>
-                    `);return f.append(pe).scrollTop(f[0].scrollHeight),c.html(`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    `);
+					$notice.append($noticeItem).scrollTop($notice[0].scrollHeight);
+					$header.html(`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                             <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
                             <path d="M7 11l5 5l5 -5"></path>
                             <path d="M12 4l0 12"></path>
                         </svg>
-                        ${c.data("downloading")} (${R})`),(le,Re="")=>{le||C.push(A),pe.find("span").text(`${j}: ${Re}`),pe.attr("class",`py-2 text-${le?"success":"danger"}`).find("i").attr("class",le?"icon ti ti-check-circle":"icon ti ti-x-circle")}},()=>{n.slideDown(),M.val(C.join(`
-`)).prop("disabled",!1),c.html(`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        ${$header.data("downloading")} (${progress})`);
+					return (success, message = "") => {
+						if (!success) remainUrls.push(url);
+						$noticeItem.find("span").text(`${item}: ${message}`);
+						$noticeItem.attr("class", `py-2 text-${success ? "success" : "danger"}`).find("i").attr("class", success ? "icon ti ti-check-circle" : "icon ti ti-x-circle");
+					};
+				}, () => {
+					$wrapper.slideDown();
+					$input.val(remainUrls.join("\n")).prop("disabled", false);
+					$header.html(`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                             <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
                             <path d="M7 11l5 5l5 -5"></path>
                             <path d="M12 4l0 12"></path>
                         </svg>
-                        ${c.data("text")}
-                    `),Botble.hideButtonLoading(y)}),!1})}handleModals(){let d=this;d.$body.on("show.bs.modal","#modal_rename_items",()=>{U.renderRenameItems()}),d.$body.on("show.bs.modal","#modal_alt_text_items",()=>{U.renderAltTextItems()}),d.$body.on("show.bs.modal","#modal_share_items",()=>{U.renderShareItems()}),d.$body.on("change",'#modal_share_items select[data-bb-value="share-type"]',()=>{U.renderShareItems()}),d.$body.on("show.bs.modal","#modal_crop_image",()=>{U.renderCropImage()}),d.$body.on("show.bs.modal","#modal-properties",e=>{if(l.getSelectedItems().length===1){const o=$(e.currentTarget),n=l.getSelectedItems()[0];o.find(`input[name="color"][value="${n.color}"]`).prop("checked",!0)}}),d.$body.on("hidden.bs.modal","#modal_download_url",()=>{let e=$("#modal_download_url");e.find("textarea").val(""),e.find("#modal-notice").empty()}),d.$body.off("click",'#modal-properties button[type="submit"]').on("click",'#modal-properties button[type="submit"]',e=>{e.preventDefault();const o=$(e.currentTarget).closest(".modal");Botble.showButtonLoading(o.find('button[type="submit"]')),U.processAction({action:"properties",color:o.find('input[name="color"]:checked').val(),selected:l.getSelectedItems().map(n=>n.id.toString())},()=>{o.modal("hide"),Botble.hideButtonLoading(o.find('button[type="submit"]')),d.MediaService.getMedia(!0)})}),d.$body.off("submit","#modal_crop_image .form-crop").on("submit","#modal_crop_image .form-crop",e=>{e.preventDefault();const o=$(e.currentTarget);Botble.showButtonLoading(o.find('button[type="submit"]'));const n=o.find('input[name="image_id"]').val(),f=o.find('input[name="crop_data"]').val();U.processAction({action:o.data("action"),imageId:n,cropData:f},c=>{c.error||(o.closest(".modal").modal("hide"),d.MediaService.getMedia(!0)),Botble.hideButtonLoading(o.find('button[type="submit"]'))})}),d.$body.off("submit","#modal_rename_items .form-rename").on("submit","#modal_rename_items .form-rename",e=>{e.preventDefault();let o=[],n=$(e.currentTarget);$("#modal_rename_items .form-control").each((f,c)=>{let M=$(c),y=M.closest(".mb-3").data();y.name=M.val(),o.push(y)}),Botble.showButtonLoading(n.find('button[type="submit"]')),U.processAction({action:n.data("action"),selected:o},f=>{f.error?$("#modal_rename_items .mb-3").each((c,M)=>{let y=$(M);l.inArray(f.data,y.data("id"))?y.addClass("has-error"):y.removeClass("has-error")}):(n.closest(".modal").modal("hide"),d.MediaService.getMedia(!0)),Botble.hideButtonLoading(n.find('button[type="submit"]'))})}),d.$body.off("submit","#modal_alt_text_items .form-alt-text").on("submit","#modal_alt_text_items .form-alt-text",e=>{e.preventDefault();let o=[],n=$(e.currentTarget);$("#modal_alt_text_items .form-control").each((f,c)=>{let M=$(c),y=M.closest(".mb-3").data();y.alt=M.val(),o.push(y)}),Botble.showButtonLoading(n.find('button[type="submit"]')),U.processAction({action:n.data("action"),selected:o},f=>{f.error?$("#modal_alt_text_items .mb-3").each((c,M)=>{let y=$(M);l.inArray(f.data,y.data("id"))?y.addClass("has-error"):y.removeClass("has-error")}):(n.closest(".modal").modal("hide"),d.MediaService.getMedia(!0)),Botble.hideButtonLoading(n.find('button[type="submit"]'))})}),d.$body.off("submit","form.form-delete-items").on("submit","form.form-delete-items",e=>{e.preventDefault();let o=[],n=$(e.currentTarget);Botble.showButtonLoading(n.find('button[type="submit"]')),l.each(l.getSelectedItems(),f=>{o.push({id:f.id,is_folder:f.is_folder})}),U.processAction({action:n.data("action"),selected:o,skip_trash:n.find('input[name="skip_trash"]').is(":checked")},f=>{n.closest(".modal").modal("hide"),f.error||d.MediaService.getMedia(!0),n.find('input[name="skip_trash"]').prop("checked",!1),Botble.hideButtonLoading(n.find('button[type="submit"]'))})}),d.$body.off("submit","#modal_empty_trash .form-empty-trash").on("submit","#modal_empty_trash .form-empty-trash",e=>{e.preventDefault();let o=$(e.currentTarget);Botble.showButtonLoading(o.find('button[type="submit"]')),U.processAction({action:o.data("action")},()=>{o.closest(".modal").modal("hide"),d.MediaService.getMedia(!0),Botble.hideButtonLoading(o.find('button[type="submit"]'))})}),l.getRequestParams().view_in==="trash"?$(document).find(".js-insert-to-editor").prop("disabled",!0):$(document).find(".js-insert-to-editor").prop("disabled",!1),this.bindIntegrateModalEvents()}checkFileTypeSelect(d){if(typeof window.rvMedia.$el!="undefined"){let e=l.arrayFirst(d),o=window.rvMedia.$el.data("rv-media");if(typeof o!="undefined"&&typeof o[0]!="undefined"&&typeof o[0].file_type!="undefined"&&e!=="undefined"&&e.type!=="undefined")if(o[0].file_type.match(e.type)){if(typeof o[0].ext_allowed!="undefined"&&Array.isArray(o[0].ext_allowed)&&$.inArray(e.mime_type,o[0].ext_allowed)===-1)return!1}else return!1}return!0}bindIntegrateModalEvents(){let d=$("#rv_media_modal"),e=this;d.off("click",".js-insert-to-editor").on("click",".js-insert-to-editor",o=>{o.preventDefault();let n=l.getSelectedFiles();l.size(n)>0&&(window.rvMedia.options.onSelectFiles(n,window.rvMedia.$el),e.checkFileTypeSelect(n)&&d.find(".btn-close").trigger("click"))}),d.off("dblclick doubletap",'.js-media-list-title[data-context="file"]').on("dblclick doubletap",'.js-media-list-title[data-context="file"]',o=>{if(o.preventDefault(),l.getConfigs().request_params.view_in!=="trash"){let n=l.getSelectedFiles();l.size(n)>0&&(window.rvMedia.options.onSelectFiles(n,window.rvMedia.$el),e.checkFileTypeSelect(n)&&d.find(".btn-close").trigger("click"))}else U.handlePreview()})}scrollGetMore(){let d=this;$(".rv-media-main .rv-media-items").on("wheel scroll",function(e){var o;let n=$(e.currentTarget),f=n[0].scrollHeight,c=n.scrollTop(),M=n.innerHeight(),y=n.closest(".media-modal").length>0?450:150;c+M>=f-y&&(!((o=RV_MEDIA_CONFIG.pagination)===null||o===void 0)&&o.has_more)&&d.MediaService.getMedia(!1,!1,!0)})}};$(()=>{window.rvMedia=window.rvMedia||{};const d=new $i;d.init(),window.rvMedia.mediaManagement=d})})();
+                        ${$header.data("text")}
+                    `);
+					Botble.hideButtonLoading($button);
+				});
+				return false;
+			});
+		}
+		handleModals() {
+			let _self = this;
+			_self.$body.on("show.bs.modal", "#modal_rename_items", () => {
+				ActionsService.renderRenameItems();
+			});
+			_self.$body.on("show.bs.modal", "#modal_alt_text_items", () => {
+				ActionsService.renderAltTextItems();
+			});
+			_self.$body.on("show.bs.modal", "#modal_share_items", () => {
+				ActionsService.renderShareItems();
+			});
+			_self.$body.on("change", "#modal_share_items select[data-bb-value=\"share-type\"]", () => {
+				ActionsService.renderShareItems();
+			});
+			_self.$body.on("show.bs.modal", "#modal_crop_image", () => {
+				ActionsService.renderCropImage();
+			});
+			_self.$body.on("show.bs.modal", "#modal-properties", (event) => {
+				if (Helpers.getSelectedItems().length === 1) {
+					const $modal = $(event.currentTarget);
+					const selected = Helpers.getSelectedItems()[0];
+					$modal.find(`input[name="color"][value="${selected.color}"]`).prop("checked", true);
+				}
+			});
+			_self.$body.on("hidden.bs.modal", "#modal_download_url", () => {
+				let $el = $("#modal_download_url");
+				$el.find("textarea").val("");
+				$el.find("#modal-notice").empty();
+			});
+			_self.$body.off("click", "#modal-properties button[type=\"submit\"]").on("click", "#modal-properties button[type=\"submit\"]", (event) => {
+				event.preventDefault();
+				const $modal = $(event.currentTarget).closest(".modal");
+				Botble.showButtonLoading($modal.find("button[type=\"submit\"]"));
+				ActionsService.processAction({
+					action: "properties",
+					color: $modal.find("input[name=\"color\"]:checked").val(),
+					selected: Helpers.getSelectedItems().map((item) => item.id.toString())
+				}, () => {
+					$modal.modal("hide");
+					Botble.hideButtonLoading($modal.find("button[type=\"submit\"]"));
+					_self.MediaService.getMedia(true);
+				});
+			});
+			_self.$body.off("submit", "#modal_crop_image .form-crop").on("submit", "#modal_crop_image .form-crop", (event) => {
+				event.preventDefault();
+				const $form = $(event.currentTarget);
+				Botble.showButtonLoading($form.find("button[type=\"submit\"]"));
+				const imageId = $form.find("input[name=\"image_id\"]").val();
+				const cropData = $form.find("input[name=\"crop_data\"]").val();
+				ActionsService.processAction({
+					action: $form.data("action"),
+					imageId,
+					cropData
+				}, (response) => {
+					if (!response.error) {
+						$form.closest(".modal").modal("hide");
+						_self.MediaService.getMedia(true);
+					}
+					Botble.hideButtonLoading($form.find("button[type=\"submit\"]"));
+				});
+			});
+			_self.$body.off("submit", "#modal_rename_items .form-rename").on("submit", "#modal_rename_items .form-rename", (event) => {
+				event.preventDefault();
+				let items = [];
+				let $form = $(event.currentTarget);
+				$("#modal_rename_items .form-control").each((index, el) => {
+					let $current = $(el);
+					let data = $current.closest(".mb-3").data();
+					data.name = $current.val();
+					items.push(data);
+				});
+				Botble.showButtonLoading($form.find("button[type=\"submit\"]"));
+				ActionsService.processAction({
+					action: $form.data("action"),
+					selected: items
+				}, (res) => {
+					if (!res.error) {
+						$form.closest(".modal").modal("hide");
+						_self.MediaService.getMedia(true);
+					} else $("#modal_rename_items .mb-3").each((index, el) => {
+						let $current = $(el);
+						if (Helpers.inArray(res.data, $current.data("id"))) $current.addClass("has-error");
+						else $current.removeClass("has-error");
+					});
+					Botble.hideButtonLoading($form.find("button[type=\"submit\"]"));
+				});
+			});
+			_self.$body.off("submit", "#modal_alt_text_items .form-alt-text").on("submit", "#modal_alt_text_items .form-alt-text", (event) => {
+				event.preventDefault();
+				let items = [];
+				let $form = $(event.currentTarget);
+				$("#modal_alt_text_items .form-control").each((index, el) => {
+					let $current = $(el);
+					let data = $current.closest(".mb-3").data();
+					data.alt = $current.val();
+					items.push(data);
+				});
+				Botble.showButtonLoading($form.find("button[type=\"submit\"]"));
+				ActionsService.processAction({
+					action: $form.data("action"),
+					selected: items
+				}, (res) => {
+					if (!res.error) {
+						$form.closest(".modal").modal("hide");
+						_self.MediaService.getMedia(true);
+					} else $("#modal_alt_text_items .mb-3").each((index, el) => {
+						let $current = $(el);
+						if (Helpers.inArray(res.data, $current.data("id"))) $current.addClass("has-error");
+						else $current.removeClass("has-error");
+					});
+					Botble.hideButtonLoading($form.find("button[type=\"submit\"]"));
+				});
+			});
+			_self.$body.off("submit", "form.form-delete-items").on("submit", "form.form-delete-items", (event) => {
+				event.preventDefault();
+				let items = [];
+				let $form = $(event.currentTarget);
+				Botble.showButtonLoading($form.find("button[type=\"submit\"]"));
+				Helpers.each(Helpers.getSelectedItems(), (value) => {
+					items.push({
+						id: value.id,
+						is_folder: value.is_folder
+					});
+				});
+				ActionsService.processAction({
+					action: $form.data("action"),
+					selected: items,
+					skip_trash: $form.find("input[name=\"skip_trash\"]").is(":checked")
+				}, (res) => {
+					$form.closest(".modal").modal("hide");
+					if (!res.error) _self.MediaService.getMedia(true);
+					$form.find("input[name=\"skip_trash\"]").prop("checked", false);
+					Botble.hideButtonLoading($form.find("button[type=\"submit\"]"));
+				});
+			});
+			_self.$body.off("submit", "#modal_empty_trash .form-empty-trash").on("submit", "#modal_empty_trash .form-empty-trash", (event) => {
+				event.preventDefault();
+				let $form = $(event.currentTarget);
+				Botble.showButtonLoading($form.find("button[type=\"submit\"]"));
+				ActionsService.processAction({ action: $form.data("action") }, () => {
+					$form.closest(".modal").modal("hide");
+					_self.MediaService.getMedia(true);
+					Botble.hideButtonLoading($form.find("button[type=\"submit\"]"));
+				});
+			});
+			if (Helpers.getRequestParams().view_in === "trash") $(document).find(".js-insert-to-editor").prop("disabled", true);
+			else $(document).find(".js-insert-to-editor").prop("disabled", false);
+			this.bindIntegrateModalEvents();
+		}
+		checkFileTypeSelect(selectedFiles) {
+			if (typeof window.rvMedia.$el !== "undefined") {
+				let firstItem = Helpers.arrayFirst(selectedFiles);
+				let ele_options = window.rvMedia.$el.data("rv-media");
+				if (typeof ele_options !== "undefined" && typeof ele_options[0] !== "undefined" && typeof ele_options[0].file_type !== "undefined" && firstItem !== "undefined" && firstItem.type !== "undefined") {
+					if (!ele_options[0].file_type.match(firstItem.type)) return false;
+					else if (typeof ele_options[0].ext_allowed !== "undefined" && Array.isArray(ele_options[0].ext_allowed)) {
+						if ($.inArray(firstItem.mime_type, ele_options[0].ext_allowed) === -1) return false;
+					}
+				}
+			}
+			return true;
+		}
+		bindIntegrateModalEvents() {
+			let $mainModal = $("#rv_media_modal");
+			let _self = this;
+			$mainModal.off("click", ".js-insert-to-editor").on("click", ".js-insert-to-editor", (event) => {
+				event.preventDefault();
+				let selectedFiles = Helpers.getSelectedFiles();
+				if (Helpers.size(selectedFiles) > 0) {
+					window.rvMedia.options.onSelectFiles(selectedFiles, window.rvMedia.$el);
+					if (_self.checkFileTypeSelect(selectedFiles)) $mainModal.find(".btn-close").trigger("click");
+				}
+			});
+			$mainModal.off("dblclick doubletap", ".js-media-list-title[data-context=\"file\"]").on("dblclick doubletap", ".js-media-list-title[data-context=\"file\"]", (event) => {
+				event.preventDefault();
+				if (Helpers.getConfigs().request_params.view_in !== "trash") {
+					let selectedFiles = Helpers.getSelectedFiles();
+					if (Helpers.size(selectedFiles) > 0) {
+						window.rvMedia.options.onSelectFiles(selectedFiles, window.rvMedia.$el);
+						if (_self.checkFileTypeSelect(selectedFiles)) $mainModal.find(".btn-close").trigger("click");
+					}
+				} else ActionsService.handlePreview();
+			});
+		}
+		scrollGetMore() {
+			let _self = this;
+			$(".rv-media-main .rv-media-items").on("wheel scroll", function(e) {
+				var _RV_MEDIA_CONFIG$pagi;
+				let $target = $(e.currentTarget);
+				let scrollHeight = $target[0].scrollHeight;
+				let scrollTop = $target.scrollTop();
+				let innerHeight = $target.innerHeight();
+				let threshold = $target.closest(".media-modal").length > 0 ? 450 : 150;
+				if (scrollTop + innerHeight >= scrollHeight - threshold && ((_RV_MEDIA_CONFIG$pagi = RV_MEDIA_CONFIG.pagination) === null || _RV_MEDIA_CONFIG$pagi === void 0 ? void 0 : _RV_MEDIA_CONFIG$pagi.has_more)) _self.MediaService.getMedia(false, false, true);
+			});
+		}
+	};
+	$(() => {
+		window.rvMedia = window.rvMedia || {};
+		const management = new MediaManagement();
+		management.init();
+		window.rvMedia.mediaManagement = management;
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=media.js.map

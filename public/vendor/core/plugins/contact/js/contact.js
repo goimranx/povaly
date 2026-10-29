@@ -1,1 +1,45 @@
-(function(){var i=class{init(){$(document).on("click",".answer-trigger-button",e=>{e.preventDefault(),e.stopPropagation();const t=$(".answer-wrapper");t.is(":visible")?t.fadeOut():t.fadeIn(),window.EDITOR=new EditorManagement().init()}),$(document).on("click",".answer-send-button",e=>{e.preventDefault(),e.stopPropagation();const t=$(e.currentTarget);Botble.showButtonLoading(t);let n=$("#message").val();typeof tinymce!="undefined"&&(n=tinymce.get("message").getContent()),$httpClient.make().post(t.data("url"),{message:n}).then(({data:r})=>{if($(".answer-wrapper").fadeOut(),typeof tinymce!="undefined")tinymce.get("message").setContent("");else{$("#message").val("");const a=document.querySelector(".answer-wrapper .ck-editor__editable");if(a){const o=a.ckeditorInstance;o&&o.setData("")}}Botble.showSuccess(r.message),$("#reply-wrapper").load(window.location.href+" #reply-wrapper > *")}).finally(()=>{Botble.hideButtonLoading($(e.currentTarget))})})}};$(()=>{new i().init()})})();
+(function() {
+	//#region platform/plugins/contact/resources/js/contact.js
+	var ContactPluginManagement = class {
+		init() {
+			$(document).on("click", ".answer-trigger-button", (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				const answerWrapper = $(".answer-wrapper");
+				if (answerWrapper.is(":visible")) answerWrapper.fadeOut();
+				else answerWrapper.fadeIn();
+				window.EDITOR = new EditorManagement().init();
+			});
+			$(document).on("click", ".answer-send-button", (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				const _self = $(event.currentTarget);
+				Botble.showButtonLoading(_self);
+				let message = $("#message").val();
+				if (typeof tinymce != "undefined") message = tinymce.get("message").getContent();
+				$httpClient.make().post(_self.data("url"), { message }).then(({ data }) => {
+					$(".answer-wrapper").fadeOut();
+					if (typeof tinymce != "undefined") tinymce.get("message").setContent("");
+					else {
+						$("#message").val("");
+						const domEditableElement = document.querySelector(".answer-wrapper .ck-editor__editable");
+						if (domEditableElement) {
+							const editorInstance = domEditableElement.ckeditorInstance;
+							if (editorInstance) editorInstance.setData("");
+						}
+					}
+					Botble.showSuccess(data.message);
+					$("#reply-wrapper").load(window.location.href + " #reply-wrapper > *");
+				}).finally(() => {
+					Botble.hideButtonLoading($(event.currentTarget));
+				});
+			});
+		}
+	};
+	$(() => {
+		new ContactPluginManagement().init();
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=contact.js.map

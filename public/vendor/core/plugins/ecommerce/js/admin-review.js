@@ -1,1 +1,71 @@
-(function(){$(()=>{const l=(e,t)=>{Botble.showButtonLoading(t),$httpClient.make().post(e).then(({data:o})=>{if(o.error){Botble.showError(o.message);return}Botble.showSuccess(o.message),$("#review-section-wrapper").load(`${window.location.href} #review-section-wrapper > *`),t.closest(".modal").modal("hide")}).finally(()=>Botble.hideButtonLoading(t))},a=()=>{const e=$("#review-section-wrapper form");e.find('[data-bb-toggle="edit-reply"]').toggle(),e.find('[data-bs-target="#delete-review-reply-modal"]').toggle(),e.find(".reply-message").toggle(),e.find(".reply-form").toggle(),e.find('[data-bb-toggle="update-reply"]').toggle(),e.find('[data-bb-toggle="cancel-edit-reply"]').toggle()};$(document).on("click",'[data-bb-toggle="review-delete"]',e=>{$("#confirm-delete-review-button").data("target",$(e.currentTarget).data("target")).data("next-url",$(e.currentTarget).data("next-url")),$("#delete-review-modal").modal("show")}).on("click","#confirm-delete-review-button",e=>{const t=$(e.currentTarget),o=t.data("target");$httpClient.make().withButtonLoading(t).delete(o).then(({data:r})=>{Botble.showSuccess(r.message),t.closest(".modal").modal("hide"),setTimeout(()=>window.location.href=t.data("next-url"),2e3)}).finally(()=>Botble.hideButtonLoading(t))}).on("click",'[data-bb-toggle="review-unpublish"]',e=>{const t=$(e.currentTarget);l(route("reviews.unpublish",t.data("id")),t)}).on("click",'[data-bb-toggle="review-publish"]',e=>{const t=$(e.currentTarget);l(route("reviews.publish",t.data("id")),t)}).on("click",'[data-bb-toggle="review-reply-delete"]',e=>{const t=$(e.currentTarget),o=t.closest("form");$httpClient.make().withButtonLoading(t).delete(o.prop("action")).then(({data:r})=>{Botble.showSuccess(r.message),o.closest(".modal").modal("hide"),setTimeout(()=>window.location.reload(),2e3)})}).on("click",'[data-bb-toggle="edit-reply"]',e=>{const t=$(e.currentTarget);a(t)}).on("click",'[data-bb-toggle="cancel-edit-reply"]',e=>{const t=$(e.currentTarget);a(t)}).on("change","#review-badge-type",e=>{const t=$(e.currentTarget),o=t.data("url");$httpClient.make().put(o,{badge_type:t.val()}).then(({data:r})=>{if(r.error){Botble.showError(r.message);return}Botble.showSuccess(r.message)})})})})();
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/admin-review.js
+	$(() => {
+		const toggleReviewStatus = (url, button) => {
+			Botble.showButtonLoading(button);
+			$httpClient.make().post(url).then(({ data }) => {
+				if (data.error) {
+					Botble.showError(data.message);
+					return;
+				}
+				Botble.showSuccess(data.message);
+				$("#review-section-wrapper").load(`${window.location.href} #review-section-wrapper > *`);
+				button.closest(".modal").modal("hide");
+			}).finally(() => Botble.hideButtonLoading(button));
+		};
+		const toggleEditReply = () => {
+			const $form = $("#review-section-wrapper form");
+			$form.find("[data-bb-toggle=\"edit-reply\"]").toggle();
+			$form.find("[data-bs-target=\"#delete-review-reply-modal\"]").toggle();
+			$form.find(".reply-message").toggle();
+			$form.find(".reply-form").toggle();
+			$form.find("[data-bb-toggle=\"update-reply\"]").toggle();
+			$form.find("[data-bb-toggle=\"cancel-edit-reply\"]").toggle();
+		};
+		$(document).on("click", "[data-bb-toggle=\"review-delete\"]", (event) => {
+			$("#confirm-delete-review-button").data("target", $(event.currentTarget).data("target")).data("next-url", $(event.currentTarget).data("next-url"));
+			$("#delete-review-modal").modal("show");
+		}).on("click", "#confirm-delete-review-button", (event) => {
+			const _self = $(event.currentTarget);
+			const url = _self.data("target");
+			$httpClient.make().withButtonLoading(_self).delete(url).then(({ data }) => {
+				Botble.showSuccess(data.message);
+				_self.closest(".modal").modal("hide");
+				setTimeout(() => window.location.href = _self.data("next-url"), 2e3);
+			}).finally(() => Botble.hideButtonLoading(_self));
+		}).on("click", "[data-bb-toggle=\"review-unpublish\"]", (event) => {
+			const button = $(event.currentTarget);
+			toggleReviewStatus(route("reviews.unpublish", button.data("id")), button);
+		}).on("click", "[data-bb-toggle=\"review-publish\"]", (event) => {
+			const button = $(event.currentTarget);
+			toggleReviewStatus(route("reviews.publish", button.data("id")), button);
+		}).on("click", "[data-bb-toggle=\"review-reply-delete\"]", (event) => {
+			const currentTarget = $(event.currentTarget);
+			const form = currentTarget.closest("form");
+			$httpClient.make().withButtonLoading(currentTarget).delete(form.prop("action")).then(({ data }) => {
+				Botble.showSuccess(data.message);
+				form.closest(".modal").modal("hide");
+				setTimeout(() => window.location.reload(), 2e3);
+			});
+		}).on("click", "[data-bb-toggle=\"edit-reply\"]", (event) => {
+			const currentTarget = $(event.currentTarget);
+			toggleEditReply(currentTarget);
+		}).on("click", "[data-bb-toggle=\"cancel-edit-reply\"]", (event) => {
+			const currentTarget = $(event.currentTarget);
+			toggleEditReply(currentTarget);
+		}).on("change", "#review-badge-type", (event) => {
+			const select = $(event.currentTarget);
+			const url = select.data("url");
+			$httpClient.make().put(url, { badge_type: select.val() }).then(({ data }) => {
+				if (data.error) {
+					Botble.showError(data.message);
+					return;
+				}
+				Botble.showSuccess(data.message);
+			});
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=admin-review.js.map

@@ -1,1 +1,31 @@
-"use strict";(function(){$(()=>{$(document).on("click",".get-refund-detail",function(a){a.preventDefault();const t=$(a.currentTarget);$.ajax({type:"GET",cache:!1,url:t.data("url"),beforeSend:()=>{t.find("i").addClass("fa-spin")},success:e=>{e.error?Botble.showError(e.message):$(t.data("element")).html(e.data)},error:e=>{Botble.handleError(e)},complete:()=>{t.find("i").removeClass("fa-spin")}})})})})();
+"use strict";
+(function() {
+	//#region platform/plugins/payment/resources/js/payment-detail.js
+	$(() => {
+		$(document).on("click", ".get-refund-detail", function(e) {
+			e.preventDefault();
+			const $this = $(e.currentTarget);
+			$.ajax({
+				type: "GET",
+				cache: false,
+				url: $this.data("url"),
+				beforeSend: () => {
+					$this.find("i").addClass("fa-spin");
+				},
+				success: (res) => {
+					if (!res.error) $($this.data("element")).html(res.data);
+					else Botble.showError(res.message);
+				},
+				error: (res) => {
+					Botble.handleError(res);
+				},
+				complete: () => {
+					$this.find("i").removeClass("fa-spin");
+				}
+			});
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=payment-detail.js.map

@@ -1,1 +1,31 @@
-"use strict";(function(){(function(e){e(document).on("change",'[data-bb-toggle="product-bulk-change"]',function(){const t=e(this),o=t.closest("table"),s=t.data("id"),c=t.is(":checkbox")||t.is(":radio")?t.is(":checked")?"1":"0":t.val(),i=t.data("column"),n=e(`[data-target-id="${s}"]`);n.length>0&&(n.hide(),n.each(function(){const a=e(this),l=a.data("target-value").toString();c===l&&a.show()})),$httpClient.make().withLoading(o[0]).put(t.data("url"),{value:c,column:i}).then(({data:a})=>{Botble.showSuccess(a.message)})})})(jQuery)})();
+"use strict";
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/product-bulk-editable-table.js
+	(function($) {
+		$(document).on("change", "[data-bb-toggle=\"product-bulk-change\"]", function() {
+			const _self = $(this);
+			const tableElement = _self.closest("table");
+			const id = _self.data("id");
+			const value = _self.is(":checkbox") || _self.is(":radio") ? _self.is(":checked") ? "1" : "0" : _self.val();
+			const column = _self.data("column");
+			const targetElements = $(`[data-target-id="${id}"]`);
+			if (targetElements.length > 0) {
+				targetElements.hide();
+				targetElements.each(function() {
+					const _this = $(this);
+					const targetValue = _this.data("target-value").toString();
+					if (value === targetValue) _this.show();
+				});
+			}
+			$httpClient.make().withLoading(tableElement[0]).put(_self.data("url"), {
+				value,
+				column
+			}).then(({ data }) => {
+				Botble.showSuccess(data.message);
+			});
+		});
+	})(jQuery);
+	//#endregion
+})();
+
+//# sourceMappingURL=product-bulk-editable-table.js.map

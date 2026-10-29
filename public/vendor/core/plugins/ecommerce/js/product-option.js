@@ -1,1 +1,177 @@
-"use strict";(function(){$(()=>{const{productOptionLang:p,coreBaseLang:f,currentProductOption:g,options:h}=window.productOptions;({productOptions:g,init(){this.eventListeners(),this.generateProductOption(),this.sortable()},sortable(){$(".option-value-sortable tbody").sortable({stop:function(){$(".option-value-sortable tbody").sortable("toArray",{attribute:"data-index"}).map(function(t,e){$('.option-row[data-index="'+t+'"]').find(".option-value-order").val(e)})}}),$(".accordion-product-option").sortable({stop:function(){$(".accordion-product-option").sortable("toArray",{attribute:"data-index"}).map(function(t,e){$('.accordion-item[data-index="'+t+'"]').find(".option-order").val(e)})}})},generateProductOption(){let t=this,e="";this.productOptions.map(function(n,o){e+=t.generateOptionTemplate(n,o)}),$("#accordion-product-option").html(e),this.sortable()},eventListeners(){let t=this;$(".product-option-form-wrap").on("click",".add-from-global-option",function(){let e=$("#global-option").val();return e!=0?t.addFromGlobalOption(e):Botble.showError(p.please_select_option),!1}).on("click",".remove-option",function(){const e=$(this).data("index");t.productOptions.splice(e,1),$(this).parents(".accordion-item").remove()}).on("keyup",".option-name",function(){const e=$(this).parents(".accordion-item").data("product-option-index"),n=$(this).val();$(this).parents(".accordion-item").find(".accordion-button").text(n),t.productOptions[e].name=n}).on("change",".option-type",function(){const e=$(this).parents(".accordion-item").data("product-option-index");t.productOptions[e].option_type=$(this).val(),t.generateProductOption()}).on("change",".option-required",function(){const e=$(this).parents(".accordion-item").data("product-option-index");t.productOptions[e].required=$(this).is(":checked")}).on("change",".option-price-per-product",function(){const e=$(this).parents(".accordion-item").data("product-option-index");t.productOptions[e].price_per_product=$(this).is(":checked")}).on("click",".add-new-row",function(){t.addNewRow($(this))}).on("click",".remove-row",function(){$(this).parent().parent().remove()}).on("click",".add-new-option",function(){const e={name:"",values:[{affect_price:0,affect_type:0}],option_type:"N/A",required:!1,price_per_product:!1};t.productOptions.push(e);const n=t.generateOptionTemplate(e,t.productOptions.length-1);$("#accordion-product-option").append(n),t.sortable()})},addNewRow(t){let e=t.parent().find("table tbody"),n=t.parents(".accordion-item").data("product-option-index"),o=e.find("tr").last().clone(),r="options["+n+"][values]["+e.find("tr").length+"][option_value]",c="options["+n+"][values]["+e.find("tr").length+"][affect_price]",i="options["+n+"][values]["+e.find("tr").length+"][affect_type]";o.find(".option-label").prop("name",r).val(""),o.find(".affect_price").prop("name",c).val(0),o.find(".affect_type").prop("name",i).val(0),o.find(".option-value-order").val(e.find("tr").length),o.attr("data-index",e.find("tr").length),e.append(o)},addFromGlobalOption(t){let e=this;axios.get(window.productOptions.routes.ajax_option_info+"?id="+t).then(function(n){const o=n.data.data,r={id:o.id,name:o.name,option_type:o.option_type,option_value:o.option_value,values:o.values,required:o.required,price_per_product:o.price_per_product};e.productOptions.push(r);const c=e.generateOptionTemplate(r,e.productOptions.length-1);$("#accordion-product-option").append(c)})},generateOptionTemplate(t,e){let n=this.generateFieldOptions(t),o=typeof t.id!="undefined"?t.id:0;const r=typeof t.order!="undefined"&&t.order!=9999?t.order:e,c=$(document).find("#template-option").html(),i=t.required?"checked":"",l=t.price_per_product?"checked":"",_=this.generateOptionValues(t.values,t.option_type,e);return c.replace(/__index__/g,e).replace(/__order__/g,r).replace(/__id__/g,o).replace(/__optionName__/g,"#"+(parseInt(e)+1)+" "+t.name).replace(/__nameLabel__/g,f.name).replace(/__option_name__/g,t.name).replace(/__namePlaceHolder__/g,f.name_placeholder).replace(/__optionTypeLabel__/g,p.option_type).replace(/__optionTypeOption__/g,n).replace(/__checked__=""/g,i).replace(/__checkedPricePerProduct__=""/g,l).replace(/__requiredLabel__/g,p.required).replace(/__pricePerProductLabel__/g,p.price_per_product).replace(/__pricePerProductHelper__/g,p.price_per_product_helper).replace(/__optionValueSortable__/g,_)},generateFieldOptions(t){let e="";return $.each(h,function(n,o){if(typeof o=="object")e+='<optgroup label="'+n+'">',$.each(o,function(r,c){const i=t.option_type===r?"selected":"";e+="<option "+i+' value="'+r+'">'+c+"</option>"}),e+="</optgroup>";else{const r=t.option_type===n?"selected":"";e+="<option "+r+' value="'+n+'">'+o+"</option>"}}),e},generateOptionValues(t,e="",n){let o=p.label,r=p.price,c=p.price_type,i="",l="",_=e.split("\\");if(_=_[_.length-1],_!==""&&typeof e!="undefined"&&e!=="N/A"){if(_==="Field"){i=$("#template-option-values-of-field").html();const s=t[0].affect_type===0?"selected":"",d=t[0].affect_type===1?"selected":"";l+=i.replace(/__priceLabel__/g,r).replace(/__priceTypeLabel__/g,c).replace(/__id__/g,t[0].id).replace(/__index__/g,n).replace(/__affectPrice__/g,t[0].affect_price).replace(/__affectPriceLabel__/g,p.affect_price_label).replace(/__selectedFixed__/g,s).replace(/__fixedLang__/g,p.fixed).replace(/__selectedPercent__/g,d).replace(/__percentLang__/g,p.percent)}else{t.length||(t=[{affect_price:0,affect_type:0,option_value:"",id:0,order:0}]);const s=$("#template-option-type-array").html();let d="";const m=s.replace(/__priceLabel__/g,r).replace(/__priceTypeLabel__/g,c).replace(/__index__/g,n).replace(/__label__/g,o);$.each(t,function(u,a){const b=$("#template-option-type-value").html(),y=typeof a.order=="undefined"?a.order:u,O=a.affect_type===0?"selected":"",x=a.affect_type===1?"selected":"";d+=b.replace(/__priceLabel__/g,r).replace(/__priceTypeLabel__/g,c).replace(/__label__/g,o).replace(/__key__/g,u).replace(/__id__/g,a.id).replace(/__order__/g,y).replace(/__index__/g,n).replace(/__labelPlaceholder__/g,p.label_placeholder).replace(/__affectPriceLabel__/g,p.affect_price_label).replace(/__selectedFixed__/g,O).replace(/__fixedLang__/g,p.fixed).replace(/__selectedPercent__/g,x).replace(/__option_value_input__/g,a.option_value?a.option_value:"").replace(/__affectPrice__/g,a.affect_price).replace(/__percentLang__/g,p.percent)}),l+=m.replace(/__optionValue__/g,d)}l+=`<button type="button" class="btn add-new-row mt-3" id="add-new-row">${p.add_new_row}</button>`}return l}}).init()})})();
+"use strict";
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/product-option.js
+	$(() => {
+		const { productOptionLang, coreBaseLang, currentProductOption, options } = window.productOptions;
+		({
+			productOptions: currentProductOption,
+			init() {
+				this.eventListeners();
+				this.generateProductOption();
+				this.sortable();
+			},
+			sortable() {
+				$(".option-value-sortable tbody").sortable({ stop: function() {
+					$(".option-value-sortable tbody").sortable("toArray", { attribute: "data-index" }).map(function(id, index) {
+						$(".option-row[data-index=\"" + id + "\"]").find(".option-value-order").val(index);
+					});
+				} });
+				$(".accordion-product-option").sortable({ stop: function() {
+					$(".accordion-product-option").sortable("toArray", { attribute: "data-index" }).map(function(id, index) {
+						$(".accordion-item[data-index=\"" + id + "\"]").find(".option-order").val(index);
+					});
+				} });
+			},
+			generateProductOption() {
+				let self = this;
+				let html = "";
+				this.productOptions.map(function(item, index) {
+					html += self.generateOptionTemplate(item, index);
+				});
+				$("#accordion-product-option").html(html);
+				this.sortable();
+			},
+			eventListeners() {
+				let self = this;
+				$(".product-option-form-wrap").on("click", ".add-from-global-option", function() {
+					let selectedOption = $("#global-option").val();
+					if (selectedOption != 0) self.addFromGlobalOption(selectedOption);
+					else Botble.showError(productOptionLang.please_select_option);
+					return false;
+				}).on("click", ".remove-option", function() {
+					const index = $(this).data("index");
+					self.productOptions.splice(index, 1);
+					$(this).parents(".accordion-item").remove();
+				}).on("keyup", ".option-name", function() {
+					const index = $(this).parents(".accordion-item").data("product-option-index");
+					const name = $(this).val();
+					$(this).parents(".accordion-item").find(".accordion-button").text(name);
+					self.productOptions[index].name = name;
+				}).on("change", ".option-type", function() {
+					const index = $(this).parents(".accordion-item").data("product-option-index");
+					self.productOptions[index].option_type = $(this).val();
+					self.generateProductOption();
+				}).on("change", ".option-required", function() {
+					const index = $(this).parents(".accordion-item").data("product-option-index");
+					self.productOptions[index].required = $(this).is(":checked");
+				}).on("change", ".option-price-per-product", function() {
+					const index = $(this).parents(".accordion-item").data("product-option-index");
+					self.productOptions[index].price_per_product = $(this).is(":checked");
+				}).on("click", ".add-new-row", function() {
+					self.addNewRow($(this));
+				}).on("click", ".remove-row", function() {
+					$(this).parent().parent().remove();
+				}).on("click", ".add-new-option", function() {
+					const option = {
+						name: "",
+						values: [{
+							affect_price: 0,
+							affect_type: 0
+						}],
+						option_type: "N/A",
+						required: false,
+						price_per_product: false
+					};
+					self.productOptions.push(option);
+					const html = self.generateOptionTemplate(option, self.productOptions.length - 1);
+					$("#accordion-product-option").append(html);
+					self.sortable();
+				});
+			},
+			addNewRow(element) {
+				let table = element.parent().find("table tbody");
+				let index = element.parents(".accordion-item").data("product-option-index");
+				let tr = table.find("tr").last().clone();
+				let labelName = "options[" + index + "][values][" + table.find("tr").length + "][option_value]", affectName = "options[" + index + "][values][" + table.find("tr").length + "][affect_price]", affectTypeName = "options[" + index + "][values][" + table.find("tr").length + "][affect_type]";
+				tr.find(".option-label").prop("name", labelName).val("");
+				tr.find(".affect_price").prop("name", affectName).val(0);
+				tr.find(".affect_type").prop("name", affectTypeName).val(0);
+				tr.find(".option-value-order").val(table.find("tr").length);
+				tr.attr("data-index", table.find("tr").length);
+				table.append(tr);
+			},
+			addFromGlobalOption(optionId) {
+				let self = this;
+				axios.get(window.productOptions.routes.ajax_option_info + "?id=" + optionId).then(function(res) {
+					const data = res.data.data;
+					const option = {
+						id: data.id,
+						name: data.name,
+						option_type: data.option_type,
+						option_value: data.option_value,
+						values: data.values,
+						required: data.required,
+						price_per_product: data.price_per_product
+					};
+					self.productOptions.push(option);
+					const html = self.generateOptionTemplate(option, self.productOptions.length - 1);
+					$("#accordion-product-option").append(html);
+				});
+			},
+			generateOptionTemplate(option, index) {
+				let options = this.generateFieldOptions(option);
+				let id = typeof option.id !== "undefined" ? option.id : 0;
+				const order = typeof option.order !== "undefined" && option.order != 9999 ? option.order : index;
+				const template = $(document).find("#template-option").html();
+				const checked = option.required ? "checked" : "";
+				const checkedPricePerProduct = option.price_per_product ? "checked" : "";
+				const values = this.generateOptionValues(option.values, option.option_type, index);
+				return template.replace(/__index__/g, index).replace(/__order__/g, order).replace(/__id__/g, id).replace(/__optionName__/g, "#" + (parseInt(index) + 1) + " " + option.name).replace(/__nameLabel__/g, coreBaseLang.name).replace(/__option_name__/g, option.name).replace(/__namePlaceHolder__/g, coreBaseLang.name_placeholder).replace(/__optionTypeLabel__/g, productOptionLang.option_type).replace(/__optionTypeOption__/g, options).replace(/__checked__=""/g, checked).replace(/__checkedPricePerProduct__=""/g, checkedPricePerProduct).replace(/__requiredLabel__/g, productOptionLang.required).replace(/__pricePerProductLabel__/g, productOptionLang.price_per_product).replace(/__pricePerProductHelper__/g, productOptionLang.price_per_product_helper).replace(/__optionValueSortable__/g, values);
+			},
+			generateFieldOptions(option) {
+				let html = "";
+				$.each(options, function(key, value) {
+					if (typeof value == "object") {
+						html += "<optgroup label=\"" + key + "\">";
+						$.each(value, function(option_key, option_value) {
+							const option_checked = option.option_type === option_key ? "selected" : "";
+							html += "<option " + option_checked + " value=\"" + option_key + "\">" + option_value + "</option>";
+						});
+						html += "</optgroup>";
+					} else {
+						const option_checked = option.option_type === key ? "selected" : "";
+						html += "<option " + option_checked + " value=\"" + key + "\">" + value + "</option>";
+					}
+				});
+				return html;
+			},
+			generateOptionValues(values, type = "", index) {
+				let label = productOptionLang.label, price = productOptionLang.price, priceType = productOptionLang.price_type, template = "", html = "";
+				let optionType = type.split("\\");
+				optionType = optionType[optionType.length - 1];
+				if (optionType !== "" && typeof type !== "undefined" && type !== "N/A") {
+					if (optionType === "Field") {
+						template = $("#template-option-values-of-field").html();
+						const selectedFixed = values[0].affect_type === 0 ? "selected" : "";
+						const selectedPercent = values[0].affect_type === 1 ? "selected" : "";
+						html += template.replace(/__priceLabel__/g, price).replace(/__priceTypeLabel__/g, priceType).replace(/__id__/g, values[0].id).replace(/__index__/g, index).replace(/__affectPrice__/g, values[0].affect_price).replace(/__affectPriceLabel__/g, productOptionLang.affect_price_label).replace(/__selectedFixed__/g, selectedFixed).replace(/__fixedLang__/g, productOptionLang.fixed).replace(/__selectedPercent__/g, selectedPercent).replace(/__percentLang__/g, productOptionLang.percent);
+					} else {
+						if (!values.length) values = [{
+							affect_price: 0,
+							affect_type: 0,
+							option_value: "",
+							id: 0,
+							order: 0
+						}];
+						const template = $("#template-option-type-array").html();
+						let valuesResult = "";
+						const tmp = template.replace(/__priceLabel__/g, price).replace(/__priceTypeLabel__/g, priceType).replace(/__index__/g, index).replace(/__label__/g, label);
+						$.each(values, function(key, value) {
+							const valueTemplate = $("#template-option-type-value").html();
+							const order = typeof value.order === "undefined" ? value.order : key;
+							const selectedFixed = value.affect_type === 0 ? "selected" : "";
+							const selectedPercent = value.affect_type === 1 ? "selected" : "";
+							valuesResult += valueTemplate.replace(/__priceLabel__/g, price).replace(/__priceTypeLabel__/g, priceType).replace(/__label__/g, label).replace(/__key__/g, key).replace(/__id__/g, value.id).replace(/__order__/g, order).replace(/__index__/g, index).replace(/__labelPlaceholder__/g, productOptionLang.label_placeholder).replace(/__affectPriceLabel__/g, productOptionLang.affect_price_label).replace(/__selectedFixed__/g, selectedFixed).replace(/__fixedLang__/g, productOptionLang.fixed).replace(/__selectedPercent__/g, selectedPercent).replace(/__option_value_input__/g, value.option_value ? value.option_value : "").replace(/__affectPrice__/g, value.affect_price).replace(/__percentLang__/g, productOptionLang.percent);
+						});
+						html += tmp.replace(/__optionValue__/g, valuesResult);
+					}
+					html += `<button type="button" class="btn add-new-row mt-3" id="add-new-row">${productOptionLang.add_new_row}</button>`;
+				}
+				return html;
+			}
+		}).init();
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=product-option.js.map

@@ -1,1 +1,138 @@
-(function(){$(()=>{$.rating&&$("#rating").rating({size:"xs"});function f(i){let n="";return typeof i.errors!="undefined"&&!Array.isArray(i.errors)?n=d(i.errors):typeof i.responseJSON!="undefined"?typeof i.responseJSON.errors!="undefined"?i.status===422&&(n=d(i.responseJSON.errors)):typeof i.responseJSON.message!="undefined"?n=i.responseJSON.message:$.each(i.responseJSON,(l,t)=>{$.each(t,(e,r)=>{n+=r+"<br />"})}):n=i.statusText,n}function d(i){let n="";return $.each(i,(l,t)=>{n+=t+"<br />"}),n}function u(){let i=[],n=function(t){const e=new ClipboardEvent("").clipboardData||new DataTransfer;for(let r of i)e.items.add(r);t.files=e.files,l(t)},l=function(t){let e=$(".ecommerce-image-upload__text");const r=$(t).data("max-files");let o=t.files.length;r?(o>=r?e.closest(".ecommerce-image-upload__uploader-container").addClass("d-none"):e.closest(".ecommerce-image-upload__uploader-container").removeClass("d-none"),e.text(o+"/"+r)):e.text(o);const s=$(".ecommerce-image-viewer__list"),c=$("#ecommerce-review-image-template").html();if(s.addClass("is-loading"),s.find(".ecommerce-image-viewer__item").remove(),o){for(let a=o-1;a>=0;a--)s.prepend(c.replace("__id__",a));for(let a=o-1;a>=0;a--){let m=new FileReader;m.onload=function(p){s.find(".ecommerce-image-viewer__item[data-id="+a+"]").find("img").attr("src",p.target.result)},m.readAsDataURL(t.files[a])}}s.removeClass("is-loading")};$(document).on("change",".ecommerce-form-review-product input[type=file]",function(t){t.preventDefault();let e=this,r=$(e),o=r.data("max-size");Object.keys(e.files).map(function(a){if(o&&e.files[a].size/1024>o){let m=r.data("max-size-message").replace("__attribute__",e.files[a].name).replace("__max__",o);MartApp.showError(m)}else i.push(e.files[a])});let s=i.length;const c=r.data("max-files");c&&s>c&&i.splice(s-c-1,s-c),n(e)}),$(document).on("click",".ecommerce-form-review-product .ecommerce-image-viewer__icon-remove",function(t){t.preventDefault();let e=$(t.currentTarget).closest(".ecommerce-image-viewer__item").data("id");i.splice(e,1);let r=$(".ecommerce-form-review-product input[type=file]")[0];n(r)}),$(document).on("submit",".ecommerce-form-review-product",function(t){t.preventDefault(),t.stopPropagation();const e=$(t.currentTarget),r=e.find("button[type=submit]");e.find("input[name=product_id]").val(),$.ajax({type:"POST",cache:!1,url:e.prop("action"),data:new FormData(e[0]),contentType:!1,processData:!1,beforeSend:()=>{r.prop("disabled",!0).addClass("loading"),e.find(".alert-message").removeClass("alert-success").addClass("d-none alert-warning")},success:o=>{o.error?e.find(".alert-message").html(o.message).removeClass("d-none"):setTimeout(()=>{window.location.reload()},1e3)},error:o=>{let s=f(o);e.find(".alert-message").html(s).removeClass("d-none")},complete:()=>{r.prop("disabled",!1).removeClass("loading")}})}),$(document).on("click",".ecommerce-product-star .ecommerce-icon",function(t){const e=$(t.currentTarget),r=e.closest(".ecommerce-product-item"),o=$("#product-review-modal"),s=o.find("form");o.find(".ecommerce-product-image").attr("src",r.find(".ecommerce-product-image").attr("src")),o.find(".ecommerce-product-name").text(r.find(".ecommerce-product-name").text()),s.find("input[name=star][value="+e.data("star")+"]").prop("checked",!0).trigger("change"),s.find("input[name=product_id]").val(r.data("id")),o.modal("show")}),$(document).on("hidden.bs.modal","#product-review-modal",function(t){const e=$(t.currentTarget);e.find(".ecommerce-produt-image").attr("src",""),e.find(".ecommerce-produt-name").text(""),e.find("input[name=product_id]").val("")})}u()})})();
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/review.js
+	$(() => {
+		if ($.rating) $("#rating").rating({ size: "xs" });
+		function handleError(data) {
+			let messages = "";
+			if (typeof data.errors !== "undefined" && !Array.isArray(data.errors)) messages = handleValidationError(data.errors);
+			else if (typeof data.responseJSON !== "undefined") {
+				if (typeof data.responseJSON.errors !== "undefined") {
+					if (data.status === 422) messages = handleValidationError(data.responseJSON.errors);
+				} else if (typeof data.responseJSON.message !== "undefined") messages = data.responseJSON.message;
+				else $.each(data.responseJSON, (index, el) => {
+					$.each(el, (key, item) => {
+						messages += item + "<br />";
+					});
+				});
+			} else messages = data.statusText;
+			return messages;
+		}
+		function handleValidationError(errors) {
+			let message = "";
+			$.each(errors, (index, item) => {
+				message += item + "<br />";
+			});
+			return message;
+		}
+		function submitReviewProduct() {
+			let imagesReviewBuffer = [];
+			let setImagesFormReview = function(input) {
+				const dT = new ClipboardEvent("").clipboardData || new DataTransfer();
+				for (let file of imagesReviewBuffer) dT.items.add(file);
+				input.files = dT.files;
+				loadPreviewImage(input);
+			};
+			let loadPreviewImage = function(input) {
+				let $uploadText = $(".ecommerce-image-upload__text");
+				const maxFiles = $(input).data("max-files");
+				let filesAmount = input.files.length;
+				if (maxFiles) {
+					if (filesAmount >= maxFiles) $uploadText.closest(".ecommerce-image-upload__uploader-container").addClass("d-none");
+					else $uploadText.closest(".ecommerce-image-upload__uploader-container").removeClass("d-none");
+					$uploadText.text(filesAmount + "/" + maxFiles);
+				} else $uploadText.text(filesAmount);
+				const viewerList = $(".ecommerce-image-viewer__list");
+				const $template = $("#ecommerce-review-image-template").html();
+				viewerList.addClass("is-loading");
+				viewerList.find(".ecommerce-image-viewer__item").remove();
+				if (filesAmount) {
+					for (let i = filesAmount - 1; i >= 0; i--) viewerList.prepend($template.replace("__id__", i));
+					for (let j = filesAmount - 1; j >= 0; j--) {
+						let reader = new FileReader();
+						reader.onload = function(event) {
+							viewerList.find(".ecommerce-image-viewer__item[data-id=" + j + "]").find("img").attr("src", event.target.result);
+						};
+						reader.readAsDataURL(input.files[j]);
+					}
+				}
+				viewerList.removeClass("is-loading");
+			};
+			$(document).on("change", ".ecommerce-form-review-product input[type=file]", function(event) {
+				event.preventDefault();
+				let input = this;
+				let $input = $(input);
+				let maxSize = $input.data("max-size");
+				Object.keys(input.files).map(function(i) {
+					if (maxSize && input.files[i].size / 1024 > maxSize) {
+						let message = $input.data("max-size-message").replace("__attribute__", input.files[i].name).replace("__max__", maxSize);
+						MartApp.showError(message);
+					} else imagesReviewBuffer.push(input.files[i]);
+				});
+				let filesAmount = imagesReviewBuffer.length;
+				const maxFiles = $input.data("max-files");
+				if (maxFiles && filesAmount > maxFiles) imagesReviewBuffer.splice(filesAmount - maxFiles - 1, filesAmount - maxFiles);
+				setImagesFormReview(input);
+			});
+			$(document).on("click", ".ecommerce-form-review-product .ecommerce-image-viewer__icon-remove", function(event) {
+				event.preventDefault();
+				let id = $(event.currentTarget).closest(".ecommerce-image-viewer__item").data("id");
+				imagesReviewBuffer.splice(id, 1);
+				let input = $(".ecommerce-form-review-product input[type=file]")[0];
+				setImagesFormReview(input);
+			});
+			$(document).on("submit", ".ecommerce-form-review-product", function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+				const $this = $(e.currentTarget);
+				const $button = $this.find("button[type=submit]");
+				$this.find("input[name=product_id]").val();
+				$.ajax({
+					type: "POST",
+					cache: false,
+					url: $this.prop("action"),
+					data: new FormData($this[0]),
+					contentType: false,
+					processData: false,
+					beforeSend: () => {
+						$button.prop("disabled", true).addClass("loading");
+						$this.find(".alert-message").removeClass("alert-success").addClass("d-none alert-warning");
+					},
+					success: (res) => {
+						if (!res.error) setTimeout(() => {
+							window.location.reload();
+						}, 1e3);
+						else $this.find(".alert-message").html(res.message).removeClass("d-none");
+					},
+					error: (res) => {
+						let messages = handleError(res);
+						$this.find(".alert-message").html(messages).removeClass("d-none");
+					},
+					complete: () => {
+						$button.prop("disabled", false).removeClass("loading");
+					}
+				});
+			});
+			$(document).on("click", ".ecommerce-product-star .ecommerce-icon", function(e) {
+				const $this = $(e.currentTarget);
+				const $product = $this.closest(".ecommerce-product-item");
+				const $modal = $("#product-review-modal");
+				const $form = $modal.find("form");
+				$modal.find(".ecommerce-product-image").attr("src", $product.find(".ecommerce-product-image").attr("src"));
+				$modal.find(".ecommerce-product-name").text($product.find(".ecommerce-product-name").text());
+				$form.find("input[name=star][value=" + $this.data("star") + "]").prop("checked", true).trigger("change");
+				$form.find("input[name=product_id]").val($product.data("id"));
+				$modal.modal("show");
+			});
+			$(document).on("hidden.bs.modal", "#product-review-modal", function(e) {
+				const $this = $(e.currentTarget);
+				$this.find(".ecommerce-produt-image").attr("src", "");
+				$this.find(".ecommerce-produt-name").text("");
+				$this.find("input[name=product_id]").val("");
+			});
+		}
+		submitReviewProduct();
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=review.js.map

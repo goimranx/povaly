@@ -1,1 +1,46 @@
-(function(){$(function(){(()=>{const i=document.getElementById("google-analytics-settings"),t=document.createElement("input");let l=null;d(),$(document).on("click",'[data-bb-toggle="analytics-trigger-upload-json"]',a=>{a.preventDefault(),l=a.currentTarget.dataset.url,t.click()});function d(){t.type="file",t.accept="application/json",t.classList.add("d-none"),t.addEventListener("change",a=>{const e=a.currentTarget,s=i.getElementsByClassName("CodeMirror");let o=null;if(s.length>0)o=s[0].CodeMirror;else return;if(e!=null&&e.files&&e.files.length===0)return;const c=new FormData;c.set("json",e.files[0]),Botble.showLoading(i),$httpClient.make().postForm(l,c).then(({data:n})=>{o.setValue(n.data.content)}).catch(n=>{!n.response||!n.response.data||o.setValue(n.response.data.data.content)}).finally(()=>{Botble.hideLoading(i),e.value=""})}),document.body.appendChild(t)}})()})})();
+(function() {
+	//#region platform/plugins/analytics/resources/js/settings.js
+	$(function() {
+		const initializeParseJsonSetting = () => {
+			const $setting = document.getElementById("google-analytics-settings");
+			const $field = document.createElement("input");
+			let analyticsJsonSettingUrl = null;
+			createAnalyticsJsonConfigFileField();
+			$(document).on("click", "[data-bb-toggle=\"analytics-trigger-upload-json\"]", (e) => {
+				e.preventDefault();
+				analyticsJsonSettingUrl = e.currentTarget.dataset.url;
+				$field.click();
+			});
+			function createAnalyticsJsonConfigFileField() {
+				$field.type = "file";
+				$field.accept = "application/json";
+				$field.classList.add("d-none");
+				$field.addEventListener("change", (e) => {
+					const target = e.currentTarget;
+					const editor = $setting.getElementsByClassName("CodeMirror");
+					let codeMirror = null;
+					if (editor.length > 0) codeMirror = editor[0].CodeMirror;
+					else return;
+					if ((target === null || target === void 0 ? void 0 : target.files) && target.files.length === 0) return;
+					const data = new FormData();
+					data.set("json", target.files[0]);
+					Botble.showLoading($setting);
+					$httpClient.make().postForm(analyticsJsonSettingUrl, data).then(({ data }) => {
+						codeMirror.setValue(data.data.content);
+					}).catch((error) => {
+						if (!error.response || !error.response.data) return;
+						codeMirror.setValue(error.response.data.data.content);
+					}).finally(() => {
+						Botble.hideLoading($setting);
+						target.value = "";
+					});
+				});
+				document.body.appendChild($field);
+			}
+		};
+		initializeParseJsonSetting();
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=settings.js.map

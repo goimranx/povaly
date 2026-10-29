@@ -1,1 +1,43 @@
-(function(){$(()=>{let l=$(".table-language");l.on("click",".delete-locale-button",e=>{e.preventDefault(),$(".delete-crud-entry").data("url",$(e.currentTarget).data("url")),$(".modal-confirm-delete").modal("show")}),$(document).on("click",".delete-crud-entry",e=>{e.preventDefault(),$(".modal-confirm-delete").modal("hide");let t=$(e.currentTarget).data("url");Botble.showButtonLoading($(void 0)),$httpClient.make().delete(t).then(({data:o})=>{o.data&&(l.find(`i[data-locale=${o.data}]`).unwrap(),$(".tooltip").remove()),l.find(`.delete-locale-button[data-url="${t}"]`).closest("tr").remove(),Botble.showSuccess(o.message)}).finally(()=>{Botble.hideButtonLoading($(void 0))})}),$(document).on("submit",".add-locale-form",function(e){e.preventDefault(),e.stopPropagation();const t=$(this),o=t.find('button[type="submit"]');Botble.showButtonLoading(o),$httpClient.make().postForm(t.prop("action"),new FormData(t[0])).then(({data:a})=>{Botble.showSuccess(a.message),l.load(`${window.location.href} .table-language > *`)}).finally(()=>{Botble.hideButtonLoading(o)})})})})();
+(function() {
+	//#region platform/plugins/translation/resources/js/locales.js
+	$(() => {
+		let languageTable = $(".table-language");
+		languageTable.on("click", ".delete-locale-button", (event) => {
+			event.preventDefault();
+			$(".delete-crud-entry").data("url", $(event.currentTarget).data("url"));
+			$(".modal-confirm-delete").modal("show");
+		});
+		$(document).on("click", ".delete-crud-entry", (event) => {
+			event.preventDefault();
+			$(".modal-confirm-delete").modal("hide");
+			let deleteURL = $(event.currentTarget).data("url");
+			Botble.showButtonLoading($(void 0));
+			$httpClient.make().delete(deleteURL).then(({ data }) => {
+				if (data.data) {
+					languageTable.find(`i[data-locale=${data.data}]`).unwrap();
+					$(".tooltip").remove();
+				}
+				languageTable.find(`.delete-locale-button[data-url="${deleteURL}"]`).closest("tr").remove();
+				Botble.showSuccess(data.message);
+			}).finally(() => {
+				Botble.hideButtonLoading($(void 0));
+			});
+		});
+		$(document).on("submit", ".add-locale-form", function(event) {
+			event.preventDefault();
+			event.stopPropagation();
+			const form = $(this);
+			const button = form.find("button[type=\"submit\"]");
+			Botble.showButtonLoading(button);
+			$httpClient.make().postForm(form.prop("action"), new FormData(form[0])).then(({ data }) => {
+				Botble.showSuccess(data.message);
+				languageTable.load(`${window.location.href} .table-language > *`);
+			}).finally(() => {
+				Botble.hideButtonLoading(button);
+			});
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=locales.js.map

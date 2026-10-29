@@ -1,1 +1,30 @@
-(function(){$(()=>{if($.fn.datepicker){const t=$("#date_of_birth");let a={format:"yyyy-mm-dd",orientation:"bottom"};const e=t.data("locale");e&&(a.language=e);const r=t.data("date-format");r&&(a.format=r),t.datepicker(a)}$("#avatar").on("change",t=>{let a=t.currentTarget;if(a.files&&a.files[0]){let e=new FileReader;e.onload=r=>{$(".userpic-avatar").attr("src",r.target.result)},e.readAsDataURL(a.files[0])}})})})();
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/utilities.js
+	$(() => {
+		if ($.fn.datepicker) {
+			const $datePicker = $("#date_of_birth");
+			let options = {
+				format: "yyyy-mm-dd",
+				orientation: "bottom"
+			};
+			const language = $datePicker.data("locale");
+			if (language) options.language = language;
+			const dateFormat = $datePicker.data("date-format");
+			if (dateFormat) options.format = dateFormat;
+			$datePicker.datepicker(options);
+		}
+		$("#avatar").on("change", (event) => {
+			let input = event.currentTarget;
+			if (input.files && input.files[0]) {
+				let reader = new FileReader();
+				reader.onload = (e) => {
+					$(".userpic-avatar").attr("src", e.target.result);
+				};
+				reader.readAsDataURL(input.files[0]);
+			}
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=utilities.js.map

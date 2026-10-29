@@ -1,3 +1,224 @@
-(function(){$(()=>{const u=`<div class='w-100 text-center py-3'><div class="spinner-border" role="status">
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/tax.js
+	$(() => {
+		const spinner = `<div class='w-100 text-center py-3'><div class="spinner-border" role="status">
         <span class="visually-hidden">Loading...</span>
-    </div></div>`,n="ecommerce-tax-rule-table",o=$(".create-tax-rule-form-modal"),d=o.find(".modal-body"),i=o.find(".modal-title strong"),a=$(".create-tax-form-modal"),m=a.find(".modal-body"),f=a.find(".modal-title strong"),b=()=>{d.html(u),i.text("...")},c=t=>{d.html(t.data.html),i.text(t.message||"...")},x=()=>{m.html(u),f.text("...")},h=t=>{m.html(t.data.html),f.text(t.message||"...")},s=()=>{window.LaravelDataTables&&window.LaravelDataTables[n]?LaravelDataTables[n].draw():window.location.reload()};o.on("show.bs.modal",function(){b()}),a.on("show.bs.modal",function(){x()}),$(document).on("click",".btn-create-tax",function(t){t.preventDefault();const r=$(t.currentTarget);a.modal("show"),$.ajax({url:r.data("href"),success:e=>{e.error==!1?(h(e),Botble.initResources()):Botble.showError(e.message)},error:e=>{Botble.handleError(e)}})}),$(document).on("click",".btn-edit-tax",function(t){t.preventDefault();const r=$(t.currentTarget);a.modal("show"),$.ajax({url:r.prop("href"),success:e=>{e.error==!1?(h(e),Botble.initResources()):Botble.showError(e.message)},error:e=>{Botble.handleError(e)}})}),$(document).on("submit","#ecommerce-tax-form",function(t){t.preventDefault();const r=$(t.currentTarget);$.ajax({url:r.prop("action"),method:"POST",data:r.serializeArray(),success:e=>{e.error==!1?(a.modal("hide"),Botble.showSuccess(e.message),s()):Botble.showError(e.message)},error:e=>{Botble.handleError(e)}})}),$(document).off("click",".create-tax-rule-item").on("click",".create-tax-rule-item",function(t){t.preventDefault();const r=$(t.currentTarget);o.modal("show");let e=r.find("[data-action=create]").data("href")||r.attr("href");$.ajax({url:e,success:l=>{l.error==!1?(c(l),Botble.initResources()):Botble.showError(l.message)},error:l=>{Botble.handleError(l)}})}),$(document).on("click","#"+n+" .btn-edit-item",function(t){t.preventDefault();const r=$(t.currentTarget);o.modal("show"),$.ajax({url:r.prop("href"),success:e=>{e.error==!1?(c(e),Botble.initResources()):Botble.showError(e.message)},error:e=>{Botble.handleError(e)}})}),$(document).on("click",".btn-edit-tax-rule",function(t){t.preventDefault();const r=$(t.currentTarget);o.modal("show"),$.ajax({url:r.prop("href"),success:e=>{e.error==!1?(c(e),Botble.initResources()):Botble.showError(e.message)},error:e=>{Botble.handleError(e)}})}),$(document).on("click",".btn-delete-tax-rule",function(t){t.preventDefault();const r=$(t.currentTarget).data("url");confirm("Are you sure you want to delete this tax rule?")&&$.ajax({url:r,method:"DELETE",headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")},success:e=>{e.error==!1?(Botble.showSuccess(e.message),s()):Botble.showError(e.message)},error:e=>{Botble.handleError(e)}})}),$(document).on("click",".btn-set-default-tax",function(t){t.preventDefault();const r=$(t.currentTarget).data("url");$.ajax({url:r,method:"POST",headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")},success:e=>{e.error==!1?(Botble.showSuccess(e.message),s()):Botble.showError(e.message)},error:e=>{Botble.handleError(e)}})}),$(document).on("click",".btn-delete-tax",function(t){t.preventDefault();const r=$(t.currentTarget).data("url");confirm("Are you sure you want to delete this tax?")&&$.ajax({url:r,method:"DELETE",headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")},success:e=>{e.error==!1?(Botble.showSuccess(e.message),s()):Botble.showError(e.message)},error:e=>{Botble.handleError(e)}})}),$(document).on("submit","#ecommerce-tax-rule-form",function(t){t.preventDefault();const r=$(t.currentTarget);$.ajax({url:r.prop("action"),method:"POST",data:r.serializeArray(),success:e=>{e.error==!1?(o.modal("hide"),Botble.showSuccess(e.message),s()):Botble.showError(e.message)},error:e=>{Botble.handleError(e)}})})})})();
+    </div></div>`;
+		const taxRuleTable = "ecommerce-tax-rule-table";
+		const $ruleModal = $(".create-tax-rule-form-modal");
+		const $ruleModalBody = $ruleModal.find(".modal-body");
+		const $ruleModalTitle = $ruleModal.find(".modal-title strong");
+		const $taxModal = $(".create-tax-form-modal");
+		const $taxModalBody = $taxModal.find(".modal-body");
+		const $taxModalTitle = $taxModal.find(".modal-title strong");
+		const resetRuleModal = () => {
+			$ruleModalBody.html(spinner);
+			$ruleModalTitle.text("...");
+		};
+		const setRuleModal = (res) => {
+			$ruleModalBody.html(res.data.html);
+			$ruleModalTitle.text(res.message || "...");
+		};
+		const resetTaxModal = () => {
+			$taxModalBody.html(spinner);
+			$taxModalTitle.text("...");
+		};
+		const setTaxModal = (res) => {
+			$taxModalBody.html(res.data.html);
+			$taxModalTitle.text(res.message || "...");
+		};
+		const refreshPage = () => {
+			if (window.LaravelDataTables && window.LaravelDataTables[taxRuleTable]) LaravelDataTables[taxRuleTable].draw();
+			else window.location.reload();
+		};
+		$ruleModal.on("show.bs.modal", function() {
+			resetRuleModal();
+		});
+		$taxModal.on("show.bs.modal", function() {
+			resetTaxModal();
+		});
+		$(document).on("click", ".btn-create-tax", function(e) {
+			e.preventDefault();
+			const $this = $(e.currentTarget);
+			$taxModal.modal("show");
+			$.ajax({
+				url: $this.data("href"),
+				success: (res) => {
+					if (res.error == false) {
+						setTaxModal(res);
+						Botble.initResources();
+					} else Botble.showError(res.message);
+				},
+				error: (res) => {
+					Botble.handleError(res);
+				}
+			});
+		});
+		$(document).on("click", ".btn-edit-tax", function(e) {
+			e.preventDefault();
+			const $this = $(e.currentTarget);
+			$taxModal.modal("show");
+			$.ajax({
+				url: $this.prop("href"),
+				success: (res) => {
+					if (res.error == false) {
+						setTaxModal(res);
+						Botble.initResources();
+					} else Botble.showError(res.message);
+				},
+				error: (res) => {
+					Botble.handleError(res);
+				}
+			});
+		});
+		$(document).on("submit", "#ecommerce-tax-form", function(e) {
+			e.preventDefault();
+			const $this = $(e.currentTarget);
+			$.ajax({
+				url: $this.prop("action"),
+				method: "POST",
+				data: $this.serializeArray(),
+				success: (res) => {
+					if (res.error == false) {
+						$taxModal.modal("hide");
+						Botble.showSuccess(res.message);
+						refreshPage();
+					} else Botble.showError(res.message);
+				},
+				error: (res) => {
+					Botble.handleError(res);
+				}
+			});
+		});
+		$(document).off("click", ".create-tax-rule-item").on("click", ".create-tax-rule-item", function(e) {
+			e.preventDefault();
+			const $this = $(e.currentTarget);
+			$ruleModal.modal("show");
+			let url = $this.find("[data-action=create]").data("href") || $this.attr("href");
+			$.ajax({
+				url,
+				success: (res) => {
+					if (res.error == false) {
+						setRuleModal(res);
+						Botble.initResources();
+					} else Botble.showError(res.message);
+				},
+				error: (res) => {
+					Botble.handleError(res);
+				}
+			});
+		});
+		$(document).on("click", "#" + taxRuleTable + " .btn-edit-item", function(e) {
+			e.preventDefault();
+			const $this = $(e.currentTarget);
+			$ruleModal.modal("show");
+			$.ajax({
+				url: $this.prop("href"),
+				success: (res) => {
+					if (res.error == false) {
+						setRuleModal(res);
+						Botble.initResources();
+					} else Botble.showError(res.message);
+				},
+				error: (res) => {
+					Botble.handleError(res);
+				}
+			});
+		});
+		$(document).on("click", ".btn-edit-tax-rule", function(e) {
+			e.preventDefault();
+			const $this = $(e.currentTarget);
+			$ruleModal.modal("show");
+			$.ajax({
+				url: $this.prop("href"),
+				success: (res) => {
+					if (res.error == false) {
+						setRuleModal(res);
+						Botble.initResources();
+					} else Botble.showError(res.message);
+				},
+				error: (res) => {
+					Botble.handleError(res);
+				}
+			});
+		});
+		$(document).on("click", ".btn-delete-tax-rule", function(e) {
+			e.preventDefault();
+			const url = $(e.currentTarget).data("url");
+			if (!confirm("Are you sure you want to delete this tax rule?")) return;
+			$.ajax({
+				url,
+				method: "DELETE",
+				headers: { "X-CSRF-TOKEN": $("meta[name=\"csrf-token\"]").attr("content") },
+				success: (res) => {
+					if (res.error == false) {
+						Botble.showSuccess(res.message);
+						refreshPage();
+					} else Botble.showError(res.message);
+				},
+				error: (res) => {
+					Botble.handleError(res);
+				}
+			});
+		});
+		$(document).on("click", ".btn-set-default-tax", function(e) {
+			e.preventDefault();
+			const url = $(e.currentTarget).data("url");
+			$.ajax({
+				url,
+				method: "POST",
+				headers: { "X-CSRF-TOKEN": $("meta[name=\"csrf-token\"]").attr("content") },
+				success: (res) => {
+					if (res.error == false) {
+						Botble.showSuccess(res.message);
+						refreshPage();
+					} else Botble.showError(res.message);
+				},
+				error: (res) => {
+					Botble.handleError(res);
+				}
+			});
+		});
+		$(document).on("click", ".btn-delete-tax", function(e) {
+			e.preventDefault();
+			const url = $(e.currentTarget).data("url");
+			if (!confirm("Are you sure you want to delete this tax?")) return;
+			$.ajax({
+				url,
+				method: "DELETE",
+				headers: { "X-CSRF-TOKEN": $("meta[name=\"csrf-token\"]").attr("content") },
+				success: (res) => {
+					if (res.error == false) {
+						Botble.showSuccess(res.message);
+						refreshPage();
+					} else Botble.showError(res.message);
+				},
+				error: (res) => {
+					Botble.handleError(res);
+				}
+			});
+		});
+		$(document).on("submit", "#ecommerce-tax-rule-form", function(e) {
+			e.preventDefault();
+			const $this = $(e.currentTarget);
+			$.ajax({
+				url: $this.prop("action"),
+				method: "POST",
+				data: $this.serializeArray(),
+				success: (res) => {
+					if (res.error == false) {
+						$ruleModal.modal("hide");
+						Botble.showSuccess(res.message);
+						refreshPage();
+					} else Botble.showError(res.message);
+				},
+				error: (res) => {
+					Botble.handleError(res);
+				}
+			});
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=tax.js.map

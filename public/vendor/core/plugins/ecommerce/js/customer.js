@@ -1,1 +1,37 @@
-(function(){$(()=>{$(document).on("click",".verify-customer-email-button",e=>{e.preventDefault(),$("#confirm-verify-customer-email-button").data("action",$(e.currentTarget).prop("href")),$("#verify-customer-email-modal").modal("show")}),$(document).on("click","#confirm-verify-customer-email-button",e=>{e.preventDefault();let o=$(e.currentTarget);o.addClass("button-loading"),$.ajax({type:"POST",cache:!1,url:o.data("action"),success:t=>{t.error?Botble.showError(t.message):(Botble.showSuccess(t.message),setTimeout(()=>{window.location.reload()},2e3)),o.removeClass("button-loading"),o.closest(".modal").modal("hide")},error:t=>{Botble.handleError(t),o.removeClass("button-loading")}})})})})();
+(function() {
+	//#region platform/plugins/ecommerce/resources/js/customer.js
+	$(() => {
+		$(document).on("click", ".verify-customer-email-button", (event) => {
+			event.preventDefault();
+			$("#confirm-verify-customer-email-button").data("action", $(event.currentTarget).prop("href"));
+			$("#verify-customer-email-modal").modal("show");
+		});
+		$(document).on("click", "#confirm-verify-customer-email-button", (event) => {
+			event.preventDefault();
+			let _self = $(event.currentTarget);
+			_self.addClass("button-loading");
+			$.ajax({
+				type: "POST",
+				cache: false,
+				url: _self.data("action"),
+				success: (res) => {
+					if (!res.error) {
+						Botble.showSuccess(res.message);
+						setTimeout(() => {
+							window.location.reload();
+						}, 2e3);
+					} else Botble.showError(res.message);
+					_self.removeClass("button-loading");
+					_self.closest(".modal").modal("hide");
+				},
+				error: (res) => {
+					Botble.handleError(res);
+					_self.removeClass("button-loading");
+				}
+			});
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=customer.js.map

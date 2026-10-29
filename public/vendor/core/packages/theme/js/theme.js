@@ -1,1 +1,42 @@
-(function(){var a=class{init(){$(document).on("click",".btn-trigger-active-theme",t=>{t.preventDefault();let e=$(t.currentTarget);Botble.showButtonLoading(e),$httpClient.make().post(e.data("url")).then(({data:o})=>{Botble.showSuccess(o.message),window.location.reload()}).finally(()=>{Botble.hideButtonLoading(e)})}),$(document).on("click",".btn-trigger-remove-theme",t=>{t.preventDefault();let e=$(t.currentTarget);$("#confirm-remove-theme-button").data("theme",e.data("theme")).data("url",e.data("url")),$("#remove-theme-modal").modal("show")}),$(document).on("click","#confirm-remove-theme-button",t=>{t.preventDefault();let e=$(t.currentTarget);Botble.showButtonLoading(e),$httpClient.make().post(e.data("url")).then(({data:o})=>{Botble.showSuccess(o.message),window.location.reload()}).finally(()=>{Botble.hideButtonLoading(e),$("#remove-theme-modal").modal("hide")})})}};$(()=>{new a().init()})})();
+(function() {
+	//#region platform/packages/theme/resources/js/theme.js
+	var ThemeManagement = class {
+		init() {
+			$(document).on("click", ".btn-trigger-active-theme", (event) => {
+				event.preventDefault();
+				let _self = $(event.currentTarget);
+				Botble.showButtonLoading(_self);
+				$httpClient.make().post(_self.data("url")).then(({ data }) => {
+					Botble.showSuccess(data.message);
+					window.location.reload();
+				}).finally(() => {
+					Botble.hideButtonLoading(_self);
+				});
+			});
+			$(document).on("click", ".btn-trigger-remove-theme", (event) => {
+				event.preventDefault();
+				let _self = $(event.currentTarget);
+				$("#confirm-remove-theme-button").data("theme", _self.data("theme")).data("url", _self.data("url"));
+				$("#remove-theme-modal").modal("show");
+			});
+			$(document).on("click", "#confirm-remove-theme-button", (event) => {
+				event.preventDefault();
+				let _self = $(event.currentTarget);
+				Botble.showButtonLoading(_self);
+				$httpClient.make().post(_self.data("url")).then(({ data }) => {
+					Botble.showSuccess(data.message);
+					window.location.reload();
+				}).finally(() => {
+					Botble.hideButtonLoading(_self);
+					$("#remove-theme-modal").modal("hide");
+				});
+			});
+		}
+	};
+	$(() => {
+		new ThemeManagement().init();
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=theme.js.map

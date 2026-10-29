@@ -1,1 +1,104 @@
-(function(){$(()=>{$(".generate-thumbnails-trigger-button").on("click",r=>{r.preventDefault();const n=$(r.currentTarget),e=n.closest("form");$httpClient.make().withButtonLoading(n).postForm(e.prop("action"),new FormData(e[0])).then(({data:s})=>{const t=$("#generate-thumbnails-modal");t.modal("show"),t.data("total-files",s.data.files_count),m(t),t.find("#generate_thumbnails_start_offset").attr("max",s.data.files_count)})});function m(r){const n=r.find("#generate-thumbnails-progress");n.addClass("d-none"),n.find("#generate-thumbnails-progress-bar").css("width","0%").removeClass("bg-danger"),n.find("#generate-thumbnails-error-log").addClass("d-none"),n.find("#generate-thumbnails-error-text").text("")}function g(r,n,e,s){const t=r.find("#generate-thumbnails-progress");t.removeClass("d-none");const a=Math.min(n,e),u=e>0?Math.round(a/e*100):0;if(t.find("#generate-thumbnails-progress-text").text(`${a} / ${e}`),t.find("#generate-thumbnails-progress-percent").text(`${u}%`),t.find("#generate-thumbnails-progress-bar").css("width",`${u}%`),r.find("#generate_thumbnails_start_offset").val(a),s>0){const i=t.find("#generate-thumbnails-error-log");i.removeClass("d-none"),i.find("#generate-thumbnails-error-text").text(`${s} file(s) failed to generate thumbnails.`)}}$("#generate-thumbnails-button").on("click",r=>{r.preventDefault();const n=$(r.currentTarget),e=n.closest(".modal"),s=n.closest("form"),t=e.data("total-files"),a=e.find('input[name="override_existing"]').is(":checked")?1:0,u=parseInt(e.find('input[name="start_offset"]').val())||0;let i=null,l=0;Botble.showButtonLoading(n),e.find("input").prop("disabled",!0);const p=parseInt(e.find('input[name="batch_size"]').val())||e.data("chunk-limit");function f(o=u,c=p){if(o>=t){h();return}g(e,o,t,l),$httpClient.make().post(s.prop("action"),{total:t,offset:o,limit:c,override_existing:a}).then(({data:d})=>{i=d.message,d.error&&l++,d.data.next&&d.data.next<t?f(d.data.next,c):(g(e,t,t,l),h())}).catch(()=>{l++,g(e,o,t,l),b(o)})}function h(){Botble.hideButtonLoading(n),e.find("input").prop("disabled",!1),l>0?Botble.showError(i):Botble.showSuccess(i)}function b(o){Botble.hideButtonLoading(n),e.find("input").prop("disabled",!1),e.find("#generate_thumbnails_start_offset").val(o);const c=e.find("#generate-thumbnails-error-log");c.removeClass("d-none"),c.find("#generate-thumbnails-error-text").text(`Process stopped at offset ${o}. You can click "Generate" to resume from this position.`)}f()}),$(document).on("change",".check-all",r=>{const n=$(r.currentTarget),e=n.attr("data-set"),s=n.prop("checked");$(e).each((t,a)=>{$(a).prop("checked",s)})})})})();
+(function() {
+	//#region platform/core/setting/resources/js/media.js
+	$(() => {
+		$(".generate-thumbnails-trigger-button").on("click", (event) => {
+			event.preventDefault();
+			const currentTarget = $(event.currentTarget);
+			const $form = currentTarget.closest("form");
+			$httpClient.make().withButtonLoading(currentTarget).postForm($form.prop("action"), new FormData($form[0])).then(({ data }) => {
+				const $modal = $("#generate-thumbnails-modal");
+				$modal.modal("show");
+				$modal.data("total-files", data.data.files_count);
+				resetProgress($modal);
+				$modal.find("#generate_thumbnails_start_offset").attr("max", data.data.files_count);
+			});
+		});
+		function resetProgress($modal) {
+			const $progress = $modal.find("#generate-thumbnails-progress");
+			$progress.addClass("d-none");
+			$progress.find("#generate-thumbnails-progress-bar").css("width", "0%").removeClass("bg-danger");
+			$progress.find("#generate-thumbnails-error-log").addClass("d-none");
+			$progress.find("#generate-thumbnails-error-text").text("");
+		}
+		function updateProgress($modal, offset, total, errorCount) {
+			const $progress = $modal.find("#generate-thumbnails-progress");
+			$progress.removeClass("d-none");
+			const current = Math.min(offset, total);
+			const percent = total > 0 ? Math.round(current / total * 100) : 0;
+			$progress.find("#generate-thumbnails-progress-text").text(`${current} / ${total}`);
+			$progress.find("#generate-thumbnails-progress-percent").text(`${percent}%`);
+			$progress.find("#generate-thumbnails-progress-bar").css("width", `${percent}%`);
+			$modal.find("#generate_thumbnails_start_offset").val(current);
+			if (errorCount > 0) {
+				const $errorLog = $progress.find("#generate-thumbnails-error-log");
+				$errorLog.removeClass("d-none");
+				$errorLog.find("#generate-thumbnails-error-text").text(`${errorCount} file(s) failed to generate thumbnails.`);
+			}
+		}
+		$("#generate-thumbnails-button").on("click", (event) => {
+			event.preventDefault();
+			const currentTarget = $(event.currentTarget);
+			const $modal = currentTarget.closest(".modal");
+			const $form = currentTarget.closest("form");
+			const totalFiles = $modal.data("total-files");
+			const overrideExisting = $modal.find("input[name=\"override_existing\"]").is(":checked") ? 1 : 0;
+			const startOffset = parseInt($modal.find("input[name=\"start_offset\"]").val()) || 0;
+			let message = null;
+			let totalErrors = 0;
+			Botble.showButtonLoading(currentTarget);
+			$modal.find("input").prop("disabled", true);
+			const batchSize = parseInt($modal.find("input[name=\"batch_size\"]").val()) || $modal.data("chunk-limit");
+			function sendRequest(offset = startOffset, limit = batchSize) {
+				if (offset >= totalFiles) {
+					onComplete();
+					return;
+				}
+				updateProgress($modal, offset, totalFiles, totalErrors);
+				$httpClient.make().post($form.prop("action"), {
+					total: totalFiles,
+					offset,
+					limit,
+					override_existing: overrideExisting
+				}).then(({ data }) => {
+					message = data.message;
+					if (data.error) totalErrors++;
+					if (data.data.next && data.data.next < totalFiles) sendRequest(data.data.next, limit);
+					else {
+						updateProgress($modal, totalFiles, totalFiles, totalErrors);
+						onComplete();
+					}
+				}).catch(() => {
+					totalErrors++;
+					updateProgress($modal, offset, totalFiles, totalErrors);
+					onError(offset);
+				});
+			}
+			function onComplete() {
+				Botble.hideButtonLoading(currentTarget);
+				$modal.find("input").prop("disabled", false);
+				if (totalErrors > 0) Botble.showError(message);
+				else Botble.showSuccess(message);
+			}
+			function onError(failedOffset) {
+				Botble.hideButtonLoading(currentTarget);
+				$modal.find("input").prop("disabled", false);
+				$modal.find("#generate_thumbnails_start_offset").val(failedOffset);
+				const $errorLog = $modal.find("#generate-thumbnails-error-log");
+				$errorLog.removeClass("d-none");
+				$errorLog.find("#generate-thumbnails-error-text").text(`Process stopped at offset ${failedOffset}. You can click "Generate" to resume from this position.`);
+			}
+			sendRequest();
+		});
+		$(document).on("change", ".check-all", (event) => {
+			const currentTarget = $(event.currentTarget);
+			const set = currentTarget.attr("data-set");
+			const checked = currentTarget.prop("checked");
+			$(set).each((index, el) => {
+				$(el).prop("checked", checked);
+			});
+		});
+	});
+	//#endregion
+})();
+
+//# sourceMappingURL=media.js.map

@@ -1,10 +1,7411 @@
-(function(){var Ws=Object.create,Ui=Object.defineProperty,Bs=Object.getOwnPropertyDescriptor,zs=Object.getOwnPropertyNames,Ks=Object.getPrototypeOf,Gi=Object.prototype.hasOwnProperty,Ys=(e,t)=>()=>(t||(e((t={exports:{}}).exports,t,t.exports),e=null),t.exports),Us=(e,t,i,r)=>{if(t&&typeof t=="object"||typeof t=="function")for(var n=zs(t),s=0,a=n.length,o;s<a;s++)o=n[s],!Gi.call(e,o)&&o!==i&&Ui(e,o,{get:(c=>t[c]).bind(null,o),enumerable:!(r=Bs(t,o))||r.enumerable});return e},Gs=(e,t,i)=>(i=e!=null?Ws(Ks(e)):{},Us(t||!e||!e.__esModule||!Gi.call(e,"default")?Ui(i,"default",{value:e,enumerable:!0}):i,e)),qi=Object.defineProperty,Xi=(e,t)=>{let i={};for(var r in e)qi(i,r,{get:e[r],enumerable:!0});return t||qi(i,Symbol.toStringTag,{value:"Module"}),i},st=new Map,ae={set(e,t,i){st.has(e)||st.set(e,new Map);const r=st.get(e);if(!r.has(t)&&r.size!==0){console.error(`Bootstrap doesn't allow more than one instance per element. Bound instance: ${Array.from(r.keys())[0]}.`);return}r.set(t,i)},get(e,t){return st.has(e)&&st.get(e).get(t)||null},remove(e,t){if(!st.has(e))return;const i=st.get(e);i.delete(t),i.size===0&&st.delete(e)}},qs=1e6,Xs=1e3,He="transitionend",Fe=e=>(e&&typeof CSS!="undefined"&&typeof CSS.escape=="function"&&(e=e.replace(/#([^\s"#']+)/g,(t,i)=>`#${CSS.escape(i)}`)),e),Qs=e=>e==null?`${e}`:Object.prototype.toString.call(e).match(/\s([a-z]+)/i)[1].toLowerCase(),Zs=e=>{do e+=Math.floor(Math.random()*qs);while(document.getElementById(e));return e},Js=e=>{if(!e)return 0;let{transitionDuration:t,transitionDelay:i}=window.getComputedStyle(e);return!Number.parseFloat(t)&&!Number.parseFloat(i)?0:(t=t.split(",")[0],i=i.split(",")[0],(Number.parseFloat(t)+Number.parseFloat(i))*Xs)},Qi=e=>{e.dispatchEvent(new Event(He))},Zi=e=>e&&typeof e=="object"&&typeof e.jquery!="undefined"?e[0]:e,Q=e=>(e=Zi(e),!e||typeof e!="object"?!1:typeof e.nodeType!="undefined"),V=e=>(e=Zi(e),Q(e)?e:typeof e=="string"&&e.length>0?document.querySelector(Fe(e)):null),wt=e=>{if(!Q(e)||e.getClientRects().length===0)return!1;const t=getComputedStyle(e).getPropertyValue("visibility")==="visible",i=e.closest("details:not([open])");if(!i)return t;if(i!==e){const r=e.closest("summary");if(r&&r.parentNode!==i||r===null)return!1}return t},z=e=>!e||e.nodeType!==Node.ELEMENT_NODE||e.classList.contains("disabled")?!0:"disabled"in e&&typeof e.disabled!="undefined"?!!e.disabled:e.hasAttribute("disabled")&&e.getAttribute("disabled")!=="false",Ji=e=>{if(!document.documentElement.attachShadow)return null;if(typeof e.getRootNode=="function"){const t=e.getRootNode();return t instanceof ShadowRoot?t:null}return e instanceof ShadowRoot?e:e.parentNode?Ji(e.parentNode):null},oe=()=>{},Wt=e=>{e.offsetHeight},H=()=>document.documentElement.dir==="rtl",tr=()=>window.jQuery&&!document.body.hasAttribute("data-bs-no-jquery")&&!document.body.hasAttribute("data-tblr-no-jquery")?window.jQuery:null,je=[],ft=e=>{document.readyState==="loading"?(je.length||document.addEventListener("DOMContentLoaded",()=>{for(const t of je)t()}),je.push(e)):e()},F=e=>{ft(()=>{const t=tr();if(t){const i=e.NAME,r=t.fn[i];t.fn[i]=e.jQueryInterface,t.fn[i].Constructor=e,t.fn[i].noConflict=()=>(t.fn[i]=r,e.jQueryInterface)}})},M=(e,t=[],i=e)=>typeof e=="function"?e.call(t[0],...t.slice(1)):i,er=(e,t,i=!0)=>{if(!i){M(e);return}const r=Js(t)+5;let n=!1;const s=({target:a})=>{a===t&&(n=!0,t.removeEventListener(He,s),M(e))};t.addEventListener(He,s),setTimeout(()=>{n||Qi(t)},r)},We=(e,t,i,r)=>{const n=e.length;let s=e.indexOf(t);return s===-1?!i&&r?e[n-1]:e[0]:(s+=i?1:-1,r&&(s=(s+n)%n),e[Math.max(0,Math.min(s,n-1))])},ta=/[^.]*(?=\..*)\.|.*/,ea=/\..*/,ia=/::\d+$/,Be={},ir=1,rr={mouseenter:"mouseover",mouseleave:"mouseout"},ra=new Set(["click","dblclick","mouseup","mousedown","contextmenu","mousewheel","DOMMouseScroll","mouseover","mouseout","mousemove","selectstart","selectend","keydown","keypress","keyup","orientationchange","touchstart","touchmove","touchend","touchcancel","pointerdown","pointermove","pointerup","pointerleave","pointercancel","gesturestart","gesturechange","gestureend","focus","blur","change","reset","select","submit","focusin","focusout","load","unload","beforeunload","resize","move","DOMContentLoaded","readystatechange","error","abort","scroll"]);function nr(e,t){return t&&`${t}::${ir++}`||e.uidEvent||ir++}function sr(e){const t=nr(e);return e.uidEvent=t,Be[t]=Be[t]||{},Be[t]}function na(e,t){return function i(r){return Ke(r,{delegateTarget:e}),i.oneOff&&l.off(e,r.type,t),t.apply(e,[r])}}function sa(e,t,i){return function r(n){const s=e.querySelectorAll(t);for(let{target:a}=n;a&&a!==this;a=a.parentNode)for(const o of s)if(o===a)return Ke(n,{delegateTarget:a}),r.oneOff&&l.off(e,n.type,t,i),i.apply(a,[n])}}function ar(e,t,i=null){return Object.values(e).find(r=>r.callable===t&&r.delegationSelector===i)}function or(e,t,i){const r=typeof t=="string",n=r?i:t||i;let s=cr(e);return ra.has(s)||(s=e),[r,n,s]}function lr(e,t,i,r,n){if(typeof t!="string"||!e)return;let[s,a,o]=or(t,i,r);t in rr&&(a=(S=>function(d){const f=d;if(!f.relatedTarget||f.relatedTarget!==f.delegateTarget&&!f.delegateTarget.contains(f.relatedTarget))return S.call(this,d)})(a));const c=sr(e),h=c[o]||(c[o]={}),u=ar(h,a,s?i:null);if(u){u.oneOff=u.oneOff&&n;return}const _=nr(a,t.replace(ta,"")),m=s?sa(e,i,a):na(e,a);m.delegationSelector=s?i:null,m.callable=a,m.oneOff=n,m.uidEvent=_,h[_]=m,e.addEventListener(o,m,s)}function ze(e,t,i,r,n){const s=ar(t[i],r,n!=null?n:null);s&&(e.removeEventListener(i,s,!!n),delete t[i][s.uidEvent])}function aa(e,t,i,r){const n=t[i]||{};for(const[s,a]of Object.entries(n))s.includes(r)&&ze(e,t,i,a.callable,a.delegationSelector)}function cr(e){return e=e.replace(ea,""),rr[e]||e}var l={on(e,t,i,r){lr(e,t,i,r,!1)},one(e,t,i,r){lr(e,t,i,r,!0)},off(e,t,i,r){if(typeof t!="string"||!e)return;const[n,s,a]=or(t,i,r),o=a!==t,c=sr(e),h=c[a]||{},u=t.startsWith(".");if(typeof s!="undefined"){if(!Object.keys(h).length)return;ze(e,c,a,s,n?i:null);return}if(u)for(const _ of Object.keys(c))aa(e,c,_,t.slice(1));for(const[_,m]of Object.entries(h)){const g=_.replace(ia,"");(!o||t.includes(g))&&ze(e,c,a,m.callable,m.delegationSelector)}},trigger(e,t,i){if(typeof t!="string"||!e)return null;const r=tr(),n=t!==cr(t);let s=null,a=!0,o=!0,c=!1;n&&r&&(s=r.Event(t,i),r(e).trigger(s),a=!s.isPropagationStopped(),o=!s.isImmediatePropagationStopped(),c=s.isDefaultPrevented());const h=Ke(new Event(t,{bubbles:a,cancelable:!0}),i);return c&&h.preventDefault(),o&&e.dispatchEvent(h),h.defaultPrevented&&s&&s.preventDefault(),h}};function Ke(e,t={}){for(const[i,r]of Object.entries(t))try{e[i]=r}catch(n){Object.defineProperty(e,i,{configurable:!0,get(){return r}})}return e}function ur(e){if(e==="true")return!0;if(e==="false")return!1;if(e===Number(e).toString())return Number(e);if(e===""||e==="null")return null;if(typeof e!="string")return e;try{return JSON.parse(decodeURIComponent(e))}catch(t){return e}}function Ye(e){return e.replace(/[A-Z]/g,t=>`-${t.toLowerCase()}`)}var Ue=["tblr","bs"],I={setDataAttribute(e,t,i){e.setAttribute(`data-bs-${Ye(t)}`,i)},removeDataAttribute(e,t){for(const i of Ue)e.removeAttribute(`data-${i}-${Ye(t)}`)},getDataAttributes(e){if(!e)return{};const t={};for(const i of Ue){const r=Object.keys(e.dataset).filter(n=>n.startsWith(i)&&!n.startsWith(`${i}Config`));for(const n of r){let s=n.replace(new RegExp(`^${i}`),"");s=s.charAt(0).toLowerCase()+s.slice(1),s in t||(t[s]=ur(e.dataset[n]))}}return t},getDataAttribute(e,t){for(const i of Ue){const r=e.getAttribute(`data-${i}-${Ye(t)}`);if(r!==null)return ur(r)}return null}};function Bt(e){"@babel/helpers - typeof";return Bt=typeof Symbol=="function"&&typeof Symbol.iterator=="symbol"?function(t){return typeof t}:function(t){return t&&typeof Symbol=="function"&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t},Bt(e)}function oa(e,t){if(Bt(e)!="object"||!e)return e;var i=e[Symbol.toPrimitive];if(i!==void 0){var r=i.call(e,t||"default");if(Bt(r)!="object")return r;throw new TypeError("@@toPrimitive must return a primitive value.")}return(t==="string"?String:Number)(e)}function la(e){var t=oa(e,"string");return Bt(t)=="symbol"?t:t+""}function ca(e,t,i){return(t=la(t))in e?Object.defineProperty(e,t,{value:i,enumerable:!0,configurable:!0,writable:!0}):e[t]=i,e}function hr(e,t){var i=Object.keys(e);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(e);t&&(r=r.filter(function(n){return Object.getOwnPropertyDescriptor(e,n).enumerable})),i.push.apply(i,r)}return i}function A(e){for(var t=1;t<arguments.length;t++){var i=arguments[t]!=null?arguments[t]:{};t%2?hr(Object(i),!0).forEach(function(r){ca(e,r,i[r])}):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(i)):hr(Object(i)).forEach(function(r){Object.defineProperty(e,r,Object.getOwnPropertyDescriptor(i,r))})}return e}var zt=class{static get Default(){return{}}static get DefaultType(){return{}}static get NAME(){throw new Error('You have to implement the static method "NAME", for each component!')}_getConfig(e){return e=this._mergeConfigObj(e),e=this._configAfterMerge(e),this._typeCheckConfig(e),e}_configAfterMerge(e){return e}_mergeConfigObj(e,t){const i=Q(t)?I.getDataAttribute(t,"config"):{},r=this.constructor;return A(A(A(A({},r.Default),typeof i=="object"?i:{}),Q(t)?I.getDataAttributes(t):{}),typeof e=="object"?e:{})}_typeCheckConfig(e,t){const i=this.constructor,r=t||i.DefaultType;for(const[n,s]of Object.entries(r)){const a=e[n],o=Q(a)?"element":Qs(a);if(!new RegExp(s).test(o))throw new TypeError(`${i.NAME.toUpperCase()}: Option "${n}" provided type "${o}" but expected type "${s}".`)}}},ua="5.3.8",D=class extends zt{constructor(e,t){var i;super();const r=V(e);if(!r)return;const n=this.constructor;(i=ae.get(r,n.DATA_KEY))===null||i===void 0||i.dispose(),this._element=r,this._config=this._getConfig(t),ae.set(this._element,n.DATA_KEY,this)}dispose(){const e=this.constructor;ae.remove(this._element,e.DATA_KEY),l.off(this._element,e.EVENT_KEY);for(const t of Object.getOwnPropertyNames(this))this[t]=null}_queueCallback(e,t,i=!0){er(()=>{this._element&&e()},t,i)}_getConfig(e){return e=this._mergeConfigObj(e,this._element),e=this._configAfterMerge(e),this._typeCheckConfig(e),e}static getInstance(e){return ae.get(V(e),this.DATA_KEY)}static getOrCreateInstance(e,t={}){return this.getInstance(e)||new this(e,typeof t=="object"?t:void 0)}static get VERSION(){return ua}static get DATA_KEY(){return`bs.${this.NAME}`}static get EVENT_KEY(){return`.${this.DATA_KEY}`}static eventName(e){return`${e}${this.EVENT_KEY}`}},Ge=e=>{let t=e.getAttribute("data-tblr-target")||e.getAttribute("data-bs-target");if(!t||t==="#"){let i=e.getAttribute("href");if(!i||!i.includes("#")&&!i.startsWith("."))return null;i.includes("#")&&!i.startsWith("#")&&(i=`#${i.split("#")[1]}`),t=i&&i!=="#"?i.trim():null}return t?t.split(",").map(i=>Fe(i)).join(","):null},p={find(e,t=document.documentElement){return Array.from(t.querySelectorAll(e))},findOne(e,t=document.documentElement){return t.querySelector(e)},children(e,t){return Array.from(e.children).filter(i=>i.matches(t))},parents(e,t){const i=[];let r=e.parentNode&&e.parentNode.closest(t);for(;r;)i.push(r),r=r.parentNode&&r.parentNode.closest(t);return i},prev(e,t){let i=e.previousElementSibling;for(;i;){if(i.matches(t))return[i];i=i.previousElementSibling}return[]},next(e,t){let i=e.nextElementSibling;for(;i;){if(i.matches(t))return[i];i=i.nextElementSibling}return[]},focusableChildren(e){const t=["a","button","input","textarea","select","details","[tabindex]",'[contenteditable="true"]'].map(i=>`${i}:not([tabindex^="-"])`).join(",");return this.find(t,e).filter(i=>!z(i)&&wt(i))},getSelectorFromElement(e){const t=Ge(e);return t&&p.findOne(t)?t:null},getElementFromSelector(e){const t=Ge(e);return t?p.findOne(t):null},getMultipleElementsFromSelector(e){const t=Ge(e);return t?p.find(t):[]}},ha=(e,t)=>{const i=e[t];typeof i=="function"&&i.call(e)},le=(e,t="hide")=>{const i=`click.dismiss${e.EVENT_KEY}`,r=e.NAME;l.on(document,i,`[data-bs-dismiss="${r}"], [data-tblr-dismiss="${r}"]`,function(n){if(["A","AREA"].includes(this.tagName)&&n.preventDefault(),z(this))return;const s=p.getElementFromSelector(this)||this.closest(`.${r}`);ha(e.getOrCreateInstance(s),t)})},K=(e,t,i=null)=>{for(const r of p.find(e))if(!(i&&!i(r)))try{t.getOrCreateInstance(r)}catch(n){console.error(n)}},ce="autosize",da=`resized${`.${`bs.${ce}`}`}`,fa=`[data-bs-toggle="${ce}"], [data-tblr-toggle="${ce}"]`,pa={},_a={},ma=class extends D{constructor(e,t){var i;super(e,t),this._observer=null,this._inlineStyle="",this._width=0,this._onInput=()=>this.update(),this._element&&(this._inlineStyle=(i=this._element.getAttribute("style"))!==null&&i!==void 0?i:"",this._element.style.resize="none",this._element.style.overflowY="hidden",this._element.addEventListener("input",this._onInput),typeof ResizeObserver!="undefined"&&(this._observer=new ResizeObserver(()=>{this._element.offsetWidth!==this._width&&(this._width=this._element.offsetWidth,this.update())}),this._observer.observe(this._element)),this.update())}static get Default(){return pa}static get DefaultType(){return _a}static get NAME(){return ce}update(){const e=this._element;if(!e.isConnected||e.getClientRects().length===0)return;const{scrollTop:t}=document.documentElement,i=getComputedStyle(e),r=i.boxSizing==="border-box"?Number.parseFloat(i.borderTopWidth)+Number.parseFloat(i.borderBottomWidth):-(Number.parseFloat(i.paddingTop)+Number.parseFloat(i.paddingBottom)),n=e.style.height;e.style.overflowY="hidden",e.style.height="auto";const s=`${e.scrollHeight+r}px`;e.style.height=s,e.style.overflowY=e.scrollHeight>e.clientHeight?"auto":"hidden",document.documentElement.scrollTop=t,s!==n&&l.trigger(e,da)}dispose(){var e;this._element.removeEventListener("input",this._onInput),(e=this._observer)===null||e===void 0||e.disconnect(),this._inlineStyle?this._element.setAttribute("style",this._inlineStyle):this._element.removeAttribute("style"),super.dispose()}};K(fa,ma);function dr(e,t,i,r,n,s,a){try{var o=e[s](a),c=o.value}catch(h){i(h);return}o.done?t(c):Promise.resolve(c).then(r,n)}function qe(e){return function(){var t=this,i=arguments;return new Promise(function(r,n){var s=e.apply(t,i);function a(c){dr(s,r,n,a,o,"next",c)}function o(c){dr(s,r,n,a,o,"throw",c)}a(void 0)})}}var St="clipboard",Xe=`.${`bs.${St}`}`,va=`copied${Xe}`,fr=`error${Xe}`,ga="copied",Ea=`[data-bs-toggle="${St}"], [data-tblr-toggle="${St}"]`,ba=`.${St}-label`,Aa=`.${St}-feedback`,ya="data-bs-text",Ta="data-tblr-text",wa={target:null,text:null,delay:2e3},Sa={target:"(string|null)",text:"(string|number|null)",delay:"number"},Qe=(e,t)=>{t?e.setAttribute("hidden",""):e.removeAttribute("hidden")},Ca=class extends D{constructor(e,t){if(super(e,t),this._labels=[],this._feedbacks=[],this._timeout=0,!!this._element){this._labels=p.find(ba,this._element),this._feedbacks=p.find(Aa,this._element);for(const i of this._feedbacks)Qe(i,!0),i.hasAttribute("role")||i.setAttribute("role","status");l.on(this._element,`click${Xe}`,i=>{i.preventDefault(),this.copy()})}}static get Default(){return wa}static get DefaultType(){return Sa}static get NAME(){return St}get text(){var e;const{text:t,target:i}=this._config;if(t!==null&&t!=="")return String(t);const r=i?V(i):null;return r?r instanceof HTMLInputElement||r instanceof HTMLTextAreaElement?r.value:(r instanceof HTMLElement?r.innerText:(e=r.textContent)!==null&&e!==void 0?e:"").trim():""}copy(){var e=this;return qe(function*(){const{text:t}=e;if(!t||!navigator.clipboard){l.trigger(e._element,fr);return}try{yield navigator.clipboard.writeText(t)}catch(i){l.trigger(e._element,fr);return}e._showCopied(),l.trigger(e._element,va)})()}reset(){window.clearTimeout(this._timeout),this._toggleCopied(!1)}dispose(){window.clearTimeout(this._timeout),super.dispose()}_mergeConfigObj(e,t){var i;const r=(i=t==null?void 0:t.getAttribute(ya))!==null&&i!==void 0?i:t==null?void 0:t.getAttribute(Ta),n=r==null?{}:{text:r};return super._mergeConfigObj(A(A({},n),e),t)}_showCopied(){window.clearTimeout(this._timeout),this._toggleCopied(!0),this._config.delay>0&&(this._timeout=window.setTimeout(()=>this._toggleCopied(!1),this._config.delay))}_toggleCopied(e){this._element.classList.toggle(ga,e);for(const t of this._labels)Qe(t,e);for(const t of this._feedbacks)Qe(t,!e)}};K(Ea,Ca);var Kt="confetti",Ze=`.${`bs.${Kt}`}`,Oa=`start${Ze}`,Je=`end${Ze}`,Na=`click${Ze}.data-api`,Da=`${Kt}-canvas`,$a=`[data-bs-toggle="${Kt}"], [data-tblr-toggle="${Kt}"]`,La=[["blue","#066fd1"],["azure","#4299e1"],["indigo","#4263eb"],["purple","#ae3ec9"],["pink","#d6336c"],["red","#d63939"],["orange","#f76707"],["yellow","#f59f00"],["lime","#74b816"],["green","#2fb344"],["teal","#0ca678"],["cyan","#17a2b8"]],Ia=800,xa=1e3/60,Ma=2,Pa={count:220,duration:3500,decay:3.5,fade:.15,speed:1,colors:null},ka={count:"number",duration:"number",decay:"number",fade:"number",speed:"number",colors:"(array|string|null)"},pr={canvas:null,context:null,particles:[],emitters:[],frame:0,lastTick:0,add(e){return this._mount(),this.context?(this.emitters.push(e),this.frame||(this.lastTick=performance.now(),this.frame=requestAnimationFrame(t=>this._tick(t))),!0):!1},_mount(){if(this.canvas)return;const e=document.createElement("canvas");e.className=Da,e.setAttribute("aria-hidden","true"),Object.assign(e.style,{position:"fixed",inset:"0",width:"100%",height:"100%",zIndex:"9999",pointerEvents:"none",display:"block"});const t=e.getContext("2d");t&&(document.body.append(e),this.canvas=e,this.context=t,this._resize(),window.addEventListener("resize",this._onResize))},_unmount(){var e;cancelAnimationFrame(this.frame),this.frame=0,window.removeEventListener("resize",this._onResize),(e=this.canvas)===null||e===void 0||e.remove(),this.canvas=null,this.context=null,this.particles=[],this.emitters=[]},_onResize:()=>{pr._resize()},_resize(){if(!this.canvas||!this.context)return;const e=Math.min(window.devicePixelRatio||1,Ma);this.canvas.width=document.documentElement.clientWidth*e,this.canvas.height=window.innerHeight*e,this.context.setTransform(e,0,0,e,0,0)},_spawn(e){var t;const{colors:i,config:r}=e,n=window.innerHeight/Ia*r.speed;return{emitter:e,x:Math.random()*window.innerWidth,y:-20-Math.random()*30,w:6+Math.random()*3.6,h:10+Math.random()*4.4,color:(t=i[Math.floor(Math.random()*i.length)])!==null&&t!==void 0?t:"#000",vx:(Math.random()-.5)*1.2,vy:(1.5+Math.random()*2.1)*n,speed:n,angle:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.25,flip:Math.random()*Math.PI*2,flipSpeed:.12+Math.random()*.15,sway:Math.random()*Math.PI*2,alpha:1}},_pour(e,t){const{count:i,duration:r,decay:n}=e.config,s=t-e.startedAt;if(e.stopped||s>=r)return;const a=s/r,o=Math.round(i*(1-Math.exp(-n*a))/(1-Math.exp(-n)));for(;e.emitted<o;)this.particles.push(this._spawn(e)),e.emitted++},_tick(e){const t=this.context;if(!t)return;const i=Math.min((e-this.lastTick)/xa,3);this.lastTick=e;const r=window.innerWidth,n=window.innerHeight;t.clearRect(0,0,r,n);for(const s of this.emitters)this._pour(s,e);for(let s=this.particles.length-1;s>=0;s--){const a=this.particles[s],o=n*(1-a.emitter.config.fade);if(a.sway+=.05*i,a.vy=Math.min(a.vy+.025*a.speed*i,4.2*a.speed),a.x+=(a.vx+Math.sin(a.sway)*.7)*i,a.y+=a.vy*i,a.angle+=a.spin*i,a.flip+=a.flipSpeed*i,a.y>o&&(a.alpha=Math.max(0,1-(a.y-o)/(n-o))),a.alpha===0){this.particles.splice(s,1);continue}t.save(),t.globalAlpha=a.alpha,t.translate(a.x,a.y),t.rotate(a.angle),t.scale(1,Math.cos(a.flip)),t.fillStyle=a.color,t.fillRect(-a.w/2,-a.h/2,a.w,a.h),t.restore()}if(this._settle(e),this.emitters.length===0){this._unmount();return}this.frame=requestAnimationFrame(s=>this._tick(s))},_settle(e){for(let t=this.emitters.length-1;t>=0;t--){const i=this.emitters[t],r=!i.stopped&&e-i.startedAt<i.config.duration,n=this.particles.some(s=>s.emitter===i);r||n||(this.emitters.splice(t,1),i.done=!0,i.detached||l.trigger(i.element,Je))}}},Ra=class extends D{constructor(e,t){super(e,t),this._emitter=null}static get Default(){return Pa}static get DefaultType(){return ka}static get NAME(){return Kt}burst(){const e=l.trigger(this._element,Oa);if(!(e!=null&&e.defaultPrevented)){if(this.stop(),window.matchMedia("(prefers-reduced-motion: reduce)").matches){l.trigger(this._element,Je);return}this._emitter={element:this._element,config:this._config,colors:this._colors(),startedAt:performance.now(),emitted:0,stopped:!1,done:!1,detached:!1},pr.add(this._emitter)||(this._emitter=null,l.trigger(this._element,Je))}}stop(){this._emitter&&!this._emitter.done&&(this._emitter.stopped=!0),this._emitter=null}dispose(){this._emitter&&(this._emitter.detached=!0),this.stop(),super.dispose()}_configAfterMerge(e){return typeof e.colors=="string"&&(e.colors=e.colors.split(",").map(t=>t.trim()).filter(Boolean)),e}_colors(){const{colors:e}=this._config;if(e&&e.length>0)return e;const t=getComputedStyle(document.documentElement);return La.map(([i,r])=>t.getPropertyValue(`--tblr-${i}`).trim()||r)}};l.on(document,Na,$a,function(e){if(["A","AREA"].includes(this.tagName)&&e.preventDefault(),z(this))return;const t=p.getElementFromSelector(this)||this,i=I.getDataAttributes(this),r=Ra.getOrCreateInstance(t,i);t!==this&&(r._config=r._getConfig(i)),r.burst()});var ue="countup",_r=`.${`bs.${ue}`}`,mr=`data-${ue}`,Va=`start${_r}`,Ha=`complete${_r}`,vr=`data-tblr-${ue}`,Fa=`[${mr}], [${vr}]`,ja={autoAnimate:!0,startVal:0,duration:2,decimalPlaces:0,useEasing:!0,useGrouping:!0,separator:",",decimal:".",prefix:"",suffix:"",format:"number",formatter:null},gr={autoAnimate:"boolean",startVal:"number",duration:"number",decimalPlaces:"number",useEasing:"boolean",useGrouping:"boolean",separator:"string",decimal:"string",prefix:"string",suffix:"string",format:"string",formatter:"(function|null)"},Wa=e=>{const t=A({},e);for(const[i,r]of Object.entries(e)){const n=gr[i];typeof r=="string"&&n==="number"&&r.trim()!==""&&!Number.isNaN(Number(r))?t[i]=Number(r):typeof r=="string"&&n==="boolean"&&(r==="true"||r==="false")?t[i]=r==="true":typeof r=="number"&&n==="string"&&(t[i]=String(r))}return t},Er=(e,t)=>{if(typeof e=="number")return e;if(t==="time"){const i=/^\D{0,32}(\d{1,4}):(\d{1,2})/.exec(e);return i?Number(i[1])*60+Number(i[2]):NaN}return Number.parseFloat(e.replace(/[^0-9.-]/g,""))},Ba=e=>e>=1?1:(1-Math.pow(2,-10*e))*1024/1023,za=()=>window.matchMedia("(prefers-reduced-motion: reduce)").matches,Ka=class extends D{constructor(e,t){var i;if(super(e,t),this._endVal=0,this._value=0,this._frame=0,this._observer=null,this._from=0,this._elapsed=0,this._running=!1,this._paused=!1,this._started=!1,!this._element)return;const r=Er((i=this._element.textContent)!==null&&i!==void 0?i:"",this._config.format);if(!Number.isNaN(r)){if(this._endVal=r,this._value=this._config.startVal,this._print(this._value),!this._config.autoAnimate){this.start();return}if(typeof IntersectionObserver=="undefined"){this.start();return}this._observer=new IntersectionObserver(n=>this._observerCallback(n)),this._observer.observe(this._element)}}static get Default(){return ja}static get DefaultType(){return gr}static get NAME(){return ue}start(){this._animate(this._value,this._endVal)}reset(){this._stop(),this._started=!1,this._value=this._config.startVal,this._print(this._value)}update(e){const t=Er(e,this._config.format);Number.isNaN(t)||(this._endVal=t,this._animate(this._value,this._endVal))}pauseResume(){this._paused?(this._paused=!1,this._run()):this._running&&(this._paused=!0,cancelAnimationFrame(this._frame))}dispose(){var e;this._stop(),(e=this._observer)===null||e===void 0||e.disconnect(),super.dispose()}_mergeConfigObj(e,t){var i;let r={};const n=(i=t==null?void 0:t.getAttribute(mr))!==null&&i!==void 0?i:t==null?void 0:t.getAttribute(vr);if(n)try{const s=JSON.parse(n);s&&typeof s=="object"&&!Array.isArray(s)&&(r=s)}catch(s){}return super._mergeConfigObj(A(A({},Wa(r)),e),t)}_observerCallback(e){if(e.some(i=>i.isIntersecting)){var t;(t=this._observer)===null||t===void 0||t.disconnect(),this._observer=null,this._started||this.start()}}_animate(e,t){if(this._stop(),this._started=!0,e===t||this._config.duration<=0||za()){this._finish(t);return}this._from=e,this._elapsed=0,this._running=!0,l.trigger(this._element,Va),this._run()}_run(){const e=this._config.duration*1e3;let t=performance.now();const i=r=>{this._elapsed+=r-t,t=r;const n=Math.min(1,this._elapsed/e),s=this._config.useEasing?Ba(n):n;this._value=this._from+(this._endVal-this._from)*s,this._print(this._value),n<1?this._frame=requestAnimationFrame(i):this._finish(this._endVal)};this._frame=requestAnimationFrame(i)}_finish(e){this._running=!1,this._paused=!1,this._value=e,this._print(e),l.trigger(this._element,Ha)}_stop(){cancelAnimationFrame(this._frame),this._running=!1,this._paused=!1}_print(e){this._element.textContent=this._format(e)}_format(e){const{decimalPlaces:t,useGrouping:i,separator:r,decimal:n,prefix:s,suffix:a,format:o,formatter:c}=this._config;if(c)return c(e);if(o==="time"){const g=Math.sign(e)*Math.round(Math.abs(e)),S=Math.abs(g);return`${g<0?"-":""}${s}${Math.floor(S/60)}:${String(S%60).padStart(2,"0")}${a}`}const h=e.toFixed(t),[u,_]=h.replace("-","").split("."),m=i?u.replace(/\B(?=(\d{3})+(?!\d))/g,r):u;return`${Number(h)<0?"-":""}${s}${m}${_?n+_:""}${a}`}};K(Fa,Ka);var br="datepicker",at=`.${`bs.${br}`}`,Ar=".data-api",Ya=`change${at}`,yr=`show${at}`,Ua=`shown${at}`,Tr=`hide${at}`,Ga=`hidden${at}`,wr=`focusin${at}`,qa=`click${at}${Ar}`,Xa=`focusin${at}${Ar}`,ti='[data-bs-toggle="datepicker"], [data-tblr-toggle="datepicker"]',Qa="[data-bs-datepicker-display], [data-tblr-datepicker-display]",Za=".input-icon, .input-group",Sr='input[type="hidden"], input[name]',Ja=100,he=/^(\d{4})-(\d{2})-(\d{2})$/,to=["annotations","months","motion","time","weeks"],Cr=new WeakMap,eo={datepickerTheme:null,dateMin:null,dateMax:null,dateFormat:null,displayElement:null,displayMonthsCount:1,firstWeekday:1,inline:!1,locale:"default",positionElement:null,selectedDates:[],selectionMode:"single",placement:"left",vcpOptions:{}},io={datepickerTheme:"(null|string)",dateMin:"(null|string|number|object|date)",dateMax:"(null|string|number|object|date)",dateFormat:"(null|object|function)",displayElement:"(null|string|element|boolean)",displayMonthsCount:"number",firstWeekday:"number",inline:"boolean",locale:"string",positionElement:"(null|string|element)",selectedDates:"array",selectionMode:"string",placement:"string",vcpOptions:"object"},Or=e=>{setTimeout(()=>setTimeout(e))},ei=class extends D{constructor(e,t){super(e,t),this._calendar=null,this._isShown=!1,this._isShowing=!1,this._isHiding=!1,this._isSilent=!1,this._skipPluginShow=!1,this._resolveShown=null,this._hideTimeout=0,this._isInput=!1,this._isInline=!1,this._boundInput=null,this._positionElement=null,this._displayElement=null,this._themeObserver=null,this._onFocusIn=null,this._onResize=()=>this._alignToPositionElement(),this._selectedDates=[],!(!this._element||!window.VanillaCalendarPro)&&this._initCalendar()}static get Default(){return eo}static get DefaultType(){return io}static get NAME(){return br}get calendar(){return this._calendar}toggle(){return this._config.inline?Promise.resolve():this._isShown?this.hide():this.show()}show(){var e=this;return qe(function*(){if(e._config.inline||!e._calendar||z(e._element)||e._isShown||e._isShowing)return;const t=l.trigger(e._element,yr);t!=null&&t.defaultPrevented||(e._isShowing=!0,e._skipPluginShow=!1,e._calendar.show(),e._isShown||(yield new Promise(i=>{e._resolveShown=i,Or(i)})),e._resolveShown=null,e._isShowing=!1)})()}hide(){var e=this;return qe(function*(){if(e._config.inline||!e._calendar||!e._isShown)return;const t=l.trigger(e._element,Tr);t!=null&&t.defaultPrevented||(e._skipPluginShow=!0,Or(()=>{e._skipPluginShow=!1}),e._isHiding=!0,e._calendar.hide(),e._isHiding=!1)})()}dispose(){var e;if(window.clearTimeout(this._hideTimeout),(e=this._themeObserver)===null||e===void 0||e.disconnect(),window.removeEventListener("resize",this._onResize),this._onFocusIn&&l.off(document,wr,this._onFocusIn),this._calendar){this._calendar.destroy();const t=this._calendar.context.mainElement;if(t&&t!==this._element&&t.isConnected){if(this._isInput)t.replaceWith(this._element);else if(this._boundInput){const i=p.findOne(Sr,t);i?i.replaceWith(this._boundInput):t.append(this._boundInput)}}}super.dispose()}getSelectedDates(){var e;const t=(e=this._calendar)===null||e===void 0||(e=e.context)===null||e===void 0?void 0:e.selectedDates;return t&&t.length>0?[...t]:[...this._selectedDates]}setSelectedDates(e){var t;this._selectedDates=e.map(i=>this._toIsoDate(i)),(t=this._calendar)===null||t===void 0||t.set(A({selectedDates:this._selectedDates},this._monthOf(this._selectedDates[0]))),this._writeSelection(this._selectedDates)}_initCalendar(){this._isInput=this._element.tagName==="INPUT",this._isInline=this._config.inline,this._isInline&&!this._isInput&&(this._boundInput=p.findOne(Sr,this._element)),this._positionElement=this._resolvePositionElement(),this._displayElement=this._resolveDisplayElement(),this._selectedDates=[...this._config.selectedDates],this._calendar=new window.VanillaCalendarPro.Calendar(this._element,this._buildCalendarOptions()),this._calendar.init(),this._boundInput&&!this._boundInput.isConnected&&this._element.after(this._boundInput),this._setupThemeObserver(),this._setupDismissOnFocus(),this._isInput&&this._element.value&&this._parseInputValue(),this._updateDisplayWithSelectedDates()}_updateDisplayWithSelectedDates(){this._selectedDates.length!==0&&this._writeSelection(this._selectedDates)}_writeSelection(e){const t=this._formatDateForInput(e);this._isInput&&(this._element.value=t,Cr.set(this._element,{text:t,dates:[...e]})),this._boundInput&&(this._boundInput.value=e.join(",")),this._displayElement&&(this._displayElement.textContent=t)}_resolvePositionElement(){let{positionElement:e}=this._config;return typeof e=="string"&&(e=V(e)),!e&&this._isInput&&!this._isInline&&(e=this._element.closest(Za)),e||this._element}_resolveDisplayElement(){const{displayElement:e}=this._config;return typeof e=="string"?V(e):e===!0||e===null&&!this._isInput&&!this._isInline?p.findOne(Qa,this._element)||this._element:e}_alignToPositionElement(){var e;const t=(e=this._calendar)===null||e===void 0||(e=e.context)===null||e===void 0?void 0:e.mainElement;if(!t||this._isInline||!this._positionElement||this._positionElement===this._element)return;const i=this._positionElement.getBoundingClientRect(),r=t.getBoundingClientRect();let{placement:n}=this._config;n==="auto"&&(n=i.left+r.width>document.documentElement.clientWidth?"right":"left");const s=n==="right"?i.right-r.width:n==="center"?i.left+(i.width-r.width)/2:i.left;t.style.left=`${s+window.scrollX}px`}_getThemeAncestor(){return this._element.closest("[data-bs-theme]")}_getEffectiveTheme(){var e;const{datepickerTheme:t}=this._config;return t||((e=this._getThemeAncestor())===null||e===void 0?void 0:e.getAttribute("data-bs-theme"))||null}_syncThemeAttribute(e){if(!e)return;const t=this._getEffectiveTheme();t?e.setAttribute("data-bs-theme",t):e.removeAttribute("data-bs-theme")}_setupThemeObserver(){const e=this._getThemeAncestor();!e||this._config.datepickerTheme||(this._themeObserver=new MutationObserver(()=>{var t;this._syncThemeAttribute((t=this._calendar)===null||t===void 0||(t=t.context)===null||t===void 0?void 0:t.mainElement)}),this._themeObserver.observe(e,{attributes:!0,attributeFilter:["data-bs-theme"]}))}_setupDismissOnFocus(){this._isInline||(this._onFocusIn=e=>{var t;if(!this._isShown)return;const{target:i}=e,r=(t=this._calendar)===null||t===void 0||(t=t.context)===null||t===void 0?void 0:t.mainElement;i instanceof Node&&(this._element.contains(i)||r!=null&&r.contains(i))||this.hide()},l.on(document,wr,this._onFocusIn))}_silently(e){this._isSilent=!0,e(),this._isSilent=!1}_handlePluginShow(){var e;const t=this._calendar;if(!t)return;if(!this._isSilent&&!this._isShown){var i;if(this._skipPluginShow||!this._isShowing&&(!((i=l.trigger(this._element,yr))===null||i===void 0)&&i.defaultPrevented)){this._silently(()=>t.hide());return}}const r=this._isShown;this._isShown=!0,this._syncThemeAttribute(t.context.mainElement),this._alignToPositionElement(),window.removeEventListener("resize",this._onResize),window.addEventListener("resize",this._onResize),r||l.trigger(this._element,Ua),(e=this._resolveShown)===null||e===void 0||e.call(this)}_handlePluginHide(){var e;const t=this._calendar;if(!(!t||this._isSilent||!this._isShown)){if(!this._isHiding&&(!((e=l.trigger(this._element,Tr))===null||e===void 0)&&e.defaultPrevented)){this._silently(()=>t.show());return}this._isShown=!1,window.removeEventListener("resize",this._onResize),l.trigger(this._element,Ga)}}_calendarExtensions(e=[]){const t=window.VanillaCalendarPro,i=[...e];for(const r of to){const n=t==null?void 0:t[r];n&&typeof n=="object"&&!i.includes(n)&&i.push(n)}return i}_buildCalendarOptions(){const e=this._getEffectiveTheme(),t=!e||e==="auto"?"system":e,i=this._config.vcpOptions,r=this._calendarExtensions(i.extensions),n=A(A(A({},i),r.length>0?{extensions:r}:{}),{},{inputMode:!this._isInline,positionToInput:this._config.placement,firstWeekday:this._config.firstWeekday,locale:this._config.locale,selectionDatesMode:this._config.selectionMode,selectedDates:this._config.selectedDates,displayMonthsCount:this._config.displayMonthsCount,type:this._config.displayMonthsCount>1?"multiple":"default",selectedTheme:t,themeAttrDetect:"[data-bs-theme]",onClickDate:(a,o)=>this._handleDateClick(a,o),onInit:a=>{this._syncThemeAttribute(a.context.mainElement)},onShow:()=>this._handlePluginShow(),onHide:()=>this._handlePluginHide()}),[s]=this._config.selectedDates;if(s){const a=this._parseDate(s);n.selectedMonth=a.getMonth(),n.selectedYear=a.getFullYear()}return this._config.dateMin&&(n.dateMin=this._config.dateMin),this._config.dateMax&&(n.dateMax=this._config.dateMax),n}_handleDateClick(e,t){const i=[...e.context.selectedDates];this._selectedDates=i,this._writeSelection(i);const r={dates:i,event:t};l.trigger(this._element,Ya,r),this._maybeHideAfterSelection(i)}_maybeHideAfterSelection(e){this._isInline||(this._config.selectionMode==="single"&&e.length>0||this._config.selectionMode==="multiple-ranged"&&e.length>=2)&&(window.clearTimeout(this._hideTimeout),this._hideTimeout=window.setTimeout(()=>this.hide(),Ja))}_parseDate(e){const[t=0,i=1,r=1]=e.split("-").map(Number);return new Date(t,i-1,r)}_formatDate(e){const t=this._parseDate(e),i=this._config.locale==="default"?void 0:this._config.locale,{dateFormat:r}=this._config;return typeof r=="function"?r(t,i):r&&typeof r=="object"?new Intl.DateTimeFormat(i,r).format(t):t.toLocaleDateString(i)}_formatDateForInput(e){if(e.length===0)return"";if(e.length===1)return this._formatDate(e[0]);const t=this._config.selectionMode==="multiple-ranged"?" – ":", ";return e.map(i=>this._formatDate(i)).join(t)}_parseInputValue(){var e;const t=this._element.value.trim();if(!t)return;const i=Cr.get(this._element);if(i&&i.text.trim()===t){var r;this._selectedDates=[...i.dates],(r=this._calendar)===null||r===void 0||r.set(A({selectedDates:this._selectedDates},this._monthOf(this._selectedDates[0])));return}const n=he.test(t)?this._parseDate(t):new Date(t);Number.isNaN(n.getTime())||(this._selectedDates=[this._toIsoDate(n)],(e=this._calendar)===null||e===void 0||e.set(A({selectedDates:this._selectedDates},this._monthOf(this._selectedDates[0]))))}_toIsoDate(e){if(typeof e=="string"&&he.test(e))return e;const t=e instanceof Date?e:typeof e=="string"&&he.test(e)?this._parseDate(e):new Date(e);return Number.isNaN(t.getTime())?String(e):`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`}_monthOf(e){if(!e||!he.test(e))return{};const t=this._parseDate(e);return{selectedMonth:t.getMonth(),selectedYear:t.getFullYear()}}};l.on(document,qa,ti,function(e){this.tagName==="INPUT"||this.dataset.bsInline==="true"||this.dataset.tblrInline==="true"||(e.preventDefault(),ei.getOrCreateInstance(this).toggle())}),l.on(document,Xa,ti,function(){this.tagName==="INPUT"&&ei.getOrCreateInstance(this).show()}),K(ti,ei,e=>{const{dataset:t}=e;return t.bsInline==="true"||t.tblrInline==="true"||"bsSelectedDates"in t||"tblrSelectedDates"in t||!!e.value});var ro="input-mask",Nr="data-mask",Dr="data-mask-visible",no=`[${Nr}]`,so={mask:"",lazy:!0},ao={mask:"(string|function|regexp|object|array)",lazy:"boolean"},oo=class extends D{constructor(e,t){super(e,t),this._mask=null,!(!this._element||!this._config.mask||!window.IMask)&&(this._mask=new window.IMask(this._element,A({},this._config)))}static get Default(){return so}static get DefaultType(){return ao}static get NAME(){return ro}get mask(){return this._mask}update(){var e;(e=this._mask)===null||e===void 0||e.updateValue()}dispose(){var e;(e=this._mask)===null||e===void 0||e.destroy(),super.dispose()}_mergeConfigObj(e,t){const i={},r=t==null?void 0:t.getAttribute(Nr);return r&&(i.mask=r),t!=null&&t.hasAttribute(Dr)&&(i.lazy=t.getAttribute(Dr)==="false"),super._mergeConfigObj(A(A({},i),e),t)}};K(no,oo);var Y="bottom",Z="right",U="left",$r="auto",Ct=["top",Y,Z,U],Yt="start",Lr="clippingParents",Ir="viewport",ii="popper",xr="reference",ri=Ct.reduce(function(e,t){return e.concat([t+"-"+Yt,t+"-end"])},[]),ni=[].concat(Ct,[$r]).reduce(function(e,t){return e.concat([t,t+"-"+Yt,t+"-end"])},[]),Mr="beforeRead",Pr="read",kr="afterRead",Rr="beforeMain",Vr="main",Hr="afterMain",Fr="beforeWrite",jr="write",Wr="afterWrite",Br=[Mr,Pr,kr,Rr,Vr,Hr,Fr,jr,Wr];function G(e){return e?(e.nodeName||"").toLowerCase():null}function k(e){if(e==null)return window;if(e.toString()!=="[object Window]"){var t=e.ownerDocument;return t&&t.defaultView||window}return e}function pt(e){return e instanceof k(e).Element||e instanceof Element}function j(e){return e instanceof k(e).HTMLElement||e instanceof HTMLElement}function si(e){return typeof ShadowRoot=="undefined"?!1:e instanceof k(e).ShadowRoot||e instanceof ShadowRoot}function lo(e){var t=e.state;Object.keys(t.elements).forEach(function(i){var r=t.styles[i]||{},n=t.attributes[i]||{},s=t.elements[i];!j(s)||!G(s)||(Object.assign(s.style,r),Object.keys(n).forEach(function(a){var o=n[a];o===!1?s.removeAttribute(a):s.setAttribute(a,o===!0?"":o)}))})}function co(e){var t=e.state,i={popper:{position:t.options.strategy,left:"0",top:"0",margin:"0"},arrow:{position:"absolute"},reference:{}};return Object.assign(t.elements.popper.style,i.popper),t.styles=i,t.elements.arrow&&Object.assign(t.elements.arrow.style,i.arrow),function(){Object.keys(t.elements).forEach(function(r){var n=t.elements[r],s=t.attributes[r]||{},a=Object.keys(t.styles.hasOwnProperty(r)?t.styles[r]:i[r]).reduce(function(o,c){return o[c]="",o},{});!j(n)||!G(n)||(Object.assign(n.style,a),Object.keys(s).forEach(function(o){n.removeAttribute(o)}))})}}var ai={name:"applyStyles",enabled:!0,phase:"write",fn:lo,effect:co,requires:["computeStyles"]};function q(e){return e.split("-")[0]}var _t=Math.max,de=Math.min,Ot=Math.round;function oi(){var e=navigator.userAgentData;return e!=null&&e.brands&&Array.isArray(e.brands)?e.brands.map(function(t){return t.brand+"/"+t.version}).join(" "):navigator.userAgent}function zr(){return!/^((?!chrome|android).)*safari/i.test(oi())}function Nt(e,t,i){t===void 0&&(t=!1),i===void 0&&(i=!1);var r=e.getBoundingClientRect(),n=1,s=1;t&&j(e)&&(n=e.offsetWidth>0&&Ot(r.width)/e.offsetWidth||1,s=e.offsetHeight>0&&Ot(r.height)/e.offsetHeight||1);var a=(pt(e)?k(e):window).visualViewport,o=!zr()&&i,c=(r.left+(o&&a?a.offsetLeft:0))/n,h=(r.top+(o&&a?a.offsetTop:0))/s,u=r.width/n,_=r.height/s;return{width:u,height:_,top:h,right:c+u,bottom:h+_,left:c,x:c,y:h}}function li(e){var t=Nt(e),i=e.offsetWidth,r=e.offsetHeight;return Math.abs(t.width-i)<=1&&(i=t.width),Math.abs(t.height-r)<=1&&(r=t.height),{x:e.offsetLeft,y:e.offsetTop,width:i,height:r}}function Kr(e,t){var i=t.getRootNode&&t.getRootNode();if(e.contains(t))return!0;if(i&&si(i)){var r=t;do{if(r&&e.isSameNode(r))return!0;r=r.parentNode||r.host}while(r)}return!1}function J(e){return k(e).getComputedStyle(e)}function uo(e){return["table","td","th"].indexOf(G(e))>=0}function ot(e){return((pt(e)?e.ownerDocument:e.document)||window.document).documentElement}function fe(e){return G(e)==="html"?e:e.assignedSlot||e.parentNode||(si(e)?e.host:null)||ot(e)}function Yr(e){return!j(e)||J(e).position==="fixed"?null:e.offsetParent}function ho(e){var t=/firefox/i.test(oi());if(/Trident/i.test(oi())&&j(e)&&J(e).position==="fixed")return null;var i=fe(e);for(si(i)&&(i=i.host);j(i)&&["html","body"].indexOf(G(i))<0;){var r=J(i);if(r.transform!=="none"||r.perspective!=="none"||r.contain==="paint"||["transform","perspective"].indexOf(r.willChange)!==-1||t&&r.willChange==="filter"||t&&r.filter&&r.filter!=="none")return i;i=i.parentNode}return null}function Ut(e){for(var t=k(e),i=Yr(e);i&&uo(i)&&J(i).position==="static";)i=Yr(i);return i&&(G(i)==="html"||G(i)==="body"&&J(i).position==="static")?t:i||ho(e)||t}function ci(e){return["top","bottom"].indexOf(e)>=0?"x":"y"}function Gt(e,t,i){return _t(e,de(t,i))}function fo(e,t,i){var r=Gt(e,t,i);return r>i?i:r}function Ur(){return{top:0,right:0,bottom:0,left:0}}function Gr(e){return Object.assign({},Ur(),e)}function qr(e,t){return t.reduce(function(i,r){return i[r]=e,i},{})}var po=function(t,i){return t=typeof t=="function"?t(Object.assign({},i.rects,{placement:i.placement})):t,Gr(typeof t!="number"?t:qr(t,Ct))};function _o(e){var t,i=e.state,r=e.name,n=e.options,s=i.elements.arrow,a=i.modifiersData.popperOffsets,o=q(i.placement),c=ci(o),h=["left","right"].indexOf(o)>=0?"height":"width";if(!(!s||!a)){var u=po(n.padding,i),_=li(s),m=c==="y"?"top":U,g=c==="y"?Y:Z,S=i.rects.reference[h]+i.rects.reference[c]-a[c]-i.rects.popper[h],d=a[c]-i.rects.reference[c],f=Ut(s),v=f?c==="y"?f.clientHeight||0:f.clientWidth||0:0,T=S/2-d/2,w=u[m],b=v-_[h]-u[g],E=v/2-_[h]/2+T,y=Gt(w,E,b),C=c;i.modifiersData[r]=(t={},t[C]=y,t.centerOffset=y-E,t)}}function mo(e){var t=e.state,i=e.options.element,r=i===void 0?"[data-popper-arrow]":i;r!=null&&(typeof r=="string"&&(r=t.elements.popper.querySelector(r),!r)||Kr(t.elements.popper,r)&&(t.elements.arrow=r))}var Xr={name:"arrow",enabled:!0,phase:"main",fn:_o,effect:mo,requires:["popperOffsets"],requiresIfExists:["preventOverflow"]};function Dt(e){return e.split("-")[1]}var vo={top:"auto",right:"auto",bottom:"auto",left:"auto"};function go(e,t){var i=e.x,r=e.y,n=t.devicePixelRatio||1;return{x:Ot(i*n)/n||0,y:Ot(r*n)/n||0}}function Qr(e){var t,i=e.popper,r=e.popperRect,n=e.placement,s=e.variation,a=e.offsets,o=e.position,c=e.gpuAcceleration,h=e.adaptive,u=e.roundOffsets,_=e.isFixed,m=a.x,g=m===void 0?0:m,S=a.y,d=S===void 0?0:S,f=typeof u=="function"?u({x:g,y:d}):{x:g,y:d};g=f.x,d=f.y;var v=a.hasOwnProperty("x"),T=a.hasOwnProperty("y"),w=U,b="top",E=window;if(h){var y=Ut(i),C="clientHeight",N="clientWidth";if(y===k(i)&&(y=ot(i),J(y).position!=="static"&&o==="absolute"&&(C="scrollHeight",N="scrollWidth")),y=y,n==="top"||(n==="left"||n==="right")&&s==="end"){b=Y;var O=_&&y===E&&E.visualViewport?E.visualViewport.height:y[C];d-=O-r.height,d*=c?1:-1}if(n==="left"||(n==="top"||n==="bottom")&&s==="end"){w=Z;var L=_&&y===E&&E.visualViewport?E.visualViewport.width:y[N];g-=L-r.width,g*=c?1:-1}}var R=Object.assign({position:o},h&&vo),B=u===!0?go({x:g,y:d},k(i)):{x:g,y:d};if(g=B.x,d=B.y,c){var x;return Object.assign({},R,(x={},x[b]=T?"0":"",x[w]=v?"0":"",x.transform=(E.devicePixelRatio||1)<=1?"translate("+g+"px, "+d+"px)":"translate3d("+g+"px, "+d+"px, 0)",x))}return Object.assign({},R,(t={},t[b]=T?d+"px":"",t[w]=v?g+"px":"",t.transform="",t))}function Eo(e){var t=e.state,i=e.options,r=i.gpuAcceleration,n=r===void 0?!0:r,s=i.adaptive,a=s===void 0?!0:s,o=i.roundOffsets,c=o===void 0?!0:o,h={placement:q(t.placement),variation:Dt(t.placement),popper:t.elements.popper,popperRect:t.rects.popper,gpuAcceleration:n,isFixed:t.options.strategy==="fixed"};t.modifiersData.popperOffsets!=null&&(t.styles.popper=Object.assign({},t.styles.popper,Qr(Object.assign({},h,{offsets:t.modifiersData.popperOffsets,position:t.options.strategy,adaptive:a,roundOffsets:c})))),t.modifiersData.arrow!=null&&(t.styles.arrow=Object.assign({},t.styles.arrow,Qr(Object.assign({},h,{offsets:t.modifiersData.arrow,position:"absolute",adaptive:!1,roundOffsets:c})))),t.attributes.popper=Object.assign({},t.attributes.popper,{"data-popper-placement":t.placement})}var ui={name:"computeStyles",enabled:!0,phase:"beforeWrite",fn:Eo,data:{}},pe={passive:!0};function bo(e){var t=e.state,i=e.instance,r=e.options,n=r.scroll,s=n===void 0?!0:n,a=r.resize,o=a===void 0?!0:a,c=k(t.elements.popper),h=[].concat(t.scrollParents.reference,t.scrollParents.popper);return s&&h.forEach(function(u){u.addEventListener("scroll",i.update,pe)}),o&&c.addEventListener("resize",i.update,pe),function(){s&&h.forEach(function(u){u.removeEventListener("scroll",i.update,pe)}),o&&c.removeEventListener("resize",i.update,pe)}}var hi={name:"eventListeners",enabled:!0,phase:"write",fn:function(){},effect:bo,data:{}},Ao={left:"right",right:"left",bottom:"top",top:"bottom"};function _e(e){return e.replace(/left|right|bottom|top/g,function(t){return Ao[t]})}var yo={start:"end",end:"start"};function Zr(e){return e.replace(/start|end/g,function(t){return yo[t]})}function di(e){var t=k(e);return{scrollLeft:t.pageXOffset,scrollTop:t.pageYOffset}}function fi(e){return Nt(ot(e)).left+di(e).scrollLeft}function To(e,t){var i=k(e),r=ot(e),n=i.visualViewport,s=r.clientWidth,a=r.clientHeight,o=0,c=0;if(n){s=n.width,a=n.height;var h=zr();(h||!h&&t==="fixed")&&(o=n.offsetLeft,c=n.offsetTop)}return{width:s,height:a,x:o+fi(e),y:c}}function wo(e){var t,i=ot(e),r=di(e),n=(t=e.ownerDocument)==null?void 0:t.body,s=_t(i.scrollWidth,i.clientWidth,n?n.scrollWidth:0,n?n.clientWidth:0),a=_t(i.scrollHeight,i.clientHeight,n?n.scrollHeight:0,n?n.clientHeight:0),o=-r.scrollLeft+fi(e),c=-r.scrollTop;return J(n||i).direction==="rtl"&&(o+=_t(i.clientWidth,n?n.clientWidth:0)-s),{width:s,height:a,x:o,y:c}}function pi(e){var t=J(e),i=t.overflow,r=t.overflowX,n=t.overflowY;return/auto|scroll|overlay|hidden/.test(i+n+r)}function Jr(e){return["html","body","#document"].indexOf(G(e))>=0?e.ownerDocument.body:j(e)&&pi(e)?e:Jr(fe(e))}function qt(e,t){var i;t===void 0&&(t=[]);var r=Jr(e),n=r===((i=e.ownerDocument)==null?void 0:i.body),s=k(r),a=n?[s].concat(s.visualViewport||[],pi(r)?r:[]):r,o=t.concat(a);return n?o:o.concat(qt(fe(a)))}function _i(e){return Object.assign({},e,{left:e.x,top:e.y,right:e.x+e.width,bottom:e.y+e.height})}function So(e,t){var i=Nt(e,!1,t==="fixed");return i.top=i.top+e.clientTop,i.left=i.left+e.clientLeft,i.bottom=i.top+e.clientHeight,i.right=i.left+e.clientWidth,i.width=e.clientWidth,i.height=e.clientHeight,i.x=i.left,i.y=i.top,i}function tn(e,t,i){return t==="viewport"?_i(To(e,i)):pt(t)?So(t,i):_i(wo(ot(e)))}function Co(e){var t=qt(fe(e)),i=["absolute","fixed"].indexOf(J(e).position)>=0&&j(e)?Ut(e):e;return pt(i)?t.filter(function(r){return pt(r)&&Kr(r,i)&&G(r)!=="body"}):[]}function Oo(e,t,i,r){var n=t==="clippingParents"?Co(e):[].concat(t),s=[].concat(n,[i]),a=s[0],o=s.reduce(function(c,h){var u=tn(e,h,r);return c.top=_t(u.top,c.top),c.right=de(u.right,c.right),c.bottom=de(u.bottom,c.bottom),c.left=_t(u.left,c.left),c},tn(e,a,r));return o.width=o.right-o.left,o.height=o.bottom-o.top,o.x=o.left,o.y=o.top,o}function en(e){var t=e.reference,i=e.element,r=e.placement,n=r?q(r):null,s=r?Dt(r):null,a=t.x+t.width/2-i.width/2,o=t.y+t.height/2-i.height/2,c;switch(n){case"top":c={x:a,y:t.y-i.height};break;case Y:c={x:a,y:t.y+t.height};break;case Z:c={x:t.x+t.width,y:o};break;case U:c={x:t.x-i.width,y:o};break;default:c={x:t.x,y:t.y}}var h=n?ci(n):null;if(h!=null){var u=h==="y"?"height":"width";switch(s){case Yt:c[h]=c[h]-(t[u]/2-i[u]/2);break;case"end":c[h]=c[h]+(t[u]/2-i[u]/2)}}return c}function $t(e,t){t===void 0&&(t={});var i=t,r=i.placement,n=r===void 0?e.placement:r,s=i.strategy,a=s===void 0?e.strategy:s,o=i.boundary,c=o===void 0?Lr:o,h=i.rootBoundary,u=h===void 0?Ir:h,_=i.elementContext,m=_===void 0?ii:_,g=i.altBoundary,S=g===void 0?!1:g,d=i.padding,f=d===void 0?0:d,v=Gr(typeof f!="number"?f:qr(f,Ct)),T=m==="popper"?xr:ii,w=e.rects.popper,b=e.elements[S?T:m],E=Oo(pt(b)?b:b.contextElement||ot(e.elements.popper),c,u,a),y=Nt(e.elements.reference),C=en({reference:y,element:w,strategy:"absolute",placement:n}),N=_i(Object.assign({},w,C)),O=m==="popper"?N:y,L={top:E.top-O.top+v.top,bottom:O.bottom-E.bottom+v.bottom,left:E.left-O.left+v.left,right:O.right-E.right+v.right},R=e.modifiersData.offset;if(m==="popper"&&R){var B=R[n];Object.keys(L).forEach(function(x){var At=["right","bottom"].indexOf(x)>=0?1:-1,ut=["top","bottom"].indexOf(x)>=0?"y":"x";L[x]+=B[ut]*At})}return L}function No(e,t){t===void 0&&(t={});var i=t,r=i.placement,n=i.boundary,s=i.rootBoundary,a=i.padding,o=i.flipVariations,c=i.allowedAutoPlacements,h=c===void 0?ni:c,u=Dt(r),_=u?o?ri:ri.filter(function(S){return Dt(S)===u}):Ct,m=_.filter(function(S){return h.indexOf(S)>=0});m.length===0&&(m=_);var g=m.reduce(function(S,d){return S[d]=$t(e,{placement:d,boundary:n,rootBoundary:s,padding:a})[q(d)],S},{});return Object.keys(g).sort(function(S,d){return g[S]-g[d]})}function Do(e){if(q(e)==="auto")return[];var t=_e(e);return[Zr(e),t,Zr(t)]}function $o(e){var t=e.state,i=e.options,r=e.name;if(!t.modifiersData[r]._skip){for(var n=i.mainAxis,s=n===void 0?!0:n,a=i.altAxis,o=a===void 0?!0:a,c=i.fallbackPlacements,h=i.padding,u=i.boundary,_=i.rootBoundary,m=i.altBoundary,g=i.flipVariations,S=g===void 0?!0:g,d=i.allowedAutoPlacements,f=t.options.placement,v=q(f)===f,T=c||(v||!S?[_e(f)]:Do(f)),w=[f].concat(T).reduce(function(jt,dt){return jt.concat(q(dt)==="auto"?No(t,{placement:dt,boundary:u,rootBoundary:_,padding:h,flipVariations:S,allowedAutoPlacements:d}):dt)},[]),b=t.rects.reference,E=t.rects.popper,y=new Map,C=!0,N=w[0],O=0;O<w.length;O++){var L=w[O],R=q(L),B=Dt(L)===Yt,x=["top",Y].indexOf(R)>=0,At=x?"width":"height",ut=$t(t,{placement:L,boundary:u,rootBoundary:_,altBoundary:m,padding:h}),P=x?B?Z:U:B?Y:"top";b[At]>E[At]&&(P=_e(P));var ht=_e(P),yt=[];if(s&&yt.push(ut[R]<=0),o&&yt.push(ut[P]<=0,ut[ht]<=0),yt.every(function(jt){return jt})){N=L,C=!1;break}y.set(L,yt)}if(C)for(var Le=S?3:1,Ie=function(dt){var xe=w.find(function(Me){var se=y.get(Me);if(se)return se.slice(0,dt).every(function(Pe){return Pe})});if(xe)return N=xe,"break"},ne=Le;ne>0&&Ie(ne)!=="break";ne--);t.placement!==N&&(t.modifiersData[r]._skip=!0,t.placement=N,t.reset=!0)}}var rn={name:"flip",enabled:!0,phase:"main",fn:$o,requiresIfExists:["offset"],data:{_skip:!1}};function nn(e,t,i){return i===void 0&&(i={x:0,y:0}),{top:e.top-t.height-i.y,right:e.right-t.width+i.x,bottom:e.bottom-t.height+i.y,left:e.left-t.width-i.x}}function sn(e){return["top",Z,Y,U].some(function(t){return e[t]>=0})}function Lo(e){var t=e.state,i=e.name,r=t.rects.reference,n=t.rects.popper,s=t.modifiersData.preventOverflow,a=$t(t,{elementContext:"reference"}),o=$t(t,{altBoundary:!0}),c=nn(a,r),h=nn(o,n,s),u=sn(c),_=sn(h);t.modifiersData[i]={referenceClippingOffsets:c,popperEscapeOffsets:h,isReferenceHidden:u,hasPopperEscaped:_},t.attributes.popper=Object.assign({},t.attributes.popper,{"data-popper-reference-hidden":u,"data-popper-escaped":_})}var an={name:"hide",enabled:!0,phase:"main",requiresIfExists:["preventOverflow"],fn:Lo};function Io(e,t,i){var r=q(e),n=["left","top"].indexOf(r)>=0?-1:1,s=typeof i=="function"?i(Object.assign({},t,{placement:e})):i,a=s[0],o=s[1];return a=a||0,o=(o||0)*n,["left","right"].indexOf(r)>=0?{x:o,y:a}:{x:a,y:o}}function xo(e){var t=e.state,i=e.options,r=e.name,n=i.offset,s=n===void 0?[0,0]:n,a=ni.reduce(function(u,_){return u[_]=Io(_,t.rects,s),u},{}),o=a[t.placement],c=o.x,h=o.y;t.modifiersData.popperOffsets!=null&&(t.modifiersData.popperOffsets.x+=c,t.modifiersData.popperOffsets.y+=h),t.modifiersData[r]=a}var on={name:"offset",enabled:!0,phase:"main",requires:["popperOffsets"],fn:xo};function Mo(e){var t=e.state,i=e.name;t.modifiersData[i]=en({reference:t.rects.reference,element:t.rects.popper,strategy:"absolute",placement:t.placement})}var mi={name:"popperOffsets",enabled:!0,phase:"read",fn:Mo,data:{}};function Po(e){return e==="x"?"y":"x"}function ko(e){var t=e.state,i=e.options,r=e.name,n=i.mainAxis,s=n===void 0?!0:n,a=i.altAxis,o=a===void 0?!1:a,c=i.boundary,h=i.rootBoundary,u=i.altBoundary,_=i.padding,m=i.tether,g=m===void 0?!0:m,S=i.tetherOffset,d=S===void 0?0:S,f=$t(t,{boundary:c,rootBoundary:h,padding:_,altBoundary:u}),v=q(t.placement),T=Dt(t.placement),w=!T,b=ci(v),E=Po(b),y=t.modifiersData.popperOffsets,C=t.rects.reference,N=t.rects.popper,O=typeof d=="function"?d(Object.assign({},t.rects,{placement:t.placement})):d,L=typeof O=="number"?{mainAxis:O,altAxis:O}:Object.assign({mainAxis:0,altAxis:0},O),R=t.modifiersData.offset?t.modifiersData.offset[t.placement]:null,B={x:0,y:0};if(y){if(s){var x,At=b==="y"?"top":U,ut=b==="y"?Y:Z,P=b==="y"?"height":"width",ht=y[b],yt=ht+f[At],Le=ht-f[ut],Ie=g?-N[P]/2:0,ne=T==="start"?C[P]:N[P],jt=T==="start"?-N[P]:-C[P],dt=t.elements.arrow,xe=g&&dt?li(dt):{width:0,height:0},Me=t.modifiersData["arrow#persistent"]?t.modifiersData["arrow#persistent"].padding:Ur(),se=Me[At],Pe=Me[ut],ke=Gt(0,C[P],xe[P]),Rd=w?C[P]/2-Ie-ke-se-L.mainAxis:ne-ke-se-L.mainAxis,Vd=w?-C[P]/2+Ie+ke+Pe+L.mainAxis:jt+ke+Pe+L.mainAxis,Bi=t.elements.arrow&&Ut(t.elements.arrow),Hd=Bi?b==="y"?Bi.clientTop||0:Bi.clientLeft||0:0,Ts=(x=R==null?void 0:R[b])!=null?x:0,Fd=ht+Rd-Ts-Hd,jd=ht+Vd-Ts,ws=Gt(g?de(yt,Fd):yt,ht,g?_t(Le,jd):Le);y[b]=ws,B[b]=ws-ht}if(o){var Ss,Wd=b==="x"?"top":U,Bd=b==="x"?Y:Z,Tt=y[E],Re=E==="y"?"height":"width",Cs=Tt+f[Wd],Os=Tt-f[Bd],zi=["top",U].indexOf(v)!==-1,Ns=(Ss=R==null?void 0:R[E])!=null?Ss:0,Ds=zi?Cs:Tt-C[Re]-N[Re]-Ns+L.altAxis,$s=zi?Tt+C[Re]+N[Re]-Ns-L.altAxis:Os,Ls=g&&zi?fo(Ds,Tt,$s):Gt(g?Ds:Cs,Tt,g?$s:Os);y[E]=Ls,B[E]=Ls-Tt}t.modifiersData[r]=B}}var ln={name:"preventOverflow",enabled:!0,phase:"main",fn:ko,requiresIfExists:["offset"]};function Ro(e){return{scrollLeft:e.scrollLeft,scrollTop:e.scrollTop}}function Vo(e){return e===k(e)||!j(e)?di(e):Ro(e)}function Ho(e){var t=e.getBoundingClientRect(),i=Ot(t.width)/e.offsetWidth||1,r=Ot(t.height)/e.offsetHeight||1;return i!==1||r!==1}function Fo(e,t,i){i===void 0&&(i=!1);var r=j(t),n=j(t)&&Ho(t),s=ot(t),a=Nt(e,n,i),o={scrollLeft:0,scrollTop:0},c={x:0,y:0};return(r||!r&&!i)&&((G(t)!=="body"||pi(s))&&(o=Vo(t)),j(t)?(c=Nt(t,!0),c.x+=t.clientLeft,c.y+=t.clientTop):s&&(c.x=fi(s))),{x:a.left+o.scrollLeft-c.x,y:a.top+o.scrollTop-c.y,width:a.width,height:a.height}}function jo(e){var t=new Map,i=new Set,r=[];e.forEach(function(s){t.set(s.name,s)});function n(s){i.add(s.name),[].concat(s.requires||[],s.requiresIfExists||[]).forEach(function(a){if(!i.has(a)){var o=t.get(a);o&&n(o)}}),r.push(s)}return e.forEach(function(s){i.has(s.name)||n(s)}),r}function Wo(e){var t=jo(e);return Br.reduce(function(i,r){return i.concat(t.filter(function(n){return n.phase===r}))},[])}function Bo(e){var t;return function(){return t||(t=new Promise(function(i){Promise.resolve().then(function(){t=void 0,i(e())})})),t}}function zo(e){var t=e.reduce(function(i,r){var n=i[r.name];return i[r.name]=n?Object.assign({},n,r,{options:Object.assign({},n.options,r.options),data:Object.assign({},n.data,r.data)}):r,i},{});return Object.keys(t).map(function(i){return t[i]})}var cn={placement:"bottom",modifiers:[],strategy:"absolute"};function un(){for(var e=arguments.length,t=new Array(e),i=0;i<e;i++)t[i]=arguments[i];return!t.some(function(r){return!(r&&typeof r.getBoundingClientRect=="function")})}function me(e){e===void 0&&(e={});var t=e,i=t.defaultModifiers,r=i===void 0?[]:i,n=t.defaultOptions,s=n===void 0?cn:n;return function(o,c,h){h===void 0&&(h=s);var u={placement:"bottom",orderedModifiers:[],options:Object.assign({},cn,s),modifiersData:{},elements:{reference:o,popper:c},attributes:{},styles:{}},_=[],m=!1,g={state:u,setOptions:function(v){var T=typeof v=="function"?v(u.options):v;d(),u.options=Object.assign({},s,u.options,T),u.scrollParents={reference:pt(o)?qt(o):o.contextElement?qt(o.contextElement):[],popper:qt(c)};var w=Wo(zo([].concat(r,u.options.modifiers)));return u.orderedModifiers=w.filter(function(b){return b.enabled}),S(),g.update()},forceUpdate:function(){if(!m){var v=u.elements,T=v.reference,w=v.popper;if(un(T,w)){u.rects={reference:Fo(T,Ut(w),u.options.strategy==="fixed"),popper:li(w)},u.reset=!1,u.placement=u.options.placement,u.orderedModifiers.forEach(function(L){return u.modifiersData[L.name]=Object.assign({},L.data)});for(var b=0;b<u.orderedModifiers.length;b++){if(u.reset===!0){u.reset=!1,b=-1;continue}var E=u.orderedModifiers[b],y=E.fn,C=E.options,N=C===void 0?{}:C,O=E.name;typeof y=="function"&&(u=y({state:u,options:N,name:O,instance:g})||u)}}}},update:Bo(function(){return new Promise(function(f){g.forceUpdate(),f(u)})}),destroy:function(){d(),m=!0}};if(!un(o,c))return g;g.setOptions(h).then(function(f){!m&&h.onFirstUpdate&&h.onFirstUpdate(f)});function S(){u.orderedModifiers.forEach(function(f){var v=f.name,T=f.options,w=T===void 0?{}:T,b=f.effect;if(typeof b=="function"){var E=b({state:u,name:v,instance:g,options:w});_.push(E||function(){})}})}function d(){_.forEach(function(f){return f()}),_=[]}return g}}var Ko=me(),Yo=me({defaultModifiers:[hi,mi,ui,ai]}),vi=me({defaultModifiers:[hi,mi,ui,ai,on,rn,ln,Xr,an]}),hn=Xi({afterMain:()=>Hr,afterRead:()=>kr,afterWrite:()=>Wr,applyStyles:()=>ai,arrow:()=>Xr,auto:()=>$r,basePlacements:()=>Ct,beforeMain:()=>Rr,beforeRead:()=>Mr,beforeWrite:()=>Fr,bottom:()=>Y,clippingParents:()=>Lr,computeStyles:()=>ui,createPopper:()=>vi,createPopperBase:()=>Ko,createPopperLite:()=>Yo,detectOverflow:()=>$t,end:()=>"end",eventListeners:()=>hi,flip:()=>rn,hide:()=>an,left:()=>U,main:()=>Vr,modifierPhases:()=>Br,offset:()=>on,placements:()=>ni,popper:()=>ii,popperGenerator:()=>me,popperOffsets:()=>mi,preventOverflow:()=>ln,read:()=>Pr,reference:()=>xr,right:()=>Z,start:()=>Yt,top:()=>"top",variationPlacements:()=>ri,viewport:()=>Ir,write:()=>jr}),Uo="alert",dn=".bs.alert",Go=`close${dn}`,qo=`closed${dn}`,Xo="fade",Qo="show",gi=class Is extends D{static get NAME(){return Uo}close(){const t=l.trigger(this._element,Go);if(t!=null&&t.defaultPrevented)return;this._element.classList.remove(Qo);const i=this._element.classList.contains(Xo);this._queueCallback(()=>this._destroyElement(),this._element,i)}_destroyElement(){this._element.remove(),l.trigger(this._element,qo),this.dispose()}static jQueryInterface(t){return this.each(function(){const i=Is.getOrCreateInstance(this);if(typeof t=="string"){if(i[t]===void 0||t.startsWith("_")||t==="constructor")throw new TypeError(`No method named "${t}"`);i[t](this)}})}};le(gi,"close"),F(gi);var Zo="button",Jo=".bs.button",tl=".data-api",el="active",fn='[data-bs-toggle="button"], [data-tblr-toggle="button"]',il=`click${Jo}${tl}`,Ei=class xs extends D{static get NAME(){return Zo}toggle(){this._element.setAttribute("aria-pressed",String(this._element.classList.toggle(el)))}static jQueryInterface(t){return this.each(function(){const i=xs.getOrCreateInstance(this);t==="toggle"&&i.toggle()})}};l.on(document,il,fn,e=>{var t;e.preventDefault();const i=(t=e.target)===null||t===void 0?void 0:t.closest(fn);i&&Ei.getOrCreateInstance(i).toggle()}),F(Ei);var rl="swipe",Lt=".bs.swipe",nl=`touchstart${Lt}`,sl=`touchmove${Lt}`,al=`touchend${Lt}`,ol=`pointerdown${Lt}`,ll=`pointerup${Lt}`,cl="touch",ul="pen",hl="pointer-event",dl=40,fl={endCallback:null,leftCallback:null,rightCallback:null},pl={endCallback:"(function|null)",leftCallback:"(function|null)",rightCallback:"(function|null)"},pn=class Ms extends zt{constructor(t,i){super(),this._element=t,!(!t||!Ms.isSupported())&&(this._config=this._getConfig(i),this._deltaX=0,this._supportPointerEvents=!!window.PointerEvent,this._initEvents())}static get Default(){return fl}static get DefaultType(){return pl}static get NAME(){return rl}dispose(){l.off(this._element,Lt)}_start(t){if(!this._supportPointerEvents){this._deltaX=t.touches[0].clientX;return}this._eventIsPointerPenTouch(t)&&(this._deltaX=t.clientX)}_end(t){this._eventIsPointerPenTouch(t)&&(this._deltaX=t.clientX-this._deltaX),this._handleSwipe(),M(this._config.endCallback)}_move(t){this._deltaX=t.touches&&t.touches.length>1?0:t.touches[0].clientX-this._deltaX}_handleSwipe(){const t=Math.abs(this._deltaX);if(t<=dl)return;const i=t/this._deltaX;this._deltaX=0,i&&M(i>0?this._config.rightCallback:this._config.leftCallback)}_initEvents(){this._supportPointerEvents?(l.on(this._element,ol,t=>this._start(t)),l.on(this._element,ll,t=>this._end(t)),this._element.classList.add(hl)):(l.on(this._element,nl,t=>this._start(t)),l.on(this._element,sl,t=>this._move(t)),l.on(this._element,al,t=>this._end(t)))}_eventIsPointerPenTouch(t){return this._supportPointerEvents&&(t.pointerType===ul||t.pointerType===cl)}static isSupported(){return"ontouchstart"in document.documentElement||navigator.maxTouchPoints>0}},_l="carousel",lt=".bs.carousel",_n=".data-api",ml="ArrowLeft",vl="ArrowRight",gl=500,Xt="next",It="prev",xt="left",ve="right",El=`slide${lt}`,bi=`slid${lt}`,bl=`keydown${lt}`,Al=`mouseenter${lt}`,yl=`mouseleave${lt}`,Tl=`dragstart${lt}`,wl=`load${lt}${_n}`,Sl=`click${lt}${_n}`,mn="carousel",ge="active",Cl="slide",Ol="carousel-item-end",Nl="carousel-item-start",Dl="carousel-item-next",$l="carousel-item-prev",Ll=".active",Il=".carousel-item",xl=".active.carousel-item",Ml=".carousel-item img",Pl=".carousel-indicators",kl="[data-bs-slide], [data-bs-slide-to], [data-tblr-slide], [data-tblr-slide-to]",Rl='[data-bs-ride="carousel"], [data-tblr-ride="carousel"]',Vl={[ml]:ve,[vl]:xt},Hl={interval:5e3,keyboard:!0,pause:"hover",ride:!1,touch:!0,wrap:!0},Fl={interval:"(number|boolean)",keyboard:"boolean",pause:"(string|boolean)",ride:"(boolean|string)",touch:"boolean",wrap:"boolean"},Ee=class Ps extends D{constructor(t,i){super(t,i),this._interval=null,this._activeElement=null,this._isSliding=!1,this.touchTimeout=null,this._swipeHelper=null,this._indicatorsElement=p.findOne(Pl,this._element),this._addEventListeners(),this._config.ride===mn&&this.cycle()}static get Default(){return Hl}static get DefaultType(){return Fl}static get NAME(){return _l}next(){this._slide(Xt)}nextWhenVisible(){!document.hidden&&wt(this._element)&&this.next()}prev(){this._slide(It)}pause(){this._isSliding&&Qi(this._element),this._clearInterval()}cycle(){this._clearInterval(),this._updateInterval(),this._interval=setInterval(()=>this.nextWhenVisible(),this._config.interval)}_maybeEnableCycle(){if(this._config.ride){if(this._isSliding){l.one(this._element,bi,()=>this.cycle());return}this.cycle()}}to(t){const i=this._getItems();if(t>i.length-1||t<0)return;if(this._isSliding){l.one(this._element,bi,()=>this.to(t));return}const r=this._getItemIndex(this._getActive());if(r===t)return;const n=t>r?Xt:It;this._slide(n,i[t])}dispose(){this._swipeHelper&&this._swipeHelper.dispose(),super.dispose()}_configAfterMerge(t){return t.defaultInterval=t.interval,t}_addEventListeners(){this._config.keyboard&&l.on(this._element,bl,t=>this._keydown(t)),this._config.pause==="hover"&&(l.on(this._element,Al,()=>this.pause()),l.on(this._element,yl,()=>this._maybeEnableCycle())),this._config.touch&&pn.isSupported()&&this._addTouchEventListeners()}_addTouchEventListeners(){for(const r of p.find(Ml,this._element))l.on(r,Tl,n=>n.preventDefault());const i={leftCallback:()=>this._slide(this._directionToOrder(xt)),rightCallback:()=>this._slide(this._directionToOrder(ve)),endCallback:()=>{this._config.pause==="hover"&&(this.pause(),this.touchTimeout&&clearTimeout(this.touchTimeout),this.touchTimeout=setTimeout(()=>this._maybeEnableCycle(),gl+this._config.interval))}};this._swipeHelper=new pn(this._element,i)}_keydown(t){if(/input|textarea/i.test(t.target.tagName))return;const i=Vl[t.key];i&&(t.preventDefault(),this._slide(this._directionToOrder(i)))}_getItemIndex(t){return this._getItems().indexOf(t)}_setActiveIndicatorElement(t){if(!this._indicatorsElement)return;const i=p.findOne(Ll,this._indicatorsElement);i.classList.remove(ge),i.removeAttribute("aria-current");const r=p.findOne(`[data-bs-slide-to="${t}"], [data-tblr-slide-to="${t}"]`,this._indicatorsElement);r&&(r.classList.add(ge),r.setAttribute("aria-current","true"))}_updateInterval(){var t;const i=this._activeElement||this._getActive();if(!i)return;const r=Number.parseInt(i.getAttribute("data-bs-interval")||i.getAttribute("data-tblr-interval")||"",10);this._config.interval=r||((t=this._config.defaultInterval)!==null&&t!==void 0?t:this._config.interval)}_slide(t,i=null){if(this._isSliding)return;const r=this._getActive(),n=t===Xt,s=i||We(this._getItems(),r,n,this._config.wrap);if(s===r)return;const a=this._getItemIndex(s),o=g=>l.trigger(this._element,g,{relatedTarget:s,direction:this._orderToDirection(t),from:this._getItemIndex(r),to:a}),c=o(El);if(c!=null&&c.defaultPrevented||!r||!s)return;const h=!!this._interval;this.pause(),this._isSliding=!0,this._setActiveIndicatorElement(a),this._activeElement=s;const u=n?Nl:Ol,_=n?Dl:$l;s.classList.add(_),Wt(s),r.classList.add(u),s.classList.add(u);const m=()=>{s.classList.remove(u,_),s.classList.add(ge),r.classList.remove(ge,_,u),this._isSliding=!1,o(bi)};this._queueCallback(m,r,this._isAnimated()),h&&this.cycle()}_isAnimated(){return this._element.classList.contains(Cl)}_getActive(){return p.findOne(xl,this._element)}_getItems(){return p.find(Il,this._element)}_clearInterval(){this._interval&&(clearInterval(this._interval),this._interval=null)}_directionToOrder(t){return H()?t===xt?It:Xt:t===xt?Xt:It}_orderToDirection(t){return H()?t===It?xt:ve:t===It?ve:xt}static jQueryInterface(t){return this.each(function(){const i=Ps.getOrCreateInstance(this,t);if(typeof t=="number"){i.to(t);return}if(typeof t=="string"){if(i[t]===void 0||t.startsWith("_")||t==="constructor")throw new TypeError(`No method named "${t}"`);i[t]()}})}};l.on(document,Sl,kl,function(e){const t=p.getElementFromSelector(this);if(!t||!t.classList.contains(mn))return;e.preventDefault();const i=Ee.getOrCreateInstance(t),r=this.getAttribute("data-bs-slide-to")||this.getAttribute("data-tblr-slide-to");if(r){i.to(Number(r)),i._maybeEnableCycle();return}if(I.getDataAttribute(this,"slide")==="next"){i.next(),i._maybeEnableCycle();return}i.prev(),i._maybeEnableCycle()}),l.on(window,wl,()=>{const e=p.find(Rl);for(const t of e)Ee.getOrCreateInstance(t)}),F(Ee);var jl="collapse",Qt=".bs.collapse",Wl=".data-api",Bl=`show${Qt}`,zl=`shown${Qt}`,Kl=`hide${Qt}`,Yl=`hidden${Qt}`,Ul=`click${Qt}${Wl}`,Ai="show",Mt="collapse",be="collapsing",Gl="collapsed",ql=`:scope .${Mt} .${Mt}`,Xl="collapse-horizontal",Ql="width",Zl="height",Jl=".collapse.show, .collapse.collapsing",yi='[data-bs-toggle="collapse"], [data-tblr-toggle="collapse"]',tc={parent:null,toggle:!0},ec={parent:"(null|element)",toggle:"boolean"},Ti=class Ki extends D{constructor(t,i){super(t,i),this._isTransitioning=!1,this._triggerArray=[];const r=p.find(yi);for(const n of r){const s=p.getSelectorFromElement(n),a=p.find(s).filter(o=>o===this._element);s!==null&&a.length&&this._triggerArray.push(n)}this._initializeChildren(),this._config.parent||this._addAriaAndCollapsedClass(this._triggerArray,this._isShown()),this._config.toggle&&this.toggle()}static get Default(){return tc}static get DefaultType(){return ec}static get NAME(){return jl}toggle(){this._isShown()?this.hide():this.show()}show(){if(this._isTransitioning||this._isShown())return;let t=[];if(this._config.parent&&(t=this._getFirstLevelChildren(Jl).filter(a=>a!==this._element).map(a=>Ki.getOrCreateInstance(a,{toggle:!1}))),t.length&&t[0]._isTransitioning)return;const i=l.trigger(this._element,Bl);if(i!=null&&i.defaultPrevented)return;for(const a of t)a.hide();const r=this._getDimension();this._element.classList.remove(Mt),this._element.classList.add(be),this._element.style[r]="0",this._addAriaAndCollapsedClass(this._triggerArray,!0),this._isTransitioning=!0;const n=()=>{this._isTransitioning=!1,this._element.classList.remove(be),this._element.classList.add(Mt,Ai),this._element.style[r]="",l.trigger(this._element,zl)},s=`scroll${r[0].toUpperCase()+r.slice(1)}`;this._queueCallback(n,this._element,!0),this._element.style[r]=`${this._element[s]}px`}hide(){if(this._isTransitioning||!this._isShown())return;const t=l.trigger(this._element,Kl);if(t!=null&&t.defaultPrevented)return;const i=this._getDimension();this._element.style[i]=`${this._element.getBoundingClientRect()[i]}px`,Wt(this._element),this._element.classList.add(be),this._element.classList.remove(Mt,Ai);for(const n of this._triggerArray){const s=p.getElementFromSelector(n);s&&!this._isShown(s)&&this._addAriaAndCollapsedClass([n],!1)}this._isTransitioning=!0;const r=()=>{this._isTransitioning=!1,this._element.classList.remove(be),this._element.classList.add(Mt),l.trigger(this._element,Yl)};this._element.style[i]="",this._queueCallback(r,this._element,!0)}_isShown(t=this._element){return t.classList.contains(Ai)}_configAfterMerge(t){return t.toggle=!!t.toggle,t.parent=V(t.parent),t}_getDimension(){return this._element.classList.contains(Xl)?Ql:Zl}_initializeChildren(){if(!this._config.parent)return;const t=this._getFirstLevelChildren(yi);for(const i of t){const r=p.getElementFromSelector(i);r&&this._addAriaAndCollapsedClass([i],this._isShown(r))}}_getFirstLevelChildren(t){const i=p.find(ql,this._config.parent);return p.find(t,this._config.parent).filter(r=>!i.includes(r))}_addAriaAndCollapsedClass(t,i){if(t.length)for(const r of t)r.classList.toggle(Gl,!i),r.setAttribute("aria-expanded",String(i))}static jQueryInterface(t){const i={};return typeof t=="string"&&/show|hide/.test(t)&&(i.toggle=!1),this.each(function(){const r=Ki.getOrCreateInstance(this,i);if(typeof t=="string"){if(typeof r[t]=="undefined")throw new TypeError(`No method named "${t}"`);r[t]()}})}};l.on(document,Ul,yi,function(e){const{delegateTarget:t}=e;(e.target.tagName==="A"||t&&t.tagName==="A")&&e.preventDefault();for(const i of p.getMultipleElementsFromSelector(this))Ti.getOrCreateInstance(i,{toggle:!1}).toggle()}),F(Ti);var vn="dropdown",mt=".bs.dropdown",wi=".data-api",ic="Escape",gn="Tab",rc="ArrowUp",En="ArrowDown",nc=2,sc=`hide${mt}`,ac=`hidden${mt}`,oc=`show${mt}`,lc=`shown${mt}`,bn=`click${mt}${wi}`,An=`keydown${mt}${wi}`,cc=`keyup${mt}${wi}`,Pt="show",uc="dropup",hc="dropend",dc="dropstart",fc="dropup-center",pc="dropdown-center",vt='[data-bs-toggle="dropdown"]:not(.disabled):not(:disabled), [data-tblr-toggle="dropdown"]:not(.disabled):not(:disabled)',_c=vt.split(", ").map(e=>`${e}.${Pt}`).join(", "),Ae=".dropdown-menu",mc=".navbar",vc=".navbar-nav",gc=".dropdown-menu .dropdown-item:not(.disabled):not(:disabled)",Ec=H()?"top-end":"top-start",bc=H()?"top-start":"top-end",Ac=H()?"bottom-end":"bottom-start",yc=H()?"bottom-start":"bottom-end",Tc=H()?"left-start":"right-start",wc=H()?"right-start":"left-start",Sc="top",Cc="bottom",Oc={autoClose:!0,boundary:"clippingParents",display:"dynamic",offset:[0,2],popperConfig:null,reference:"toggle"},Nc={autoClose:"(boolean|string)",boundary:"(string|element)",display:"string",offset:"(array|string|function)",popperConfig:"(null|object|function)",reference:"(string|element|object)"},tt=class Ve extends D{constructor(t,i){super(t,i),this._popper=null,this._parent=this._element.parentNode,this._menu=p.next(this._element,Ae)[0]||p.prev(this._element,Ae)[0]||p.findOne(Ae,this._parent),this._inNavbar=this._detectNavbar()}static get Default(){return Oc}static get DefaultType(){return Nc}static get NAME(){return vn}toggle(){this._isShown()?this.hide():this.show()}show(){if(z(this._element)||this._isShown())return;const t={relatedTarget:this._element},i=l.trigger(this._element,oc,t);if(!(i!=null&&i.defaultPrevented)){if(this._createPopper(),"ontouchstart"in document.documentElement&&!this._parent.closest(vc))for(const r of Array.from(document.body.children))l.on(r,"mouseover",oe);this._element.focus(),this._element.setAttribute("aria-expanded","true"),this._menu.classList.add(Pt),this._element.classList.add(Pt),l.trigger(this._element,lc,t)}}hide(){if(z(this._element)||!this._isShown())return;const t={relatedTarget:this._element};this._completeHide(t)}dispose(){this._popper&&this._popper.destroy(),super.dispose()}update(){this._inNavbar=this._detectNavbar(),this._popper&&this._popper.update()}_completeHide(t){const i=l.trigger(this._element,sc,t);if(!(i!=null&&i.defaultPrevented)){if("ontouchstart"in document.documentElement)for(const r of Array.from(document.body.children))l.off(r,"mouseover",oe);this._popper&&this._popper.destroy(),this._menu.classList.remove(Pt),this._element.classList.remove(Pt),this._element.setAttribute("aria-expanded","false"),I.removeDataAttribute(this._menu,"popper"),l.trigger(this._element,ac,t)}}_getConfig(t){const i=super._getConfig(t);if(typeof i.reference=="object"&&!Q(i.reference)&&typeof i.reference.getBoundingClientRect!="function")throw new TypeError(`${vn.toUpperCase()}: Option "reference" provided type "object" without a required "getBoundingClientRect" method.`);return i}_createPopper(){if(typeof hn=="undefined")throw new TypeError("Bootstrap's dropdowns require Popper (https://popper.js.org/docs/v2/)");let t=this._element;this._config.reference==="parent"?t=this._parent:Q(this._config.reference)?t=V(this._config.reference):typeof this._config.reference=="object"&&(t=this._config.reference);const i=this._getPopperConfig();this._popper=vi(t,this._menu,i)}_isShown(){return this._menu.classList.contains(Pt)}_getPlacement(){const t=this._parent;if(t.classList.contains(hc))return Tc;if(t.classList.contains(dc))return wc;if(t.classList.contains(fc))return Sc;if(t.classList.contains(pc))return Cc;const i=getComputedStyle(this._menu).getPropertyValue("--bs-position").trim()==="end";return t.classList.contains(uc)?i?bc:Ec:i?yc:Ac}_detectNavbar(){return this._element.closest(mc)!==null}_getOffset(){const{offset:t}=this._config;return typeof t=="string"?t.split(",").map(i=>Number.parseInt(i,10)):typeof t=="function"?i=>t(i,this._element):t}_getPopperConfig(){const t={placement:this._getPlacement(),modifiers:[{name:"preventOverflow",options:{boundary:this._config.boundary}},{name:"offset",options:{offset:this._getOffset()}}]};(this._inNavbar||this._config.display==="static")&&(I.setDataAttribute(this._menu,"popper","static"),t.modifiers=[{name:"applyStyles",enabled:!1}]);const i=M(this._config.popperConfig,[void 0,t]);return A(A({},t),typeof i=="object"&&i!==null?i:{})}_selectMenuItem({key:t,target:i}){const r=p.find(gc,this._menu).filter(s=>wt(s));if(!r.length)return;const n=i;We(r,n,t===En,!r.includes(n)).focus()}static clearMenus(t){if(t.button===nc||t.type==="keyup"&&t.key!==gn)return;const i=p.find(_c);for(const r of i){const n=Ve.getInstance(r);if(!n||n._config.autoClose===!1)continue;const s=t.composedPath(),a=s.includes(n._menu);if(s.includes(n._element)||n._config.autoClose==="inside"&&!a||n._config.autoClose==="outside"&&a||n._menu.contains(t.target)&&(t.type==="keyup"&&t.key===gn||/input|select|option|textarea|form/i.test(t.target.tagName)))continue;const o={relatedTarget:n._element};t.type==="click"&&(o.clickEvent=t),n._completeHide(o)}}static dataApiKeydownHandler(t){const i=/input|textarea/i.test(t.target.tagName),r=t.key===ic,n=[rc,En].includes(t.key);if(!n&&!r||i&&!r)return;t.preventDefault();const s=this.matches(vt)?this:p.prev(this,vt)[0]||p.next(this,vt)[0]||p.findOne(vt,t.delegateTarget.parentNode),a=Ve.getOrCreateInstance(s);if(n){t.stopPropagation(),a.show(),a._selectMenuItem(t);return}a._isShown()&&(t.stopPropagation(),a.hide(),s.focus())}static jQueryInterface(t){return this.each(function(){const i=Ve.getOrCreateInstance(this,t);if(typeof t=="string"){if(typeof i[t]=="undefined")throw new TypeError(`No method named "${t}"`);i[t]()}})}};l.on(document,An,vt,tt.dataApiKeydownHandler),l.on(document,An,Ae,tt.dataApiKeydownHandler),l.on(document,bn,tt.clearMenus),l.on(document,cc,tt.clearMenus),l.on(document,bn,vt,function(e){e.preventDefault(),tt.getOrCreateInstance(this).toggle()}),F(tt);var yn="backdrop",Dc="fade",Tn="show",wn=`mousedown.bs.${yn}`,$c={className:"modal-backdrop",clickCallback:null,isAnimated:!1,isVisible:!0,rootElement:"body"},Lc={className:"string",clickCallback:"(function|null)",isAnimated:"boolean",isVisible:"boolean",rootElement:"(element|string)"},Sn=class extends zt{constructor(e){super(),this._config=this._getConfig(e),this._isAppended=!1,this._element=null}static get Default(){return $c}static get DefaultType(){return Lc}static get NAME(){return yn}show(e){if(!this._config.isVisible){M(e);return}this._append();const t=this._getElement();this._config.isAnimated&&Wt(t),t.classList.add(Tn),this._emulateAnimation(()=>{M(e)})}hide(e){if(!this._config.isVisible){M(e);return}this._getElement().classList.remove(Tn),this._emulateAnimation(()=>{this.dispose(),M(e)})}dispose(){this._isAppended&&(l.off(this._element,wn),this._element.remove(),this._isAppended=!1)}_getElement(){if(!this._element){const e=document.createElement("div");e.className=this._config.className,this._config.isAnimated&&e.classList.add(Dc),this._element=e}return this._element}_configAfterMerge(e){return e.rootElement=V(e.rootElement),e}_append(){if(this._isAppended)return;const e=this._getElement();this._config.rootElement.append(e),l.on(e,wn,()=>{M(this._config.clickCallback)}),this._isAppended=!0}_emulateAnimation(e){er(e,this._getElement(),this._config.isAnimated)}},Ic="focustrap",ye=".bs.focustrap",xc=`focusin${ye}`,Mc=`keydown.tab${ye}`,Pc="Tab",kc="forward",Cn="backward",Rc={autofocus:!0,trapElement:null},Vc={autofocus:"boolean",trapElement:"element"},On=class extends zt{constructor(e){super(),this._config=this._getConfig(e),this._isActive=!1,this._lastTabNavDirection=null}static get Default(){return Rc}static get DefaultType(){return Vc}static get NAME(){return Ic}activate(){this._isActive||(this._config.autofocus&&this._config.trapElement.focus(),l.off(document,ye),l.on(document,xc,e=>this._handleFocusin(e)),l.on(document,Mc,e=>this._handleKeydown(e)),this._isActive=!0)}deactivate(){this._isActive&&(this._isActive=!1,l.off(document,ye))}_handleFocusin(e){const{trapElement:t}=this._config;if(!t||e.target===document||e.target===t||t.contains(e.target))return;const i=p.focusableChildren(t);i.length===0?t.focus():this._lastTabNavDirection===Cn?i[i.length-1].focus():i[0].focus()}_handleKeydown(e){e.key===Pc&&(this._lastTabNavDirection=e.shiftKey?Cn:kc)}},Nn=".fixed-top, .fixed-bottom, .is-fixed, .sticky-top",Dn=".sticky-top",Te="padding-right",$n="margin-right",Si=class{constructor(){this._element=document.body}getWidth(){const e=document.documentElement.clientWidth;return Math.abs(window.innerWidth-e)}hide(){const e=this.getWidth();this._disableOverFlow(),this._setElementAttributes(this._element,Te,t=>t+e),this._setElementAttributes(Nn,Te,t=>t+e),this._setElementAttributes(Dn,$n,t=>t-e)}reset(){this._resetElementAttributes(this._element,"overflow"),this._resetElementAttributes(this._element,Te),this._resetElementAttributes(Nn,Te),this._resetElementAttributes(Dn,$n)}isOverflowing(){return this.getWidth()>0}_disableOverFlow(){this._saveInitialAttribute(this._element,"overflow"),this._element.style.overflow="hidden"}_setElementAttributes(e,t,i){const r=this.getWidth(),n=s=>{if(s!==this._element&&window.innerWidth>s.clientWidth+r)return;this._saveInitialAttribute(s,t);const a=window.getComputedStyle(s).getPropertyValue(t);s.style.setProperty(t,`${i(Number.parseFloat(a))}px`)};this._applyManipulationCallback(e,n)}_saveInitialAttribute(e,t){const i=e.style.getPropertyValue(t);i&&I.setDataAttribute(e,t,i)}_resetElementAttributes(e,t){const i=r=>{const n=I.getDataAttribute(r,t);if(n===null){r.style.removeProperty(t);return}I.removeDataAttribute(r,t),r.style.setProperty(t,String(n))};this._applyManipulationCallback(e,i)}_applyManipulationCallback(e,t){if(Q(e)){t(e);return}for(const i of p.find(e,this._element))t(i)}},Hc="modal",W=".bs.modal",Fc=".data-api",jc="Escape",Wc=`hide${W}`,Bc=`hidePrevented${W}`,Ln=`hidden${W}`,In=`show${W}`,zc=`shown${W}`,Kc=`resize${W}`,Yc=`click.dismiss${W}`,Uc=`mousedown.dismiss${W}`,Gc=`keydown.dismiss${W}`,qc=`click${W}${Fc}`,xn="modal-open",Xc="fade",Mn="show",Ci="modal-static",Qc=".modal.show",Zc=".modal-dialog",Jc=".modal-body",tu='[data-bs-toggle="modal"], [data-tblr-toggle="modal"]',eu={backdrop:!0,focus:!0,keyboard:!0},iu={backdrop:"(boolean|string)",focus:"boolean",keyboard:"boolean"},Zt=class ks extends D{constructor(t,i){super(t,i),this._dialog=p.findOne(Zc,this._element),this._backdrop=this._initializeBackDrop(),this._focustrap=this._initializeFocusTrap(),this._isShown=!1,this._isTransitioning=!1,this._scrollBar=new Si,this._addEventListeners()}static get Default(){return eu}static get DefaultType(){return iu}static get NAME(){return Hc}toggle(t){return this._isShown?this.hide():this.show(t)}show(t){if(this._isShown||this._isTransitioning)return;const i=l.trigger(this._element,In,{relatedTarget:t});i!=null&&i.defaultPrevented||(this._isShown=!0,this._isTransitioning=!0,this._scrollBar.hide(),document.body.classList.add(xn),this._adjustDialog(),this._backdrop.show(()=>this._showElement(t)))}hide(){if(!this._isShown||this._isTransitioning)return;const t=l.trigger(this._element,Wc);t!=null&&t.defaultPrevented||(this._isShown=!1,this._isTransitioning=!0,this._focustrap.deactivate(),this._element.classList.remove(Mn),this._queueCallback(()=>this._hideModal(),this._element,this._isAnimated()))}dispose(){l.off(window,W),l.off(this._dialog,W),this._backdrop.dispose(),this._focustrap.deactivate(),super.dispose()}handleUpdate(){this._adjustDialog()}_initializeBackDrop(){return new Sn({isVisible:!!this._config.backdrop,isAnimated:this._isAnimated()})}_initializeFocusTrap(){return new On({trapElement:this._element})}_showElement(t){document.body.contains(this._element)||document.body.append(this._element),this._element.style.display="block",this._element.removeAttribute("aria-hidden"),this._element.setAttribute("aria-modal","true"),this._element.setAttribute("role","dialog"),this._element.scrollTop=0;const i=this._dialog?p.findOne(Jc,this._dialog):null;i&&(i.scrollTop=0),Wt(this._element),this._element.classList.add(Mn);const r=()=>{this._config.focus&&this._focustrap.activate(),this._isTransitioning=!1,l.trigger(this._element,zc,{relatedTarget:t})};this._queueCallback(r,this._dialog,this._isAnimated())}_addEventListeners(){l.on(this._element,Gc,t=>{if(t.key===jc){if(this._config.keyboard){this.hide();return}this._triggerBackdropTransition()}}),l.on(window,Kc,()=>{this._isShown&&!this._isTransitioning&&this._adjustDialog()}),l.on(this._element,Uc,t=>{l.one(this._element,Yc,i=>{if(!(this._element!==t.target||this._element!==i.target)){if(this._config.backdrop==="static"){this._triggerBackdropTransition();return}this._config.backdrop&&this.hide()}})})}_hideModal(){this._element.style.display="none",this._element.setAttribute("aria-hidden","true"),this._element.removeAttribute("aria-modal"),this._element.removeAttribute("role"),this._isTransitioning=!1,this._backdrop.hide(()=>{document.body.classList.remove(xn),this._resetAdjustments(),this._scrollBar.reset(),l.trigger(this._element,Ln)})}_isAnimated(){return this._element.classList.contains(Xc)}_triggerBackdropTransition(){const t=l.trigger(this._element,Bc);if(t!=null&&t.defaultPrevented)return;const i=this._element.scrollHeight>document.documentElement.clientHeight,r=this._element.style.overflowY;r==="hidden"||this._element.classList.contains(Ci)||(i||(this._element.style.overflowY="hidden"),this._element.classList.add(Ci),this._queueCallback(()=>{this._element.classList.remove(Ci),this._queueCallback(()=>{this._element.style.overflowY=r},this._dialog)},this._dialog),this._element.focus())}_adjustDialog(){const t=this._element.scrollHeight>document.documentElement.clientHeight,i=this._scrollBar.getWidth(),r=i>0;if(r&&!t){const n=H()?"paddingLeft":"paddingRight";this._element.style[n]=`${i}px`}if(!r&&t){const n=H()?"paddingRight":"paddingLeft";this._element.style[n]=`${i}px`}}_resetAdjustments(){this._element.style.paddingLeft="",this._element.style.paddingRight=""}static jQueryInterface(t,i){return this.each(function(){const r=ks.getOrCreateInstance(this,t);if(typeof t=="string"){if(typeof r[t]=="undefined")throw new TypeError(`No method named "${t}"`);r[t](i)}})}};l.on(document,qc,tu,function(e){const t=p.getElementFromSelector(this);if(["A","AREA"].includes(this.tagName)&&e.preventDefault(),!t)return;l.one(t,In,r=>{r!=null&&r.defaultPrevented||l.one(t,Ln,()=>{wt(this)&&this.focus()})});const i=p.findOne(Qc);i&&Zt.getInstance(i).hide(),Zt.getOrCreateInstance(t).toggle(this)}),le(Zt),F(Zt);var ru="offcanvas",et=".bs.offcanvas",Pn=".data-api",nu=`load${et}${Pn}`,su="Escape",kn="show",Rn="showing",Vn="hiding",au="offcanvas-backdrop",Hn=".offcanvas.show",ou=`show${et}`,lu=`shown${et}`,cu=`hide${et}`,Fn=`hidePrevented${et}`,jn=`hidden${et}`,uu=`resize${et}`,hu=`click${et}${Pn}`,du=`keydown.dismiss${et}`,fu='[data-bs-toggle="offcanvas"], [data-tblr-toggle="offcanvas"]',pu={backdrop:!0,keyboard:!0,scroll:!1},_u={backdrop:"(boolean|string)",keyboard:"boolean",scroll:"boolean"},gt=class Rs extends D{constructor(t,i){super(t,i),this._isShown=!1,this._backdrop=this._initializeBackDrop(),this._focustrap=this._initializeFocusTrap(),this._addEventListeners()}static get Default(){return pu}static get DefaultType(){return _u}static get NAME(){return ru}toggle(t){return this._isShown?this.hide():this.show(t)}show(t){if(this._isShown)return;const i=l.trigger(this._element,ou,{relatedTarget:t});if(i!=null&&i.defaultPrevented)return;this._isShown=!0,this._backdrop.show(),this._config.scroll||new Si().hide(),this._element.setAttribute("aria-modal","true"),this._element.setAttribute("role","dialog"),this._element.classList.add(Rn);const r=()=>{(!this._config.scroll||this._config.backdrop)&&this._focustrap.activate(),this._element.classList.add(kn),this._element.classList.remove(Rn),l.trigger(this._element,lu,{relatedTarget:t})};this._queueCallback(r,this._element,!0)}hide(){if(!this._isShown)return;const t=l.trigger(this._element,cu);if(t!=null&&t.defaultPrevented)return;this._focustrap.deactivate(),this._element.blur(),this._isShown=!1,this._element.classList.add(Vn),this._backdrop.hide();const i=()=>{this._element.classList.remove(kn,Vn),this._element.removeAttribute("aria-modal"),this._element.removeAttribute("role"),this._config.scroll||new Si().reset(),l.trigger(this._element,jn)};this._queueCallback(i,this._element,!0)}dispose(){this._backdrop.dispose(),this._focustrap.deactivate(),super.dispose()}_initializeBackDrop(){const t=()=>{if(this._config.backdrop==="static"){l.trigger(this._element,Fn);return}this.hide()},i=!!this._config.backdrop;return new Sn({className:au,isVisible:i,isAnimated:!0,rootElement:this._element.parentNode,clickCallback:i?t:null})}_initializeFocusTrap(){return new On({trapElement:this._element})}_addEventListeners(){l.on(this._element,du,t=>{if(t.key===su){if(this._config.keyboard){this.hide();return}l.trigger(this._element,Fn)}})}static jQueryInterface(t){return this.each(function(){const i=Rs.getOrCreateInstance(this,t);if(typeof t=="string"){if(i[t]===void 0||t.startsWith("_")||t==="constructor")throw new TypeError(`No method named "${t}"`);i[t](this)}})}};l.on(document,hu,fu,function(e){const t=p.getElementFromSelector(this);if(["A","AREA"].includes(this.tagName)&&e.preventDefault(),!t||z(this))return;l.one(t,jn,()=>{wt(this)&&this.focus()});const i=p.findOne(Hn);i&&i!==t&&gt.getInstance(i).hide(),gt.getOrCreateInstance(t).toggle(this)}),l.on(window,nu,()=>{for(const e of p.find(Hn))gt.getOrCreateInstance(e).show()}),l.on(window,uu,()=>{for(const e of p.find("[aria-modal][class*=show][class*=offcanvas-]"))getComputedStyle(e).position!=="fixed"&&gt.getOrCreateInstance(e).hide()}),le(gt),F(gt);var Wn={"*":["class","dir","id","lang","role",/^aria-[\w-]*$/i],a:["target","href","title","rel"],area:[],b:[],br:[],col:[],code:[],dd:[],div:[],dl:[],dt:[],em:[],hr:[],h1:[],h2:[],h3:[],h4:[],h5:[],h6:[],i:[],img:["src","srcset","alt","title","width","height"],li:[],ol:[],p:[],pre:[],s:[],small:[],span:[],sub:[],sup:[],strong:[],u:[],ul:[]},mu=new Set(["background","cite","href","itemtype","longdesc","poster","src","xlink:href"]),vu=/^(?!javascript:)(?:[a-z0-9+.-]+:|[^&:/?#]*(?:[/?#]|$))/i,gu=(e,t)=>{const i=e.nodeName.toLowerCase();return t.includes(i)?mu.has(i)?!!vu.test(e.nodeValue):!0:t.filter(r=>r instanceof RegExp).some(r=>r.test(i))};function Eu(e,t,i){if(!e.length)return e;if(i&&typeof i=="function")return i(e);const r=new window.DOMParser().parseFromString(e,"text/html"),n=Array.from(r.body.querySelectorAll("*"));for(const s of n){const a=s.nodeName.toLowerCase();if(!Object.keys(t).includes(a)){s.remove();continue}const o=Array.from(s.attributes),c=[...t["*"]||[],...t[a]||[]];for(const h of o)gu(h,c)||s.removeAttribute(h.nodeName)}return r.body.innerHTML}var bu="TemplateFactory",Au={allowList:Wn,content:{},extraClass:"",html:!1,sanitize:!0,sanitizeFn:null,template:"<div></div>"},yu={allowList:"object",content:"object",extraClass:"(string|function)",html:"boolean",sanitize:"boolean",sanitizeFn:"(null|function)",template:"string"},Tu={entry:"(string|element|function|null)",selector:"(string|element)"},wu=class extends zt{constructor(e){super(),this._config=this._getConfig(e)}static get Default(){return Au}static get DefaultType(){return yu}static get NAME(){return bu}getContent(){return Object.values(this._config.content).map(e=>this._resolvePossibleFunction(e)).filter(Boolean)}hasContent(){return this.getContent().length>0}changeContent(e){return this._checkContent(e),this._config.content=A(A({},this._config.content),e),this}toHtml(){const e=document.createElement("div");e.innerHTML=this._maybeSanitize(this._config.template);for(const[r,n]of Object.entries(this._config.content))this._setContent(e,n,r);const t=e.children[0],i=this._resolvePossibleFunction(this._config.extraClass);return i&&t.classList.add(...i.split(" ")),t}_typeCheckConfig(e){super._typeCheckConfig(e),this._checkContent(e.content)}_checkContent(e){for(const[t,i]of Object.entries(e))super._typeCheckConfig({selector:t,entry:i},Tu)}_setContent(e,t,i){const r=p.findOne(i,e);if(r){if(t=this._resolvePossibleFunction(t),!t){r.remove();return}if(Q(t)){this._putElementInTemplate(V(t),r);return}if(this._config.html){r.innerHTML=this._maybeSanitize(t);return}r.textContent=t}}_maybeSanitize(e){return this._config.sanitize?Eu(e,this._config.allowList,this._config.sanitizeFn):e}_resolvePossibleFunction(e){return M(e,[void 0,this])}_putElementInTemplate(e,t){if(this._config.html){t.innerHTML="",t.append(e);return}t.textContent=e.textContent}},Su="tooltip",Cu=new Set(["sanitize","allowList","sanitizeFn"]),Oi="fade",Ou="modal",we="show",Nu=".tooltip-inner",Bn=`.${Ou}`,zn="hide.bs.modal",Jt="hover",Ni="focus",Di="click",Du="manual",$u="hide",Lu="hidden",Iu="show",xu="shown",Mu="inserted",Pu="click",ku="focusin",Ru="focusout",Vu="mouseenter",Hu="mouseleave",Fu={AUTO:"auto",TOP:"top",RIGHT:H()?"left":"right",BOTTOM:"bottom",LEFT:H()?"right":"left"},ju={allowList:Wn,animation:!0,boundary:"clippingParents",container:!1,customClass:"",delay:0,fallbackPlacements:["top","right","bottom","left"],html:!1,offset:[0,6],placement:"top",popperConfig:null,sanitize:!0,sanitizeFn:null,selector:!1,template:'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>',title:"",trigger:"hover focus"},Wu={allowList:"object",animation:"boolean",boundary:"(string|element)",container:"(string|element|boolean)",customClass:"(string|function)",delay:"(number|object)",fallbackPlacements:"array",html:"boolean",offset:"(array|string|function)",placement:"(string|function)",popperConfig:"(null|object|function)",sanitize:"boolean",sanitizeFn:"(null|function)",selector:"(string|boolean)",template:"string",title:"(string|element|function)",trigger:"string"},kt=class Vs extends D{constructor(t,i){if(typeof hn=="undefined")throw new TypeError("Bootstrap's tooltips require Popper (https://popper.js.org/docs/v2/)");super(t,i),this._isEnabled=!0,this._timeout=0,this._isHovered=null,this._activeTrigger={},this._popper=null,this._templateFactory=null,this._newContent=null,this.tip=null,this._hideModalHandler=()=>{this._element&&this.hide()},this._setListeners(),this._config.selector||this._fixTitle()}static get Default(){return ju}static get DefaultType(){return Wu}static get NAME(){return Su}enable(){this._isEnabled=!0}disable(){this._isEnabled=!1}toggleEnabled(){this._isEnabled=!this._isEnabled}toggle(){if(this._isEnabled){if(this._isShown()){this._leave();return}this._enter()}}dispose(){clearTimeout(this._timeout),l.off(this._element.closest(Bn),zn,this._hideModalHandler),(this._element.getAttribute("data-bs-original-title")||this._element.getAttribute("data-tblr-original-title"))&&this._element.setAttribute("title",this._element.getAttribute("data-bs-original-title")||this._element.getAttribute("data-tblr-original-title")||""),this._disposePopper(),super.dispose()}show(){if(this._element.style.display==="none")throw new Error("Please use show on visible elements");if(!(this._isWithContent()&&this._isEnabled))return;const t=l.trigger(this._element,this.constructor.eventName(Iu)),i=(Ji(this._element)||this._element.ownerDocument.documentElement).contains(this._element);if(t!=null&&t.defaultPrevented||!i)return;this._disposePopper();const r=this._getTipElement();this._element.setAttribute("aria-describedby",r.getAttribute("id"));const{container:n}=this._config;if(this._element.ownerDocument.documentElement.contains(this.tip)||(n.append(r),l.trigger(this._element,this.constructor.eventName(Mu))),this._popper=this._createPopper(r),r.classList.add(we),"ontouchstart"in document.documentElement)for(const a of Array.from(document.body.children))l.on(a,"mouseover",oe);const s=()=>{l.trigger(this._element,this.constructor.eventName(xu)),this._isHovered===!1&&this._leave(),this._isHovered=!1};this._queueCallback(s,this.tip,this._isAnimated())}hide(){if(!this._isShown())return;const t=l.trigger(this._element,this.constructor.eventName($u));if(t!=null&&t.defaultPrevented)return;if(this._getTipElement().classList.remove(we),"ontouchstart"in document.documentElement)for(const r of Array.from(document.body.children))l.off(r,"mouseover",oe);this._activeTrigger[Di]=!1,this._activeTrigger[Ni]=!1,this._activeTrigger[Jt]=!1,this._isHovered=null;const i=()=>{this._isWithActiveTrigger()||(this._isHovered||this._disposePopper(),this._element.removeAttribute("aria-describedby"),l.trigger(this._element,this.constructor.eventName(Lu)))};this._queueCallback(i,this.tip,this._isAnimated())}update(){this._popper&&this._popper.update()}_isWithContent(){return!!this._getTitle()}_getTipElement(){return this.tip||(this.tip=this._createTipElement(this._newContent||this._getContentForTemplate())),this.tip}_createTipElement(t){const i=this._getTemplateFactory(t).toHtml();if(!i)return null;i.classList.remove(Oi,we),i.classList.add(`bs-${this.constructor.NAME}-auto`);const r=Zs(this.constructor.NAME).toString();return i.setAttribute("id",r),this._isAnimated()&&i.classList.add(Oi),i}setContent(t){this._newContent=t,this._isShown()&&(this._disposePopper(),this.show())}_getTemplateFactory(t){return this._templateFactory?this._templateFactory.changeContent(t):this._templateFactory=new wu(A(A({},this._config),{},{content:t,extraClass:this._resolvePossibleFunction(this._config.customClass)})),this._templateFactory}_getContentForTemplate(){return{[Nu]:this._getTitle()}}_getTitle(){return this._resolvePossibleFunction(this._config.title)||this._element.getAttribute("data-bs-original-title")||this._element.getAttribute("data-tblr-original-title")||""}_initializeOnDelegatedTarget(t){return this.constructor.getOrCreateInstance(t.delegateTarget,this._getDelegateConfig())}_isAnimated(){return this._config.animation||this.tip!==null&&this.tip.classList.contains(Oi)}_isShown(){return this.tip!==null&&this.tip.classList.contains(we)}_createPopper(t){const i=Fu[M(this._config.placement,[this,t,this._element]).toUpperCase()];return vi(this._element,t,this._getPopperConfig(i))}_getOffset(){const{offset:t}=this._config;return typeof t=="string"?t.split(",").map(i=>Number.parseInt(i,10)):typeof t=="function"?i=>t(i,this._element):t}_resolvePossibleFunction(t){return M(t,[this._element,this._element])}_getPopperConfig(t){const i={placement:t,modifiers:[{name:"flip",options:{fallbackPlacements:this._config.fallbackPlacements}},{name:"offset",options:{offset:this._getOffset()}},{name:"preventOverflow",options:{boundary:this._config.boundary}},{name:"arrow",options:{element:`.${this.constructor.NAME}-arrow`}},{name:"preSetPlacement",enabled:!0,phase:"beforeMain",fn:n=>{this._getTipElement().setAttribute("data-popper-placement",n.state.placement)}}]},r=M(this._config.popperConfig,[void 0,i]);return A(A({},i),typeof r=="object"&&r!==null?r:{})}_setListeners(){const t=this._config.trigger.split(" ");for(const i of t)if(i==="click")l.on(this._element,this.constructor.eventName(Pu),this._config.selector,r=>{const n=this._initializeOnDelegatedTarget(r);n._activeTrigger[Di]=!(n._isShown()&&n._activeTrigger[Di]),n.toggle()});else if(i!==Du){const r=i===Jt?this.constructor.eventName(Vu):this.constructor.eventName(ku),n=i===Jt?this.constructor.eventName(Hu):this.constructor.eventName(Ru);l.on(this._element,r,this._config.selector,s=>{const a=this._initializeOnDelegatedTarget(s);a._activeTrigger[s.type==="focusin"?Ni:Jt]=!0,a._enter()}),l.on(this._element,n,this._config.selector,s=>{const a=this._initializeOnDelegatedTarget(s);a._activeTrigger[s.type==="focusout"?Ni:Jt]=a._element.contains(s.relatedTarget),a._leave()})}l.on(this._element.closest(Bn),zn,this._hideModalHandler)}_fixTitle(){const t=this._element.getAttribute("title");t&&(!this._element.getAttribute("aria-label")&&!this._element.textContent.trim()&&this._element.setAttribute("aria-label",t),this._element.setAttribute("data-bs-original-title",t),this._element.removeAttribute("title"))}_enter(){if(this._isShown()||this._isHovered){this._isHovered=!0;return}this._isHovered=!0,this._setTimeout(()=>{this._isHovered&&this.show()},this._getDelay().show)}_leave(){this._isWithActiveTrigger()||(this._isHovered=!1,this._setTimeout(()=>{this._isHovered||this.hide()},this._getDelay().hide))}_getDelay(){const{delay:t}=this._config;return typeof t=="number"?{show:t,hide:t}:t}_setTimeout(t,i){clearTimeout(this._timeout),this._timeout=setTimeout(t,i)}_isWithActiveTrigger(){return Object.values(this._activeTrigger).includes(!0)}_getConfig(t){const i=I.getDataAttributes(this._element);for(const n of Object.keys(i))Cu.has(n)&&delete i[n];let r=A(A({},i),typeof t=="object"&&t?t:{});return r=this._mergeConfigObj(r),r=this._configAfterMerge(r),this._typeCheckConfig(r),r}_configAfterMerge(t){t.container=t.container===!1?document.body:V(t.container),typeof t.delay=="number"&&(t.delay={show:t.delay,hide:t.delay});const i=t;return typeof i.title=="number"&&(i.title=i.title.toString()),typeof i.content=="number"&&(i.content=i.content.toString()),t}_getDelegateConfig(){const t={},i=this.constructor.Default;for(const[r,n]of Object.entries(this._config))i[r]!==n&&(t[r]=n);return t.selector=!1,t.trigger="manual",t}_disposePopper(){this._popper&&(this._popper.destroy(),this._popper=null),this.tip&&(this.tip.remove(),this.tip=null)}static jQueryInterface(t){return this.each(function(){const i=Vs.getOrCreateInstance(this,t);if(typeof t=="string"){if(typeof i[t]=="undefined")throw new TypeError(`No method named "${t}"`);i[t]()}})}};F(kt);var Bu="popover",zu=".popover-header",Ku=".popover-body",Yu=A(A({},kt.Default),{},{content:"",offset:[0,8],placement:"right",template:'<div class="popover" role="tooltip"><div class="popover-arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>',trigger:"click"}),Uu=A(A({},kt.DefaultType),{},{content:"(null|string|element|function)"}),$i=class Hs extends kt{constructor(t,i){super(t,i)}static get Default(){return Yu}static get DefaultType(){return Uu}static get NAME(){return Bu}_isWithContent(){return!!(this._getTitle()||this._getContent())}_getContentForTemplate(){return{[zu]:this._getTitle(),[Ku]:this._getContent()}}_getContent(){return this._resolvePossibleFunction(this._config.content)}static jQueryInterface(t){return this.each(function(){const i=Hs.getOrCreateInstance(this,t);if(typeof t=="string"){if(typeof i[t]=="undefined")throw new TypeError(`No method named "${t}"`);i[t]()}})}};F($i);var Gu="scrollspy",Li=".bs.scrollspy",qu=".data-api",Xu=`activate${Li}`,Kn=`click${Li}`,Qu=`load${Li}${qu}`,Zu="dropdown-item",Rt="active",Ju='[data-bs-spy="scroll"], [data-tblr-spy="scroll"]',Ii="[href]",th=".nav, .list-group",Yn=".nav-link",eh=`${Yn}, .nav-item > ${Yn}, .list-group-item`,ih=".dropdown",rh=".dropdown-toggle",nh={offset:null,rootMargin:"0px 0px -25%",smoothScroll:!1,target:null,threshold:[.1,.5,1]},sh={offset:"(number|null)",rootMargin:"string",smoothScroll:"boolean",target:"element",threshold:"array"},xi=class Fs extends D{constructor(t,i){super(t,i),this._targetLinks=new Map,this._observableSections=new Map,this._rootElement=getComputedStyle(this._element).overflowY==="visible"?null:this._element,this._activeTarget=null,this._observer=null,this._previousScrollData={visibleEntryTop:0,parentScrollTop:0},this.refresh()}static get Default(){return nh}static get DefaultType(){return sh}static get NAME(){return Gu}refresh(){this._initializeTargetsAndObservables(),this._maybeEnableSmoothScroll(),this._observer?this._observer.disconnect():this._observer=this._getNewObserver();for(const t of this._observableSections.values())this._observer.observe(t)}dispose(){this._observer.disconnect(),super.dispose()}_configAfterMerge(t){t.target=V(t.target)||document.body,t.rootMargin=t.offset?`${t.offset}px 0px -30%`:t.rootMargin;const i=t.threshold;return typeof i=="string"&&(t.threshold=i.split(",").map(r=>Number.parseFloat(r))),t}_maybeEnableSmoothScroll(){this._config.smoothScroll&&(l.off(this._config.target,Kn),l.on(this._config.target,Kn,Ii,t=>{const i=this._observableSections.get(t.target.hash);if(i){t.preventDefault();const r=this._rootElement||window,n=i.offsetTop-this._element.offsetTop;if("scrollTo"in r){r.scrollTo({top:n,behavior:"smooth"});return}r.scrollTop=n}}))}_getNewObserver(){const t={root:this._rootElement,threshold:this._config.threshold,rootMargin:this._config.rootMargin};return new IntersectionObserver(i=>this._observerCallback(i),t)}_observerCallback(t){const i=a=>this._targetLinks.get(`#${a.target.id}`),r=a=>{this._previousScrollData.visibleEntryTop=a.target.offsetTop,this._process(i(a))},n=(this._rootElement||document.documentElement).scrollTop,s=n>=this._previousScrollData.parentScrollTop;this._previousScrollData.parentScrollTop=n;for(const a of t){if(!a.isIntersecting){this._activeTarget=null,this._clearActiveClass(i(a));continue}const o=a.target.offsetTop>=this._previousScrollData.visibleEntryTop;if(s&&o){if(r(a),!n)return;continue}!s&&!o&&r(a)}}_initializeTargetsAndObservables(){this._targetLinks=new Map,this._observableSections=new Map;const t=p.find(Ii,this._config.target);for(const i of t){if(!i.hash||z(i))continue;const r=p.findOne(Fe(decodeURI(i.hash)),this._element);wt(r)&&(this._targetLinks.set(decodeURI(i.hash),i),this._observableSections.set(i.hash,r))}}_process(t){this._activeTarget!==t&&(this._clearActiveClass(this._config.target),this._activeTarget=t,t.classList.add(Rt),this._activateParents(t),l.trigger(this._element,Xu,{relatedTarget:t}))}_activateParents(t){if(t.classList.contains(Zu)){p.findOne(rh,t.closest(ih)).classList.add(Rt);return}for(const i of p.parents(t,th))for(const r of p.prev(i,eh))r.classList.add(Rt)}_clearActiveClass(t){t.classList.remove(Rt);const i=p.find(`${Ii}.${Rt}`,t);for(const r of i)r.classList.remove(Rt)}static jQueryInterface(t){return this.each(function(){const i=Fs.getOrCreateInstance(this,t);if(typeof t=="string"){if(i[t]===void 0||t.startsWith("_")||t==="constructor")throw new TypeError(`No method named "${t}"`);i[t]()}})}};l.on(window,Qu,()=>{for(const e of p.find(Ju))xi.getOrCreateInstance(e)}),F(xi);var ah="tab",Et=".bs.tab",oh=`hide${Et}`,lh=`hidden${Et}`,ch=`show${Et}`,uh=`shown${Et}`,hh=`click${Et}`,dh=`keydown${Et}`,fh=`load${Et}`,ph="ArrowLeft",Un="ArrowRight",_h="ArrowUp",Gn="ArrowDown",Mi="Home",qn="End",X="active",Xn="fade",Pi="show",mh="dropdown",Qn=".dropdown-toggle",vh=".dropdown-menu",ki=`:not(${Qn})`,gh='.list-group, .nav, [role="tablist"]',Eh=".nav-item, .list-group-item",bh=`.nav-link${ki}, .list-group-item${ki}, [role="tab"]${ki}`,Zn='[data-bs-toggle="tab"], [data-bs-toggle="pill"], [data-bs-toggle="list"], [data-tblr-toggle="tab"], [data-tblr-toggle="pill"], [data-tblr-toggle="list"]',Ri=`${bh}, ${Zn}`,Ah=`.${X}[data-bs-toggle="tab"], .${X}[data-bs-toggle="pill"], .${X}[data-bs-toggle="list"], .${X}[data-tblr-toggle="tab"], .${X}[data-tblr-toggle="pill"], .${X}[data-tblr-toggle="list"]`,te=class Yi extends D{constructor(t){super(t),this._parent=this._element.closest(gh),this._parent&&(this._setInitialAttributes(this._parent,this._getChildren()),l.on(this._element,dh,i=>this._keydown(i)))}static get NAME(){return ah}show(){const t=this._element;if(this._elemIsActive(t))return;const i=this._getActiveElem(),r=i?l.trigger(i,oh,{relatedTarget:t}):null,n=l.trigger(t,ch,{relatedTarget:i});n!=null&&n.defaultPrevented||r!=null&&r.defaultPrevented||(this._deactivate(i,t),this._activate(t,i))}_activate(t,i){if(!t)return;t.classList.add(X),this._activate(p.getElementFromSelector(t));const r=()=>{if(t.getAttribute("role")!=="tab"){t.classList.add(Pi);return}t.removeAttribute("tabindex"),t.setAttribute("aria-selected","true"),this._toggleDropDown(t,!0),l.trigger(t,uh,{relatedTarget:i})};this._queueCallback(r,t,t.classList.contains(Xn))}_deactivate(t,i){if(!t)return;t.classList.remove(X),t.blur(),this._deactivate(p.getElementFromSelector(t));const r=()=>{if(t.getAttribute("role")!=="tab"){t.classList.remove(Pi);return}t.setAttribute("aria-selected","false"),t.setAttribute("tabindex","-1"),this._toggleDropDown(t,!1),l.trigger(t,lh,{relatedTarget:i})};this._queueCallback(r,t,t.classList.contains(Xn))}_keydown(t){if(![ph,Un,_h,Gn,Mi,qn].includes(t.key))return;t.stopPropagation(),t.preventDefault();const i=this._getChildren().filter(n=>!z(n));let r;if([Mi,qn].includes(t.key))r=i[t.key===Mi?0:i.length-1];else{const n=[Un,Gn].includes(t.key);r=We(i,t.target,n,!0)}r&&(r.focus({preventScroll:!0}),Yi.getOrCreateInstance(r).show())}_getChildren(){return p.find(Ri,this._parent)}_getActiveElem(){return this._getChildren().find(t=>this._elemIsActive(t))||null}_setInitialAttributes(t,i){this._setAttributeIfNotExists(t,"role","tablist");for(const r of i)this._setInitialAttributesOnChild(r)}_setInitialAttributesOnChild(t){t=this._getInnerElement(t);const i=this._elemIsActive(t),r=this._getOuterElement(t);t.setAttribute("aria-selected",String(i)),r!==t&&this._setAttributeIfNotExists(r,"role","presentation"),i||t.setAttribute("tabindex","-1"),this._setAttributeIfNotExists(t,"role","tab"),this._setInitialAttributesOnTargetPanel(t)}_setInitialAttributesOnTargetPanel(t){const i=p.getElementFromSelector(t);i&&(this._setAttributeIfNotExists(i,"role","tabpanel"),t.id&&this._setAttributeIfNotExists(i,"aria-labelledby",`${t.id}`))}_toggleDropDown(t,i){const r=this._getOuterElement(t);if(!r.classList.contains(mh))return;const n=(s,a)=>{const o=p.findOne(s,r);o&&o.classList.toggle(a,i)};n(Qn,X),n(vh,Pi),r.setAttribute("aria-expanded",String(i))}_setAttributeIfNotExists(t,i,r){t.hasAttribute(i)||t.setAttribute(i,r)}_elemIsActive(t){return t.classList.contains(X)}_getInnerElement(t){return t.matches(Ri)?t:p.findOne(Ri,t)}_getOuterElement(t){return t.closest(Eh)||t}static jQueryInterface(t){return this.each(function(){const i=Yi.getOrCreateInstance(this);if(typeof t=="string"){if(i[t]===void 0||t.startsWith("_")||t==="constructor")throw new TypeError(`No method named "${t}"`);i[t]()}})}};l.on(document,hh,Zn,function(e){["A","AREA"].includes(this.tagName)&&e.preventDefault(),!z(this)&&te.getOrCreateInstance(this).show()}),l.on(window,fh,()=>{for(const e of p.find(Ah))te.getOrCreateInstance(e)}),F(te);var yh="toast",ct=".bs.toast",Th=`mouseover${ct}`,wh=`mouseout${ct}`,Sh=`focusin${ct}`,Ch=`focusout${ct}`,Oh=`hide${ct}`,Nh=`hidden${ct}`,Dh=`show${ct}`,$h=`shown${ct}`,Lh="fade",Jn="hide",Se="show",Ce="showing",Ih={animation:"boolean",autohide:"boolean",delay:"number"},xh={animation:!0,autohide:!0,delay:5e3},Oe=class js extends D{constructor(t,i){super(t,i),this._timeout=null,this._hasMouseInteraction=!1,this._hasKeyboardInteraction=!1,this._setListeners()}static get Default(){return xh}static get DefaultType(){return Ih}static get NAME(){return yh}show(){const t=l.trigger(this._element,Dh);if(t!=null&&t.defaultPrevented)return;this._clearTimeout(),this._config.animation&&this._element.classList.add(Lh);const i=()=>{this._element.classList.remove(Ce),l.trigger(this._element,$h),this._maybeScheduleHide()};this._element.classList.remove(Jn),Wt(this._element),this._element.classList.add(Se,Ce),this._queueCallback(i,this._element,this._config.animation)}hide(){if(!this.isShown())return;const t=l.trigger(this._element,Oh);if(t!=null&&t.defaultPrevented)return;const i=()=>{this._element.classList.add(Jn),this._element.classList.remove(Ce,Se),l.trigger(this._element,Nh)};this._element.classList.add(Ce),this._queueCallback(i,this._element,this._config.animation)}dispose(){this._clearTimeout(),this.isShown()&&this._element.classList.remove(Se),super.dispose()}isShown(){return this._element.classList.contains(Se)}_maybeScheduleHide(){this._config.autohide&&(this._hasMouseInteraction||this._hasKeyboardInteraction||(this._timeout=setTimeout(()=>{this.hide()},this._config.delay)))}_onInteraction(t,i){switch(t.type){case"mouseover":case"mouseout":this._hasMouseInteraction=i;break;case"focusin":case"focusout":this._hasKeyboardInteraction=i}if(i){this._clearTimeout();return}const r=t.relatedTarget;this._element===r||this._element.contains(r)||this._maybeScheduleHide()}_setListeners(){l.on(this._element,Th,t=>this._onInteraction(t,!0)),l.on(this._element,wh,t=>this._onInteraction(t,!1)),l.on(this._element,Sh,t=>this._onInteraction(t,!0)),l.on(this._element,Ch,t=>this._onInteraction(t,!1))}_clearTimeout(){clearTimeout(this._timeout),this._timeout=null}static jQueryInterface(t){return this.each(function(){const i=js.getOrCreateInstance(this,t);if(typeof t=="string"){if(typeof i[t]=="undefined")throw new TypeError(`No method named "${t}"`);i[t](this)}})}};le(Oe),F(Oe);var Mh={Alert:gi,Button:Ei,Carousel:Ee,Collapse:Ti,Dropdown:tt,Modal:Zt,Offcanvas:gt,Popover:$i,ScrollSpy:xi,Tab:te,Toast:Oe,Tooltip:kt};ft(()=>{for(const e of document.querySelectorAll('[data-bs-toggle="dropdown"], [data-tblr-toggle="dropdown"]'))try{const t={boundary:I.getDataAttribute(e,"boundary")==="viewport"?document.documentElement:"clippingParents"};tt.getOrCreateInstance(e,t)}catch(t){console.error(t)}});var ts=e=>{for(const t of document.querySelectorAll('[data-bs-toggle="sidebar-folded"], [data-tblr-toggle="sidebar-folded"]'))t.setAttribute("aria-pressed",String(e))},Ph=()=>{var e;return((e=document.documentElement.getAttribute("data-bs-sidebar"))!==null&&e!==void 0?e:"").startsWith("folded")||!!document.querySelector(".navbar-vertical.navbar-folded, .navbar-vertical.navbar-folded-hover")},Vi=e=>{for(const i of document.querySelectorAll('.navbar-vertical [data-bs-toggle="dropdown"][aria-expanded="true"]'))if(i!==e){var t;(t=tt.getInstance(i))===null||t===void 0||t.hide()}};document.addEventListener("click",e=>{if(!Ph())return;const t=e.target;!(t instanceof Element)||t.closest(".navbar-vertical .dropdown-menu")||Vi(t.closest('.navbar-vertical [data-bs-toggle="dropdown"]'))}),document.addEventListener("mouseleave",e=>{const t=e.target;!(t instanceof Element)||!t.matches(".navbar-vertical")||(document.documentElement.getAttribute("data-bs-sidebar")==="folded-hover"||t.classList.contains("navbar-folded-hover"))&&Vi()},!0),ft(()=>{var e;const t=((e=document.documentElement.getAttribute("data-bs-sidebar"))!==null&&e!==void 0?e:"").startsWith("folded");if(ts(t),t)for(const r of document.querySelectorAll(".navbar-vertical .dropdown-menu.show")){var i;r.classList.remove("show"),(i=r.parentElement)===null||i===void 0||(i=i.querySelector('[data-bs-toggle="dropdown"]'))===null||i===void 0||i.setAttribute("aria-expanded","false")}}),document.addEventListener("click",e=>{var t;if(!(e.target instanceof Element&&e.target.closest('[data-bs-toggle="sidebar-folded"], [data-tblr-toggle="sidebar-folded"]')))return;const i=document.documentElement,r=!((t=i.getAttribute("data-bs-sidebar"))!==null&&t!==void 0?t:"").startsWith("folded");r?i.setAttribute("data-bs-sidebar","folded-hover"):i.removeAttribute("data-bs-sidebar");try{localStorage.setItem("tabler-sidebar",r?"folded-hover":"default")}catch(n){}ts(r),Vi(),document.dispatchEvent(new CustomEvent("tabler:sidebar-folded",{detail:{folded:r}}))}),ft(()=>{for(const i of document.querySelectorAll('[data-bs-toggle="tooltip"], [data-tblr-toggle="tooltip"]'))try{var e,t;const r={delay:(e=I.getDataAttribute(i,"delay"))!==null&&e!==void 0?e:{show:50,hide:50},placement:(t=I.getDataAttribute(i,"placement"))!==null&&t!==void 0?t:"auto"};kt.getOrCreateInstance(i,r)}catch(r){console.error(r)}}),ft(()=>{for(const i of document.querySelectorAll('[data-bs-toggle="popover"], [data-tblr-toggle="popover"]'))try{var e,t;const r={delay:(e=I.getDataAttribute(i,"delay"))!==null&&e!==void 0?e:{show:50,hide:50},placement:(t=I.getDataAttribute(i,"placement"))!==null&&t!==void 0?t:"auto"};$i.getOrCreateInstance(i,r)}catch(r){console.error(r)}});function es(e,t){if(t.has(e))throw new TypeError("Cannot initialize the same private elements twice on an object")}function kh(e,t){es(e,t),t.add(e)}function Rh(e,t,i){es(e,t),t.set(e,i)}function bt(e,t,i){if(typeof e=="function"?e===t:e.has(t))return arguments.length<3?t:i;throw new TypeError("Private element is not present on this object")}function Vh(e,t,i){return e.set(bt(e,t),i),i}function Ne(e,t){return e.get(bt(e,t))}var De="switch-icon",Hi=`.${`bs.${De}`}`,Hh=`click${Hi}`,Fh=`toggle${Hi}`,jh=`change${Hi}`,is="active",Wh="disabled",rs="switch-icon-loading",ns=".switch-icon",Bh=`[data-bs-toggle="${De}"], [data-tblr-toggle="${De}"]`,zh={},Kh={},Vt=new WeakMap,Ht=new WeakSet,Yh=class extends D{constructor(e,t){var i;super(e,t),kh(this,Ht),Rh(this,Vt,void 0),this._element&&(Vh(Vt,this,this._element.matches(ns)?this._element:(i=p.findOne(ns,this._element))!==null&&i!==void 0?i:this._element),this._element.hasAttribute("aria-pressed")||this._element.setAttribute("aria-pressed",String(this.isActive)),l.on(this._element,Hh,r=>{r.stopPropagation(),!(this._element.classList.contains(Wh)||this._element.getAttribute("aria-disabled")==="true")&&this.toggle()}))}static get Default(){return zh}static get DefaultType(){return Kh}static get NAME(){return De}get isActive(){return Ne(Vt,this).classList.contains(is)}get isLoading(){return Ne(Vt,this).classList.contains(rs)}toggle(e){if(this.isLoading)return;const t=e!=null?e:!this.isActive;let i;const r=l.trigger(this._element,Fh,{active:t,wait:n=>{i=n}});if(!(r!=null&&r.defaultPrevented)){if(!i){bt(Ht,this,ss).call(this,t);return}bt(Ht,this,Fi).call(this,!0),i.then(()=>bt(Ht,this,ss).call(this,t),()=>{}).finally(()=>bt(Ht,this,Fi).call(this,!1))}}dispose(){bt(Ht,this,Fi).call(this,!1),super.dispose()}};function ss(e){this._element&&(Ne(Vt,this).classList.toggle(is,e),this._element.setAttribute("aria-pressed",String(e)),l.trigger(this._element,jh,{active:e}))}function Fi(e){this._element&&(Ne(Vt,this).classList.toggle(rs,e),e?this._element.setAttribute("aria-busy","true"):this._element.removeAttribute("aria-busy"))}K(Bh,Yh);var Uh=()=>{const e=window.location.hash;if(e){for(const t of document.querySelectorAll('[data-bs-toggle="tab"], [data-tblr-toggle="tab"]'))if(t.hash===e)try{te.getOrCreateInstance(t).show()}catch(i){console.error(i)}}};ft(Uh),ft(()=>{for(const e of document.querySelectorAll('[data-bs-toggle="toast"], [data-tblr-toggle="toast"]'))try{const t=p.getElementFromSelector(e);if(!t)continue;const i=Oe.getOrCreateInstance(t);e.addEventListener("click",()=>{i.show()})}catch(t){console.error(t)}});var as="sortable",os=`data-${as}`,Gh=`[${os}]`,qh={},Xh={},Qh=class extends D{constructor(e,t){super(e,t),this._sortable=null,!(!this._element||!window.Sortable)&&(this._sortable=new window.Sortable(this._element,this._config))}static get Default(){return qh}static get DefaultType(){return Xh}static get NAME(){return as}get sortable(){return this._sortable}toArray(){var e,t;return(e=(t=this._sortable)===null||t===void 0?void 0:t.toArray())!==null&&e!==void 0?e:[]}sort(e,t){var i;(i=this._sortable)===null||i===void 0||i.sort(e,t)}dispose(){var e;(e=this._sortable)===null||e===void 0||e.destroy(),super.dispose()}_mergeConfigObj(e,t){let i={};const r=t==null?void 0:t.getAttribute(os);if(r)try{const n=JSON.parse(r);n&&typeof n=="object"&&!Array.isArray(n)&&(i=n)}catch(n){}return super._mergeConfigObj(A(A({},i),e),t)}};K(Gh,Qh);var ls="otpInput",cs=`.${`bs.${ls}`}`,Zh=`input${cs}`,Jh=`complete${cs}`,td="otp-input",us="otp-rendered",ed="otp-slots",id="otp-slot",rd="otp-slot-filled",nd="otp-slot-active",sd="otp-separator",ad='[data-bs-toggle="otp"], [data-tblr-toggle="otp"]',od="input",hs=["blur","keyup","select"],ds=["click","pointercancel"],ld="•",fs={numeric:{inputmode:"numeric",pattern:"[0-9]*",filter:/[^0-9]/g},alphanumeric:{inputmode:"text",pattern:"[A-Za-z0-9]*",filter:/[^A-Za-z0-9]/g},alpha:{inputmode:"text",pattern:"[A-Za-z]*",filter:/[^A-Za-z]/g}},cd=32,ud={groups:null,length:null,mask:!1,separator:"·",type:"numeric"},hd={groups:"(array|null)",length:"(number|null)",mask:"boolean",separator:"string",type:"string"},dd=class extends D{constructor(e,t){var i;if(super(e,t),this._length=0,this._wasComplete=!1,this._slots=[],this._slotsContainer=null,this._pointerActive=!1,this._pointerIndex=0,this._composedValue=null,this._onInput=n=>{if(n.isComposing)return;const s=this._composedValue;this._composedValue=null,!(s!==null&&s===this._input.value)&&this._handleInput()},this._onCompositionEnd=()=>{this._handleInput(),this._composedValue=this._input.value},this._onBeforeInput=n=>this._handleBeforeInput(n),this._onFocus=()=>this._handleFocus(),this._onPointerDown=n=>this._handlePointerDown(n),this._onPointerEnd=()=>{this._pointerActive=!1},this._onSync=()=>this._render(),this._onSelectionChange=()=>{document.activeElement===this._input&&this._render()},!this._element)return;const r=p.findOne(od,this._element);r&&(this._input=r,this._type=(i=fs[this._config.type])!==null&&i!==void 0?i:fs.numeric,this._length=this._resolveLength(),this._setupInput(),this._renderSlots(),this._addEventListeners(),this._render(),this._wasComplete=this._input.value.length===this._length)}static get Default(){return ud}static get DefaultType(){return hd}static get NAME(){return ls}getValue(){return this._input.value}setValue(e){this._input.value=this._sanitize(String(e)),this._render(),this._checkComplete()}clear(){this._input.value="",this._render(),this._input.focus()}focus(){this._pointerActive=!1,this._input.focus(),this._selectSlot(this._firstEmptyIndex()),this._render()}dispose(){var e;if(!this._input){super.dispose();return}this._input.removeEventListener("input",this._onInput),this._input.removeEventListener("beforeinput",this._onBeforeInput),this._input.removeEventListener("focus",this._onFocus),this._input.removeEventListener("pointerdown",this._onPointerDown),this._input.removeEventListener("compositionend",this._onCompositionEnd);for(const t of ds)this._input.removeEventListener(t,this._onPointerEnd);for(const t of hs)this._input.removeEventListener(t,this._onSync);document.removeEventListener("selectionchange",this._onSelectionChange),(e=this._slotsContainer)===null||e===void 0||e.remove(),this._element.classList.remove(us),super.dispose()}_resolveLength(){var e;const t=[this._config.length,Number.parseInt((e=this._input.getAttribute("maxlength"))!==null&&e!==void 0?e:"",10)],{groups:i}=this._config;Array.isArray(i)&&i.length>0&&t.push(i.reduce((r,n)=>r+Number(n),0));for(const r of t)if(typeof r=="number"&&Number.isInteger(r)&&r>0)return Math.min(r,cd);return 6}_setupInput(){const e=this._input;e.type!=="text"&&e.type!=="tel"&&(e.type="text"),e.classList.add(td),e.setAttribute("maxlength",String(this._length)),e.setAttribute("inputmode",this._type.inputmode),e.setAttribute("pattern",this._type.pattern),e.getAttribute("autocomplete")||e.setAttribute("autocomplete","one-time-code"),e.value&&(e.value=this._sanitize(e.value))}_renderSlots(){const e=document.createElement("div");e.className=ed,e.setAttribute("aria-hidden","true");const{groups:t,separator:i}=this._config;let r=0,n=0;for(let s=0;s<this._length;s++){const a=document.createElement("div");if(a.className=id,e.append(a),this._slots.push(a),t&&t.length>0&&(n++,n===t[r]&&s<this._length-1)){const o=document.createElement("div");o.className=sd,o.textContent=i,e.append(o),r=Math.min(r+1,t.length-1),n=0}}this._slotsContainer=e,this._element.append(e),this._element.classList.add(us)}_addEventListeners(){this._input.addEventListener("input",this._onInput),this._input.addEventListener("beforeinput",this._onBeforeInput),this._input.addEventListener("focus",this._onFocus),this._input.addEventListener("pointerdown",this._onPointerDown),this._input.addEventListener("compositionend",this._onCompositionEnd);for(const e of ds)this._input.addEventListener(e,this._onPointerEnd);document.addEventListener("selectionchange",this._onSelectionChange);for(const e of hs)this._input.addEventListener(e,this._onSync)}_handleFocus(){if(this._pointerActive){this._pointerActive=!1,this._selectSlot(this._pointerIndex),this._render();return}this._selectSlot(this._firstEmptyIndex()),this._render()}_handleInput(){const e=this._sanitize(this._input.value);e!==this._input.value&&(this._input.value=e),document.activeElement===this._input&&this._selectSlot(this._firstEmptyIndex()),this._afterValueChange()}_handleBeforeInput(e){const{inputType:t,data:i}=e;if(t==="insertText"&&i&&i.length===1){var r,n;e.preventDefault();const h=this._sanitize(i);if(!h)return;const u=Math.min((r=this._input.selectionStart)!==null&&r!==void 0?r:0,this._length-1),_=Math.max((n=this._input.selectionEnd)!==null&&n!==void 0?n:u,u+1),m=[...this._input.value];m.splice(u,_-u,h),this._input.value=m.join("").slice(0,this._length),this._selectSlot(u+1),this._afterValueChange();return}if(t==="deleteContentBackward"){var s,a;e.preventDefault();const h=this._input.value,u=(s=this._input.selectionStart)!==null&&s!==void 0?s:0,_=(a=this._input.selectionEnd)!==null&&a!==void 0?a:u,m=[...this._input.value];_>u?(m.splice(u,_-u),this._input.value=m.join(""),this._selectSlot(u)):u>0&&(m.splice(u-1,1),this._input.value=m.join(""),this._selectSlot(u-1)),this._afterValueChange(h);return}if(t==="deleteContentForward"){var o,c;e.preventDefault();const h=this._input.value,u=(o=this._input.selectionStart)!==null&&o!==void 0?o:0,_=(c=this._input.selectionEnd)!==null&&c!==void 0?c:u,m=[...this._input.value];_>u?(m.splice(u,_-u),this._input.value=m.join("")):u<m.length&&(m.splice(u,1),this._input.value=m.join("")),this._selectSlot(u),this._afterValueChange(h)}}_handlePointerDown(e){const t=this._slotIndexFromPoint(e.clientX);if(t===null)return;const i=Math.min(t,this._firstEmptyIndex());if(document.activeElement===this._input){e.preventDefault(),this._selectSlot(i),this._render();return}this._pointerActive=!0,this._pointerIndex=i}_slotIndexFromPoint(e){const t=getComputedStyle(this._element).direction==="rtl";for(const[i,r]of this._slots.entries()){const n=r.getBoundingClientRect();if((t?e>=n.left:e<=n.right)||i===this._slots.length-1)return i}return null}_afterValueChange(e){this._render(),!(e!==void 0&&e===this._input.value)&&(l.trigger(this._element,Zh,{value:this._input.value}),this._checkComplete())}_firstEmptyIndex(){return Math.min(this._input.value.length,this._length-1)}_selectSlot(e){const t=Math.max(0,Math.min(e,this._length-1)),i=t<this._input.value.length?t+1:t;this._input.setSelectionRange(t,i)}_sanitize(e){return e.replace(this._type.filter,"").slice(0,this._length)}_render(){var e;const{value:t}=this._input,i=document.activeElement===this._input,r=Math.min((e=this._input.selectionStart)!==null&&e!==void 0?e:t.length,this._length-1);for(const[s,a]of this._slots.entries()){var n;const o=(n=t[s])!==null&&n!==void 0?n:"";a.textContent=o&&this._config.mask?ld:o,a.classList.toggle(rd,!!o),a.classList.toggle(nd,i&&s===r)}}_checkComplete(){const{value:e}=this._input,t=e.length===this._length;t&&!this._wasComplete&&l.trigger(this._element,Jh,{value:e}),this._wasComplete=t}};K(ad,dd);var $e="sparkline",ps=`.${`bs.${$e}`}`,_s=`rendered${ps}`,fd=`updated${ps}`,pd="sparkline-svg",ji="sparkline-label",_d=`[data-bs-toggle="${$e}"], [data-tblr-toggle="${$e}"]`,ms="--tblr-sparkline",md="http://www.w3.org/2000/svg",vd={type:"line",values:[],width:80,height:24,min:null,max:null,fill:"none",spot:"none",pad:2,barGap:2,barRadius:2,label:null,threshold:null,animation:300},gd={type:"string",values:"array",width:"number",height:"number",min:"(number|null)",max:"(number|null)",fill:"string",spot:"string",pad:"number",barGap:"number",barRadius:"number",label:"(string|number|boolean|null)",threshold:"(number|null)",animation:"number"},it=e=>document.createElementNS(md,e),rt=(e,t)=>{for(const[i,r]of Object.entries(t))r!=null&&e.setAttribute(i,String(r))},nt=e=>`var(${ms}-${e})`,vs=(e,t)=>{const i=t-e;return i===0?1:i},Ed=e=>{const t=String(e!=null?e:"").trim();if(!t)return[];if(t.startsWith("["))try{const i=JSON.parse(t);return Array.isArray(i)?i.map(Number).filter(Number.isFinite):[]}catch(i){return[]}return t.split(",").map(i=>Number(i.trim())).filter(Number.isFinite)},bd=e=>Array.isArray(e)?e.map(Number).filter(Number.isFinite):typeof e=="number"?Number.isFinite(e)?[e]:[]:Ed(e),gs=(e,t,i,...r)=>{const n=t!=null?t:Math.min(...e,...r),s=i!=null?i:Math.max(...e,...r);return{min:n,max:s,span:vs(n,s)}},ee=/-?\d*\.?\d+(?:e[-+]?\d+)?/g,Ad=(e,t,i)=>{const r=e.match(ee),n=t.match(ee);if(!r||!n||r.length!==n.length||e.replace(ee,"#")!==t.replace(ee,"#"))return t;let s=0;return t.replace(ee,()=>{const a=Number(r[s])+(Number(n[s])-Number(r[s]))*i;return s++,String(Math.round(a*1e3)/1e3)})},yd=e=>1-Math.pow(1-e,3),Td=(e,t)=>{if(e.length===0||t==="none")return-1;if(t==="last")return e.length-1;let i=0;for(let r=1;r<e.length;r++)(t==="min"?e[r]<e[i]:e[r]>e[i])&&(i=r);return i},Es=(e,t,i)=>{const r=getComputedStyle(e).getPropertyValue(`${ms}-${t}`).trim(),n=Number.parseFloat(r);return Number.isFinite(n)?n:i},wd=class extends D{constructor(e,t){super(e,t),this._userConfig={},this._frame=0,this._element&&(this._userConfig=A({},t),this.render())}static get Default(){return vd}static get DefaultType(){return gd}static get NAME(){return $e}update(e){const t=Array.isArray(e)?e.join(","):String(e),i=this._element.hasAttribute("data-tblr-values")?"data-tblr-values":"data-bs-values";this._element.setAttribute(i,t),delete this._userConfig.values,this.render(),l.trigger(this._element,fd)}render(){var e;this._config=this._getConfig(this._userConfig);const t=this._element.querySelector("svg");if((e=this._element.querySelector(`.${ji}`))===null||e===void 0||e.remove(),this._config.values.length===0){cancelAnimationFrame(this._frame),t==null||t.remove(),l.trigger(this._element,_s);return}let i;switch(this._config.type){case"bar":i=this._renderBars();break;case"tristate":i=this._renderTristate();break;case"circle":i=this._renderCircle();break;default:i=this._renderLine()}t&&this._canAnimate(t,i)?this._animate(t,i):(cancelAnimationFrame(this._frame),t==null||t.remove(),this._element.append(i));const r=this._labelText();if(r!==""){const n=document.createElement("span");n.className=ji,n.textContent=r,this._element.append(n)}l.trigger(this._element,_s)}dispose(){var e,t;cancelAnimationFrame(this._frame),(e=this._element.querySelector("svg"))===null||e===void 0||e.remove(),(t=this._element.querySelector(`.${ji}`))===null||t===void 0||t.remove(),super.dispose()}_configAfterMerge(e){return e.values=bd(e.values),e}_labelText(){const{label:e,values:t,type:i}=this._config;return e===null||e===!1||e===""?"":e!=="auto"&&e!==!0?String(e):i==="circle"?`${Math.round(this._circleRatio()*100)}%`:String(t[t.length-1])}_circleRatio(){var e,t,i;const r=this._config,n=(e=r.values[0])!==null&&e!==void 0?e:0,s=(t=r.max)!==null&&t!==void 0?t:r.values.length>1?r.values[1]:100,a=(i=r.min)!==null&&i!==void 0?i:0;return Math.max(0,Math.min(1,(n-a)/vs(a,s)))}_canAnimate(e,t){return this._config.animation<=0||window.matchMedia("(prefers-reduced-motion: reduce)").matches||e.getAttribute("viewBox")!==t.getAttribute("viewBox")||e.children.length!==t.children.length?!1:Array.from(e.children).every((i,r)=>i.tagName===t.children[r].tagName)}_animate(e,t){cancelAnimationFrame(this._frame);const i=Array.from(t.children).map((a,o)=>{const c=e.children[o],h=[];for(const{name:u}of Array.from(c.attributes))a.hasAttribute(u)||c.removeAttribute(u);for(const{name:u,value:_}of Array.from(a.attributes)){const m=c.getAttribute(u);m===null||m===_?c.setAttribute(u,_):h.push([u,m,_])}return{source:c,tweens:h}}),r=this._config.animation,n=performance.now(),s=a=>{const o=yd(Math.min(1,(a-n)/r));for(const{source:c,tweens:h}of i)for(const[u,_,m]of h)c.setAttribute(u,o>=1?m:Ad(_,m,o));o<1&&(this._frame=requestAnimationFrame(s))};this._frame=requestAnimationFrame(s)}_hairline(e,t,i,r=!1){const n=it("line");rt(n,{x1:0,x2:this._config.width,y1:t,y2:t,stroke:nt(i),"stroke-width":1,"stroke-dasharray":r?"3 2":null,"vector-effect":"non-scaling-stroke"}),e.append(n)}_createSvg(){const{width:e,height:t}=this._config,i=it("svg");return rt(i,{viewBox:`0 0 ${e} ${t}`,preserveAspectRatio:"none",width:e,height:t,class:pd,"aria-hidden":"true"}),i}_renderLine(){const e=this._config,t=this._createSvg(),{min:i,span:r}=gs(e.values,e.min,e.max,...e.threshold===null?[]:[e.threshold]),n=h=>e.pad+(1-(h-i)/r)*(e.height-e.pad*2),s=e.values.length===1?[n(e.values[0]),n(e.values[0])]:e.values.map(n),a=e.width/(s.length-1);if(e.threshold!==null&&this._hairline(t,n(e.threshold),"threshold",!0),e.fill==="auto"){const h=it("path");rt(h,{d:this._areaPath(s,a,e.height),fill:nt("fill"),stroke:"none"}),t.append(h)}const o=it("polyline");rt(o,{points:s.map((h,u)=>`${u*a},${h}`).join(" "),fill:"none",stroke:nt("stroke"),"stroke-width":nt("stroke-width"),"stroke-linecap":"round","stroke-linejoin":"round"}),t.append(o);const c=Td(e.values,e.spot);if(c>=0){const h=it("circle");rt(h,{cx:e.values.length===1?e.width/2:c*a,cy:s[c],r:Es(this._element,"spot-size",2),fill:nt("spot")}),t.append(h)}return t}_areaPath(e,t,i){return`${e.map((r,n)=>`${n===0?"M":"L"} ${n*t} ${r}`).join(" ")} L ${(e.length-1)*t} ${i} L 0 ${i} Z`}_renderBars(){const e=this._config,t=this._createSvg(),{min:i,span:r}=gs(e.values,e.min,e.max,0,...e.threshold===null?[]:[e.threshold]),n=h=>e.height-(h-i)/r*e.height,s=e.values.length,a=(e.width-e.barGap*(s-1))/s,o=n(0);i<0&&this._hairline(t,o,"zero"),e.threshold!==null&&this._hairline(t,n(e.threshold),"threshold",!0);const c=h=>Math.max(0,Math.min(e.height,h));return e.values.forEach((h,u)=>{const _=c(n(Math.max(h,0))),m=c(n(Math.min(h,0))),g=e.threshold===null?h<0:h<e.threshold,S=it("rect");rt(S,{x:u*(a+e.barGap),y:_,width:a,height:m-_,rx:e.barRadius,fill:nt(g?"negative":"stroke")}),t.append(S)}),t}_renderTristate(){const e=this._config,t=this._createSvg(),i=e.values.length,r=(e.width-e.barGap*(i-1))/i,n=e.height/2,s=Math.min(2,n);return this._hairline(t,n,"zero"),e.values.forEach((a,o)=>{const c=it("rect"),h=a>0?{y:0,height:n,fill:"stroke"}:a<0?{y:n,height:n,fill:"negative"}:{y:n-s/2,height:s,fill:"track"};rt(c,{x:o*(r+e.barGap),y:h.y,width:r,height:h.height,rx:e.barRadius,fill:nt(h.fill)}),t.append(c)}),t}_renderCircle(){const e=this._config,t=this._createSvg(),i=Es(this._element,"stroke-width",2),r=Math.max(0,Math.min(e.width,e.height)/2-i/2),n=e.width/2,s=e.height/2,a=this._circleRatio(),o=2*Math.PI*r,c=it("circle");rt(c,{cx:n,cy:s,r,fill:"none",stroke:nt("track"),"stroke-width":i}),t.append(c);const h=it("circle");return rt(h,{cx:n,cy:s,r,fill:"none",stroke:nt("stroke"),"stroke-width":i,"stroke-linecap":"round","stroke-dasharray":o,"stroke-dashoffset":o*(1-a),transform:`rotate(-90 ${n} ${s})`}),t.append(h),t}};K(_d,wd);var Ft="strength",Sd=`change${`.${`bs.${Ft}`}`}`,Cd="active",Od=`[data-bs-${Ft}], [data-tblr-${Ft}]`,Nd=`.${Ft}-segment`,Dd=`.${Ft}-text`,$d='input[type="password"]',ie=["weak","fair","good","strong"],Wi={input:null,minLength:8,messages:{weak:"Weak",fair:"Fair",good:"Good",strong:"Strong"},weights:{minLength:1,extraLength:1,longPassword:1,lowercase:1,uppercase:1,numbers:1,special:1,multipleSpecial:1},thresholds:[2,4,6],scorer:null},Ld={input:"(string|null)",minLength:"number",messages:"object",weights:"object",thresholds:"array",scorer:"(function|null)"},Id=class extends D{constructor(e,t){var i,r;super(e,t),this._input=null,this._segments=[],this._text=null,this._emptyText="",this._level=null,this._onInput=()=>this.evaluate(),this._element&&(this._input=this._getInput(),this._segments=p.find(Nd,this._element),this._text=this._getText(),this._emptyText=(i=(r=this._text)===null||r===void 0||(r=r.textContent)===null||r===void 0?void 0:r.trim())!==null&&i!==void 0?i:"",this._setUpAria(),this._input&&(this._input.addEventListener("input",this._onInput),this.evaluate()))}static get Default(){return Wi}static get DefaultType(){return Ld}static get NAME(){return Ft}get level(){return this._level}evaluate(){if(!this._input)return;const e=this._input.value,t=this._score(e),i=this._level_(t);i!==this._level&&(this._level=i,this._render(i),l.trigger(this._element,Sd,{strength:i,score:t}))}dispose(){var e;(e=this._input)===null||e===void 0||e.removeEventListener("input",this._onInput),super.dispose()}_configAfterMerge(e){return A(A({},e),{},{messages:A(A({},Wi.messages),e.messages),weights:A(A({},Wi.weights),e.weights)})}_getInput(){var e,t;const{input:i}=this._config;if(i)return V(i);const r=this._element.parentElement,n=r?p.find($d,r):[],s=n.filter(a=>!!(a.compareDocumentPosition(this._element)&Node.DOCUMENT_POSITION_FOLLOWING));return(e=(t=s[s.length-1])!==null&&t!==void 0?t:n[0])!==null&&e!==void 0?e:null}_getText(){const e=this._element.parentElement;return e?p.findOne(Dd,e):null}_setUpAria(){var e;const t=this._element;t.setAttribute("role","progressbar"),t.setAttribute("aria-valuemin","0"),t.setAttribute("aria-valuemax",String(ie.length)),t.setAttribute("aria-valuenow","0"),!t.hasAttribute("aria-label")&&!t.hasAttribute("aria-labelledby")&&t.setAttribute("aria-label","Password strength");for(const i of this._segments)i.setAttribute("aria-hidden","true");(e=this._text)===null||e===void 0||e.setAttribute("aria-live","polite")}_score(e){var t;if(!e)return 0;const{scorer:i,weights:r,minLength:n}=this._config;return typeof i=="function"?i(e):[[e.length>=n,r.minLength],[e.length>=n+4,r.extraLength],[e.length>=16,r.longPassword],[/[a-z]/.test(e),r.lowercase],[/[A-Z]/.test(e),r.uppercase],[/\d/.test(e),r.numbers],[/[^\dA-Za-z]/.test(e),r.special],[((t=e.match(/[^\dA-Za-z]/g))!==null&&t!==void 0?t:[]).length>1,r.multipleSpecial]].reduce((s,[a,o])=>s+(a&&o!=null?o:0),0)}_level_(e){var t;if(e<=0)return null;const i=this._config.thresholds.findIndex(r=>e<=r);return(t=ie[i===-1?ie.length-1:i])!==null&&t!==void 0?t:null}_render(e){const t=this._element,i=e?ie.indexOf(e):-1;if(t.dataset.bsStrength=e!=null?e:"",t.setAttribute("aria-valuenow",String(i+1)),e){var r;t.setAttribute("aria-valuetext",(r=this._config.messages[e])!==null&&r!==void 0?r:e)}else t.removeAttribute("aria-valuetext");const n=e?Math.ceil((i+1)/ie.length*this._segments.length):0;for(const[a,o]of this._segments.entries())o.classList.toggle(Cd,a<n);if(this._text){var s;this._text.textContent=e?(s=this._config.messages[e])!==null&&s!==void 0?s:"":this._emptyText,this._text.dataset.bsStrength=e!=null?e:""}}};K(Od,Id);var xd=Xi({getColor:()=>Md,hexToRgba:()=>As,prefix:()=>bs}),bs="tblr-",As=(e,t)=>{const i=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(e);return i?`rgba(${parseInt(i[1],16)}, ${parseInt(i[2],16)}, ${parseInt(i[3],16)}, ${t})`:null},Md=(e,t=1)=>{var i;const r=getComputedStyle(document.body).getPropertyValue(`--${bs}${e}`).trim();return t===1?r:(i=As(r,t))!==null&&i!==void 0?i:r?`color-mix(in srgb, ${r} ${t*100}%, transparent)`:null},Pd=Ys(((e,t,i)=>{(function(r,n){typeof define=="function"&&define.amd?define(n):typeof e=="object"?t.exports=n():r.NProgress=n()})(i,function(){var r={};r.version="0.2.0";var n=r.settings={minimum:.08,easing:"ease",positionUsing:"",speed:200,trickle:!0,trickleRate:.02,trickleSpeed:800,showSpinner:!0,barSelector:'[role="bar"]',spinnerSelector:'[role="spinner"]',parent:"body",template:'<div class="bar" role="bar"><div class="peg"></div></div><div class="spinner" role="spinner"><div class="spinner-icon"></div></div>'};r.configure=function(d){var f,v;for(f in d)v=d[f],v!==void 0&&d.hasOwnProperty(f)&&(n[f]=v);return this},r.status=null,r.set=function(d){var f=r.isStarted();d=s(d,n.minimum,1),r.status=d===1?null:d;var v=r.render(!f),T=v.querySelector(n.barSelector),w=n.speed,b=n.easing;return v.offsetWidth,c(function(E){n.positionUsing===""&&(n.positionUsing=r.getPositioningCSS()),h(T,o(d,w,b)),d===1?(h(v,{transition:"none",opacity:1}),v.offsetWidth,setTimeout(function(){h(v,{transition:"all "+w+"ms linear",opacity:0}),setTimeout(function(){r.remove(),E()},w)},w)):setTimeout(E,w)}),this},r.isStarted=function(){return typeof r.status=="number"},r.start=function(){r.status||r.set(0);var d=function(){setTimeout(function(){r.status&&(r.trickle(),d())},n.trickleSpeed)};return n.trickle&&d(),this},r.done=function(d){return!d&&!r.status?this:r.inc(.3+.5*Math.random()).set(1)},r.inc=function(d){var f=r.status;return f?(typeof d!="number"&&(d=(1-f)*s(Math.random()*f,.1,.95)),f=s(f+d,0,.994),r.set(f)):r.start()},r.trickle=function(){return r.inc(Math.random()*n.trickleRate)},(function(){var d=0,f=0;r.promise=function(v){return!v||v.state()==="resolved"?this:(f===0&&r.start(),d++,f++,v.always(function(){f--,f===0?(d=0,r.done()):r.set((d-f)/d)}),this)}})(),r.render=function(d){if(r.isRendered())return document.getElementById("nprogress");_(document.documentElement,"nprogress-busy");var f=document.createElement("div");f.id="nprogress",f.innerHTML=n.template;var v=f.querySelector(n.barSelector),T=d?"-100":a(r.status||0),w=document.querySelector(n.parent),b;return h(v,{transition:"all 0 linear",transform:"translate3d("+T+"%,0,0)"}),n.showSpinner||(b=f.querySelector(n.spinnerSelector),b&&S(b)),w!=document.body&&_(w,"nprogress-custom-parent"),w.appendChild(f),f},r.remove=function(){m(document.documentElement,"nprogress-busy"),m(document.querySelector(n.parent),"nprogress-custom-parent");var d=document.getElementById("nprogress");d&&S(d)},r.isRendered=function(){return!!document.getElementById("nprogress")},r.getPositioningCSS=function(){var d=document.body.style,f="WebkitTransform"in d?"Webkit":"MozTransform"in d?"Moz":"msTransform"in d?"ms":"OTransform"in d?"O":"";return f+"Perspective"in d?"translate3d":f+"Transform"in d?"translate":"margin"};function s(d,f,v){return d<f?f:d>v?v:d}function a(d){return(-1+d)*100}function o(d,f,v){var T;return n.positionUsing==="translate3d"?T={transform:"translate3d("+a(d)+"%,0,0)"}:n.positionUsing==="translate"?T={transform:"translate("+a(d)+"%,0)"}:T={"margin-left":a(d)+"%"},T.transition="all "+f+"ms "+v,T}var c=(function(){var d=[];function f(){var v=d.shift();v&&v(f)}return function(v){d.push(v),d.length==1&&f()}})(),h=(function(){var d=["Webkit","O","Moz","ms"],f={};function v(E){return E.replace(/^-ms-/,"ms-").replace(/-([\da-z])/gi,function(y,C){return C.toUpperCase()})}function T(E){var y=document.body.style;if(E in y)return E;for(var C=d.length,N=E.charAt(0).toUpperCase()+E.slice(1),O;C--;)if(O=d[C]+N,O in y)return O;return E}function w(E){return E=v(E),f[E]||(f[E]=T(E))}function b(E,y,C){y=w(y),E.style[y]=C}return function(E,y){var C=arguments,N,O;if(C.length==2)for(N in y)O=y[N],O!==void 0&&y.hasOwnProperty(N)&&b(E,N,O);else b(E,C[1],C[2])}})();function u(d,f){return(typeof d=="string"?d:g(d)).indexOf(" "+f+" ")>=0}function _(d,f){var v=g(d),T=v+f;u(v,f)||(d.className=T.substring(1))}function m(d,f){var v=g(d),T;u(d,f)&&(T=v.replace(" "+f+" "," "),d.className=T.substring(1,T.length-1))}function g(d){return(" "+(d.className||"")+" ").replace(/\s+/gi," ")}function S(d){d&&d.parentNode&&d.parentNode.removeChild(d)}return r})})),re=Gs(Pd());function ys(e){const t=document.createElement("style");t.textContent=`
+(function() {
+	//#region \0rolldown/runtime.js
+	var __create = Object.create;
+	var __defProp$1 = Object.defineProperty;
+	var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+	var __getOwnPropNames = Object.getOwnPropertyNames;
+	var __getProtoOf = Object.getPrototypeOf;
+	var __hasOwnProp = Object.prototype.hasOwnProperty;
+	var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod, mod.exports), cb = null), mod.exports);
+	var __copyProps = (to, from, except, desc) => {
+		if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
+			key = keys[i];
+			if (!__hasOwnProp.call(to, key) && key !== except) __defProp$1(to, key, {
+				get: ((k) => from[k]).bind(null, key),
+				enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+			});
+		}
+		return to;
+	};
+	var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule || !__hasOwnProp.call(mod, "default") ? __defProp$1(target, "default", {
+		value: mod,
+		enumerable: true
+	}) : target, mod));
+	//#endregion
+	//#region node_modules/@tabler/core/dist/js/tabler.esm.js
+	/*!
+	* Tabler v1.6.1 (https://tabler.io)
+	* Copyright 2018-2026 The Tabler Authors
+	* Copyright 2018-2026 codecalm.net Paweł Kuna
+	* Licensed under MIT (https://github.com/tabler/tabler/blob/master/LICENSE)
+	*/
+	var __defProp = Object.defineProperty;
+	var __exportAll = (all, no_symbols) => {
+		let target = {};
+		for (var name in all) __defProp(target, name, {
+			get: all[name],
+			enumerable: true
+		});
+		if (!no_symbols) __defProp(target, Symbol.toStringTag, { value: "Module" });
+		return target;
+	};
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap dom/data.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var elementMap = /* @__PURE__ */ new Map();
+	var Data = {
+		set(element, key, instance) {
+			if (!elementMap.has(element)) elementMap.set(element, /* @__PURE__ */ new Map());
+			const instanceMap = elementMap.get(element);
+			if (!instanceMap.has(key) && instanceMap.size !== 0) {
+				console.error(`Bootstrap doesn't allow more than one instance per element. Bound instance: ${Array.from(instanceMap.keys())[0]}.`);
+				return;
+			}
+			instanceMap.set(key, instance);
+		},
+		get(element, key) {
+			if (elementMap.has(element)) return elementMap.get(element).get(key) || null;
+			return null;
+		},
+		remove(element, key) {
+			if (!elementMap.has(element)) return;
+			const instanceMap = elementMap.get(element);
+			instanceMap.delete(key);
+			if (instanceMap.size === 0) elementMap.delete(element);
+		}
+	};
+	var MAX_UID = 1e6;
+	var MILLISECONDS_MULTIPLIER = 1e3;
+	var TRANSITION_END = "transitionend";
+	var parseSelector = (selector) => {
+		if (selector && typeof CSS !== "undefined" && typeof CSS.escape === "function") selector = selector.replace(/#([^\s"#']+)/g, (match, id) => `#${CSS.escape(id)}`);
+		return selector;
+	};
+	var toType = (object) => {
+		if (object === null || object === void 0) return `${object}`;
+		return Object.prototype.toString.call(object).match(/\s([a-z]+)/i)[1].toLowerCase();
+	};
+	var getUID = (prefix) => {
+		do
+			prefix += Math.floor(Math.random() * MAX_UID);
+		while (document.getElementById(prefix));
+		return prefix;
+	};
+	var getTransitionDurationFromElement = (element) => {
+		if (!element) return 0;
+		let { transitionDuration, transitionDelay } = window.getComputedStyle(element);
+		if (!Number.parseFloat(transitionDuration) && !Number.parseFloat(transitionDelay)) return 0;
+		transitionDuration = transitionDuration.split(",")[0];
+		transitionDelay = transitionDelay.split(",")[0];
+		return (Number.parseFloat(transitionDuration) + Number.parseFloat(transitionDelay)) * MILLISECONDS_MULTIPLIER;
+	};
+	var triggerTransitionEnd = (element) => {
+		element.dispatchEvent(new Event(TRANSITION_END));
+	};
+	var unwrapJQuery = (object) => {
+		if (object && typeof object === "object" && typeof object.jquery !== "undefined") return object[0];
+		return object;
+	};
+	var isElement$1 = (object) => {
+		object = unwrapJQuery(object);
+		if (!object || typeof object !== "object") return false;
+		return typeof object.nodeType !== "undefined";
+	};
+	var getElement = (object) => {
+		object = unwrapJQuery(object);
+		if (isElement$1(object)) return object;
+		if (typeof object === "string" && object.length > 0) return document.querySelector(parseSelector(object));
+		return null;
+	};
+	var isVisible = (element) => {
+		if (!isElement$1(element) || element.getClientRects().length === 0) return false;
+		const elementIsVisible = getComputedStyle(element).getPropertyValue("visibility") === "visible";
+		const closedDetails = element.closest("details:not([open])");
+		if (!closedDetails) return elementIsVisible;
+		if (closedDetails !== element) {
+			const summary = element.closest("summary");
+			if (summary && summary.parentNode !== closedDetails) return false;
+			if (summary === null) return false;
+		}
+		return elementIsVisible;
+	};
+	var isDisabled = (element) => {
+		if (!element || element.nodeType !== Node.ELEMENT_NODE) return true;
+		if (element.classList.contains("disabled")) return true;
+		if ("disabled" in element && typeof element.disabled !== "undefined") return Boolean(element.disabled);
+		return element.hasAttribute("disabled") && element.getAttribute("disabled") !== "false";
+	};
+	var findShadowRoot = (element) => {
+		if (!document.documentElement.attachShadow) return null;
+		if (typeof element.getRootNode === "function") {
+			const root = element.getRootNode();
+			return root instanceof ShadowRoot ? root : null;
+		}
+		if (element instanceof ShadowRoot) return element;
+		if (!element.parentNode) return null;
+		return findShadowRoot(element.parentNode);
+	};
+	var noop = () => {};
+	/**
+	* Trick to restart an element's animation
+	*
+	* @see https://www.harrytheo.com/blog/2021/02/restart-a-css-animation-with-javascript/#restarting-a-css-animation
+	*/
+	var reflow = (element) => {
+		element.offsetHeight;
+	};
+	var isRTL = () => document.documentElement.dir === "rtl";
+	var getjQuery = () => {
+		if (window.jQuery && !document.body.hasAttribute("data-bs-no-jquery") && !document.body.hasAttribute("data-tblr-no-jquery")) return window.jQuery;
+		return null;
+	};
+	var DOMContentLoadedCallbacks = [];
+	var onDOMContentLoaded = (callback) => {
+		if (document.readyState === "loading") {
+			if (!DOMContentLoadedCallbacks.length) document.addEventListener("DOMContentLoaded", () => {
+				for (const domCallback of DOMContentLoadedCallbacks) domCallback();
+			});
+			DOMContentLoadedCallbacks.push(callback);
+		} else callback();
+	};
+	var defineJQueryPlugin = (plugin) => {
+		onDOMContentLoaded(() => {
+			const $ = getjQuery();
+			if ($) {
+				const name = plugin.NAME;
+				const JQUERY_NO_CONFLICT = $.fn[name];
+				$.fn[name] = plugin.jQueryInterface;
+				$.fn[name].Constructor = plugin;
+				$.fn[name].noConflict = () => {
+					$.fn[name] = JQUERY_NO_CONFLICT;
+					return plugin.jQueryInterface;
+				};
+			}
+		});
+	};
+	var execute = (possibleCallback, args = [], defaultValue = possibleCallback) => {
+		return typeof possibleCallback === "function" ? possibleCallback.call(args[0], ...args.slice(1)) : defaultValue;
+	};
+	var executeAfterTransition = (callback, transitionElement, waitForTransition = true) => {
+		if (!waitForTransition) {
+			execute(callback);
+			return;
+		}
+		const emulatedDuration = getTransitionDurationFromElement(transitionElement) + 5;
+		let called = false;
+		const handler = ({ target }) => {
+			if (target !== transitionElement) return;
+			called = true;
+			transitionElement.removeEventListener(TRANSITION_END, handler);
+			execute(callback);
+		};
+		transitionElement.addEventListener(TRANSITION_END, handler);
+		setTimeout(() => {
+			if (!called) triggerTransitionEnd(transitionElement);
+		}, emulatedDuration);
+	};
+	var getNextActiveElement = (list, activeElement, shouldGetNext, isCycleAllowed) => {
+		const listLength = list.length;
+		let index = list.indexOf(activeElement);
+		if (index === -1) return !shouldGetNext && isCycleAllowed ? list[listLength - 1] : list[0];
+		index += shouldGetNext ? 1 : -1;
+		if (isCycleAllowed) index = (index + listLength) % listLength;
+		return list[Math.max(0, Math.min(index, listLength - 1))];
+	};
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap dom/event-handler.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var namespaceRegex = /[^.]*(?=\..*)\.|.*/;
+	var stripNameRegex = /\..*/;
+	var stripUidRegex = /::\d+$/;
+	var eventRegistry = {};
+	var uidEvent = 1;
+	var customEvents = {
+		mouseenter: "mouseover",
+		mouseleave: "mouseout"
+	};
+	var nativeEvents = /* @__PURE__ */ new Set([
+		"click",
+		"dblclick",
+		"mouseup",
+		"mousedown",
+		"contextmenu",
+		"mousewheel",
+		"DOMMouseScroll",
+		"mouseover",
+		"mouseout",
+		"mousemove",
+		"selectstart",
+		"selectend",
+		"keydown",
+		"keypress",
+		"keyup",
+		"orientationchange",
+		"touchstart",
+		"touchmove",
+		"touchend",
+		"touchcancel",
+		"pointerdown",
+		"pointermove",
+		"pointerup",
+		"pointerleave",
+		"pointercancel",
+		"gesturestart",
+		"gesturechange",
+		"gestureend",
+		"focus",
+		"blur",
+		"change",
+		"reset",
+		"select",
+		"submit",
+		"focusin",
+		"focusout",
+		"load",
+		"unload",
+		"beforeunload",
+		"resize",
+		"move",
+		"DOMContentLoaded",
+		"readystatechange",
+		"error",
+		"abort",
+		"scroll"
+	]);
+	function makeEventUid(element, uid) {
+		return uid && `${uid}::${uidEvent++}` || element.uidEvent || uidEvent++;
+	}
+	function getElementEvents(element) {
+		const uid = makeEventUid(element);
+		element.uidEvent = uid;
+		eventRegistry[uid] = eventRegistry[uid] || {};
+		return eventRegistry[uid];
+	}
+	function bootstrapHandler(element, fn) {
+		return function handler(event) {
+			hydrateObj(event, { delegateTarget: element });
+			if (handler.oneOff) EventHandler.off(element, event.type, fn);
+			return fn.apply(element, [event]);
+		};
+	}
+	function bootstrapDelegationHandler(element, selector, fn) {
+		return function handler(event) {
+			const domElements = element.querySelectorAll(selector);
+			for (let { target } = event; target && target !== this; target = target.parentNode) for (const domElement of domElements) {
+				if (domElement !== target) continue;
+				hydrateObj(event, { delegateTarget: target });
+				if (handler.oneOff) EventHandler.off(element, event.type, selector, fn);
+				return fn.apply(target, [event]);
+			}
+		};
+	}
+	function findHandler(events, callable, delegationSelector = null) {
+		return Object.values(events).find((event) => event.callable === callable && event.delegationSelector === delegationSelector);
+	}
+	function normalizeParameters(originalTypeEvent, handler, delegationFunction) {
+		const isDelegated = typeof handler === "string";
+		const callable = isDelegated ? delegationFunction : handler || delegationFunction;
+		let typeEvent = getTypeEvent(originalTypeEvent);
+		if (!nativeEvents.has(typeEvent)) typeEvent = originalTypeEvent;
+		return [
+			isDelegated,
+			callable,
+			typeEvent
+		];
+	}
+	function addHandler(element, originalTypeEvent, handler, delegationFunction, oneOff) {
+		if (typeof originalTypeEvent !== "string" || !element) return;
+		let [isDelegated, callable, typeEvent] = normalizeParameters(originalTypeEvent, handler, delegationFunction);
+		if (originalTypeEvent in customEvents) {
+			const wrapFunction = (fn) => {
+				return function(event) {
+					const evt = event;
+					if (!evt.relatedTarget || evt.relatedTarget !== evt.delegateTarget && !evt.delegateTarget.contains(evt.relatedTarget)) return fn.call(this, event);
+				};
+			};
+			callable = wrapFunction(callable);
+		}
+		const events = getElementEvents(element);
+		const handlers = events[typeEvent] || (events[typeEvent] = {});
+		const previousFunction = findHandler(handlers, callable, isDelegated ? handler : null);
+		if (previousFunction) {
+			previousFunction.oneOff = previousFunction.oneOff && oneOff;
+			return;
+		}
+		const uid = makeEventUid(callable, originalTypeEvent.replace(namespaceRegex, ""));
+		const fn = isDelegated ? bootstrapDelegationHandler(element, handler, callable) : bootstrapHandler(element, callable);
+		fn.delegationSelector = isDelegated ? handler : null;
+		fn.callable = callable;
+		fn.oneOff = oneOff;
+		fn.uidEvent = uid;
+		handlers[uid] = fn;
+		element.addEventListener(typeEvent, fn, isDelegated);
+	}
+	function removeHandler(element, events, typeEvent, handler, delegationSelector) {
+		const fn = findHandler(events[typeEvent], handler, delegationSelector !== null && delegationSelector !== void 0 ? delegationSelector : null);
+		if (!fn) return;
+		element.removeEventListener(typeEvent, fn, Boolean(delegationSelector));
+		delete events[typeEvent][fn.uidEvent];
+	}
+	function removeNamespacedHandlers(element, events, typeEvent, namespace) {
+		const storeElementEvent = events[typeEvent] || {};
+		for (const [handlerKey, event] of Object.entries(storeElementEvent)) if (handlerKey.includes(namespace)) removeHandler(element, events, typeEvent, event.callable, event.delegationSelector);
+	}
+	function getTypeEvent(event) {
+		event = event.replace(stripNameRegex, "");
+		return customEvents[event] || event;
+	}
+	var EventHandler = {
+		on(element, event, handler, delegationFunction) {
+			addHandler(element, event, handler, delegationFunction, false);
+		},
+		one(element, event, handler, delegationFunction) {
+			addHandler(element, event, handler, delegationFunction, true);
+		},
+		off(element, originalTypeEvent, handler, delegationFunction) {
+			if (typeof originalTypeEvent !== "string" || !element) return;
+			const [isDelegated, callable, typeEvent] = normalizeParameters(originalTypeEvent, handler, delegationFunction);
+			const inNamespace = typeEvent !== originalTypeEvent;
+			const events = getElementEvents(element);
+			const storeElementEvent = events[typeEvent] || {};
+			const isNamespace = originalTypeEvent.startsWith(".");
+			if (typeof callable !== "undefined") {
+				if (!Object.keys(storeElementEvent).length) return;
+				removeHandler(element, events, typeEvent, callable, isDelegated ? handler : null);
+				return;
+			}
+			if (isNamespace) for (const elementEvent of Object.keys(events)) removeNamespacedHandlers(element, events, elementEvent, originalTypeEvent.slice(1));
+			for (const [keyHandlers, event] of Object.entries(storeElementEvent)) {
+				const handlerKey = keyHandlers.replace(stripUidRegex, "");
+				if (!inNamespace || originalTypeEvent.includes(handlerKey)) removeHandler(element, events, typeEvent, event.callable, event.delegationSelector);
+			}
+		},
+		trigger(element, event, args) {
+			if (typeof event !== "string" || !element) return null;
+			const $ = getjQuery();
+			const inNamespace = event !== getTypeEvent(event);
+			let jQueryEvent = null;
+			let bubbles = true;
+			let nativeDispatch = true;
+			let defaultPrevented = false;
+			if (inNamespace && $) {
+				jQueryEvent = $.Event(event, args);
+				$(element).trigger(jQueryEvent);
+				bubbles = !jQueryEvent.isPropagationStopped();
+				nativeDispatch = !jQueryEvent.isImmediatePropagationStopped();
+				defaultPrevented = jQueryEvent.isDefaultPrevented();
+			}
+			const evt = hydrateObj(new Event(event, {
+				bubbles,
+				cancelable: true
+			}), args);
+			if (defaultPrevented) evt.preventDefault();
+			if (nativeDispatch) element.dispatchEvent(evt);
+			if (evt.defaultPrevented && jQueryEvent) jQueryEvent.preventDefault();
+			return evt;
+		}
+	};
+	function hydrateObj(obj, meta = {}) {
+		for (const [key, value] of Object.entries(meta)) try {
+			obj[key] = value;
+		} catch (_unused) {
+			Object.defineProperty(obj, key, {
+				configurable: true,
+				get() {
+					return value;
+				}
+			});
+		}
+		return obj;
+	}
+	function normalizeData(value) {
+		if (value === "true") return true;
+		if (value === "false") return false;
+		if (value === Number(value).toString()) return Number(value);
+		if (value === "" || value === "null") return null;
+		if (typeof value !== "string") return value;
+		try {
+			return JSON.parse(decodeURIComponent(value));
+		} catch (_unused) {
+			return value;
+		}
+	}
+	function normalizeDataKey(key) {
+		return key.replace(/[A-Z]/g, (chr) => `-${chr.toLowerCase()}`);
+	}
+	var PREFIXES = ["tblr", "bs"];
+	var Manipulator = {
+		setDataAttribute(element, key, value) {
+			element.setAttribute(`data-bs-${normalizeDataKey(key)}`, value);
+		},
+		removeDataAttribute(element, key) {
+			for (const prefix of PREFIXES) element.removeAttribute(`data-${prefix}-${normalizeDataKey(key)}`);
+		},
+		getDataAttributes(element) {
+			if (!element) return {};
+			const attributes = {};
+			for (const prefix of PREFIXES) {
+				const keys = Object.keys(element.dataset).filter((key) => key.startsWith(prefix) && !key.startsWith(`${prefix}Config`));
+				for (const key of keys) {
+					let pureKey = key.replace(new RegExp(`^${prefix}`), "");
+					pureKey = pureKey.charAt(0).toLowerCase() + pureKey.slice(1);
+					if (!(pureKey in attributes)) attributes[pureKey] = normalizeData(element.dataset[key]);
+				}
+			}
+			return attributes;
+		},
+		getDataAttribute(element, key) {
+			for (const prefix of PREFIXES) {
+				const value = element.getAttribute(`data-${prefix}-${normalizeDataKey(key)}`);
+				if (value !== null) return normalizeData(value);
+			}
+			return null;
+		}
+	};
+	function _typeof(o) {
+		"@babel/helpers - typeof";
+		return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(o) {
+			return typeof o;
+		} : function(o) {
+			return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
+		}, _typeof(o);
+	}
+	function toPrimitive(t, r) {
+		if ("object" != _typeof(t) || !t) return t;
+		var e = t[Symbol.toPrimitive];
+		if (void 0 !== e) {
+			var i = e.call(t, r || "default");
+			if ("object" != _typeof(i)) return i;
+			throw new TypeError("@@toPrimitive must return a primitive value.");
+		}
+		return ("string" === r ? String : Number)(t);
+	}
+	function toPropertyKey(t) {
+		var i = toPrimitive(t, "string");
+		return "symbol" == _typeof(i) ? i : i + "";
+	}
+	function _defineProperty(e, r, t) {
+		return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+			value: t,
+			enumerable: !0,
+			configurable: !0,
+			writable: !0
+		}) : e[r] = t, e;
+	}
+	function ownKeys(e, r) {
+		var t = Object.keys(e);
+		if (Object.getOwnPropertySymbols) {
+			var o = Object.getOwnPropertySymbols(e);
+			r && (o = o.filter(function(r) {
+				return Object.getOwnPropertyDescriptor(e, r).enumerable;
+			})), t.push.apply(t, o);
+		}
+		return t;
+	}
+	function _objectSpread2(e) {
+		for (var r = 1; r < arguments.length; r++) {
+			var t = null != arguments[r] ? arguments[r] : {};
+			r % 2 ? ownKeys(Object(t), !0).forEach(function(r) {
+				_defineProperty(e, r, t[r]);
+			}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function(r) {
+				Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r));
+			});
+		}
+		return e;
+	}
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap util/config.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var Config = class {
+		static get Default() {
+			return {};
+		}
+		static get DefaultType() {
+			return {};
+		}
+		static get NAME() {
+			throw new Error("You have to implement the static method \"NAME\", for each component!");
+		}
+		_getConfig(config) {
+			config = this._mergeConfigObj(config);
+			config = this._configAfterMerge(config);
+			this._typeCheckConfig(config);
+			return config;
+		}
+		_configAfterMerge(config) {
+			return config;
+		}
+		_mergeConfigObj(config, element) {
+			const jsonConfig = isElement$1(element) ? Manipulator.getDataAttribute(element, "config") : {};
+			const ctor = this.constructor;
+			return _objectSpread2(_objectSpread2(_objectSpread2(_objectSpread2({}, ctor.Default), typeof jsonConfig === "object" ? jsonConfig : {}), isElement$1(element) ? Manipulator.getDataAttributes(element) : {}), typeof config === "object" ? config : {});
+		}
+		_typeCheckConfig(config, configTypes) {
+			const ctor = this.constructor;
+			const types = configTypes || ctor.DefaultType;
+			for (const [property, expectedTypes] of Object.entries(types)) {
+				const value = config[property];
+				const valueType = isElement$1(value) ? "element" : toType(value);
+				if (!new RegExp(expectedTypes).test(valueType)) throw new TypeError(`${ctor.NAME.toUpperCase()}: Option "${property}" provided type "${valueType}" but expected type "${expectedTypes}".`);
+			}
+		}
+	};
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap base-component.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var VERSION = "5.3.8";
+	var BaseComponent = class extends Config {
+		constructor(element, config) {
+			var _Data$get;
+			super();
+			const resolved = getElement(element);
+			if (!resolved) return;
+			const ctor = this.constructor;
+			(_Data$get = Data.get(resolved, ctor.DATA_KEY)) === null || _Data$get === void 0 || _Data$get.dispose();
+			this._element = resolved;
+			this._config = this._getConfig(config);
+			Data.set(this._element, ctor.DATA_KEY, this);
+		}
+		dispose() {
+			const ctor = this.constructor;
+			Data.remove(this._element, ctor.DATA_KEY);
+			EventHandler.off(this._element, ctor.EVENT_KEY);
+			for (const propertyName of Object.getOwnPropertyNames(this)) this[propertyName] = null;
+		}
+		_queueCallback(callback, element, isAnimated = true) {
+			executeAfterTransition(() => {
+				if (this._element) callback();
+			}, element, isAnimated);
+		}
+		_getConfig(config) {
+			config = this._mergeConfigObj(config, this._element);
+			config = this._configAfterMerge(config);
+			this._typeCheckConfig(config);
+			return config;
+		}
+		static getInstance(element) {
+			return Data.get(getElement(element), this.DATA_KEY);
+		}
+		static getOrCreateInstance(element, config = {}) {
+			return this.getInstance(element) || new this(element, typeof config === "object" ? config : void 0);
+		}
+		static get VERSION() {
+			return VERSION;
+		}
+		static get DATA_KEY() {
+			return `bs.${this.NAME}`;
+		}
+		static get EVENT_KEY() {
+			return `.${this.DATA_KEY}`;
+		}
+		static eventName(name) {
+			return `${name}${this.EVENT_KEY}`;
+		}
+	};
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap dom/selector-engine.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var getSelector = (element) => {
+		let selector = element.getAttribute("data-tblr-target") || element.getAttribute("data-bs-target");
+		if (!selector || selector === "#") {
+			let hrefAttribute = element.getAttribute("href");
+			if (!hrefAttribute || !hrefAttribute.includes("#") && !hrefAttribute.startsWith(".")) return null;
+			if (hrefAttribute.includes("#") && !hrefAttribute.startsWith("#")) hrefAttribute = `#${hrefAttribute.split("#")[1]}`;
+			selector = hrefAttribute && hrefAttribute !== "#" ? hrefAttribute.trim() : null;
+		}
+		return selector ? selector.split(",").map((sel) => parseSelector(sel)).join(",") : null;
+	};
+	var SelectorEngine = {
+		find(selector, element = document.documentElement) {
+			return Array.from(element.querySelectorAll(selector));
+		},
+		findOne(selector, element = document.documentElement) {
+			return element.querySelector(selector);
+		},
+		children(element, selector) {
+			return Array.from(element.children).filter((child) => child.matches(selector));
+		},
+		parents(element, selector) {
+			const parents = [];
+			let ancestor = element.parentNode && element.parentNode.closest(selector);
+			while (ancestor) {
+				parents.push(ancestor);
+				ancestor = ancestor.parentNode && ancestor.parentNode.closest(selector);
+			}
+			return parents;
+		},
+		prev(element, selector) {
+			let previous = element.previousElementSibling;
+			while (previous) {
+				if (previous.matches(selector)) return [previous];
+				previous = previous.previousElementSibling;
+			}
+			return [];
+		},
+		next(element, selector) {
+			let next = element.nextElementSibling;
+			while (next) {
+				if (next.matches(selector)) return [next];
+				next = next.nextElementSibling;
+			}
+			return [];
+		},
+		focusableChildren(element) {
+			const focusables = [
+				"a",
+				"button",
+				"input",
+				"textarea",
+				"select",
+				"details",
+				"[tabindex]",
+				"[contenteditable=\"true\"]"
+			].map((selector) => `${selector}:not([tabindex^="-"])`).join(",");
+			return this.find(focusables, element).filter((el) => !isDisabled(el) && isVisible(el));
+		},
+		getSelectorFromElement(element) {
+			const selector = getSelector(element);
+			if (selector) return SelectorEngine.findOne(selector) ? selector : null;
+			return null;
+		},
+		getElementFromSelector(element) {
+			const selector = getSelector(element);
+			return selector ? SelectorEngine.findOne(selector) : null;
+		},
+		getMultipleElementsFromSelector(element) {
+			const selector = getSelector(element);
+			return selector ? SelectorEngine.find(selector) : [];
+		}
+	};
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap util/component-functions.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var callMethod = (instance, method) => {
+		const callable = instance[method];
+		if (typeof callable === "function") callable.call(instance);
+	};
+	var enableDismissTrigger = (component, method = "hide") => {
+		const clickEvent = `click.dismiss${component.EVENT_KEY}`;
+		const name = component.NAME;
+		EventHandler.on(document, clickEvent, `[data-bs-dismiss="${name}"], [data-tblr-dismiss="${name}"]`, function(event) {
+			if (["A", "AREA"].includes(this.tagName)) event.preventDefault();
+			if (isDisabled(this)) return;
+			const target = SelectorEngine.getElementFromSelector(this) || this.closest(`.${name}`);
+			callMethod(component.getOrCreateInstance(target), method);
+		});
+	};
+	/**
+	* Creates the component for every element that matches on page load. One
+	* element with a broken config must not stop the rest of the bundle, so the
+	* error is logged and the loop goes on.
+	*/
+	var initAll = (selector, Plugin, filter = null) => {
+		for (const element of SelectorEngine.find(selector)) {
+			if (filter && !filter(element)) continue;
+			try {
+				Plugin.getOrCreateInstance(element);
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	};
+	/**
+	* --------------------------------------------------------------------------
+	* Tabler autosize.ts
+	* Licensed under MIT (https://github.com/tabler/tabler/blob/dev/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$26 = "autosize";
+	var EVENT_RESIZED = `resized${`.${`bs.${NAME$26}`}`}`;
+	var SELECTOR_DATA_TOGGLE$12 = `[data-bs-toggle="${NAME$26}"], [data-tblr-toggle="${NAME$26}"]`;
+	var Default$23 = {};
+	var DefaultType$23 = {};
+	/**
+	* Class definition
+	*
+	* Grows a textarea with its content and shrinks it back when text is removed.
+	* The height follows `scrollHeight`, so `rows` sets the starting height and
+	* `max-height` caps the growth, after which the field scrolls again.
+	*/
+	var Autosize = class extends BaseComponent {
+		constructor(element, config) {
+			var _this$_element$getAtt;
+			super(element, config);
+			this._observer = null;
+			this._inlineStyle = "";
+			this._width = 0;
+			this._onInput = () => this.update();
+			if (!this._element) return;
+			this._inlineStyle = (_this$_element$getAtt = this._element.getAttribute("style")) !== null && _this$_element$getAtt !== void 0 ? _this$_element$getAtt : "";
+			this._element.style.resize = "none";
+			this._element.style.overflowY = "hidden";
+			this._element.addEventListener("input", this._onInput);
+			if (typeof ResizeObserver !== "undefined") {
+				this._observer = new ResizeObserver(() => {
+					if (this._element.offsetWidth !== this._width) {
+						this._width = this._element.offsetWidth;
+						this.update();
+					}
+				});
+				this._observer.observe(this._element);
+			}
+			this.update();
+		}
+		static get Default() {
+			return Default$23;
+		}
+		static get DefaultType() {
+			return DefaultType$23;
+		}
+		static get NAME() {
+			return NAME$26;
+		}
+		update() {
+			const element = this._element;
+			if (!element.isConnected || element.getClientRects().length === 0) return;
+			const { scrollTop } = document.documentElement;
+			const style = getComputedStyle(element);
+			const extra = style.boxSizing === "border-box" ? Number.parseFloat(style.borderTopWidth) + Number.parseFloat(style.borderBottomWidth) : -(Number.parseFloat(style.paddingTop) + Number.parseFloat(style.paddingBottom));
+			const before = element.style.height;
+			element.style.overflowY = "hidden";
+			element.style.height = "auto";
+			const height = `${element.scrollHeight + extra}px`;
+			element.style.height = height;
+			element.style.overflowY = element.scrollHeight > element.clientHeight ? "auto" : "hidden";
+			document.documentElement.scrollTop = scrollTop;
+			if (height !== before) EventHandler.trigger(element, EVENT_RESIZED);
+		}
+		dispose() {
+			var _this$_observer;
+			this._element.removeEventListener("input", this._onInput);
+			(_this$_observer = this._observer) === null || _this$_observer === void 0 || _this$_observer.disconnect();
+			if (this._inlineStyle) this._element.setAttribute("style", this._inlineStyle);
+			else this._element.removeAttribute("style");
+			super.dispose();
+		}
+	};
+	/**
+	* Data API implementation
+	*/
+	initAll(SELECTOR_DATA_TOGGLE$12, Autosize);
+	function asyncGeneratorStep(n, t, e, r, o, a, c) {
+		try {
+			var i = n[a](c), u = i.value;
+		} catch (n) {
+			e(n);
+			return;
+		}
+		i.done ? t(u) : Promise.resolve(u).then(r, o);
+	}
+	function _asyncToGenerator(n) {
+		return function() {
+			var t = this, e = arguments;
+			return new Promise(function(r, o) {
+				var a = n.apply(t, e);
+				function _next(n) {
+					asyncGeneratorStep(a, r, o, _next, _throw, "next", n);
+				}
+				function _throw(n) {
+					asyncGeneratorStep(a, r, o, _next, _throw, "throw", n);
+				}
+				_next(void 0);
+			});
+		};
+	}
+	/**
+	* --------------------------------------------------------------------------
+	* Tabler clipboard.ts
+	* Licensed under MIT (https://github.com/tabler/tabler/blob/dev/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$25 = "clipboard";
+	var EVENT_KEY$18 = `.${`bs.${NAME$25}`}`;
+	var EVENT_COPIED = `copied${EVENT_KEY$18}`;
+	var EVENT_ERROR = `error${EVENT_KEY$18}`;
+	var CLASS_NAME_COPIED = "copied";
+	var SELECTOR_DATA_TOGGLE$11 = `[data-bs-toggle="${NAME$25}"], [data-tblr-toggle="${NAME$25}"]`;
+	var SELECTOR_LABEL = `.${NAME$25}-label`;
+	var SELECTOR_FEEDBACK = `.${NAME$25}-feedback`;
+	var ATTRIBUTE_TEXT = "data-bs-text";
+	var ATTRIBUTE_TEXT_ALIAS = "data-tblr-text";
+	var Default$22 = {
+		target: null,
+		text: null,
+		delay: 2e3
+	};
+	var DefaultType$22 = {
+		target: "(string|null)",
+		text: "(string|number|null)",
+		delay: "number"
+	};
+	/**
+	* Helpers
+	*/
+	var toggleHidden = (element, hidden) => {
+		if (hidden) element.setAttribute("hidden", "");
+		else element.removeAttribute("hidden");
+	};
+	/**
+	* Class definition
+	*
+	* Copies text to the clipboard when the trigger is clicked, then shows the
+	* copied state for a moment. Every word lives in the markup: the trigger holds
+	* a `clipboard-label` and a `clipboard-feedback`, and the component only swaps
+	* which of them is hidden.
+	*
+	* The browser gives `navigator.clipboard` to secure contexts only, so on plain
+	* http a copy fails and `error.bs.clipboard` fires.
+	*/
+	var Clipboard = class extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._labels = [];
+			this._feedbacks = [];
+			this._timeout = 0;
+			if (!this._element) return;
+			this._labels = SelectorEngine.find(SELECTOR_LABEL, this._element);
+			this._feedbacks = SelectorEngine.find(SELECTOR_FEEDBACK, this._element);
+			for (const feedback of this._feedbacks) {
+				toggleHidden(feedback, true);
+				if (!feedback.hasAttribute("role")) feedback.setAttribute("role", "status");
+			}
+			EventHandler.on(this._element, `click${EVENT_KEY$18}`, (event) => {
+				event.preventDefault();
+				this.copy();
+			});
+		}
+		static get Default() {
+			return Default$22;
+		}
+		static get DefaultType() {
+			return DefaultType$22;
+		}
+		static get NAME() {
+			return NAME$25;
+		}
+		get text() {
+			var _source$textContent;
+			const { text, target } = this._config;
+			if (text !== null && text !== "") return String(text);
+			const source = target ? getElement(target) : null;
+			if (!source) return "";
+			if (source instanceof HTMLInputElement || source instanceof HTMLTextAreaElement) return source.value;
+			return (source instanceof HTMLElement ? source.innerText : (_source$textContent = source.textContent) !== null && _source$textContent !== void 0 ? _source$textContent : "").trim();
+		}
+		copy() {
+			var _this = this;
+			return _asyncToGenerator(function* () {
+				const { text } = _this;
+				if (!text || !navigator.clipboard) {
+					EventHandler.trigger(_this._element, EVENT_ERROR);
+					return;
+				}
+				try {
+					yield navigator.clipboard.writeText(text);
+				} catch (_unused) {
+					EventHandler.trigger(_this._element, EVENT_ERROR);
+					return;
+				}
+				_this._showCopied();
+				EventHandler.trigger(_this._element, EVENT_COPIED);
+			})();
+		}
+		/** Ends the copied state, for a `delay` of 0 or an early reset. */
+		reset() {
+			window.clearTimeout(this._timeout);
+			this._toggleCopied(false);
+		}
+		dispose() {
+			window.clearTimeout(this._timeout);
+			super.dispose();
+		}
+		_mergeConfigObj(config, element) {
+			var _element$getAttribute;
+			const raw = (_element$getAttribute = element === null || element === void 0 ? void 0 : element.getAttribute(ATTRIBUTE_TEXT)) !== null && _element$getAttribute !== void 0 ? _element$getAttribute : element === null || element === void 0 ? void 0 : element.getAttribute(ATTRIBUTE_TEXT_ALIAS);
+			const dataOptions = raw === null || raw === void 0 ? {} : { text: raw };
+			return super._mergeConfigObj(_objectSpread2(_objectSpread2({}, dataOptions), config), element);
+		}
+		_showCopied() {
+			window.clearTimeout(this._timeout);
+			this._toggleCopied(true);
+			if (this._config.delay > 0) this._timeout = window.setTimeout(() => this._toggleCopied(false), this._config.delay);
+		}
+		_toggleCopied(copied) {
+			this._element.classList.toggle(CLASS_NAME_COPIED, copied);
+			for (const label of this._labels) toggleHidden(label, copied);
+			for (const feedback of this._feedbacks) toggleHidden(feedback, !copied);
+		}
+	};
+	/**
+	* Data API implementation
+	*/
+	initAll(SELECTOR_DATA_TOGGLE$11, Clipboard);
+	/**
+	* --------------------------------------------------------------------------
+	* Tabler confetti.ts
+	* Licensed under MIT (https://github.com/tabler/tabler/blob/dev/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$24 = "confetti";
+	var EVENT_KEY$17 = `.${`bs.${NAME$24}`}`;
+	var EVENT_START$1 = `start${EVENT_KEY$17}`;
+	var EVENT_END = `end${EVENT_KEY$17}`;
+	var EVENT_CLICK_DATA_API$8 = `click${EVENT_KEY$17}.data-api`;
+	var CLASS_NAME_CANVAS = `${NAME$24}-canvas`;
+	var SELECTOR_DATA_TOGGLE$10 = `[data-bs-toggle="${NAME$24}"], [data-tblr-toggle="${NAME$24}"]`;
+	var PALETTE = [
+		["blue", "#066fd1"],
+		["azure", "#4299e1"],
+		["indigo", "#4263eb"],
+		["purple", "#ae3ec9"],
+		["pink", "#d6336c"],
+		["red", "#d63939"],
+		["orange", "#f76707"],
+		["yellow", "#f59f00"],
+		["lime", "#74b816"],
+		["green", "#2fb344"],
+		["teal", "#0ca678"],
+		["cyan", "#17a2b8"]
+	];
+	var REFERENCE_HEIGHT = 800;
+	var FRAME_MS = 1e3 / 60;
+	var MAX_DPR = 2;
+	var Default$21 = {
+		count: 220,
+		duration: 3500,
+		decay: 3.5,
+		fade: .15,
+		speed: 1,
+		colors: null
+	};
+	var DefaultType$21 = {
+		count: "number",
+		duration: "number",
+		decay: "number",
+		fade: "number",
+		speed: "number",
+		colors: "(array|string|null)"
+	};
+	/**
+	* Stage
+	*
+	* One fixed canvas shared by every burst on the page. It is created on the
+	* first burst and removed once the last piece has landed, so an idle page
+	* carries no extra element and no running animation frame.
+	*/
+	var stage = {
+		canvas: null,
+		context: null,
+		particles: [],
+		emitters: [],
+		frame: 0,
+		lastTick: 0,
+		add(emitter) {
+			this._mount();
+			if (!this.context) return false;
+			this.emitters.push(emitter);
+			if (!this.frame) {
+				this.lastTick = performance.now();
+				this.frame = requestAnimationFrame((now) => this._tick(now));
+			}
+			return true;
+		},
+		_mount() {
+			if (this.canvas) return;
+			const canvas = document.createElement("canvas");
+			canvas.className = CLASS_NAME_CANVAS;
+			canvas.setAttribute("aria-hidden", "true");
+			Object.assign(canvas.style, {
+				position: "fixed",
+				inset: "0",
+				width: "100%",
+				height: "100%",
+				zIndex: "9999",
+				pointerEvents: "none",
+				display: "block"
+			});
+			const context = canvas.getContext("2d");
+			if (!context) return;
+			document.body.append(canvas);
+			this.canvas = canvas;
+			this.context = context;
+			this._resize();
+			window.addEventListener("resize", this._onResize);
+		},
+		_unmount() {
+			var _this$canvas;
+			cancelAnimationFrame(this.frame);
+			this.frame = 0;
+			window.removeEventListener("resize", this._onResize);
+			(_this$canvas = this.canvas) === null || _this$canvas === void 0 || _this$canvas.remove();
+			this.canvas = null;
+			this.context = null;
+			this.particles = [];
+			this.emitters = [];
+		},
+		_onResize: () => {
+			stage._resize();
+		},
+		_resize() {
+			if (!this.canvas || !this.context) return;
+			const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+			this.canvas.width = document.documentElement.clientWidth * dpr;
+			this.canvas.height = window.innerHeight * dpr;
+			this.context.setTransform(dpr, 0, 0, dpr, 0, 0);
+		},
+		_spawn(emitter) {
+			var _colors$Math$floor;
+			const { colors, config } = emitter;
+			const speed = window.innerHeight / REFERENCE_HEIGHT * config.speed;
+			return {
+				emitter,
+				x: Math.random() * window.innerWidth,
+				y: -20 - Math.random() * 30,
+				w: 6 + Math.random() * 3.6,
+				h: 10 + Math.random() * 4.4,
+				color: (_colors$Math$floor = colors[Math.floor(Math.random() * colors.length)]) !== null && _colors$Math$floor !== void 0 ? _colors$Math$floor : "#000",
+				vx: (Math.random() - .5) * 1.2,
+				vy: (1.5 + Math.random() * 2.1) * speed,
+				speed,
+				angle: Math.random() * Math.PI * 2,
+				spin: (Math.random() - .5) * .25,
+				flip: Math.random() * Math.PI * 2,
+				flipSpeed: .12 + Math.random() * .15,
+				sway: Math.random() * Math.PI * 2,
+				alpha: 1
+			};
+		},
+		_pour(emitter, now) {
+			const { count, duration, decay } = emitter.config;
+			const elapsed = now - emitter.startedAt;
+			if (emitter.stopped || elapsed >= duration) return;
+			const t = elapsed / duration;
+			const target = Math.round(count * (1 - Math.exp(-decay * t)) / (1 - Math.exp(-decay)));
+			while (emitter.emitted < target) {
+				this.particles.push(this._spawn(emitter));
+				emitter.emitted++;
+			}
+		},
+		_tick(now) {
+			const context = this.context;
+			if (!context) return;
+			const step = Math.min((now - this.lastTick) / FRAME_MS, 3);
+			this.lastTick = now;
+			const width = window.innerWidth;
+			const height = window.innerHeight;
+			context.clearRect(0, 0, width, height);
+			for (const emitter of this.emitters) this._pour(emitter, now);
+			for (let i = this.particles.length - 1; i >= 0; i--) {
+				const p = this.particles[i];
+				const fadeFrom = height * (1 - p.emitter.config.fade);
+				p.sway += .05 * step;
+				p.vy = Math.min(p.vy + .025 * p.speed * step, 4.2 * p.speed);
+				p.x += (p.vx + Math.sin(p.sway) * .7) * step;
+				p.y += p.vy * step;
+				p.angle += p.spin * step;
+				p.flip += p.flipSpeed * step;
+				if (p.y > fadeFrom) p.alpha = Math.max(0, 1 - (p.y - fadeFrom) / (height - fadeFrom));
+				if (p.alpha === 0) {
+					this.particles.splice(i, 1);
+					continue;
+				}
+				context.save();
+				context.globalAlpha = p.alpha;
+				context.translate(p.x, p.y);
+				context.rotate(p.angle);
+				context.scale(1, Math.cos(p.flip));
+				context.fillStyle = p.color;
+				context.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+				context.restore();
+			}
+			this._settle(now);
+			if (this.emitters.length === 0) {
+				this._unmount();
+				return;
+			}
+			this.frame = requestAnimationFrame((next) => this._tick(next));
+		},
+		_settle(now) {
+			for (let i = this.emitters.length - 1; i >= 0; i--) {
+				const emitter = this.emitters[i];
+				const pouring = !emitter.stopped && now - emitter.startedAt < emitter.config.duration;
+				const airborne = this.particles.some((p) => p.emitter === emitter);
+				if (pouring || airborne) continue;
+				this.emitters.splice(i, 1);
+				emitter.done = true;
+				if (!emitter.detached) EventHandler.trigger(emitter.element, EVENT_END);
+			}
+		}
+	};
+	/**
+	* Class definition
+	*
+	* Pours a short shower of confetti over the page, like a bucket emptied from
+	* the top edge: dense at first, then thinning out. Nothing is drawn when the
+	* user prefers reduced motion, but the events still fire.
+	*/
+	var Confetti = class extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._emitter = null;
+		}
+		static get Default() {
+			return Default$21;
+		}
+		static get DefaultType() {
+			return DefaultType$21;
+		}
+		static get NAME() {
+			return NAME$24;
+		}
+		burst() {
+			const startEvent = EventHandler.trigger(this._element, EVENT_START$1);
+			if (startEvent === null || startEvent === void 0 ? void 0 : startEvent.defaultPrevented) return;
+			this.stop();
+			if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+				EventHandler.trigger(this._element, EVENT_END);
+				return;
+			}
+			this._emitter = {
+				element: this._element,
+				config: this._config,
+				colors: this._colors(),
+				startedAt: performance.now(),
+				emitted: 0,
+				stopped: false,
+				done: false,
+				detached: false
+			};
+			if (!stage.add(this._emitter)) {
+				this._emitter = null;
+				EventHandler.trigger(this._element, EVENT_END);
+			}
+		}
+		stop() {
+			if (this._emitter && !this._emitter.done) this._emitter.stopped = true;
+			this._emitter = null;
+		}
+		dispose() {
+			if (this._emitter) this._emitter.detached = true;
+			this.stop();
+			super.dispose();
+		}
+		_configAfterMerge(config) {
+			if (typeof config.colors === "string") config.colors = config.colors.split(",").map((color) => color.trim()).filter(Boolean);
+			return config;
+		}
+		_colors() {
+			const { colors } = this._config;
+			if (colors && colors.length > 0) return colors;
+			const style = getComputedStyle(document.documentElement);
+			return PALETTE.map(([name, fallback]) => style.getPropertyValue(`--tblr-${name}`).trim() || fallback);
+		}
+	};
+	/**
+	* Data API implementation
+	*
+	* A trigger bursts on its `data-bs-target` when it has one, otherwise on
+	* itself, so the events fire where the page can listen for them.
+	*/
+	EventHandler.on(document, EVENT_CLICK_DATA_API$8, SELECTOR_DATA_TOGGLE$10, function(event) {
+		if (["A", "AREA"].includes(this.tagName)) event.preventDefault();
+		if (isDisabled(this)) return;
+		const target = SelectorEngine.getElementFromSelector(this) || this;
+		const config = Manipulator.getDataAttributes(this);
+		const instance = Confetti.getOrCreateInstance(target, config);
+		if (target !== this) instance._config = instance._getConfig(config);
+		instance.burst();
+	});
+	/**
+	* --------------------------------------------------------------------------
+	* Tabler countup.ts
+	* Licensed under MIT (https://github.com/tabler/tabler/blob/dev/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$23 = "countup";
+	var EVENT_KEY$16 = `.${`bs.${NAME$23}`}`;
+	var DATA_ATTRIBUTE$1 = `data-${NAME$23}`;
+	var EVENT_START = `start${EVENT_KEY$16}`;
+	var EVENT_COMPLETE$1 = `complete${EVENT_KEY$16}`;
+	var DATA_ATTRIBUTE_ALIAS = `data-tblr-${NAME$23}`;
+	var SELECTOR_DATA_COUNTUP = `[${DATA_ATTRIBUTE$1}], [${DATA_ATTRIBUTE_ALIAS}]`;
+	var Default$20 = {
+		autoAnimate: true,
+		startVal: 0,
+		duration: 2,
+		decimalPlaces: 0,
+		useEasing: true,
+		useGrouping: true,
+		separator: ",",
+		decimal: ".",
+		prefix: "",
+		suffix: "",
+		format: "number",
+		formatter: null
+	};
+	var DefaultType$20 = {
+		autoAnimate: "boolean",
+		startVal: "number",
+		duration: "number",
+		decimalPlaces: "number",
+		useEasing: "boolean",
+		useGrouping: "boolean",
+		separator: "string",
+		decimal: "string",
+		prefix: "string",
+		suffix: "string",
+		format: "string",
+		formatter: "(function|null)"
+	};
+	/**
+	* Helpers
+	*/
+	var coerceOptions = (options) => {
+		const result = _objectSpread2({}, options);
+		for (const [key, value] of Object.entries(options)) {
+			const expected = DefaultType$20[key];
+			if (typeof value === "string" && expected === "number" && value.trim() !== "" && !Number.isNaN(Number(value))) result[key] = Number(value);
+			else if (typeof value === "string" && expected === "boolean" && (value === "true" || value === "false")) result[key] = value === "true";
+			else if (typeof value === "number" && expected === "string") result[key] = String(value);
+		}
+		return result;
+	};
+	var parseValue = (input, format) => {
+		if (typeof input === "number") return input;
+		if (format === "time") {
+			const match = /^\D{0,32}(\d{1,4}):(\d{1,2})/.exec(input);
+			return match ? Number(match[1]) * 60 + Number(match[2]) : NaN;
+		}
+		return Number.parseFloat(input.replace(/[^0-9.-]/g, ""));
+	};
+	var easeOut$1 = (t) => t >= 1 ? 1 : (1 - Math.pow(2, -10 * t)) * 1024 / 1023;
+	var reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	/**
+	* Class definition
+	*
+	* Animates the number written inside the element from `startVal` to it,
+	* formatted with grouping, decimals, a prefix and a suffix. Options come from
+	* the `data-countup` attribute as JSON, or from the config object.
+	*/
+	var CountUp = class extends BaseComponent {
+		constructor(element, config) {
+			var _this$_element$textCo;
+			super(element, config);
+			this._endVal = 0;
+			this._value = 0;
+			this._frame = 0;
+			this._observer = null;
+			this._from = 0;
+			this._elapsed = 0;
+			this._running = false;
+			this._paused = false;
+			this._started = false;
+			if (!this._element) return;
+			const value = parseValue((_this$_element$textCo = this._element.textContent) !== null && _this$_element$textCo !== void 0 ? _this$_element$textCo : "", this._config.format);
+			if (Number.isNaN(value)) return;
+			this._endVal = value;
+			this._value = this._config.startVal;
+			this._print(this._value);
+			if (!this._config.autoAnimate) {
+				this.start();
+				return;
+			}
+			if (typeof IntersectionObserver === "undefined") {
+				this.start();
+				return;
+			}
+			this._observer = new IntersectionObserver((entries) => this._observerCallback(entries));
+			this._observer.observe(this._element);
+		}
+		static get Default() {
+			return Default$20;
+		}
+		static get DefaultType() {
+			return DefaultType$20;
+		}
+		static get NAME() {
+			return NAME$23;
+		}
+		start() {
+			this._animate(this._value, this._endVal);
+		}
+		reset() {
+			this._stop();
+			this._started = false;
+			this._value = this._config.startVal;
+			this._print(this._value);
+		}
+		update(value) {
+			const parsed = parseValue(value, this._config.format);
+			if (Number.isNaN(parsed)) return;
+			this._endVal = parsed;
+			this._animate(this._value, this._endVal);
+		}
+		pauseResume() {
+			if (this._paused) {
+				this._paused = false;
+				this._run();
+			} else if (this._running) {
+				this._paused = true;
+				cancelAnimationFrame(this._frame);
+			}
+		}
+		dispose() {
+			var _this$_observer;
+			this._stop();
+			(_this$_observer = this._observer) === null || _this$_observer === void 0 || _this$_observer.disconnect();
+			super.dispose();
+		}
+		_mergeConfigObj(config, element) {
+			var _element$getAttribute;
+			let dataOptions = {};
+			const raw = (_element$getAttribute = element === null || element === void 0 ? void 0 : element.getAttribute(DATA_ATTRIBUTE$1)) !== null && _element$getAttribute !== void 0 ? _element$getAttribute : element === null || element === void 0 ? void 0 : element.getAttribute(DATA_ATTRIBUTE_ALIAS);
+			if (raw) try {
+				const parsed = JSON.parse(raw);
+				if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) dataOptions = parsed;
+			} catch (_unused) {}
+			return super._mergeConfigObj(_objectSpread2(_objectSpread2({}, coerceOptions(dataOptions)), config), element);
+		}
+		_observerCallback(entries) {
+			if (entries.some((entry) => entry.isIntersecting)) {
+				var _this$_observer2;
+				(_this$_observer2 = this._observer) === null || _this$_observer2 === void 0 || _this$_observer2.disconnect();
+				this._observer = null;
+				if (!this._started) this.start();
+			}
+		}
+		_animate(from, to) {
+			this._stop();
+			this._started = true;
+			if (from === to || this._config.duration <= 0 || reducedMotion()) {
+				this._finish(to);
+				return;
+			}
+			this._from = from;
+			this._elapsed = 0;
+			this._running = true;
+			EventHandler.trigger(this._element, EVENT_START);
+			this._run();
+		}
+		_run() {
+			const duration = this._config.duration * 1e3;
+			let last = performance.now();
+			const step = (now) => {
+				this._elapsed += now - last;
+				last = now;
+				const t = Math.min(1, this._elapsed / duration);
+				const progress = this._config.useEasing ? easeOut$1(t) : t;
+				this._value = this._from + (this._endVal - this._from) * progress;
+				this._print(this._value);
+				if (t < 1) this._frame = requestAnimationFrame(step);
+				else this._finish(this._endVal);
+			};
+			this._frame = requestAnimationFrame(step);
+		}
+		_finish(value) {
+			this._running = false;
+			this._paused = false;
+			this._value = value;
+			this._print(value);
+			EventHandler.trigger(this._element, EVENT_COMPLETE$1);
+		}
+		_stop() {
+			cancelAnimationFrame(this._frame);
+			this._running = false;
+			this._paused = false;
+		}
+		_print(value) {
+			this._element.textContent = this._format(value);
+		}
+		_format(value) {
+			const { decimalPlaces, useGrouping, separator, decimal, prefix, suffix, format, formatter } = this._config;
+			if (formatter) return formatter(value);
+			if (format === "time") {
+				const rounded = Math.sign(value) * Math.round(Math.abs(value));
+				const minutes = Math.abs(rounded);
+				return `${rounded < 0 ? "-" : ""}${prefix}${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")}${suffix}`;
+			}
+			const fixed = value.toFixed(decimalPlaces);
+			const [integer, fraction] = fixed.replace("-", "").split(".");
+			const grouped = useGrouping ? integer.replace(/\B(?=(\d{3})+(?!\d))/g, separator) : integer;
+			return `${Number(fixed) < 0 ? "-" : ""}${prefix}${grouped}${fraction ? decimal + fraction : ""}${suffix}`;
+		}
+	};
+	/**
+	* Data API implementation
+	*/
+	initAll(SELECTOR_DATA_COUNTUP, CountUp);
+	/**
+	* Constants
+	*/
+	var NAME$22 = "datepicker";
+	var EVENT_KEY$15 = `.${`bs.${NAME$22}`}`;
+	var DATA_API_KEY$7 = ".data-api";
+	var EVENT_CHANGE$2 = `change${EVENT_KEY$15}`;
+	var EVENT_SHOW$7 = `show${EVENT_KEY$15}`;
+	var EVENT_SHOWN$7 = `shown${EVENT_KEY$15}`;
+	var EVENT_HIDE$7 = `hide${EVENT_KEY$15}`;
+	var EVENT_HIDDEN$7 = `hidden${EVENT_KEY$15}`;
+	var EVENT_FOCUSIN$3 = `focusin${EVENT_KEY$15}`;
+	var EVENT_CLICK_DATA_API$7 = `click${EVENT_KEY$15}${DATA_API_KEY$7}`;
+	var EVENT_FOCUSIN_DATA_API = `focusin${EVENT_KEY$15}${DATA_API_KEY$7}`;
+	var SELECTOR_DATA_TOGGLE$9 = "[data-bs-toggle=\"datepicker\"], [data-tblr-toggle=\"datepicker\"]";
+	var SELECTOR_DISPLAY = "[data-bs-datepicker-display], [data-tblr-datepicker-display]";
+	var SELECTOR_INPUT_WRAPPER = ".input-icon, .input-group";
+	var SELECTOR_BOUND_INPUT = "input[type=\"hidden\"], input[name]";
+	var HIDE_DELAY = 100;
+	var DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+	var EXTENSION_NAMES = [
+		"annotations",
+		"months",
+		"motion",
+		"time",
+		"weeks"
+	];
+	var writtenSelections = /* @__PURE__ */ new WeakMap();
+	var Default$19 = {
+		datepickerTheme: null,
+		dateMin: null,
+		dateMax: null,
+		dateFormat: null,
+		displayElement: null,
+		displayMonthsCount: 1,
+		firstWeekday: 1,
+		inline: false,
+		locale: "default",
+		positionElement: null,
+		selectedDates: [],
+		selectionMode: "single",
+		placement: "left",
+		vcpOptions: {}
+	};
+	var DefaultType$19 = {
+		datepickerTheme: "(null|string)",
+		dateMin: "(null|string|number|object|date)",
+		dateMax: "(null|string|number|object|date)",
+		dateFormat: "(null|object|function)",
+		displayElement: "(null|string|element|boolean)",
+		displayMonthsCount: "number",
+		firstWeekday: "number",
+		inline: "boolean",
+		locale: "string",
+		positionElement: "(null|string|element)",
+		selectedDates: "array",
+		selectionMode: "string",
+		placement: "string",
+		vcpOptions: "object"
+	};
+	var afterPluginTimers = (callback) => {
+		setTimeout(() => setTimeout(callback));
+	};
+	/**
+	* Class definition
+	*
+	* Wraps Vanilla Calendar Pro (https://vanilla-calendar.pro), loaded separately
+	* as `window.VanillaCalendarPro`. Without the plugin the component is inert.
+	* Same options, methods and events as Bootstrap 6's Datepicker, so markup
+	* written for one works with the other.
+	*/
+	var Datepicker = class extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._calendar = null;
+			this._isShown = false;
+			this._isShowing = false;
+			this._isHiding = false;
+			this._isSilent = false;
+			this._skipPluginShow = false;
+			this._resolveShown = null;
+			this._hideTimeout = 0;
+			this._isInput = false;
+			this._isInline = false;
+			this._boundInput = null;
+			this._positionElement = null;
+			this._displayElement = null;
+			this._themeObserver = null;
+			this._onFocusIn = null;
+			this._onResize = () => this._alignToPositionElement();
+			this._selectedDates = [];
+			if (!this._element || !window.VanillaCalendarPro) return;
+			this._initCalendar();
+		}
+		static get Default() {
+			return Default$19;
+		}
+		static get DefaultType() {
+			return DefaultType$19;
+		}
+		static get NAME() {
+			return NAME$22;
+		}
+		/** The Vanilla Calendar Pro instance, for options the component does not expose. */
+		get calendar() {
+			return this._calendar;
+		}
+		toggle() {
+			if (this._config.inline) return Promise.resolve();
+			return this._isShown ? this.hide() : this.show();
+		}
+		show() {
+			var _this = this;
+			return _asyncToGenerator(function* () {
+				if (_this._config.inline) return;
+				if (!_this._calendar || isDisabled(_this._element) || _this._isShown || _this._isShowing) return;
+				const showEvent = EventHandler.trigger(_this._element, EVENT_SHOW$7);
+				if (showEvent === null || showEvent === void 0 ? void 0 : showEvent.defaultPrevented) return;
+				_this._isShowing = true;
+				_this._skipPluginShow = false;
+				_this._calendar.show();
+				if (!_this._isShown) yield new Promise((resolve) => {
+					_this._resolveShown = resolve;
+					afterPluginTimers(resolve);
+				});
+				_this._resolveShown = null;
+				_this._isShowing = false;
+			})();
+		}
+		hide() {
+			var _this2 = this;
+			return _asyncToGenerator(function* () {
+				if (_this2._config.inline) return;
+				if (!_this2._calendar || !_this2._isShown) return;
+				const hideEvent = EventHandler.trigger(_this2._element, EVENT_HIDE$7);
+				if (hideEvent === null || hideEvent === void 0 ? void 0 : hideEvent.defaultPrevented) return;
+				_this2._skipPluginShow = true;
+				afterPluginTimers(() => {
+					_this2._skipPluginShow = false;
+				});
+				_this2._isHiding = true;
+				_this2._calendar.hide();
+				_this2._isHiding = false;
+			})();
+		}
+		dispose() {
+			var _this$_themeObserver;
+			window.clearTimeout(this._hideTimeout);
+			(_this$_themeObserver = this._themeObserver) === null || _this$_themeObserver === void 0 || _this$_themeObserver.disconnect();
+			window.removeEventListener("resize", this._onResize);
+			if (this._onFocusIn) EventHandler.off(document, EVENT_FOCUSIN$3, this._onFocusIn);
+			if (this._calendar) {
+				this._calendar.destroy();
+				const clone = this._calendar.context.mainElement;
+				if (clone && clone !== this._element && clone.isConnected) {
+					if (this._isInput) clone.replaceWith(this._element);
+					else if (this._boundInput) {
+						const copy = SelectorEngine.findOne(SELECTOR_BOUND_INPUT, clone);
+						if (copy) copy.replaceWith(this._boundInput);
+						else clone.append(this._boundInput);
+					}
+				}
+			}
+			super.dispose();
+		}
+		getSelectedDates() {
+			var _this$_calendar;
+			const dates = (_this$_calendar = this._calendar) === null || _this$_calendar === void 0 || (_this$_calendar = _this$_calendar.context) === null || _this$_calendar === void 0 ? void 0 : _this$_calendar.selectedDates;
+			return dates && dates.length > 0 ? [...dates] : [...this._selectedDates];
+		}
+		setSelectedDates(dates) {
+			var _this$_calendar2;
+			this._selectedDates = dates.map((date) => this._toIsoDate(date));
+			(_this$_calendar2 = this._calendar) === null || _this$_calendar2 === void 0 || _this$_calendar2.set(_objectSpread2({ selectedDates: this._selectedDates }, this._monthOf(this._selectedDates[0])));
+			this._writeSelection(this._selectedDates);
+		}
+		_initCalendar() {
+			this._isInput = this._element.tagName === "INPUT";
+			this._isInline = this._config.inline;
+			if (this._isInline && !this._isInput) this._boundInput = SelectorEngine.findOne(SELECTOR_BOUND_INPUT, this._element);
+			this._positionElement = this._resolvePositionElement();
+			this._displayElement = this._resolveDisplayElement();
+			this._selectedDates = [...this._config.selectedDates];
+			this._calendar = new window.VanillaCalendarPro.Calendar(this._element, this._buildCalendarOptions());
+			this._calendar.init();
+			if (this._boundInput && !this._boundInput.isConnected) this._element.after(this._boundInput);
+			this._setupThemeObserver();
+			this._setupDismissOnFocus();
+			if (this._isInput && this._element.value) this._parseInputValue();
+			this._updateDisplayWithSelectedDates();
+		}
+		_updateDisplayWithSelectedDates() {
+			if (this._selectedDates.length === 0) return;
+			this._writeSelection(this._selectedDates);
+		}
+		_writeSelection(selectedDates) {
+			const formattedDate = this._formatDateForInput(selectedDates);
+			if (this._isInput) {
+				this._element.value = formattedDate;
+				writtenSelections.set(this._element, {
+					text: formattedDate,
+					dates: [...selectedDates]
+				});
+			}
+			if (this._boundInput) this._boundInput.value = selectedDates.join(",");
+			if (this._displayElement) this._displayElement.textContent = formattedDate;
+		}
+		_resolvePositionElement() {
+			let { positionElement } = this._config;
+			if (typeof positionElement === "string") positionElement = getElement(positionElement);
+			if (!positionElement && this._isInput && !this._isInline) positionElement = this._element.closest(SELECTOR_INPUT_WRAPPER);
+			return positionElement || this._element;
+		}
+		_resolveDisplayElement() {
+			const { displayElement } = this._config;
+			if (typeof displayElement === "string") return getElement(displayElement);
+			if (displayElement === true || displayElement === null && !this._isInput && !this._isInline) return SelectorEngine.findOne(SELECTOR_DISPLAY, this._element) || this._element;
+			return displayElement;
+		}
+		_alignToPositionElement() {
+			var _this$_calendar3;
+			const mainElement = (_this$_calendar3 = this._calendar) === null || _this$_calendar3 === void 0 || (_this$_calendar3 = _this$_calendar3.context) === null || _this$_calendar3 === void 0 ? void 0 : _this$_calendar3.mainElement;
+			if (!mainElement || this._isInline || !this._positionElement || this._positionElement === this._element) return;
+			const anchor = this._positionElement.getBoundingClientRect();
+			const popup = mainElement.getBoundingClientRect();
+			let { placement } = this._config;
+			if (placement === "auto") placement = anchor.left + popup.width > document.documentElement.clientWidth ? "right" : "left";
+			const left = placement === "right" ? anchor.right - popup.width : placement === "center" ? anchor.left + (anchor.width - popup.width) / 2 : anchor.left;
+			mainElement.style.left = `${left + window.scrollX}px`;
+		}
+		_getThemeAncestor() {
+			return this._element.closest("[data-bs-theme]");
+		}
+		_getEffectiveTheme() {
+			var _this$_getThemeAncest;
+			const { datepickerTheme } = this._config;
+			if (datepickerTheme) return datepickerTheme;
+			return ((_this$_getThemeAncest = this._getThemeAncestor()) === null || _this$_getThemeAncest === void 0 ? void 0 : _this$_getThemeAncest.getAttribute("data-bs-theme")) || null;
+		}
+		_syncThemeAttribute(element) {
+			if (!element) return;
+			const theme = this._getEffectiveTheme();
+			if (theme) element.setAttribute("data-bs-theme", theme);
+			else element.removeAttribute("data-bs-theme");
+		}
+		_setupThemeObserver() {
+			const ancestor = this._getThemeAncestor();
+			if (!ancestor || this._config.datepickerTheme) return;
+			this._themeObserver = new MutationObserver(() => {
+				var _this$_calendar4;
+				this._syncThemeAttribute((_this$_calendar4 = this._calendar) === null || _this$_calendar4 === void 0 || (_this$_calendar4 = _this$_calendar4.context) === null || _this$_calendar4 === void 0 ? void 0 : _this$_calendar4.mainElement);
+			});
+			this._themeObserver.observe(ancestor, {
+				attributes: true,
+				attributeFilter: ["data-bs-theme"]
+			});
+		}
+		_setupDismissOnFocus() {
+			if (this._isInline) return;
+			this._onFocusIn = (event) => {
+				var _this$_calendar5;
+				if (!this._isShown) return;
+				const { target } = event;
+				const mainElement = (_this$_calendar5 = this._calendar) === null || _this$_calendar5 === void 0 || (_this$_calendar5 = _this$_calendar5.context) === null || _this$_calendar5 === void 0 ? void 0 : _this$_calendar5.mainElement;
+				if (target instanceof Node && (this._element.contains(target) || (mainElement === null || mainElement === void 0 ? void 0 : mainElement.contains(target)))) return;
+				this.hide();
+			};
+			EventHandler.on(document, EVENT_FOCUSIN$3, this._onFocusIn);
+		}
+		_silently(callback) {
+			this._isSilent = true;
+			callback();
+			this._isSilent = false;
+		}
+		_handlePluginShow() {
+			var _this$_resolveShown;
+			const calendar = this._calendar;
+			if (!calendar) return;
+			if (!this._isSilent && !this._isShown) {
+				var _EventHandler$trigger;
+				if (this._skipPluginShow || !this._isShowing && ((_EventHandler$trigger = EventHandler.trigger(this._element, EVENT_SHOW$7)) === null || _EventHandler$trigger === void 0 ? void 0 : _EventHandler$trigger.defaultPrevented)) {
+					this._silently(() => calendar.hide());
+					return;
+				}
+			}
+			const wasShown = this._isShown;
+			this._isShown = true;
+			this._syncThemeAttribute(calendar.context.mainElement);
+			this._alignToPositionElement();
+			window.removeEventListener("resize", this._onResize);
+			window.addEventListener("resize", this._onResize);
+			if (!wasShown) EventHandler.trigger(this._element, EVENT_SHOWN$7);
+			(_this$_resolveShown = this._resolveShown) === null || _this$_resolveShown === void 0 || _this$_resolveShown.call(this);
+		}
+		_handlePluginHide() {
+			var _EventHandler$trigger2;
+			const calendar = this._calendar;
+			if (!calendar || this._isSilent || !this._isShown) return;
+			if (!this._isHiding && ((_EventHandler$trigger2 = EventHandler.trigger(this._element, EVENT_HIDE$7)) === null || _EventHandler$trigger2 === void 0 ? void 0 : _EventHandler$trigger2.defaultPrevented)) {
+				this._silently(() => calendar.show());
+				return;
+			}
+			this._isShown = false;
+			window.removeEventListener("resize", this._onResize);
+			EventHandler.trigger(this._element, EVENT_HIDDEN$7);
+		}
+		/** @internal */
+		_calendarExtensions(own = []) {
+			const library = window.VanillaCalendarPro;
+			const extensions = [...own];
+			for (const name of EXTENSION_NAMES) {
+				const extension = library === null || library === void 0 ? void 0 : library[name];
+				if (extension && typeof extension === "object" && !extensions.includes(extension)) extensions.push(extension);
+			}
+			return extensions;
+		}
+		/** @internal */
+		_buildCalendarOptions() {
+			const theme = this._getEffectiveTheme();
+			const vcpTheme = !theme || theme === "auto" ? "system" : theme;
+			const vcpOptions = this._config.vcpOptions;
+			const extensions = this._calendarExtensions(vcpOptions.extensions);
+			const calendarOptions = _objectSpread2(_objectSpread2(_objectSpread2({}, vcpOptions), extensions.length > 0 ? { extensions } : {}), {}, {
+				inputMode: !this._isInline,
+				positionToInput: this._config.placement,
+				firstWeekday: this._config.firstWeekday,
+				locale: this._config.locale,
+				selectionDatesMode: this._config.selectionMode,
+				selectedDates: this._config.selectedDates,
+				displayMonthsCount: this._config.displayMonthsCount,
+				type: this._config.displayMonthsCount > 1 ? "multiple" : "default",
+				selectedTheme: vcpTheme,
+				themeAttrDetect: "[data-bs-theme]",
+				onClickDate: (self, event) => this._handleDateClick(self, event),
+				onInit: (self) => {
+					this._syncThemeAttribute(self.context.mainElement);
+				},
+				onShow: () => this._handlePluginShow(),
+				onHide: () => this._handlePluginHide()
+			});
+			const [firstSelected] = this._config.selectedDates;
+			if (firstSelected) {
+				const firstDate = this._parseDate(firstSelected);
+				calendarOptions.selectedMonth = firstDate.getMonth();
+				calendarOptions.selectedYear = firstDate.getFullYear();
+			}
+			if (this._config.dateMin) calendarOptions.dateMin = this._config.dateMin;
+			if (this._config.dateMax) calendarOptions.dateMax = this._config.dateMax;
+			return calendarOptions;
+		}
+		/** @internal */
+		_handleDateClick(self, event) {
+			const selectedDates = [...self.context.selectedDates];
+			this._selectedDates = selectedDates;
+			this._writeSelection(selectedDates);
+			const args = {
+				dates: selectedDates,
+				event
+			};
+			EventHandler.trigger(this._element, EVENT_CHANGE$2, args);
+			this._maybeHideAfterSelection(selectedDates);
+		}
+		_maybeHideAfterSelection(selectedDates) {
+			if (this._isInline) return;
+			if (this._config.selectionMode === "single" && selectedDates.length > 0 || this._config.selectionMode === "multiple-ranged" && selectedDates.length >= 2) {
+				window.clearTimeout(this._hideTimeout);
+				this._hideTimeout = window.setTimeout(() => this.hide(), HIDE_DELAY);
+			}
+		}
+		_parseDate(dateStr) {
+			const [year = 0, month = 1, day = 1] = dateStr.split("-").map(Number);
+			return new Date(year, month - 1, day);
+		}
+		_formatDate(dateStr) {
+			const date = this._parseDate(dateStr);
+			const locale = this._config.locale === "default" ? void 0 : this._config.locale;
+			const { dateFormat } = this._config;
+			if (typeof dateFormat === "function") return dateFormat(date, locale);
+			if (dateFormat && typeof dateFormat === "object") return new Intl.DateTimeFormat(locale, dateFormat).format(date);
+			return date.toLocaleDateString(locale);
+		}
+		_formatDateForInput(dates) {
+			if (dates.length === 0) return "";
+			if (dates.length === 1) return this._formatDate(dates[0]);
+			const separator = this._config.selectionMode === "multiple-ranged" ? " – " : ", ";
+			return dates.map((date) => this._formatDate(date)).join(separator);
+		}
+		_parseInputValue() {
+			var _this$_calendar7;
+			const value = this._element.value.trim();
+			if (!value) return;
+			const written = writtenSelections.get(this._element);
+			if (written && written.text.trim() === value) {
+				var _this$_calendar6;
+				this._selectedDates = [...written.dates];
+				(_this$_calendar6 = this._calendar) === null || _this$_calendar6 === void 0 || _this$_calendar6.set(_objectSpread2({ selectedDates: this._selectedDates }, this._monthOf(this._selectedDates[0])));
+				return;
+			}
+			const date = DATE_PATTERN.test(value) ? this._parseDate(value) : new Date(value);
+			if (Number.isNaN(date.getTime())) return;
+			this._selectedDates = [this._toIsoDate(date)];
+			(_this$_calendar7 = this._calendar) === null || _this$_calendar7 === void 0 || _this$_calendar7.set(_objectSpread2({ selectedDates: this._selectedDates }, this._monthOf(this._selectedDates[0])));
+		}
+		_toIsoDate(value) {
+			if (typeof value === "string" && DATE_PATTERN.test(value)) return value;
+			const date = value instanceof Date ? value : typeof value === "string" && DATE_PATTERN.test(value) ? this._parseDate(value) : new Date(value);
+			if (Number.isNaN(date.getTime())) return String(value);
+			return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+		}
+		/** @internal */
+		_monthOf(value) {
+			if (!value || !DATE_PATTERN.test(value)) return {};
+			const date = this._parseDate(value);
+			return {
+				selectedMonth: date.getMonth(),
+				selectedYear: date.getFullYear()
+			};
+		}
+	};
+	/**
+	* Data API implementation
+	*/
+	EventHandler.on(document, EVENT_CLICK_DATA_API$7, SELECTOR_DATA_TOGGLE$9, function(event) {
+		if (this.tagName === "INPUT" || this.dataset.bsInline === "true" || this.dataset.tblrInline === "true") return;
+		event.preventDefault();
+		Datepicker.getOrCreateInstance(this).toggle();
+	});
+	EventHandler.on(document, EVENT_FOCUSIN_DATA_API, SELECTOR_DATA_TOGGLE$9, function() {
+		if (this.tagName !== "INPUT") return;
+		Datepicker.getOrCreateInstance(this).show();
+	});
+	initAll(SELECTOR_DATA_TOGGLE$9, Datepicker, (element) => {
+		const { dataset } = element;
+		return dataset.bsInline === "true" || dataset.tblrInline === "true" || "bsSelectedDates" in dataset || "tblrSelectedDates" in dataset || Boolean(element.value);
+	});
+	/**
+	* --------------------------------------------------------------------------
+	* Tabler input-mask.ts
+	* Licensed under MIT (https://github.com/tabler/tabler/blob/dev/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$21 = "input-mask";
+	var ATTRIBUTE_MASK = "data-mask";
+	var ATTRIBUTE_VISIBLE = "data-mask-visible";
+	var SELECTOR_DATA_MASK = `[${ATTRIBUTE_MASK}]`;
+	var Default$18 = {
+		mask: "",
+		lazy: true
+	};
+	var DefaultType$18 = {
+		mask: "(string|function|regexp|object|array)",
+		lazy: "boolean"
+	};
+	/**
+	* Class definition
+	*
+	* Wraps the IMask plugin (https://imask.js.org), loaded separately as
+	* `window.IMask`. Without the plugin the component is inert.
+	*/
+	var InputMask = class extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._mask = null;
+			if (!this._element || !this._config.mask || !window.IMask) return;
+			this._mask = new window.IMask(this._element, _objectSpread2({}, this._config));
+		}
+		static get Default() {
+			return Default$18;
+		}
+		static get DefaultType() {
+			return DefaultType$18;
+		}
+		static get NAME() {
+			return NAME$21;
+		}
+		/** The IMask instance, for options the component does not expose. */
+		get mask() {
+			return this._mask;
+		}
+		update() {
+			var _this$_mask;
+			(_this$_mask = this._mask) === null || _this$_mask === void 0 || _this$_mask.updateValue();
+		}
+		dispose() {
+			var _this$_mask2;
+			(_this$_mask2 = this._mask) === null || _this$_mask2 === void 0 || _this$_mask2.destroy();
+			super.dispose();
+		}
+		_mergeConfigObj(config, element) {
+			const dataOptions = {};
+			const mask = element === null || element === void 0 ? void 0 : element.getAttribute(ATTRIBUTE_MASK);
+			if (mask) dataOptions.mask = mask;
+			if (element === null || element === void 0 ? void 0 : element.hasAttribute(ATTRIBUTE_VISIBLE)) dataOptions.lazy = element.getAttribute(ATTRIBUTE_VISIBLE) === "false";
+			return super._mergeConfigObj(_objectSpread2(_objectSpread2({}, dataOptions), config), element);
+		}
+	};
+	/**
+	* Data API implementation
+	*/
+	initAll(SELECTOR_DATA_MASK, InputMask);
+	var bottom = "bottom";
+	var right = "right";
+	var left = "left";
+	var auto = "auto";
+	var basePlacements = [
+		"top",
+		bottom,
+		right,
+		left
+	];
+	var start = "start";
+	var clippingParents = "clippingParents";
+	var viewport = "viewport";
+	var popper = "popper";
+	var reference = "reference";
+	var variationPlacements = /*#__PURE__*/ basePlacements.reduce(function(acc, placement) {
+		return acc.concat([placement + "-" + start, placement + "-end"]);
+	}, []);
+	var placements = /*#__PURE__*/ [].concat(basePlacements, [auto]).reduce(function(acc, placement) {
+		return acc.concat([
+			placement,
+			placement + "-" + start,
+			placement + "-end"
+		]);
+	}, []);
+	var beforeRead = "beforeRead";
+	var read = "read";
+	var afterRead = "afterRead";
+	var beforeMain = "beforeMain";
+	var main = "main";
+	var afterMain = "afterMain";
+	var beforeWrite = "beforeWrite";
+	var write = "write";
+	var afterWrite = "afterWrite";
+	var modifierPhases = [
+		beforeRead,
+		read,
+		afterRead,
+		beforeMain,
+		main,
+		afterMain,
+		beforeWrite,
+		write,
+		afterWrite
+	];
+	function getNodeName(element) {
+		return element ? (element.nodeName || "").toLowerCase() : null;
+	}
+	function getWindow(node) {
+		if (node == null) return window;
+		if (node.toString() !== "[object Window]") {
+			var ownerDocument = node.ownerDocument;
+			return ownerDocument ? ownerDocument.defaultView || window : window;
+		}
+		return node;
+	}
+	function isElement(node) {
+		return node instanceof getWindow(node).Element || node instanceof Element;
+	}
+	function isHTMLElement(node) {
+		return node instanceof getWindow(node).HTMLElement || node instanceof HTMLElement;
+	}
+	function isShadowRoot(node) {
+		if (typeof ShadowRoot === "undefined") return false;
+		return node instanceof getWindow(node).ShadowRoot || node instanceof ShadowRoot;
+	}
+	function applyStyles(_ref) {
+		var state = _ref.state;
+		Object.keys(state.elements).forEach(function(name) {
+			var style = state.styles[name] || {};
+			var attributes = state.attributes[name] || {};
+			var element = state.elements[name];
+			if (!isHTMLElement(element) || !getNodeName(element)) return;
+			Object.assign(element.style, style);
+			Object.keys(attributes).forEach(function(name) {
+				var value = attributes[name];
+				if (value === false) element.removeAttribute(name);
+				else element.setAttribute(name, value === true ? "" : value);
+			});
+		});
+	}
+	function effect$2(_ref2) {
+		var state = _ref2.state;
+		var initialStyles = {
+			popper: {
+				position: state.options.strategy,
+				left: "0",
+				top: "0",
+				margin: "0"
+			},
+			arrow: { position: "absolute" },
+			reference: {}
+		};
+		Object.assign(state.elements.popper.style, initialStyles.popper);
+		state.styles = initialStyles;
+		if (state.elements.arrow) Object.assign(state.elements.arrow.style, initialStyles.arrow);
+		return function() {
+			Object.keys(state.elements).forEach(function(name) {
+				var element = state.elements[name];
+				var attributes = state.attributes[name] || {};
+				var style = Object.keys(state.styles.hasOwnProperty(name) ? state.styles[name] : initialStyles[name]).reduce(function(style, property) {
+					style[property] = "";
+					return style;
+				}, {});
+				if (!isHTMLElement(element) || !getNodeName(element)) return;
+				Object.assign(element.style, style);
+				Object.keys(attributes).forEach(function(attribute) {
+					element.removeAttribute(attribute);
+				});
+			});
+		};
+	}
+	var applyStyles_default = {
+		name: "applyStyles",
+		enabled: true,
+		phase: "write",
+		fn: applyStyles,
+		effect: effect$2,
+		requires: ["computeStyles"]
+	};
+	function getBasePlacement(placement) {
+		return placement.split("-")[0];
+	}
+	var max = Math.max;
+	var min = Math.min;
+	var round = Math.round;
+	function getUAString() {
+		var uaData = navigator.userAgentData;
+		if (uaData != null && uaData.brands && Array.isArray(uaData.brands)) return uaData.brands.map(function(item) {
+			return item.brand + "/" + item.version;
+		}).join(" ");
+		return navigator.userAgent;
+	}
+	function isLayoutViewport() {
+		return !/^((?!chrome|android).)*safari/i.test(getUAString());
+	}
+	function getBoundingClientRect(element, includeScale, isFixedStrategy) {
+		if (includeScale === void 0) includeScale = false;
+		if (isFixedStrategy === void 0) isFixedStrategy = false;
+		var clientRect = element.getBoundingClientRect();
+		var scaleX = 1;
+		var scaleY = 1;
+		if (includeScale && isHTMLElement(element)) {
+			scaleX = element.offsetWidth > 0 ? round(clientRect.width) / element.offsetWidth || 1 : 1;
+			scaleY = element.offsetHeight > 0 ? round(clientRect.height) / element.offsetHeight || 1 : 1;
+		}
+		var visualViewport = (isElement(element) ? getWindow(element) : window).visualViewport;
+		var addVisualOffsets = !isLayoutViewport() && isFixedStrategy;
+		var x = (clientRect.left + (addVisualOffsets && visualViewport ? visualViewport.offsetLeft : 0)) / scaleX;
+		var y = (clientRect.top + (addVisualOffsets && visualViewport ? visualViewport.offsetTop : 0)) / scaleY;
+		var width = clientRect.width / scaleX;
+		var height = clientRect.height / scaleY;
+		return {
+			width,
+			height,
+			top: y,
+			right: x + width,
+			bottom: y + height,
+			left: x,
+			x,
+			y
+		};
+	}
+	function getLayoutRect(element) {
+		var clientRect = getBoundingClientRect(element);
+		var width = element.offsetWidth;
+		var height = element.offsetHeight;
+		if (Math.abs(clientRect.width - width) <= 1) width = clientRect.width;
+		if (Math.abs(clientRect.height - height) <= 1) height = clientRect.height;
+		return {
+			x: element.offsetLeft,
+			y: element.offsetTop,
+			width,
+			height
+		};
+	}
+	function contains(parent, child) {
+		var rootNode = child.getRootNode && child.getRootNode();
+		if (parent.contains(child)) return true;
+		else if (rootNode && isShadowRoot(rootNode)) {
+			var next = child;
+			do {
+				if (next && parent.isSameNode(next)) return true;
+				next = next.parentNode || next.host;
+			} while (next);
+		}
+		return false;
+	}
+	function getComputedStyle$1(element) {
+		return getWindow(element).getComputedStyle(element);
+	}
+	function isTableElement(element) {
+		return [
+			"table",
+			"td",
+			"th"
+		].indexOf(getNodeName(element)) >= 0;
+	}
+	function getDocumentElement(element) {
+		return ((isElement(element) ? element.ownerDocument : element.document) || window.document).documentElement;
+	}
+	function getParentNode(element) {
+		if (getNodeName(element) === "html") return element;
+		return element.assignedSlot || element.parentNode || (isShadowRoot(element) ? element.host : null) || getDocumentElement(element);
+	}
+	function getTrueOffsetParent(element) {
+		if (!isHTMLElement(element) || getComputedStyle$1(element).position === "fixed") return null;
+		return element.offsetParent;
+	}
+	function getContainingBlock(element) {
+		var isFirefox = /firefox/i.test(getUAString());
+		if (/Trident/i.test(getUAString()) && isHTMLElement(element)) {
+			if (getComputedStyle$1(element).position === "fixed") return null;
+		}
+		var currentNode = getParentNode(element);
+		if (isShadowRoot(currentNode)) currentNode = currentNode.host;
+		while (isHTMLElement(currentNode) && ["html", "body"].indexOf(getNodeName(currentNode)) < 0) {
+			var css = getComputedStyle$1(currentNode);
+			if (css.transform !== "none" || css.perspective !== "none" || css.contain === "paint" || ["transform", "perspective"].indexOf(css.willChange) !== -1 || isFirefox && css.willChange === "filter" || isFirefox && css.filter && css.filter !== "none") return currentNode;
+			else currentNode = currentNode.parentNode;
+		}
+		return null;
+	}
+	function getOffsetParent(element) {
+		var window = getWindow(element);
+		var offsetParent = getTrueOffsetParent(element);
+		while (offsetParent && isTableElement(offsetParent) && getComputedStyle$1(offsetParent).position === "static") offsetParent = getTrueOffsetParent(offsetParent);
+		if (offsetParent && (getNodeName(offsetParent) === "html" || getNodeName(offsetParent) === "body" && getComputedStyle$1(offsetParent).position === "static")) return window;
+		return offsetParent || getContainingBlock(element) || window;
+	}
+	function getMainAxisFromPlacement(placement) {
+		return ["top", "bottom"].indexOf(placement) >= 0 ? "x" : "y";
+	}
+	function within(min$2, value, max$2) {
+		return max(min$2, min(value, max$2));
+	}
+	function withinMaxClamp(min, value, max) {
+		var v = within(min, value, max);
+		return v > max ? max : v;
+	}
+	function getFreshSideObject() {
+		return {
+			top: 0,
+			right: 0,
+			bottom: 0,
+			left: 0
+		};
+	}
+	function mergePaddingObject(paddingObject) {
+		return Object.assign({}, getFreshSideObject(), paddingObject);
+	}
+	function expandToHashMap(value, keys) {
+		return keys.reduce(function(hashMap, key) {
+			hashMap[key] = value;
+			return hashMap;
+		}, {});
+	}
+	var toPaddingObject = function toPaddingObject(padding, state) {
+		padding = typeof padding === "function" ? padding(Object.assign({}, state.rects, { placement: state.placement })) : padding;
+		return mergePaddingObject(typeof padding !== "number" ? padding : expandToHashMap(padding, basePlacements));
+	};
+	function arrow(_ref) {
+		var _state$modifiersData$;
+		var state = _ref.state, name = _ref.name, options = _ref.options;
+		var arrowElement = state.elements.arrow;
+		var popperOffsets = state.modifiersData.popperOffsets;
+		var basePlacement = getBasePlacement(state.placement);
+		var axis = getMainAxisFromPlacement(basePlacement);
+		var len = ["left", "right"].indexOf(basePlacement) >= 0 ? "height" : "width";
+		if (!arrowElement || !popperOffsets) return;
+		var paddingObject = toPaddingObject(options.padding, state);
+		var arrowRect = getLayoutRect(arrowElement);
+		var minProp = axis === "y" ? "top" : left;
+		var maxProp = axis === "y" ? bottom : right;
+		var endDiff = state.rects.reference[len] + state.rects.reference[axis] - popperOffsets[axis] - state.rects.popper[len];
+		var startDiff = popperOffsets[axis] - state.rects.reference[axis];
+		var arrowOffsetParent = getOffsetParent(arrowElement);
+		var clientSize = arrowOffsetParent ? axis === "y" ? arrowOffsetParent.clientHeight || 0 : arrowOffsetParent.clientWidth || 0 : 0;
+		var centerToReference = endDiff / 2 - startDiff / 2;
+		var min = paddingObject[minProp];
+		var max = clientSize - arrowRect[len] - paddingObject[maxProp];
+		var center = clientSize / 2 - arrowRect[len] / 2 + centerToReference;
+		var offset = within(min, center, max);
+		var axisProp = axis;
+		state.modifiersData[name] = (_state$modifiersData$ = {}, _state$modifiersData$[axisProp] = offset, _state$modifiersData$.centerOffset = offset - center, _state$modifiersData$);
+	}
+	function effect$1(_ref2) {
+		var state = _ref2.state;
+		var _options$element = _ref2.options.element, arrowElement = _options$element === void 0 ? "[data-popper-arrow]" : _options$element;
+		if (arrowElement == null) return;
+		if (typeof arrowElement === "string") {
+			arrowElement = state.elements.popper.querySelector(arrowElement);
+			if (!arrowElement) return;
+		}
+		if (!contains(state.elements.popper, arrowElement)) return;
+		state.elements.arrow = arrowElement;
+	}
+	var arrow_default = {
+		name: "arrow",
+		enabled: true,
+		phase: "main",
+		fn: arrow,
+		effect: effect$1,
+		requires: ["popperOffsets"],
+		requiresIfExists: ["preventOverflow"]
+	};
+	function getVariation(placement) {
+		return placement.split("-")[1];
+	}
+	var unsetSides = {
+		top: "auto",
+		right: "auto",
+		bottom: "auto",
+		left: "auto"
+	};
+	function roundOffsetsByDPR(_ref, win) {
+		var x = _ref.x, y = _ref.y;
+		var dpr = win.devicePixelRatio || 1;
+		return {
+			x: round(x * dpr) / dpr || 0,
+			y: round(y * dpr) / dpr || 0
+		};
+	}
+	function mapToStyles(_ref2) {
+		var _Object$assign2;
+		var popper = _ref2.popper, popperRect = _ref2.popperRect, placement = _ref2.placement, variation = _ref2.variation, offsets = _ref2.offsets, position = _ref2.position, gpuAcceleration = _ref2.gpuAcceleration, adaptive = _ref2.adaptive, roundOffsets = _ref2.roundOffsets, isFixed = _ref2.isFixed;
+		var _offsets$x = offsets.x, x = _offsets$x === void 0 ? 0 : _offsets$x, _offsets$y = offsets.y, y = _offsets$y === void 0 ? 0 : _offsets$y;
+		var _ref3 = typeof roundOffsets === "function" ? roundOffsets({
+			x,
+			y
+		}) : {
+			x,
+			y
+		};
+		x = _ref3.x;
+		y = _ref3.y;
+		var hasX = offsets.hasOwnProperty("x");
+		var hasY = offsets.hasOwnProperty("y");
+		var sideX = left;
+		var sideY = "top";
+		var win = window;
+		if (adaptive) {
+			var offsetParent = getOffsetParent(popper);
+			var heightProp = "clientHeight";
+			var widthProp = "clientWidth";
+			if (offsetParent === getWindow(popper)) {
+				offsetParent = getDocumentElement(popper);
+				if (getComputedStyle$1(offsetParent).position !== "static" && position === "absolute") {
+					heightProp = "scrollHeight";
+					widthProp = "scrollWidth";
+				}
+			}
+			offsetParent = offsetParent;
+			if (placement === "top" || (placement === "left" || placement === "right") && variation === "end") {
+				sideY = bottom;
+				var offsetY = isFixed && offsetParent === win && win.visualViewport ? win.visualViewport.height : offsetParent[heightProp];
+				y -= offsetY - popperRect.height;
+				y *= gpuAcceleration ? 1 : -1;
+			}
+			if (placement === "left" || (placement === "top" || placement === "bottom") && variation === "end") {
+				sideX = right;
+				var offsetX = isFixed && offsetParent === win && win.visualViewport ? win.visualViewport.width : offsetParent[widthProp];
+				x -= offsetX - popperRect.width;
+				x *= gpuAcceleration ? 1 : -1;
+			}
+		}
+		var commonStyles = Object.assign({ position }, adaptive && unsetSides);
+		var _ref4 = roundOffsets === true ? roundOffsetsByDPR({
+			x,
+			y
+		}, getWindow(popper)) : {
+			x,
+			y
+		};
+		x = _ref4.x;
+		y = _ref4.y;
+		if (gpuAcceleration) {
+			var _Object$assign;
+			return Object.assign({}, commonStyles, (_Object$assign = {}, _Object$assign[sideY] = hasY ? "0" : "", _Object$assign[sideX] = hasX ? "0" : "", _Object$assign.transform = (win.devicePixelRatio || 1) <= 1 ? "translate(" + x + "px, " + y + "px)" : "translate3d(" + x + "px, " + y + "px, 0)", _Object$assign));
+		}
+		return Object.assign({}, commonStyles, (_Object$assign2 = {}, _Object$assign2[sideY] = hasY ? y + "px" : "", _Object$assign2[sideX] = hasX ? x + "px" : "", _Object$assign2.transform = "", _Object$assign2));
+	}
+	function computeStyles(_ref5) {
+		var state = _ref5.state, options = _ref5.options;
+		var _options$gpuAccelerat = options.gpuAcceleration, gpuAcceleration = _options$gpuAccelerat === void 0 ? true : _options$gpuAccelerat, _options$adaptive = options.adaptive, adaptive = _options$adaptive === void 0 ? true : _options$adaptive, _options$roundOffsets = options.roundOffsets, roundOffsets = _options$roundOffsets === void 0 ? true : _options$roundOffsets;
+		var commonStyles = {
+			placement: getBasePlacement(state.placement),
+			variation: getVariation(state.placement),
+			popper: state.elements.popper,
+			popperRect: state.rects.popper,
+			gpuAcceleration,
+			isFixed: state.options.strategy === "fixed"
+		};
+		if (state.modifiersData.popperOffsets != null) state.styles.popper = Object.assign({}, state.styles.popper, mapToStyles(Object.assign({}, commonStyles, {
+			offsets: state.modifiersData.popperOffsets,
+			position: state.options.strategy,
+			adaptive,
+			roundOffsets
+		})));
+		if (state.modifiersData.arrow != null) state.styles.arrow = Object.assign({}, state.styles.arrow, mapToStyles(Object.assign({}, commonStyles, {
+			offsets: state.modifiersData.arrow,
+			position: "absolute",
+			adaptive: false,
+			roundOffsets
+		})));
+		state.attributes.popper = Object.assign({}, state.attributes.popper, { "data-popper-placement": state.placement });
+	}
+	var computeStyles_default = {
+		name: "computeStyles",
+		enabled: true,
+		phase: "beforeWrite",
+		fn: computeStyles,
+		data: {}
+	};
+	var passive = { passive: true };
+	function effect(_ref) {
+		var state = _ref.state, instance = _ref.instance, options = _ref.options;
+		var _options$scroll = options.scroll, scroll = _options$scroll === void 0 ? true : _options$scroll, _options$resize = options.resize, resize = _options$resize === void 0 ? true : _options$resize;
+		var window = getWindow(state.elements.popper);
+		var scrollParents = [].concat(state.scrollParents.reference, state.scrollParents.popper);
+		if (scroll) scrollParents.forEach(function(scrollParent) {
+			scrollParent.addEventListener("scroll", instance.update, passive);
+		});
+		if (resize) window.addEventListener("resize", instance.update, passive);
+		return function() {
+			if (scroll) scrollParents.forEach(function(scrollParent) {
+				scrollParent.removeEventListener("scroll", instance.update, passive);
+			});
+			if (resize) window.removeEventListener("resize", instance.update, passive);
+		};
+	}
+	var eventListeners_default = {
+		name: "eventListeners",
+		enabled: true,
+		phase: "write",
+		fn: function fn() {},
+		effect,
+		data: {}
+	};
+	var hash$1 = {
+		left: "right",
+		right: "left",
+		bottom: "top",
+		top: "bottom"
+	};
+	function getOppositePlacement(placement) {
+		return placement.replace(/left|right|bottom|top/g, function(matched) {
+			return hash$1[matched];
+		});
+	}
+	var hash = {
+		start: "end",
+		end: "start"
+	};
+	function getOppositeVariationPlacement(placement) {
+		return placement.replace(/start|end/g, function(matched) {
+			return hash[matched];
+		});
+	}
+	function getWindowScroll(node) {
+		var win = getWindow(node);
+		return {
+			scrollLeft: win.pageXOffset,
+			scrollTop: win.pageYOffset
+		};
+	}
+	function getWindowScrollBarX(element) {
+		return getBoundingClientRect(getDocumentElement(element)).left + getWindowScroll(element).scrollLeft;
+	}
+	function getViewportRect(element, strategy) {
+		var win = getWindow(element);
+		var html = getDocumentElement(element);
+		var visualViewport = win.visualViewport;
+		var width = html.clientWidth;
+		var height = html.clientHeight;
+		var x = 0;
+		var y = 0;
+		if (visualViewport) {
+			width = visualViewport.width;
+			height = visualViewport.height;
+			var layoutViewport = isLayoutViewport();
+			if (layoutViewport || !layoutViewport && strategy === "fixed") {
+				x = visualViewport.offsetLeft;
+				y = visualViewport.offsetTop;
+			}
+		}
+		return {
+			width,
+			height,
+			x: x + getWindowScrollBarX(element),
+			y
+		};
+	}
+	function getDocumentRect(element) {
+		var _element$ownerDocumen;
+		var html = getDocumentElement(element);
+		var winScroll = getWindowScroll(element);
+		var body = (_element$ownerDocumen = element.ownerDocument) == null ? void 0 : _element$ownerDocumen.body;
+		var width = max(html.scrollWidth, html.clientWidth, body ? body.scrollWidth : 0, body ? body.clientWidth : 0);
+		var height = max(html.scrollHeight, html.clientHeight, body ? body.scrollHeight : 0, body ? body.clientHeight : 0);
+		var x = -winScroll.scrollLeft + getWindowScrollBarX(element);
+		var y = -winScroll.scrollTop;
+		if (getComputedStyle$1(body || html).direction === "rtl") x += max(html.clientWidth, body ? body.clientWidth : 0) - width;
+		return {
+			width,
+			height,
+			x,
+			y
+		};
+	}
+	function isScrollParent(element) {
+		var _getComputedStyle = getComputedStyle$1(element), overflow = _getComputedStyle.overflow, overflowX = _getComputedStyle.overflowX, overflowY = _getComputedStyle.overflowY;
+		return /auto|scroll|overlay|hidden/.test(overflow + overflowY + overflowX);
+	}
+	function getScrollParent(node) {
+		if ([
+			"html",
+			"body",
+			"#document"
+		].indexOf(getNodeName(node)) >= 0) return node.ownerDocument.body;
+		if (isHTMLElement(node) && isScrollParent(node)) return node;
+		return getScrollParent(getParentNode(node));
+	}
+	function listScrollParents(element, list) {
+		var _element$ownerDocumen;
+		if (list === void 0) list = [];
+		var scrollParent = getScrollParent(element);
+		var isBody = scrollParent === ((_element$ownerDocumen = element.ownerDocument) == null ? void 0 : _element$ownerDocumen.body);
+		var win = getWindow(scrollParent);
+		var target = isBody ? [win].concat(win.visualViewport || [], isScrollParent(scrollParent) ? scrollParent : []) : scrollParent;
+		var updatedList = list.concat(target);
+		return isBody ? updatedList : updatedList.concat(listScrollParents(getParentNode(target)));
+	}
+	function rectToClientRect(rect) {
+		return Object.assign({}, rect, {
+			left: rect.x,
+			top: rect.y,
+			right: rect.x + rect.width,
+			bottom: rect.y + rect.height
+		});
+	}
+	function getInnerBoundingClientRect(element, strategy) {
+		var rect = getBoundingClientRect(element, false, strategy === "fixed");
+		rect.top = rect.top + element.clientTop;
+		rect.left = rect.left + element.clientLeft;
+		rect.bottom = rect.top + element.clientHeight;
+		rect.right = rect.left + element.clientWidth;
+		rect.width = element.clientWidth;
+		rect.height = element.clientHeight;
+		rect.x = rect.left;
+		rect.y = rect.top;
+		return rect;
+	}
+	function getClientRectFromMixedType(element, clippingParent, strategy) {
+		return clippingParent === "viewport" ? rectToClientRect(getViewportRect(element, strategy)) : isElement(clippingParent) ? getInnerBoundingClientRect(clippingParent, strategy) : rectToClientRect(getDocumentRect(getDocumentElement(element)));
+	}
+	function getClippingParents(element) {
+		var clippingParents = listScrollParents(getParentNode(element));
+		var clipperElement = ["absolute", "fixed"].indexOf(getComputedStyle$1(element).position) >= 0 && isHTMLElement(element) ? getOffsetParent(element) : element;
+		if (!isElement(clipperElement)) return [];
+		return clippingParents.filter(function(clippingParent) {
+			return isElement(clippingParent) && contains(clippingParent, clipperElement) && getNodeName(clippingParent) !== "body";
+		});
+	}
+	function getClippingRect(element, boundary, rootBoundary, strategy) {
+		var mainClippingParents = boundary === "clippingParents" ? getClippingParents(element) : [].concat(boundary);
+		var clippingParents = [].concat(mainClippingParents, [rootBoundary]);
+		var firstClippingParent = clippingParents[0];
+		var clippingRect = clippingParents.reduce(function(accRect, clippingParent) {
+			var rect = getClientRectFromMixedType(element, clippingParent, strategy);
+			accRect.top = max(rect.top, accRect.top);
+			accRect.right = min(rect.right, accRect.right);
+			accRect.bottom = min(rect.bottom, accRect.bottom);
+			accRect.left = max(rect.left, accRect.left);
+			return accRect;
+		}, getClientRectFromMixedType(element, firstClippingParent, strategy));
+		clippingRect.width = clippingRect.right - clippingRect.left;
+		clippingRect.height = clippingRect.bottom - clippingRect.top;
+		clippingRect.x = clippingRect.left;
+		clippingRect.y = clippingRect.top;
+		return clippingRect;
+	}
+	function computeOffsets(_ref) {
+		var reference = _ref.reference, element = _ref.element, placement = _ref.placement;
+		var basePlacement = placement ? getBasePlacement(placement) : null;
+		var variation = placement ? getVariation(placement) : null;
+		var commonX = reference.x + reference.width / 2 - element.width / 2;
+		var commonY = reference.y + reference.height / 2 - element.height / 2;
+		var offsets;
+		switch (basePlacement) {
+			case "top":
+				offsets = {
+					x: commonX,
+					y: reference.y - element.height
+				};
+				break;
+			case bottom:
+				offsets = {
+					x: commonX,
+					y: reference.y + reference.height
+				};
+				break;
+			case right:
+				offsets = {
+					x: reference.x + reference.width,
+					y: commonY
+				};
+				break;
+			case left:
+				offsets = {
+					x: reference.x - element.width,
+					y: commonY
+				};
+				break;
+			default: offsets = {
+				x: reference.x,
+				y: reference.y
+			};
+		}
+		var mainAxis = basePlacement ? getMainAxisFromPlacement(basePlacement) : null;
+		if (mainAxis != null) {
+			var len = mainAxis === "y" ? "height" : "width";
+			switch (variation) {
+				case start:
+					offsets[mainAxis] = offsets[mainAxis] - (reference[len] / 2 - element[len] / 2);
+					break;
+				case "end": offsets[mainAxis] = offsets[mainAxis] + (reference[len] / 2 - element[len] / 2);
+			}
+		}
+		return offsets;
+	}
+	function detectOverflow(state, options) {
+		if (options === void 0) options = {};
+		var _options = options, _options$placement = _options.placement, placement = _options$placement === void 0 ? state.placement : _options$placement, _options$strategy = _options.strategy, strategy = _options$strategy === void 0 ? state.strategy : _options$strategy, _options$boundary = _options.boundary, boundary = _options$boundary === void 0 ? clippingParents : _options$boundary, _options$rootBoundary = _options.rootBoundary, rootBoundary = _options$rootBoundary === void 0 ? viewport : _options$rootBoundary, _options$elementConte = _options.elementContext, elementContext = _options$elementConte === void 0 ? popper : _options$elementConte, _options$altBoundary = _options.altBoundary, altBoundary = _options$altBoundary === void 0 ? false : _options$altBoundary, _options$padding = _options.padding, padding = _options$padding === void 0 ? 0 : _options$padding;
+		var paddingObject = mergePaddingObject(typeof padding !== "number" ? padding : expandToHashMap(padding, basePlacements));
+		var altContext = elementContext === "popper" ? reference : popper;
+		var popperRect = state.rects.popper;
+		var element = state.elements[altBoundary ? altContext : elementContext];
+		var clippingClientRect = getClippingRect(isElement(element) ? element : element.contextElement || getDocumentElement(state.elements.popper), boundary, rootBoundary, strategy);
+		var referenceClientRect = getBoundingClientRect(state.elements.reference);
+		var popperOffsets = computeOffsets({
+			reference: referenceClientRect,
+			element: popperRect,
+			strategy: "absolute",
+			placement
+		});
+		var popperClientRect = rectToClientRect(Object.assign({}, popperRect, popperOffsets));
+		var elementClientRect = elementContext === "popper" ? popperClientRect : referenceClientRect;
+		var overflowOffsets = {
+			top: clippingClientRect.top - elementClientRect.top + paddingObject.top,
+			bottom: elementClientRect.bottom - clippingClientRect.bottom + paddingObject.bottom,
+			left: clippingClientRect.left - elementClientRect.left + paddingObject.left,
+			right: elementClientRect.right - clippingClientRect.right + paddingObject.right
+		};
+		var offsetData = state.modifiersData.offset;
+		if (elementContext === "popper" && offsetData) {
+			var offset = offsetData[placement];
+			Object.keys(overflowOffsets).forEach(function(key) {
+				var multiply = ["right", "bottom"].indexOf(key) >= 0 ? 1 : -1;
+				var axis = ["top", "bottom"].indexOf(key) >= 0 ? "y" : "x";
+				overflowOffsets[key] += offset[axis] * multiply;
+			});
+		}
+		return overflowOffsets;
+	}
+	function computeAutoPlacement(state, options) {
+		if (options === void 0) options = {};
+		var _options = options, placement = _options.placement, boundary = _options.boundary, rootBoundary = _options.rootBoundary, padding = _options.padding, flipVariations = _options.flipVariations, _options$allowedAutoP = _options.allowedAutoPlacements, allowedAutoPlacements = _options$allowedAutoP === void 0 ? placements : _options$allowedAutoP;
+		var variation = getVariation(placement);
+		var placements$1 = variation ? flipVariations ? variationPlacements : variationPlacements.filter(function(placement) {
+			return getVariation(placement) === variation;
+		}) : basePlacements;
+		var allowedPlacements = placements$1.filter(function(placement) {
+			return allowedAutoPlacements.indexOf(placement) >= 0;
+		});
+		if (allowedPlacements.length === 0) allowedPlacements = placements$1;
+		var overflows = allowedPlacements.reduce(function(acc, placement) {
+			acc[placement] = detectOverflow(state, {
+				placement,
+				boundary,
+				rootBoundary,
+				padding
+			})[getBasePlacement(placement)];
+			return acc;
+		}, {});
+		return Object.keys(overflows).sort(function(a, b) {
+			return overflows[a] - overflows[b];
+		});
+	}
+	function getExpandedFallbackPlacements(placement) {
+		if (getBasePlacement(placement) === "auto") return [];
+		var oppositePlacement = getOppositePlacement(placement);
+		return [
+			getOppositeVariationPlacement(placement),
+			oppositePlacement,
+			getOppositeVariationPlacement(oppositePlacement)
+		];
+	}
+	function flip(_ref) {
+		var state = _ref.state, options = _ref.options, name = _ref.name;
+		if (state.modifiersData[name]._skip) return;
+		var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? true : _options$altAxis, specifiedFallbackPlacements = options.fallbackPlacements, padding = options.padding, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, _options$flipVariatio = options.flipVariations, flipVariations = _options$flipVariatio === void 0 ? true : _options$flipVariatio, allowedAutoPlacements = options.allowedAutoPlacements;
+		var preferredPlacement = state.options.placement;
+		var isBasePlacement = getBasePlacement(preferredPlacement) === preferredPlacement;
+		var fallbackPlacements = specifiedFallbackPlacements || (isBasePlacement || !flipVariations ? [getOppositePlacement(preferredPlacement)] : getExpandedFallbackPlacements(preferredPlacement));
+		var placements = [preferredPlacement].concat(fallbackPlacements).reduce(function(acc, placement) {
+			return acc.concat(getBasePlacement(placement) === "auto" ? computeAutoPlacement(state, {
+				placement,
+				boundary,
+				rootBoundary,
+				padding,
+				flipVariations,
+				allowedAutoPlacements
+			}) : placement);
+		}, []);
+		var referenceRect = state.rects.reference;
+		var popperRect = state.rects.popper;
+		var checksMap = /* @__PURE__ */ new Map();
+		var makeFallbackChecks = true;
+		var firstFittingPlacement = placements[0];
+		for (var i = 0; i < placements.length; i++) {
+			var placement = placements[i];
+			var _basePlacement = getBasePlacement(placement);
+			var isStartVariation = getVariation(placement) === start;
+			var isVertical = ["top", bottom].indexOf(_basePlacement) >= 0;
+			var len = isVertical ? "width" : "height";
+			var overflow = detectOverflow(state, {
+				placement,
+				boundary,
+				rootBoundary,
+				altBoundary,
+				padding
+			});
+			var mainVariationSide = isVertical ? isStartVariation ? right : left : isStartVariation ? bottom : "top";
+			if (referenceRect[len] > popperRect[len]) mainVariationSide = getOppositePlacement(mainVariationSide);
+			var altVariationSide = getOppositePlacement(mainVariationSide);
+			var checks = [];
+			if (checkMainAxis) checks.push(overflow[_basePlacement] <= 0);
+			if (checkAltAxis) checks.push(overflow[mainVariationSide] <= 0, overflow[altVariationSide] <= 0);
+			if (checks.every(function(check) {
+				return check;
+			})) {
+				firstFittingPlacement = placement;
+				makeFallbackChecks = false;
+				break;
+			}
+			checksMap.set(placement, checks);
+		}
+		if (makeFallbackChecks) {
+			var numberOfChecks = flipVariations ? 3 : 1;
+			var _loop = function _loop(_i) {
+				var fittingPlacement = placements.find(function(placement) {
+					var checks = checksMap.get(placement);
+					if (checks) return checks.slice(0, _i).every(function(check) {
+						return check;
+					});
+				});
+				if (fittingPlacement) {
+					firstFittingPlacement = fittingPlacement;
+					return "break";
+				}
+			};
+			for (var _i = numberOfChecks; _i > 0; _i--) if (_loop(_i) === "break") break;
+		}
+		if (state.placement !== firstFittingPlacement) {
+			state.modifiersData[name]._skip = true;
+			state.placement = firstFittingPlacement;
+			state.reset = true;
+		}
+	}
+	var flip_default = {
+		name: "flip",
+		enabled: true,
+		phase: "main",
+		fn: flip,
+		requiresIfExists: ["offset"],
+		data: { _skip: false }
+	};
+	function getSideOffsets(overflow, rect, preventedOffsets) {
+		if (preventedOffsets === void 0) preventedOffsets = {
+			x: 0,
+			y: 0
+		};
+		return {
+			top: overflow.top - rect.height - preventedOffsets.y,
+			right: overflow.right - rect.width + preventedOffsets.x,
+			bottom: overflow.bottom - rect.height + preventedOffsets.y,
+			left: overflow.left - rect.width - preventedOffsets.x
+		};
+	}
+	function isAnySideFullyClipped(overflow) {
+		return [
+			"top",
+			right,
+			bottom,
+			left
+		].some(function(side) {
+			return overflow[side] >= 0;
+		});
+	}
+	function hide(_ref) {
+		var state = _ref.state, name = _ref.name;
+		var referenceRect = state.rects.reference;
+		var popperRect = state.rects.popper;
+		var preventedOffsets = state.modifiersData.preventOverflow;
+		var referenceOverflow = detectOverflow(state, { elementContext: "reference" });
+		var popperAltOverflow = detectOverflow(state, { altBoundary: true });
+		var referenceClippingOffsets = getSideOffsets(referenceOverflow, referenceRect);
+		var popperEscapeOffsets = getSideOffsets(popperAltOverflow, popperRect, preventedOffsets);
+		var isReferenceHidden = isAnySideFullyClipped(referenceClippingOffsets);
+		var hasPopperEscaped = isAnySideFullyClipped(popperEscapeOffsets);
+		state.modifiersData[name] = {
+			referenceClippingOffsets,
+			popperEscapeOffsets,
+			isReferenceHidden,
+			hasPopperEscaped
+		};
+		state.attributes.popper = Object.assign({}, state.attributes.popper, {
+			"data-popper-reference-hidden": isReferenceHidden,
+			"data-popper-escaped": hasPopperEscaped
+		});
+	}
+	var hide_default = {
+		name: "hide",
+		enabled: true,
+		phase: "main",
+		requiresIfExists: ["preventOverflow"],
+		fn: hide
+	};
+	function distanceAndSkiddingToXY(placement, rects, offset) {
+		var basePlacement = getBasePlacement(placement);
+		var invertDistance = ["left", "top"].indexOf(basePlacement) >= 0 ? -1 : 1;
+		var _ref = typeof offset === "function" ? offset(Object.assign({}, rects, { placement })) : offset, skidding = _ref[0], distance = _ref[1];
+		skidding = skidding || 0;
+		distance = (distance || 0) * invertDistance;
+		return ["left", "right"].indexOf(basePlacement) >= 0 ? {
+			x: distance,
+			y: skidding
+		} : {
+			x: skidding,
+			y: distance
+		};
+	}
+	function offset(_ref2) {
+		var state = _ref2.state, options = _ref2.options, name = _ref2.name;
+		var _options$offset = options.offset, offset = _options$offset === void 0 ? [0, 0] : _options$offset;
+		var data = placements.reduce(function(acc, placement) {
+			acc[placement] = distanceAndSkiddingToXY(placement, state.rects, offset);
+			return acc;
+		}, {});
+		var _data$state$placement = data[state.placement], x = _data$state$placement.x, y = _data$state$placement.y;
+		if (state.modifiersData.popperOffsets != null) {
+			state.modifiersData.popperOffsets.x += x;
+			state.modifiersData.popperOffsets.y += y;
+		}
+		state.modifiersData[name] = data;
+	}
+	var offset_default = {
+		name: "offset",
+		enabled: true,
+		phase: "main",
+		requires: ["popperOffsets"],
+		fn: offset
+	};
+	function popperOffsets(_ref) {
+		var state = _ref.state, name = _ref.name;
+		state.modifiersData[name] = computeOffsets({
+			reference: state.rects.reference,
+			element: state.rects.popper,
+			strategy: "absolute",
+			placement: state.placement
+		});
+	}
+	var popperOffsets_default = {
+		name: "popperOffsets",
+		enabled: true,
+		phase: "read",
+		fn: popperOffsets,
+		data: {}
+	};
+	function getAltAxis(axis) {
+		return axis === "x" ? "y" : "x";
+	}
+	function preventOverflow(_ref) {
+		var state = _ref.state, options = _ref.options, name = _ref.name;
+		var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? false : _options$altAxis, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, padding = options.padding, _options$tether = options.tether, tether = _options$tether === void 0 ? true : _options$tether, _options$tetherOffset = options.tetherOffset, tetherOffset = _options$tetherOffset === void 0 ? 0 : _options$tetherOffset;
+		var overflow = detectOverflow(state, {
+			boundary,
+			rootBoundary,
+			padding,
+			altBoundary
+		});
+		var basePlacement = getBasePlacement(state.placement);
+		var variation = getVariation(state.placement);
+		var isBasePlacement = !variation;
+		var mainAxis = getMainAxisFromPlacement(basePlacement);
+		var altAxis = getAltAxis(mainAxis);
+		var popperOffsets = state.modifiersData.popperOffsets;
+		var referenceRect = state.rects.reference;
+		var popperRect = state.rects.popper;
+		var tetherOffsetValue = typeof tetherOffset === "function" ? tetherOffset(Object.assign({}, state.rects, { placement: state.placement })) : tetherOffset;
+		var normalizedTetherOffsetValue = typeof tetherOffsetValue === "number" ? {
+			mainAxis: tetherOffsetValue,
+			altAxis: tetherOffsetValue
+		} : Object.assign({
+			mainAxis: 0,
+			altAxis: 0
+		}, tetherOffsetValue);
+		var offsetModifierState = state.modifiersData.offset ? state.modifiersData.offset[state.placement] : null;
+		var data = {
+			x: 0,
+			y: 0
+		};
+		if (!popperOffsets) return;
+		if (checkMainAxis) {
+			var _offsetModifierState$;
+			var mainSide = mainAxis === "y" ? "top" : left;
+			var altSide = mainAxis === "y" ? bottom : right;
+			var len = mainAxis === "y" ? "height" : "width";
+			var offset = popperOffsets[mainAxis];
+			var min$1 = offset + overflow[mainSide];
+			var max$1 = offset - overflow[altSide];
+			var additive = tether ? -popperRect[len] / 2 : 0;
+			var minLen = variation === "start" ? referenceRect[len] : popperRect[len];
+			var maxLen = variation === "start" ? -popperRect[len] : -referenceRect[len];
+			var arrowElement = state.elements.arrow;
+			var arrowRect = tether && arrowElement ? getLayoutRect(arrowElement) : {
+				width: 0,
+				height: 0
+			};
+			var arrowPaddingObject = state.modifiersData["arrow#persistent"] ? state.modifiersData["arrow#persistent"].padding : getFreshSideObject();
+			var arrowPaddingMin = arrowPaddingObject[mainSide];
+			var arrowPaddingMax = arrowPaddingObject[altSide];
+			var arrowLen = within(0, referenceRect[len], arrowRect[len]);
+			var minOffset = isBasePlacement ? referenceRect[len] / 2 - additive - arrowLen - arrowPaddingMin - normalizedTetherOffsetValue.mainAxis : minLen - arrowLen - arrowPaddingMin - normalizedTetherOffsetValue.mainAxis;
+			var maxOffset = isBasePlacement ? -referenceRect[len] / 2 + additive + arrowLen + arrowPaddingMax + normalizedTetherOffsetValue.mainAxis : maxLen + arrowLen + arrowPaddingMax + normalizedTetherOffsetValue.mainAxis;
+			var arrowOffsetParent = state.elements.arrow && getOffsetParent(state.elements.arrow);
+			var clientOffset = arrowOffsetParent ? mainAxis === "y" ? arrowOffsetParent.clientTop || 0 : arrowOffsetParent.clientLeft || 0 : 0;
+			var offsetModifierValue = (_offsetModifierState$ = offsetModifierState == null ? void 0 : offsetModifierState[mainAxis]) != null ? _offsetModifierState$ : 0;
+			var tetherMin = offset + minOffset - offsetModifierValue - clientOffset;
+			var tetherMax = offset + maxOffset - offsetModifierValue;
+			var preventedOffset = within(tether ? min(min$1, tetherMin) : min$1, offset, tether ? max(max$1, tetherMax) : max$1);
+			popperOffsets[mainAxis] = preventedOffset;
+			data[mainAxis] = preventedOffset - offset;
+		}
+		if (checkAltAxis) {
+			var _offsetModifierState$2;
+			var _mainSide = mainAxis === "x" ? "top" : left;
+			var _altSide = mainAxis === "x" ? bottom : right;
+			var _offset = popperOffsets[altAxis];
+			var _len = altAxis === "y" ? "height" : "width";
+			var _min = _offset + overflow[_mainSide];
+			var _max = _offset - overflow[_altSide];
+			var isOriginSide = ["top", left].indexOf(basePlacement) !== -1;
+			var _offsetModifierValue = (_offsetModifierState$2 = offsetModifierState == null ? void 0 : offsetModifierState[altAxis]) != null ? _offsetModifierState$2 : 0;
+			var _tetherMin = isOriginSide ? _min : _offset - referenceRect[_len] - popperRect[_len] - _offsetModifierValue + normalizedTetherOffsetValue.altAxis;
+			var _tetherMax = isOriginSide ? _offset + referenceRect[_len] + popperRect[_len] - _offsetModifierValue - normalizedTetherOffsetValue.altAxis : _max;
+			var _preventedOffset = tether && isOriginSide ? withinMaxClamp(_tetherMin, _offset, _tetherMax) : within(tether ? _tetherMin : _min, _offset, tether ? _tetherMax : _max);
+			popperOffsets[altAxis] = _preventedOffset;
+			data[altAxis] = _preventedOffset - _offset;
+		}
+		state.modifiersData[name] = data;
+	}
+	var preventOverflow_default = {
+		name: "preventOverflow",
+		enabled: true,
+		phase: "main",
+		fn: preventOverflow,
+		requiresIfExists: ["offset"]
+	};
+	function getHTMLElementScroll(element) {
+		return {
+			scrollLeft: element.scrollLeft,
+			scrollTop: element.scrollTop
+		};
+	}
+	function getNodeScroll(node) {
+		if (node === getWindow(node) || !isHTMLElement(node)) return getWindowScroll(node);
+		else return getHTMLElementScroll(node);
+	}
+	function isElementScaled(element) {
+		var rect = element.getBoundingClientRect();
+		var scaleX = round(rect.width) / element.offsetWidth || 1;
+		var scaleY = round(rect.height) / element.offsetHeight || 1;
+		return scaleX !== 1 || scaleY !== 1;
+	}
+	function getCompositeRect(elementOrVirtualElement, offsetParent, isFixed) {
+		if (isFixed === void 0) isFixed = false;
+		var isOffsetParentAnElement = isHTMLElement(offsetParent);
+		var offsetParentIsScaled = isHTMLElement(offsetParent) && isElementScaled(offsetParent);
+		var documentElement = getDocumentElement(offsetParent);
+		var rect = getBoundingClientRect(elementOrVirtualElement, offsetParentIsScaled, isFixed);
+		var scroll = {
+			scrollLeft: 0,
+			scrollTop: 0
+		};
+		var offsets = {
+			x: 0,
+			y: 0
+		};
+		if (isOffsetParentAnElement || !isOffsetParentAnElement && !isFixed) {
+			if (getNodeName(offsetParent) !== "body" || isScrollParent(documentElement)) scroll = getNodeScroll(offsetParent);
+			if (isHTMLElement(offsetParent)) {
+				offsets = getBoundingClientRect(offsetParent, true);
+				offsets.x += offsetParent.clientLeft;
+				offsets.y += offsetParent.clientTop;
+			} else if (documentElement) offsets.x = getWindowScrollBarX(documentElement);
+		}
+		return {
+			x: rect.left + scroll.scrollLeft - offsets.x,
+			y: rect.top + scroll.scrollTop - offsets.y,
+			width: rect.width,
+			height: rect.height
+		};
+	}
+	function order(modifiers) {
+		var map = /* @__PURE__ */ new Map();
+		var visited = /* @__PURE__ */ new Set();
+		var result = [];
+		modifiers.forEach(function(modifier) {
+			map.set(modifier.name, modifier);
+		});
+		function sort(modifier) {
+			visited.add(modifier.name);
+			[].concat(modifier.requires || [], modifier.requiresIfExists || []).forEach(function(dep) {
+				if (!visited.has(dep)) {
+					var depModifier = map.get(dep);
+					if (depModifier) sort(depModifier);
+				}
+			});
+			result.push(modifier);
+		}
+		modifiers.forEach(function(modifier) {
+			if (!visited.has(modifier.name)) sort(modifier);
+		});
+		return result;
+	}
+	function orderModifiers(modifiers) {
+		var orderedModifiers = order(modifiers);
+		return modifierPhases.reduce(function(acc, phase) {
+			return acc.concat(orderedModifiers.filter(function(modifier) {
+				return modifier.phase === phase;
+			}));
+		}, []);
+	}
+	function debounce(fn) {
+		var pending;
+		return function() {
+			if (!pending) pending = new Promise(function(resolve) {
+				Promise.resolve().then(function() {
+					pending = void 0;
+					resolve(fn());
+				});
+			});
+			return pending;
+		};
+	}
+	function mergeByName(modifiers) {
+		var merged = modifiers.reduce(function(merged, current) {
+			var existing = merged[current.name];
+			merged[current.name] = existing ? Object.assign({}, existing, current, {
+				options: Object.assign({}, existing.options, current.options),
+				data: Object.assign({}, existing.data, current.data)
+			}) : current;
+			return merged;
+		}, {});
+		return Object.keys(merged).map(function(key) {
+			return merged[key];
+		});
+	}
+	var DEFAULT_OPTIONS = {
+		placement: "bottom",
+		modifiers: [],
+		strategy: "absolute"
+	};
+	function areValidElements() {
+		for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) args[_key] = arguments[_key];
+		return !args.some(function(element) {
+			return !(element && typeof element.getBoundingClientRect === "function");
+		});
+	}
+	function popperGenerator(generatorOptions) {
+		if (generatorOptions === void 0) generatorOptions = {};
+		var _generatorOptions = generatorOptions, _generatorOptions$def = _generatorOptions.defaultModifiers, defaultModifiers = _generatorOptions$def === void 0 ? [] : _generatorOptions$def, _generatorOptions$def2 = _generatorOptions.defaultOptions, defaultOptions = _generatorOptions$def2 === void 0 ? DEFAULT_OPTIONS : _generatorOptions$def2;
+		return function createPopper(reference, popper, options) {
+			if (options === void 0) options = defaultOptions;
+			var state = {
+				placement: "bottom",
+				orderedModifiers: [],
+				options: Object.assign({}, DEFAULT_OPTIONS, defaultOptions),
+				modifiersData: {},
+				elements: {
+					reference,
+					popper
+				},
+				attributes: {},
+				styles: {}
+			};
+			var effectCleanupFns = [];
+			var isDestroyed = false;
+			var instance = {
+				state,
+				setOptions: function setOptions(setOptionsAction) {
+					var options = typeof setOptionsAction === "function" ? setOptionsAction(state.options) : setOptionsAction;
+					cleanupModifierEffects();
+					state.options = Object.assign({}, defaultOptions, state.options, options);
+					state.scrollParents = {
+						reference: isElement(reference) ? listScrollParents(reference) : reference.contextElement ? listScrollParents(reference.contextElement) : [],
+						popper: listScrollParents(popper)
+					};
+					var orderedModifiers = orderModifiers(mergeByName([].concat(defaultModifiers, state.options.modifiers)));
+					state.orderedModifiers = orderedModifiers.filter(function(m) {
+						return m.enabled;
+					});
+					runModifierEffects();
+					return instance.update();
+				},
+				forceUpdate: function forceUpdate() {
+					if (isDestroyed) return;
+					var _state$elements = state.elements, reference = _state$elements.reference, popper = _state$elements.popper;
+					if (!areValidElements(reference, popper)) return;
+					state.rects = {
+						reference: getCompositeRect(reference, getOffsetParent(popper), state.options.strategy === "fixed"),
+						popper: getLayoutRect(popper)
+					};
+					state.reset = false;
+					state.placement = state.options.placement;
+					state.orderedModifiers.forEach(function(modifier) {
+						return state.modifiersData[modifier.name] = Object.assign({}, modifier.data);
+					});
+					for (var index = 0; index < state.orderedModifiers.length; index++) {
+						if (state.reset === true) {
+							state.reset = false;
+							index = -1;
+							continue;
+						}
+						var _state$orderedModifie = state.orderedModifiers[index], fn = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {} : _state$orderedModifie2, name = _state$orderedModifie.name;
+						if (typeof fn === "function") state = fn({
+							state,
+							options: _options,
+							name,
+							instance
+						}) || state;
+					}
+				},
+				update: debounce(function() {
+					return new Promise(function(resolve) {
+						instance.forceUpdate();
+						resolve(state);
+					});
+				}),
+				destroy: function destroy() {
+					cleanupModifierEffects();
+					isDestroyed = true;
+				}
+			};
+			if (!areValidElements(reference, popper)) return instance;
+			instance.setOptions(options).then(function(state) {
+				if (!isDestroyed && options.onFirstUpdate) options.onFirstUpdate(state);
+			});
+			function runModifierEffects() {
+				state.orderedModifiers.forEach(function(_ref) {
+					var name = _ref.name, _ref$options = _ref.options, options = _ref$options === void 0 ? {} : _ref$options, effect = _ref.effect;
+					if (typeof effect === "function") {
+						var cleanupFn = effect({
+							state,
+							name,
+							instance,
+							options
+						});
+						effectCleanupFns.push(cleanupFn || function noopFn() {});
+					}
+				});
+			}
+			function cleanupModifierEffects() {
+				effectCleanupFns.forEach(function(fn) {
+					return fn();
+				});
+				effectCleanupFns = [];
+			}
+			return instance;
+		};
+	}
+	var createPopper$2 = /*#__PURE__*/ popperGenerator();
+	var createPopper$1 = /*#__PURE__*/ popperGenerator({ defaultModifiers: [
+		eventListeners_default,
+		popperOffsets_default,
+		computeStyles_default,
+		applyStyles_default
+	] });
+	var createPopper = /*#__PURE__*/ popperGenerator({ defaultModifiers: [
+		eventListeners_default,
+		popperOffsets_default,
+		computeStyles_default,
+		applyStyles_default,
+		offset_default,
+		flip_default,
+		preventOverflow_default,
+		arrow_default,
+		hide_default
+	] });
+	var lib_exports = /* @__PURE__ */ __exportAll({
+		afterMain: () => afterMain,
+		afterRead: () => afterRead,
+		afterWrite: () => afterWrite,
+		applyStyles: () => applyStyles_default,
+		arrow: () => arrow_default,
+		auto: () => auto,
+		basePlacements: () => basePlacements,
+		beforeMain: () => beforeMain,
+		beforeRead: () => beforeRead,
+		beforeWrite: () => beforeWrite,
+		bottom: () => bottom,
+		clippingParents: () => clippingParents,
+		computeStyles: () => computeStyles_default,
+		createPopper: () => createPopper,
+		createPopperBase: () => createPopper$2,
+		createPopperLite: () => createPopper$1,
+		detectOverflow: () => detectOverflow,
+		end: () => "end",
+		eventListeners: () => eventListeners_default,
+		flip: () => flip_default,
+		hide: () => hide_default,
+		left: () => left,
+		main: () => main,
+		modifierPhases: () => modifierPhases,
+		offset: () => offset_default,
+		placements: () => placements,
+		popper: () => popper,
+		popperGenerator: () => popperGenerator,
+		popperOffsets: () => popperOffsets_default,
+		preventOverflow: () => preventOverflow_default,
+		read: () => read,
+		reference: () => reference,
+		right: () => right,
+		start: () => start,
+		top: () => "top",
+		variationPlacements: () => variationPlacements,
+		viewport: () => viewport,
+		write: () => write
+	});
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap alert.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var NAME$20 = "alert";
+	var EVENT_KEY$14 = `.bs.alert`;
+	var EVENT_CLOSE = `close${EVENT_KEY$14}`;
+	var EVENT_CLOSED = `closed${EVENT_KEY$14}`;
+	var CLASS_NAME_FADE$5 = "fade";
+	var CLASS_NAME_SHOW$8 = "show";
+	var Alert = class Alert extends BaseComponent {
+		static get NAME() {
+			return NAME$20;
+		}
+		close() {
+			const closeEvent = EventHandler.trigger(this._element, EVENT_CLOSE);
+			if (closeEvent === null || closeEvent === void 0 ? void 0 : closeEvent.defaultPrevented) return;
+			this._element.classList.remove(CLASS_NAME_SHOW$8);
+			const isAnimated = this._element.classList.contains(CLASS_NAME_FADE$5);
+			this._queueCallback(() => this._destroyElement(), this._element, isAnimated);
+		}
+		_destroyElement() {
+			this._element.remove();
+			EventHandler.trigger(this._element, EVENT_CLOSED);
+			this.dispose();
+		}
+		static jQueryInterface(config) {
+			return this.each(function() {
+				const data = Alert.getOrCreateInstance(this);
+				if (typeof config !== "string") return;
+				if (data[config] === void 0 || config.startsWith("_") || config === "constructor") throw new TypeError(`No method named "${config}"`);
+				data[config](this);
+			});
+		}
+	};
+	enableDismissTrigger(Alert, "close");
+	defineJQueryPlugin(Alert);
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap button.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var NAME$19 = "button";
+	var EVENT_KEY$13 = `.bs.button`;
+	var DATA_API_KEY$6 = ".data-api";
+	var CLASS_NAME_ACTIVE$5 = "active";
+	var SELECTOR_DATA_TOGGLE$8 = "[data-bs-toggle=\"button\"], [data-tblr-toggle=\"button\"]";
+	var EVENT_CLICK_DATA_API$6 = `click${EVENT_KEY$13}${DATA_API_KEY$6}`;
+	var Button = class Button extends BaseComponent {
+		static get NAME() {
+			return NAME$19;
+		}
+		toggle() {
+			this._element.setAttribute("aria-pressed", String(this._element.classList.toggle(CLASS_NAME_ACTIVE$5)));
+		}
+		static jQueryInterface(config) {
+			return this.each(function() {
+				const data = Button.getOrCreateInstance(this);
+				if (config === "toggle") data.toggle();
+			});
+		}
+	};
+	EventHandler.on(document, EVENT_CLICK_DATA_API$6, SELECTOR_DATA_TOGGLE$8, (event) => {
+		var _event$target;
+		event.preventDefault();
+		const target = (_event$target = event.target) === null || _event$target === void 0 ? void 0 : _event$target.closest(SELECTOR_DATA_TOGGLE$8);
+		if (!target) return;
+		Button.getOrCreateInstance(target).toggle();
+	});
+	defineJQueryPlugin(Button);
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap util/swipe.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var NAME$18 = "swipe";
+	var EVENT_KEY$12 = ".bs.swipe";
+	var EVENT_TOUCHSTART = `touchstart${EVENT_KEY$12}`;
+	var EVENT_TOUCHMOVE = `touchmove${EVENT_KEY$12}`;
+	var EVENT_TOUCHEND = `touchend${EVENT_KEY$12}`;
+	var EVENT_POINTERDOWN = `pointerdown${EVENT_KEY$12}`;
+	var EVENT_POINTERUP = `pointerup${EVENT_KEY$12}`;
+	var POINTER_TYPE_TOUCH = "touch";
+	var POINTER_TYPE_PEN = "pen";
+	var CLASS_NAME_POINTER_EVENT = "pointer-event";
+	var SWIPE_THRESHOLD = 40;
+	var Default$17 = {
+		endCallback: null,
+		leftCallback: null,
+		rightCallback: null
+	};
+	var DefaultType$17 = {
+		endCallback: "(function|null)",
+		leftCallback: "(function|null)",
+		rightCallback: "(function|null)"
+	};
+	var Swipe = class Swipe extends Config {
+		constructor(element, config) {
+			super();
+			this._element = element;
+			if (!element || !Swipe.isSupported()) return;
+			this._config = this._getConfig(config);
+			this._deltaX = 0;
+			this._supportPointerEvents = Boolean(window.PointerEvent);
+			this._initEvents();
+		}
+		static get Default() {
+			return Default$17;
+		}
+		static get DefaultType() {
+			return DefaultType$17;
+		}
+		static get NAME() {
+			return NAME$18;
+		}
+		dispose() {
+			EventHandler.off(this._element, EVENT_KEY$12);
+		}
+		_start(event) {
+			if (!this._supportPointerEvents) {
+				this._deltaX = event.touches[0].clientX;
+				return;
+			}
+			if (this._eventIsPointerPenTouch(event)) this._deltaX = event.clientX;
+		}
+		_end(event) {
+			if (this._eventIsPointerPenTouch(event)) this._deltaX = event.clientX - this._deltaX;
+			this._handleSwipe();
+			execute(this._config.endCallback);
+		}
+		_move(event) {
+			this._deltaX = event.touches && event.touches.length > 1 ? 0 : event.touches[0].clientX - this._deltaX;
+		}
+		_handleSwipe() {
+			const absDeltaX = Math.abs(this._deltaX);
+			if (absDeltaX <= SWIPE_THRESHOLD) return;
+			const direction = absDeltaX / this._deltaX;
+			this._deltaX = 0;
+			if (!direction) return;
+			execute(direction > 0 ? this._config.rightCallback : this._config.leftCallback);
+		}
+		_initEvents() {
+			if (this._supportPointerEvents) {
+				EventHandler.on(this._element, EVENT_POINTERDOWN, (event) => this._start(event));
+				EventHandler.on(this._element, EVENT_POINTERUP, (event) => this._end(event));
+				this._element.classList.add(CLASS_NAME_POINTER_EVENT);
+			} else {
+				EventHandler.on(this._element, EVENT_TOUCHSTART, (event) => this._start(event));
+				EventHandler.on(this._element, EVENT_TOUCHMOVE, (event) => this._move(event));
+				EventHandler.on(this._element, EVENT_TOUCHEND, (event) => this._end(event));
+			}
+		}
+		_eventIsPointerPenTouch(event) {
+			return this._supportPointerEvents && (event.pointerType === POINTER_TYPE_PEN || event.pointerType === POINTER_TYPE_TOUCH);
+		}
+		static isSupported() {
+			return "ontouchstart" in document.documentElement || navigator.maxTouchPoints > 0;
+		}
+	};
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap carousel.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var NAME$17 = "carousel";
+	var EVENT_KEY$11 = `.bs.carousel`;
+	var DATA_API_KEY$5 = ".data-api";
+	var ARROW_LEFT_KEY$1 = "ArrowLeft";
+	var ARROW_RIGHT_KEY$1 = "ArrowRight";
+	var TOUCHEVENT_COMPAT_WAIT = 500;
+	var ORDER_NEXT = "next";
+	var ORDER_PREV = "prev";
+	var DIRECTION_LEFT = "left";
+	var DIRECTION_RIGHT = "right";
+	var EVENT_SLIDE = `slide${EVENT_KEY$11}`;
+	var EVENT_SLID = `slid${EVENT_KEY$11}`;
+	var EVENT_KEYDOWN$1 = `keydown${EVENT_KEY$11}`;
+	var EVENT_MOUSEENTER$1 = `mouseenter${EVENT_KEY$11}`;
+	var EVENT_MOUSELEAVE$1 = `mouseleave${EVENT_KEY$11}`;
+	var EVENT_DRAG_START = `dragstart${EVENT_KEY$11}`;
+	var EVENT_LOAD_DATA_API$3 = `load${EVENT_KEY$11}${DATA_API_KEY$5}`;
+	var EVENT_CLICK_DATA_API$5 = `click${EVENT_KEY$11}${DATA_API_KEY$5}`;
+	var CLASS_NAME_CAROUSEL = "carousel";
+	var CLASS_NAME_ACTIVE$4 = "active";
+	var CLASS_NAME_SLIDE = "slide";
+	var CLASS_NAME_END = "carousel-item-end";
+	var CLASS_NAME_START = "carousel-item-start";
+	var CLASS_NAME_NEXT = "carousel-item-next";
+	var CLASS_NAME_PREV = "carousel-item-prev";
+	var SELECTOR_ACTIVE = ".active";
+	var SELECTOR_ITEM = ".carousel-item";
+	var SELECTOR_ACTIVE_ITEM = ".active.carousel-item";
+	var SELECTOR_ITEM_IMG = ".carousel-item img";
+	var SELECTOR_INDICATORS = ".carousel-indicators";
+	var SELECTOR_DATA_SLIDE = "[data-bs-slide], [data-bs-slide-to], [data-tblr-slide], [data-tblr-slide-to]";
+	var SELECTOR_DATA_RIDE = "[data-bs-ride=\"carousel\"], [data-tblr-ride=\"carousel\"]";
+	var KEY_TO_DIRECTION = {
+		[ARROW_LEFT_KEY$1]: DIRECTION_RIGHT,
+		[ARROW_RIGHT_KEY$1]: DIRECTION_LEFT
+	};
+	var Default$16 = {
+		interval: 5e3,
+		keyboard: true,
+		pause: "hover",
+		ride: false,
+		touch: true,
+		wrap: true
+	};
+	var DefaultType$16 = {
+		interval: "(number|boolean)",
+		keyboard: "boolean",
+		pause: "(string|boolean)",
+		ride: "(boolean|string)",
+		touch: "boolean",
+		wrap: "boolean"
+	};
+	var Carousel = class Carousel extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._interval = null;
+			this._activeElement = null;
+			this._isSliding = false;
+			this.touchTimeout = null;
+			this._swipeHelper = null;
+			this._indicatorsElement = SelectorEngine.findOne(SELECTOR_INDICATORS, this._element);
+			this._addEventListeners();
+			if (this._config.ride === CLASS_NAME_CAROUSEL) this.cycle();
+		}
+		static get Default() {
+			return Default$16;
+		}
+		static get DefaultType() {
+			return DefaultType$16;
+		}
+		static get NAME() {
+			return NAME$17;
+		}
+		next() {
+			this._slide(ORDER_NEXT);
+		}
+		nextWhenVisible() {
+			if (!document.hidden && isVisible(this._element)) this.next();
+		}
+		prev() {
+			this._slide(ORDER_PREV);
+		}
+		pause() {
+			if (this._isSliding) triggerTransitionEnd(this._element);
+			this._clearInterval();
+		}
+		cycle() {
+			this._clearInterval();
+			this._updateInterval();
+			this._interval = setInterval(() => this.nextWhenVisible(), this._config.interval);
+		}
+		_maybeEnableCycle() {
+			if (!this._config.ride) return;
+			if (this._isSliding) {
+				EventHandler.one(this._element, EVENT_SLID, () => this.cycle());
+				return;
+			}
+			this.cycle();
+		}
+		to(index) {
+			const items = this._getItems();
+			if (index > items.length - 1 || index < 0) return;
+			if (this._isSliding) {
+				EventHandler.one(this._element, EVENT_SLID, () => this.to(index));
+				return;
+			}
+			const activeIndex = this._getItemIndex(this._getActive());
+			if (activeIndex === index) return;
+			const order = index > activeIndex ? ORDER_NEXT : ORDER_PREV;
+			this._slide(order, items[index]);
+		}
+		dispose() {
+			if (this._swipeHelper) this._swipeHelper.dispose();
+			super.dispose();
+		}
+		_configAfterMerge(config) {
+			config.defaultInterval = config.interval;
+			return config;
+		}
+		_addEventListeners() {
+			if (this._config.keyboard) EventHandler.on(this._element, EVENT_KEYDOWN$1, (event) => this._keydown(event));
+			if (this._config.pause === "hover") {
+				EventHandler.on(this._element, EVENT_MOUSEENTER$1, () => this.pause());
+				EventHandler.on(this._element, EVENT_MOUSELEAVE$1, () => this._maybeEnableCycle());
+			}
+			if (this._config.touch && Swipe.isSupported()) this._addTouchEventListeners();
+		}
+		_addTouchEventListeners() {
+			for (const img of SelectorEngine.find(SELECTOR_ITEM_IMG, this._element)) EventHandler.on(img, EVENT_DRAG_START, (event) => event.preventDefault());
+			const endCallBack = () => {
+				if (this._config.pause !== "hover") return;
+				this.pause();
+				if (this.touchTimeout) clearTimeout(this.touchTimeout);
+				this.touchTimeout = setTimeout(() => this._maybeEnableCycle(), TOUCHEVENT_COMPAT_WAIT + this._config.interval);
+			};
+			const swipeConfig = {
+				leftCallback: () => this._slide(this._directionToOrder(DIRECTION_LEFT)),
+				rightCallback: () => this._slide(this._directionToOrder(DIRECTION_RIGHT)),
+				endCallback: endCallBack
+			};
+			this._swipeHelper = new Swipe(this._element, swipeConfig);
+		}
+		_keydown(event) {
+			if (/input|textarea/i.test(event.target.tagName)) return;
+			const direction = KEY_TO_DIRECTION[event.key];
+			if (direction) {
+				event.preventDefault();
+				this._slide(this._directionToOrder(direction));
+			}
+		}
+		_getItemIndex(element) {
+			return this._getItems().indexOf(element);
+		}
+		_setActiveIndicatorElement(index) {
+			if (!this._indicatorsElement) return;
+			const activeIndicator = SelectorEngine.findOne(SELECTOR_ACTIVE, this._indicatorsElement);
+			activeIndicator.classList.remove(CLASS_NAME_ACTIVE$4);
+			activeIndicator.removeAttribute("aria-current");
+			const newActiveIndicator = SelectorEngine.findOne(`[data-bs-slide-to="${index}"], [data-tblr-slide-to="${index}"]`, this._indicatorsElement);
+			if (newActiveIndicator) {
+				newActiveIndicator.classList.add(CLASS_NAME_ACTIVE$4);
+				newActiveIndicator.setAttribute("aria-current", "true");
+			}
+		}
+		_updateInterval() {
+			var _this$_config$default;
+			const element = this._activeElement || this._getActive();
+			if (!element) return;
+			const elementInterval = Number.parseInt(element.getAttribute("data-bs-interval") || element.getAttribute("data-tblr-interval") || "", 10);
+			this._config.interval = elementInterval || ((_this$_config$default = this._config.defaultInterval) !== null && _this$_config$default !== void 0 ? _this$_config$default : this._config.interval);
+		}
+		_slide(order, element = null) {
+			if (this._isSliding) return;
+			const activeElement = this._getActive();
+			const isNext = order === ORDER_NEXT;
+			const nextElement = element || getNextActiveElement(this._getItems(), activeElement, isNext, this._config.wrap);
+			if (nextElement === activeElement) return;
+			const nextElementIndex = this._getItemIndex(nextElement);
+			const triggerEvent = (eventName) => {
+				return EventHandler.trigger(this._element, eventName, {
+					relatedTarget: nextElement,
+					direction: this._orderToDirection(order),
+					from: this._getItemIndex(activeElement),
+					to: nextElementIndex
+				});
+			};
+			const slideEvent = triggerEvent(EVENT_SLIDE);
+			if (slideEvent === null || slideEvent === void 0 ? void 0 : slideEvent.defaultPrevented) return;
+			if (!activeElement || !nextElement) return;
+			const isCycling = Boolean(this._interval);
+			this.pause();
+			this._isSliding = true;
+			this._setActiveIndicatorElement(nextElementIndex);
+			this._activeElement = nextElement;
+			const directionalClassName = isNext ? CLASS_NAME_START : CLASS_NAME_END;
+			const orderClassName = isNext ? CLASS_NAME_NEXT : CLASS_NAME_PREV;
+			nextElement.classList.add(orderClassName);
+			reflow(nextElement);
+			activeElement.classList.add(directionalClassName);
+			nextElement.classList.add(directionalClassName);
+			const completeCallBack = () => {
+				nextElement.classList.remove(directionalClassName, orderClassName);
+				nextElement.classList.add(CLASS_NAME_ACTIVE$4);
+				activeElement.classList.remove(CLASS_NAME_ACTIVE$4, orderClassName, directionalClassName);
+				this._isSliding = false;
+				triggerEvent(EVENT_SLID);
+			};
+			this._queueCallback(completeCallBack, activeElement, this._isAnimated());
+			if (isCycling) this.cycle();
+		}
+		_isAnimated() {
+			return this._element.classList.contains(CLASS_NAME_SLIDE);
+		}
+		_getActive() {
+			return SelectorEngine.findOne(SELECTOR_ACTIVE_ITEM, this._element);
+		}
+		_getItems() {
+			return SelectorEngine.find(SELECTOR_ITEM, this._element);
+		}
+		_clearInterval() {
+			if (this._interval) {
+				clearInterval(this._interval);
+				this._interval = null;
+			}
+		}
+		_directionToOrder(direction) {
+			if (isRTL()) return direction === DIRECTION_LEFT ? ORDER_PREV : ORDER_NEXT;
+			return direction === DIRECTION_LEFT ? ORDER_NEXT : ORDER_PREV;
+		}
+		_orderToDirection(order) {
+			if (isRTL()) return order === ORDER_PREV ? DIRECTION_LEFT : DIRECTION_RIGHT;
+			return order === ORDER_PREV ? DIRECTION_RIGHT : DIRECTION_LEFT;
+		}
+		static jQueryInterface(config) {
+			return this.each(function() {
+				const data = Carousel.getOrCreateInstance(this, config);
+				if (typeof config === "number") {
+					data.to(config);
+					return;
+				}
+				if (typeof config === "string") {
+					if (data[config] === void 0 || config.startsWith("_") || config === "constructor") throw new TypeError(`No method named "${config}"`);
+					data[config]();
+				}
+			});
+		}
+	};
+	EventHandler.on(document, EVENT_CLICK_DATA_API$5, SELECTOR_DATA_SLIDE, function(event) {
+		const target = SelectorEngine.getElementFromSelector(this);
+		if (!target || !target.classList.contains(CLASS_NAME_CAROUSEL)) return;
+		event.preventDefault();
+		const carousel = Carousel.getOrCreateInstance(target);
+		const slideIndex = this.getAttribute("data-bs-slide-to") || this.getAttribute("data-tblr-slide-to");
+		if (slideIndex) {
+			carousel.to(Number(slideIndex));
+			carousel._maybeEnableCycle();
+			return;
+		}
+		if (Manipulator.getDataAttribute(this, "slide") === "next") {
+			carousel.next();
+			carousel._maybeEnableCycle();
+			return;
+		}
+		carousel.prev();
+		carousel._maybeEnableCycle();
+	});
+	EventHandler.on(window, EVENT_LOAD_DATA_API$3, () => {
+		const carousels = SelectorEngine.find(SELECTOR_DATA_RIDE);
+		for (const carousel of carousels) Carousel.getOrCreateInstance(carousel);
+	});
+	defineJQueryPlugin(Carousel);
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap collapse.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var NAME$16 = "collapse";
+	var EVENT_KEY$10 = `.bs.collapse`;
+	var DATA_API_KEY$4 = ".data-api";
+	var EVENT_SHOW$6 = `show${EVENT_KEY$10}`;
+	var EVENT_SHOWN$6 = `shown${EVENT_KEY$10}`;
+	var EVENT_HIDE$6 = `hide${EVENT_KEY$10}`;
+	var EVENT_HIDDEN$6 = `hidden${EVENT_KEY$10}`;
+	var EVENT_CLICK_DATA_API$4 = `click${EVENT_KEY$10}${DATA_API_KEY$4}`;
+	var CLASS_NAME_SHOW$7 = "show";
+	var CLASS_NAME_COLLAPSE = "collapse";
+	var CLASS_NAME_COLLAPSING = "collapsing";
+	var CLASS_NAME_COLLAPSED = "collapsed";
+	var CLASS_NAME_DEEPER_CHILDREN = `:scope .${CLASS_NAME_COLLAPSE} .${CLASS_NAME_COLLAPSE}`;
+	var CLASS_NAME_HORIZONTAL = "collapse-horizontal";
+	var WIDTH = "width";
+	var HEIGHT = "height";
+	var SELECTOR_ACTIVES = ".collapse.show, .collapse.collapsing";
+	var SELECTOR_DATA_TOGGLE$7 = "[data-bs-toggle=\"collapse\"], [data-tblr-toggle=\"collapse\"]";
+	var Default$15 = {
+		parent: null,
+		toggle: true
+	};
+	var DefaultType$15 = {
+		parent: "(null|element)",
+		toggle: "boolean"
+	};
+	var Collapse = class Collapse extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._isTransitioning = false;
+			this._triggerArray = [];
+			const toggleList = SelectorEngine.find(SELECTOR_DATA_TOGGLE$7);
+			for (const elem of toggleList) {
+				const selector = SelectorEngine.getSelectorFromElement(elem);
+				const filterElement = SelectorEngine.find(selector).filter((foundElement) => foundElement === this._element);
+				if (selector !== null && filterElement.length) this._triggerArray.push(elem);
+			}
+			this._initializeChildren();
+			if (!this._config.parent) this._addAriaAndCollapsedClass(this._triggerArray, this._isShown());
+			if (this._config.toggle) this.toggle();
+		}
+		static get Default() {
+			return Default$15;
+		}
+		static get DefaultType() {
+			return DefaultType$15;
+		}
+		static get NAME() {
+			return NAME$16;
+		}
+		toggle() {
+			if (this._isShown()) this.hide();
+			else this.show();
+		}
+		show() {
+			if (this._isTransitioning || this._isShown()) return;
+			let activeChildren = [];
+			if (this._config.parent) activeChildren = this._getFirstLevelChildren(SELECTOR_ACTIVES).filter((element) => element !== this._element).map((element) => Collapse.getOrCreateInstance(element, { toggle: false }));
+			if (activeChildren.length && activeChildren[0]._isTransitioning) return;
+			const startEvent = EventHandler.trigger(this._element, EVENT_SHOW$6);
+			if (startEvent === null || startEvent === void 0 ? void 0 : startEvent.defaultPrevented) return;
+			for (const activeInstance of activeChildren) activeInstance.hide();
+			const dimension = this._getDimension();
+			this._element.classList.remove(CLASS_NAME_COLLAPSE);
+			this._element.classList.add(CLASS_NAME_COLLAPSING);
+			this._element.style[dimension] = "0";
+			this._addAriaAndCollapsedClass(this._triggerArray, true);
+			this._isTransitioning = true;
+			const complete = () => {
+				this._isTransitioning = false;
+				this._element.classList.remove(CLASS_NAME_COLLAPSING);
+				this._element.classList.add(CLASS_NAME_COLLAPSE, CLASS_NAME_SHOW$7);
+				this._element.style[dimension] = "";
+				EventHandler.trigger(this._element, EVENT_SHOWN$6);
+			};
+			const scrollSize = `scroll${dimension[0].toUpperCase() + dimension.slice(1)}`;
+			this._queueCallback(complete, this._element, true);
+			this._element.style[dimension] = `${this._element[scrollSize]}px`;
+		}
+		hide() {
+			if (this._isTransitioning || !this._isShown()) return;
+			const startEvent = EventHandler.trigger(this._element, EVENT_HIDE$6);
+			if (startEvent === null || startEvent === void 0 ? void 0 : startEvent.defaultPrevented) return;
+			const dimension = this._getDimension();
+			this._element.style[dimension] = `${this._element.getBoundingClientRect()[dimension]}px`;
+			reflow(this._element);
+			this._element.classList.add(CLASS_NAME_COLLAPSING);
+			this._element.classList.remove(CLASS_NAME_COLLAPSE, CLASS_NAME_SHOW$7);
+			for (const trigger of this._triggerArray) {
+				const element = SelectorEngine.getElementFromSelector(trigger);
+				if (element && !this._isShown(element)) this._addAriaAndCollapsedClass([trigger], false);
+			}
+			this._isTransitioning = true;
+			const complete = () => {
+				this._isTransitioning = false;
+				this._element.classList.remove(CLASS_NAME_COLLAPSING);
+				this._element.classList.add(CLASS_NAME_COLLAPSE);
+				EventHandler.trigger(this._element, EVENT_HIDDEN$6);
+			};
+			this._element.style[dimension] = "";
+			this._queueCallback(complete, this._element, true);
+		}
+		_isShown(element = this._element) {
+			return element.classList.contains(CLASS_NAME_SHOW$7);
+		}
+		_configAfterMerge(config) {
+			config.toggle = Boolean(config.toggle);
+			config.parent = getElement(config.parent);
+			return config;
+		}
+		_getDimension() {
+			return this._element.classList.contains(CLASS_NAME_HORIZONTAL) ? WIDTH : HEIGHT;
+		}
+		_initializeChildren() {
+			if (!this._config.parent) return;
+			const children = this._getFirstLevelChildren(SELECTOR_DATA_TOGGLE$7);
+			for (const element of children) {
+				const selected = SelectorEngine.getElementFromSelector(element);
+				if (selected) this._addAriaAndCollapsedClass([element], this._isShown(selected));
+			}
+		}
+		_getFirstLevelChildren(selector) {
+			const children = SelectorEngine.find(CLASS_NAME_DEEPER_CHILDREN, this._config.parent);
+			return SelectorEngine.find(selector, this._config.parent).filter((element) => !children.includes(element));
+		}
+		_addAriaAndCollapsedClass(triggerArray, isOpen) {
+			if (!triggerArray.length) return;
+			for (const element of triggerArray) {
+				element.classList.toggle(CLASS_NAME_COLLAPSED, !isOpen);
+				element.setAttribute("aria-expanded", String(isOpen));
+			}
+		}
+		static jQueryInterface(config) {
+			const _config = {};
+			if (typeof config === "string" && /show|hide/.test(config)) _config.toggle = false;
+			return this.each(function() {
+				const data = Collapse.getOrCreateInstance(this, _config);
+				if (typeof config === "string") {
+					if (typeof data[config] === "undefined") throw new TypeError(`No method named "${config}"`);
+					data[config]();
+				}
+			});
+		}
+	};
+	EventHandler.on(document, EVENT_CLICK_DATA_API$4, SELECTOR_DATA_TOGGLE$7, function(event) {
+		const { delegateTarget } = event;
+		if (event.target.tagName === "A" || delegateTarget && delegateTarget.tagName === "A") event.preventDefault();
+		for (const element of SelectorEngine.getMultipleElementsFromSelector(this)) Collapse.getOrCreateInstance(element, { toggle: false }).toggle();
+	});
+	defineJQueryPlugin(Collapse);
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap dropdown.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var NAME$15 = "dropdown";
+	var EVENT_KEY$9 = `.bs.dropdown`;
+	var DATA_API_KEY$3 = ".data-api";
+	var ESCAPE_KEY$2 = "Escape";
+	var TAB_KEY$1 = "Tab";
+	var ARROW_UP_KEY$1 = "ArrowUp";
+	var ARROW_DOWN_KEY$1 = "ArrowDown";
+	var RIGHT_MOUSE_BUTTON = 2;
+	var EVENT_HIDE$5 = `hide${EVENT_KEY$9}`;
+	var EVENT_HIDDEN$5 = `hidden${EVENT_KEY$9}`;
+	var EVENT_SHOW$5 = `show${EVENT_KEY$9}`;
+	var EVENT_SHOWN$5 = `shown${EVENT_KEY$9}`;
+	var EVENT_CLICK_DATA_API$3 = `click${EVENT_KEY$9}${DATA_API_KEY$3}`;
+	var EVENT_KEYDOWN_DATA_API = `keydown${EVENT_KEY$9}${DATA_API_KEY$3}`;
+	var EVENT_KEYUP_DATA_API = `keyup${EVENT_KEY$9}${DATA_API_KEY$3}`;
+	var CLASS_NAME_SHOW$6 = "show";
+	var CLASS_NAME_DROPUP = "dropup";
+	var CLASS_NAME_DROPEND = "dropend";
+	var CLASS_NAME_DROPSTART = "dropstart";
+	var CLASS_NAME_DROPUP_CENTER = "dropup-center";
+	var CLASS_NAME_DROPDOWN_CENTER = "dropdown-center";
+	var SELECTOR_DATA_TOGGLE$6 = "[data-bs-toggle=\"dropdown\"]:not(.disabled):not(:disabled), [data-tblr-toggle=\"dropdown\"]:not(.disabled):not(:disabled)";
+	var SELECTOR_DATA_TOGGLE_SHOWN = SELECTOR_DATA_TOGGLE$6.split(", ").map((selector) => `${selector}.${CLASS_NAME_SHOW$6}`).join(", ");
+	var SELECTOR_MENU = ".dropdown-menu";
+	var SELECTOR_NAVBAR = ".navbar";
+	var SELECTOR_NAVBAR_NAV = ".navbar-nav";
+	var SELECTOR_VISIBLE_ITEMS = ".dropdown-menu .dropdown-item:not(.disabled):not(:disabled)";
+	var PLACEMENT_TOP = isRTL() ? "top-end" : "top-start";
+	var PLACEMENT_TOPEND = isRTL() ? "top-start" : "top-end";
+	var PLACEMENT_BOTTOM = isRTL() ? "bottom-end" : "bottom-start";
+	var PLACEMENT_BOTTOMEND = isRTL() ? "bottom-start" : "bottom-end";
+	var PLACEMENT_RIGHT = isRTL() ? "left-start" : "right-start";
+	var PLACEMENT_LEFT = isRTL() ? "right-start" : "left-start";
+	var PLACEMENT_TOPCENTER = "top";
+	var PLACEMENT_BOTTOMCENTER = "bottom";
+	var Default$14 = {
+		autoClose: true,
+		boundary: "clippingParents",
+		display: "dynamic",
+		offset: [0, 2],
+		popperConfig: null,
+		reference: "toggle"
+	};
+	var DefaultType$14 = {
+		autoClose: "(boolean|string)",
+		boundary: "(string|element)",
+		display: "string",
+		offset: "(array|string|function)",
+		popperConfig: "(null|object|function)",
+		reference: "(string|element|object)"
+	};
+	var Dropdown = class Dropdown extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._popper = null;
+			this._parent = this._element.parentNode;
+			this._menu = SelectorEngine.next(this._element, SELECTOR_MENU)[0] || SelectorEngine.prev(this._element, SELECTOR_MENU)[0] || SelectorEngine.findOne(SELECTOR_MENU, this._parent);
+			this._inNavbar = this._detectNavbar();
+		}
+		static get Default() {
+			return Default$14;
+		}
+		static get DefaultType() {
+			return DefaultType$14;
+		}
+		static get NAME() {
+			return NAME$15;
+		}
+		toggle() {
+			this._isShown() ? this.hide() : this.show();
+		}
+		show() {
+			if (isDisabled(this._element) || this._isShown()) return;
+			const relatedTarget = { relatedTarget: this._element };
+			const showEvent = EventHandler.trigger(this._element, EVENT_SHOW$5, relatedTarget);
+			if (showEvent === null || showEvent === void 0 ? void 0 : showEvent.defaultPrevented) return;
+			this._createPopper();
+			if ("ontouchstart" in document.documentElement && !this._parent.closest(SELECTOR_NAVBAR_NAV)) for (const element of Array.from(document.body.children)) EventHandler.on(element, "mouseover", noop);
+			this._element.focus();
+			this._element.setAttribute("aria-expanded", "true");
+			this._menu.classList.add(CLASS_NAME_SHOW$6);
+			this._element.classList.add(CLASS_NAME_SHOW$6);
+			EventHandler.trigger(this._element, EVENT_SHOWN$5, relatedTarget);
+		}
+		hide() {
+			if (isDisabled(this._element) || !this._isShown()) return;
+			const relatedTarget = { relatedTarget: this._element };
+			this._completeHide(relatedTarget);
+		}
+		dispose() {
+			if (this._popper) this._popper.destroy();
+			super.dispose();
+		}
+		update() {
+			this._inNavbar = this._detectNavbar();
+			if (this._popper) this._popper.update();
+		}
+		_completeHide(relatedTarget) {
+			const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE$5, relatedTarget);
+			if (hideEvent === null || hideEvent === void 0 ? void 0 : hideEvent.defaultPrevented) return;
+			if ("ontouchstart" in document.documentElement) for (const element of Array.from(document.body.children)) EventHandler.off(element, "mouseover", noop);
+			if (this._popper) this._popper.destroy();
+			this._menu.classList.remove(CLASS_NAME_SHOW$6);
+			this._element.classList.remove(CLASS_NAME_SHOW$6);
+			this._element.setAttribute("aria-expanded", "false");
+			Manipulator.removeDataAttribute(this._menu, "popper");
+			EventHandler.trigger(this._element, EVENT_HIDDEN$5, relatedTarget);
+		}
+		_getConfig(config) {
+			const merged = super._getConfig(config);
+			if (typeof merged.reference === "object" && !isElement$1(merged.reference) && typeof merged.reference.getBoundingClientRect !== "function") throw new TypeError(`${NAME$15.toUpperCase()}: Option "reference" provided type "object" without a required "getBoundingClientRect" method.`);
+			return merged;
+		}
+		_createPopper() {
+			if (typeof lib_exports === "undefined") throw new TypeError("Bootstrap's dropdowns require Popper (https://popper.js.org/docs/v2/)");
+			let referenceElement = this._element;
+			if (this._config.reference === "parent") referenceElement = this._parent;
+			else if (isElement$1(this._config.reference)) referenceElement = getElement(this._config.reference);
+			else if (typeof this._config.reference === "object") referenceElement = this._config.reference;
+			const popperConfig = this._getPopperConfig();
+			this._popper = createPopper(referenceElement, this._menu, popperConfig);
+		}
+		_isShown() {
+			return this._menu.classList.contains(CLASS_NAME_SHOW$6);
+		}
+		_getPlacement() {
+			const parentDropdown = this._parent;
+			if (parentDropdown.classList.contains(CLASS_NAME_DROPEND)) return PLACEMENT_RIGHT;
+			if (parentDropdown.classList.contains(CLASS_NAME_DROPSTART)) return PLACEMENT_LEFT;
+			if (parentDropdown.classList.contains(CLASS_NAME_DROPUP_CENTER)) return PLACEMENT_TOPCENTER;
+			if (parentDropdown.classList.contains(CLASS_NAME_DROPDOWN_CENTER)) return PLACEMENT_BOTTOMCENTER;
+			const isEnd = getComputedStyle(this._menu).getPropertyValue("--bs-position").trim() === "end";
+			if (parentDropdown.classList.contains(CLASS_NAME_DROPUP)) return isEnd ? PLACEMENT_TOPEND : PLACEMENT_TOP;
+			return isEnd ? PLACEMENT_BOTTOMEND : PLACEMENT_BOTTOM;
+		}
+		_detectNavbar() {
+			return this._element.closest(SELECTOR_NAVBAR) !== null;
+		}
+		_getOffset() {
+			const { offset } = this._config;
+			if (typeof offset === "string") return offset.split(",").map((value) => Number.parseInt(value, 10));
+			if (typeof offset === "function") return (popperData) => offset(popperData, this._element);
+			return offset;
+		}
+		_getPopperConfig() {
+			const defaultBsPopperConfig = {
+				placement: this._getPlacement(),
+				modifiers: [{
+					name: "preventOverflow",
+					options: { boundary: this._config.boundary }
+				}, {
+					name: "offset",
+					options: { offset: this._getOffset() }
+				}]
+			};
+			if (this._inNavbar || this._config.display === "static") {
+				Manipulator.setDataAttribute(this._menu, "popper", "static");
+				defaultBsPopperConfig.modifiers = [{
+					name: "applyStyles",
+					enabled: false
+				}];
+			}
+			const popperConfig = execute(this._config.popperConfig, [void 0, defaultBsPopperConfig]);
+			return _objectSpread2(_objectSpread2({}, defaultBsPopperConfig), typeof popperConfig === "object" && popperConfig !== null ? popperConfig : {});
+		}
+		_selectMenuItem({ key, target }) {
+			const items = SelectorEngine.find(SELECTOR_VISIBLE_ITEMS, this._menu).filter((element) => isVisible(element));
+			if (!items.length) return;
+			const activeElement = target;
+			getNextActiveElement(items, activeElement, key === ARROW_DOWN_KEY$1, !items.includes(activeElement)).focus();
+		}
+		static clearMenus(event) {
+			if (event.button === RIGHT_MOUSE_BUTTON || event.type === "keyup" && event.key !== TAB_KEY$1) return;
+			const openToggles = SelectorEngine.find(SELECTOR_DATA_TOGGLE_SHOWN);
+			for (const toggle of openToggles) {
+				const context = Dropdown.getInstance(toggle);
+				if (!context || context._config.autoClose === false) continue;
+				const composedPath = event.composedPath();
+				const isMenuTarget = composedPath.includes(context._menu);
+				if (composedPath.includes(context._element) || context._config.autoClose === "inside" && !isMenuTarget || context._config.autoClose === "outside" && isMenuTarget) continue;
+				if (context._menu.contains(event.target) && (event.type === "keyup" && event.key === TAB_KEY$1 || /input|select|option|textarea|form/i.test(event.target.tagName))) continue;
+				const relatedTarget = { relatedTarget: context._element };
+				if (event.type === "click") relatedTarget.clickEvent = event;
+				context._completeHide(relatedTarget);
+			}
+		}
+		static dataApiKeydownHandler(event) {
+			const isInput = /input|textarea/i.test(event.target.tagName);
+			const isEscapeEvent = event.key === ESCAPE_KEY$2;
+			const isUpOrDownEvent = [ARROW_UP_KEY$1, ARROW_DOWN_KEY$1].includes(event.key);
+			if (!isUpOrDownEvent && !isEscapeEvent) return;
+			if (isInput && !isEscapeEvent) return;
+			event.preventDefault();
+			const getToggleButton = this.matches(SELECTOR_DATA_TOGGLE$6) ? this : SelectorEngine.prev(this, SELECTOR_DATA_TOGGLE$6)[0] || SelectorEngine.next(this, SELECTOR_DATA_TOGGLE$6)[0] || SelectorEngine.findOne(SELECTOR_DATA_TOGGLE$6, event.delegateTarget.parentNode);
+			const instance = Dropdown.getOrCreateInstance(getToggleButton);
+			if (isUpOrDownEvent) {
+				event.stopPropagation();
+				instance.show();
+				instance._selectMenuItem(event);
+				return;
+			}
+			if (instance._isShown()) {
+				event.stopPropagation();
+				instance.hide();
+				getToggleButton.focus();
+			}
+		}
+		static jQueryInterface(config) {
+			return this.each(function() {
+				const data = Dropdown.getOrCreateInstance(this, config);
+				if (typeof config !== "string") return;
+				if (typeof data[config] === "undefined") throw new TypeError(`No method named "${config}"`);
+				data[config]();
+			});
+		}
+	};
+	EventHandler.on(document, EVENT_KEYDOWN_DATA_API, SELECTOR_DATA_TOGGLE$6, Dropdown.dataApiKeydownHandler);
+	EventHandler.on(document, EVENT_KEYDOWN_DATA_API, SELECTOR_MENU, Dropdown.dataApiKeydownHandler);
+	EventHandler.on(document, EVENT_CLICK_DATA_API$3, Dropdown.clearMenus);
+	EventHandler.on(document, EVENT_KEYUP_DATA_API, Dropdown.clearMenus);
+	EventHandler.on(document, EVENT_CLICK_DATA_API$3, SELECTOR_DATA_TOGGLE$6, function(event) {
+		event.preventDefault();
+		Dropdown.getOrCreateInstance(this).toggle();
+	});
+	defineJQueryPlugin(Dropdown);
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap util/backdrop.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var NAME$14 = "backdrop";
+	var CLASS_NAME_FADE$4 = "fade";
+	var CLASS_NAME_SHOW$5 = "show";
+	var EVENT_MOUSEDOWN = `mousedown.bs.${NAME$14}`;
+	var Default$13 = {
+		className: "modal-backdrop",
+		clickCallback: null,
+		isAnimated: false,
+		isVisible: true,
+		rootElement: "body"
+	};
+	var DefaultType$13 = {
+		className: "string",
+		clickCallback: "(function|null)",
+		isAnimated: "boolean",
+		isVisible: "boolean",
+		rootElement: "(element|string)"
+	};
+	var Backdrop = class extends Config {
+		constructor(config) {
+			super();
+			this._config = this._getConfig(config);
+			this._isAppended = false;
+			this._element = null;
+		}
+		static get Default() {
+			return Default$13;
+		}
+		static get DefaultType() {
+			return DefaultType$13;
+		}
+		static get NAME() {
+			return NAME$14;
+		}
+		show(callback) {
+			if (!this._config.isVisible) {
+				execute(callback);
+				return;
+			}
+			this._append();
+			const element = this._getElement();
+			if (this._config.isAnimated) reflow(element);
+			element.classList.add(CLASS_NAME_SHOW$5);
+			this._emulateAnimation(() => {
+				execute(callback);
+			});
+		}
+		hide(callback) {
+			if (!this._config.isVisible) {
+				execute(callback);
+				return;
+			}
+			this._getElement().classList.remove(CLASS_NAME_SHOW$5);
+			this._emulateAnimation(() => {
+				this.dispose();
+				execute(callback);
+			});
+		}
+		dispose() {
+			if (!this._isAppended) return;
+			EventHandler.off(this._element, EVENT_MOUSEDOWN);
+			this._element.remove();
+			this._isAppended = false;
+		}
+		_getElement() {
+			if (!this._element) {
+				const backdrop = document.createElement("div");
+				backdrop.className = this._config.className;
+				if (this._config.isAnimated) backdrop.classList.add(CLASS_NAME_FADE$4);
+				this._element = backdrop;
+			}
+			return this._element;
+		}
+		_configAfterMerge(config) {
+			config.rootElement = getElement(config.rootElement);
+			return config;
+		}
+		_append() {
+			if (this._isAppended) return;
+			const element = this._getElement();
+			this._config.rootElement.append(element);
+			EventHandler.on(element, EVENT_MOUSEDOWN, () => {
+				execute(this._config.clickCallback);
+			});
+			this._isAppended = true;
+		}
+		_emulateAnimation(callback) {
+			executeAfterTransition(callback, this._getElement(), this._config.isAnimated);
+		}
+	};
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap util/focustrap.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var NAME$13 = "focustrap";
+	var EVENT_KEY$8 = `.bs.focustrap`;
+	var EVENT_FOCUSIN$2 = `focusin${EVENT_KEY$8}`;
+	var EVENT_KEYDOWN_TAB = `keydown.tab${EVENT_KEY$8}`;
+	var TAB_KEY = "Tab";
+	var TAB_NAV_FORWARD = "forward";
+	var TAB_NAV_BACKWARD = "backward";
+	var Default$12 = {
+		autofocus: true,
+		trapElement: null
+	};
+	var DefaultType$12 = {
+		autofocus: "boolean",
+		trapElement: "element"
+	};
+	var FocusTrap = class extends Config {
+		constructor(config) {
+			super();
+			this._config = this._getConfig(config);
+			this._isActive = false;
+			this._lastTabNavDirection = null;
+		}
+		static get Default() {
+			return Default$12;
+		}
+		static get DefaultType() {
+			return DefaultType$12;
+		}
+		static get NAME() {
+			return NAME$13;
+		}
+		activate() {
+			if (this._isActive) return;
+			if (this._config.autofocus) this._config.trapElement.focus();
+			EventHandler.off(document, EVENT_KEY$8);
+			EventHandler.on(document, EVENT_FOCUSIN$2, (event) => this._handleFocusin(event));
+			EventHandler.on(document, EVENT_KEYDOWN_TAB, (event) => this._handleKeydown(event));
+			this._isActive = true;
+		}
+		deactivate() {
+			if (!this._isActive) return;
+			this._isActive = false;
+			EventHandler.off(document, EVENT_KEY$8);
+		}
+		_handleFocusin(event) {
+			const { trapElement } = this._config;
+			if (!trapElement || event.target === document || event.target === trapElement || trapElement.contains(event.target)) return;
+			const elements = SelectorEngine.focusableChildren(trapElement);
+			if (elements.length === 0) trapElement.focus();
+			else if (this._lastTabNavDirection === TAB_NAV_BACKWARD) elements[elements.length - 1].focus();
+			else elements[0].focus();
+		}
+		_handleKeydown(event) {
+			if (event.key !== TAB_KEY) return;
+			this._lastTabNavDirection = event.shiftKey ? TAB_NAV_BACKWARD : TAB_NAV_FORWARD;
+		}
+	};
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap util/scrollbar.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var SELECTOR_FIXED_CONTENT = ".fixed-top, .fixed-bottom, .is-fixed, .sticky-top";
+	var SELECTOR_STICKY_CONTENT = ".sticky-top";
+	var PROPERTY_PADDING = "padding-right";
+	var PROPERTY_MARGIN = "margin-right";
+	var ScrollBarHelper = class {
+		constructor() {
+			this._element = document.body;
+		}
+		getWidth() {
+			const documentWidth = document.documentElement.clientWidth;
+			return Math.abs(window.innerWidth - documentWidth);
+		}
+		hide() {
+			const width = this.getWidth();
+			this._disableOverFlow();
+			this._setElementAttributes(this._element, PROPERTY_PADDING, (calculatedValue) => calculatedValue + width);
+			this._setElementAttributes(SELECTOR_FIXED_CONTENT, PROPERTY_PADDING, (calculatedValue) => calculatedValue + width);
+			this._setElementAttributes(SELECTOR_STICKY_CONTENT, PROPERTY_MARGIN, (calculatedValue) => calculatedValue - width);
+		}
+		reset() {
+			this._resetElementAttributes(this._element, "overflow");
+			this._resetElementAttributes(this._element, PROPERTY_PADDING);
+			this._resetElementAttributes(SELECTOR_FIXED_CONTENT, PROPERTY_PADDING);
+			this._resetElementAttributes(SELECTOR_STICKY_CONTENT, PROPERTY_MARGIN);
+		}
+		isOverflowing() {
+			return this.getWidth() > 0;
+		}
+		_disableOverFlow() {
+			this._saveInitialAttribute(this._element, "overflow");
+			this._element.style.overflow = "hidden";
+		}
+		_setElementAttributes(selector, styleProperty, callback) {
+			const scrollbarWidth = this.getWidth();
+			const manipulationCallBack = (element) => {
+				if (element !== this._element && window.innerWidth > element.clientWidth + scrollbarWidth) return;
+				this._saveInitialAttribute(element, styleProperty);
+				const calculatedValue = window.getComputedStyle(element).getPropertyValue(styleProperty);
+				element.style.setProperty(styleProperty, `${callback(Number.parseFloat(calculatedValue))}px`);
+			};
+			this._applyManipulationCallback(selector, manipulationCallBack);
+		}
+		_saveInitialAttribute(element, styleProperty) {
+			const actualValue = element.style.getPropertyValue(styleProperty);
+			if (actualValue) Manipulator.setDataAttribute(element, styleProperty, actualValue);
+		}
+		_resetElementAttributes(selector, styleProperty) {
+			const manipulationCallBack = (element) => {
+				const value = Manipulator.getDataAttribute(element, styleProperty);
+				if (value === null) {
+					element.style.removeProperty(styleProperty);
+					return;
+				}
+				Manipulator.removeDataAttribute(element, styleProperty);
+				element.style.setProperty(styleProperty, String(value));
+			};
+			this._applyManipulationCallback(selector, manipulationCallBack);
+		}
+		_applyManipulationCallback(selector, callBack) {
+			if (isElement$1(selector)) {
+				callBack(selector);
+				return;
+			}
+			for (const sel of SelectorEngine.find(selector, this._element)) callBack(sel);
+		}
+	};
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap modal.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$12 = "modal";
+	var EVENT_KEY$7 = `.bs.modal`;
+	var DATA_API_KEY$2 = ".data-api";
+	var ESCAPE_KEY$1 = "Escape";
+	var EVENT_HIDE$4 = `hide${EVENT_KEY$7}`;
+	var EVENT_HIDE_PREVENTED$1 = `hidePrevented${EVENT_KEY$7}`;
+	var EVENT_HIDDEN$4 = `hidden${EVENT_KEY$7}`;
+	var EVENT_SHOW$4 = `show${EVENT_KEY$7}`;
+	var EVENT_SHOWN$4 = `shown${EVENT_KEY$7}`;
+	var EVENT_RESIZE$1 = `resize${EVENT_KEY$7}`;
+	var EVENT_CLICK_DISMISS = `click.dismiss${EVENT_KEY$7}`;
+	var EVENT_MOUSEDOWN_DISMISS = `mousedown.dismiss${EVENT_KEY$7}`;
+	var EVENT_KEYDOWN_DISMISS$1 = `keydown.dismiss${EVENT_KEY$7}`;
+	var EVENT_CLICK_DATA_API$2 = `click${EVENT_KEY$7}${DATA_API_KEY$2}`;
+	var CLASS_NAME_OPEN = "modal-open";
+	var CLASS_NAME_FADE$3 = "fade";
+	var CLASS_NAME_SHOW$4 = "show";
+	var CLASS_NAME_STATIC = "modal-static";
+	var OPEN_SELECTOR$1 = ".modal.show";
+	var SELECTOR_DIALOG = ".modal-dialog";
+	var SELECTOR_MODAL_BODY = ".modal-body";
+	var SELECTOR_DATA_TOGGLE$5 = "[data-bs-toggle=\"modal\"], [data-tblr-toggle=\"modal\"]";
+	var Default$11 = {
+		backdrop: true,
+		focus: true,
+		keyboard: true
+	};
+	var DefaultType$11 = {
+		backdrop: "(boolean|string)",
+		focus: "boolean",
+		keyboard: "boolean"
+	};
+	/**
+	* Class definition
+	*/
+	var Modal = class Modal extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._dialog = SelectorEngine.findOne(SELECTOR_DIALOG, this._element);
+			this._backdrop = this._initializeBackDrop();
+			this._focustrap = this._initializeFocusTrap();
+			this._isShown = false;
+			this._isTransitioning = false;
+			this._scrollBar = new ScrollBarHelper();
+			this._addEventListeners();
+		}
+		static get Default() {
+			return Default$11;
+		}
+		static get DefaultType() {
+			return DefaultType$11;
+		}
+		static get NAME() {
+			return NAME$12;
+		}
+		toggle(relatedTarget) {
+			return this._isShown ? this.hide() : this.show(relatedTarget);
+		}
+		show(relatedTarget) {
+			if (this._isShown || this._isTransitioning) return;
+			const showEvent = EventHandler.trigger(this._element, EVENT_SHOW$4, { relatedTarget });
+			if (showEvent === null || showEvent === void 0 ? void 0 : showEvent.defaultPrevented) return;
+			this._isShown = true;
+			this._isTransitioning = true;
+			this._scrollBar.hide();
+			document.body.classList.add(CLASS_NAME_OPEN);
+			this._adjustDialog();
+			this._backdrop.show(() => this._showElement(relatedTarget));
+		}
+		hide() {
+			if (!this._isShown || this._isTransitioning) return;
+			const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE$4);
+			if (hideEvent === null || hideEvent === void 0 ? void 0 : hideEvent.defaultPrevented) return;
+			this._isShown = false;
+			this._isTransitioning = true;
+			this._focustrap.deactivate();
+			this._element.classList.remove(CLASS_NAME_SHOW$4);
+			this._queueCallback(() => this._hideModal(), this._element, this._isAnimated());
+		}
+		dispose() {
+			EventHandler.off(window, EVENT_KEY$7);
+			EventHandler.off(this._dialog, EVENT_KEY$7);
+			this._backdrop.dispose();
+			this._focustrap.deactivate();
+			super.dispose();
+		}
+		handleUpdate() {
+			this._adjustDialog();
+		}
+		_initializeBackDrop() {
+			return new Backdrop({
+				isVisible: Boolean(this._config.backdrop),
+				isAnimated: this._isAnimated()
+			});
+		}
+		_initializeFocusTrap() {
+			return new FocusTrap({ trapElement: this._element });
+		}
+		_showElement(relatedTarget) {
+			if (!document.body.contains(this._element)) document.body.append(this._element);
+			this._element.style.display = "block";
+			this._element.removeAttribute("aria-hidden");
+			this._element.setAttribute("aria-modal", "true");
+			this._element.setAttribute("role", "dialog");
+			this._element.scrollTop = 0;
+			const modalBody = this._dialog ? SelectorEngine.findOne(SELECTOR_MODAL_BODY, this._dialog) : null;
+			if (modalBody) modalBody.scrollTop = 0;
+			reflow(this._element);
+			this._element.classList.add(CLASS_NAME_SHOW$4);
+			const transitionComplete = () => {
+				if (this._config.focus) this._focustrap.activate();
+				this._isTransitioning = false;
+				EventHandler.trigger(this._element, EVENT_SHOWN$4, { relatedTarget });
+			};
+			this._queueCallback(transitionComplete, this._dialog, this._isAnimated());
+		}
+		_addEventListeners() {
+			EventHandler.on(this._element, EVENT_KEYDOWN_DISMISS$1, (event) => {
+				if (event.key !== ESCAPE_KEY$1) return;
+				if (this._config.keyboard) {
+					this.hide();
+					return;
+				}
+				this._triggerBackdropTransition();
+			});
+			EventHandler.on(window, EVENT_RESIZE$1, () => {
+				if (this._isShown && !this._isTransitioning) this._adjustDialog();
+			});
+			EventHandler.on(this._element, EVENT_MOUSEDOWN_DISMISS, (event) => {
+				EventHandler.one(this._element, EVENT_CLICK_DISMISS, (event2) => {
+					if (this._element !== event.target || this._element !== event2.target) return;
+					if (this._config.backdrop === "static") {
+						this._triggerBackdropTransition();
+						return;
+					}
+					if (this._config.backdrop) this.hide();
+				});
+			});
+		}
+		_hideModal() {
+			this._element.style.display = "none";
+			this._element.setAttribute("aria-hidden", "true");
+			this._element.removeAttribute("aria-modal");
+			this._element.removeAttribute("role");
+			this._isTransitioning = false;
+			this._backdrop.hide(() => {
+				document.body.classList.remove(CLASS_NAME_OPEN);
+				this._resetAdjustments();
+				this._scrollBar.reset();
+				EventHandler.trigger(this._element, EVENT_HIDDEN$4);
+			});
+		}
+		_isAnimated() {
+			return this._element.classList.contains(CLASS_NAME_FADE$3);
+		}
+		_triggerBackdropTransition() {
+			const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE_PREVENTED$1);
+			if (hideEvent === null || hideEvent === void 0 ? void 0 : hideEvent.defaultPrevented) return;
+			const isModalOverflowing = this._element.scrollHeight > document.documentElement.clientHeight;
+			const initialOverflowY = this._element.style.overflowY;
+			if (initialOverflowY === "hidden" || this._element.classList.contains(CLASS_NAME_STATIC)) return;
+			if (!isModalOverflowing) this._element.style.overflowY = "hidden";
+			this._element.classList.add(CLASS_NAME_STATIC);
+			this._queueCallback(() => {
+				this._element.classList.remove(CLASS_NAME_STATIC);
+				this._queueCallback(() => {
+					this._element.style.overflowY = initialOverflowY;
+				}, this._dialog);
+			}, this._dialog);
+			this._element.focus();
+		}
+		_adjustDialog() {
+			const isModalOverflowing = this._element.scrollHeight > document.documentElement.clientHeight;
+			const scrollbarWidth = this._scrollBar.getWidth();
+			const isBodyOverflowing = scrollbarWidth > 0;
+			if (isBodyOverflowing && !isModalOverflowing) {
+				const property = isRTL() ? "paddingLeft" : "paddingRight";
+				this._element.style[property] = `${scrollbarWidth}px`;
+			}
+			if (!isBodyOverflowing && isModalOverflowing) {
+				const property = isRTL() ? "paddingRight" : "paddingLeft";
+				this._element.style[property] = `${scrollbarWidth}px`;
+			}
+		}
+		_resetAdjustments() {
+			this._element.style.paddingLeft = "";
+			this._element.style.paddingRight = "";
+		}
+		static jQueryInterface(config, relatedTarget) {
+			return this.each(function() {
+				const data = Modal.getOrCreateInstance(this, config);
+				if (typeof config !== "string") return;
+				if (typeof data[config] === "undefined") throw new TypeError(`No method named "${config}"`);
+				data[config](relatedTarget);
+			});
+		}
+	};
+	/**
+	* Data API implementation
+	*/
+	EventHandler.on(document, EVENT_CLICK_DATA_API$2, SELECTOR_DATA_TOGGLE$5, function(event) {
+		const target = SelectorEngine.getElementFromSelector(this);
+		if (["A", "AREA"].includes(this.tagName)) event.preventDefault();
+		if (!target) return;
+		EventHandler.one(target, EVENT_SHOW$4, (showEvent) => {
+			if (showEvent === null || showEvent === void 0 ? void 0 : showEvent.defaultPrevented) return;
+			EventHandler.one(target, EVENT_HIDDEN$4, () => {
+				if (isVisible(this)) this.focus();
+			});
+		});
+		const alreadyOpen = SelectorEngine.findOne(OPEN_SELECTOR$1);
+		if (alreadyOpen) Modal.getInstance(alreadyOpen).hide();
+		Modal.getOrCreateInstance(target).toggle(this);
+	});
+	enableDismissTrigger(Modal);
+	defineJQueryPlugin(Modal);
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap offcanvas.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$11 = "offcanvas";
+	var EVENT_KEY$6 = `.bs.offcanvas`;
+	var DATA_API_KEY$1 = ".data-api";
+	var EVENT_LOAD_DATA_API$2 = `load${EVENT_KEY$6}${DATA_API_KEY$1}`;
+	var ESCAPE_KEY = "Escape";
+	var CLASS_NAME_SHOW$3 = "show";
+	var CLASS_NAME_SHOWING$1 = "showing";
+	var CLASS_NAME_HIDING = "hiding";
+	var CLASS_NAME_BACKDROP = "offcanvas-backdrop";
+	var OPEN_SELECTOR = ".offcanvas.show";
+	var EVENT_SHOW$3 = `show${EVENT_KEY$6}`;
+	var EVENT_SHOWN$3 = `shown${EVENT_KEY$6}`;
+	var EVENT_HIDE$3 = `hide${EVENT_KEY$6}`;
+	var EVENT_HIDE_PREVENTED = `hidePrevented${EVENT_KEY$6}`;
+	var EVENT_HIDDEN$3 = `hidden${EVENT_KEY$6}`;
+	var EVENT_RESIZE = `resize${EVENT_KEY$6}`;
+	var EVENT_CLICK_DATA_API$1 = `click${EVENT_KEY$6}${DATA_API_KEY$1}`;
+	var EVENT_KEYDOWN_DISMISS = `keydown.dismiss${EVENT_KEY$6}`;
+	var SELECTOR_DATA_TOGGLE$4 = "[data-bs-toggle=\"offcanvas\"], [data-tblr-toggle=\"offcanvas\"]";
+	var Default$10 = {
+		backdrop: true,
+		keyboard: true,
+		scroll: false
+	};
+	var DefaultType$10 = {
+		backdrop: "(boolean|string)",
+		keyboard: "boolean",
+		scroll: "boolean"
+	};
+	/**
+	* Class definition
+	*/
+	var Offcanvas = class Offcanvas extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._isShown = false;
+			this._backdrop = this._initializeBackDrop();
+			this._focustrap = this._initializeFocusTrap();
+			this._addEventListeners();
+		}
+		static get Default() {
+			return Default$10;
+		}
+		static get DefaultType() {
+			return DefaultType$10;
+		}
+		static get NAME() {
+			return NAME$11;
+		}
+		toggle(relatedTarget) {
+			return this._isShown ? this.hide() : this.show(relatedTarget);
+		}
+		show(relatedTarget) {
+			if (this._isShown) return;
+			const showEvent = EventHandler.trigger(this._element, EVENT_SHOW$3, { relatedTarget });
+			if (showEvent === null || showEvent === void 0 ? void 0 : showEvent.defaultPrevented) return;
+			this._isShown = true;
+			this._backdrop.show();
+			if (!this._config.scroll) new ScrollBarHelper().hide();
+			this._element.setAttribute("aria-modal", "true");
+			this._element.setAttribute("role", "dialog");
+			this._element.classList.add(CLASS_NAME_SHOWING$1);
+			const completeCallBack = () => {
+				if (!this._config.scroll || this._config.backdrop) this._focustrap.activate();
+				this._element.classList.add(CLASS_NAME_SHOW$3);
+				this._element.classList.remove(CLASS_NAME_SHOWING$1);
+				EventHandler.trigger(this._element, EVENT_SHOWN$3, { relatedTarget });
+			};
+			this._queueCallback(completeCallBack, this._element, true);
+		}
+		hide() {
+			if (!this._isShown) return;
+			const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE$3);
+			if (hideEvent === null || hideEvent === void 0 ? void 0 : hideEvent.defaultPrevented) return;
+			this._focustrap.deactivate();
+			this._element.blur();
+			this._isShown = false;
+			this._element.classList.add(CLASS_NAME_HIDING);
+			this._backdrop.hide();
+			const completeCallback = () => {
+				this._element.classList.remove(CLASS_NAME_SHOW$3, CLASS_NAME_HIDING);
+				this._element.removeAttribute("aria-modal");
+				this._element.removeAttribute("role");
+				if (!this._config.scroll) new ScrollBarHelper().reset();
+				EventHandler.trigger(this._element, EVENT_HIDDEN$3);
+			};
+			this._queueCallback(completeCallback, this._element, true);
+		}
+		dispose() {
+			this._backdrop.dispose();
+			this._focustrap.deactivate();
+			super.dispose();
+		}
+		_initializeBackDrop() {
+			const clickCallback = () => {
+				if (this._config.backdrop === "static") {
+					EventHandler.trigger(this._element, EVENT_HIDE_PREVENTED);
+					return;
+				}
+				this.hide();
+			};
+			const isBackdropVisible = Boolean(this._config.backdrop);
+			return new Backdrop({
+				className: CLASS_NAME_BACKDROP,
+				isVisible: isBackdropVisible,
+				isAnimated: true,
+				rootElement: this._element.parentNode,
+				clickCallback: isBackdropVisible ? clickCallback : null
+			});
+		}
+		_initializeFocusTrap() {
+			return new FocusTrap({ trapElement: this._element });
+		}
+		_addEventListeners() {
+			EventHandler.on(this._element, EVENT_KEYDOWN_DISMISS, (event) => {
+				if (event.key !== ESCAPE_KEY) return;
+				if (this._config.keyboard) {
+					this.hide();
+					return;
+				}
+				EventHandler.trigger(this._element, EVENT_HIDE_PREVENTED);
+			});
+		}
+		static jQueryInterface(config) {
+			return this.each(function() {
+				const data = Offcanvas.getOrCreateInstance(this, config);
+				if (typeof config !== "string") return;
+				if (data[config] === void 0 || config.startsWith("_") || config === "constructor") throw new TypeError(`No method named "${config}"`);
+				data[config](this);
+			});
+		}
+	};
+	/**
+	* Data API implementation
+	*/
+	EventHandler.on(document, EVENT_CLICK_DATA_API$1, SELECTOR_DATA_TOGGLE$4, function(event) {
+		const target = SelectorEngine.getElementFromSelector(this);
+		if (["A", "AREA"].includes(this.tagName)) event.preventDefault();
+		if (!target) return;
+		if (isDisabled(this)) return;
+		EventHandler.one(target, EVENT_HIDDEN$3, () => {
+			if (isVisible(this)) this.focus();
+		});
+		const alreadyOpen = SelectorEngine.findOne(OPEN_SELECTOR);
+		if (alreadyOpen && alreadyOpen !== target) Offcanvas.getInstance(alreadyOpen).hide();
+		Offcanvas.getOrCreateInstance(target).toggle(this);
+	});
+	EventHandler.on(window, EVENT_LOAD_DATA_API$2, () => {
+		for (const selector of SelectorEngine.find(OPEN_SELECTOR)) Offcanvas.getOrCreateInstance(selector).show();
+	});
+	EventHandler.on(window, EVENT_RESIZE, () => {
+		for (const element of SelectorEngine.find("[aria-modal][class*=show][class*=offcanvas-]")) if (getComputedStyle(element).position !== "fixed") Offcanvas.getOrCreateInstance(element).hide();
+	});
+	enableDismissTrigger(Offcanvas);
+	defineJQueryPlugin(Offcanvas);
+	var DefaultAllowlist = {
+		"*": [
+			"class",
+			"dir",
+			"id",
+			"lang",
+			"role",
+			/^aria-[\w-]*$/i
+		],
+		"a": [
+			"target",
+			"href",
+			"title",
+			"rel"
+		],
+		"area": [],
+		"b": [],
+		"br": [],
+		"col": [],
+		"code": [],
+		"dd": [],
+		"div": [],
+		"dl": [],
+		"dt": [],
+		"em": [],
+		"hr": [],
+		"h1": [],
+		"h2": [],
+		"h3": [],
+		"h4": [],
+		"h5": [],
+		"h6": [],
+		"i": [],
+		"img": [
+			"src",
+			"srcset",
+			"alt",
+			"title",
+			"width",
+			"height"
+		],
+		"li": [],
+		"ol": [],
+		"p": [],
+		"pre": [],
+		"s": [],
+		"small": [],
+		"span": [],
+		"sub": [],
+		"sup": [],
+		"strong": [],
+		"u": [],
+		"ul": []
+	};
+	var uriAttributes = /* @__PURE__ */ new Set([
+		"background",
+		"cite",
+		"href",
+		"itemtype",
+		"longdesc",
+		"poster",
+		"src",
+		"xlink:href"
+	]);
+	var SAFE_URL_PATTERN = /^(?!javascript:)(?:[a-z0-9+.-]+:|[^&:/?#]*(?:[/?#]|$))/i;
+	var allowedAttribute = (attribute, allowedAttributeList) => {
+		const attributeName = attribute.nodeName.toLowerCase();
+		if (allowedAttributeList.includes(attributeName)) {
+			if (uriAttributes.has(attributeName)) return Boolean(SAFE_URL_PATTERN.test(attribute.nodeValue));
+			return true;
+		}
+		return allowedAttributeList.filter((attributeRegex) => attributeRegex instanceof RegExp).some((regex) => regex.test(attributeName));
+	};
+	function sanitizeHtml(unsafeHtml, allowList, sanitizeFunction) {
+		if (!unsafeHtml.length) return unsafeHtml;
+		if (sanitizeFunction && typeof sanitizeFunction === "function") return sanitizeFunction(unsafeHtml);
+		const createdDocument = new window.DOMParser().parseFromString(unsafeHtml, "text/html");
+		const elements = Array.from(createdDocument.body.querySelectorAll("*"));
+		for (const element of elements) {
+			const elementName = element.nodeName.toLowerCase();
+			if (!Object.keys(allowList).includes(elementName)) {
+				element.remove();
+				continue;
+			}
+			const attributeList = Array.from(element.attributes);
+			const allowedAttributes = [...allowList["*"] || [], ...allowList[elementName] || []];
+			for (const attribute of attributeList) if (!allowedAttribute(attribute, allowedAttributes)) element.removeAttribute(attribute.nodeName);
+		}
+		return createdDocument.body.innerHTML;
+	}
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap util/template-factory.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var NAME$10 = "TemplateFactory";
+	var Default$9 = {
+		allowList: DefaultAllowlist,
+		content: {},
+		extraClass: "",
+		html: false,
+		sanitize: true,
+		sanitizeFn: null,
+		template: "<div></div>"
+	};
+	var DefaultType$9 = {
+		allowList: "object",
+		content: "object",
+		extraClass: "(string|function)",
+		html: "boolean",
+		sanitize: "boolean",
+		sanitizeFn: "(null|function)",
+		template: "string"
+	};
+	var DefaultContentType = {
+		entry: "(string|element|function|null)",
+		selector: "(string|element)"
+	};
+	var TemplateFactory = class extends Config {
+		constructor(config) {
+			super();
+			this._config = this._getConfig(config);
+		}
+		static get Default() {
+			return Default$9;
+		}
+		static get DefaultType() {
+			return DefaultType$9;
+		}
+		static get NAME() {
+			return NAME$10;
+		}
+		getContent() {
+			return Object.values(this._config.content).map((config) => this._resolvePossibleFunction(config)).filter(Boolean);
+		}
+		hasContent() {
+			return this.getContent().length > 0;
+		}
+		changeContent(content) {
+			this._checkContent(content);
+			this._config.content = _objectSpread2(_objectSpread2({}, this._config.content), content);
+			return this;
+		}
+		toHtml() {
+			const templateWrapper = document.createElement("div");
+			templateWrapper.innerHTML = this._maybeSanitize(this._config.template);
+			for (const [selector, text] of Object.entries(this._config.content)) this._setContent(templateWrapper, text, selector);
+			const template = templateWrapper.children[0];
+			const extraClass = this._resolvePossibleFunction(this._config.extraClass);
+			if (extraClass) template.classList.add(...extraClass.split(" "));
+			return template;
+		}
+		_typeCheckConfig(config) {
+			super._typeCheckConfig(config);
+			this._checkContent(config.content);
+		}
+		_checkContent(arg) {
+			for (const [selector, content] of Object.entries(arg)) super._typeCheckConfig({
+				selector,
+				entry: content
+			}, DefaultContentType);
+		}
+		_setContent(template, content, selector) {
+			const templateElement = SelectorEngine.findOne(selector, template);
+			if (!templateElement) return;
+			content = this._resolvePossibleFunction(content);
+			if (!content) {
+				templateElement.remove();
+				return;
+			}
+			if (isElement$1(content)) {
+				this._putElementInTemplate(getElement(content), templateElement);
+				return;
+			}
+			if (this._config.html) {
+				templateElement.innerHTML = this._maybeSanitize(content);
+				return;
+			}
+			templateElement.textContent = content;
+		}
+		_maybeSanitize(arg) {
+			return this._config.sanitize ? sanitizeHtml(arg, this._config.allowList, this._config.sanitizeFn) : arg;
+		}
+		_resolvePossibleFunction(arg) {
+			return execute(arg, [void 0, this]);
+		}
+		_putElementInTemplate(element, templateElement) {
+			if (this._config.html) {
+				templateElement.innerHTML = "";
+				templateElement.append(element);
+				return;
+			}
+			templateElement.textContent = element.textContent;
+		}
+	};
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap tooltip.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$9 = "tooltip";
+	var DISALLOWED_ATTRIBUTES = /* @__PURE__ */ new Set([
+		"sanitize",
+		"allowList",
+		"sanitizeFn"
+	]);
+	var CLASS_NAME_FADE$2 = "fade";
+	var CLASS_NAME_MODAL = "modal";
+	var CLASS_NAME_SHOW$2 = "show";
+	var SELECTOR_TOOLTIP_INNER = ".tooltip-inner";
+	var SELECTOR_MODAL = `.${CLASS_NAME_MODAL}`;
+	var EVENT_MODAL_HIDE = "hide.bs.modal";
+	var TRIGGER_HOVER = "hover";
+	var TRIGGER_FOCUS = "focus";
+	var TRIGGER_CLICK = "click";
+	var TRIGGER_MANUAL = "manual";
+	var EVENT_HIDE$2 = "hide";
+	var EVENT_HIDDEN$2 = "hidden";
+	var EVENT_SHOW$2 = "show";
+	var EVENT_SHOWN$2 = "shown";
+	var EVENT_INSERTED = "inserted";
+	var EVENT_CLICK$2 = "click";
+	var EVENT_FOCUSIN$1 = "focusin";
+	var EVENT_FOCUSOUT$1 = "focusout";
+	var EVENT_MOUSEENTER = "mouseenter";
+	var EVENT_MOUSELEAVE = "mouseleave";
+	var AttachmentMap = {
+		AUTO: "auto",
+		TOP: "top",
+		RIGHT: isRTL() ? "left" : "right",
+		BOTTOM: "bottom",
+		LEFT: isRTL() ? "right" : "left"
+	};
+	var Default$8 = {
+		allowList: DefaultAllowlist,
+		animation: true,
+		boundary: "clippingParents",
+		container: false,
+		customClass: "",
+		delay: 0,
+		fallbackPlacements: [
+			"top",
+			"right",
+			"bottom",
+			"left"
+		],
+		html: false,
+		offset: [0, 6],
+		placement: "top",
+		popperConfig: null,
+		sanitize: true,
+		sanitizeFn: null,
+		selector: false,
+		template: "<div class=\"tooltip\" role=\"tooltip\"><div class=\"tooltip-arrow\"></div><div class=\"tooltip-inner\"></div></div>",
+		title: "",
+		trigger: "hover focus"
+	};
+	var DefaultType$8 = {
+		allowList: "object",
+		animation: "boolean",
+		boundary: "(string|element)",
+		container: "(string|element|boolean)",
+		customClass: "(string|function)",
+		delay: "(number|object)",
+		fallbackPlacements: "array",
+		html: "boolean",
+		offset: "(array|string|function)",
+		placement: "(string|function)",
+		popperConfig: "(null|object|function)",
+		sanitize: "boolean",
+		sanitizeFn: "(null|function)",
+		selector: "(string|boolean)",
+		template: "string",
+		title: "(string|element|function)",
+		trigger: "string"
+	};
+	/**
+	* Class definition
+	*/
+	var Tooltip = class Tooltip extends BaseComponent {
+		constructor(element, config) {
+			if (typeof lib_exports === "undefined") throw new TypeError("Bootstrap's tooltips require Popper (https://popper.js.org/docs/v2/)");
+			super(element, config);
+			this._isEnabled = true;
+			this._timeout = 0;
+			this._isHovered = null;
+			this._activeTrigger = {};
+			this._popper = null;
+			this._templateFactory = null;
+			this._newContent = null;
+			this.tip = null;
+			this._hideModalHandler = () => {
+				if (this._element) this.hide();
+			};
+			this._setListeners();
+			if (!this._config.selector) this._fixTitle();
+		}
+		static get Default() {
+			return Default$8;
+		}
+		static get DefaultType() {
+			return DefaultType$8;
+		}
+		static get NAME() {
+			return NAME$9;
+		}
+		enable() {
+			this._isEnabled = true;
+		}
+		disable() {
+			this._isEnabled = false;
+		}
+		toggleEnabled() {
+			this._isEnabled = !this._isEnabled;
+		}
+		toggle() {
+			if (!this._isEnabled) return;
+			if (this._isShown()) {
+				this._leave();
+				return;
+			}
+			this._enter();
+		}
+		dispose() {
+			clearTimeout(this._timeout);
+			EventHandler.off(this._element.closest(SELECTOR_MODAL), EVENT_MODAL_HIDE, this._hideModalHandler);
+			if (this._element.getAttribute("data-bs-original-title") || this._element.getAttribute("data-tblr-original-title")) this._element.setAttribute("title", this._element.getAttribute("data-bs-original-title") || this._element.getAttribute("data-tblr-original-title") || "");
+			this._disposePopper();
+			super.dispose();
+		}
+		show() {
+			if (this._element.style.display === "none") throw new Error("Please use show on visible elements");
+			if (!(this._isWithContent() && this._isEnabled)) return;
+			const showEvent = EventHandler.trigger(this._element, this.constructor.eventName(EVENT_SHOW$2));
+			const isInTheDom = (findShadowRoot(this._element) || this._element.ownerDocument.documentElement).contains(this._element);
+			if ((showEvent === null || showEvent === void 0 ? void 0 : showEvent.defaultPrevented) || !isInTheDom) return;
+			this._disposePopper();
+			const tip = this._getTipElement();
+			this._element.setAttribute("aria-describedby", tip.getAttribute("id"));
+			const { container } = this._config;
+			if (!this._element.ownerDocument.documentElement.contains(this.tip)) {
+				container.append(tip);
+				EventHandler.trigger(this._element, this.constructor.eventName(EVENT_INSERTED));
+			}
+			this._popper = this._createPopper(tip);
+			tip.classList.add(CLASS_NAME_SHOW$2);
+			if ("ontouchstart" in document.documentElement) for (const element of Array.from(document.body.children)) EventHandler.on(element, "mouseover", noop);
+			const complete = () => {
+				EventHandler.trigger(this._element, this.constructor.eventName(EVENT_SHOWN$2));
+				if (this._isHovered === false) this._leave();
+				this._isHovered = false;
+			};
+			this._queueCallback(complete, this.tip, this._isAnimated());
+		}
+		hide() {
+			if (!this._isShown()) return;
+			const hideEvent = EventHandler.trigger(this._element, this.constructor.eventName(EVENT_HIDE$2));
+			if (hideEvent === null || hideEvent === void 0 ? void 0 : hideEvent.defaultPrevented) return;
+			this._getTipElement().classList.remove(CLASS_NAME_SHOW$2);
+			if ("ontouchstart" in document.documentElement) for (const element of Array.from(document.body.children)) EventHandler.off(element, "mouseover", noop);
+			this._activeTrigger[TRIGGER_CLICK] = false;
+			this._activeTrigger[TRIGGER_FOCUS] = false;
+			this._activeTrigger[TRIGGER_HOVER] = false;
+			this._isHovered = null;
+			const complete = () => {
+				if (this._isWithActiveTrigger()) return;
+				if (!this._isHovered) this._disposePopper();
+				this._element.removeAttribute("aria-describedby");
+				EventHandler.trigger(this._element, this.constructor.eventName(EVENT_HIDDEN$2));
+			};
+			this._queueCallback(complete, this.tip, this._isAnimated());
+		}
+		update() {
+			if (this._popper) this._popper.update();
+		}
+		_isWithContent() {
+			return Boolean(this._getTitle());
+		}
+		_getTipElement() {
+			if (!this.tip) this.tip = this._createTipElement(this._newContent || this._getContentForTemplate());
+			return this.tip;
+		}
+		_createTipElement(content) {
+			const tip = this._getTemplateFactory(content).toHtml();
+			if (!tip) return null;
+			tip.classList.remove(CLASS_NAME_FADE$2, CLASS_NAME_SHOW$2);
+			tip.classList.add(`bs-${this.constructor.NAME}-auto`);
+			const tipId = getUID(this.constructor.NAME).toString();
+			tip.setAttribute("id", tipId);
+			if (this._isAnimated()) tip.classList.add(CLASS_NAME_FADE$2);
+			return tip;
+		}
+		setContent(content) {
+			this._newContent = content;
+			if (this._isShown()) {
+				this._disposePopper();
+				this.show();
+			}
+		}
+		_getTemplateFactory(content) {
+			if (this._templateFactory) this._templateFactory.changeContent(content);
+			else this._templateFactory = new TemplateFactory(_objectSpread2(_objectSpread2({}, this._config), {}, {
+				content,
+				extraClass: this._resolvePossibleFunction(this._config.customClass)
+			}));
+			return this._templateFactory;
+		}
+		_getContentForTemplate() {
+			return { [SELECTOR_TOOLTIP_INNER]: this._getTitle() };
+		}
+		_getTitle() {
+			return this._resolvePossibleFunction(this._config.title) || this._element.getAttribute("data-bs-original-title") || this._element.getAttribute("data-tblr-original-title") || "";
+		}
+		_initializeOnDelegatedTarget(event) {
+			return this.constructor.getOrCreateInstance(event.delegateTarget, this._getDelegateConfig());
+		}
+		_isAnimated() {
+			return this._config.animation || this.tip !== null && this.tip.classList.contains(CLASS_NAME_FADE$2);
+		}
+		_isShown() {
+			return this.tip !== null && this.tip.classList.contains(CLASS_NAME_SHOW$2);
+		}
+		_createPopper(tip) {
+			const attachment = AttachmentMap[execute(this._config.placement, [
+				this,
+				tip,
+				this._element
+			]).toUpperCase()];
+			return createPopper(this._element, tip, this._getPopperConfig(attachment));
+		}
+		_getOffset() {
+			const { offset } = this._config;
+			if (typeof offset === "string") return offset.split(",").map((value) => Number.parseInt(value, 10));
+			if (typeof offset === "function") return (popperData) => offset(popperData, this._element);
+			return offset;
+		}
+		_resolvePossibleFunction(arg) {
+			return execute(arg, [this._element, this._element]);
+		}
+		_getPopperConfig(attachment) {
+			const defaultBsPopperConfig = {
+				placement: attachment,
+				modifiers: [
+					{
+						name: "flip",
+						options: { fallbackPlacements: this._config.fallbackPlacements }
+					},
+					{
+						name: "offset",
+						options: { offset: this._getOffset() }
+					},
+					{
+						name: "preventOverflow",
+						options: { boundary: this._config.boundary }
+					},
+					{
+						name: "arrow",
+						options: { element: `.${this.constructor.NAME}-arrow` }
+					},
+					{
+						name: "preSetPlacement",
+						enabled: true,
+						phase: "beforeMain",
+						fn: (data) => {
+							this._getTipElement().setAttribute("data-popper-placement", data.state.placement);
+						}
+					}
+				]
+			};
+			const popperConfig = execute(this._config.popperConfig, [void 0, defaultBsPopperConfig]);
+			return _objectSpread2(_objectSpread2({}, defaultBsPopperConfig), typeof popperConfig === "object" && popperConfig !== null ? popperConfig : {});
+		}
+		_setListeners() {
+			const triggers = this._config.trigger.split(" ");
+			for (const trigger of triggers) if (trigger === "click") EventHandler.on(this._element, this.constructor.eventName(EVENT_CLICK$2), this._config.selector, (event) => {
+				const context = this._initializeOnDelegatedTarget(event);
+				context._activeTrigger[TRIGGER_CLICK] = !(context._isShown() && context._activeTrigger[TRIGGER_CLICK]);
+				context.toggle();
+			});
+			else if (trigger !== TRIGGER_MANUAL) {
+				const eventIn = trigger === TRIGGER_HOVER ? this.constructor.eventName(EVENT_MOUSEENTER) : this.constructor.eventName(EVENT_FOCUSIN$1);
+				const eventOut = trigger === TRIGGER_HOVER ? this.constructor.eventName(EVENT_MOUSELEAVE) : this.constructor.eventName(EVENT_FOCUSOUT$1);
+				EventHandler.on(this._element, eventIn, this._config.selector, (event) => {
+					const context = this._initializeOnDelegatedTarget(event);
+					context._activeTrigger[event.type === "focusin" ? TRIGGER_FOCUS : TRIGGER_HOVER] = true;
+					context._enter();
+				});
+				EventHandler.on(this._element, eventOut, this._config.selector, (event) => {
+					const context = this._initializeOnDelegatedTarget(event);
+					context._activeTrigger[event.type === "focusout" ? TRIGGER_FOCUS : TRIGGER_HOVER] = context._element.contains(event.relatedTarget);
+					context._leave();
+				});
+			}
+			EventHandler.on(this._element.closest(SELECTOR_MODAL), EVENT_MODAL_HIDE, this._hideModalHandler);
+		}
+		_fixTitle() {
+			const title = this._element.getAttribute("title");
+			if (!title) return;
+			if (!this._element.getAttribute("aria-label") && !this._element.textContent.trim()) this._element.setAttribute("aria-label", title);
+			this._element.setAttribute("data-bs-original-title", title);
+			this._element.removeAttribute("title");
+		}
+		_enter() {
+			if (this._isShown() || this._isHovered) {
+				this._isHovered = true;
+				return;
+			}
+			this._isHovered = true;
+			this._setTimeout(() => {
+				if (this._isHovered) this.show();
+			}, this._getDelay().show);
+		}
+		_leave() {
+			if (this._isWithActiveTrigger()) return;
+			this._isHovered = false;
+			this._setTimeout(() => {
+				if (!this._isHovered) this.hide();
+			}, this._getDelay().hide);
+		}
+		_getDelay() {
+			const { delay } = this._config;
+			return typeof delay === "number" ? {
+				show: delay,
+				hide: delay
+			} : delay;
+		}
+		_setTimeout(handler, timeout) {
+			clearTimeout(this._timeout);
+			this._timeout = setTimeout(handler, timeout);
+		}
+		_isWithActiveTrigger() {
+			return Object.values(this._activeTrigger).includes(true);
+		}
+		_getConfig(config) {
+			const dataAttributes = Manipulator.getDataAttributes(this._element);
+			for (const dataAttribute of Object.keys(dataAttributes)) if (DISALLOWED_ATTRIBUTES.has(dataAttribute)) delete dataAttributes[dataAttribute];
+			let merged = _objectSpread2(_objectSpread2({}, dataAttributes), typeof config === "object" && config ? config : {});
+			merged = this._mergeConfigObj(merged);
+			merged = this._configAfterMerge(merged);
+			this._typeCheckConfig(merged);
+			return merged;
+		}
+		_configAfterMerge(config) {
+			config.container = config.container === false ? document.body : getElement(config.container);
+			if (typeof config.delay === "number") config.delay = {
+				show: config.delay,
+				hide: config.delay
+			};
+			const raw = config;
+			if (typeof raw.title === "number") raw.title = raw.title.toString();
+			if (typeof raw.content === "number") raw.content = raw.content.toString();
+			return config;
+		}
+		_getDelegateConfig() {
+			const config = {};
+			const defaults = this.constructor.Default;
+			for (const [key, value] of Object.entries(this._config)) if (defaults[key] !== value) config[key] = value;
+			config.selector = false;
+			config.trigger = "manual";
+			return config;
+		}
+		_disposePopper() {
+			if (this._popper) {
+				this._popper.destroy();
+				this._popper = null;
+			}
+			if (this.tip) {
+				this.tip.remove();
+				this.tip = null;
+			}
+		}
+		static jQueryInterface(config) {
+			return this.each(function() {
+				const data = Tooltip.getOrCreateInstance(this, config);
+				if (typeof config !== "string") return;
+				if (typeof data[config] === "undefined") throw new TypeError(`No method named "${config}"`);
+				data[config]();
+			});
+		}
+	};
+	defineJQueryPlugin(Tooltip);
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap popover.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$8 = "popover";
+	var SELECTOR_TITLE = ".popover-header";
+	var SELECTOR_CONTENT = ".popover-body";
+	var Default$7 = _objectSpread2(_objectSpread2({}, Tooltip.Default), {}, {
+		content: "",
+		offset: [0, 8],
+		placement: "right",
+		template: "<div class=\"popover\" role=\"tooltip\"><div class=\"popover-arrow\"></div><h3 class=\"popover-header\"></h3><div class=\"popover-body\"></div></div>",
+		trigger: "click"
+	});
+	var DefaultType$7 = _objectSpread2(_objectSpread2({}, Tooltip.DefaultType), {}, { content: "(null|string|element|function)" });
+	/**
+	* Class definition
+	*/
+	var Popover = class Popover extends Tooltip {
+		constructor(element, config) {
+			super(element, config);
+		}
+		static get Default() {
+			return Default$7;
+		}
+		static get DefaultType() {
+			return DefaultType$7;
+		}
+		static get NAME() {
+			return NAME$8;
+		}
+		_isWithContent() {
+			return Boolean(this._getTitle() || this._getContent());
+		}
+		_getContentForTemplate() {
+			return {
+				[SELECTOR_TITLE]: this._getTitle(),
+				[SELECTOR_CONTENT]: this._getContent()
+			};
+		}
+		_getContent() {
+			return this._resolvePossibleFunction(this._config.content);
+		}
+		static jQueryInterface(config) {
+			return this.each(function() {
+				const data = Popover.getOrCreateInstance(this, config);
+				if (typeof config !== "string") return;
+				if (typeof data[config] === "undefined") throw new TypeError(`No method named "${config}"`);
+				data[config]();
+			});
+		}
+	};
+	defineJQueryPlugin(Popover);
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap scrollspy.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var NAME$7 = "scrollspy";
+	var EVENT_KEY$5 = `.bs.scrollspy`;
+	var DATA_API_KEY = ".data-api";
+	var EVENT_ACTIVATE = `activate${EVENT_KEY$5}`;
+	var EVENT_CLICK$1 = `click${EVENT_KEY$5}`;
+	var EVENT_LOAD_DATA_API$1 = `load${EVENT_KEY$5}${DATA_API_KEY}`;
+	var CLASS_NAME_DROPDOWN_ITEM = "dropdown-item";
+	var CLASS_NAME_ACTIVE$3 = "active";
+	var SELECTOR_DATA_SPY = "[data-bs-spy=\"scroll\"], [data-tblr-spy=\"scroll\"]";
+	var SELECTOR_TARGET_LINKS = "[href]";
+	var SELECTOR_NAV_LIST_GROUP = ".nav, .list-group";
+	var SELECTOR_NAV_LINKS = ".nav-link";
+	var SELECTOR_LINK_ITEMS = `${SELECTOR_NAV_LINKS}, .nav-item > ${SELECTOR_NAV_LINKS}, .list-group-item`;
+	var SELECTOR_DROPDOWN = ".dropdown";
+	var SELECTOR_DROPDOWN_TOGGLE$1 = ".dropdown-toggle";
+	var Default$6 = {
+		offset: null,
+		rootMargin: "0px 0px -25%",
+		smoothScroll: false,
+		target: null,
+		threshold: [
+			.1,
+			.5,
+			1
+		]
+	};
+	var DefaultType$6 = {
+		offset: "(number|null)",
+		rootMargin: "string",
+		smoothScroll: "boolean",
+		target: "element",
+		threshold: "array"
+	};
+	var ScrollSpy = class ScrollSpy extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._targetLinks = /* @__PURE__ */ new Map();
+			this._observableSections = /* @__PURE__ */ new Map();
+			this._rootElement = getComputedStyle(this._element).overflowY === "visible" ? null : this._element;
+			this._activeTarget = null;
+			this._observer = null;
+			this._previousScrollData = {
+				visibleEntryTop: 0,
+				parentScrollTop: 0
+			};
+			this.refresh();
+		}
+		static get Default() {
+			return Default$6;
+		}
+		static get DefaultType() {
+			return DefaultType$6;
+		}
+		static get NAME() {
+			return NAME$7;
+		}
+		refresh() {
+			this._initializeTargetsAndObservables();
+			this._maybeEnableSmoothScroll();
+			if (this._observer) this._observer.disconnect();
+			else this._observer = this._getNewObserver();
+			for (const section of this._observableSections.values()) this._observer.observe(section);
+		}
+		dispose() {
+			this._observer.disconnect();
+			super.dispose();
+		}
+		_configAfterMerge(config) {
+			config.target = getElement(config.target) || document.body;
+			config.rootMargin = config.offset ? `${config.offset}px 0px -30%` : config.rootMargin;
+			const threshold = config.threshold;
+			if (typeof threshold === "string") config.threshold = threshold.split(",").map((value) => Number.parseFloat(value));
+			return config;
+		}
+		_maybeEnableSmoothScroll() {
+			if (!this._config.smoothScroll) return;
+			EventHandler.off(this._config.target, EVENT_CLICK$1);
+			EventHandler.on(this._config.target, EVENT_CLICK$1, SELECTOR_TARGET_LINKS, (event) => {
+				const observableSection = this._observableSections.get(event.target.hash);
+				if (observableSection) {
+					event.preventDefault();
+					const root = this._rootElement || window;
+					const height = observableSection.offsetTop - this._element.offsetTop;
+					if ("scrollTo" in root) {
+						root.scrollTo({
+							top: height,
+							behavior: "smooth"
+						});
+						return;
+					}
+					root.scrollTop = height;
+				}
+			});
+		}
+		_getNewObserver() {
+			const options = {
+				root: this._rootElement,
+				threshold: this._config.threshold,
+				rootMargin: this._config.rootMargin
+			};
+			return new IntersectionObserver((entries) => this._observerCallback(entries), options);
+		}
+		_observerCallback(entries) {
+			const targetElement = (entry) => this._targetLinks.get(`#${entry.target.id}`);
+			const activate = (entry) => {
+				this._previousScrollData.visibleEntryTop = entry.target.offsetTop;
+				this._process(targetElement(entry));
+			};
+			const parentScrollTop = (this._rootElement || document.documentElement).scrollTop;
+			const userScrollsDown = parentScrollTop >= this._previousScrollData.parentScrollTop;
+			this._previousScrollData.parentScrollTop = parentScrollTop;
+			for (const entry of entries) {
+				if (!entry.isIntersecting) {
+					this._activeTarget = null;
+					this._clearActiveClass(targetElement(entry));
+					continue;
+				}
+				const entryIsLowerThanPrevious = entry.target.offsetTop >= this._previousScrollData.visibleEntryTop;
+				if (userScrollsDown && entryIsLowerThanPrevious) {
+					activate(entry);
+					if (!parentScrollTop) return;
+					continue;
+				}
+				if (!userScrollsDown && !entryIsLowerThanPrevious) activate(entry);
+			}
+		}
+		_initializeTargetsAndObservables() {
+			this._targetLinks = /* @__PURE__ */ new Map();
+			this._observableSections = /* @__PURE__ */ new Map();
+			const targetLinks = SelectorEngine.find(SELECTOR_TARGET_LINKS, this._config.target);
+			for (const anchor of targetLinks) {
+				if (!anchor.hash || isDisabled(anchor)) continue;
+				const observableSection = SelectorEngine.findOne(parseSelector(decodeURI(anchor.hash)), this._element);
+				if (isVisible(observableSection)) {
+					this._targetLinks.set(decodeURI(anchor.hash), anchor);
+					this._observableSections.set(anchor.hash, observableSection);
+				}
+			}
+		}
+		_process(target) {
+			if (this._activeTarget === target) return;
+			this._clearActiveClass(this._config.target);
+			this._activeTarget = target;
+			target.classList.add(CLASS_NAME_ACTIVE$3);
+			this._activateParents(target);
+			EventHandler.trigger(this._element, EVENT_ACTIVATE, { relatedTarget: target });
+		}
+		_activateParents(target) {
+			if (target.classList.contains(CLASS_NAME_DROPDOWN_ITEM)) {
+				SelectorEngine.findOne(SELECTOR_DROPDOWN_TOGGLE$1, target.closest(SELECTOR_DROPDOWN)).classList.add(CLASS_NAME_ACTIVE$3);
+				return;
+			}
+			for (const listGroup of SelectorEngine.parents(target, SELECTOR_NAV_LIST_GROUP)) for (const item of SelectorEngine.prev(listGroup, SELECTOR_LINK_ITEMS)) item.classList.add(CLASS_NAME_ACTIVE$3);
+		}
+		_clearActiveClass(parent) {
+			parent.classList.remove(CLASS_NAME_ACTIVE$3);
+			const activeNodes = SelectorEngine.find(`${SELECTOR_TARGET_LINKS}.${CLASS_NAME_ACTIVE$3}`, parent);
+			for (const node of activeNodes) node.classList.remove(CLASS_NAME_ACTIVE$3);
+		}
+		static jQueryInterface(config) {
+			return this.each(function() {
+				const data = ScrollSpy.getOrCreateInstance(this, config);
+				if (typeof config !== "string") return;
+				if (data[config] === void 0 || config.startsWith("_") || config === "constructor") throw new TypeError(`No method named "${config}"`);
+				data[config]();
+			});
+		}
+	};
+	EventHandler.on(window, EVENT_LOAD_DATA_API$1, () => {
+		for (const spy of SelectorEngine.find(SELECTOR_DATA_SPY)) ScrollSpy.getOrCreateInstance(spy);
+	});
+	defineJQueryPlugin(ScrollSpy);
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap tab.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var NAME$6 = "tab";
+	var EVENT_KEY$4 = `.bs.tab`;
+	var EVENT_HIDE$1 = `hide${EVENT_KEY$4}`;
+	var EVENT_HIDDEN$1 = `hidden${EVENT_KEY$4}`;
+	var EVENT_SHOW$1 = `show${EVENT_KEY$4}`;
+	var EVENT_SHOWN$1 = `shown${EVENT_KEY$4}`;
+	var EVENT_CLICK_DATA_API = `click${EVENT_KEY$4}`;
+	var EVENT_KEYDOWN = `keydown${EVENT_KEY$4}`;
+	var EVENT_LOAD_DATA_API = `load${EVENT_KEY$4}`;
+	var ARROW_LEFT_KEY = "ArrowLeft";
+	var ARROW_RIGHT_KEY = "ArrowRight";
+	var ARROW_UP_KEY = "ArrowUp";
+	var ARROW_DOWN_KEY = "ArrowDown";
+	var HOME_KEY = "Home";
+	var END_KEY = "End";
+	var CLASS_NAME_ACTIVE$2 = "active";
+	var CLASS_NAME_FADE$1 = "fade";
+	var CLASS_NAME_SHOW$1 = "show";
+	var CLASS_DROPDOWN = "dropdown";
+	var SELECTOR_DROPDOWN_TOGGLE = ".dropdown-toggle";
+	var SELECTOR_DROPDOWN_MENU = ".dropdown-menu";
+	var NOT_SELECTOR_DROPDOWN_TOGGLE = `:not(${SELECTOR_DROPDOWN_TOGGLE})`;
+	var SELECTOR_TAB_PANEL = ".list-group, .nav, [role=\"tablist\"]";
+	var SELECTOR_OUTER = ".nav-item, .list-group-item";
+	var SELECTOR_INNER = `.nav-link${NOT_SELECTOR_DROPDOWN_TOGGLE}, .list-group-item${NOT_SELECTOR_DROPDOWN_TOGGLE}, [role="tab"]${NOT_SELECTOR_DROPDOWN_TOGGLE}`;
+	var SELECTOR_DATA_TOGGLE$3 = "[data-bs-toggle=\"tab\"], [data-bs-toggle=\"pill\"], [data-bs-toggle=\"list\"], [data-tblr-toggle=\"tab\"], [data-tblr-toggle=\"pill\"], [data-tblr-toggle=\"list\"]";
+	var SELECTOR_INNER_ELEM = `${SELECTOR_INNER}, ${SELECTOR_DATA_TOGGLE$3}`;
+	var SELECTOR_DATA_TOGGLE_ACTIVE = `.${CLASS_NAME_ACTIVE$2}[data-bs-toggle="tab"], .${CLASS_NAME_ACTIVE$2}[data-bs-toggle="pill"], .${CLASS_NAME_ACTIVE$2}[data-bs-toggle="list"], .${CLASS_NAME_ACTIVE$2}[data-tblr-toggle="tab"], .${CLASS_NAME_ACTIVE$2}[data-tblr-toggle="pill"], .${CLASS_NAME_ACTIVE$2}[data-tblr-toggle="list"]`;
+	var Tab = class Tab extends BaseComponent {
+		constructor(element) {
+			super(element);
+			this._parent = this._element.closest(SELECTOR_TAB_PANEL);
+			if (!this._parent) return;
+			this._setInitialAttributes(this._parent, this._getChildren());
+			EventHandler.on(this._element, EVENT_KEYDOWN, (event) => this._keydown(event));
+		}
+		static get NAME() {
+			return NAME$6;
+		}
+		show() {
+			const innerElem = this._element;
+			if (this._elemIsActive(innerElem)) return;
+			const active = this._getActiveElem();
+			const hideEvent = active ? EventHandler.trigger(active, EVENT_HIDE$1, { relatedTarget: innerElem }) : null;
+			const showEvent = EventHandler.trigger(innerElem, EVENT_SHOW$1, { relatedTarget: active });
+			if ((showEvent === null || showEvent === void 0 ? void 0 : showEvent.defaultPrevented) || (hideEvent === null || hideEvent === void 0 ? void 0 : hideEvent.defaultPrevented)) return;
+			this._deactivate(active, innerElem);
+			this._activate(innerElem, active);
+		}
+		_activate(element, relatedElem) {
+			if (!element) return;
+			element.classList.add(CLASS_NAME_ACTIVE$2);
+			this._activate(SelectorEngine.getElementFromSelector(element));
+			const complete = () => {
+				if (element.getAttribute("role") !== "tab") {
+					element.classList.add(CLASS_NAME_SHOW$1);
+					return;
+				}
+				element.removeAttribute("tabindex");
+				element.setAttribute("aria-selected", "true");
+				this._toggleDropDown(element, true);
+				EventHandler.trigger(element, EVENT_SHOWN$1, { relatedTarget: relatedElem });
+			};
+			this._queueCallback(complete, element, element.classList.contains(CLASS_NAME_FADE$1));
+		}
+		_deactivate(element, relatedElem) {
+			if (!element) return;
+			element.classList.remove(CLASS_NAME_ACTIVE$2);
+			element.blur();
+			this._deactivate(SelectorEngine.getElementFromSelector(element));
+			const complete = () => {
+				if (element.getAttribute("role") !== "tab") {
+					element.classList.remove(CLASS_NAME_SHOW$1);
+					return;
+				}
+				element.setAttribute("aria-selected", "false");
+				element.setAttribute("tabindex", "-1");
+				this._toggleDropDown(element, false);
+				EventHandler.trigger(element, EVENT_HIDDEN$1, { relatedTarget: relatedElem });
+			};
+			this._queueCallback(complete, element, element.classList.contains(CLASS_NAME_FADE$1));
+		}
+		_keydown(event) {
+			if (![
+				ARROW_LEFT_KEY,
+				ARROW_RIGHT_KEY,
+				ARROW_UP_KEY,
+				ARROW_DOWN_KEY,
+				HOME_KEY,
+				END_KEY
+			].includes(event.key)) return;
+			event.stopPropagation();
+			event.preventDefault();
+			const children = this._getChildren().filter((element) => !isDisabled(element));
+			let nextActiveElement;
+			if ([HOME_KEY, END_KEY].includes(event.key)) nextActiveElement = children[event.key === HOME_KEY ? 0 : children.length - 1];
+			else {
+				const isNext = [ARROW_RIGHT_KEY, ARROW_DOWN_KEY].includes(event.key);
+				nextActiveElement = getNextActiveElement(children, event.target, isNext, true);
+			}
+			if (nextActiveElement) {
+				nextActiveElement.focus({ preventScroll: true });
+				Tab.getOrCreateInstance(nextActiveElement).show();
+			}
+		}
+		_getChildren() {
+			return SelectorEngine.find(SELECTOR_INNER_ELEM, this._parent);
+		}
+		_getActiveElem() {
+			return this._getChildren().find((child) => this._elemIsActive(child)) || null;
+		}
+		_setInitialAttributes(parent, children) {
+			this._setAttributeIfNotExists(parent, "role", "tablist");
+			for (const child of children) this._setInitialAttributesOnChild(child);
+		}
+		_setInitialAttributesOnChild(child) {
+			child = this._getInnerElement(child);
+			const isActive = this._elemIsActive(child);
+			const outerElem = this._getOuterElement(child);
+			child.setAttribute("aria-selected", String(isActive));
+			if (outerElem !== child) this._setAttributeIfNotExists(outerElem, "role", "presentation");
+			if (!isActive) child.setAttribute("tabindex", "-1");
+			this._setAttributeIfNotExists(child, "role", "tab");
+			this._setInitialAttributesOnTargetPanel(child);
+		}
+		_setInitialAttributesOnTargetPanel(child) {
+			const target = SelectorEngine.getElementFromSelector(child);
+			if (!target) return;
+			this._setAttributeIfNotExists(target, "role", "tabpanel");
+			if (child.id) this._setAttributeIfNotExists(target, "aria-labelledby", `${child.id}`);
+		}
+		_toggleDropDown(element, open) {
+			const outerElem = this._getOuterElement(element);
+			if (!outerElem.classList.contains(CLASS_DROPDOWN)) return;
+			const toggle = (selector, className) => {
+				const el = SelectorEngine.findOne(selector, outerElem);
+				if (el) el.classList.toggle(className, open);
+			};
+			toggle(SELECTOR_DROPDOWN_TOGGLE, CLASS_NAME_ACTIVE$2);
+			toggle(SELECTOR_DROPDOWN_MENU, CLASS_NAME_SHOW$1);
+			outerElem.setAttribute("aria-expanded", String(open));
+		}
+		_setAttributeIfNotExists(element, attribute, value) {
+			if (!element.hasAttribute(attribute)) element.setAttribute(attribute, value);
+		}
+		_elemIsActive(elem) {
+			return elem.classList.contains(CLASS_NAME_ACTIVE$2);
+		}
+		_getInnerElement(elem) {
+			return elem.matches(SELECTOR_INNER_ELEM) ? elem : SelectorEngine.findOne(SELECTOR_INNER_ELEM, elem);
+		}
+		_getOuterElement(elem) {
+			return elem.closest(SELECTOR_OUTER) || elem;
+		}
+		static jQueryInterface(config) {
+			return this.each(function() {
+				const data = Tab.getOrCreateInstance(this);
+				if (typeof config !== "string") return;
+				if (data[config] === void 0 || config.startsWith("_") || config === "constructor") throw new TypeError(`No method named "${config}"`);
+				data[config]();
+			});
+		}
+	};
+	EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE$3, function(event) {
+		if (["A", "AREA"].includes(this.tagName)) event.preventDefault();
+		if (isDisabled(this)) return;
+		Tab.getOrCreateInstance(this).show();
+	});
+	EventHandler.on(window, EVENT_LOAD_DATA_API, () => {
+		for (const element of SelectorEngine.find(SELECTOR_DATA_TOGGLE_ACTIVE)) Tab.getOrCreateInstance(element);
+	});
+	defineJQueryPlugin(Tab);
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap toast.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	var NAME$5 = "toast";
+	var EVENT_KEY$3 = `.bs.toast`;
+	var EVENT_MOUSEOVER = `mouseover${EVENT_KEY$3}`;
+	var EVENT_MOUSEOUT = `mouseout${EVENT_KEY$3}`;
+	var EVENT_FOCUSIN = `focusin${EVENT_KEY$3}`;
+	var EVENT_FOCUSOUT = `focusout${EVENT_KEY$3}`;
+	var EVENT_HIDE = `hide${EVENT_KEY$3}`;
+	var EVENT_HIDDEN = `hidden${EVENT_KEY$3}`;
+	var EVENT_SHOW = `show${EVENT_KEY$3}`;
+	var EVENT_SHOWN = `shown${EVENT_KEY$3}`;
+	var CLASS_NAME_FADE = "fade";
+	var CLASS_NAME_HIDE = "hide";
+	var CLASS_NAME_SHOW = "show";
+	var CLASS_NAME_SHOWING = "showing";
+	var DefaultType$5 = {
+		animation: "boolean",
+		autohide: "boolean",
+		delay: "number"
+	};
+	var Default$5 = {
+		animation: true,
+		autohide: true,
+		delay: 5e3
+	};
+	var Toast = class Toast extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._timeout = null;
+			this._hasMouseInteraction = false;
+			this._hasKeyboardInteraction = false;
+			this._setListeners();
+		}
+		static get Default() {
+			return Default$5;
+		}
+		static get DefaultType() {
+			return DefaultType$5;
+		}
+		static get NAME() {
+			return NAME$5;
+		}
+		show() {
+			const showEvent = EventHandler.trigger(this._element, EVENT_SHOW);
+			if (showEvent === null || showEvent === void 0 ? void 0 : showEvent.defaultPrevented) return;
+			this._clearTimeout();
+			if (this._config.animation) this._element.classList.add(CLASS_NAME_FADE);
+			const complete = () => {
+				this._element.classList.remove(CLASS_NAME_SHOWING);
+				EventHandler.trigger(this._element, EVENT_SHOWN);
+				this._maybeScheduleHide();
+			};
+			this._element.classList.remove(CLASS_NAME_HIDE);
+			reflow(this._element);
+			this._element.classList.add(CLASS_NAME_SHOW, CLASS_NAME_SHOWING);
+			this._queueCallback(complete, this._element, this._config.animation);
+		}
+		hide() {
+			if (!this.isShown()) return;
+			const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE);
+			if (hideEvent === null || hideEvent === void 0 ? void 0 : hideEvent.defaultPrevented) return;
+			const complete = () => {
+				this._element.classList.add(CLASS_NAME_HIDE);
+				this._element.classList.remove(CLASS_NAME_SHOWING, CLASS_NAME_SHOW);
+				EventHandler.trigger(this._element, EVENT_HIDDEN);
+			};
+			this._element.classList.add(CLASS_NAME_SHOWING);
+			this._queueCallback(complete, this._element, this._config.animation);
+		}
+		dispose() {
+			this._clearTimeout();
+			if (this.isShown()) this._element.classList.remove(CLASS_NAME_SHOW);
+			super.dispose();
+		}
+		isShown() {
+			return this._element.classList.contains(CLASS_NAME_SHOW);
+		}
+		_maybeScheduleHide() {
+			if (!this._config.autohide) return;
+			if (this._hasMouseInteraction || this._hasKeyboardInteraction) return;
+			this._timeout = setTimeout(() => {
+				this.hide();
+			}, this._config.delay);
+		}
+		_onInteraction(event, isInteracting) {
+			switch (event.type) {
+				case "mouseover":
+				case "mouseout":
+					this._hasMouseInteraction = isInteracting;
+					break;
+				case "focusin":
+				case "focusout": this._hasKeyboardInteraction = isInteracting;
+			}
+			if (isInteracting) {
+				this._clearTimeout();
+				return;
+			}
+			const nextElement = event.relatedTarget;
+			if (this._element === nextElement || this._element.contains(nextElement)) return;
+			this._maybeScheduleHide();
+		}
+		_setListeners() {
+			EventHandler.on(this._element, EVENT_MOUSEOVER, (event) => this._onInteraction(event, true));
+			EventHandler.on(this._element, EVENT_MOUSEOUT, (event) => this._onInteraction(event, false));
+			EventHandler.on(this._element, EVENT_FOCUSIN, (event) => this._onInteraction(event, true));
+			EventHandler.on(this._element, EVENT_FOCUSOUT, (event) => this._onInteraction(event, false));
+		}
+		_clearTimeout() {
+			clearTimeout(this._timeout);
+			this._timeout = null;
+		}
+		static jQueryInterface(config) {
+			return this.each(function() {
+				const data = Toast.getOrCreateInstance(this, config);
+				if (typeof config === "string") {
+					if (typeof data[config] === "undefined") throw new TypeError(`No method named "${config}"`);
+					data[config](this);
+				}
+			});
+		}
+	};
+	enableDismissTrigger(Toast);
+	defineJQueryPlugin(Toast);
+	var bootstrap = {
+		Alert,
+		Button,
+		Carousel,
+		Collapse,
+		Dropdown,
+		Modal,
+		Offcanvas,
+		Popover,
+		ScrollSpy,
+		Tab,
+		Toast,
+		Tooltip
+	};
+	onDOMContentLoaded(() => {
+		for (const dropdownTriggerEl of document.querySelectorAll("[data-bs-toggle=\"dropdown\"], [data-tblr-toggle=\"dropdown\"]")) try {
+			const options = { boundary: Manipulator.getDataAttribute(dropdownTriggerEl, "boundary") === "viewport" ? document.documentElement : "clippingParents" };
+			Dropdown.getOrCreateInstance(dropdownTriggerEl, options);
+		} catch (error) {
+			console.error(error);
+		}
+	});
+	var syncSidebarToggles = (folded) => {
+		for (const toggle of document.querySelectorAll("[data-bs-toggle=\"sidebar-folded\"], [data-tblr-toggle=\"sidebar-folded\"]")) toggle.setAttribute("aria-pressed", String(folded));
+	};
+	var sidebarIsFolded = () => {
+		var _document$documentEle;
+		return ((_document$documentEle = document.documentElement.getAttribute("data-bs-sidebar")) !== null && _document$documentEle !== void 0 ? _document$documentEle : "").startsWith("folded") || !!document.querySelector(".navbar-vertical.navbar-folded, .navbar-vertical.navbar-folded-hover");
+	};
+	var hideSidebarDropdowns = (except) => {
+		for (const toggle of document.querySelectorAll(".navbar-vertical [data-bs-toggle=\"dropdown\"][aria-expanded=\"true\"]")) if (toggle !== except) {
+			var _Dropdown$getInstance;
+			(_Dropdown$getInstance = Dropdown.getInstance(toggle)) === null || _Dropdown$getInstance === void 0 || _Dropdown$getInstance.hide();
+		}
+	};
+	document.addEventListener("click", (event) => {
+		if (!sidebarIsFolded()) return;
+		const target = event.target;
+		if (!(target instanceof Element) || target.closest(".navbar-vertical .dropdown-menu")) return;
+		hideSidebarDropdowns(target.closest(".navbar-vertical [data-bs-toggle=\"dropdown\"]"));
+	});
+	document.addEventListener("mouseleave", (event) => {
+		const target = event.target;
+		if (!(target instanceof Element) || !target.matches(".navbar-vertical")) return;
+		if (document.documentElement.getAttribute("data-bs-sidebar") === "folded-hover" || target.classList.contains("navbar-folded-hover")) hideSidebarDropdowns();
+	}, true);
+	onDOMContentLoaded(() => {
+		var _document$documentEle2;
+		const folded = ((_document$documentEle2 = document.documentElement.getAttribute("data-bs-sidebar")) !== null && _document$documentEle2 !== void 0 ? _document$documentEle2 : "").startsWith("folded");
+		syncSidebarToggles(folded);
+		if (folded) for (const menu of document.querySelectorAll(".navbar-vertical .dropdown-menu.show")) {
+			var _menu$parentElement;
+			menu.classList.remove("show");
+			(_menu$parentElement = menu.parentElement) === null || _menu$parentElement === void 0 || (_menu$parentElement = _menu$parentElement.querySelector("[data-bs-toggle=\"dropdown\"]")) === null || _menu$parentElement === void 0 || _menu$parentElement.setAttribute("aria-expanded", "false");
+		}
+	});
+	document.addEventListener("click", (event) => {
+		var _html$getAttribute;
+		if (!(event.target instanceof Element ? event.target.closest("[data-bs-toggle=\"sidebar-folded\"], [data-tblr-toggle=\"sidebar-folded\"]") : null)) return;
+		const html = document.documentElement;
+		const willFold = !((_html$getAttribute = html.getAttribute("data-bs-sidebar")) !== null && _html$getAttribute !== void 0 ? _html$getAttribute : "").startsWith("folded");
+		if (willFold) html.setAttribute("data-bs-sidebar", "folded-hover");
+		else html.removeAttribute("data-bs-sidebar");
+		try {
+			localStorage.setItem("tabler-sidebar", willFold ? "folded-hover" : "default");
+		} catch (_unused) {}
+		syncSidebarToggles(willFold);
+		hideSidebarDropdowns();
+		document.dispatchEvent(new CustomEvent("tabler:sidebar-folded", { detail: { folded: willFold } }));
+	});
+	onDOMContentLoaded(() => {
+		for (const tooltipTriggerEl of document.querySelectorAll("[data-bs-toggle=\"tooltip\"], [data-tblr-toggle=\"tooltip\"]")) try {
+			var _Manipulator$getDataA, _Manipulator$getDataA2;
+			const options = {
+				delay: (_Manipulator$getDataA = Manipulator.getDataAttribute(tooltipTriggerEl, "delay")) !== null && _Manipulator$getDataA !== void 0 ? _Manipulator$getDataA : {
+					show: 50,
+					hide: 50
+				},
+				placement: (_Manipulator$getDataA2 = Manipulator.getDataAttribute(tooltipTriggerEl, "placement")) !== null && _Manipulator$getDataA2 !== void 0 ? _Manipulator$getDataA2 : "auto"
+			};
+			Tooltip.getOrCreateInstance(tooltipTriggerEl, options);
+		} catch (error) {
+			console.error(error);
+		}
+	});
+	onDOMContentLoaded(() => {
+		for (const popoverTriggerEl of document.querySelectorAll("[data-bs-toggle=\"popover\"], [data-tblr-toggle=\"popover\"]")) try {
+			var _Manipulator$getDataA, _Manipulator$getDataA2;
+			const options = {
+				delay: (_Manipulator$getDataA = Manipulator.getDataAttribute(popoverTriggerEl, "delay")) !== null && _Manipulator$getDataA !== void 0 ? _Manipulator$getDataA : {
+					show: 50,
+					hide: 50
+				},
+				placement: (_Manipulator$getDataA2 = Manipulator.getDataAttribute(popoverTriggerEl, "placement")) !== null && _Manipulator$getDataA2 !== void 0 ? _Manipulator$getDataA2 : "auto"
+			};
+			Popover.getOrCreateInstance(popoverTriggerEl, options);
+		} catch (error) {
+			console.error(error);
+		}
+	});
+	function _checkPrivateRedeclaration(e, t) {
+		if (t.has(e)) throw new TypeError("Cannot initialize the same private elements twice on an object");
+	}
+	function _classPrivateMethodInitSpec(e, a) {
+		_checkPrivateRedeclaration(e, a), a.add(e);
+	}
+	function _classPrivateFieldInitSpec(e, t, a) {
+		_checkPrivateRedeclaration(e, t), t.set(e, a);
+	}
+	function _assertClassBrand(e, t, n) {
+		if ("function" == typeof e ? e === t : e.has(t)) return arguments.length < 3 ? t : n;
+		throw new TypeError("Private element is not present on this object");
+	}
+	function _classPrivateFieldSet2(s, a, r) {
+		return s.set(_assertClassBrand(s, a), r), r;
+	}
+	function _classPrivateFieldGet2(s, a) {
+		return s.get(_assertClassBrand(s, a));
+	}
+	/**
+	* --------------------------------------------------------------------------
+	* Tabler switch-icon.ts
+	* Licensed under MIT (https://github.com/tabler/tabler/blob/dev/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$4 = "switch-icon";
+	var EVENT_KEY$2 = `.${`bs.${NAME$4}`}`;
+	var EVENT_CLICK = `click${EVENT_KEY$2}`;
+	var EVENT_TOGGLE = `toggle${EVENT_KEY$2}`;
+	var EVENT_CHANGE$1 = `change${EVENT_KEY$2}`;
+	var CLASS_NAME_ACTIVE$1 = "active";
+	var CLASS_NAME_DISABLED = "disabled";
+	var CLASS_NAME_LOADING = "switch-icon-loading";
+	var SELECTOR_SWITCH_ICON = ".switch-icon";
+	var SELECTOR_DATA_TOGGLE$2 = `[data-bs-toggle="${NAME$4}"], [data-tblr-toggle="${NAME$4}"]`;
+	var Default$4 = {};
+	var DefaultType$4 = {};
+	var _iconElement = /* @__PURE__ */ new WeakMap();
+	var _SwitchIcon_brand = /* @__PURE__ */ new WeakSet();
+	/**
+	* Class definition
+	*
+	* A toggle button that swaps between two icons. The state is the `active`
+	* class, mirrored in `aria-pressed`. The element is the `.switch-icon` itself,
+	* or a button (e.g. `.btn-action`) wrapping one: the classes then go on the
+	* inner `.switch-icon` and the ARIA state stays on the button.
+	*/
+	var SwitchIcon = class extends BaseComponent {
+		constructor(element, config) {
+			var _SelectorEngine$findO;
+			super(element, config);
+			_classPrivateMethodInitSpec(this, _SwitchIcon_brand);
+			_classPrivateFieldInitSpec(this, _iconElement, void 0);
+			if (!this._element) return;
+			_classPrivateFieldSet2(_iconElement, this, this._element.matches(SELECTOR_SWITCH_ICON) ? this._element : (_SelectorEngine$findO = SelectorEngine.findOne(SELECTOR_SWITCH_ICON, this._element)) !== null && _SelectorEngine$findO !== void 0 ? _SelectorEngine$findO : this._element);
+			if (!this._element.hasAttribute("aria-pressed")) this._element.setAttribute("aria-pressed", String(this.isActive));
+			EventHandler.on(this._element, EVENT_CLICK, (event) => {
+				event.stopPropagation();
+				if (this._element.classList.contains(CLASS_NAME_DISABLED) || this._element.getAttribute("aria-disabled") === "true") return;
+				this.toggle();
+			});
+		}
+		static get Default() {
+			return Default$4;
+		}
+		static get DefaultType() {
+			return DefaultType$4;
+		}
+		static get NAME() {
+			return NAME$4;
+		}
+		get isActive() {
+			return _classPrivateFieldGet2(_iconElement, this).classList.contains(CLASS_NAME_ACTIVE$1);
+		}
+		get isLoading() {
+			return _classPrivateFieldGet2(_iconElement, this).classList.contains(CLASS_NAME_LOADING);
+		}
+		toggle(force) {
+			if (this.isLoading) return;
+			const active = force !== null && force !== void 0 ? force : !this.isActive;
+			let pending;
+			const toggleEvent = EventHandler.trigger(this._element, EVENT_TOGGLE, {
+				active,
+				wait: (promise) => {
+					pending = promise;
+				}
+			});
+			if (toggleEvent === null || toggleEvent === void 0 ? void 0 : toggleEvent.defaultPrevented) return;
+			if (!pending) {
+				_assertClassBrand(_SwitchIcon_brand, this, _setActive).call(this, active);
+				return;
+			}
+			_assertClassBrand(_SwitchIcon_brand, this, _setLoading).call(this, true);
+			pending.then(() => _assertClassBrand(_SwitchIcon_brand, this, _setActive).call(this, active), () => void 0).finally(() => _assertClassBrand(_SwitchIcon_brand, this, _setLoading).call(this, false));
+		}
+		dispose() {
+			_assertClassBrand(_SwitchIcon_brand, this, _setLoading).call(this, false);
+			super.dispose();
+		}
+	};
+	function _setActive(active) {
+		if (!this._element) return;
+		_classPrivateFieldGet2(_iconElement, this).classList.toggle(CLASS_NAME_ACTIVE$1, active);
+		this._element.setAttribute("aria-pressed", String(active));
+		EventHandler.trigger(this._element, EVENT_CHANGE$1, { active });
+	}
+	function _setLoading(loading) {
+		if (!this._element) return;
+		_classPrivateFieldGet2(_iconElement, this).classList.toggle(CLASS_NAME_LOADING, loading);
+		if (loading) this._element.setAttribute("aria-busy", "true");
+		else this._element.removeAttribute("aria-busy");
+	}
+	/**
+	* Data API implementation
+	*/
+	initAll(SELECTOR_DATA_TOGGLE$2, SwitchIcon);
+	var EnableActivationTabsFromLocationHash = () => {
+		const locationHash = window.location.hash;
+		if (!locationHash) return;
+		for (const tab of document.querySelectorAll("[data-bs-toggle=\"tab\"], [data-tblr-toggle=\"tab\"]")) {
+			if (tab.hash !== locationHash) continue;
+			try {
+				Tab.getOrCreateInstance(tab).show();
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	};
+	onDOMContentLoaded(EnableActivationTabsFromLocationHash);
+	onDOMContentLoaded(() => {
+		for (const toastTriggerEl of document.querySelectorAll("[data-bs-toggle=\"toast\"], [data-tblr-toggle=\"toast\"]")) try {
+			const toastEl = SelectorEngine.getElementFromSelector(toastTriggerEl);
+			if (!toastEl) continue;
+			const toast = Toast.getOrCreateInstance(toastEl);
+			toastTriggerEl.addEventListener("click", () => {
+				toast.show();
+			});
+		} catch (error) {
+			console.error(error);
+		}
+	});
+	/**
+	* --------------------------------------------------------------------------
+	* Tabler sortable.ts
+	* Licensed under MIT (https://github.com/tabler/tabler/blob/dev/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$3 = "sortable";
+	var DATA_ATTRIBUTE = `data-${NAME$3}`;
+	var SELECTOR_DATA_SORTABLE = `[${DATA_ATTRIBUTE}]`;
+	var Default$3 = {};
+	var DefaultType$3 = {};
+	/**
+	* Class definition
+	*
+	* Wraps SortableJS (https://sortablejs.github.io/Sortable/), loaded separately
+	* as `window.Sortable`. Without the plugin the component is inert. Options come
+	* from the `data-sortable` attribute as JSON, or from the config object.
+	* Turn `forceFallback` on so the dragged copy can be styled with `.sortable-drag`.
+	*/
+	var Sortable = class extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._sortable = null;
+			if (!this._element || !window.Sortable) return;
+			this._sortable = new window.Sortable(this._element, this._config);
+		}
+		static get Default() {
+			return Default$3;
+		}
+		static get DefaultType() {
+			return DefaultType$3;
+		}
+		static get NAME() {
+			return NAME$3;
+		}
+		/** The SortableJS instance, for options the component does not expose. */
+		get sortable() {
+			return this._sortable;
+		}
+		toArray() {
+			var _this$_sortable$toArr, _this$_sortable;
+			return (_this$_sortable$toArr = (_this$_sortable = this._sortable) === null || _this$_sortable === void 0 ? void 0 : _this$_sortable.toArray()) !== null && _this$_sortable$toArr !== void 0 ? _this$_sortable$toArr : [];
+		}
+		sort(order, useAnimation) {
+			var _this$_sortable2;
+			(_this$_sortable2 = this._sortable) === null || _this$_sortable2 === void 0 || _this$_sortable2.sort(order, useAnimation);
+		}
+		dispose() {
+			var _this$_sortable3;
+			(_this$_sortable3 = this._sortable) === null || _this$_sortable3 === void 0 || _this$_sortable3.destroy();
+			super.dispose();
+		}
+		_mergeConfigObj(config, element) {
+			let dataOptions = {};
+			const raw = element === null || element === void 0 ? void 0 : element.getAttribute(DATA_ATTRIBUTE);
+			if (raw) try {
+				const parsed = JSON.parse(raw);
+				if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) dataOptions = parsed;
+			} catch (_unused) {}
+			return super._mergeConfigObj(_objectSpread2(_objectSpread2({}, dataOptions), config), element);
+		}
+	};
+	/**
+	* Data API implementation
+	*/
+	initAll(SELECTOR_DATA_SORTABLE, Sortable);
+	/**
+	* --------------------------------------------------------------------------
+	* Bootstrap otp-input.ts
+	* Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$2 = "otpInput";
+	var EVENT_KEY$1 = `.${`bs.${NAME$2}`}`;
+	var EVENT_INPUT = `input${EVENT_KEY$1}`;
+	var EVENT_COMPLETE = `complete${EVENT_KEY$1}`;
+	var CLASS_NAME_INPUT = "otp-input";
+	var CLASS_NAME_RENDERED = "otp-rendered";
+	var CLASS_NAME_SLOTS = "otp-slots";
+	var CLASS_NAME_SLOT = "otp-slot";
+	var CLASS_NAME_SLOT_FILLED = "otp-slot-filled";
+	var CLASS_NAME_SLOT_ACTIVE = "otp-slot-active";
+	var CLASS_NAME_SEPARATOR = "otp-separator";
+	var SELECTOR_DATA_TOGGLE$1 = "[data-bs-toggle=\"otp\"], [data-tblr-toggle=\"otp\"]";
+	var SELECTOR_INPUT = "input";
+	var SYNC_EVENTS = [
+		"blur",
+		"keyup",
+		"select"
+	];
+	var POINTER_END_EVENTS = ["click", "pointercancel"];
+	var MASK_CHARACTER = "•";
+	var TYPES = {
+		numeric: {
+			inputmode: "numeric",
+			pattern: "[0-9]*",
+			filter: /[^0-9]/g
+		},
+		alphanumeric: {
+			inputmode: "text",
+			pattern: "[A-Za-z0-9]*",
+			filter: /[^A-Za-z0-9]/g
+		},
+		alpha: {
+			inputmode: "text",
+			pattern: "[A-Za-z]*",
+			filter: /[^A-Za-z]/g
+		}
+	};
+	var MAX_LENGTH = 32;
+	var Default$2 = {
+		groups: null,
+		length: null,
+		mask: false,
+		separator: "·",
+		type: "numeric"
+	};
+	var DefaultType$2 = {
+		groups: "(array|null)",
+		length: "(number|null)",
+		mask: "boolean",
+		separator: "string",
+		type: "string"
+	};
+	/**
+	* Class definition
+	*
+	* A single real `<input>` inside `.otp` is turned into a transparent overlay
+	* once its value is rendered into one `.otp-slot` per character, so screen
+	* readers, password managers and SMS autofill still see one ordinary field.
+	*/
+	var OtpInput = class extends BaseComponent {
+		constructor(element, config) {
+			var _TYPES$this$_config$t;
+			super(element, config);
+			this._length = 0;
+			this._wasComplete = false;
+			this._slots = [];
+			this._slotsContainer = null;
+			this._pointerActive = false;
+			this._pointerIndex = 0;
+			this._composedValue = null;
+			this._onInput = (event) => {
+				if (event.isComposing) return;
+				const composed = this._composedValue;
+				this._composedValue = null;
+				if (composed !== null && composed === this._input.value) return;
+				this._handleInput();
+			};
+			this._onCompositionEnd = () => {
+				this._handleInput();
+				this._composedValue = this._input.value;
+			};
+			this._onBeforeInput = (event) => this._handleBeforeInput(event);
+			this._onFocus = () => this._handleFocus();
+			this._onPointerDown = (event) => this._handlePointerDown(event);
+			this._onPointerEnd = () => {
+				this._pointerActive = false;
+			};
+			this._onSync = () => this._render();
+			this._onSelectionChange = () => {
+				if (document.activeElement === this._input) this._render();
+			};
+			if (!this._element) return;
+			const input = SelectorEngine.findOne(SELECTOR_INPUT, this._element);
+			if (!input) return;
+			this._input = input;
+			this._type = (_TYPES$this$_config$t = TYPES[this._config.type]) !== null && _TYPES$this$_config$t !== void 0 ? _TYPES$this$_config$t : TYPES.numeric;
+			this._length = this._resolveLength();
+			this._setupInput();
+			this._renderSlots();
+			this._addEventListeners();
+			this._render();
+			this._wasComplete = this._input.value.length === this._length;
+		}
+		static get Default() {
+			return Default$2;
+		}
+		static get DefaultType() {
+			return DefaultType$2;
+		}
+		static get NAME() {
+			return NAME$2;
+		}
+		getValue() {
+			return this._input.value;
+		}
+		setValue(value) {
+			this._input.value = this._sanitize(String(value));
+			this._render();
+			this._checkComplete();
+		}
+		clear() {
+			this._input.value = "";
+			this._render();
+			this._input.focus();
+		}
+		focus() {
+			this._pointerActive = false;
+			this._input.focus();
+			this._selectSlot(this._firstEmptyIndex());
+			this._render();
+		}
+		dispose() {
+			var _this$_slotsContainer;
+			if (!this._input) {
+				super.dispose();
+				return;
+			}
+			this._input.removeEventListener("input", this._onInput);
+			this._input.removeEventListener("beforeinput", this._onBeforeInput);
+			this._input.removeEventListener("focus", this._onFocus);
+			this._input.removeEventListener("pointerdown", this._onPointerDown);
+			this._input.removeEventListener("compositionend", this._onCompositionEnd);
+			for (const type of POINTER_END_EVENTS) this._input.removeEventListener(type, this._onPointerEnd);
+			for (const type of SYNC_EVENTS) this._input.removeEventListener(type, this._onSync);
+			document.removeEventListener("selectionchange", this._onSelectionChange);
+			(_this$_slotsContainer = this._slotsContainer) === null || _this$_slotsContainer === void 0 || _this$_slotsContainer.remove();
+			this._element.classList.remove(CLASS_NAME_RENDERED);
+			super.dispose();
+		}
+		_resolveLength() {
+			var _this$_input$getAttri;
+			const candidates = [this._config.length, Number.parseInt((_this$_input$getAttri = this._input.getAttribute("maxlength")) !== null && _this$_input$getAttri !== void 0 ? _this$_input$getAttri : "", 10)];
+			const { groups } = this._config;
+			if (Array.isArray(groups) && groups.length > 0) candidates.push(groups.reduce((sum, group) => sum + Number(group), 0));
+			for (const candidate of candidates) if (typeof candidate === "number" && Number.isInteger(candidate) && candidate > 0) return Math.min(candidate, MAX_LENGTH);
+			return 6;
+		}
+		_setupInput() {
+			const input = this._input;
+			if (input.type !== "text" && input.type !== "tel") input.type = "text";
+			input.classList.add(CLASS_NAME_INPUT);
+			input.setAttribute("maxlength", String(this._length));
+			input.setAttribute("inputmode", this._type.inputmode);
+			input.setAttribute("pattern", this._type.pattern);
+			if (!input.getAttribute("autocomplete")) input.setAttribute("autocomplete", "one-time-code");
+			if (input.value) input.value = this._sanitize(input.value);
+		}
+		_renderSlots() {
+			const container = document.createElement("div");
+			container.className = CLASS_NAME_SLOTS;
+			container.setAttribute("aria-hidden", "true");
+			const { groups, separator } = this._config;
+			let groupIndex = 0;
+			let inGroup = 0;
+			for (let i = 0; i < this._length; i++) {
+				const slot = document.createElement("div");
+				slot.className = CLASS_NAME_SLOT;
+				container.append(slot);
+				this._slots.push(slot);
+				if (groups && groups.length > 0) {
+					inGroup++;
+					if (inGroup === groups[groupIndex] && i < this._length - 1) {
+						const separatorEl = document.createElement("div");
+						separatorEl.className = CLASS_NAME_SEPARATOR;
+						separatorEl.textContent = separator;
+						container.append(separatorEl);
+						groupIndex = Math.min(groupIndex + 1, groups.length - 1);
+						inGroup = 0;
+					}
+				}
+			}
+			this._slotsContainer = container;
+			this._element.append(container);
+			this._element.classList.add(CLASS_NAME_RENDERED);
+		}
+		_addEventListeners() {
+			this._input.addEventListener("input", this._onInput);
+			this._input.addEventListener("beforeinput", this._onBeforeInput);
+			this._input.addEventListener("focus", this._onFocus);
+			this._input.addEventListener("pointerdown", this._onPointerDown);
+			this._input.addEventListener("compositionend", this._onCompositionEnd);
+			for (const type of POINTER_END_EVENTS) this._input.addEventListener(type, this._onPointerEnd);
+			document.addEventListener("selectionchange", this._onSelectionChange);
+			for (const type of SYNC_EVENTS) this._input.addEventListener(type, this._onSync);
+		}
+		_handleFocus() {
+			if (this._pointerActive) {
+				this._pointerActive = false;
+				this._selectSlot(this._pointerIndex);
+				this._render();
+				return;
+			}
+			this._selectSlot(this._firstEmptyIndex());
+			this._render();
+		}
+		_handleInput() {
+			const sanitized = this._sanitize(this._input.value);
+			if (sanitized !== this._input.value) this._input.value = sanitized;
+			if (document.activeElement === this._input) this._selectSlot(this._firstEmptyIndex());
+			this._afterValueChange();
+		}
+		_handleBeforeInput(event) {
+			const { inputType, data } = event;
+			if (inputType === "insertText" && data && data.length === 1) {
+				var _this$_input$selectio, _this$_input$selectio2;
+				event.preventDefault();
+				const char = this._sanitize(data);
+				if (!char) return;
+				const index = Math.min((_this$_input$selectio = this._input.selectionStart) !== null && _this$_input$selectio !== void 0 ? _this$_input$selectio : 0, this._length - 1);
+				const end = Math.max((_this$_input$selectio2 = this._input.selectionEnd) !== null && _this$_input$selectio2 !== void 0 ? _this$_input$selectio2 : index, index + 1);
+				const chars = [...this._input.value];
+				chars.splice(index, end - index, char);
+				this._input.value = chars.join("").slice(0, this._length);
+				this._selectSlot(index + 1);
+				this._afterValueChange();
+				return;
+			}
+			if (inputType === "deleteContentBackward") {
+				var _this$_input$selectio3, _this$_input$selectio4;
+				event.preventDefault();
+				const before = this._input.value;
+				const start = (_this$_input$selectio3 = this._input.selectionStart) !== null && _this$_input$selectio3 !== void 0 ? _this$_input$selectio3 : 0;
+				const end = (_this$_input$selectio4 = this._input.selectionEnd) !== null && _this$_input$selectio4 !== void 0 ? _this$_input$selectio4 : start;
+				const chars = [...this._input.value];
+				if (end > start) {
+					chars.splice(start, end - start);
+					this._input.value = chars.join("");
+					this._selectSlot(start);
+				} else if (start > 0) {
+					chars.splice(start - 1, 1);
+					this._input.value = chars.join("");
+					this._selectSlot(start - 1);
+				}
+				this._afterValueChange(before);
+				return;
+			}
+			if (inputType === "deleteContentForward") {
+				var _this$_input$selectio5, _this$_input$selectio6;
+				event.preventDefault();
+				const before = this._input.value;
+				const start = (_this$_input$selectio5 = this._input.selectionStart) !== null && _this$_input$selectio5 !== void 0 ? _this$_input$selectio5 : 0;
+				const end = (_this$_input$selectio6 = this._input.selectionEnd) !== null && _this$_input$selectio6 !== void 0 ? _this$_input$selectio6 : start;
+				const chars = [...this._input.value];
+				if (end > start) {
+					chars.splice(start, end - start);
+					this._input.value = chars.join("");
+				} else if (start < chars.length) {
+					chars.splice(start, 1);
+					this._input.value = chars.join("");
+				}
+				this._selectSlot(start);
+				this._afterValueChange(before);
+			}
+		}
+		_handlePointerDown(event) {
+			const index = this._slotIndexFromPoint(event.clientX);
+			if (index === null) return;
+			const target = Math.min(index, this._firstEmptyIndex());
+			if (document.activeElement === this._input) {
+				event.preventDefault();
+				this._selectSlot(target);
+				this._render();
+				return;
+			}
+			this._pointerActive = true;
+			this._pointerIndex = target;
+		}
+		_slotIndexFromPoint(x) {
+			const rtl = getComputedStyle(this._element).direction === "rtl";
+			for (const [index, slot] of this._slots.entries()) {
+				const rect = slot.getBoundingClientRect();
+				if ((rtl ? x >= rect.left : x <= rect.right) || index === this._slots.length - 1) return index;
+			}
+			return null;
+		}
+		_afterValueChange(before) {
+			this._render();
+			if (before !== void 0 && before === this._input.value) return;
+			EventHandler.trigger(this._element, EVENT_INPUT, { value: this._input.value });
+			this._checkComplete();
+		}
+		_firstEmptyIndex() {
+			return Math.min(this._input.value.length, this._length - 1);
+		}
+		_selectSlot(index) {
+			const clamped = Math.max(0, Math.min(index, this._length - 1));
+			const end = clamped < this._input.value.length ? clamped + 1 : clamped;
+			this._input.setSelectionRange(clamped, end);
+		}
+		_sanitize(value) {
+			return value.replace(this._type.filter, "").slice(0, this._length);
+		}
+		_render() {
+			var _this$_input$selectio7;
+			const { value } = this._input;
+			const isFocused = document.activeElement === this._input;
+			const caret = Math.min((_this$_input$selectio7 = this._input.selectionStart) !== null && _this$_input$selectio7 !== void 0 ? _this$_input$selectio7 : value.length, this._length - 1);
+			for (const [index, slot] of this._slots.entries()) {
+				var _value$index;
+				const char = (_value$index = value[index]) !== null && _value$index !== void 0 ? _value$index : "";
+				slot.textContent = char && this._config.mask ? MASK_CHARACTER : char;
+				slot.classList.toggle(CLASS_NAME_SLOT_FILLED, Boolean(char));
+				slot.classList.toggle(CLASS_NAME_SLOT_ACTIVE, isFocused && index === caret);
+			}
+		}
+		_checkComplete() {
+			const { value } = this._input;
+			const complete = value.length === this._length;
+			if (complete && !this._wasComplete) EventHandler.trigger(this._element, EVENT_COMPLETE, { value });
+			this._wasComplete = complete;
+		}
+	};
+	/**
+	* Data API implementation
+	*/
+	initAll(SELECTOR_DATA_TOGGLE$1, OtpInput);
+	/**
+	* --------------------------------------------------------------------------
+	* Tabler sparkline.ts
+	* Licensed under MIT (https://github.com/tabler/tabler/blob/dev/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME$1 = "sparkline";
+	var EVENT_KEY = `.${`bs.${NAME$1}`}`;
+	var EVENT_RENDERED = `rendered${EVENT_KEY}`;
+	var EVENT_UPDATED = `updated${EVENT_KEY}`;
+	var CLASS_NAME_SVG = "sparkline-svg";
+	var CLASS_NAME_LABEL = "sparkline-label";
+	var SELECTOR_DATA_TOGGLE = `[data-bs-toggle="${NAME$1}"], [data-tblr-toggle="${NAME$1}"]`;
+	var CSS_VAR_PREFIX = "--tblr-sparkline";
+	var SVG_NS = "http://www.w3.org/2000/svg";
+	var Default$1 = {
+		type: "line",
+		values: [],
+		width: 80,
+		height: 24,
+		min: null,
+		max: null,
+		fill: "none",
+		spot: "none",
+		pad: 2,
+		barGap: 2,
+		barRadius: 2,
+		label: null,
+		threshold: null,
+		animation: 300
+	};
+	var DefaultType$1 = {
+		type: "string",
+		values: "array",
+		width: "number",
+		height: "number",
+		min: "(number|null)",
+		max: "(number|null)",
+		fill: "string",
+		spot: "string",
+		pad: "number",
+		barGap: "number",
+		barRadius: "number",
+		label: "(string|number|boolean|null)",
+		threshold: "(number|null)",
+		animation: "number"
+	};
+	/**
+	* Helpers
+	*/
+	var svgEl = (tag) => document.createElementNS(SVG_NS, tag);
+	var setAttr = (el, attrs) => {
+		for (const [key, value] of Object.entries(attrs)) if (value !== null && value !== void 0) el.setAttribute(key, String(value));
+	};
+	var cssVar = (name) => `var(${CSS_VAR_PREFIX}-${name})`;
+	var clampSpan = (min, max) => {
+		const span = max - min;
+		return span === 0 ? 1 : span;
+	};
+	var parseNumberList = (input) => {
+		const raw = String(input !== null && input !== void 0 ? input : "").trim();
+		if (!raw) return [];
+		if (raw.startsWith("[")) try {
+			const arr = JSON.parse(raw);
+			return Array.isArray(arr) ? arr.map(Number).filter(Number.isFinite) : [];
+		} catch (_unused) {
+			return [];
+		}
+		return raw.split(",").map((value) => Number(value.trim())).filter(Number.isFinite);
+	};
+	var toValues = (input) => {
+		if (Array.isArray(input)) return input.map(Number).filter(Number.isFinite);
+		if (typeof input === "number") return Number.isFinite(input) ? [input] : [];
+		return parseNumberList(input);
+	};
+	var rangeOf = (values, minForced, maxForced, ...include) => {
+		const min = minForced !== null && minForced !== void 0 ? minForced : Math.min(...values, ...include);
+		const max = maxForced !== null && maxForced !== void 0 ? maxForced : Math.max(...values, ...include);
+		return {
+			min,
+			max,
+			span: clampSpan(min, max)
+		};
+	};
+	var NUMBER_RE = /-?\d*\.?\d+(?:e[-+]?\d+)?/g;
+	var lerpAttr = (from, to, t) => {
+		const a = from.match(NUMBER_RE);
+		const b = to.match(NUMBER_RE);
+		if (!a || !b || a.length !== b.length || from.replace(NUMBER_RE, "#") !== to.replace(NUMBER_RE, "#")) return to;
+		let i = 0;
+		return to.replace(NUMBER_RE, () => {
+			const value = Number(a[i]) + (Number(b[i]) - Number(a[i])) * t;
+			i++;
+			return String(Math.round(value * 1e3) / 1e3);
+		});
+	};
+	var easeOut = (t) => 1 - Math.pow(1 - t, 3);
+	var findIndexByMode = (values, mode) => {
+		if (values.length === 0 || mode === "none") return -1;
+		if (mode === "last") return values.length - 1;
+		let idx = 0;
+		for (let i = 1; i < values.length; i++) if (mode === "min" ? values[i] < values[idx] : values[i] > values[idx]) idx = i;
+		return idx;
+	};
+	var getCssNumber = (element, name, fallback) => {
+		const raw = getComputedStyle(element).getPropertyValue(`${CSS_VAR_PREFIX}-${name}`).trim();
+		const value = Number.parseFloat(raw);
+		return Number.isFinite(value) ? value : fallback;
+	};
+	/**
+	* Class definition
+	*
+	* Tiny inline SVG chart (line, bar or circle) rendered from data attributes:
+	*
+	*   <span class="sparkline" data-bs-toggle="sparkline" data-bs-type="line" data-bs-values="3,4,2,6,5,8,7"></span>
+	*
+	* Colours and stroke widths come from the `--tblr-sparkline-*` custom
+	* properties, so a text colour utility on the element themes the chart.
+	*/
+	var Sparkline = class extends BaseComponent {
+		constructor(element, config) {
+			super(element, config);
+			this._userConfig = {};
+			this._frame = 0;
+			if (!this._element) return;
+			this._userConfig = _objectSpread2({}, config);
+			this.render();
+		}
+		static get Default() {
+			return Default$1;
+		}
+		static get DefaultType() {
+			return DefaultType$1;
+		}
+		static get NAME() {
+			return NAME$1;
+		}
+		update(values) {
+			const serialized = Array.isArray(values) ? values.join(",") : String(values);
+			const attribute = this._element.hasAttribute("data-tblr-values") ? "data-tblr-values" : "data-bs-values";
+			this._element.setAttribute(attribute, serialized);
+			delete this._userConfig.values;
+			this.render();
+			EventHandler.trigger(this._element, EVENT_UPDATED);
+		}
+		render() {
+			var _this$_element$queryS;
+			this._config = this._getConfig(this._userConfig);
+			const previous = this._element.querySelector("svg");
+			(_this$_element$queryS = this._element.querySelector(`.${CLASS_NAME_LABEL}`)) === null || _this$_element$queryS === void 0 || _this$_element$queryS.remove();
+			if (this._config.values.length === 0) {
+				cancelAnimationFrame(this._frame);
+				previous === null || previous === void 0 || previous.remove();
+				EventHandler.trigger(this._element, EVENT_RENDERED);
+				return;
+			}
+			let svg;
+			switch (this._config.type) {
+				case "bar":
+					svg = this._renderBars();
+					break;
+				case "tristate":
+					svg = this._renderTristate();
+					break;
+				case "circle":
+					svg = this._renderCircle();
+					break;
+				default: svg = this._renderLine();
+			}
+			if (previous && this._canAnimate(previous, svg)) this._animate(previous, svg);
+			else {
+				cancelAnimationFrame(this._frame);
+				previous === null || previous === void 0 || previous.remove();
+				this._element.append(svg);
+			}
+			const text = this._labelText();
+			if (text !== "") {
+				const label = document.createElement("span");
+				label.className = CLASS_NAME_LABEL;
+				label.textContent = text;
+				this._element.append(label);
+			}
+			EventHandler.trigger(this._element, EVENT_RENDERED);
+		}
+		dispose() {
+			var _this$_element$queryS2, _this$_element$queryS3;
+			cancelAnimationFrame(this._frame);
+			(_this$_element$queryS2 = this._element.querySelector("svg")) === null || _this$_element$queryS2 === void 0 || _this$_element$queryS2.remove();
+			(_this$_element$queryS3 = this._element.querySelector(`.${CLASS_NAME_LABEL}`)) === null || _this$_element$queryS3 === void 0 || _this$_element$queryS3.remove();
+			super.dispose();
+		}
+		_configAfterMerge(config) {
+			config.values = toValues(config.values);
+			return config;
+		}
+		_labelText() {
+			const { label, values, type } = this._config;
+			if (label === null || label === false || label === "") return "";
+			if (label !== "auto" && label !== true) return String(label);
+			if (type === "circle") return `${Math.round(this._circleRatio() * 100)}%`;
+			return String(values[values.length - 1]);
+		}
+		_circleRatio() {
+			var _cfg$values$, _cfg$max, _cfg$min;
+			const cfg = this._config;
+			const value = (_cfg$values$ = cfg.values[0]) !== null && _cfg$values$ !== void 0 ? _cfg$values$ : 0;
+			const max = (_cfg$max = cfg.max) !== null && _cfg$max !== void 0 ? _cfg$max : cfg.values.length > 1 ? cfg.values[1] : 100;
+			const min = (_cfg$min = cfg.min) !== null && _cfg$min !== void 0 ? _cfg$min : 0;
+			return Math.max(0, Math.min(1, (value - min) / clampSpan(min, max)));
+		}
+		_canAnimate(from, to) {
+			if (this._config.animation <= 0 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+			if (from.getAttribute("viewBox") !== to.getAttribute("viewBox") || from.children.length !== to.children.length) return false;
+			return Array.from(from.children).every((child, i) => child.tagName === to.children[i].tagName);
+		}
+		_animate(from, to) {
+			cancelAnimationFrame(this._frame);
+			const pairs = Array.from(to.children).map((target, i) => {
+				const source = from.children[i];
+				const tweens = [];
+				for (const { name } of Array.from(source.attributes)) if (!target.hasAttribute(name)) source.removeAttribute(name);
+				for (const { name, value } of Array.from(target.attributes)) {
+					const start = source.getAttribute(name);
+					if (start === null || start === value) source.setAttribute(name, value);
+					else tweens.push([
+						name,
+						start,
+						value
+					]);
+				}
+				return {
+					source,
+					tweens
+				};
+			});
+			const duration = this._config.animation;
+			const started = performance.now();
+			const step = (now) => {
+				const t = easeOut(Math.min(1, (now - started) / duration));
+				for (const { source, tweens } of pairs) for (const [name, start, end] of tweens) source.setAttribute(name, t >= 1 ? end : lerpAttr(start, end, t));
+				if (t < 1) this._frame = requestAnimationFrame(step);
+			};
+			this._frame = requestAnimationFrame(step);
+		}
+		_hairline(svg, y, color, dashed = false) {
+			const line = svgEl("line");
+			setAttr(line, {
+				"x1": 0,
+				"x2": this._config.width,
+				"y1": y,
+				"y2": y,
+				"stroke": cssVar(color),
+				"stroke-width": 1,
+				"stroke-dasharray": dashed ? "3 2" : null,
+				"vector-effect": "non-scaling-stroke"
+			});
+			svg.append(line);
+		}
+		_createSvg() {
+			const { width, height } = this._config;
+			const svg = svgEl("svg");
+			setAttr(svg, {
+				"viewBox": `0 0 ${width} ${height}`,
+				"preserveAspectRatio": "none",
+				"width": width,
+				"height": height,
+				"class": CLASS_NAME_SVG,
+				"aria-hidden": "true"
+			});
+			return svg;
+		}
+		_renderLine() {
+			const cfg = this._config;
+			const svg = this._createSvg();
+			const { min, span } = rangeOf(cfg.values, cfg.min, cfg.max, ...cfg.threshold === null ? [] : [cfg.threshold]);
+			const yOf = (value) => cfg.pad + (1 - (value - min) / span) * (cfg.height - cfg.pad * 2);
+			const ys = cfg.values.length === 1 ? [yOf(cfg.values[0]), yOf(cfg.values[0])] : cfg.values.map(yOf);
+			const step = cfg.width / (ys.length - 1);
+			if (cfg.threshold !== null) this._hairline(svg, yOf(cfg.threshold), "threshold", true);
+			if (cfg.fill === "auto") {
+				const area = svgEl("path");
+				setAttr(area, {
+					d: this._areaPath(ys, step, cfg.height),
+					fill: cssVar("fill"),
+					stroke: "none"
+				});
+				svg.append(area);
+			}
+			const line = svgEl("polyline");
+			setAttr(line, {
+				"points": ys.map((y, i) => `${i * step},${y}`).join(" "),
+				"fill": "none",
+				"stroke": cssVar("stroke"),
+				"stroke-width": cssVar("stroke-width"),
+				"stroke-linecap": "round",
+				"stroke-linejoin": "round"
+			});
+			svg.append(line);
+			const spotIndex = findIndexByMode(cfg.values, cfg.spot);
+			if (spotIndex >= 0) {
+				const spot = svgEl("circle");
+				setAttr(spot, {
+					cx: cfg.values.length === 1 ? cfg.width / 2 : spotIndex * step,
+					cy: ys[spotIndex],
+					r: getCssNumber(this._element, "spot-size", 2),
+					fill: cssVar("spot")
+				});
+				svg.append(spot);
+			}
+			return svg;
+		}
+		_areaPath(ys, step, height) {
+			return `${ys.map((y, i) => `${i === 0 ? "M" : "L"} ${i * step} ${y}`).join(" ")} L ${(ys.length - 1) * step} ${height} L 0 ${height} Z`;
+		}
+		_renderBars() {
+			const cfg = this._config;
+			const svg = this._createSvg();
+			const { min, span } = rangeOf(cfg.values, cfg.min, cfg.max, 0, ...cfg.threshold === null ? [] : [cfg.threshold]);
+			const yOf = (value) => cfg.height - (value - min) / span * cfg.height;
+			const count = cfg.values.length;
+			const barWidth = (cfg.width - cfg.barGap * (count - 1)) / count;
+			const zeroY = yOf(0);
+			if (min < 0) this._hairline(svg, zeroY, "zero");
+			if (cfg.threshold !== null) this._hairline(svg, yOf(cfg.threshold), "threshold", true);
+			const clip = (y) => Math.max(0, Math.min(cfg.height, y));
+			cfg.values.forEach((value, i) => {
+				const top = clip(yOf(Math.max(value, 0)));
+				const bottom = clip(yOf(Math.min(value, 0)));
+				const below = cfg.threshold === null ? value < 0 : value < cfg.threshold;
+				const bar = svgEl("rect");
+				setAttr(bar, {
+					x: i * (barWidth + cfg.barGap),
+					y: top,
+					width: barWidth,
+					height: bottom - top,
+					rx: cfg.barRadius,
+					fill: cssVar(below ? "negative" : "stroke")
+				});
+				svg.append(bar);
+			});
+			return svg;
+		}
+		_renderTristate() {
+			const cfg = this._config;
+			const svg = this._createSvg();
+			const count = cfg.values.length;
+			const barWidth = (cfg.width - cfg.barGap * (count - 1)) / count;
+			const zeroY = cfg.height / 2;
+			const tick = Math.min(2, zeroY);
+			this._hairline(svg, zeroY, "zero");
+			cfg.values.forEach((value, i) => {
+				const bar = svgEl("rect");
+				const attrs = value > 0 ? {
+					y: 0,
+					height: zeroY,
+					fill: "stroke"
+				} : value < 0 ? {
+					y: zeroY,
+					height: zeroY,
+					fill: "negative"
+				} : {
+					y: zeroY - tick / 2,
+					height: tick,
+					fill: "track"
+				};
+				setAttr(bar, {
+					x: i * (barWidth + cfg.barGap),
+					y: attrs.y,
+					width: barWidth,
+					height: attrs.height,
+					rx: cfg.barRadius,
+					fill: cssVar(attrs.fill)
+				});
+				svg.append(bar);
+			});
+			return svg;
+		}
+		_renderCircle() {
+			const cfg = this._config;
+			const svg = this._createSvg();
+			const strokeWidth = getCssNumber(this._element, "stroke-width", 2);
+			const radius = Math.max(0, Math.min(cfg.width, cfg.height) / 2 - strokeWidth / 2);
+			const cx = cfg.width / 2;
+			const cy = cfg.height / 2;
+			const ratio = this._circleRatio();
+			const circumference = 2 * Math.PI * radius;
+			const track = svgEl("circle");
+			setAttr(track, {
+				"cx": cx,
+				"cy": cy,
+				"r": radius,
+				"fill": "none",
+				"stroke": cssVar("track"),
+				"stroke-width": strokeWidth
+			});
+			svg.append(track);
+			const ring = svgEl("circle");
+			setAttr(ring, {
+				"cx": cx,
+				"cy": cy,
+				"r": radius,
+				"fill": "none",
+				"stroke": cssVar("stroke"),
+				"stroke-width": strokeWidth,
+				"stroke-linecap": "round",
+				"stroke-dasharray": circumference,
+				"stroke-dashoffset": circumference * (1 - ratio),
+				"transform": `rotate(-90 ${cx} ${cy})`
+			});
+			svg.append(ring);
+			return svg;
+		}
+	};
+	/**
+	* Data API implementation
+	*/
+	initAll(SELECTOR_DATA_TOGGLE, Sparkline);
+	/**
+	* --------------------------------------------------------------------------
+	* Tabler strength.ts
+	* Licensed under MIT (https://github.com/tabler/tabler/blob/dev/LICENSE)
+	* --------------------------------------------------------------------------
+	*/
+	/**
+	* Constants
+	*/
+	var NAME = "strength";
+	var EVENT_CHANGE = `change${`.${`bs.${NAME}`}`}`;
+	var CLASS_NAME_ACTIVE = "active";
+	var SELECTOR_DATA_STRENGTH = `[data-bs-${NAME}], [data-tblr-${NAME}]`;
+	var SELECTOR_SEGMENT = `.${NAME}-segment`;
+	var SELECTOR_TEXT = `.${NAME}-text`;
+	var SELECTOR_PASSWORD = "input[type=\"password\"]";
+	var LEVELS = [
+		"weak",
+		"fair",
+		"good",
+		"strong"
+	];
+	var Default = {
+		input: null,
+		minLength: 8,
+		messages: {
+			weak: "Weak",
+			fair: "Fair",
+			good: "Good",
+			strong: "Strong"
+		},
+		weights: {
+			minLength: 1,
+			extraLength: 1,
+			longPassword: 1,
+			lowercase: 1,
+			uppercase: 1,
+			numbers: 1,
+			special: 1,
+			multipleSpecial: 1
+		},
+		thresholds: [
+			2,
+			4,
+			6
+		],
+		scorer: null
+	};
+	var DefaultType = {
+		input: "(string|null)",
+		minLength: "number",
+		messages: "object",
+		weights: "object",
+		thresholds: "array",
+		scorer: "(function|null)"
+	};
+	/**
+	* Class definition
+	*
+	* Rates the password typed in a field and fills a segmented meter. The score
+	* is a hint for the user, never a validation: check the password on the
+	* server as well.
+	*/
+	var Strength = class extends BaseComponent {
+		constructor(element, config) {
+			var _this$_text$textConte, _this$_text;
+			super(element, config);
+			this._input = null;
+			this._segments = [];
+			this._text = null;
+			this._emptyText = "";
+			this._level = null;
+			this._onInput = () => this.evaluate();
+			if (!this._element) return;
+			this._input = this._getInput();
+			this._segments = SelectorEngine.find(SELECTOR_SEGMENT, this._element);
+			this._text = this._getText();
+			this._emptyText = (_this$_text$textConte = (_this$_text = this._text) === null || _this$_text === void 0 || (_this$_text = _this$_text.textContent) === null || _this$_text === void 0 ? void 0 : _this$_text.trim()) !== null && _this$_text$textConte !== void 0 ? _this$_text$textConte : "";
+			this._setUpAria();
+			if (!this._input) return;
+			this._input.addEventListener("input", this._onInput);
+			this.evaluate();
+		}
+		static get Default() {
+			return Default;
+		}
+		static get DefaultType() {
+			return DefaultType;
+		}
+		static get NAME() {
+			return NAME;
+		}
+		get level() {
+			return this._level;
+		}
+		evaluate() {
+			if (!this._input) return;
+			const password = this._input.value;
+			const score = this._score(password);
+			const level = this._level_(score);
+			if (level === this._level) return;
+			this._level = level;
+			this._render(level);
+			EventHandler.trigger(this._element, EVENT_CHANGE, {
+				strength: level,
+				score
+			});
+		}
+		dispose() {
+			var _this$_input;
+			(_this$_input = this._input) === null || _this$_input === void 0 || _this$_input.removeEventListener("input", this._onInput);
+			super.dispose();
+		}
+		_configAfterMerge(config) {
+			return _objectSpread2(_objectSpread2({}, config), {}, {
+				messages: _objectSpread2(_objectSpread2({}, Default.messages), config.messages),
+				weights: _objectSpread2(_objectSpread2({}, Default.weights), config.weights)
+			});
+		}
+		_getInput() {
+			var _ref, _precedingFields;
+			const { input } = this._config;
+			if (input) return getElement(input);
+			const parent = this._element.parentElement;
+			const fields = parent ? SelectorEngine.find(SELECTOR_PASSWORD, parent) : [];
+			const precedingFields = fields.filter((field) => Boolean(field.compareDocumentPosition(this._element) & Node.DOCUMENT_POSITION_FOLLOWING));
+			return (_ref = (_precedingFields = precedingFields[precedingFields.length - 1]) !== null && _precedingFields !== void 0 ? _precedingFields : fields[0]) !== null && _ref !== void 0 ? _ref : null;
+		}
+		_getText() {
+			const parent = this._element.parentElement;
+			return parent ? SelectorEngine.findOne(SELECTOR_TEXT, parent) : null;
+		}
+		_setUpAria() {
+			var _this$_text2;
+			const element = this._element;
+			element.setAttribute("role", "progressbar");
+			element.setAttribute("aria-valuemin", "0");
+			element.setAttribute("aria-valuemax", String(LEVELS.length));
+			element.setAttribute("aria-valuenow", "0");
+			if (!element.hasAttribute("aria-label") && !element.hasAttribute("aria-labelledby")) element.setAttribute("aria-label", "Password strength");
+			for (const segment of this._segments) segment.setAttribute("aria-hidden", "true");
+			(_this$_text2 = this._text) === null || _this$_text2 === void 0 || _this$_text2.setAttribute("aria-live", "polite");
+		}
+		_score(password) {
+			var _password$match;
+			if (!password) return 0;
+			const { scorer, weights, minLength } = this._config;
+			if (typeof scorer === "function") return scorer(password);
+			return [
+				[password.length >= minLength, weights.minLength],
+				[password.length >= minLength + 4, weights.extraLength],
+				[password.length >= 16, weights.longPassword],
+				[/[a-z]/.test(password), weights.lowercase],
+				[/[A-Z]/.test(password), weights.uppercase],
+				[/\d/.test(password), weights.numbers],
+				[/[^\dA-Za-z]/.test(password), weights.special],
+				[((_password$match = password.match(/[^\dA-Za-z]/g)) !== null && _password$match !== void 0 ? _password$match : []).length > 1, weights.multipleSpecial]
+			].reduce((score, [passed, weight]) => score + (passed ? weight !== null && weight !== void 0 ? weight : 0 : 0), 0);
+		}
+		_level_(score) {
+			var _LEVELS;
+			if (score <= 0) return null;
+			const index = this._config.thresholds.findIndex((threshold) => score <= threshold);
+			return (_LEVELS = LEVELS[index === -1 ? LEVELS.length - 1 : index]) !== null && _LEVELS !== void 0 ? _LEVELS : null;
+		}
+		_render(level) {
+			const element = this._element;
+			const index = level ? LEVELS.indexOf(level) : -1;
+			element.dataset.bsStrength = level !== null && level !== void 0 ? level : "";
+			element.setAttribute("aria-valuenow", String(index + 1));
+			if (level) {
+				var _this$_config$message;
+				element.setAttribute("aria-valuetext", (_this$_config$message = this._config.messages[level]) !== null && _this$_config$message !== void 0 ? _this$_config$message : level);
+			} else element.removeAttribute("aria-valuetext");
+			const filled = level ? Math.ceil((index + 1) / LEVELS.length * this._segments.length) : 0;
+			for (const [position, segment] of this._segments.entries()) segment.classList.toggle(CLASS_NAME_ACTIVE, position < filled);
+			if (this._text) {
+				var _this$_config$message2;
+				this._text.textContent = level ? (_this$_config$message2 = this._config.messages[level]) !== null && _this$_config$message2 !== void 0 ? _this$_config$message2 : "" : this._emptyText;
+				this._text.dataset.bsStrength = level !== null && level !== void 0 ? level : "";
+			}
+		}
+	};
+	/**
+	* Data API implementation
+	*/
+	initAll(SELECTOR_DATA_STRENGTH, Strength);
+	var deprecated_exports = /* @__PURE__ */ __exportAll({
+		getColor: () => getColor,
+		hexToRgba: () => hexToRgba,
+		prefix: () => prefix
+	});
+	/**
+	* Helpers kept only so that projects written for an older 1.x release keep
+	* working. They are exported as the `tabler` namespace: `tabler.tabler.getColor()`
+	* from the bundle, `import { tabler } from '@tabler/core'` from the module.
+	*
+	* Removed in 2.0, together with this file. Read the custom property yourself,
+	* and mix the opacity in with `color-mix()`.
+	*/
+	var prefix = "tblr-";
+	var hexToRgba = (hex, opacity) => {
+		const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+		return result ? `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}, ${opacity})` : null;
+	};
+	var getColor = (color, opacity = 1) => {
+		var _hexToRgba;
+		const c = getComputedStyle(document.body).getPropertyValue(`--${prefix}${color}`).trim();
+		if (opacity === 1) return c;
+		return (_hexToRgba = hexToRgba(c, opacity)) !== null && _hexToRgba !== void 0 ? _hexToRgba : c ? `color-mix(in srgb, ${c} ${opacity * 100}%, transparent)` : null;
+	};
+	/* NProgress, (c) 2013, 2014 Rico Sta. Cruz - http://ricostacruz.com/nprogress
+	* @license MIT */
+	//#endregion
+	//#region platform/core/base/resources/js/base/progress.js
+	var import_nprogress = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((exports, module, this$1) => {
+		(function(root, factory) {
+			if (typeof define === "function" && define.amd) define(factory);
+			else if (typeof exports === "object") module.exports = factory();
+			else root.NProgress = factory();
+		})(this$1, function() {
+			var NProgress = {};
+			NProgress.version = "0.2.0";
+			var Settings = NProgress.settings = {
+				minimum: .08,
+				easing: "ease",
+				positionUsing: "",
+				speed: 200,
+				trickle: true,
+				trickleRate: .02,
+				trickleSpeed: 800,
+				showSpinner: true,
+				barSelector: "[role=\"bar\"]",
+				spinnerSelector: "[role=\"spinner\"]",
+				parent: "body",
+				template: "<div class=\"bar\" role=\"bar\"><div class=\"peg\"></div></div><div class=\"spinner\" role=\"spinner\"><div class=\"spinner-icon\"></div></div>"
+			};
+			/**
+			* Updates configuration.
+			*
+			*     NProgress.configure({
+			*       minimum: 0.1
+			*     });
+			*/
+			NProgress.configure = function(options) {
+				var key, value;
+				for (key in options) {
+					value = options[key];
+					if (value !== void 0 && options.hasOwnProperty(key)) Settings[key] = value;
+				}
+				return this;
+			};
+			/**
+			* Last number.
+			*/
+			NProgress.status = null;
+			/**
+			* Sets the progress bar status, where `n` is a number from `0.0` to `1.0`.
+			*
+			*     NProgress.set(0.4);
+			*     NProgress.set(1.0);
+			*/
+			NProgress.set = function(n) {
+				var started = NProgress.isStarted();
+				n = clamp(n, Settings.minimum, 1);
+				NProgress.status = n === 1 ? null : n;
+				var progress = NProgress.render(!started), bar = progress.querySelector(Settings.barSelector), speed = Settings.speed, ease = Settings.easing;
+				progress.offsetWidth;
+				queue(function(next) {
+					if (Settings.positionUsing === "") Settings.positionUsing = NProgress.getPositioningCSS();
+					css(bar, barPositionCSS(n, speed, ease));
+					if (n === 1) {
+						css(progress, {
+							transition: "none",
+							opacity: 1
+						});
+						progress.offsetWidth;
+						setTimeout(function() {
+							css(progress, {
+								transition: "all " + speed + "ms linear",
+								opacity: 0
+							});
+							setTimeout(function() {
+								NProgress.remove();
+								next();
+							}, speed);
+						}, speed);
+					} else setTimeout(next, speed);
+				});
+				return this;
+			};
+			NProgress.isStarted = function() {
+				return typeof NProgress.status === "number";
+			};
+			/**
+			* Shows the progress bar.
+			* This is the same as setting the status to 0%, except that it doesn't go backwards.
+			*
+			*     NProgress.start();
+			*
+			*/
+			NProgress.start = function() {
+				if (!NProgress.status) NProgress.set(0);
+				var work = function() {
+					setTimeout(function() {
+						if (!NProgress.status) return;
+						NProgress.trickle();
+						work();
+					}, Settings.trickleSpeed);
+				};
+				if (Settings.trickle) work();
+				return this;
+			};
+			/**
+			* Hides the progress bar.
+			* This is the *sort of* the same as setting the status to 100%, with the
+			* difference being `done()` makes some placebo effect of some realistic motion.
+			*
+			*     NProgress.done();
+			*
+			* If `true` is passed, it will show the progress bar even if its hidden.
+			*
+			*     NProgress.done(true);
+			*/
+			NProgress.done = function(force) {
+				if (!force && !NProgress.status) return this;
+				return NProgress.inc(.3 + .5 * Math.random()).set(1);
+			};
+			/**
+			* Increments by a random amount.
+			*/
+			NProgress.inc = function(amount) {
+				var n = NProgress.status;
+				if (!n) return NProgress.start();
+				else {
+					if (typeof amount !== "number") amount = (1 - n) * clamp(Math.random() * n, .1, .95);
+					n = clamp(n + amount, 0, .994);
+					return NProgress.set(n);
+				}
+			};
+			NProgress.trickle = function() {
+				return NProgress.inc(Math.random() * Settings.trickleRate);
+			};
+			/**
+			* Waits for all supplied jQuery promises and
+			* increases the progress as the promises resolve.
+			*
+			* @param $promise jQUery Promise
+			*/
+			(function() {
+				var initial = 0, current = 0;
+				NProgress.promise = function($promise) {
+					if (!$promise || $promise.state() === "resolved") return this;
+					if (current === 0) NProgress.start();
+					initial++;
+					current++;
+					$promise.always(function() {
+						current--;
+						if (current === 0) {
+							initial = 0;
+							NProgress.done();
+						} else NProgress.set((initial - current) / initial);
+					});
+					return this;
+				};
+			})();
+			/**
+			* (Internal) renders the progress bar markup based on the `template`
+			* setting.
+			*/
+			NProgress.render = function(fromStart) {
+				if (NProgress.isRendered()) return document.getElementById("nprogress");
+				addClass(document.documentElement, "nprogress-busy");
+				var progress = document.createElement("div");
+				progress.id = "nprogress";
+				progress.innerHTML = Settings.template;
+				var bar = progress.querySelector(Settings.barSelector), perc = fromStart ? "-100" : toBarPerc(NProgress.status || 0), parent = document.querySelector(Settings.parent), spinner;
+				css(bar, {
+					transition: "all 0 linear",
+					transform: "translate3d(" + perc + "%,0,0)"
+				});
+				if (!Settings.showSpinner) {
+					spinner = progress.querySelector(Settings.spinnerSelector);
+					spinner && removeElement(spinner);
+				}
+				if (parent != document.body) addClass(parent, "nprogress-custom-parent");
+				parent.appendChild(progress);
+				return progress;
+			};
+			/**
+			* Removes the element. Opposite of render().
+			*/
+			NProgress.remove = function() {
+				removeClass(document.documentElement, "nprogress-busy");
+				removeClass(document.querySelector(Settings.parent), "nprogress-custom-parent");
+				var progress = document.getElementById("nprogress");
+				progress && removeElement(progress);
+			};
+			/**
+			* Checks if the progress bar is rendered.
+			*/
+			NProgress.isRendered = function() {
+				return !!document.getElementById("nprogress");
+			};
+			/**
+			* Determine which positioning CSS rule to use.
+			*/
+			NProgress.getPositioningCSS = function() {
+				var bodyStyle = document.body.style;
+				var vendorPrefix = "WebkitTransform" in bodyStyle ? "Webkit" : "MozTransform" in bodyStyle ? "Moz" : "msTransform" in bodyStyle ? "ms" : "OTransform" in bodyStyle ? "O" : "";
+				if (vendorPrefix + "Perspective" in bodyStyle) return "translate3d";
+				else if (vendorPrefix + "Transform" in bodyStyle) return "translate";
+				else return "margin";
+			};
+			/**
+			* Helpers
+			*/
+			function clamp(n, min, max) {
+				if (n < min) return min;
+				if (n > max) return max;
+				return n;
+			}
+			/**
+			* (Internal) converts a percentage (`0..1`) to a bar translateX
+			* percentage (`-100%..0%`).
+			*/
+			function toBarPerc(n) {
+				return (-1 + n) * 100;
+			}
+			/**
+			* (Internal) returns the correct CSS for changing the bar's
+			* position given an n percentage, and speed and ease from Settings
+			*/
+			function barPositionCSS(n, speed, ease) {
+				var barCSS;
+				if (Settings.positionUsing === "translate3d") barCSS = { transform: "translate3d(" + toBarPerc(n) + "%,0,0)" };
+				else if (Settings.positionUsing === "translate") barCSS = { transform: "translate(" + toBarPerc(n) + "%,0)" };
+				else barCSS = { "margin-left": toBarPerc(n) + "%" };
+				barCSS.transition = "all " + speed + "ms " + ease;
+				return barCSS;
+			}
+			/**
+			* (Internal) Queues a function to be executed.
+			*/
+			var queue = (function() {
+				var pending = [];
+				function next() {
+					var fn = pending.shift();
+					if (fn) fn(next);
+				}
+				return function(fn) {
+					pending.push(fn);
+					if (pending.length == 1) next();
+				};
+			})();
+			/**
+			* (Internal) Applies css properties to an element, similar to the jQuery 
+			* css method.
+			*
+			* While this helper does assist with vendor prefixed property names, it 
+			* does not perform any manipulation of values prior to setting styles.
+			*/
+			var css = (function() {
+				var cssPrefixes = [
+					"Webkit",
+					"O",
+					"Moz",
+					"ms"
+				], cssProps = {};
+				function camelCase(string) {
+					return string.replace(/^-ms-/, "ms-").replace(/-([\da-z])/gi, function(match, letter) {
+						return letter.toUpperCase();
+					});
+				}
+				function getVendorProp(name) {
+					var style = document.body.style;
+					if (name in style) return name;
+					var i = cssPrefixes.length, capName = name.charAt(0).toUpperCase() + name.slice(1), vendorName;
+					while (i--) {
+						vendorName = cssPrefixes[i] + capName;
+						if (vendorName in style) return vendorName;
+					}
+					return name;
+				}
+				function getStyleProp(name) {
+					name = camelCase(name);
+					return cssProps[name] || (cssProps[name] = getVendorProp(name));
+				}
+				function applyCss(element, prop, value) {
+					prop = getStyleProp(prop);
+					element.style[prop] = value;
+				}
+				return function(element, properties) {
+					var args = arguments, prop, value;
+					if (args.length == 2) for (prop in properties) {
+						value = properties[prop];
+						if (value !== void 0 && properties.hasOwnProperty(prop)) applyCss(element, prop, value);
+					}
+					else applyCss(element, args[1], args[2]);
+				};
+			})();
+			/**
+			* (Internal) Determines if an element or space separated list of class names contains a class name.
+			*/
+			function hasClass(element, name) {
+				return (typeof element == "string" ? element : classList(element)).indexOf(" " + name + " ") >= 0;
+			}
+			/**
+			* (Internal) Adds a class to an element.
+			*/
+			function addClass(element, name) {
+				var oldList = classList(element), newList = oldList + name;
+				if (hasClass(oldList, name)) return;
+				element.className = newList.substring(1);
+			}
+			/**
+			* (Internal) Removes a class from an element.
+			*/
+			function removeClass(element, name) {
+				var oldList = classList(element), newList;
+				if (!hasClass(element, name)) return;
+				newList = oldList.replace(" " + name + " ", " ");
+				element.className = newList.substring(1, newList.length - 1);
+			}
+			/**
+			* (Internal) Gets a space separated list of the class names on the element. 
+			* The list is wrapped with a single space on each end to facilitate finding 
+			* matches within the list.
+			*/
+			function classList(element) {
+				return (" " + (element.className || "") + " ").replace(/\s+/gi, " ");
+			}
+			/**
+			* (Internal) Removes an element from the DOM.
+			*/
+			function removeElement(element) {
+				element && element.parentNode && element.parentNode.removeChild(element);
+			}
+			return NProgress;
+		});
+	})))());
+	/**
+	* @param {string} color
+	* @returns {void}
+	*/
+	function injectCSS(color) {
+		const element = document.createElement("style");
+		element.textContent = `
         #nprogress {
           pointer-events: none;
         }
 
         #nprogress .bar {
-          background: ${e};
+          background: ${color};
 
           position: fixed;
           z-index: 1031;
@@ -21,7 +7422,7 @@
           right: 0px;
           width: 100px;
           height: 100%;
-          box-shadow: 0 0 10px ${e}, 0 0 5px ${e};
+          box-shadow: 0 0 10px ${color}, 0 0 5px ${color};
           opacity: 1.0;
 
           -webkit-transform: rotate(3deg) translate(0px, -4px);
@@ -43,8 +7444,8 @@
           box-sizing: border-box;
 
           border: solid 2px transparent;
-          border-top-color: ${e};
-          border-left-color: ${e};
+          border-top-color: ${color};
+          border-left-color: ${color};
           border-radius: 50%;
 
           -webkit-animation: nprogress-spinner 400ms linear infinite;
@@ -69,4 +7470,31 @@
           0%   { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-    `,document.head.appendChild(t)}ys("#007bff");function kd({delay:e=250,color:t="var(--bb-primary)",includeCSS:i=!0,showSpinner:r=!1}={}){$(document).on("ajaxSend",()=>re.default.inc(e)),$(document).on("ajaxStop",()=>re.default.done()),$httpClient.beforeSend(()=>re.default.inc(e)),$httpClient.completed(()=>re.default.done()),re.default.configure({showSpinner:r}),i&&ys(t)}globalThis.bootstrap=Mh,globalThis.tabler=xd,kd({showSpinner:!0})})();
+    `;
+		document.head.appendChild(element);
+	}
+	injectCSS("#007bff");
+	/**
+	* @param {number} delay
+	* @param {string} color
+	* @param {boolean} includeCSS
+	* @param {boolean} showSpinner
+	* @returns {void}
+	*/
+	function setupProgress({ delay = 250, color = "var(--bb-primary)", includeCSS = true, showSpinner = false } = {}) {
+		$(document).on("ajaxSend", () => import_nprogress.default.inc(delay));
+		$(document).on("ajaxStop", () => import_nprogress.default.done());
+		$httpClient.beforeSend(() => import_nprogress.default.inc(delay));
+		$httpClient.completed(() => import_nprogress.default.done());
+		import_nprogress.default.configure({ showSpinner });
+		if (includeCSS) injectCSS(color);
+	}
+	//#endregion
+	//#region platform/core/base/resources/js/core-ui.js
+	globalThis.bootstrap = bootstrap;
+	globalThis.tabler = deprecated_exports;
+	setupProgress({ showSpinner: true });
+	//#endregion
+})();
+
+//# sourceMappingURL=core-ui.js.map
