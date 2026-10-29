@@ -2207,7 +2207,17 @@ class EcommerceHelper
 
     public function getAssetVersion(): string
     {
-        // Manual cache bust for critical JS updates
-        return '2.38.1.1'; // Incremented for PV Gallery thumbnail fix
+        // Use different versioning based on branch
+        // - main branch: semantic version (e.g., "2.38.1.1")
+        // - stage branch: timestamp for aggressive cache busting
+        $branch = config('app.env');
+        
+        if ($branch === 'production' || app()->environment('production')) {
+            // Production: use semantic version
+            return '2.38.1.1';
+        }
+        
+        // Stage/Dev: use current timestamp for immediate cache busting
+        return (string) time();
     }
 }
