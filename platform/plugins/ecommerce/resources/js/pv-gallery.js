@@ -22,6 +22,9 @@
             this.imageUrls = [];
             this.lightboxVideos = [];
             
+            // Store ORIGINAL thumbnail data for reordering (never modified)
+            this.originalThumbnailData = [];
+            
             console.log('[PV GALLERY] Initialized with:', {
                 mainImage: this.mainImage,
                 thumbnails: this.thumbnails.length,
@@ -33,17 +36,26 @@
         }
         
         init() {
-            // Collect all images data from photo thumbnails
+            // Collect all images data from photo thumbnails AND store original data
             this.thumbnails.forEach((thumb) => {
                 const imageUrl = thumb.getAttribute('data-image');
                 const variationId = thumb.getAttribute('data-variation-id');
                 const dataIndex = parseInt(thumb.getAttribute('data-index'));
                 
-                this.allImages.push({
+                const imageData = {
                     index: dataIndex,
                     url: imageUrl,
                     variationId,
                     thumb
+                };
+                
+                this.allImages.push(imageData);
+                
+                // Store original data (immutable copy)
+                this.originalThumbnailData.push({
+                    imageUrl: imageUrl,
+                    variationId: variationId,
+                    index: dataIndex
                 });
             });
             
@@ -388,23 +400,19 @@
             const allThumbs = Array.from(photoContainer.querySelectorAll('.pv-thumb'));
             console.log('[PV GALLERY] Found photo thumbnails:', allThumbs.length)
             
-            // Separate variation and non-variation thumbnails
+            // Use ORIGINAL data (not current DOM state) to separate thumbnails
             const variationThumbs = [];
             const otherThumbs = [];
             
-            allThumbs.forEach(thumb => {
-                const thumbVariationId = thumb.getAttribute('data-variation-id');
-                const imageUrl = thumb.getAttribute('data-image');
-                const index = thumb.getAttribute('data-index');
-                
-                if (thumbVariationId == variationId) {
-                    variationThumbs.push({ thumb, imageUrl, index });
+            this.originalThumbnailData.forEach(original => {
+                if (original.variationId == variationId) {
+                    variationThumbs.push(original);
                 } else {
-                    otherThumbs.push({ thumb, imageUrl, index });
+                    otherThumbs.push(original);
                 }
             });
             
-            console.log('[PV GALLERY] Separated thumbnails:', {
+            console.log('[PV GALLERY] Separated thumbnails from original data:', {
                 variation: variationThumbs.length,
                 other: otherThumbs.length
             })
@@ -422,7 +430,7 @@
                 if (newOrder[visualIndex]) {
                     const newImageUrl = newOrder[visualIndex].imageUrl;
                     const newDataIndex = newOrder[visualIndex].index;
-                    const newVariationId = newOrder[visualIndex].thumb.getAttribute('data-variation-id');
+                    const newVariationId = newOrder[visualIndex].variationId;
                     
                     // Update data attributes
                     thumb.setAttribute('data-image', newImageUrl);
