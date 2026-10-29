@@ -2207,17 +2207,9 @@ class EcommerceHelper
 
     public static function getAssetVersion(): string
     {
-        // Use different versioning based on branch
-        // - main branch: semantic version (e.g., "2.38.1.1")
-        // - stage branch: timestamp for aggressive cache busting
-        $branch = config('app.env');
-        
-        if ($branch === 'production' || app()->environment('production')) {
-            // Production: use semantic version
-            return '2.38.1.1';
-        }
-        
-        // Stage/Dev: use current timestamp for immediate cache busting
-        return (string) time();
+        // Use Povaly's version helper for consistent cache busting
+        // - Production (main): uses Git tag version (e.g., "1.0.0")
+        // - Stage: uses timestamp for aggressive cache busting
+        return \App\Helpers\VersionHelper::getCacheBustVersion();
     }
 }
