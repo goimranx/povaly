@@ -24,13 +24,6 @@
             // Store ORIGINAL thumbnail data for reordering (never modified)
             this.originalThumbnailData = [];
             
-            console.log('[PV GALLERY] Initialized with:', {
-                mainImage: this.mainImage,
-                thumbnails: this.thumbnails.length,
-                videoThumbs: this.videoThumbs.length,
-                variationMap: this.variationMap
-            });
-            
             this.init();
         }
         
@@ -117,7 +110,6 @@
             
             // Listen for variation changes
             document.addEventListener('ecommerce.change-variation', (e) => {
-                console.log('[PV GALLERY] Received ecommerce.change-variation event', e.detail)
                 this.handleVariationChange(e.detail);
             });
         }
@@ -332,41 +324,29 @@
         }
         
         handleVariationChange(data) {
-            console.log('[PV GALLERY] handleVariationChange called', data)
             
             const variationId = data.variationId || data.variation_id || data.id || data.productId || data.product_id;
             
-            console.log('[PV GALLERY] Extracted variationId:', variationId)
-            
             if (!variationId) {
-                console.log('[PV GALLERY] No variationId found, exiting')
                 return;
             }
             
             // Find all images for this variation
             const variationImages = this.allImages.filter(img => img.variationId == variationId);
             
-            console.log('[PV GALLERY] Found variation images:', variationImages.length, variationImages)
-            
             if (variationImages.length > 0) {
                 // Reorganize thumbnails: show variation images first, then others
-                console.log('[PV GALLERY] Calling reorderThumbnails with variationId:', variationId)
                 this.reorderThumbnails(variationId);
                 
                 // Jump to first image of this variation
                 const firstVariationImage = variationImages[0];
-                console.log('[PV GALLERY] Jumping to first variation image index:', firstVariationImage.index)
                 this.jumpToImage(firstVariationImage.index);
                 this.scrollThumbnailsToShow(firstVariationImage.index);
             } else {
-                console.log('[PV GALLERY] No variation images found, checking variationMap')
                 // If variationMap has the index, use it
                 let targetIndex = this.variationMap[variationId];
                 
-                console.log('[PV GALLERY] VariationMap lookup:', { variationId, targetIndex, fullMap: this.variationMap })
-                
                 if (targetIndex !== undefined) {
-                    console.log('[PV GALLERY] Found in variationMap, jumping to index:', targetIndex)
                     this.jumpToImage(targetIndex);
                     this.scrollThumbnailsToShow(targetIndex);
                     return;
@@ -375,27 +355,21 @@
                 // Try to find any image with this variation ID
                 const firstVariationImage = this.allImages.find(img => img.variationId == variationId);
                 if (firstVariationImage) {
-                    console.log('[PV GALLERY] Found variation image by ID match:', firstVariationImage.index)
                     this.jumpToImage(firstVariationImage.index);
                     this.scrollThumbnailsToShow(firstVariationImage.index);
-                } else {
-                    console.log('[PV GALLERY] No variation image found at all')
                 }
             }
         }
         
         reorderThumbnails(variationId) {
-            console.log('[PV GALLERY] reorderThumbnails called with variationId:', variationId)
             
             // Get photo thumbnails container
             const photoContainer = this.container.querySelector('.pv-thumbs-photos');
             if (!photoContainer) {
-                console.log('[PV GALLERY] No .pv-thumbs-photos found')
                 return;
             }
             
             const allThumbs = Array.from(photoContainer.querySelectorAll('.pv-thumb'));
-            console.log('[PV GALLERY] Found photo thumbnails:', allThumbs.length)
             
             // Use ORIGINAL data (not current DOM state) to separate thumbnails
             const variationThumbs = [];
@@ -409,13 +383,7 @@
                 }
             });
             
-            console.log('[PV GALLERY] Separated thumbnails from original data:', {
-                variation: variationThumbs.length,
-                other: otherThumbs.length
-            })
-            
             if (variationThumbs.length === 0) {
-                console.log('[PV GALLERY] No variation thumbnails found')
                 return;
             }
             
@@ -442,8 +410,6 @@
                         const thumbUrl = urlPath.replace(/(\.[^.]+)$/, '-150x150$1');
                         img.src = window.location.origin + thumbUrl;
                     }
-                    
-                    console.log(`[PV GALLERY] Swapped thumb ${visualIndex}: ${newImageUrl.substring(newImageUrl.lastIndexOf('/') + 1)}`)
                 }
             });
             
@@ -454,8 +420,6 @@
                 variationId: thumb.getAttribute('data-variation-id'),
                 thumb: thumb
             }));
-            
-            console.log('[PV GALLERY] Reordering complete - URLs swapped, structure intact')
         }
         
         scrollThumbnailsToShow(index) {
@@ -993,7 +957,7 @@
                     navigator.share({
                         title: title,
                         url: url
-                    }).catch((error) => console.log('Error sharing:', error));
+                    }).catch((error) => { /* silent */ });
                 } else {
                     // Fallback: copy to clipboard
                     navigator.clipboard.writeText(url).then(() => {
