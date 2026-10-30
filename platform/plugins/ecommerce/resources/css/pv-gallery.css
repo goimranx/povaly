@@ -57,7 +57,7 @@
     height: 35px;
     border-radius: 50%;
     background-color: #fff;
-    border: 2px solid var(--global-color-primary-border, #ddd);
+    border: 2px solid var(--global-color-border-strong, #ddd);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -73,7 +73,7 @@
 
 /* No hover change */
 .pv-action-btn:hover {
-    border-color: var(--global-color-primary-border, #ddd);
+    border-color: var(--global-color-border-strong, #ddd);
 }
 
 .pv-action-btn:hover i {
@@ -82,7 +82,7 @@
 
 /* Active state - filled icon with text-main color */
 .pv-action-btn.active {
-    border-color: var(--global-color-primary-border, #ddd);
+    border-color: var(--global-color-border-strong, #ddd);
 }
 
 .pv-action-btn.active i {

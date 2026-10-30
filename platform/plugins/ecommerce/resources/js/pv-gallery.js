@@ -833,6 +833,12 @@
                 return;
             }
 
+            // Hide lens when hovering over action buttons
+            if (e.target.closest('.pv-gallery-actions, .pv-action-btn')) {
+                this._onLensMouseLeave();
+                return;
+            }
+
             const imgRect = img.getBoundingClientRect();
             const containerRect = img.parentElement.getBoundingClientRect();
 
