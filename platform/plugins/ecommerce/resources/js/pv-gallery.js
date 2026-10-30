@@ -204,11 +204,15 @@
             this.mainImage.style.opacity = '0.5';
             this.mainImage.style.display = 'block';
             
-            // Store the target URL to verify in onload
-            const targetUrl = imageData.url;
+            // Strip size suffix (e.g., -150x150, -thumb) to get full-size URL
+            let fullSizeUrl = imageData.url.replace(/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
+            fullSizeUrl = fullSizeUrl.replace(/-thumb(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
             
-            // Update main image
-            this.mainImage.src = imageData.url;
+            // Store the target URL to verify in onload
+            const targetUrl = fullSizeUrl;
+            
+            // Update main image with full-size URL
+            this.mainImage.src = fullSizeUrl;
             this.mainImage.srcset = '';
             
             // Clear previous onload handler
