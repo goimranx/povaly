@@ -389,7 +389,42 @@
                                     'product' => $product,
                                     'priceWrapperTag' => 'h3',
                                     'priceWrapperClass' => 'ps-product__total-price',
+                                    'hiddenClasses' => ['ps-product__del-price'], // Hide regular price
                                 ]) !!}
+                            </div>
+                            
+                            {{-- Delivery Details --}}
+                            <div class="ps-product__delivery-details">
+                                <div class="delivery-details-header">
+                                    <span class="delivery-label">{{ __('Deliver to') }}</span>
+                                </div>
+                                <div class="delivery-address-content" id="delivery-address-display">
+                                    @if (auth('customer')->check())
+                                        @php
+                                            $defaultAddress = auth('customer')->user()->addresses()->where('is_default', 1)->first();
+                                        @endphp
+                                        @if ($defaultAddress)
+                                            <div class="delivery-address-text">
+                                                {{ $defaultAddress->name }}, {{ $defaultAddress->address }}, {{ $defaultAddress->city }}
+                                                @if ($defaultAddress->state)
+                                                    , {{ $defaultAddress->state }}
+                                                @endif
+                                                - {{ $defaultAddress->zip_code }}
+                                            </div>
+                                            <a href="{{ route('customer.address.index') }}" class="delivery-change-btn">{{ __('Change') }}</a>
+                                        @else
+                                            <div class="delivery-no-address">
+                                                {{ __('No delivery address set') }}
+                                            </div>
+                                            <a href="{{ route('customer.address.create') }}" class="delivery-add-btn">{{ __('Add address') }}</a>
+                                        @endif
+                                    @else
+                                        <div class="delivery-no-address">
+                                            {{ __('No delivery address set') }}
+                                        </div>
+                                        <a href="{{ route('customer.login') }}?redirect={{ urlencode(url()->current()) }}" class="delivery-add-btn">{{ __('Login to add address') }}</a>
+                                    @endif
+                                </div>
                             </div>
                             
                             <div class="number-items-available mb-3">
