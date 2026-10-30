@@ -83,8 +83,12 @@ class ChangeProductSwatches {
         $body
             .off('change', '.product-attributes input, .product-attributes select')
             .on('change', '.product-attributes input, .product-attributes select', (event) => {
+                console.log('[ATTRIBUTE CHANGE] Event triggered')
+                
                 const $element = $(event.currentTarget)
                 const $parent = $element.closest('.product-attributes')
+                
+                console.log('[ATTRIBUTE CHANGE] Element:', $element[0], 'Parent:', $parent[0])
 
                 // If it's a select dropdown, update the label
                 if ($element.is('select')) {
@@ -97,6 +101,7 @@ class ChangeProductSwatches {
                     }
                 }
 
+                console.log('[ATTRIBUTE CHANGE] Calling getProductVariation')
                 _self.getProductVariation($parent)
             })
 
