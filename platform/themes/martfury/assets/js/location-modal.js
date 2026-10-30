@@ -45,14 +45,15 @@ if (typeof jQuery === 'undefined') {
                 const self = this;
 
                 // Country change - show state dropdown (location.js handles data loading)
-                this.countrySelect.on('change', function() {
+                // Listen to both native change and select2:select events
+                this.countrySelect.on('change select2:select', function() {
                     const countryId = $(this).val();
                     
                     if (countryId) {
                         // Show state dropdown after location.js loads it
                         setTimeout(function() {
                             self.stateSelect.closest('.form-group-location').show();
-                        }, 100);
+                        }, 300);
                         
                         // Hide city and address until state is selected
                         self.citySelect.closest('.form-group-location').hide();
@@ -66,14 +67,15 @@ if (typeof jQuery === 'undefined') {
                 });
 
                 // State change - show city dropdown (location.js handles data loading)
-                this.stateSelect.on('change', function() {
+                // Listen to both native change and select2:select events
+                this.stateSelect.on('change select2:select', function() {
                     const stateId = $(this).val();
                     
                     if (stateId) {
                         // Show city dropdown after location.js loads it
                         setTimeout(function() {
                             self.citySelect.closest('.form-group-location').show();
-                        }, 100);
+                        }, 300);
                         
                         // Hide address until city is selected
                         $('.form-group-location.address-group').hide();
@@ -85,7 +87,8 @@ if (typeof jQuery === 'undefined') {
                 });
 
                 // City change - show address field
-                this.citySelect.on('change', function() {
+                // Listen to both native change and select2:select events
+                this.citySelect.on('change select2:select', function() {
                     if ($(this).val()) {
                         $('.form-group-location.address-group').show();
                     } else {
@@ -104,7 +107,7 @@ if (typeof jQuery === 'undefined') {
                 });
 
                 // Temporary form field changes - deselect saved addresses
-                this.countrySelect.add(this.stateSelect).add(this.citySelect).add(this.addressInput).on('change input', function() {
+                this.countrySelect.add(this.stateSelect).add(this.citySelect).add(this.addressInput).on('change input select2:select', function() {
                     if ($(this).val()) {
                         $('.location-address-radio').prop('checked', false);
                         self.selectedData.type = 'temporary';
