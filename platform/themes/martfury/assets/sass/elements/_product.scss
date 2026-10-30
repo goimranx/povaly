@@ -1808,11 +1808,40 @@
         margin-bottom: 14px;
     }
 
+    // Product Details Section
+    .pd-section {
+        margin-top: 24px;
+    }
+
+    .pd-section-header {
+        margin-bottom: 20px;
+    }
+
+    .pd-section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--global-color-text-main, #1a1a1a);
+        margin: 0 0 12px 0;
+        line-height: 1.3;
+    }
+
+    .pd-section-separator {
+        height: 1px;
+        background-color: var(--global-color-primary-border, #e5e5e5);
+        margin: 0;
+    }
+
     // Accordion
-    .pd-accordion { margin-top: 16px; }
+    .pd-accordion { 
+        margin-top: 0;
+    }
 
     .pd-accordion-item {
-        border-bottom: 1px solid #f3f3f3;
+        border-bottom: 1px solid var(--global-color-primary-border, #e5e5e5);
+        
+        &:first-child {
+            border-top: 1px solid var(--global-color-primary-border, #e5e5e5);
+        }
     }
 
     .pd-accordion-btn {
@@ -1822,12 +1851,17 @@
         gap: 8px;
         background: none;
         border: none;
-        padding: 13px 0;
-        font-size: 14px;
+        padding: 16px 0;
+        font-size: 15px;
         font-weight: 600;
-        color: $color-heading;
+        color: var(--global-color-text-main, #1a1a1a);
         cursor: pointer;
         text-align: left;
+        transition: color 0.2s ease;
+
+        &:hover {
+            color: var(--global-color-primary, #0066cc);
+        }
 
         span:first-child { flex: 1; }
 
