@@ -3390,6 +3390,97 @@
     }
 }
 
+// Saved Addresses Section
+.saved-addresses-section {
+    margin-bottom: 16px;
+    
+    .saved-address-item {
+        margin-bottom: 8px;
+        
+        .saved-address-label {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px;
+            border: 1px solid #d5d9d9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            
+            &:hover {
+                background-color: #f7fafa;
+                border-color: #007185;
+            }
+            
+            input[type="radio"] {
+                margin-top: 2px;
+                margin-right: 10px;
+                flex-shrink: 0;
+                width: 15px;
+                height: 15px;
+                cursor: pointer;
+                
+                &:checked ~ .address-details {
+                    font-weight: 500;
+                }
+            }
+            
+            .address-details {
+                flex: 1;
+                
+                .address-name {
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: #0f1111;
+                    margin-bottom: 4px;
+                    
+                    .badge-default {
+                        display: inline-block;
+                        margin-left: 6px;
+                        padding: 2px 6px;
+                        background-color: #f0f2f2;
+                        border-radius: 4px;
+                        font-size: 11px;
+                        font-weight: 400;
+                        color: #565959;
+                    }
+                }
+                
+                .address-full {
+                    font-size: 13px;
+                    color: #565959;
+                    line-height: 1.4;
+                    margin-bottom: 2px;
+                }
+                
+                .address-phone {
+                    font-size: 12px;
+                    color: #565959;
+                }
+            }
+        }
+        
+        input[type="radio"]:checked + .saved-address-label,
+        .saved-address-label:has(input[type="radio"]:checked) {
+            border-color: #e77600;
+            background-color: #fff7f0;
+        }
+    }
+}
+
+.no-addresses-notice {
+    text-align: center;
+    padding: 16px;
+    background-color: #f7fafa;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    
+    p {
+        margin: 0;
+        color: #565959;
+        font-size: 13px;
+    }
+}
+
 // Location Form
 .location-temp-form {
     .form-group-location {
@@ -3412,7 +3503,6 @@
         color: #0f1111;
         font-size: 13px;
         line-height: 1.4;
-        cursor: pointer;
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
         &:hover:not(:disabled) {
@@ -3432,6 +3522,10 @@
             cursor: not-allowed;
             opacity: 0.6;
         }
+    }
+    
+    .form-select-location {
+        cursor: pointer;
     }
     
     .form-input-location {
