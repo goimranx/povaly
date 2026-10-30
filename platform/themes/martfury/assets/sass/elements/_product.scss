@@ -3262,3 +3262,306 @@
     animation: skeleton-loading 1.5s infinite;
     border-radius: 4px;
 }
+
+// ============================================
+// Location Modal Styles
+// ============================================
+#location-modal {
+    .modal-dialog {
+        max-width: 600px;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #e9ecef;
+        padding: 1.25rem 1.5rem;
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--global-color-text-main, #1a1a1a);
+        }
+
+        .btn-close {
+            padding: 0.75rem;
+            margin: -0.75rem -0.75rem -0.75rem auto;
+        }
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+        max-height: calc(100vh - 200px);
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #e9ecef;
+        padding: 1rem 1.5rem;
+    }
+}
+
+// Section Titles
+.location-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--global-color-text-main, #1a1a1a);
+    margin-bottom: 1rem;
+}
+
+.location-temp-description {
+    font-size: 0.875rem;
+    color: var(--global-color-text-body, #666);
+    margin-bottom: 1.25rem;
+}
+
+// Saved Addresses Section
+.location-saved-addresses {
+    margin-bottom: 1.5rem;
+}
+
+.location-addresses-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.location-address-item {
+    position: relative;
+
+    .location-address-radio {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+
+        &:checked + .location-address-label {
+            border-color: var(--global-color-primary, #fcb800);
+            background-color: #fffbf0;
+
+            &::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                right: 1rem;
+                transform: translateY(-50%);
+                width: 20px;
+                height: 20px;
+                background-color: var(--global-color-primary, #fcb800);
+                border-radius: 50%;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+                background-size: 12px;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+        }
+    }
+
+    .location-address-label {
+        display: block;
+        padding: 1rem;
+        padding-right: 3rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+
+        &:hover {
+            border-color: var(--global-color-primary, #fcb800);
+            background-color: #fffef8;
+        }
+    }
+
+    .location-address-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .location-address-name {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--global-color-text-main, #1a1a1a);
+    }
+
+    .location-address-details {
+        font-size: 0.875rem;
+        color: var(--global-color-text-body, #666);
+        line-height: 1.5;
+    }
+
+    .location-address-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        background-color: var(--global-color-primary, #fcb800);
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 4px;
+        margin-top: 0.5rem;
+    }
+}
+
+.location-no-address-message {
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1rem;
+
+    p {
+        margin: 0;
+        color: var(--global-color-text-body, #666);
+        font-size: 0.9375rem;
+    }
+}
+
+.location-manage-btn-wrapper {
+    display: flex;
+    justify-content: center;
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+
+        i {
+            font-size: 1.125rem;
+        }
+    }
+}
+
+// Guest Section
+.location-guest-section {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.location-guest-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+
+    i {
+        font-size: 3rem;
+        color: var(--global-color-primary, #fcb800);
+    }
+
+    p {
+        margin: 0;
+        font-size: 0.9375rem;
+        color: var(--global-color-text-body, #666);
+    }
+}
+
+// OR Separator
+.location-or-separator {
+    position: relative;
+    text-align: center;
+    margin: 1.5rem 0;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background-color: #e9ecef;
+    }
+
+    span {
+        position: relative;
+        display: inline-block;
+        padding: 0 1rem;
+        background-color: #fff;
+        color: var(--global-color-text-body, #666);
+        font-size: 0.875rem;
+        font-weight: 600;
+        z-index: 1;
+    }
+}
+
+// Temporary Address Form
+.location-temporary-address {
+    .location-temp-form {
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--global-color-text-main, #1a1a1a);
+            margin-bottom: 0.5rem;
+
+            .text-danger {
+                color: #dc3545;
+            }
+        }
+
+        .form-select,
+        .form-control {
+            padding: 0.625rem 0.875rem;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.9375rem;
+            transition: border-color 0.2s ease;
+
+            &:focus {
+                border-color: var(--global-color-primary, #fcb800);
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(252, 184, 0, 0.1);
+            }
+
+            &:disabled {
+                background-color: #f8f9fa;
+                cursor: not-allowed;
+            }
+        }
+    }
+}
+
+// Responsive
+@media (max-width: 767px) {
+    #location-modal {
+        .modal-dialog {
+            margin: 0.5rem;
+        }
+
+        .modal-body {
+            padding: 1rem;
+            max-height: calc(100vh - 150px);
+        }
+
+        .location-address-item {
+            .location-address-label {
+                padding: 0.875rem;
+                padding-right: 2.5rem;
+            }
+
+            .location-address-name {
+                font-size: 0.9375rem;
+            }
+
+            .location-address-details {
+                font-size: 0.8125rem;
+            }
+        }
+    }
+}
+
+
+// Delivery Display Updates
+.delivery-temp-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    background-color: #17a2b8;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}

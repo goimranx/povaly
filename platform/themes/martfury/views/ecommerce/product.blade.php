@@ -411,18 +411,18 @@
                                                 @endif
                                                 - {{ $defaultAddress->zip_code }}
                                             </div>
-                                            <a href="{{ route('customer.address') }}" class="delivery-change-btn">{{ __('Change') }}</a>
+                                            <a href="#" class="delivery-change-btn trigger-location-modal">{{ __('Change') }}</a>
                                         @else
                                             <div class="delivery-no-address">
                                                 {{ __('No delivery address set') }}
                                             </div>
-                                            <a href="{{ route('customer.address.create') }}" class="delivery-add-btn">{{ __('Add address') }}</a>
+                                            <a href="#" class="delivery-add-btn trigger-location-modal">{{ __('Add address') }}</a>
                                         @endif
                                     @else
                                         <div class="delivery-no-address">
                                             {{ __('No delivery address set') }}
                                         </div>
-                                        <a href="{{ route('customer.login') }}?redirect={{ urlencode(url()->current()) }}" class="delivery-add-btn">{{ __('Login to add address') }}</a>
+                                        <a href="#" class="delivery-add-btn trigger-location-modal">{{ __('Login to add address') }}</a>
                                     @endif
                                 </div>
                             </div>
@@ -848,3 +848,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
+
+
+@include(Theme::getThemeNamespace('views.ecommerce.includes.location-modal'))
+
+@push('footer')
+    <script src="{{ Theme::asset()->url('js/location-modal.js') }}"></script>
+@endpush
