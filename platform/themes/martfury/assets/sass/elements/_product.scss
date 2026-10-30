@@ -1887,7 +1887,7 @@
         padding: 0;
         margin: 0;
         font-size: 14px;
-        color: $color-text;
+        color: var(--global-color-text-body, #666);
         line-height: 1.6;
         
         &.ps-list--dot {
@@ -1901,6 +1901,15 @@
                 &:before {
                     display: none !important;
                 }
+            }
+        }
+        
+        p {
+            color: var(--global-color-text-body, #666);
+            
+            strong {
+                color: var(--global-color-text-main, #1a1a1a);
+                font-weight: 600;
             }
         }
     }
@@ -2017,14 +2026,18 @@
     }
 
     .pd-return-policy {
-        display: flex;
-        gap: 12px;
-        align-items: flex-start;
-
-        .pd-return-icon i { font-size: 24px; color: $color-1st; }
         .pd-return-text {
-            p { margin-bottom: 4px; font-size: 13px; }
-            p:last-child { margin-bottom: 0; color: $color-text; }
+            p { 
+                margin-bottom: 4px; 
+                font-size: 13px;
+                color: var(--global-color-text-body, #666);
+                
+                strong {
+                    color: var(--global-color-text-main, #1a1a1a);
+                    font-weight: 600;
+                }
+            }
+            p:last-child { margin-bottom: 0; }
         }
     }
 

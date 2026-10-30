@@ -284,9 +284,8 @@
                                 </button>
                                 <div id="pd-return" class="collapse" data-bs-parent="#pd-accordion">
                                     <div class="pd-accordion-body pd-return-policy">
-                                        <div class="pd-return-icon"><i class="ph ph-arrow-counter-clockwise"></i></div>
                                         <div class="pd-return-text">
-                                            <p><strong>{{ __('30-day returns') }}</strong></p>
+                                            <p><strong>{{ __('7 day returns') }}</strong></p>
                                             <p>{{ __('Return within 7 days of receiving your order. We cover full refund minus the delivery charge. Simply contact us and we\'ll handle the rest.') }}</p>
                                         </div>
                                     </div>
