@@ -68,6 +68,7 @@
                 
                 // Mouse leave restores the active image with full-size URL
                 thumb.addEventListener('mouseleave', () => {
+                    console.log('[PV GALLERY] Mouse leave - restoring currentIndex:', this.currentIndex);
                     // Re-jump to current active index to ensure full-size URL is loaded
                     this.jumpToImage(this.currentIndex);
                 });
@@ -188,6 +189,15 @@
         jumpToImage(index) {
             const imageData = this.allImages.find(img => img.index === index);
             
+            console.log('[PV GALLERY] jumpToImage called', {
+                requestedIndex: index,
+                currentIndex: this.currentIndex,
+                imageData: imageData,
+                imageUrl: imageData?.url,
+                allImagesCount: this.allImages.length,
+                allImages: this.allImages.map(img => ({ index: img.index, url: img.url, variationId: img.variationId }))
+            });
+            
             if (!imageData || !this.mainImage) return;
             
             // Hide video facade and show main image
@@ -204,12 +214,15 @@
             this.mainImage.style.opacity = '0.5';
             this.mainImage.style.display = 'block';
             
+            console.log('[PV GALLERY] Setting mainImage.src to:', imageData.url);
+            
             // Update main image
             this.mainImage.src = imageData.url;
             this.mainImage.srcset = '';
             
             // Remove loading state when image loads
             this.mainImage.onload = () => {
+                console.log('[PV GALLERY] Image loaded:', this.mainImage.src);
                 this.mainImage.style.opacity = '1';
                 this.mainImage.style.transition = 'opacity 0.2s ease';
             };
@@ -217,6 +230,8 @@
             // Update active state
             this.setActive(index);
             this.currentIndex = index;
+            
+            console.log('[PV GALLERY] After update - currentIndex:', this.currentIndex);
         }
         
         setActive(index) {
@@ -369,6 +384,7 @@
         }
         
         reorderThumbnails(variationId) {
+            console.log('[PV GALLERY] reorderThumbnails called with variationId:', variationId);
             
             // Get photo thumbnails container
             const photoContainer = this.container.querySelector('.pv-thumbs-photos');
@@ -428,11 +444,22 @@
                 thumb: thumb
             }));
             
+            console.log('[PV GALLERY] After reorderThumbnails - allImages:', this.allImages.map(img => ({
+                index: img.index,
+                url: img.url,
+                variationId: img.variationId
+            })));
+            
             // Update currentIndex to point to the currently active image's new position
             const activeThumb = allThumbs.find(t => t.classList.contains('pv-active'));
+            console.log('[PV GALLERY] Active thumb found:', activeThumb ? 'yes' : 'no', activeThumb?.getAttribute('data-index'));
+            
             if (activeThumb) {
                 const activeDataIndex = parseInt(activeThumb.getAttribute('data-index'));
                 const activeImageData = this.allImages.find(img => img.index === activeDataIndex);
+                
+                console.log('[PV GALLERY] Updating currentIndex from', this.currentIndex, 'to', activeImageData?.index);
+                
                 if (activeImageData) {
                     this.currentIndex = activeImageData.index;
                 }
