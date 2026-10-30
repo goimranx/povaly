@@ -225,7 +225,7 @@
             
             // Remove loading state when image loads
             this.mainImage.onload = () => {
-                console.log('[PV GALLERY] Image loaded:', this.mainImage.src);
+                console.log('[PV GALLERY MAIN IMAGE] Image loaded:', this.mainImage.src, 'Element:', this.mainImage.id);
                 this.mainImage.style.opacity = '1';
                 this.mainImage.style.transition = 'opacity 0.2s ease';
             };
