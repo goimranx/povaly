@@ -2148,11 +2148,29 @@
         }
     };
 
-    // Initialize read more button text on page load
+    // Initialize read more button - hide if content is short
     $(document).ready(function() {
+        const content = document.getElementById('pd-description-content');
         const btn = document.getElementById('pd-read-more-btn');
-        if (btn) {
+        
+        if (content && btn) {
+            // Store button texts
             btn.dataset.moreText = btn.textContent;
             btn.dataset.lessText = 'Read less';
+            
+            // Check if content needs read more button
+            const lineHeight = parseFloat(getComputedStyle(content).lineHeight);
+            const maxHeight = lineHeight * 6; // 6 lines
+            
+            // Temporarily show full content to measure
+            content.classList.remove('pd-description-collapsed');
+            const fullHeight = content.scrollHeight;
+            content.classList.add('pd-description-collapsed');
+            
+            // Hide button if content is short enough
+            if (fullHeight <= maxHeight) {
+                btn.classList.add('pd-hidden');
+                content.classList.remove('pd-description-collapsed');
+            }
         }
     });

@@ -1891,20 +1891,31 @@
     }
 
     // Description with read more/less
+    .od-collapse-module {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     .antd-external-collapse {
         height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
         
         &.collapse-body {
-            margin: 16px 0 0 !important;
+            margin: 0 !important;
             padding: 0 !important;
             height: auto !important;
         }
         
         > div {
             height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
             
             > div {
                 height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
         }
     }
@@ -1916,34 +1927,49 @@
     }
 
     .pd-description-content {
+        position: relative;
+        
         &.pd-description-collapsed {
-            display: -webkit-box;
-            -webkit-line-clamp: 6;
-            -webkit-box-orient: vertical;
+            max-height: calc(1.6em * 6); // 6 lines
             overflow: hidden;
+            position: relative;
+            
+            &::after {
+                content: '...';
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                padding-left: 40px;
+                background: linear-gradient(to right, transparent, white 50%);
+            }
         }
 
         p {
-            margin: 0;
-            padding: 0;
+            margin: 0 !important;
+            padding: 0 !important;
             line-height: 1.6;
         }
     }
 
     .pd-read-more-btn {
-        display: inline-block;
+        display: inline;
         background: none;
         border: none;
         padding: 0;
-        margin-top: 8px;
+        margin-left: 4px;
         font-size: 14px;
         font-weight: 500;
         color: var(--global-color-link, #0066cc);
         cursor: pointer;
-        text-decoration: underline;
+        text-decoration: none;
         
         &:hover {
             color: var(--global-color-link-hover, #004999);
+            text-decoration: underline;
+        }
+        
+        &.pd-hidden {
+            display: none;
         }
     }
 
