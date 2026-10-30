@@ -39,6 +39,17 @@ if (typeof jQuery === 'undefined') {
                 $('.form-group-location.address-group').hide();
 
                 this.bindEvents();
+                
+                // Wait for location.js to initialize on document ready
+                const self = this;
+                setTimeout(function() {
+                    // Check if Select2 was initialized by location.js
+                    if (self.countrySelect.hasClass('select2-hidden-accessible')) {
+                        console.log('Select2 initialized on country select');
+                    } else {
+                        console.log('Select2 NOT initialized - location.js may not be loaded');
+                    }
+                }, 500);
             },
 
             bindEvents: function() {
