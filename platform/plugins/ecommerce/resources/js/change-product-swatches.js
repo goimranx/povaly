@@ -358,6 +358,7 @@ class ChangeProductSwatches {
     }
     
     updateSwatchPricesSimple(variationData, $productAttributes) {
+        const _self = this
         console.log('=== updateSwatchPricesSimple CALLED ===')
         
         // Parse price map
@@ -446,8 +447,8 @@ class ChangeProductSwatches {
             // Update price if match found
             if (matched && matched.price) {
                 // Format price without decimals
-                const price = this.formatPrice(Math.round(matched.price))
-                const origPrice = matched.original_price ? this.formatPrice(Math.round(matched.original_price)) : null
+                const price = _self.formatPrice(Math.round(matched.price))
+                const origPrice = matched.original_price ? _self.formatPrice(Math.round(matched.original_price)) : null
                 
                 console.log(`  Updating to price: ${price}`)
                 
