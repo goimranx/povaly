@@ -44,60 +44,34 @@ if (typeof jQuery === 'undefined') {
             bindEvents: function() {
                 const self = this;
 
-                // Country change - show state dropdown and set data attributes for location.js
+                // Country change - load states and show state dropdown
                 this.countrySelect.on('change', function() {
                     const countryId = $(this).val();
                     
                     if (countryId) {
-                        // Set data attribute for location.js
-                        self.stateSelect.attr('data-country-id', countryId);
-                        self.citySelect.attr('data-country-id', countryId);
-                        
-                        // Show and enable state dropdown
-                        self.stateSelect.prop('disabled', false);
-                        self.stateSelect.closest('.form-group-location').show();
-                        
-                        // Hide city and address
-                        self.citySelect.closest('.form-group-location').hide();
-                        $('.form-group-location.address-group').hide();
-                        
-                        // Reset state and city
-                        self.stateSelect.val('').trigger('change');
-                        self.citySelect.val('');
+                        self.loadStates(countryId);
                     } else {
                         // Hide everything except country
                         self.stateSelect.closest('.form-group-location').hide();
                         self.citySelect.closest('.form-group-location').hide();
                         $('.form-group-location.address-group').hide();
-                        self.stateSelect.prop('disabled', true);
-                        self.citySelect.prop('disabled', true);
+                        self.stateSelect.prop('disabled', true).html('<option value="">Select state...</option>');
+                        self.citySelect.prop('disabled', true).html('<option value="">Select city...</option>');
                     }
                 });
 
-                // State change - show city dropdown and set data attributes for location.js
+                // State change - load cities and show city dropdown
                 this.stateSelect.on('change', function() {
                     const stateId = $(this).val();
                     const countryId = self.countrySelect.val();
                     
                     if (stateId) {
-                        // Set data attributes for location.js
-                        self.citySelect.attr('data-state-id', stateId);
-                        self.citySelect.attr('data-country-id', countryId);
-                        
-                        // Show and enable city dropdown
-                        self.citySelect.prop('disabled', false);
-                        self.citySelect.closest('.form-group-location').show();
-                        
-                        // Hide address
-                        $('.form-group-location.address-group').hide();
-                        
-                        // Reset city
-                        self.citySelect.val('');
+                        self.loadCities(stateId, countryId);
                     } else {
                         // Hide city and address
                         self.citySelect.closest('.form-group-location').hide();
                         $('.form-group-location.address-group').hide();
-                        self.citySelect.prop('disabled', true);
+                        self.citySelect.prop('disabled', true).html('<option value="">Select city...</option>');
                     }
                 });
 
@@ -134,9 +108,79 @@ if (typeof jQuery === 'undefined') {
                     self.saveLocation();
                 });
 
-                // Modal shown event - reinitialize location.js for this modal
+                // Modal shown event
                 this.modal.on('shown.bs.modal', function() {
                     self.initializeModalState();
+                });
+            },
+
+            loadStates: function(countryId) {
+                const self = this;
+
+                // Show loading state
+                this.stateSelect.prop('disabled', true).html('<option value="">Loading states...</option>');
+                this.stateSelect.closest('.form-group-location').show();
+                
+                // Hide city and address
+                this.citySelect.closest('.form-group-location').hide();
+                $('.form-group-location.address-group').hide();
+
+                $.ajax({
+                    url: this.stateSelect.data('url'),
+                    type: 'GET',
+                    data: { country_id: countryId },
+                    success: function(response) {
+                        let options = '<option value="">Select state...</option>';
+                        
+                        if (response.data && response.data.length > 0) {
+                            response.data.forEach(function(state) {
+                                if (state.id) {
+                                    options += `<option value="${state.id}">${state.name}</option>`;
+                                }
+                            });
+                        }
+
+                        self.stateSelect.html(options).prop('disabled', false);
+                    },
+                    error: function() {
+                        self.stateSelect.html('<option value="">Error loading states</option>').prop('disabled', false);
+                    }
+                });
+            },
+
+            loadCities: function(stateId, countryId) {
+                const self = this;
+
+                // Show loading state
+                this.citySelect.prop('disabled', true).html('<option value="">Loading cities...</option>');
+                this.citySelect.closest('.form-group-location').show();
+                
+                // Hide address
+                $('.form-group-location.address-group').hide();
+
+                $.ajax({
+                    url: this.citySelect.data('url'),
+                    type: 'GET',
+                    data: { 
+                        state_id: stateId,
+                        country_id: countryId
+                    },
+                    success: function(response) {
+                        let options = '<option value="">Select city...</option>';
+                        
+                        if (response.data && response.data.length > 0) {
+                            response.data.forEach(function(city) {
+                                if (city.id) {
+                                    options += `<option value="${city.id}">${city.name}</option>`;
+                                }
+                            });
+                        }
+
+                        self.citySelect.html(options).prop('disabled', false);
+                    },
+                    error: function() {
+                        self.citySelect.html('<option value="">Error loading cities</option>').prop('disabled', false);
+                    }
                 });
             },
 
