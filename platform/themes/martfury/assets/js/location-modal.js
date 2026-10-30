@@ -35,6 +35,11 @@ if (typeof jQuery === 'undefined') {
             this.zipInput = $('#temp-zip');
             this.saveBtn = $('#save-location-btn');
 
+            // Hide all fields except country initially
+            this.stateSelect.closest('.form-group-location').hide();
+            this.citySelect.closest('.form-group-location').hide();
+            $('.form-group-location.address-group').hide();
+
             this.bindEvents();
         },
 
@@ -49,6 +54,15 @@ if (typeof jQuery === 'undefined') {
             // State change - load cities
             this.stateSelect.on('change', function() {
                 self.loadCities($(this).val(), self.countrySelect.val());
+            });
+
+            // City change - show address field
+            this.citySelect.on('change', function() {
+                if ($(this).val()) {
+                    $('.form-group-location.address-group').show();
+                } else {
+                    $('.form-group-location.address-group').hide();
+                }
             });
 
             // Saved address radio selection
@@ -90,13 +104,18 @@ if (typeof jQuery === 'undefined') {
 
             if (!countryId) {
                 this.stateSelect.html('<option value="">Select state...</option>').prop('disabled', true);
+                this.stateSelect.closest('.form-group-location').hide();
                 this.citySelect.html('<option value="">Select city...</option>').prop('disabled', true);
+                this.citySelect.closest('.form-group-location').hide();
+                $('.form-group-location.address-group').hide();
                 return;
             }
 
             // Enable and show loading
             this.stateSelect.prop('disabled', true).html('<option value="">Loading...</option>');
             this.citySelect.html('<option value="">Select city...</option>').prop('disabled', true);
+            this.citySelect.closest('.form-group-location').hide();
+            $('.form-group-location.address-group').hide();
 
             $.ajax({
                 url: this.stateSelect.data('url'),
@@ -114,9 +133,12 @@ if (typeof jQuery === 'undefined') {
                     }
 
                     self.stateSelect.html(options).prop('disabled', false);
+                    // Show state dropdown after country is selected
+                    self.stateSelect.closest('.form-group-location').show();
                 },
                 error: function() {
                     self.stateSelect.html('<option value="">Error loading states</option>').prop('disabled', false);
+                    self.stateSelect.closest('.form-group-location').show();
                 }
             });
         },
@@ -126,11 +148,14 @@ if (typeof jQuery === 'undefined') {
 
             if (!stateId) {
                 this.citySelect.html('<option value="">Select city...</option>').prop('disabled', true);
+                this.citySelect.closest('.form-group-location').hide();
+                $('.form-group-location.address-group').hide();
                 return;
             }
 
             // Enable and show loading
             this.citySelect.prop('disabled', true).html('<option value="">Loading...</option>');
+            $('.form-group-location.address-group').hide();
 
             $.ajax({
                 url: this.citySelect.data('url'),
@@ -151,9 +176,12 @@ if (typeof jQuery === 'undefined') {
                     }
 
                     self.citySelect.html(options).prop('disabled', false);
+                    // Show city dropdown after state is selected
+                    self.citySelect.closest('.form-group-location').show();
                 },
                 error: function() {
                     self.citySelect.html('<option value="">Error loading cities</option>').prop('disabled', false);
+                    self.citySelect.closest('.form-group-location').show();
                 }
             });
         },

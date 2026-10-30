@@ -14,18 +14,17 @@
                 <p class="modal-description">{{ __('Delivery options and delivery speeds may vary for different locations') }}</p>
                 
                 @if (auth('customer')->check())
-                    {{-- Logged-in User: Show Saved Addresses --}}
+                    {{-- Logged-in User: Show saved addresses OR manage link --}}
                     @php
                         $userAddresses = auth('customer')->user()->addresses;
                     @endphp
                     
                     @if ($userAddresses->isNotEmpty())
-                        <a href="{{ route('customer.login') }}" class="btn-primary-action">
-                            {{ __('Sign in to see your addresses') }}
-                        </a>
-                        
-                        <div class="modal-or-divider">
-                            <span>{{ __('or enter a location') }}</span>
+                        {{-- Show saved addresses list here if needed in future --}}
+                        <div class="location-manage-actions">
+                            <a href="{{ route('customer.address') }}" class="btn-secondary-link">
+                                {{ __('Manage address book') }}
+                            </a>
                         </div>
                     @else
                         <div class="location-manage-actions">
@@ -33,11 +32,11 @@
                                 {{ __('Manage address book') }}
                             </a>
                         </div>
-                        
-                        <div class="modal-or-divider">
-                            <span>{{ __('or enter a location') }}</span>
-                        </div>
                     @endif
+                    
+                    <div class="modal-or-divider">
+                        <span>{{ __('or enter a location') }}</span>
+                    </div>
                 @else
                     {{-- Guest User: Show Sign In Button --}}
                     <a href="{{ route('customer.login') }}" class="btn-primary-action">
@@ -51,8 +50,8 @@
                 
                 {{-- Temporary Address Form (For Both Logged-in & Guest) --}}
                 <form id="temporary-address-form" class="location-temp-form">
-                    {{-- Country Dropdown --}}
-                    <div class="form-group-location">
+                    {{-- Country Dropdown (Always visible) --}}
+                    <div class="form-group-location country-group">
                         <select name="country" id="temp-country" class="form-select-location">
                             <option value="">{{ __('Select country...') }}</option>
                             @foreach(\Botble\Ecommerce\Facades\EcommerceHelper::getAvailableCountries() as $countryCode => $countryName)
@@ -61,38 +60,49 @@
                         </select>
                     </div>
                     
-                    <div class="form-row-location">
-                        {{-- State Dropdown --}}
-                        <div class="form-group-location">
-                            <select 
-                                name="state" 
-                                id="temp-state" 
-                                class="form-select-location" 
-                                data-type="state"
-                                data-url="{{ route('ajax.states-by-country') }}"
-                                disabled
-                            >
-                                <option value="">{{ __('Select state...') }}</option>
-                            </select>
-                        </div>
-                        
-                        {{-- City Dropdown --}}
-                        <div class="form-group-location">
-                            <select 
-                                name="city" 
-                                id="temp-city" 
-                                class="form-select-location" 
-                                data-type="city"
-                                data-url="{{ route('ajax.cities-by-state') }}"
-                                disabled
-                            >
-                                <option value="">{{ __('Select city...') }}</option>
-                            </select>
-                        </div>
+                    {{-- State Dropdown (Hidden until country selected) --}}
+                    <div class="form-group-location state-group">
+                        <select 
+                            name="state" 
+                            id="temp-state" 
+                            class="form-select-location" 
+                            data-type="state"
+                            data-url="{{ route('ajax.states-by-country') }}"
+                            disabled
+                        >
+                            <option value="">{{ __('Select state...') }}</option>
+                        </select>
+                    </div>
+                    
+                    {{-- City Dropdown (Hidden until state selected) --}}
+                    <div class="form-group-location city-group">
+                        <select 
+                            name="city" 
+                            id="temp-city" 
+                            class="form-select-location" 
+                            data-type="city"
+                            data-url="{{ route('ajax.cities-by-state') }}"
+                            disabled
+                        >
+                            <option value="">{{ __('Select city...') }}</option>
+                        </select>
+                    </div>
+                    
+                    {{-- Street Address (Hidden until city selected) --}}
+                    <div class="form-group-location address-group">
+                        <input 
+                            type="text" 
+                            name="address" 
+                            id="temp-address" 
+                            class="form-input-location" 
+                            placeholder="{{ __('Enter street address') }}"
+                        >
                     </div>
                     
                     {{-- Ship Outside Notice --}}
-                    <p class="modal-ship-notice">{{ __('or ship outside the country') }}</p>
+                    <p class="modal-ship-notice">
+                        <a href="#" id="ship-outside-link">{{ __('or ship outside the country') }}</a>
+                    </p>
                 </form>
             </div>
             

@@ -3394,16 +3394,16 @@
 .location-temp-form {
     .form-group-location {
         margin-bottom: 12px;
+        
+        &.state-group,
+        &.city-group,
+        &.address-group {
+            display: none; // Hidden by default, shown progressively by JS
+        }
     }
 
-    .form-row-location {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-bottom: 12px;
-    }
-
-    .form-select-location {
+    .form-select-location,
+    .form-input-location {
         width: 100%;
         padding: 8px 12px;
         border: 1px solid #888c8c;
@@ -3433,18 +3433,25 @@
             opacity: 0.6;
         }
     }
+    
+    .form-input-location {
+        cursor: text;
+    }
 
     .modal-ship-notice {
         font-size: 12px;
-        color: #007185;
         margin: 12px 0 0;
         text-align: center;
-        cursor: pointer;
-        text-decoration: none;
-
-        &:hover {
-            color: #c7511f;
-            text-decoration: underline;
+        
+        a {
+            color: #007185;
+            text-decoration: none;
+            cursor: pointer;
+            
+            &:hover {
+                color: #c7511f;
+                text-decoration: underline;
+            }
         }
     }
 }
@@ -3503,12 +3510,6 @@
         .modal-footer {
             padding-left: 16px;
             padding-right: 16px;
-        }
-    }
-
-    .location-temp-form {
-        .form-row-location {
-            grid-template-columns: 1fr;
         }
     }
 }
