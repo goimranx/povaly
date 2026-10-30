@@ -16,6 +16,7 @@
             this.thumbnails = container.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
             this.videoThumbs = container.querySelectorAll('.pv-thumb-video');
             this.currentIndex = parseInt(container.getAttribute('data-default-index')) || 0;
+            this.selectedIndex = this.currentIndex; // Track actual selected/active image
             this.variationMap = JSON.parse(container.getAttribute('data-variation-map') || '{}');
             this.allImages = [];
             this.imageUrls = [];
@@ -63,6 +64,12 @@
                 thumb.addEventListener('mouseenter', () => {
                     const index = parseInt(thumb.getAttribute('data-index'));
                     this.jumpToImage(index);
+                });
+                
+                // Mouse leave restores the active image with full-size URL
+                thumb.addEventListener('mouseleave', () => {
+                    // Re-jump to current active index to ensure full-size URL is loaded
+                    this.jumpToImage(this.currentIndex);
                 });
                 
                 // Click opens lightbox only for counter overlay (+N), not regular thumbnails
