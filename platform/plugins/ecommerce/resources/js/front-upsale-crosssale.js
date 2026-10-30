@@ -127,8 +127,6 @@
             window.ShofyApp.showError(message)
         } else if (typeof window.showError === 'function') {
             window.showError(message)
-        } else {
-            console.error(message)
         }
     }
 
@@ -219,7 +217,7 @@
                         }
                     },
                     error: function (error) {
-                        console.error('Failed to load lazy content:', error)
+                        // Silent error
                     },
                 })
             })
