@@ -374,15 +374,8 @@
                                 @endforeach
                             </div>
                         @endif
-                            </div>
                         </div>
                         {{-- End of pd-section --}}
-
-                        {{-- Sharing --}}
-                        <div class="pd-sharing">
-                            <span>{{ __('Share:') }}</span>
-                            {!! Theme::renderSocialSharing($product->url, SeoHelper::getDescription(), $product->image) !!}
-                        </div>
 
                     </div>
                     <!-- END: Product Details -->
