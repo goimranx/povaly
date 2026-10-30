@@ -363,53 +363,43 @@ class ChangeProductSwatches {
         const _self = this
         console.log('=== updateSwatchPricesSimple CALLED ===')
         
-        // Parse price map
-        const priceMap = $productAttributes.data('variation-prices')
-        console.log('Price map:', priceMap)
-        console.log('Price map DETAILED:', JSON.stringify(priceMap, null, 2))
-        
-        if (!priceMap || !Array.isArray(priceMap)) {
-            console.log('NO PRICE MAP or not array - exiting')
-            return
-        }
-        
         // Get ALL currently selected attribute IDs (from all sets)
         const selectedAttrIds = []
         $productAttributes.find('.bb-product-attribute-swatch-item.selected, .bb-product-attribute-swatch-item input:checked').each(function() {
             const $this = $(this)
             const $item = $this.hasClass('bb-product-attribute-swatch-item') ? $this : $this.closest('.bb-product-attribute-swatch-item')
             const attrId = parseInt($item.data('id'))
-            console.log('  Found selected item:', $item[0], 'attr ID:', attrId)
             if (attrId && !selectedAttrIds.includes(attrId)) {
                 selectedAttrIds.push(attrId)
             }
         })
-        console.log('Selected attribute IDs:', selectedAttrIds)
         
         // ALSO check for selected dropdowns
         $productAttributes.find('select.product-filter-item').each(function() {
             const $select = $(this)
             const selectedValue = parseInt($select.val())
-            console.log('  Found dropdown with value:', selectedValue)
             if (selectedValue && !selectedAttrIds.includes(selectedValue)) {
                 selectedAttrIds.push(selectedValue)
             }
         })
-        console.log('Selected attribute IDs (after dropdowns):', selectedAttrIds)
         
-        // Update each visual swatch price
-        let swatchCount = 0
+        console.log('Selected attribute IDs:', selectedAttrIds)
+        
+        const ajaxUrl = $productAttributes.data('target')
+        if (!ajaxUrl) {
+            console.log('No AJAX URL found, skipping swatch price updates')
+            return
+        }
+        
+        // Update each visual swatch price by fetching its variation data
         $productAttributes.find('.qs-var-item').each(function() {
-            swatchCount++
             const $item = $(this)
             const colorId = parseInt($item.data('id'))
             const $priceDiv = $item.find('.qs-var-item__price')
             
-            console.log(`Swatch ${swatchCount}: colorId=${colorId}, has price div=${$priceDiv.length > 0}`)
-            
             if (!$priceDiv.length || !colorId) return
             
-            // Build test combination: this color + all OTHER selected attributes (not from this color's set)
+            // Build test combination: this swatch's color + all OTHER selected attributes
             const $thisSet = $item.closest('.attribute-swatches-wrapper')
             const testAttrIds = selectedAttrIds.filter(id => {
                 const $selectedItem = $productAttributes.find(`.bb-product-attribute-swatch-item[data-id="${id}"]`)
@@ -417,54 +407,36 @@ class ChangeProductSwatches {
                 return $selectedSet.data('slug') !== $thisSet.data('slug')
             })
             testAttrIds.push(colorId)
-            testAttrIds.sort()
             
-            console.log(`  Test combination for swatch ${swatchCount}:`, testAttrIds)
+            console.log(`Fetching price for swatch ${colorId} with attributes:`, testAttrIds)
             
-            // Find matching variation
-            let matched = null
-            for (const pv of priceMap) {
-                const pvAttrs = (pv.attrs || []).slice().sort()
-                if (JSON.stringify(pvAttrs) === JSON.stringify(testAttrIds)) {
-                    matched = pv
-                    break
-                }
-            }
-            
-            // If no exact match, find ANY variation with this color
-            if (!matched) {
-                console.log(`  No exact match, looking for any variation with color ${colorId}`)
-                for (const pv of priceMap) {
-                    const pvAttrs = (pv.attrs || [])
-                    if (pvAttrs.includes(colorId)) {
-                        matched = pv
-                        console.log(`  Fallback match found:`, matched)
-                        break
+            // Fetch variation data for this combination
+            $.ajax({
+                url: ajaxUrl,
+                type: 'GET',
+                data: {
+                    attributes: testAttrIds,
+                    _: +new Date()
+                },
+                success: (res) => {
+                    if (res && res.data && !res.data.error_message) {
+                        const price = _self.formatPrice(Math.round(res.data.sale_price || res.data.price))
+                        const origPrice = res.data.price > res.data.sale_price ? _self.formatPrice(Math.round(res.data.price)) : null
+                        
+                        console.log(`Swatch ${colorId} price: ${price}`)
+                        
+                        let html = `<span class="qs-var-item__price-sale">${price}</span>`
+                        if (origPrice) {
+                            html += `<del class="qs-var-item__price-orig">${origPrice}</del>`
+                        }
+                        $priceDiv.html(html)
                     }
+                },
+                error: (err) => {
+                    console.log(`Failed to fetch price for swatch ${colorId}:`, err)
                 }
-            }
-            
-            console.log(`  Final match:`, matched)
-            
-            // Update price if match found
-            if (matched && matched.price) {
-                // Format price without decimals
-                const price = _self.formatPrice(Math.round(matched.price))
-                const origPrice = matched.original_price ? _self.formatPrice(Math.round(matched.original_price)) : null
-                
-                console.log(`  Updating to price: ${price}`)
-                
-                let html = `<span class="qs-var-item__price-sale">${price}</span>`
-                if (origPrice && matched.original_price > matched.price) {
-                    html += `<del class="qs-var-item__price-orig">${origPrice}</del>`
-                }
-                $priceDiv.html(html)
-            } else {
-                console.log(`  Swatch ${swatchCount}: NO match found for colorId ${colorId}`)
-            }
+            })
         })
-        
-        console.log(`Total swatches processed: ${swatchCount}`)
     }
 
     
