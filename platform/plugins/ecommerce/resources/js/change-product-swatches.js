@@ -299,8 +299,6 @@ class ChangeProductSwatches {
     
     handleResponse = function(res, $productAttributes, slugAttributes, id, updateUrl) {
         let _self = this
-        
-        console.log('=== HANDLE RESPONSE CALLED ===', 'Product Attributes:', $productAttributes[0])
 
         if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnChangeSwatchesSuccess === 'function') {
             window.EcommerceApp.defaultOnChangeSwatchesSuccess(res, $productAttributes)
@@ -361,7 +359,6 @@ class ChangeProductSwatches {
     
     updateSwatchPricesSimple(variationData, $productAttributes) {
         const _self = this
-        console.log('=== updateSwatchPricesSimple CALLED ===')
         
         // Get ALL currently selected attribute IDs (from all sets)
         const selectedAttrIds = []
@@ -383,11 +380,8 @@ class ChangeProductSwatches {
             }
         })
         
-        console.log('Selected attribute IDs:', selectedAttrIds)
-        
         const ajaxUrl = $productAttributes.data('target')
         if (!ajaxUrl) {
-            console.log('No AJAX URL found, skipping swatch price updates')
             return
         }
         
@@ -408,8 +402,6 @@ class ChangeProductSwatches {
             })
             testAttrIds.push(colorId)
             
-            console.log(`Fetching price for swatch ${colorId} with attributes:`, testAttrIds)
-            
             // Fetch variation data for this combination
             $.ajax({
                 url: ajaxUrl,
@@ -423,17 +415,12 @@ class ChangeProductSwatches {
                         const price = _self.formatPrice(Math.round(res.data.sale_price || res.data.price))
                         const origPrice = res.data.price > res.data.sale_price ? _self.formatPrice(Math.round(res.data.price)) : null
                         
-                        console.log(`Swatch ${colorId} price: ${price}`)
-                        
                         let html = `<span class="qs-var-item__price-sale">${price}</span>`
                         if (origPrice) {
                             html += `<del class="qs-var-item__price-orig">${origPrice}</del>`
                         }
                         $priceDiv.html(html)
                     }
-                },
-                error: (err) => {
-                    console.log(`Failed to fetch price for swatch ${colorId}:`, err)
                 }
             })
         })

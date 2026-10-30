@@ -99,8 +99,6 @@
             let originalOnChangeSwatchesSuccess = window.onChangeSwatchesSuccess
 
             window.onChangeSwatchesSuccess = function(res, $attrs) {
-                console.log('=== THEME onChangeSwatchesSuccess CALLED ===', res, $attrs)
-                
                 if (originalOnChangeSwatchesSuccess && typeof originalOnChangeSwatchesSuccess === 'function') {
                     originalOnChangeSwatchesSuccess(res, $attrs)
                 }
@@ -122,7 +120,6 @@
                     
                     // Update swatch prices when variation changes
                     if (window.swatchInstance && typeof window.swatchInstance.updateSwatchPricesSimple === 'function') {
-                        console.log('=== CALLING updateSwatchPricesSimple from theme callback ===')
                         window.swatchInstance.updateSwatchPricesSimple(data, $attrs)
                     }
                 }
