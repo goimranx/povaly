@@ -406,29 +406,18 @@ class ChangeProductSwatches {
             
             if (!$priceDiv.length || !colorId) return
             
-            // Build test combination: this color + all OTHER selected attributes (not from this color's set)
-            const $thisSet = $item.closest('.attribute-swatches-wrapper')
-            const testAttrIds = selectedAttrIds.filter(id => {
-                const $selectedItem = $productAttributes.find(`.bb-product-attribute-swatch-item[data-id="${id}"]`)
-                const $selectedSet = $selectedItem.closest('.attribute-swatches-wrapper')
-                return $selectedSet.data('slug') !== $thisSet.data('slug')
-            })
-            testAttrIds.push(colorId)
-            testAttrIds.sort()
-            
-            console.log(`  Test combination for swatch ${swatchCount}:`, testAttrIds)
-            
-            // Find matching variation
+            // Find ANY variation that includes this color
+            // We don't test with currently selected attributes from other sets
+            // Instead, find the first available combination with this color
             let matched = null
             for (const pv of priceMap) {
-                const pvAttrs = (pv.attrs || []).slice().sort()
-                if (JSON.stringify(pvAttrs) === JSON.stringify(testAttrIds)) {
+                const pvAttrs = (pv.attrs || [])
+                if (pvAttrs.includes(colorId)) {
                     matched = pv
+                    console.log(`  Swatch ${swatchCount} matched variation:`, matched)
                     break
                 }
             }
-            
-            console.log(`  Match found:`, matched)
             
             // Update price if match found
             if (matched && (matched.price || matched.price_fmt)) {
@@ -442,6 +431,8 @@ class ChangeProductSwatches {
                     html += `<del class="qs-var-item__price-orig">${origPrice}</del>`
                 }
                 $priceDiv.html(html)
+            } else {
+                console.log(`  Swatch ${swatchCount}: NO match found for colorId ${colorId}`)
             }
         })
         
