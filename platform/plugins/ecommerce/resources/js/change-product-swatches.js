@@ -363,6 +363,7 @@ class ChangeProductSwatches {
         // Parse price map
         const priceMap = $productAttributes.data('variation-prices')
         console.log('Price map:', priceMap)
+        console.log('Price map DETAILED:', JSON.stringify(priceMap, null, 2))
         
         if (!priceMap || !Array.isArray(priceMap)) {
             console.log('NO PRICE MAP or not array - exiting')
