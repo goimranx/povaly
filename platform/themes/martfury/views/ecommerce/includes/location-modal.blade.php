@@ -49,10 +49,16 @@
                 @endif
                 
                 {{-- Temporary Address Form (For Both Logged-in & Guest) --}}
-                <form id="temporary-address-form" class="location-temp-form">
+                <form id="temporary-address-form" class="location-temp-form" data-form-parent="#location-modal">
                     {{-- Country Dropdown (Always visible) --}}
                     <div class="form-group-location country-group">
-                        <select name="country" id="temp-country" class="form-select-location">
+                        <select 
+                            name="country" 
+                            id="temp-country" 
+                            class="form-select-location select-search-location"
+                            data-type="country"
+                            data-form-parent="#location-modal"
+                        >
                             <option value="">{{ __('Select country...') }}</option>
                             @foreach(\Botble\Ecommerce\Facades\EcommerceHelper::getAvailableCountries() as $countryCode => $countryName)
                                 <option value="{{ $countryCode }}">{{ $countryName }}</option>
@@ -65,8 +71,9 @@
                         <select 
                             name="state" 
                             id="temp-state" 
-                            class="form-select-location" 
+                            class="form-select-location select-search-location" 
                             data-type="state"
+                            data-form-parent="#location-modal"
                             data-url="{{ route('ajax.states-by-country') }}"
                             disabled
                         >
@@ -79,8 +86,9 @@
                         <select 
                             name="city" 
                             id="temp-city" 
-                            class="form-select-location" 
+                            class="form-select-location select-search-location" 
                             data-type="city"
+                            data-form-parent="#location-modal"
                             data-url="{{ route('ajax.cities-by-state') }}"
                             disabled
                         >
