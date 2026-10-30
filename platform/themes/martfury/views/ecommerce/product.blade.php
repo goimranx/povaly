@@ -185,8 +185,14 @@
                             </div>
                         @endif
 
-                        {{-- 8. Product details accordion --}}
-                        <div class="pd-accordion" id="pd-accordion">
+                        {{-- 8. Product details section --}}
+                        <div class="pd-section">
+                            <div class="pd-section-header">
+                                <h2 class="pd-section-title">{{ __('Product Details') }}</h2>
+                                <div class="pd-section-separator"></div>
+                            </div>
+                            
+                            <div class="pd-accordion" id="pd-accordion">
 
                             {{-- 8a. About this item --}}
                             @if ($product->description)
@@ -368,6 +374,9 @@
                                 @endforeach
                             </div>
                         @endif
+                            </div>
+                        </div>
+                        {{-- End of pd-section --}}
 
                         {{-- Sharing --}}
                         <div class="pd-sharing">
