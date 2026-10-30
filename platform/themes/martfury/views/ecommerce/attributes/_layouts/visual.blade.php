@@ -50,38 +50,46 @@
                                 $imgUrl = RvMedia::getImageUrl($attribute->image, 'thumb');
                             }
 
-                            // Get prices for this variation
+                            // Get prices for this variation - store all matching variation IDs
                             $varPrice = null;
                             $varOriginalPrice = null;
                             $varStock = null;
+                            $matchingVariationIds = [];
+                            
                             foreach ($productVariations as $pv) {
                                 $pvAttr = $pv->productAttributes->where('attribute_set_id', $set->id)->first();
                                 if ($pvAttr && $pvAttr->id == $attribute->id && $pv->product) {
-                                    $pvProduct = $pv->product;
-                                    // Use front_sale_price if set, else price, else fall back to parent product price
-                                    $pvSalePrice = $pvProduct->front_sale_price ?? $pvProduct->price ?? null;
-                                    $pvBasePrice = $pvProduct->price ?? null;
+                                    // Store all variation IDs that have this attribute
+                                    $matchingVariationIds[] = $pv->product_id;
                                     
-                                    if ($pvSalePrice && $pvSalePrice > 0) {
-                                        $varPrice = $pvSalePrice;
-                                    } elseif ($pvBasePrice && $pvBasePrice > 0) {
-                                        $varPrice = $pvBasePrice;
-                                    } else {
-                                        // Fall back to parent product price
-                                        $varPrice = $product->front_sale_price ?? $product->price;
+                                    // Use first match for initial price display
+                                    if ($varPrice === null) {
+                                        $pvProduct = $pv->product;
+                                        // Use front_sale_price if set, else price, else fall back to parent product price
+                                        $pvSalePrice = $pvProduct->front_sale_price ?? $pvProduct->price ?? null;
+                                        $pvBasePrice = $pvProduct->price ?? null;
+                                        
+                                        if ($pvSalePrice && $pvSalePrice > 0) {
+                                            $varPrice = $pvSalePrice;
+                                        } elseif ($pvBasePrice && $pvBasePrice > 0) {
+                                            $varPrice = $pvBasePrice;
+                                        } else {
+                                            // Fall back to parent product price
+                                            $varPrice = $product->front_sale_price ?? $product->price;
+                                        }
+                                        
+                                        $varOriginalPrice = ($pvBasePrice && $pvSalePrice && $pvSalePrice < $pvBasePrice)
+                                            ? $pvBasePrice
+                                            : null;
+                                        
+                                        // Get stock for this variation
+                                        if ($pvProduct->with_storehouse_management) {
+                                            $varStock = $pvProduct->quantity;
+                                        }
                                     }
-                                    
-                                    $varOriginalPrice = ($pvBasePrice && $pvSalePrice && $pvSalePrice < $pvBasePrice)
-                                        ? $pvBasePrice
-                                        : null;
-                                    
-                                    // Get stock for this variation
-                                    if ($pvProduct->with_storehouse_management) {
-                                        $varStock = $pvProduct->quantity;
-                                    }
-                                    break;
                                 }
                             }
+                            
                             // Final fallback: use parent product price
                             if (!$varPrice || $varPrice <= 0) {
                                 $varPrice = $product->front_sale_price ?? $product->price;
@@ -93,6 +101,7 @@
                             data-title="{{ $attribute->title }}"
                             data-stock="{{ $varStock !== null ? $varStock : '' }}"
                             data-variation-image="{{ $imgUrl }}"
+                            data-variation-ids="{{ json_encode($matchingVariationIds) }}"
                             @if($isDisabled) data-bs-toggle="tooltip" data-bs-title="{{ __('Not available') }}" @endif>
                             <label>
                                 <input type="radio"
@@ -114,10 +123,10 @@
                                 </div>
 
                                 @if($varPrice !== null)
-                                    <div class="qs-var-item__price">
-                                        <span class="qs-var-item__price-sale">{{ format_price($varPrice) }}</span>
+                                    <div class="qs-var-item__price" data-variation-price="{{ round($varPrice) }}" data-variation-original-price="{{ $varOriginalPrice ? round($varOriginalPrice) : '' }}">
+                                        <span class="qs-var-item__price-sale">{{ format_price(round($varPrice)) }}</span>
                                         @if($varOriginalPrice)
-                                            <del class="qs-var-item__price-orig">{{ format_price($varOriginalPrice) }}</del>
+                                            <del class="qs-var-item__price-orig">{{ format_price(round($varOriginalPrice)) }}</del>
                                         @endif
                                     </div>
                                 @endif

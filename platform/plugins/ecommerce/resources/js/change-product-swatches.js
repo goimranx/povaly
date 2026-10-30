@@ -353,6 +353,88 @@ class ChangeProductSwatches {
                 }
             }
         }
+        
+        // Update swatch prices based on currently selected variation
+        _self.updateSwatchPrices(data, $productAttributes)
+    }
+    
+    updateSwatchPrices(variationData, $productAttributes) {
+        
+        if (!variationData || !variationData.id) return
+        
+        // Get all selected attribute IDs
+        const selectedAttrIds = []
+        $productAttributes.find('.bb-product-attribute-swatch-item.selected').each(function() {
+            const attrId = parseInt($(this).data('id'))
+            if (attrId) selectedAttrIds.push(attrId)
+        })
+        
+        // Get variation price map from container
+        const variationPrices = $productAttributes.data('variation-prices')
+        if (!variationPrices || !Array.isArray(variationPrices)) return
+        
+        // Update each swatch item's price based on combination with selected attributes
+        $productAttributes.find('.qs-var-item').each(function() {
+            const $item = $(this)
+            const itemAttrId = parseInt($item.data('id'))
+            const $priceDiv = $item.find('.qs-var-item__price')
+            
+            if (!$priceDiv.length || !itemAttrId) return
+            
+            // Build potential attribute combination: replace current item's attribute
+            const testAttrIds = selectedAttrIds.filter(id => {
+                // Remove any attribute from the same set as this item
+                const $selectedItem = $productAttributes.find(`.bb-product-attribute-swatch-item[data-id="${id}"]`)
+                const $thisSet = $item.closest('.attribute-swatches-wrapper')
+                const $selectedSet = $selectedItem.closest('.attribute-swatches-wrapper')
+                return $selectedSet.data('slug') !== $thisSet.data('slug')
+            })
+            testAttrIds.push(itemAttrId)
+            testAttrIds.sort()
+            
+            // Find matching variation in price map
+            let matchedVariation = null
+            for (const varData of variationPrices) {
+                const varAttrIds = (varData.attrs || []).sort()
+                if (JSON.stringify(varAttrIds) === JSON.stringify(testAttrIds)) {
+                    matchedVariation = varData
+                    break
+                }
+            }
+            
+            // Update price display if match found
+            if (matchedVariation && matchedVariation.price) {
+                const roundedPrice = Math.round(matchedVariation.price)
+                const roundedOrigPrice = matchedVariation.original_price ? Math.round(matchedVariation.original_price) : null
+                
+                // Format price using window.currencies settings
+                const formattedPrice = this.formatPrice(roundedPrice)
+                const formattedOrigPrice = roundedOrigPrice ? this.formatPrice(roundedOrigPrice) : null
+                
+                $priceDiv.find('.qs-var-item__price-sale').text(formattedPrice)
+                
+                if (roundedOrigPrice && roundedOrigPrice > roundedPrice) {
+                    let $origPrice = $priceDiv.find('.qs-var-item__price-orig')
+                    if ($origPrice.length) {
+                        $origPrice.text(formattedOrigPrice).show()
+                    } else {
+                        $priceDiv.find('.qs-var-item__price-sale').after(`<del class="qs-var-item__price-orig">${formattedOrigPrice}</del>`)
+                    }
+                } else {
+                    $priceDiv.find('.qs-var-item__price-orig').hide()
+                }
+            }
+        })
+    }
+    
+    formatPrice(price) {
+        const currencies = window.currencies || {}
+        const symbol = currencies.symbol || '$'
+        const isPrefix = currencies.is_prefix !== false
+        const thousands = currencies.thousands_separator || ','
+        const priceStr = Math.round(price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, thousands)
+        
+        return isPrefix ? symbol + priceStr : priceStr + symbol
     }
     
     getFromCache(key) {
