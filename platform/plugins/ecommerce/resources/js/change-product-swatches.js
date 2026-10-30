@@ -358,9 +358,16 @@ class ChangeProductSwatches {
     }
     
     updateSwatchPricesSimple(variationData, $productAttributes) {
+        console.log('=== updateSwatchPricesSimple CALLED ===')
+        
         // Parse price map
         const priceMap = $productAttributes.data('variation-prices')
-        if (!priceMap || !Array.isArray(priceMap)) return
+        console.log('Price map:', priceMap)
+        
+        if (!priceMap || !Array.isArray(priceMap)) {
+            console.log('NO PRICE MAP or not array - exiting')
+            return
+        }
         
         // Get ALL currently selected attribute IDs (from all sets)
         const selectedAttrIds = []
@@ -370,12 +377,18 @@ class ChangeProductSwatches {
                 selectedAttrIds.push(attrId)
             }
         })
+        console.log('Selected attribute IDs:', selectedAttrIds)
         
         // Update each visual swatch price
+        let swatchCount = 0
         $productAttributes.find('.qs-var-item').each(function() {
+            swatchCount++
             const $item = $(this)
             const colorId = parseInt($item.data('id'))
             const $priceDiv = $item.find('.qs-var-item__price')
+            
+            console.log(`Swatch ${swatchCount}: colorId=${colorId}, has price div=${$priceDiv.length > 0}`)
+            
             if (!$priceDiv.length || !colorId) return
             
             // Build test combination: this color + all OTHER selected attributes (not from this color's set)
@@ -388,6 +401,8 @@ class ChangeProductSwatches {
             testAttrIds.push(colorId)
             testAttrIds.sort()
             
+            console.log(`  Test combination for swatch ${swatchCount}:`, testAttrIds)
+            
             // Find matching variation
             let matched = null
             for (const pv of priceMap) {
@@ -398,10 +413,14 @@ class ChangeProductSwatches {
                 }
             }
             
+            console.log(`  Match found:`, matched)
+            
             // Update price if match found
             if (matched && (matched.price || matched.price_fmt)) {
                 const price = matched.price_fmt || this.formatPrice(Math.round(matched.price))
                 const origPrice = matched.orig_fmt || (matched.original_price ? this.formatPrice(Math.round(matched.original_price)) : null)
+                
+                console.log(`  Updating to price: ${price}`)
                 
                 let html = `<span class="qs-var-item__price-sale">${price}</span>`
                 if (origPrice) {
@@ -410,6 +429,8 @@ class ChangeProductSwatches {
                 $priceDiv.html(html)
             }
         })
+        
+        console.log(`Total swatches processed: ${swatchCount}`)
     }
 
     
