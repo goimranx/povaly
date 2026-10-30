@@ -28,7 +28,6 @@ class ChangeProductSwatches {
                 // Mark as hover preview (not selection)
                 $item.data('is-hover-preview', true)
                 _self.previewSwatchImage(swatchImage, $item)
-            } else {
             }
         })
 
@@ -83,12 +82,8 @@ class ChangeProductSwatches {
         $body
             .off('change', '.product-attributes input, .product-attributes select')
             .on('change', '.product-attributes input, .product-attributes select', (event) => {
-                console.log('[ATTRIBUTE CHANGE] Event triggered')
-                
                 const $element = $(event.currentTarget)
                 const $parent = $element.closest('.product-attributes')
-                
-                console.log('[ATTRIBUTE CHANGE] Element:', $element[0], 'Parent:', $parent[0])
 
                 // If it's a select dropdown, update the label
                 if ($element.is('select')) {
@@ -101,7 +96,6 @@ class ChangeProductSwatches {
                     }
                 }
 
-                console.log('[ATTRIBUTE CHANGE] Calling getProductVariation')
                 _self.getProductVariation($parent)
             })
 
@@ -305,8 +299,6 @@ class ChangeProductSwatches {
     
     handleResponse = function(res, $productAttributes, slugAttributes, id, updateUrl) {
         let _self = this
-        
-        console.log('[HANDLE RESPONSE] Called with data:', res.data)
 
         if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnChangeSwatchesSuccess === 'function') {
             window.EcommerceApp.defaultOnChangeSwatchesSuccess(res, $productAttributes)
@@ -362,107 +354,64 @@ class ChangeProductSwatches {
         }
         
         // Update swatch prices based on currently selected variation
-        _self.updateSwatchPrices(data, $productAttributes)
+        _self.updateSwatchPricesSimple(data, $productAttributes)
     }
     
-    updateSwatchPrices(variationData, $productAttributes) {
-        console.log('[SWATCH PRICE UPDATE] Called with variation:', variationData?.id)
+    updateSwatchPricesSimple(variationData, $productAttributes) {
+        // Parse price map
+        const priceMap = $productAttributes.data('variation-prices')
+        if (!priceMap || !Array.isArray(priceMap)) return
         
-        if (!variationData || !variationData.id) {
-            console.log('[SWATCH PRICE UPDATE] No variation data, skipping')
-            return
-        }
-        
-        // Get all selected attribute IDs
+        // Get ALL currently selected attribute IDs (from all sets)
         const selectedAttrIds = []
-        $productAttributes.find('.bb-product-attribute-swatch-item.selected').each(function() {
-            const attrId = parseInt($(this).data('id'))
-            if (attrId) selectedAttrIds.push(attrId)
-        })
-        console.log('[SWATCH PRICE UPDATE] Selected attribute IDs:', selectedAttrIds)
-        
-        // Get variation price map from container
-        const variationPrices = $productAttributes.data('variation-prices')
-        console.log('[SWATCH PRICE UPDATE] Variation prices from data:', variationPrices)
-        
-        if (!variationPrices || !Array.isArray(variationPrices)) {
-            console.log('[SWATCH PRICE UPDATE] No variation prices data, skipping')
-            return
-        }
-        
-        // Update each swatch item's price based on combination with selected attributes
-        let swatchCount = 0
-        let updateCount = 0
-        $productAttributes.find('.qs-var-item').each(function() {
-            swatchCount++
-            const $item = $(this)
-            const itemAttrId = parseInt($item.data('id'))
-            const $priceDiv = $item.find('.qs-var-item__price')
-            
-            console.log(`[SWATCH ${swatchCount}] Checking item with attr ID:`, itemAttrId, 'Has price div:', $priceDiv.length > 0)
-            
-            if (!$priceDiv.length || !itemAttrId) {
-                console.log(`[SWATCH ${swatchCount}] Skipping - no price div or attr ID`)
-                return
+        $productAttributes.find('.bb-product-attribute-swatch-item.selected, .bb-product-attribute-swatch-item input:checked').each(function() {
+            const attrId = parseInt($(this).data('id') || $(this).closest('.bb-product-attribute-swatch-item').data('id'))
+            if (attrId && !selectedAttrIds.includes(attrId)) {
+                selectedAttrIds.push(attrId)
             }
+        })
+        
+        // Update each visual swatch price
+        $productAttributes.find('.qs-var-item').each(function() {
+            const $item = $(this)
+            const colorId = parseInt($item.data('id'))
+            const $priceDiv = $item.find('.qs-var-item__price')
+            if (!$priceDiv.length || !colorId) return
             
-            // Build potential attribute combination: replace current item's attribute
+            // Build test combination: this color + all OTHER selected attributes (not from this color's set)
+            const $thisSet = $item.closest('.attribute-swatches-wrapper')
             const testAttrIds = selectedAttrIds.filter(id => {
-                // Remove any attribute from the same set as this item
                 const $selectedItem = $productAttributes.find(`.bb-product-attribute-swatch-item[data-id="${id}"]`)
-                const $thisSet = $item.closest('.attribute-swatches-wrapper')
                 const $selectedSet = $selectedItem.closest('.attribute-swatches-wrapper')
                 return $selectedSet.data('slug') !== $thisSet.data('slug')
             })
-            testAttrIds.push(itemAttrId)
+            testAttrIds.push(colorId)
             testAttrIds.sort()
             
-            console.log(`[SWATCH ${swatchCount}] Testing combination:`, testAttrIds)
-            
-            // Find matching variation in price map
-            let matchedVariation = null
-            for (const varData of variationPrices) {
-                const varAttrIds = (varData.attrs || []).sort()
-                if (JSON.stringify(varAttrIds) === JSON.stringify(testAttrIds)) {
-                    matchedVariation = varData
-                    console.log(`[SWATCH ${swatchCount}] MATCHED variation:`, matchedVariation)
+            // Find matching variation
+            let matched = null
+            for (const pv of priceMap) {
+                const pvAttrs = (pv.attrs || []).slice().sort()
+                if (JSON.stringify(pvAttrs) === JSON.stringify(testAttrIds)) {
+                    matched = pv
                     break
                 }
             }
             
-            // Update price display if match found
-            if (matchedVariation && matchedVariation.price) {
-                updateCount++
-                const roundedPrice = Math.round(matchedVariation.price)
-                const roundedOrigPrice = matchedVariation.original_price ? Math.round(matchedVariation.original_price) : null
+            // Update price if match found
+            if (matched && (matched.price || matched.price_fmt)) {
+                const price = matched.price_fmt || this.formatPrice(Math.round(matched.price))
+                const origPrice = matched.orig_fmt || (matched.original_price ? this.formatPrice(Math.round(matched.original_price)) : null)
                 
-                console.log(`[SWATCH ${swatchCount}] Updating price to:`, roundedPrice, 'Original:', roundedOrigPrice)
-                
-                // Format price using window.currencies settings
-                const formattedPrice = this.formatPrice(roundedPrice)
-                const formattedOrigPrice = roundedOrigPrice ? this.formatPrice(roundedOrigPrice) : null
-                
-                console.log(`[SWATCH ${swatchCount}] Formatted price:`, formattedPrice)
-                
-                $priceDiv.find('.qs-var-item__price-sale').text(formattedPrice)
-                
-                if (roundedOrigPrice && roundedOrigPrice > roundedPrice) {
-                    let $origPrice = $priceDiv.find('.qs-var-item__price-orig')
-                    if ($origPrice.length) {
-                        $origPrice.text(formattedOrigPrice).show()
-                    } else {
-                        $priceDiv.find('.qs-var-item__price-sale').after(`<del class="qs-var-item__price-orig">${formattedOrigPrice}</del>`)
-                    }
-                } else {
-                    $priceDiv.find('.qs-var-item__price-orig').hide()
+                let html = `<span class="qs-var-item__price-sale">${price}</span>`
+                if (origPrice) {
+                    html += `<del class="qs-var-item__price-orig">${origPrice}</del>`
                 }
-            } else {
-                console.log(`[SWATCH ${swatchCount}] No matching variation found`)
+                $priceDiv.html(html)
             }
         })
-        
-        console.log(`[SWATCH PRICE UPDATE] Finished - checked ${swatchCount} swatches, updated ${updateCount}`)
     }
+
     
     formatPrice(price) {
         const currencies = window.currencies || {}
@@ -502,7 +451,6 @@ class ChangeProductSwatches {
     }
 
     previewSwatchImage(imageUrl, $item) {
-        
         // Preview image in main gallery without changing selection
         const $product = $item.closest('.bb-product-detail')
         
@@ -541,7 +489,6 @@ class ChangeProductSwatches {
     }
 
     restoreSelectedImage() {
-        
         // Restore to currently selected variation's image
         const $selectedSwatch = $('.product-attributes .visual-swatch input:checked').closest('.bb-product-attribute-swatch-item')
         
@@ -596,9 +543,13 @@ class ChangeProductSwatches {
 $(() => {
     const swatchInstance = new ChangeProductSwatches()
     
-    // Check initial selection on page load
+    // Initialize swatch prices on page load
     $('.product-attribute-swatches').each(function() {
         const $container = $(this)
+        
+        // Update initial prices
+        swatchInstance.updateSwatchPricesSimple(null, $container)
+        
         const hasCheckedRadio = $container.find('input[type=radio]:checked:not(:disabled)').length > 0
         const hasSelectedDropdown = $container.find('select.product-filter-item').filter(function() {
             return !!$(this).val()
