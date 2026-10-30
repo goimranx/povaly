@@ -598,6 +598,9 @@ class ChangeProductSwatches {
 $(() => {
     const swatchInstance = new ChangeProductSwatches()
     
+    // Expose instance globally for theme callbacks
+    window.swatchInstance = swatchInstance
+    
     // Initialize swatch prices on page load
     $('.product-attribute-swatches').each(function() {
         const $container = $(this)

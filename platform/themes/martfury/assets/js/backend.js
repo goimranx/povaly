@@ -99,6 +99,8 @@
             let originalOnChangeSwatchesSuccess = window.onChangeSwatchesSuccess
 
             window.onChangeSwatchesSuccess = function(res, $attrs) {
+                console.log('=== THEME onChangeSwatchesSuccess CALLED ===', res, $attrs)
+                
                 if (originalOnChangeSwatchesSuccess && typeof originalOnChangeSwatchesSuccess === 'function') {
                     originalOnChangeSwatchesSuccess(res, $attrs)
                 }
@@ -116,6 +118,12 @@
                         $product.find('[data-bb-value="product-original-price"]').text(data.display_price).show()
                     } else {
                         $product.find('[data-bb-value="product-original-price"]').hide()
+                    }
+                    
+                    // Update swatch prices when variation changes
+                    if (window.swatchInstance && typeof window.swatchInstance.updateSwatchPricesSimple === 'function') {
+                        console.log('=== CALLING updateSwatchPricesSimple from theme callback ===')
+                        window.swatchInstance.updateSwatchPricesSimple(data, $attrs)
                     }
                 }
             }
