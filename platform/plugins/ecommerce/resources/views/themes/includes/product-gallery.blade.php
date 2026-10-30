@@ -191,9 +191,7 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
             @if ($allImages->isNotEmpty())
                 @php
                     $mainImageSrc = $allImages[$defaultJumpIndex]['src'];
-                    // Strip any size suffix like -150x150, -thumb, etc from the filename
-                    $mainImageSrc = preg_replace('/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/', '$1', $mainImageSrc);
-                    // Get full URL
+                    // Ensure we get the full-size image, not thumbnail
                     $mainImageUrl = RvMedia::url($mainImageSrc);
                 @endphp
                 <img 
@@ -242,10 +240,15 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
             {{-- Photo thumbnails wrapper --}}
             <div class="pv-thumbs-photos">
                 @foreach ($allImages as $index => $imgData)
+                    @php
+                        // Strip size suffix for full-size URL in data-image
+                        $fullSizeSrc = preg_replace('/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/', '$1', $imgData['src']);
+                        $fullSizeUrl = RvMedia::url($fullSizeSrc);
+                    @endphp
                     <div 
                         class="pv-thumb {{ $index === $defaultJumpIndex ? 'pv-active' : '' }} {{ $index >= 3 ? 'pv-thumb-hidden' : '' }}" 
                         data-index="{{ $index }}" 
-                        data-image="{{ RvMedia::getImageUrl($imgData['src']) }}"
+                        data-image="{{ $fullSizeUrl }}"
                         data-variation-id="{{ $imgData['variationId'] }}"
                     >
                         <img src="{{ RvMedia::getImageUrl($imgData['src'], 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
