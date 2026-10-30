@@ -101,6 +101,11 @@
     margin: 0;
 }
 
+/* Product details page: 5 items per row */
+.ps-product--detail .qs-var-grid {
+    grid-template-columns: repeat(5, 1fr);
+}
+
 /* Each item - always has 1px border + 2px outline (transparent by default) */
 .qs-var-item {
     cursor: pointer;
