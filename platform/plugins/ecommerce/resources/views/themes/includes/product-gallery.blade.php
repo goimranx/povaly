@@ -189,9 +189,14 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
     <div @class(['pv-gallery', 'pv-gallery-' . $galleryStyle]) data-default-index="{{ $defaultJumpIndex }}" data-variation-map="{{ json_encode($variationImageMap) }}">
         <div class="pv-gallery-main">
             @if ($allImages->isNotEmpty())
+                @php
+                    $mainImageSrc = $allImages[$defaultJumpIndex]['src'];
+                    // Ensure we get the full-size image, not thumbnail
+                    $mainImageUrl = RvMedia::url($mainImageSrc);
+                @endphp
                 <img 
                     id="pv-main-image"
-                    src="{{ RvMedia::getImageUrl($allImages[$defaultJumpIndex]['src']) }}" 
+                    src="{{ $mainImageUrl }}" 
                     alt="{{ $product->name }}"
                     loading="eager"
                     fetchpriority="high"
