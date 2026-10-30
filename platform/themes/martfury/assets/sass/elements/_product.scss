@@ -1884,10 +1884,25 @@
     }
 
     .pd-accordion-body {
-        padding: 0 0 14px 0;
+        padding: 0;
+        margin: 0;
         font-size: 14px;
         color: $color-text;
         line-height: 1.6;
+        
+        &.ps-list--dot {
+            margin: 0 !important;
+            padding: 0 !important;
+            
+            li {
+                margin-bottom: 0 !important;
+                padding-left: 0 !important;
+                
+                &:before {
+                    display: none !important;
+                }
+            }
+        }
     }
 
     // Description with read more/less
