@@ -123,10 +123,26 @@
                                 </div>
 
                                 @if($varPrice !== null)
-                                    <div class="qs-var-item__price" data-variation-price="{{ round($varPrice) }}" data-variation-original-price="{{ $varOriginalPrice ? round($varOriginalPrice) : '' }}">
-                                        <span class="qs-var-item__price-sale" data-debug-raw-price="{{ $varPrice }}">{{ format_price(round($varPrice)) }}</span>
-                                        @if($varOriginalPrice)
-                                            <del class="qs-var-item__price-orig" data-debug-raw-original="{{ $varOriginalPrice }}">{{ format_price(round($varOriginalPrice)) }}</del>
+                                    @php
+                                        $currency = get_application_currency();
+                                        $roundedPrice = round($varPrice);
+                                        $roundedOrigPrice = $varOriginalPrice ? round($varOriginalPrice) : null;
+                                        
+                                        // Format without decimals
+                                        $priceFormatted = $currency->is_prefix_symbol 
+                                            ? $currency->symbol . number_format($roundedPrice, 0, '', $currency->thousands_separator ?: ',')
+                                            : number_format($roundedPrice, 0, '', $currency->thousands_separator ?: ',') . $currency->symbol;
+                                        
+                                        $origPriceFormatted = $roundedOrigPrice 
+                                            ? ($currency->is_prefix_symbol 
+                                                ? $currency->symbol . number_format($roundedOrigPrice, 0, '', $currency->thousands_separator ?: ',')
+                                                : number_format($roundedOrigPrice, 0, '', $currency->thousands_separator ?: ',') . $currency->symbol)
+                                            : null;
+                                    @endphp
+                                    <div class="qs-var-item__price" data-variation-price="{{ $roundedPrice }}" data-variation-original-price="{{ $roundedOrigPrice ?: '' }}">
+                                        <span class="qs-var-item__price-sale" data-debug-raw-price="{{ $varPrice }}">{{ $priceFormatted }}</span>
+                                        @if($origPriceFormatted)
+                                            <del class="qs-var-item__price-orig" data-debug-raw-original="{{ $varOriginalPrice }}">{{ $origPriceFormatted }}</del>
                                         @endif
                                     </div>
                                 @endif
