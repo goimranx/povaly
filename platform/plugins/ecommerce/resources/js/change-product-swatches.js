@@ -373,12 +373,26 @@ class ChangeProductSwatches {
         // Get ALL currently selected attribute IDs (from all sets)
         const selectedAttrIds = []
         $productAttributes.find('.bb-product-attribute-swatch-item.selected, .bb-product-attribute-swatch-item input:checked').each(function() {
-            const attrId = parseInt($(this).data('id') || $(this).closest('.bb-product-attribute-swatch-item').data('id'))
+            const $this = $(this)
+            const $item = $this.hasClass('bb-product-attribute-swatch-item') ? $this : $this.closest('.bb-product-attribute-swatch-item')
+            const attrId = parseInt($item.data('id'))
+            console.log('  Found selected item:', $item[0], 'attr ID:', attrId)
             if (attrId && !selectedAttrIds.includes(attrId)) {
                 selectedAttrIds.push(attrId)
             }
         })
         console.log('Selected attribute IDs:', selectedAttrIds)
+        
+        // ALSO check for selected dropdowns
+        $productAttributes.find('select.product-filter-item').each(function() {
+            const $select = $(this)
+            const selectedValue = parseInt($select.val())
+            console.log('  Found dropdown with value:', selectedValue)
+            if (selectedValue && !selectedAttrIds.includes(selectedValue)) {
+                selectedAttrIds.push(selectedValue)
+            }
+        })
+        console.log('Selected attribute IDs (after dropdowns):', selectedAttrIds)
         
         // Update each visual swatch price
         let swatchCount = 0
