@@ -63,6 +63,7 @@
                 // Hover activates immediately
                 thumb.addEventListener('mouseenter', () => {
                     const index = parseInt(thumb.getAttribute('data-index'));
+                    console.log('[PV GALLERY] mouseenter on thumb - index:', index, 'data-image:', thumb.getAttribute('data-image'));
                     this.jumpToImage(index);
                 });
                 
@@ -189,13 +190,15 @@
         jumpToImage(index) {
             const imageData = this.allImages.find(img => img.index === index);
             
+            // Log stack trace to see what's calling this
             console.log('[PV GALLERY] jumpToImage called', {
                 requestedIndex: index,
                 currentIndex: this.currentIndex,
                 imageData: imageData,
                 imageUrl: imageData?.url,
                 allImagesCount: this.allImages.length,
-                allImages: this.allImages.map(img => ({ index: img.index, url: img.url, variationId: img.variationId }))
+                allImages: this.allImages.map(img => ({ index: img.index, url: img.url, variationId: img.variationId })),
+                stackTrace: new Error().stack
             });
             
             if (!imageData || !this.mainImage) return;
