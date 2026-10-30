@@ -852,4 +852,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @include(Theme::getThemeNamespace('views.ecommerce.includes.location-modal'))
 
-<script src="{{ Theme::asset()->url('js/location-modal.js') }}?v=98EFD01ED1716348"></script>
+<script src="{{ Theme::asset()->url('js/location-modal.js') }}?v=A1B2C3D4E5F6G7H8"></script>

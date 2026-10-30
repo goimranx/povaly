@@ -3,13 +3,16 @@
  * Manages temporary address selection and saved address selection
  */
 
-(function($) {
-    'use strict';
+// Wrap in IIFE with explicit jQuery check
+if (typeof jQuery === 'undefined') {
+    console.error('LocationModal: jQuery is not loaded!');
+} else {
+    console.log('Location Modal JS Loaded - jQuery version:', jQuery.fn.jquery);
     
-    // Debug logging
-    console.log('Location Modal JS Loaded');
+    (function($) {
+        'use strict';
 
-    const LocationModal = {
+        const LocationModal = {
         modal: null,
         form: null,
         countrySelect: null,
@@ -323,4 +326,5 @@
         });
     });
 
-})(jQuery);
+    })(jQuery);
+}
