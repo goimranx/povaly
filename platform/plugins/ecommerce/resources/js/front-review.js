@@ -2,22 +2,16 @@ const Review = {
     showError(message) {
         if (typeof Theme !== 'undefined') {
             Theme.showError(message)
-        } else {
-            console.error('[Review]', message)
         }
     },
     showSuccess(message) {
         if (typeof Theme !== 'undefined') {
             Theme.showSuccess(message)
-        } else {
-            console.log('[Review]', message)
         }
     },
     handleError(error, $form = null) {
         if (typeof Theme !== 'undefined') {
             Theme.handleError(error, $form)
-        } else {
-            console.error('[Review]', error.responseJSON?.message || error.statusText || error)
         }
     },
     updateLazyLoad() {

@@ -2,14 +2,9 @@
     EcommerceHelper::registerThemeAssets();
     $version = EcommerceHelper::getAssetVersion();
     
-    // Load custom PV gallery assets with file-based cache busting
-    $pvCssPath = public_path('vendor/core/plugins/ecommerce/css/pv-gallery.css');
-    $pvJsPath = public_path('vendor/core/plugins/ecommerce/js/pv-gallery.js');
-    $pvCssVersion = file_exists($pvCssPath) ? filemtime($pvCssPath) : $version;
-    $pvJsVersion = file_exists($pvJsPath) ? filemtime($pvJsPath) : $version;
-    
-    Theme::asset()->add('pv-gallery-css', 'vendor/core/plugins/ecommerce/css/pv-gallery.css', version: $pvCssVersion);
-    Theme::asset()->container('footer')->add('pv-gallery-js', 'vendor/core/plugins/ecommerce/js/pv-gallery.js', ['jquery'], version: $pvJsVersion);
+    // Use consistent version for all assets (no filemtime)
+    Theme::asset()->add('pv-gallery-css', 'vendor/core/plugins/ecommerce/css/pv-gallery.css', version: $version);
+    Theme::asset()->container('footer')->add('pv-gallery-js', 'vendor/core/plugins/ecommerce/js/pv-gallery.js', ['jquery'], version: $version);
     
     // Keep lightgallery for zoom functionality
     Theme::asset()->add('lightgallery-css', 'vendor/core/plugins/ecommerce/libraries/lightgallery/css/lightgallery.min.css', version: $version);
@@ -194,9 +189,14 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
     <div @class(['pv-gallery', 'pv-gallery-' . $galleryStyle]) data-default-index="{{ $defaultJumpIndex }}" data-variation-map="{{ json_encode($variationImageMap) }}">
         <div class="pv-gallery-main">
             @if ($allImages->isNotEmpty())
+                @php
+                    $mainImageSrc = $allImages[$defaultJumpIndex]['src'];
+                    // Ensure we get the full-size image, not thumbnail
+                    $mainImageUrl = RvMedia::url($mainImageSrc);
+                @endphp
                 <img 
                     id="pv-main-image"
-                    src="{{ RvMedia::getImageUrl($allImages[$defaultJumpIndex]['src']) }}" 
+                    src="{{ $mainImageUrl }}" 
                     alt="{{ $product->name }}"
                     loading="eager"
                     fetchpriority="high"
@@ -237,45 +237,54 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
         </div>
         
         <div class="pv-gallery-thumbnails">
-            {{-- Render ALL image thumbnails (show first 3, 4th with counter) --}}
-            @foreach ($allImages as $index => $imgData)
-                <div 
-                    class="pv-thumb {{ $index === $defaultJumpIndex ? 'pv-active' : '' }} {{ $index >= 3 ? 'pv-thumb-hidden' : '' }}" 
-                    data-index="{{ $index }}" 
-                    data-image="{{ RvMedia::getImageUrl($imgData['src']) }}"
-                    data-variation-id="{{ $imgData['variationId'] }}"
-                >
-                    <img src="{{ RvMedia::getImageUrl($imgData['src'], 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
-                    
-                    {{-- Show counter on 4th item (index 3) if more exist --}}
-                    @if ($index === 3 && $totalImages > 3)
-                        <span class="pv-thumb-overlay">+{{ $totalImages - 3 }}</span>
-                    @endif
-                </div>
-            @endforeach
+            {{-- Photo thumbnails wrapper --}}
+            <div class="pv-thumbs-photos">
+                @foreach ($allImages as $index => $imgData)
+                    @php
+                        // Strip size suffix for full-size URL in data-image
+                        $fullSizeSrc = preg_replace('/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/', '$1', $imgData['src']);
+                        $fullSizeUrl = RvMedia::url($fullSizeSrc);
+                    @endphp
+                    <div 
+                        class="pv-thumb {{ $index === $defaultJumpIndex ? 'pv-active' : '' }} {{ $index >= 3 ? 'pv-thumb-hidden' : '' }}" 
+                        data-index="{{ $index }}" 
+                        data-image="{{ $fullSizeUrl }}"
+                        data-variation-id="{{ $imgData['variationId'] }}"
+                    >
+                        <img src="{{ RvMedia::getImageUrl($imgData['src'], 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
+                        
+                        {{-- Show counter on 4th item (index 3) if more exist --}}
+                        @if ($index === 3 && $totalImages > 3)
+                            <span class="pv-thumb-overlay">+{{ $totalImages - 3 }}</span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
             
-            {{-- Render ALL video thumbnails (show first 2, 3rd with counter) --}}
-            @foreach ($videoList as $vIndex => $video)
-                <div 
-                    class="pv-thumb pv-thumb-video {{ $vIndex >= 2 ? 'pv-thumb-hidden' : '' }}" 
-                    data-index="video-{{ $vIndex }}"
-                    data-video-url="{{ $video['url'] }}"
-                    data-video-provider="{{ $video['provider'] ?? 'video' }}"
-                    data-video-thumbnail="{{ $video['thumbnail'] ?? '' }}"
-                    @if (!empty($video['thumbnail']))
-                        style="background-image:url({{ $video['thumbnail'] }});background-size:cover;background-position:center;"
-                    @endif
-                >
-                    <svg class="pv-play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"/>
-                    </svg>
-                    
-                    {{-- Show counter on 3rd video (index 2) if more exist --}}
-                    @if ($vIndex === 2 && $totalVideos > 2)
-                        <span class="pv-thumb-overlay">+{{ $totalVideos - 2 }}</span>
-                    @endif
-                </div>
-            @endforeach
+            {{-- Video thumbnails wrapper --}}
+            <div class="pv-thumbs-videos">
+                @foreach ($videoList as $vIndex => $video)
+                    <div 
+                        class="pv-thumb pv-thumb-video {{ $vIndex >= 2 ? 'pv-thumb-hidden' : '' }}" 
+                        data-index="video-{{ $vIndex }}"
+                        data-video-url="{{ $video['url'] }}"
+                        data-video-provider="{{ $video['provider'] ?? 'video' }}"
+                        data-video-thumbnail="{{ $video['thumbnail'] ?? '' }}"
+                        @if (!empty($video['thumbnail']))
+                            style="background-image:url({{ $video['thumbnail'] }});background-size:cover;background-position:center;"
+                        @endif
+                    >
+                        <svg class="pv-play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z"/>
+                        </svg>
+                        
+                        {{-- Show counter on 3rd video (index 2) if more exist --}}
+                        @if ($vIndex === 2 && $totalVideos > 2)
+                            <span class="pv-thumb-overlay">+{{ $totalVideos - 2 }}</span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 </div>

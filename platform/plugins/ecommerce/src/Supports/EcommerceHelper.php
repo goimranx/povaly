@@ -2205,12 +2205,11 @@ class EcommerceHelper
             $this->isEnabledFilterProductsByRating();
     }
 
-    public function getAssetVersion(): string
+    public static function getAssetVersion(): string
     {
-        // Use cache_bust() helper which:
-        // - On main branch: uses Git tag version (e.g., "1.0.0")
-        // - On stage branch: uses commit hash (e.g., "ee27538")
-        // This ensures proper cache busting on deployments
-        return cache_bust();
+        // Use Povaly's version helper for consistent cache busting
+        // - Production (main): uses Git tag version (e.g., "1.0.0")
+        // - Stage: uses timestamp for aggressive cache busting
+        return \App\Helpers\VersionHelper::getCacheBustVersion();
     }
 }

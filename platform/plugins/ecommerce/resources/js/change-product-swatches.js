@@ -11,6 +11,41 @@ class ChangeProductSwatches {
         let _self = this
         let $body = $('body')
 
+        // Hover preview for visual swatches - show image immediately without selecting
+        $body.on('mouseenter', '.product-attributes .visual-swatch label', function(e) {
+            const $label = $(this)
+            const $item = $label.closest('.bb-product-attribute-swatch-item')
+            
+            // Don't preview disabled items
+            if ($item.hasClass('disabled')) {
+                return
+            }
+
+            // Get the variation image for this swatch
+            const swatchImage = $item.data('variation-image')
+            
+            if (swatchImage) {
+                // Mark as hover preview (not selection)
+                $item.data('is-hover-preview', true)
+                _self.previewSwatchImage(swatchImage, $item)
+            } else {
+            }
+        })
+
+        // When mouse leaves the swatch item, restore to selected variation
+        $body.on('mouseleave', '.product-attributes .visual-swatch label', function(e) {
+            const $label = $(this)
+            const $item = $label.closest('.bb-product-attribute-swatch-item')
+            
+            // Clear hover preview flag
+            $item.removeData('is-hover-preview')
+            
+            // Only restore if this item is not the selected one
+            if (!$item.find('input[type=radio]').is(':checked')) {
+                _self.restoreSelectedImage()
+            }
+        })
+
         $body.on('click', '.product-attributes .visual-swatch label, .product-attributes .text-swatch label', (e) => {
             e.preventDefault()
 
@@ -344,6 +379,94 @@ class ChangeProductSwatches {
             // Remove oldest entries
             const firstKey = this.cache.keys().next().value
             this.cache.delete(firstKey)
+        }
+    }
+
+    previewSwatchImage(imageUrl, $item) {
+        
+        // Preview image in main gallery without changing selection
+        const $product = $item.closest('.bb-product-detail')
+        
+        if (!$product.length) {
+            return
+        }
+        
+        // Determine if we're in Quick Shop or PV Gallery
+        const $quickShopModal = $item.closest('#quick-shop-modal')
+        const isQuickShop = $quickShopModal.length > 0
+        
+        if (isQuickShop) {
+            // For Quick Shop Offcanvas Gallery
+            if (typeof window.updateQSGalleryImages === 'function') {
+                window.updateQSGalleryImages([imageUrl])
+            }
+        } else {
+            // For PV Gallery
+            const $pvGallery = $product.find('.pv-gallery-main')
+            
+            if ($pvGallery.length) {
+                const $mainImage = $pvGallery.find('#pv-main-image')
+                
+                if ($mainImage.length) {
+                    // Store original src if not already stored
+                    if (!$mainImage.data('original-src')) {
+                        $mainImage.data('original-src', $mainImage.attr('src'))
+                    }
+                    
+                    // Convert thumbnail URL to full-size URL (remove -150x150 suffix)
+                    const fullSizeUrl = imageUrl.replace(/-150x150(\.[^.]+)$/, '$1')
+                    $mainImage.attr('src', fullSizeUrl)
+                }
+            }
+        }
+    }
+
+    restoreSelectedImage() {
+        
+        // Restore to currently selected variation's image
+        const $selectedSwatch = $('.product-attributes .visual-swatch input:checked').closest('.bb-product-attribute-swatch-item')
+        
+        if (!$selectedSwatch.length) {
+            return
+        }
+        
+        const selectedImage = $selectedSwatch.data('variation-image')
+        const $product = $selectedSwatch.closest('.bb-product-detail')
+        
+        if (!$product.length) {
+            return
+        }
+        
+        // Determine if we're in Quick Shop or PV Gallery
+        const $quickShopModal = $selectedSwatch.closest('#quick-shop-modal')
+        const isQuickShop = $quickShopModal.length > 0
+        
+        if (isQuickShop) {
+            // For Quick Shop - restore to selected variation's first slide
+            if (selectedImage && typeof window.updateQSGalleryImages === 'function') {
+                window.updateQSGalleryImages([selectedImage])
+            }
+        } else {
+            // For PV Gallery - use the gallery instance to jump to correct image
+            if (window.pvGalleryInstance) {
+                // Jump to the current active index (which is the selected variation's image)
+                window.pvGalleryInstance.jumpToImage(window.pvGalleryInstance.currentIndex)
+            } else {
+                // Fallback if gallery instance not available
+                const $pvGallery = $product.find('.pv-gallery-main')
+                
+                if ($pvGallery.length) {
+                    const $mainImage = $pvGallery.find('#pv-main-image')
+                    
+                    if ($mainImage.length && selectedImage) {
+                        $mainImage.attr('src', selectedImage)
+                    } else if ($mainImage.length && $mainImage.data('original-src')) {
+                        // Restore original if no selection
+                        $mainImage.attr('src', $mainImage.data('original-src'))
+                        $mainImage.removeData('original-src')
+                    }
+                }
+            }
         }
     }
 }

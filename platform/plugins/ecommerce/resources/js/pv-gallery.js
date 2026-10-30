@@ -10,31 +10,45 @@
     
     class PVGallery {
         constructor(container) {
+            
             this.container = container;
             this.mainImage = container.querySelector('#pv-main-image');
             this.thumbnails = container.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
             this.videoThumbs = container.querySelectorAll('.pv-thumb-video');
             this.currentIndex = parseInt(container.getAttribute('data-default-index')) || 0;
+            this.selectedIndex = this.currentIndex; // Track actual selected/active image
             this.variationMap = JSON.parse(container.getAttribute('data-variation-map') || '{}');
             this.allImages = [];
             this.imageUrls = [];
             this.lightboxVideos = [];
             
+            // Store ORIGINAL thumbnail data for reordering (never modified)
+            this.originalThumbnailData = [];
+            
             this.init();
         }
         
         init() {
-            // Collect all images data
+            // Collect all images data from photo thumbnails AND store original data
             this.thumbnails.forEach((thumb) => {
                 const imageUrl = thumb.getAttribute('data-image');
                 const variationId = thumb.getAttribute('data-variation-id');
                 const dataIndex = parseInt(thumb.getAttribute('data-index'));
                 
-                this.allImages.push({
+                const imageData = {
                     index: dataIndex,
                     url: imageUrl,
                     variationId,
                     thumb
+                };
+                
+                this.allImages.push(imageData);
+                
+                // Store original data (immutable copy)
+                this.originalThumbnailData.push({
+                    imageUrl: imageUrl,
+                    variationId: variationId,
+                    index: dataIndex
                 });
             });
             
@@ -50,6 +64,12 @@
                 thumb.addEventListener('mouseenter', () => {
                     const index = parseInt(thumb.getAttribute('data-index'));
                     this.jumpToImage(index);
+                });
+                
+                // Mouse leave restores the active image with full-size URL
+                thumb.addEventListener('mouseleave', () => {
+                    // Re-jump to current active index to ensure full-size URL is loaded
+                    this.jumpToImage(this.currentIndex);
                 });
                 
                 // Click opens lightbox only for counter overlay (+N), not regular thumbnails
@@ -126,7 +146,6 @@
         
         openLightbox() {
             if (typeof window.openProductLightbox !== 'function') {
-                console.warn('Product lightbox not available');
                 return;
             }
             
@@ -150,7 +169,6 @@
         
         openLightboxWithVideo(videoIndex) {
             if (typeof window.openProductLightbox !== 'function') {
-                console.warn('Product lightbox not available');
                 return;
             }
             
@@ -172,9 +190,37 @@
             
             if (!imageData || !this.mainImage) return;
             
+            // Hide video facade and show main image
+            const mainContainer = this.mainImage.parentElement.classList.contains('pv-slide-track')
+                ? this.mainImage.parentElement.parentElement
+                : this.mainImage.parentElement;
+            
+            const videoFacade = mainContainer?.querySelector('.pv-video-facade');
+            if (videoFacade) {
+                videoFacade.style.display = 'none';
+            }
+            
+            // Show loading state
+            this.mainImage.style.opacity = '0.5';
+            this.mainImage.style.display = 'block';
+            
+            // Store the target URL to verify in onload
+            const targetUrl = imageData.url;
+            
             // Update main image
             this.mainImage.src = imageData.url;
             this.mainImage.srcset = '';
+            
+            // Clear previous onload handler
+            this.mainImage.onload = null;
+            
+            // Set new onload handler - only process if URL still matches
+            this.mainImage.onload = function() {
+                if (this.src === targetUrl) {
+                    this.style.opacity = '1';
+                    this.style.transition = 'opacity 0.2s ease';
+                }
+            };
             
             // Update active state
             this.setActive(index);
@@ -293,15 +339,130 @@
         }
         
         handleVariationChange(data) {
+            
             const variationId = data.variationId || data.variation_id || data.id || data.productId || data.product_id;
             
-            if (!variationId) return;
-            
-            const targetIndex = this.variationMap[variationId];
-            
-            if (targetIndex !== undefined) {
-                this.jumpToImage(targetIndex);
+            if (!variationId) {
+                return;
             }
+            
+            // Find all images for this variation
+            const variationImages = this.allImages.filter(img => img.variationId == variationId);
+            
+            if (variationImages.length > 0) {
+                // Reorganize thumbnails: show variation images first, then others
+                this.reorderThumbnails(variationId);
+                
+                // Jump to first image of this variation
+                const firstVariationImage = variationImages[0];
+                this.jumpToImage(firstVariationImage.index);
+                this.scrollThumbnailsToShow(firstVariationImage.index);
+            } else {
+                // If variationMap has the index, use it
+                let targetIndex = this.variationMap[variationId];
+                
+                if (targetIndex !== undefined) {
+                    this.jumpToImage(targetIndex);
+                    this.scrollThumbnailsToShow(targetIndex);
+                    return;
+                }
+                
+                // Try to find any image with this variation ID
+                const firstVariationImage = this.allImages.find(img => img.variationId == variationId);
+                if (firstVariationImage) {
+                    this.jumpToImage(firstVariationImage.index);
+                    this.scrollThumbnailsToShow(firstVariationImage.index);
+                }
+            }
+        }
+        
+        reorderThumbnails(variationId) {
+            
+            // Get photo thumbnails container
+            const photoContainer = this.container.querySelector('.pv-thumbs-photos');
+            if (!photoContainer) {
+                return;
+            }
+            
+            const allThumbs = Array.from(photoContainer.querySelectorAll('.pv-thumb'));
+            
+            // Use ORIGINAL data (not current DOM state) to separate thumbnails
+            const variationThumbs = [];
+            const otherThumbs = [];
+            
+            this.originalThumbnailData.forEach(original => {
+                if (original.variationId == variationId) {
+                    variationThumbs.push(original);
+                } else {
+                    otherThumbs.push(original);
+                }
+            });
+            
+            if (variationThumbs.length === 0) {
+                return;
+            }
+            
+            // Build new order: variation images first, then others
+            const newOrder = [...variationThumbs, ...otherThumbs];
+            
+            // Now swap the image URLs in the existing thumbnails (keep HTML structure intact!)
+            allThumbs.forEach((thumb, visualIndex) => {
+                if (newOrder[visualIndex]) {
+                    const newImageUrl = newOrder[visualIndex].imageUrl;
+                    const newDataIndex = newOrder[visualIndex].index;
+                    const newVariationId = newOrder[visualIndex].variationId;
+                    
+                    // Update data attributes
+                    thumb.setAttribute('data-image', newImageUrl);
+                    thumb.setAttribute('data-index', newDataIndex);
+                    thumb.setAttribute('data-variation-id', newVariationId || '');
+                    
+                    // Update image src (convert full URL to thumbnail size)
+                    const img = thumb.querySelector('img');
+                    if (img) {
+                        // Extract path and convert to thumb size
+                        const urlPath = newImageUrl.replace(/^https?:\/\/[^\/]+/, '');
+                        const thumbUrl = urlPath.replace(/(\.[^.]+)$/, '-150x150$1');
+                        img.src = window.location.origin + thumbUrl;
+                    }
+                }
+            });
+            
+            // Update allImages array to reflect new order
+            this.allImages = allThumbs.map((thumb, idx) => ({
+                index: parseInt(thumb.getAttribute('data-index')),
+                url: thumb.getAttribute('data-image'),
+                variationId: thumb.getAttribute('data-variation-id'),
+                thumb: thumb
+            }));
+            
+            // Update currentIndex to point to the currently active image's new position
+            const activeThumb = allThumbs.find(t => t.classList.contains('pv-active'));
+            if (activeThumb) {
+                const activeDataIndex = parseInt(activeThumb.getAttribute('data-index'));
+                const activeImageData = this.allImages.find(img => img.index === activeDataIndex);
+                if (activeImageData) {
+                    this.currentIndex = activeImageData.index;
+                }
+            }
+        }
+        
+        scrollThumbnailsToShow(index) {
+            // Scroll the thumbnail grid to make the target thumbnail visible
+            const imageData = this.allImages.find(img => img.index === index);
+            if (!imageData || !imageData.thumb) return;
+            
+            const thumb = imageData.thumb;
+            const thumbContainer = thumb.parentElement;
+            
+            if (!thumbContainer) return;
+            
+            // Smooth scroll the thumbnail into view
+            thumb.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
         }
 
         // ─── Lens Zoom ────────────────────────────────────────────────────────
@@ -672,6 +833,12 @@
                 return;
             }
 
+            // Hide lens when hovering over action buttons
+            if (e.target.closest('.pv-gallery-actions, .pv-action-btn')) {
+                this._onLensMouseLeave();
+                return;
+            }
+
             const imgRect = img.getBoundingClientRect();
             const containerRect = img.parentElement.getBoundingClientRect();
 
@@ -790,7 +957,9 @@
     
     // Initialize
     function initGalleries() {
-        document.querySelectorAll('.pv-gallery').forEach(gallery => {
+        const galleries = document.querySelectorAll('.pv-gallery');
+        
+        galleries.forEach(gallery => {
             new PVGallery(gallery);
         });
         
@@ -819,7 +988,7 @@
                     navigator.share({
                         title: title,
                         url: url
-                    }).catch((error) => console.log('Error sharing:', error));
+                    }).catch((error) => { /* silent */ });
                 } else {
                     // Fallback: copy to clipboard
                     navigator.clipboard.writeText(url).then(() => {

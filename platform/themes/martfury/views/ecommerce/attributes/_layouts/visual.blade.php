@@ -92,6 +92,7 @@
                             data-id="{{ $attribute->id }}"
                             data-title="{{ $attribute->title }}"
                             data-stock="{{ $varStock !== null ? $varStock : '' }}"
+                            data-variation-image="{{ $imgUrl }}"
                             @if($isDisabled) data-bs-toggle="tooltip" data-bs-title="{{ __('Not available') }}" @endif>
                             <label>
                                 <input type="radio"

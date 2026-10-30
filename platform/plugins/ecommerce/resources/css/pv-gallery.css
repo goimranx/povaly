@@ -57,7 +57,7 @@
     height: 35px;
     border-radius: 50%;
     background-color: #fff;
-    border: 2px solid var(--global-color-primary-border, #ddd);
+    border: 2px solid var(--global-color-border-strong, #ddd);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -73,7 +73,7 @@
 
 /* No hover change */
 .pv-action-btn:hover {
-    border-color: var(--global-color-primary-border, #ddd);
+    border-color: var(--global-color-border-strong, #ddd);
 }
 
 .pv-action-btn:hover i {
@@ -82,7 +82,7 @@
 
 /* Active state - filled icon with text-main color */
 .pv-action-btn.active {
-    border-color: var(--global-color-primary-border, #ddd);
+    border-color: var(--global-color-border-strong, #ddd);
 }
 
 .pv-action-btn.active i {
@@ -97,6 +97,20 @@
     min-width: 50px;
     max-width: 50px;
     flex-shrink: 0;
+}
+
+/* Photo thumbnails wrapper */
+.pv-thumbs-photos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Video thumbnails wrapper */
+.pv-thumbs-videos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .pv-thumb {
@@ -194,23 +208,13 @@
     cursor: pointer;
 }
 
-/* Hide image thumbnails after 3rd (indices 3+) */
-.pv-thumb:not(.pv-thumb-video):nth-child(n+4) {
+/* Hide thumbnails with pv-thumb-hidden class */
+.pv-thumb.pv-thumb-hidden {
     display: none !important;
 }
 
-/* Show 4th image thumbnail (index 3) if it has counter */
-.pv-thumb:not(.pv-thumb-video):nth-child(4):has(.pv-thumb-overlay) {
-    display: flex !important;
-}
-
-/* Hide video thumbnails: Keep first 2 visible, hide from 3rd onward */
-.pv-gallery-thumbnails .pv-thumb-video ~ .pv-thumb-video ~ .pv-thumb-video {
-    display: none !important;
-}
-
-/* Show 3rd video if it has counter overlay */
-.pv-gallery-thumbnails .pv-thumb-video ~ .pv-thumb-video ~ .pv-thumb-video:has(.pv-thumb-overlay) {
+/* Show thumbnail if it has overlay (the +count indicator) even if hidden */
+.pv-thumb.pv-thumb-hidden:has(.pv-thumb-overlay) {
     display: flex !important;
 }
 

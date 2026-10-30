@@ -894,16 +894,6 @@
                     window._qsUserPick = {}; // clear per-set memory for new product (now global)
                     initQSGallery(offcanvasEl);
                     initQSQty(offcanvasEl);
-                    // Initialize variation state on modal open
-                    setTimeout(function() {
-                        if (window.EcommerceApp && typeof window.EcommerceApp.updateVariationSwatches === 'function') {
-                            var $firstInput = $(offcanvasEl).find('input.product-filter-item:checked').first();
-                            if ($firstInput.length) {
-                                var productId = $(offcanvasEl).find('.hidden-product-id').val();
-                                window.EcommerceApp.updateVariationSwatches({ data: { id: productId } }, $firstInput);
-                            }
-                        }
-                    }, 100);
                     initQSTitleExpand(offcanvasEl);
                     // Inject % discount badge on initial render
                     (function() {
@@ -1464,34 +1454,73 @@
         // Methods: updateVariationSwatches() and initVariationSwatchHandlers()
 
         function updateQSGalleryImages(imageUrls) {
+            console.log('[QS GALLERY] updateQSGalleryImages called with:', imageUrls);
+            
             var offcanvas = document.getElementById('quick-shop-modal');
-            if (!offcanvas) return;
+            if (!offcanvas) {
+                console.log('[QS GALLERY] No offcanvas element found');
+                return;
+            }
+            
             var gallery = offcanvas.querySelector('.qs-gallery');
-            if (!gallery || !gallery._qsGo) return;
+            console.log('[QS GALLERY] Gallery element:', gallery, 'Has _qsGo:', gallery && gallery._qsGo);
+            
+            if (!gallery || !gallery._qsGo) {
+                console.log('[QS GALLERY] Gallery not found or missing _qsGo method');
+                return;
+            }
 
-            if (!imageUrls || !imageUrls.length) return;
+            if (!imageUrls || !imageUrls.length) {
+                console.log('[QS GALLERY] No image URLs provided');
+                return;
+            }
 
             // Find the first of these image URLs in the existing track
             var firstUrl = imageUrls[0];
+            console.log('[QS GALLERY] Looking for image:', firstUrl);
+            
             var slides   = Array.from(gallery.querySelectorAll('.qs-slide--image'));
+            console.log('[QS GALLERY] Found slides:', slides.length);
+
+            // Helper to strip size suffixes like -150x150, -thumb, -small, etc.
+            function stripSizeSuffix(filename) {
+                // Remove patterns like -150x150, -thumb, -small, -medium, -large before the extension
+                return filename.replace(/-\d+x\d+(\.\w+)$/, '$1')
+                              .replace(/-(thumb|small|medium|large)(\.\w+)$/, '$2');
+            }
 
             for (var i = 0; i < slides.length; i++) {
                 var slideSrc = slides[i].dataset.src || '';
                 // Match by filename (URL may differ in query params)
                 var slideFile = slideSrc.split('/').pop().split('?')[0];
                 var targetFile = firstUrl.split('/').pop().split('?')[0];
-                if (slideSrc === firstUrl || slideFile === targetFile) {
+                
+                // Strip size suffixes for comparison
+                var slideFileClean = stripSizeSuffix(slideFile);
+                var targetFileClean = stripSizeSuffix(targetFile);
+                
+                console.log('[QS GALLERY] Checking slide', i, 'slideFile:', slideFile, 'clean:', slideFileClean, 'vs target:', targetFileClean);
+                
+                if (slideSrc === firstUrl || slideFile === targetFile || slideFileClean === targetFileClean) {
                     // Jump to this slide's global index
                     var allSlides = Array.from(gallery.querySelector('.qs-track').querySelectorAll('.qs-slide'));
                     var globalIdx = allSlides.indexOf(slides[i]);
-                    if (globalIdx >= 0) gallery._qsGo(globalIdx);
+                    console.log('[QS GALLERY] Match found! Global index:', globalIdx);
+                    if (globalIdx >= 0) {
+                        console.log('[QS GALLERY] Calling gallery._qsGo(' + globalIdx + ')');
+                        gallery._qsGo(globalIdx);
+                    }
                     return;
                 }
             }
 
+            console.log('[QS GALLERY] Image not found in slides - keeping current position');
             // If not found in strip — do nothing, keep current position
             // (variation images will be present once Bug 1 fix is deployed)
         }
+        
+        // Expose globally for swatch hover/click integration
+        window.updateQSGalleryImages = updateQSGalleryImages;
 
         // ── Title expand ────────────────────────────────────────────────
         function initQSTitleExpand(scope) {
