@@ -191,7 +191,9 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
             @if ($allImages->isNotEmpty())
                 @php
                     $mainImageSrc = $allImages[$defaultJumpIndex]['src'];
-                    // Ensure we get the full-size image, not thumbnail
+                    // Strip any size suffix like -150x150, -thumb, etc from the filename
+                    $mainImageSrc = preg_replace('/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/', '$1', $mainImageSrc);
+                    // Get full URL
                     $mainImageUrl = RvMedia::url($mainImageSrc);
                 @endphp
                 <img 
