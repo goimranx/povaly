@@ -1,5 +1,5 @@
 {{-- Location Selection Modal --}}
-<div class="modal fade" id="location-modal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
+<div class="modal fade location-modal" id="location-modal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true" style="display: none;">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">

@@ -5,6 +5,9 @@
 
 (function($) {
     'use strict';
+    
+    // Debug logging
+    console.log('Location Modal JS Loaded');
 
     const LocationModal = {
         modal: null,
@@ -280,12 +283,43 @@
 
     // Initialize on document ready
     $(document).ready(function() {
+        console.log('LocationModal: Document ready, initializing...');
         LocationModal.init();
+        
+        console.log('LocationModal: Modal element exists?', $('#location-modal').length > 0);
 
-        // Trigger modal on button click
+        // Trigger modal on button click - use simple jQuery show
         $(document).on('click', '.delivery-change-btn, .delivery-add-btn, .trigger-location-modal', function(e) {
             e.preventDefault();
-            $('#location-modal').modal('show');
+            console.log('LocationModal: Button clicked!');
+            
+            const $modal = $('#location-modal');
+            if ($modal.length > 0) {
+                console.log('LocationModal: Opening modal...');
+                $modal.fadeIn(300).addClass('show').css('display', 'block');
+                $('body').addClass('modal-open');
+                
+                // Add backdrop if not exists
+                if (!$('.modal-backdrop').length) {
+                    $('<div class="modal-backdrop fade show"></div>').appendTo('body');
+                }
+            } else {
+                console.error('LocationModal: Modal element not found!');
+            }
+        });
+        
+        // Close modal on backdrop click or close button
+        $(document).on('click', '.modal-backdrop, [data-bs-dismiss="modal"]', function(e) {
+            e.preventDefault();
+            console.log('LocationModal: Closing modal...');
+            $('#location-modal').fadeOut(300).removeClass('show');
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+        });
+        
+        // Prevent modal close when clicking inside modal content
+        $(document).on('click', '.modal-dialog', function(e) {
+            e.stopPropagation();
         });
     });
 
