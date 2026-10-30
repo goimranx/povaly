@@ -447,18 +447,24 @@ class ChangeProductSwatches {
                 window.updateQSGalleryImages([selectedImage])
             }
         } else {
-            // For PV Gallery
-            const $pvGallery = $product.find('.pv-gallery-main')
-            
-            if ($pvGallery.length) {
-                const $mainImage = $pvGallery.find('#pv-main-image')
+            // For PV Gallery - use the gallery instance to jump to correct image
+            if (window.pvGalleryInstance) {
+                // Jump to the current active index (which is the selected variation's image)
+                window.pvGalleryInstance.jumpToImage(window.pvGalleryInstance.currentIndex)
+            } else {
+                // Fallback if gallery instance not available
+                const $pvGallery = $product.find('.pv-gallery-main')
                 
-                if ($mainImage.length && selectedImage) {
-                    $mainImage.attr('src', selectedImage)
-                } else if ($mainImage.length && $mainImage.data('original-src')) {
-                    // Restore original if no selection
-                    $mainImage.attr('src', $mainImage.data('original-src'))
-                    $mainImage.removeData('original-src')
+                if ($pvGallery.length) {
+                    const $mainImage = $pvGallery.find('#pv-main-image')
+                    
+                    if ($mainImage.length && selectedImage) {
+                        $mainImage.attr('src', selectedImage)
+                    } else if ($mainImage.length && $mainImage.data('original-src')) {
+                        // Restore original if no selection
+                        $mainImage.attr('src', $mainImage.data('original-src'))
+                        $mainImage.removeData('original-src')
+                    }
                 }
             }
         }
