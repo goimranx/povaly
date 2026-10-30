@@ -1,7 +1,7 @@
 /**
  * Location Modal Handler
  * Manages temporary address selection with progressive field display
- * Integrates with location.js plugin for cascading dropdowns
+ * Uses location.js plugin for cascading dropdowns
  */
 
 if (typeof jQuery === 'undefined') {
@@ -44,34 +44,43 @@ if (typeof jQuery === 'undefined') {
             bindEvents: function() {
                 const self = this;
 
-                // Country change - load states and show state dropdown
+                // Country change - show state dropdown (location.js handles data loading)
                 this.countrySelect.on('change', function() {
                     const countryId = $(this).val();
                     
                     if (countryId) {
-                        self.loadStates(countryId);
+                        // Show state dropdown after location.js loads it
+                        setTimeout(function() {
+                            self.stateSelect.closest('.form-group-location').show();
+                        }, 100);
+                        
+                        // Hide city and address until state is selected
+                        self.citySelect.closest('.form-group-location').hide();
+                        $('.form-group-location.address-group').hide();
                     } else {
                         // Hide everything except country
                         self.stateSelect.closest('.form-group-location').hide();
                         self.citySelect.closest('.form-group-location').hide();
                         $('.form-group-location.address-group').hide();
-                        self.stateSelect.prop('disabled', true).html('<option value="">Select state...</option>');
-                        self.citySelect.prop('disabled', true).html('<option value="">Select city...</option>');
                     }
                 });
 
-                // State change - load cities and show city dropdown
+                // State change - show city dropdown (location.js handles data loading)
                 this.stateSelect.on('change', function() {
                     const stateId = $(this).val();
-                    const countryId = self.countrySelect.val();
                     
                     if (stateId) {
-                        self.loadCities(stateId, countryId);
+                        // Show city dropdown after location.js loads it
+                        setTimeout(function() {
+                            self.citySelect.closest('.form-group-location').show();
+                        }, 100);
+                        
+                        // Hide address until city is selected
+                        $('.form-group-location.address-group').hide();
                     } else {
                         // Hide city and address
                         self.citySelect.closest('.form-group-location').hide();
                         $('.form-group-location.address-group').hide();
-                        self.citySelect.prop('disabled', true).html('<option value="">Select city...</option>');
                     }
                 });
 
@@ -114,76 +123,6 @@ if (typeof jQuery === 'undefined') {
                 });
             },
 
-            loadStates: function(countryId) {
-                const self = this;
-
-                // Show loading state
-                this.stateSelect.prop('disabled', true).html('<option value="">Loading states...</option>');
-                this.stateSelect.closest('.form-group-location').show();
-                
-                // Hide city and address
-                this.citySelect.closest('.form-group-location').hide();
-                $('.form-group-location.address-group').hide();
-
-                $.ajax({
-                    url: this.stateSelect.data('url'),
-                    type: 'GET',
-                    data: { country_id: countryId },
-                    success: function(response) {
-                        let options = '<option value="">Select state...</option>';
-                        
-                        if (response.data && response.data.length > 0) {
-                            response.data.forEach(function(state) {
-                                if (state.id) {
-                                    options += `<option value="${state.id}">${state.name}</option>`;
-                                }
-                            });
-                        }
-
-                        self.stateSelect.html(options).prop('disabled', false);
-                    },
-                    error: function() {
-                        self.stateSelect.html('<option value="">Error loading states</option>').prop('disabled', false);
-                    }
-                });
-            },
-
-            loadCities: function(stateId, countryId) {
-                const self = this;
-
-                // Show loading state
-                this.citySelect.prop('disabled', true).html('<option value="">Loading cities...</option>');
-                this.citySelect.closest('.form-group-location').show();
-                
-                // Hide address
-                $('.form-group-location.address-group').hide();
-
-                $.ajax({
-                    url: this.citySelect.data('url'),
-                    type: 'GET',
-                    data: { 
-                        state_id: stateId,
-                        country_id: countryId
-                    },
-                    success: function(response) {
-                        let options = '<option value="">Select city...</option>';
-                        
-                        if (response.data && response.data.length > 0) {
-                            response.data.forEach(function(city) {
-                                if (city.id) {
-                                    options += `<option value="${city.id}">${city.name}</option>`;
-                                }
-                            });
-                        }
-
-                        self.citySelect.html(options).prop('disabled', false);
-                    },
-                    error: function() {
-                        self.citySelect.html('<option value="">Error loading cities</option>').prop('disabled', false);
-                    }
-                });
-            },
-
             clearTemporaryForm: function() {
                 // Reset all form values
                 this.countrySelect.val('');
@@ -193,10 +132,10 @@ if (typeof jQuery === 'undefined') {
                 
                 // Hide all except country and reset state
                 this.stateSelect.closest('.form-group-location').hide();
-                this.stateSelect.prop('disabled', true).html('<option value="">Select state...</option>');
+                this.stateSelect.html('<option value="">Select state...</option>');
                 
                 this.citySelect.closest('.form-group-location').hide();
-                this.citySelect.prop('disabled', true).html('<option value="">Select city...</option>');
+                this.citySelect.html('<option value="">Select city...</option>');
                 
                 $('.form-group-location.address-group').hide();
             },
