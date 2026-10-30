@@ -204,7 +204,10 @@
                                     <div id="pd-about" class="collapse show" data-bs-parent="#pd-accordion">
                                         <div class="pd-accordion-body ps-list--dot">
                                             {!! apply_filters('ecommerce_before_product_description', null, $product) !!}
-                                            {!! BaseHelper::clean($product->description) !!}
+                                            <div class="pd-description-content pd-description-collapsed" id="pd-description-content">
+                                                {!! BaseHelper::clean($product->description) !!}
+                                            </div>
+                                            <button type="button" class="pd-read-more-btn" id="pd-read-more-btn" onclick="toggleDescription()">{{ __('Read more') }}</button>
                                             {!! apply_filters('ecommerce_after_product_description', null, $product) !!}
                                         </div>
                                     </div>

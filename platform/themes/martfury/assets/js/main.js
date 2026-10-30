@@ -2130,3 +2130,29 @@
     });
 })(jQuery);
 
+
+
+    // ── Product Description Read More/Less ─────────────────────────────────
+    window.toggleDescription = function() {
+        const content = document.getElementById('pd-description-content');
+        const btn = document.getElementById('pd-read-more-btn');
+        
+        if (!content || !btn) return;
+        
+        if (content.classList.contains('pd-description-collapsed')) {
+            content.classList.remove('pd-description-collapsed');
+            btn.textContent = btn.dataset.lessText || 'Read less';
+        } else {
+            content.classList.add('pd-description-collapsed');
+            btn.textContent = btn.dataset.moreText || 'Read more';
+        }
+    };
+
+    // Initialize read more button text on page load
+    $(document).ready(function() {
+        const btn = document.getElementById('pd-read-more-btn');
+        if (btn) {
+            btn.dataset.moreText = btn.textContent;
+            btn.dataset.lessText = 'Read less';
+        }
+    });

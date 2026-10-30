@@ -1814,7 +1814,7 @@
     }
 
     .pd-section-header {
-        margin-bottom: 20px;
+        margin-bottom: 0;
     }
 
     .pd-section-title {
@@ -1852,15 +1852,19 @@
         background: none;
         border: none;
         padding: 16px 0;
-        font-size: small;
-        font-weight: 500;
+        font-size: 20px;
+        font-weight: 600;
         color: var(--global-color-text-main, #1a1a1a);
         cursor: pointer;
         text-align: left;
-        transition: color 0.2s ease;
 
         &:hover {
-            color: var(--global-color-primary, #0066cc);
+            color: var(--global-color-text-main, #1a1a1a);
+        }
+
+        span {
+            font-size: inherit;
+            font-weight: inherit;
         }
 
         span:first-child { flex: 1; }
@@ -1884,6 +1888,63 @@
         font-size: 14px;
         color: $color-text;
         line-height: 1.6;
+    }
+
+    // Description with read more/less
+    .antd-external-collapse {
+        height: auto !important;
+        
+        &.collapse-body {
+            margin: 16px 0 0 !important;
+            padding: 0 !important;
+            height: auto !important;
+        }
+        
+        > div {
+            height: auto !important;
+            
+            > div {
+                height: auto !important;
+            }
+        }
+    }
+
+    #detail {
+        margin: 0 !important;
+        padding: 0 !important;
+        height: auto !important;
+    }
+
+    .pd-description-content {
+        &.pd-description-collapsed {
+            display: -webkit-box;
+            -webkit-line-clamp: 6;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+    }
+
+    .pd-read-more-btn {
+        display: inline-block;
+        background: none;
+        border: none;
+        padding: 0;
+        margin-top: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--global-color-link, #0066cc);
+        cursor: pointer;
+        text-decoration: underline;
+        
+        &:hover {
+            color: var(--global-color-link-hover, #004999);
+        }
     }
 
     .pd-accordion-rating-inline {
