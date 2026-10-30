@@ -14,57 +14,22 @@
                 <p class="modal-description">{{ __('Delivery options and delivery speeds may vary for different locations') }}</p>
                 
                 @if (auth('customer')->check())
-                    {{-- Logged-in User: Show saved addresses --}}
+                    {{-- Logged-in User: Show saved addresses OR manage link --}}
                     @php
-                        $userAddresses = auth('customer')->user()->addresses()->orderBy('is_default', 'desc')->get();
+                        $userAddresses = auth('customer')->user()->addresses;
                     @endphp
                     
                     @if ($userAddresses->isNotEmpty())
-                        <div class="saved-addresses-section">
-                            @foreach($userAddresses as $address)
-                                <div class="saved-address-item">
-                                    <label class="saved-address-label">
-                                        <input 
-                                            type="radio" 
-                                            name="saved_address" 
-                                            value="{{ $address->id }}" 
-                                            class="location-address-radio"
-                                            {{ $address->is_default ? 'checked' : '' }}
-                                        >
-                                        <div class="address-details">
-                                            <div class="address-name">
-                                                {{ $address->name }}
-                                                @if($address->is_default)
-                                                    <span class="badge-default">{{ __('Default') }}</span>
-                                                @endif
-                                            </div>
-                                            <div class="address-full">
-                                                {{ $address->address }}, {{ $address->city_name }}, {{ $address->state_name }} {{ $address->zip_code }}, {{ $address->country_name }}
-                                            </div>
-                                            @if($address->phone)
-                                                <div class="address-phone">{{ __('Phone') }}: {{ $address->phone }}</div>
-                                            @endif
-                                            @if($address->is_default)
-                                                <div class="address-default-label">{{ __('Default address') }}</div>
-                                            @endif
-                                        </div>
-                                    </label>
-                                </div>
-                            @endforeach
-                        </div>
-                        
+                        {{-- Show saved addresses list here if needed in future --}}
                         <div class="location-manage-actions">
                             <a href="{{ route('customer.address') }}" class="btn-secondary-link">
                                 {{ __('Manage address book') }}
                             </a>
                         </div>
                     @else
-                        <div class="no-addresses-notice">
-                            <p>{{ __('You have no saved addresses yet.') }}</p>
-                        </div>
                         <div class="location-manage-actions">
                             <a href="{{ route('customer.address') }}" class="btn-secondary-link">
-                                {{ __('Add an address') }}
+                                {{ __('Manage address book') }}
                             </a>
                         </div>
                     @endif
@@ -84,15 +49,15 @@
                 @endif
                 
                 {{-- Temporary Address Form (For Both Logged-in & Guest) --}}
-                <form id="temporary-address-form" class="location-temp-form">
+                <form id="temporary-address-form" class="location-temp-form" data-form-parent="#location-modal">
                     {{-- Country Dropdown (Always visible) --}}
                     <div class="form-group-location country-group">
                         <select 
                             name="country" 
                             id="temp-country" 
                             class="form-select-location select-search-location"
-                            data-form-parent="#temporary-address-form"
                             data-type="country"
+                            data-form-parent="#location-modal"
                         >
                             <option value="">{{ __('Select country...') }}</option>
                             @foreach(\Botble\Ecommerce\Facades\EcommerceHelper::getAvailableCountries() as $countryCode => $countryName)
@@ -107,9 +72,10 @@
                             name="state" 
                             id="temp-state" 
                             class="form-select-location select-search-location" 
-                            data-form-parent="#temporary-address-form"
                             data-type="state"
+                            data-form-parent="#location-modal"
                             data-url="{{ route('ajax.states-by-country') }}"
+                            disabled
                         >
                             <option value="">{{ __('Select state...') }}</option>
                         </select>
@@ -121,9 +87,10 @@
                             name="city" 
                             id="temp-city" 
                             class="form-select-location select-search-location" 
-                            data-form-parent="#temporary-address-form"
                             data-type="city"
+                            data-form-parent="#location-modal"
                             data-url="{{ route('ajax.cities-by-state') }}"
+                            disabled
                         >
                             <option value="">{{ __('Select city...') }}</option>
                         </select>

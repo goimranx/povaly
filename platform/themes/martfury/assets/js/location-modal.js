@@ -1,7 +1,7 @@
 /**
  * Location Modal Handler
  * Manages temporary address selection with progressive field display
- * Uses location.js plugin for cascading dropdowns
+ * Integrates with location.js plugin for cascading dropdowns
  */
 
 if (typeof jQuery === 'undefined') {
@@ -39,67 +39,70 @@ if (typeof jQuery === 'undefined') {
                 $('.form-group-location.address-group').hide();
 
                 this.bindEvents();
-                
-                // Wait for location.js to initialize on document ready
-                const self = this;
-                setTimeout(function() {
-                    // Check if Select2 was initialized by location.js
-                    if (self.countrySelect.hasClass('select2-hidden-accessible')) {
-                        console.log('Select2 initialized on country select');
-                    } else {
-                        console.log('Select2 NOT initialized - location.js may not be loaded');
-                    }
-                }, 500);
             },
 
             bindEvents: function() {
                 const self = this;
 
-                // Country change - show state dropdown (location.js handles data loading)
-                // Listen to both native change and select2:select events
-                this.countrySelect.on('change select2:select', function() {
+                // Country change - show state dropdown and set data attributes for location.js
+                this.countrySelect.on('change', function() {
                     const countryId = $(this).val();
                     
                     if (countryId) {
-                        // Show state dropdown after location.js loads it
-                        setTimeout(function() {
-                            self.stateSelect.closest('.form-group-location').show();
-                        }, 300);
+                        // Set data attribute for location.js
+                        self.stateSelect.attr('data-country-id', countryId);
+                        self.citySelect.attr('data-country-id', countryId);
                         
-                        // Hide city and address until state is selected
+                        // Show and enable state dropdown
+                        self.stateSelect.prop('disabled', false);
+                        self.stateSelect.closest('.form-group-location').show();
+                        
+                        // Hide city and address
                         self.citySelect.closest('.form-group-location').hide();
                         $('.form-group-location.address-group').hide();
+                        
+                        // Reset state and city
+                        self.stateSelect.val('').trigger('change');
+                        self.citySelect.val('');
                     } else {
                         // Hide everything except country
                         self.stateSelect.closest('.form-group-location').hide();
                         self.citySelect.closest('.form-group-location').hide();
                         $('.form-group-location.address-group').hide();
+                        self.stateSelect.prop('disabled', true);
+                        self.citySelect.prop('disabled', true);
                     }
                 });
 
-                // State change - show city dropdown (location.js handles data loading)
-                // Listen to both native change and select2:select events
-                this.stateSelect.on('change select2:select', function() {
+                // State change - show city dropdown and set data attributes for location.js
+                this.stateSelect.on('change', function() {
                     const stateId = $(this).val();
+                    const countryId = self.countrySelect.val();
                     
                     if (stateId) {
-                        // Show city dropdown after location.js loads it
-                        setTimeout(function() {
-                            self.citySelect.closest('.form-group-location').show();
-                        }, 300);
+                        // Set data attributes for location.js
+                        self.citySelect.attr('data-state-id', stateId);
+                        self.citySelect.attr('data-country-id', countryId);
                         
-                        // Hide address until city is selected
+                        // Show and enable city dropdown
+                        self.citySelect.prop('disabled', false);
+                        self.citySelect.closest('.form-group-location').show();
+                        
+                        // Hide address
                         $('.form-group-location.address-group').hide();
+                        
+                        // Reset city
+                        self.citySelect.val('');
                     } else {
                         // Hide city and address
                         self.citySelect.closest('.form-group-location').hide();
                         $('.form-group-location.address-group').hide();
+                        self.citySelect.prop('disabled', true);
                     }
                 });
 
                 // City change - show address field
-                // Listen to both native change and select2:select events
-                this.citySelect.on('change select2:select', function() {
+                this.citySelect.on('change', function() {
                     if ($(this).val()) {
                         $('.form-group-location.address-group').show();
                     } else {
@@ -118,7 +121,7 @@ if (typeof jQuery === 'undefined') {
                 });
 
                 // Temporary form field changes - deselect saved addresses
-                this.countrySelect.add(this.stateSelect).add(this.citySelect).add(this.addressInput).on('change input select2:select', function() {
+                this.countrySelect.add(this.stateSelect).add(this.citySelect).add(this.addressInput).on('change input', function() {
                     if ($(this).val()) {
                         $('.location-address-radio').prop('checked', false);
                         self.selectedData.type = 'temporary';
@@ -131,27 +134,19 @@ if (typeof jQuery === 'undefined') {
                     self.saveLocation();
                 });
 
-                // Modal shown event
+                // Modal shown event - reinitialize location.js for this modal
                 this.modal.on('shown.bs.modal', function() {
                     self.initializeModalState();
                 });
             },
 
             clearTemporaryForm: function() {
-                // Reset all form values
-                this.countrySelect.val('');
-                this.stateSelect.val('');
-                this.citySelect.val('');
-                this.addressInput.val('');
-                
-                // Hide all except country and reset state
+                this.form[0].reset();
                 this.stateSelect.closest('.form-group-location').hide();
-                this.stateSelect.html('<option value="">Select state...</option>');
-                
                 this.citySelect.closest('.form-group-location').hide();
-                this.citySelect.html('<option value="">Select city...</option>');
-                
                 $('.form-group-location.address-group').hide();
+                this.stateSelect.prop('disabled', true);
+                this.citySelect.prop('disabled', true);
             },
 
             initializeModalState: function() {
