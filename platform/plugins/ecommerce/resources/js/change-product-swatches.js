@@ -359,8 +359,12 @@ class ChangeProductSwatches {
     }
     
     updateSwatchPrices(variationData, $productAttributes) {
+        console.log('[SWATCH PRICE UPDATE] Called with variation:', variationData?.id)
         
-        if (!variationData || !variationData.id) return
+        if (!variationData || !variationData.id) {
+            console.log('[SWATCH PRICE UPDATE] No variation data, skipping')
+            return
+        }
         
         // Get all selected attribute IDs
         const selectedAttrIds = []
@@ -368,18 +372,32 @@ class ChangeProductSwatches {
             const attrId = parseInt($(this).data('id'))
             if (attrId) selectedAttrIds.push(attrId)
         })
+        console.log('[SWATCH PRICE UPDATE] Selected attribute IDs:', selectedAttrIds)
         
         // Get variation price map from container
         const variationPrices = $productAttributes.data('variation-prices')
-        if (!variationPrices || !Array.isArray(variationPrices)) return
+        console.log('[SWATCH PRICE UPDATE] Variation prices from data:', variationPrices)
+        
+        if (!variationPrices || !Array.isArray(variationPrices)) {
+            console.log('[SWATCH PRICE UPDATE] No variation prices data, skipping')
+            return
+        }
         
         // Update each swatch item's price based on combination with selected attributes
+        let swatchCount = 0
+        let updateCount = 0
         $productAttributes.find('.qs-var-item').each(function() {
+            swatchCount++
             const $item = $(this)
             const itemAttrId = parseInt($item.data('id'))
             const $priceDiv = $item.find('.qs-var-item__price')
             
-            if (!$priceDiv.length || !itemAttrId) return
+            console.log(`[SWATCH ${swatchCount}] Checking item with attr ID:`, itemAttrId, 'Has price div:', $priceDiv.length > 0)
+            
+            if (!$priceDiv.length || !itemAttrId) {
+                console.log(`[SWATCH ${swatchCount}] Skipping - no price div or attr ID`)
+                return
+            }
             
             // Build potential attribute combination: replace current item's attribute
             const testAttrIds = selectedAttrIds.filter(id => {
@@ -392,24 +410,32 @@ class ChangeProductSwatches {
             testAttrIds.push(itemAttrId)
             testAttrIds.sort()
             
+            console.log(`[SWATCH ${swatchCount}] Testing combination:`, testAttrIds)
+            
             // Find matching variation in price map
             let matchedVariation = null
             for (const varData of variationPrices) {
                 const varAttrIds = (varData.attrs || []).sort()
                 if (JSON.stringify(varAttrIds) === JSON.stringify(testAttrIds)) {
                     matchedVariation = varData
+                    console.log(`[SWATCH ${swatchCount}] MATCHED variation:`, matchedVariation)
                     break
                 }
             }
             
             // Update price display if match found
             if (matchedVariation && matchedVariation.price) {
+                updateCount++
                 const roundedPrice = Math.round(matchedVariation.price)
                 const roundedOrigPrice = matchedVariation.original_price ? Math.round(matchedVariation.original_price) : null
+                
+                console.log(`[SWATCH ${swatchCount}] Updating price to:`, roundedPrice, 'Original:', roundedOrigPrice)
                 
                 // Format price using window.currencies settings
                 const formattedPrice = this.formatPrice(roundedPrice)
                 const formattedOrigPrice = roundedOrigPrice ? this.formatPrice(roundedOrigPrice) : null
+                
+                console.log(`[SWATCH ${swatchCount}] Formatted price:`, formattedPrice)
                 
                 $priceDiv.find('.qs-var-item__price-sale').text(formattedPrice)
                 
@@ -423,8 +449,12 @@ class ChangeProductSwatches {
                 } else {
                     $priceDiv.find('.qs-var-item__price-orig').hide()
                 }
+            } else {
+                console.log(`[SWATCH ${swatchCount}] No matching variation found`)
             }
         })
+        
+        console.log(`[SWATCH PRICE UPDATE] Finished - checked ${swatchCount} swatches, updated ${updateCount}`)
     }
     
     formatPrice(price) {

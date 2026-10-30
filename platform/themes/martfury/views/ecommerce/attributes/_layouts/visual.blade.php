@@ -124,9 +124,9 @@
 
                                 @if($varPrice !== null)
                                     <div class="qs-var-item__price" data-variation-price="{{ round($varPrice) }}" data-variation-original-price="{{ $varOriginalPrice ? round($varOriginalPrice) : '' }}">
-                                        <span class="qs-var-item__price-sale">{{ format_price(round($varPrice)) }}</span>
+                                        <span class="qs-var-item__price-sale" data-debug-raw-price="{{ $varPrice }}">{{ format_price(round($varPrice)) }}</span>
                                         @if($varOriginalPrice)
-                                            <del class="qs-var-item__price-orig">{{ format_price(round($varOriginalPrice)) }}</del>
+                                            <del class="qs-var-item__price-orig" data-debug-raw-original="{{ $varOriginalPrice }}">{{ format_price(round($varOriginalPrice)) }}</del>
                                         @endif
                                     </div>
                                 @endif
