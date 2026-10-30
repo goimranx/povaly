@@ -427,6 +427,16 @@
                 variationId: thumb.getAttribute('data-variation-id'),
                 thumb: thumb
             }));
+            
+            // Update currentIndex to point to the currently active image's new position
+            const activeThumb = allThumbs.find(t => t.classList.contains('pv-active'));
+            if (activeThumb) {
+                const activeDataIndex = parseInt(activeThumb.getAttribute('data-index'));
+                const activeImageData = this.allImages.find(img => img.index === activeDataIndex);
+                if (activeImageData) {
+                    this.currentIndex = activeImageData.index;
+                }
+            }
         }
         
         scrollThumbnailsToShow(index) {
