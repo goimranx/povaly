@@ -1,62 +1,4 @@
-(function() {
-	//#region platform/core/table/resources/js/table.js
-	(($, DataTable) => {
-		"use strict";
-		let _buildParams = (dt, action) => {
-			let params = dt.ajax.params();
-			params.action = action;
-			params._token = $("meta[name=\"csrf-token\"]").attr("content");
-			return params;
-		};
-		let _downloadFromUrl = function(url, params) {
-			let postUrl = url + "/export";
-			let xhr = new XMLHttpRequest();
-			xhr.open("POST", postUrl, true);
-			xhr.responseType = "arraybuffer";
-			xhr.onload = function() {
-				if (this.status === 200) {
-					let filename = "";
-					let disposition = xhr.getResponseHeader("Content-Disposition");
-					if (disposition && disposition.indexOf("attachment") !== -1) {
-						let matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
-						if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, "");
-					}
-					let type = xhr.getResponseHeader("Content-Type");
-					let blob = new Blob([this.response], { type });
-					if (typeof window.navigator.msSaveBlob !== "undefined") window.navigator.msSaveBlob(blob, filename);
-					else {
-						let URL = window.URL || window.webkitURL;
-						let downloadUrl = URL.createObjectURL(blob);
-						if (filename) {
-							let a = document.createElement("a");
-							if (typeof a.download === "undefined") window.location = downloadUrl;
-							else {
-								a.href = downloadUrl;
-								a.download = filename;
-								document.body.appendChild(a);
-								a.click();
-							}
-						} else window.location = downloadUrl;
-						setTimeout(() => {
-							URL.revokeObjectURL(downloadUrl);
-						}, 100);
-					}
-				}
-			};
-			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			xhr.send($.param(params));
-		};
-		let _buildUrl = (dt, action) => {
-			let url = dt.ajax.url() || "";
-			let params = dt.ajax.params();
-			params.action = action;
-			if (url.indexOf("?") > -1) return url + "&" + $.param(params);
-			return url + "?" + $.param(params);
-		};
-		DataTable.ext.buttons.excel = {
-			className: "buttons-excel",
-			text: (dt) => {
-				return `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+(function(){((e,p)=>{"use strict";let g=(r,o)=>{let s=r.ajax.params();return s.action=o,s._token=e('meta[name="csrf-token"]').attr("content"),s},m=function(r,o){let s=r+"/export",d=new XMLHttpRequest;d.open("POST",s,!0),d.responseType="arraybuffer",d.onload=function(){if(this.status===200){let c="",a=d.getResponseHeader("Content-Disposition");if(a&&a.indexOf("attachment")!==-1){let n=/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(a);n!=null&&n[1]&&(c=n[1].replace(/['"]/g,""))}let t=d.getResponseHeader("Content-Type"),l=new Blob([this.response],{type:t});if(typeof window.navigator.msSaveBlob!="undefined")window.navigator.msSaveBlob(l,c);else{let n=window.URL||window.webkitURL,i=n.createObjectURL(l);if(c){let h=document.createElement("a");typeof h.download=="undefined"?window.location=i:(h.href=i,h.download=c,document.body.appendChild(h),h.click())}else window.location=i;setTimeout(()=>{n.revokeObjectURL(i)},100)}}},d.setRequestHeader("Content-type","application/x-www-form-urlencoded"),d.send(e.param(o))},f=(r,o)=>{let s=r.ajax.url()||"",d=r.ajax.params();return d.action=o,s.indexOf("?")>-1?s+"&"+e.param(d):s+"?"+e.param(d)};p.ext.buttons.excel={className:"buttons-excel",text:r=>`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
                     <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
@@ -64,16 +6,7 @@
                     <path d="M8 15h8"></path>
                     <path d="M11 11v7"></path>
                 </svg>
-            ${dt.i18n("buttons.excel", BotbleVariables.languages.tables.excel ? BotbleVariables.languages.tables.excel : "Excel")}`;
-			},
-			action: (e, dt) => {
-				window.location = _buildUrl(dt, "excel");
-			}
-		};
-		DataTable.ext.buttons.postExcel = {
-			className: "buttons-excel",
-			text: (dt) => {
-				return `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            ${r.i18n("buttons.excel",BotbleVariables.languages.tables.excel?BotbleVariables.languages.tables.excel:"Excel")}`,action:(r,o)=>{window.location=f(o,"excel")}},p.ext.buttons.postExcel={className:"buttons-excel",text:r=>`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
                 <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
@@ -81,32 +14,13 @@
                 <path d="M8 15h8"></path>
                 <path d="M11 11v7"></path>
             </svg>
-            ${dt.i18n("buttons.excel", BotbleVariables.languages.tables.excel ? BotbleVariables.languages.tables.excel : "Excel")}`;
-			},
-			action: (e, dt) => {
-				let url = dt.ajax.url() || window.location.href;
-				let params = _buildParams(dt, "excel");
-				_downloadFromUrl(url, params);
-			}
-		};
-		DataTable.ext.buttons.export = {
-			extend: "collection",
-			className: "buttons-export",
-			text: (dt) => {
-				return `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            ${r.i18n("buttons.excel",BotbleVariables.languages.tables.excel?BotbleVariables.languages.tables.excel:"Excel")}`,action:(r,o)=>{let s=o.ajax.url()||window.location.href,d=g(o,"excel");m(s,d)}},p.ext.buttons.export={extend:"collection",className:"buttons-export",text:r=>`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
                 <path d="M7 11l5 5l5 -5"></path>
                 <path d="M12 4l0 12"></path>
             </svg>
-            ${dt.i18n("buttons.export", BotbleVariables.languages.tables.export ? BotbleVariables.languages.tables.export : "Export")}`;
-			},
-			buttons: ["csv", "excel"]
-		};
-		DataTable.ext.buttons.csv = {
-			className: "buttons-csv",
-			text: (dt) => {
-				return `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            ${r.i18n("buttons.export",BotbleVariables.languages.tables.export?BotbleVariables.languages.tables.export:"Export")}`,buttons:["csv","excel"]},p.ext.buttons.csv={className:"buttons-csv",text:r=>`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
                 <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"></path>
@@ -114,16 +28,7 @@
                 <path d="M10 20.25c0 .414 .336 .75 .75 .75h1.25a1 1 0 0 0 1 -1v-1a1 1 0 0 0 -1 -1h-1a1 1 0 0 1 -1 -1v-1a1 1 0 0 1 1 -1h1.25a.75 .75 0 0 1 .75 .75"></path>
                 <path d="M16 15l2 6l2 -6"></path>
             </svg>
-            ${dt.i18n("buttons.csv", BotbleVariables.languages.tables.csv ? BotbleVariables.languages.tables.csv : "CSV")}`;
-			},
-			action: (e, dt) => {
-				window.location = _buildUrl(dt, "csv");
-			}
-		};
-		DataTable.ext.buttons.postCsv = {
-			className: "buttons-csv",
-			text: (dt) => {
-				return `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            ${r.i18n("buttons.csv",BotbleVariables.languages.tables.csv?BotbleVariables.languages.tables.csv:"CSV")}`,action:(r,o)=>{window.location=f(o,"csv")}},p.ext.buttons.postCsv={className:"buttons-csv",text:r=>`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
                 <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"></path>
@@ -131,18 +36,7 @@
                 <path d="M10 20.25c0 .414 .336 .75 .75 .75h1.25a1 1 0 0 0 1 -1v-1a1 1 0 0 0 -1 -1h-1a1 1 0 0 1 -1 -1v-1a1 1 0 0 1 1 -1h1.25a.75 .75 0 0 1 .75 .75"></path>
                 <path d="M16 15l2 6l2 -6"></path>
             </svg>
-            ${dt.i18n("buttons.csv", BotbleVariables.languages.tables.csv ? BotbleVariables.languages.tables.csv : "CSV")}`;
-			},
-			action: (e, dt) => {
-				let url = dt.ajax.url() || window.location.href;
-				let params = _buildParams(dt, "csv");
-				_downloadFromUrl(url, params);
-			}
-		};
-		DataTable.ext.buttons.pdf = {
-			className: "buttons-pdf",
-			text: (dt) => {
-				return `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            ${r.i18n("buttons.csv",BotbleVariables.languages.tables.csv?BotbleVariables.languages.tables.csv:"CSV")}`,action:(r,o)=>{let s=o.ajax.url()||window.location.href,d=g(o,"csv");m(s,d)}},p.ext.buttons.pdf={className:"buttons-pdf",text:r=>`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
                 <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"></path>
@@ -151,16 +45,7 @@
                 <path d="M20 15h-3v6"></path>
                 <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z"></path>
             </svg>
-            ${dt.i18n("buttons.pdf", "PDF")}`;
-			},
-			action: (e, dt) => {
-				window.location = _buildUrl(dt, "pdf");
-			}
-		};
-		DataTable.ext.buttons.postPdf = {
-			className: "buttons-pdf",
-			text: (dt) => {
-				return `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            ${r.i18n("buttons.pdf","PDF")}`,action:(r,o)=>{window.location=f(o,"pdf")}},p.ext.buttons.postPdf={className:"buttons-pdf",text:r=>`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
                 <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"></path>
@@ -169,441 +54,30 @@
                 <path d="M20 15h-3v6"></path>
                 <path d="M11 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1z"></path>
             </svg>
-            ${dt.i18n("buttons.pdf", "PDF")}`;
-			},
-			action: (e, dt) => {
-				let url = dt.ajax.url() || window.location.href;
-				let params = _buildParams(dt, "pdf");
-				_downloadFromUrl(url, params);
-			}
-		};
-		DataTable.ext.buttons.print = {
-			className: "buttons-print",
-			text: (dt) => {
-				return `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            ${r.i18n("buttons.pdf","PDF")}`,action:(r,o)=>{let s=o.ajax.url()||window.location.href,d=g(o,"pdf");m(s,d)}},p.ext.buttons.print={className:"buttons-print",text:r=>`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2"></path>
                     <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"></path>
                     <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z"></path>
                 </svg>
-                ${dt.i18n("buttons.print", BotbleVariables.languages.tables.print ? BotbleVariables.languages.tables.print : "Print")}`;
-			},
-			action: (e, dt) => {
-				window.location = _buildUrl(dt, "print");
-			}
-		};
-		DataTable.ext.buttons.reset = {
-			className: "buttons-reset",
-			text: (dt) => {
-				return `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                ${r.i18n("buttons.print",BotbleVariables.languages.tables.print?BotbleVariables.languages.tables.print:"Print")}`,action:(r,o)=>{window.location=f(o,"print")}},p.ext.buttons.reset={className:"buttons-reset",text:r=>`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M9 11l-4 4l4 4m-4 -4h11a4 4 0 0 0 0 -8h-1"></path>
                 </svg>
-                ${dt.i18n("buttons.reset", BotbleVariables.languages.tables.reset ? BotbleVariables.languages.tables.reset : "Reset")}`;
-			},
-			action: () => {
-				$(".table thead input").val("").keyup();
-				$(".table thead select").val("").change();
-			}
-		};
-		DataTable.ext.buttons.reload = {
-			className: "buttons-reload",
-			text: (dt) => {
-				return `
+                ${r.i18n("buttons.reset",BotbleVariables.languages.tables.reset?BotbleVariables.languages.tables.reset:"Reset")}`,action:()=>{e(".table thead input").val("").keyup(),e(".table thead select").val("").change()}},p.ext.buttons.reload={className:"buttons-reload",text:r=>`
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                     <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
                     <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
                 </svg>
-                ${dt.i18n("buttons.reload", BotbleVariables.languages.tables.reload ? BotbleVariables.languages.tables.reload : "Reload")}`;
-			},
-			action: (e, dt) => {
-				dt.draw(false);
-			}
-		};
-		DataTable.ext.buttons.create = {
-			className: "buttons-create",
-			text: (dt) => {
-				return `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                ${r.i18n("buttons.reload",BotbleVariables.languages.tables.reload?BotbleVariables.languages.tables.reload:"Reload")}`,action:(r,o)=>{o.draw(!1)}},p.ext.buttons.create={className:"buttons-create",text:r=>`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M12 5l0 14"></path>
                 <path d="M5 12l14 0"></path>
             </svg>
-            ${dt.i18n("buttons.create", "Create")}`;
-			},
-			action: () => {
-				window.location = window.location.href.replace(/\/+$/, "") + "/create";
-			}
-		};
-		if (typeof DataTable.ext.buttons.copyHtml5 !== "undefined") $.extend(DataTable.ext.buttons.copyHtml5, { text: (dt) => {
-			return `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            ${r.i18n("buttons.create","Create")}`,action:()=>{window.location=window.location.href.replace(/\/+$/,"")+"/create"}},typeof p.ext.buttons.copyHtml5!="undefined"&&e.extend(p.ext.buttons.copyHtml5,{text:r=>`<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                     <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2"></path>
                     <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"></path>
                 </svg>
-                ${dt.i18n("buttons.copy", "Copy")}`;
-		} });
-		class TableManagement {
-			constructor() {
-				this.currentTableHash = window.DATATABLES_RANDOM_HASH || "";
-				this.init();
-				this.handleActionsRow();
-				this.handleActionsExport();
-				this.handleDropdownOverflow();
-			}
-			handleDropdownOverflow() {
-				$(document).on("show.bs.dropdown", ".table-actions .dropdown", (event) => {
-					$(event.currentTarget).closest(".table-responsive").addClass("dropdown-visible");
-				});
-				$(document).on("hide.bs.dropdown", ".table-actions .dropdown", (event) => {
-					$(event.currentTarget).closest(".table-responsive").removeClass("dropdown-visible");
-				});
-			}
-			init() {
-				if ($.fn.dataTable) {
-					$.fn.dataTable.ext.errMode = "none";
-					$(document).on("error.dt", (e, settings, techNote, message) => {
-						Botble.handleDatatableError({ responseJSON: { message } });
-					});
-				}
-				$(document).on("change", ".table-check-all", (event) => {
-					let _self = $(event.currentTarget);
-					let set = _self.attr("data-set");
-					let checked = _self.prop("checked");
-					$(set).each((index, el) => {
-						if (checked) $(el).prop("checked", true).trigger("change");
-						else $(el).prop("checked", false).trigger("change");
-					});
-				});
-				$(document).find(".table-check-all").closest("th").removeAttr("title");
-				$(document).on("change", ".checkboxes", (event) => {
-					let _self = $(event.currentTarget);
-					let table = _self.closest(".table-wrapper").find(".table").prop("id");
-					let checkboxAll = _self.closest(".table-wrapper").find(".table-check-all");
-					let ids = [];
-					let $table = $("#" + table);
-					$table.find(".checkboxes:checked").each((i, el) => {
-						ids[i] = $(el).val();
-					});
-					let row = _self.closest("tr");
-					if (_self.prop("checked")) row.addClass("selected");
-					else row.removeClass("selected");
-					if (ids.length !== $table.find(".checkboxes").length) {
-						checkboxAll.prop("checked", false);
-						if (ids.length > 0) checkboxAll.prop("indeterminate", true);
-						else checkboxAll.prop("indeterminate", false);
-					} else {
-						checkboxAll.prop("checked", true);
-						checkboxAll.prop("indeterminate", false);
-					}
-				});
-				$(document).on("click", ".btn-show-table-options", (event) => {
-					event.preventDefault();
-					$(event.currentTarget).closest(".table-wrapper").find(".table-configuration-wrap").slideToggle(500);
-				});
-				$(document).on("click", ".action-item", (event) => {
-					event.preventDefault();
-					let span = $(event.currentTarget).find("span[data-href]");
-					let action = span.data("action");
-					let url = span.data("href");
-					if (action && url !== "#") window.location.href = url;
-				});
-				this.initRandomHash();
-			}
-			initRandomHash() {
-				let localRandomHash = localStorage.getItem("DataTables_Random_Hash");
-				if (!localRandomHash && !this.currentTableHash) return;
-				if (localRandomHash !== this.currentTableHash) {
-					Object.keys(localStorage).filter((key) => key.startsWith("DataTables_")).forEach((key) => {
-						localStorage.removeItem(key);
-					});
-					localStorage.setItem("DataTables_Random_Hash", this.currentTableHash);
-					window.location.reload();
-				}
-			}
-			handleActionsRow() {
-				let that = this;
-				$(document).on("click", ".deleteDialog", (event) => {
-					event.preventDefault();
-					let _self = $(event.currentTarget);
-					let url = _self.data("section");
-					if (!url) url = _self.prop("href");
-					$(".delete-crud-entry").data("section", url).data("parent-table", _self.closest(".table").prop("id"));
-					$(".modal-confirm-delete").modal("show");
-				});
-				$(".delete-crud-entry").on("click", (event) => {
-					event.preventDefault();
-					let _self = $(event.currentTarget);
-					Botble.showButtonLoading(_self);
-					let deleteURL = _self.data("section");
-					$httpClient.make().delete(deleteURL).then(({ data }) => {
-						window.LaravelDataTables[_self.data("parent-table")].row($(`a[data-section="${deleteURL}"]`).closest("tr")).remove().draw();
-						Botble.showSuccess(data.message);
-						_self.closest(".modal").modal("hide");
-					}).catch(() => {
-						$(".modal-confirm-delete").modal("hide");
-					}).finally(() => {
-						Botble.hideButtonLoading(_self);
-					});
-				});
-				$(document).on("click", ".delete-many-entry-trigger", (event) => {
-					event.preventDefault();
-					let _self = $(event.currentTarget);
-					let table = _self.closest(".table-wrapper").find(".table").prop("id");
-					let ids = [];
-					$(`#${table}`).find(".checkboxes:checked").each((i, el) => {
-						ids[i] = $(el).val();
-					});
-					if (ids.length === 0) {
-						Botble.showError(BotbleVariables.languages.tables.please_select_record ? BotbleVariables.languages.tables.please_select_record : "Please select at least one record to perform this action!");
-						return false;
-					}
-					$(".delete-many-entry-button").data("href", _self.prop("href")).data("parent-table", table).data("class-item", _self.data("class-item"));
-					$(".delete-many-modal").modal("show");
-				});
-				$(".delete-many-entry-button").on("click", (event) => {
-					event.preventDefault();
-					let _self = $(event.currentTarget);
-					Botble.showButtonLoading(_self);
-					let $table = $(`#${_self.data("parent-table")}`);
-					let ids = [];
-					$table.find(".checkboxes:checked").each((i, el) => {
-						ids[i] = $(el).val();
-					});
-					$httpClient.make().delete(_self.data("href"), {
-						ids,
-						class: _self.data("class-item")
-					}).then(({ data }) => {
-						Botble.showSuccess(data.message);
-						$table.find(".table-check-all").prop("checked", false).prop("indeterminate", false);
-						window.LaravelDataTables[_self.data("parent-table")].draw();
-						_self.closest(".modal").modal("hide");
-					}).finally(() => {
-						Botble.hideButtonLoading(_self);
-					});
-				});
-				$(document).on("click", "[data-trigger-bulk-action]", (event) => {
-					event.preventDefault();
-					const _self = $(event.currentTarget);
-					const tableId = _self.closest(".table-wrapper").find(".table").prop("id");
-					const ids = [];
-					$(`#${tableId}`).find(".checkboxes:checked").each((i, el) => ids.push($(el).val()));
-					if (ids.length === 0) {
-						Botble.showError(BotbleVariables.languages.tables.please_select_record ? BotbleVariables.languages.tables.please_select_record : "Please select at least one record to perform this action!");
-						return false;
-					}
-					$(".confirm-trigger-bulk-actions-button").data("href", _self.prop("href")).data("method", _self.data("method")).data("table-id", tableId).data("table-target", _self.data("table-target")).data("target", _self.data("target"));
-					const modal = $(".bulk-action-confirm-modal");
-					modal.find("h3").text(_self.data("confirmation-modal-title"));
-					modal.find(".modal-body > .text-muted").text(_self.data("confirmation-modal-message"));
-					modal.find("button.btn[data-bs-dismiss=\"modal\"]").text(_self.data("confirmation-modal-cancel-button"));
-					modal.find("button.confirm-trigger-bulk-actions-button").text(_self.data("confirmation-modal-button"));
-					modal.modal("show");
-				});
-				$(document).on("click", ".confirm-trigger-bulk-actions-button", (event) => {
-					event.preventDefault();
-					const _self = $(event.currentTarget);
-					Botble.showButtonLoading(_self);
-					const tableId = _self.data("table-id");
-					const method = _self.data("method").toLowerCase() || "post";
-					const $table = $(`#${tableId}`);
-					const ids = [];
-					$table.find(".checkboxes:checked").each((i, el) => ids.push($(el).val()));
-					$httpClient.make()[method](_self.data("href"), {
-						ids,
-						bulk_action: 1,
-						bulk_action_table: _self.data("table-target"),
-						bulk_action_target: _self.data("target")
-					}).then(({ data }) => {
-						Botble.showSuccess(data.message);
-						$table.find(".table-check-all").prop("checked", false).prop("indeterminate", false);
-						window.LaravelDataTables[tableId].draw();
-						_self.closest(".modal").modal("hide");
-					}).catch(() => {
-						_self.closest(".modal").modal("hide");
-					}).finally(() => {
-						Botble.hideButtonLoading(_self);
-					});
-				});
-				$(document).on("click", "[data-dt-single-action]", (event) => {
-					event.preventDefault();
-					const _self = $(event.currentTarget);
-					const tableId = _self.closest(".table-wrapper").find(".table").prop("id");
-					if (_self.data("confirmation-modal")) {
-						$(".confirm-trigger-single-action-button").data("href", _self.prop("href")).data("method", _self.data("method")).data("table-id", tableId);
-						const modal = $(".single-action-confirm-modal");
-						modal.find(".modal-body > h3").text(_self.data("confirmation-modal-title"));
-						modal.find(".modal-body > .text-muted").text(_self.data("confirmation-modal-message"));
-						modal.find("button.btn[data-bs-dismiss=\"modal\"]").text(_self.data("confirmation-modal-cancel-button"));
-						modal.find("button.confirm-trigger-single-action-button").text(_self.data("confirmation-modal-button"));
-						modal.modal("show");
-					} else triggerSingleAction(tableId, _self.prop("href"), _self.data("method"));
-				});
-				$(document).on("click", ".confirm-trigger-single-action-button", (event) => {
-					event.preventDefault();
-					const _self = $(event.currentTarget);
-					Botble.showButtonLoading(_self);
-					triggerSingleAction(_self.data("table-id"), _self.data("href"), _self.data("method"), () => {
-						_self.closest(".modal").modal("hide");
-						Botble.hideButtonLoading(_self);
-					}, () => {
-						Botble.hideButtonLoading(_self);
-					});
-				});
-				const triggerSingleAction = (tableId, url, method, onSuccess, onError) => {
-					const $table = $(`#${tableId}`);
-					const $method = method.toLowerCase() || "post";
-					$httpClient.make()[$method](url).then(({ data }) => {
-						Botble.showSuccess(data.message);
-						$table.find(".table-check-all").prop("checked", false).prop("indeterminate", false);
-						window.LaravelDataTables[tableId].draw();
-						typeof onSuccess === "function" && onSuccess.apply(this, data);
-					}).catch(() => {
-						typeof onError === "function" && onError.apply(this);
-					});
-				};
-				$(document).on("click", ".bulk-change-item", (event) => {
-					event.preventDefault();
-					let _self = $(event.currentTarget);
-					let table = _self.closest(".table-wrapper").find(".table").prop("id");
-					let ids = [];
-					$("#" + table).find(".checkboxes:checked").each((i, el) => {
-						ids[i] = $(el).val();
-					});
-					if (ids.length === 0) {
-						Botble.showError(BotbleVariables.languages.tables.please_select_record ? BotbleVariables.languages.tables.please_select_record : "Please select at least one record to perform this action!");
-						return false;
-					}
-					that.loadBulkChangeData(_self);
-					$(".confirm-bulk-change-button").data("parent-table", table).data("class-item", _self.data("class-item")).data("key", _self.data("key")).data("url", _self.data("save-url"));
-					$(".modal-bulk-change-items").modal("show");
-				});
-				$(document).on("click", ".confirm-bulk-change-button", (event) => {
-					event.preventDefault();
-					let _self = $(event.currentTarget);
-					let value = _self.closest(".modal").find(".input-value").val();
-					let inputKey = _self.data("key");
-					let $table = $("#" + _self.data("parent-table"));
-					let ids = [];
-					$table.find(".checkboxes:checked").each((i, el) => {
-						ids[i] = $(el).val();
-					});
-					Botble.showButtonLoading(_self);
-					$httpClient.make().post(_self.data("url"), {
-						ids,
-						key: inputKey,
-						value,
-						class: _self.data("class-item")
-					}).then(({ data }) => {
-						Botble.showSuccess(data.message);
-						$table.find(".table-check-all").prop("checked", false).prop("indeterminate", false);
-						$.each(ids, (index, item) => {
-							window.LaravelDataTables[_self.data("parent-table")].row($table.find(".checkboxes[value=\"" + item + "\"]").closest("tr")).remove().draw();
-						});
-						_self.closest(".modal").modal("hide");
-					}).finally(() => {
-						Botble.hideButtonLoading(_self);
-					});
-				});
-				$(document).on("keyup", ".table-search-input input[type=search]", (event) => {
-					const $searchInput = $(event.currentTarget);
-					setTimeout(() => {
-						const searchValue = $searchInput.val();
-						if (searchValue) {
-							$searchInput.closest("label").find(".search-icon").hide();
-							$searchInput.closest("label").find(".search-reset-icon").show();
-						} else {
-							$searchInput.closest("label").find(".search-icon").show();
-							$searchInput.closest("label").find(".search-reset-icon").hide();
-						}
-						$searchInput.closest(".table-wrapper").find("table").DataTable().search(searchValue).draw();
-					}, 200);
-				});
-				$(document).on("click", ".table-search-input .search-reset-icon", (event) => {
-					const $searchInput = $(event.currentTarget).closest(".table-search-input").find("input[type=search]");
-					$searchInput.val("");
-					$searchInput.closest(".table-wrapper").find("table").DataTable().search("").draw();
-				});
-				$(document).on("click", "[data-bb-toggle=\"dt-buttons\"]", (event) => {
-					const target = $(event.currentTarget);
-					const tableId = target.attr("aria-controls");
-					$(`${target.data("bb-target")}[aria-controls="${tableId}"]`).trigger("click");
-				});
-				$(document).on("click", "[data-bb-toggle=\"dt-exports\"]", (event) => {
-					const target = $(event.currentTarget);
-					const tableId = target.attr("aria-controls");
-					const value = target.data("bb-target");
-					const dt = window.LaravelDataTables[tableId];
-					let url = dt.ajax.url() || window.location.href;
-					let params = _buildParams(dt, value);
-					_downloadFromUrl(url, params);
-				});
-				const $columnsVisibleDropdowns = document.querySelectorAll("[data-bb-toggle=\"dt-columns-visibility-dropdown\"]");
-				let $formDirty = {};
-				if ($columnsVisibleDropdowns.length) for (const $dropdown of $columnsVisibleDropdowns) $dropdown.addEventListener("hidden.bs.dropdown", function(event) {
-					const target = $(event.currentTarget);
-					const tableId = target.attr("aria-controls");
-					const form = target.find("form[data-bb-toggle=\"dt-columns-visibility\"]");
-					if (!$formDirty[tableId]) return;
-					$httpClient.make().putForm(form.prop("action"), new FormData(form[0])).then(() => {
-						window.LaravelDataTables[tableId].state.clear();
-						location.reload();
-						$formDirty[tableId] = false;
-					});
-				});
-				$(document).on("change", "[data-bb-toggle=\"dt-columns-visibility-toggle\"]", (event) => {
-					const tableId = $(event.currentTarget).closest(".dropdown").attr("aria-controls");
-					$formDirty[tableId] = true;
-				});
-			}
-			loadBulkChangeData($element) {
-				let $modal = $(".modal-bulk-change-items");
-				$httpClient.make().get($modal.find(".confirm-bulk-change-button").data("load-url"), {
-					class: $element.data("class-item"),
-					key: $element.data("key")
-				}).then((response) => {
-					let data = $.map(response.data.data, (value, key) => {
-						return {
-							id: key,
-							name: value
-						};
-					});
-					$(".modal-bulk-change-content").html(response.data.html);
-					let $input = $modal.find("input[type=text].input-value");
-					if ($input.length) {
-						$input.typeahead({ source: data });
-						$input.data("typeahead").source = data;
-					}
-					Botble.initResources();
-				});
-			}
-			handleActionsExport() {
-				$(document).on("click", ".export-data", (event) => {
-					let _self = $(event.currentTarget);
-					let table = _self.closest(".table-wrapper").find(".table").prop("id");
-					let ids = [];
-					$("#" + table).find(".checkboxes:checked").each((i, el) => {
-						ids[i] = $(el).val();
-					});
-					event.preventDefault();
-					$httpClient.make().post(_self.prop("href"), { "ids-checked": ids }).then(({ data }) => {
-						let a = document.createElement("a");
-						a.href = data.file;
-						a.download = data.name;
-						document.body.appendChild(a);
-						a.trigger("click");
-						a.remove();
-					});
-				});
-			}
-		}
-		$.fn.dataTable.Buttons.defaults.dom.container.className = "dt-buttons btn-group w-100 w-sm-auto";
-		$.fn.dataTable.Buttons.defaults.dom.button.className = "btn";
-		$(() => {
-			new TableManagement();
-		});
-	})(jQuery, jQuery.fn.dataTable);
-	//#endregion
-})();
-
-//# sourceMappingURL=table.js.map
+                ${r.i18n("buttons.copy","Copy")}`});class w{constructor(){this.currentTableHash=window.DATATABLES_RANDOM_HASH||"",this.init(),this.handleActionsRow(),this.handleActionsExport(),this.handleDropdownOverflow()}handleDropdownOverflow(){e(document).on("show.bs.dropdown",".table-actions .dropdown",o=>{e(o.currentTarget).closest(".table-responsive").addClass("dropdown-visible")}),e(document).on("hide.bs.dropdown",".table-actions .dropdown",o=>{e(o.currentTarget).closest(".table-responsive").removeClass("dropdown-visible")})}init(){e.fn.dataTable&&(e.fn.dataTable.ext.errMode="none",e(document).on("error.dt",(o,s,d,c)=>{Botble.handleDatatableError({responseJSON:{message:c}})})),e(document).on("change",".table-check-all",o=>{let s=e(o.currentTarget),d=s.attr("data-set"),c=s.prop("checked");e(d).each((a,t)=>{c?e(t).prop("checked",!0).trigger("change"):e(t).prop("checked",!1).trigger("change")})}),e(document).find(".table-check-all").closest("th").removeAttr("title"),e(document).on("change",".checkboxes",o=>{let s=e(o.currentTarget),d=s.closest(".table-wrapper").find(".table").prop("id"),c=s.closest(".table-wrapper").find(".table-check-all"),a=[],t=e("#"+d);t.find(".checkboxes:checked").each((n,i)=>{a[n]=e(i).val()});let l=s.closest("tr");s.prop("checked")?l.addClass("selected"):l.removeClass("selected"),a.length!==t.find(".checkboxes").length?(c.prop("checked",!1),a.length>0?c.prop("indeterminate",!0):c.prop("indeterminate",!1)):(c.prop("checked",!0),c.prop("indeterminate",!1))}),e(document).on("click",".btn-show-table-options",o=>{o.preventDefault(),e(o.currentTarget).closest(".table-wrapper").find(".table-configuration-wrap").slideToggle(500)}),e(document).on("click",".action-item",o=>{o.preventDefault();let s=e(o.currentTarget).find("span[data-href]"),d=s.data("action"),c=s.data("href");d&&c!=="#"&&(window.location.href=c)}),this.initRandomHash()}initRandomHash(){let o=localStorage.getItem("DataTables_Random_Hash");!o&&!this.currentTableHash||o!==this.currentTableHash&&(Object.keys(localStorage).filter(s=>s.startsWith("DataTables_")).forEach(s=>{localStorage.removeItem(s)}),localStorage.setItem("DataTables_Random_Hash",this.currentTableHash),window.location.reload())}handleActionsRow(){let o=this;e(document).on("click",".deleteDialog",a=>{a.preventDefault();let t=e(a.currentTarget),l=t.data("section");l||(l=t.prop("href")),e(".delete-crud-entry").data("section",l).data("parent-table",t.closest(".table").prop("id")),e(".modal-confirm-delete").modal("show")}),e(".delete-crud-entry").on("click",a=>{a.preventDefault();let t=e(a.currentTarget);Botble.showButtonLoading(t);let l=t.data("section");$httpClient.make().delete(l).then(({data:n})=>{window.LaravelDataTables[t.data("parent-table")].row(e(`a[data-section="${l}"]`).closest("tr")).remove().draw(),Botble.showSuccess(n.message),t.closest(".modal").modal("hide")}).catch(()=>{e(".modal-confirm-delete").modal("hide")}).finally(()=>{Botble.hideButtonLoading(t)})}),e(document).on("click",".delete-many-entry-trigger",a=>{a.preventDefault();let t=e(a.currentTarget),l=t.closest(".table-wrapper").find(".table").prop("id"),n=[];if(e(`#${l}`).find(".checkboxes:checked").each((i,h)=>{n[i]=e(h).val()}),n.length===0)return Botble.showError(BotbleVariables.languages.tables.please_select_record?BotbleVariables.languages.tables.please_select_record:"Please select at least one record to perform this action!"),!1;e(".delete-many-entry-button").data("href",t.prop("href")).data("parent-table",l).data("class-item",t.data("class-item")),e(".delete-many-modal").modal("show")}),e(".delete-many-entry-button").on("click",a=>{a.preventDefault();let t=e(a.currentTarget);Botble.showButtonLoading(t);let l=e(`#${t.data("parent-table")}`),n=[];l.find(".checkboxes:checked").each((i,h)=>{n[i]=e(h).val()}),$httpClient.make().delete(t.data("href"),{ids:n,class:t.data("class-item")}).then(({data:i})=>{Botble.showSuccess(i.message),l.find(".table-check-all").prop("checked",!1).prop("indeterminate",!1),window.LaravelDataTables[t.data("parent-table")].draw(),t.closest(".modal").modal("hide")}).finally(()=>{Botble.hideButtonLoading(t)})}),e(document).on("click","[data-trigger-bulk-action]",a=>{a.preventDefault();const t=e(a.currentTarget),l=t.closest(".table-wrapper").find(".table").prop("id"),n=[];if(e(`#${l}`).find(".checkboxes:checked").each((h,u)=>n.push(e(u).val())),n.length===0)return Botble.showError(BotbleVariables.languages.tables.please_select_record?BotbleVariables.languages.tables.please_select_record:"Please select at least one record to perform this action!"),!1;e(".confirm-trigger-bulk-actions-button").data("href",t.prop("href")).data("method",t.data("method")).data("table-id",l).data("table-target",t.data("table-target")).data("target",t.data("target"));const i=e(".bulk-action-confirm-modal");i.find("h3").text(t.data("confirmation-modal-title")),i.find(".modal-body > .text-muted").text(t.data("confirmation-modal-message")),i.find('button.btn[data-bs-dismiss="modal"]').text(t.data("confirmation-modal-cancel-button")),i.find("button.confirm-trigger-bulk-actions-button").text(t.data("confirmation-modal-button")),i.modal("show")}),e(document).on("click",".confirm-trigger-bulk-actions-button",a=>{a.preventDefault();const t=e(a.currentTarget);Botble.showButtonLoading(t);const l=t.data("table-id"),n=t.data("method").toLowerCase()||"post",i=e(`#${l}`),h=[];i.find(".checkboxes:checked").each((u,b)=>h.push(e(b).val())),$httpClient.make()[n](t.data("href"),{ids:h,bulk_action:1,bulk_action_table:t.data("table-target"),bulk_action_target:t.data("target")}).then(({data:u})=>{Botble.showSuccess(u.message),i.find(".table-check-all").prop("checked",!1).prop("indeterminate",!1),window.LaravelDataTables[l].draw(),t.closest(".modal").modal("hide")}).catch(()=>{t.closest(".modal").modal("hide")}).finally(()=>{Botble.hideButtonLoading(t)})}),e(document).on("click","[data-dt-single-action]",a=>{a.preventDefault();const t=e(a.currentTarget),l=t.closest(".table-wrapper").find(".table").prop("id");if(t.data("confirmation-modal")){e(".confirm-trigger-single-action-button").data("href",t.prop("href")).data("method",t.data("method")).data("table-id",l);const n=e(".single-action-confirm-modal");n.find(".modal-body > h3").text(t.data("confirmation-modal-title")),n.find(".modal-body > .text-muted").text(t.data("confirmation-modal-message")),n.find('button.btn[data-bs-dismiss="modal"]').text(t.data("confirmation-modal-cancel-button")),n.find("button.confirm-trigger-single-action-button").text(t.data("confirmation-modal-button")),n.modal("show")}else s(l,t.prop("href"),t.data("method"))}),e(document).on("click",".confirm-trigger-single-action-button",a=>{a.preventDefault();const t=e(a.currentTarget);Botble.showButtonLoading(t),s(t.data("table-id"),t.data("href"),t.data("method"),()=>{t.closest(".modal").modal("hide"),Botble.hideButtonLoading(t)},()=>{Botble.hideButtonLoading(t)})});const s=(a,t,l,n,i)=>{const h=e(`#${a}`),u=l.toLowerCase()||"post";$httpClient.make()[u](t).then(({data:b})=>{Botble.showSuccess(b.message),h.find(".table-check-all").prop("checked",!1).prop("indeterminate",!1),window.LaravelDataTables[a].draw(),typeof n=="function"&&n.apply(this,b)}).catch(()=>{typeof i=="function"&&i.apply(this)})};e(document).on("click",".bulk-change-item",a=>{a.preventDefault();let t=e(a.currentTarget),l=t.closest(".table-wrapper").find(".table").prop("id"),n=[];if(e("#"+l).find(".checkboxes:checked").each((i,h)=>{n[i]=e(h).val()}),n.length===0)return Botble.showError(BotbleVariables.languages.tables.please_select_record?BotbleVariables.languages.tables.please_select_record:"Please select at least one record to perform this action!"),!1;o.loadBulkChangeData(t),e(".confirm-bulk-change-button").data("parent-table",l).data("class-item",t.data("class-item")).data("key",t.data("key")).data("url",t.data("save-url")),e(".modal-bulk-change-items").modal("show")}),e(document).on("click",".confirm-bulk-change-button",a=>{a.preventDefault();let t=e(a.currentTarget),l=t.closest(".modal").find(".input-value").val(),n=t.data("key"),i=e("#"+t.data("parent-table")),h=[];i.find(".checkboxes:checked").each((u,b)=>{h[u]=e(b).val()}),Botble.showButtonLoading(t),$httpClient.make().post(t.data("url"),{ids:h,key:n,value:l,class:t.data("class-item")}).then(({data:u})=>{Botble.showSuccess(u.message),i.find(".table-check-all").prop("checked",!1).prop("indeterminate",!1),e.each(h,(b,v)=>{window.LaravelDataTables[t.data("parent-table")].row(i.find('.checkboxes[value="'+v+'"]').closest("tr")).remove().draw()}),t.closest(".modal").modal("hide")}).finally(()=>{Botble.hideButtonLoading(t)})}),e(document).on("keyup",".table-search-input input[type=search]",a=>{const t=e(a.currentTarget);setTimeout(()=>{const l=t.val();l?(t.closest("label").find(".search-icon").hide(),t.closest("label").find(".search-reset-icon").show()):(t.closest("label").find(".search-icon").show(),t.closest("label").find(".search-reset-icon").hide()),t.closest(".table-wrapper").find("table").DataTable().search(l).draw()},200)}),e(document).on("click",".table-search-input .search-reset-icon",a=>{const t=e(a.currentTarget).closest(".table-search-input").find("input[type=search]");t.val(""),t.closest(".table-wrapper").find("table").DataTable().search("").draw()}),e(document).on("click",'[data-bb-toggle="dt-buttons"]',a=>{const t=e(a.currentTarget),l=t.attr("aria-controls");e(`${t.data("bb-target")}[aria-controls="${l}"]`).trigger("click")}),e(document).on("click",'[data-bb-toggle="dt-exports"]',a=>{const t=e(a.currentTarget),l=t.attr("aria-controls"),n=t.data("bb-target"),i=window.LaravelDataTables[l];let h=i.ajax.url()||window.location.href,u=g(i,n);m(h,u)});const d=document.querySelectorAll('[data-bb-toggle="dt-columns-visibility-dropdown"]');let c={};if(d.length)for(const a of d)a.addEventListener("hidden.bs.dropdown",function(t){const l=e(t.currentTarget),n=l.attr("aria-controls"),i=l.find('form[data-bb-toggle="dt-columns-visibility"]');c[n]&&$httpClient.make().putForm(i.prop("action"),new FormData(i[0])).then(()=>{window.LaravelDataTables[n].state.clear(),location.reload(),c[n]=!1})});e(document).on("change",'[data-bb-toggle="dt-columns-visibility-toggle"]',a=>{const t=e(a.currentTarget).closest(".dropdown").attr("aria-controls");c[t]=!0})}loadBulkChangeData(o){let s=e(".modal-bulk-change-items");$httpClient.make().get(s.find(".confirm-bulk-change-button").data("load-url"),{class:o.data("class-item"),key:o.data("key")}).then(d=>{let c=e.map(d.data.data,(t,l)=>({id:l,name:t}));e(".modal-bulk-change-content").html(d.data.html);let a=s.find("input[type=text].input-value");a.length&&(a.typeahead({source:c}),a.data("typeahead").source=c),Botble.initResources()})}handleActionsExport(){e(document).on("click",".export-data",o=>{let s=e(o.currentTarget),d=s.closest(".table-wrapper").find(".table").prop("id"),c=[];e("#"+d).find(".checkboxes:checked").each((a,t)=>{c[a]=e(t).val()}),o.preventDefault(),$httpClient.make().post(s.prop("href"),{"ids-checked":c}).then(({data:a})=>{let t=document.createElement("a");t.href=a.file,t.download=a.name,document.body.appendChild(t),t.trigger("click"),t.remove()})})}}e.fn.dataTable.Buttons.defaults.dom.container.className="dt-buttons btn-group w-100 w-sm-auto",e.fn.dataTable.Buttons.defaults.dom.button.className="btn",e(()=>{new w})})(jQuery,jQuery.fn.dataTable)})();
