@@ -406,28 +406,53 @@ class ChangeProductSwatches {
             
             if (!$priceDiv.length || !colorId) return
             
-            // Find ANY variation that includes this color
-            // We don't test with currently selected attributes from other sets
-            // Instead, find the first available combination with this color
+            // Build test combination: this color + all OTHER selected attributes (not from this color's set)
+            const $thisSet = $item.closest('.attribute-swatches-wrapper')
+            const testAttrIds = selectedAttrIds.filter(id => {
+                const $selectedItem = $productAttributes.find(`.bb-product-attribute-swatch-item[data-id="${id}"]`)
+                const $selectedSet = $selectedItem.closest('.attribute-swatches-wrapper')
+                return $selectedSet.data('slug') !== $thisSet.data('slug')
+            })
+            testAttrIds.push(colorId)
+            testAttrIds.sort()
+            
+            console.log(`  Test combination for swatch ${swatchCount}:`, testAttrIds)
+            
+            // Find matching variation
             let matched = null
             for (const pv of priceMap) {
-                const pvAttrs = (pv.attrs || [])
-                if (pvAttrs.includes(colorId)) {
+                const pvAttrs = (pv.attrs || []).slice().sort()
+                if (JSON.stringify(pvAttrs) === JSON.stringify(testAttrIds)) {
                     matched = pv
-                    console.log(`  Swatch ${swatchCount} matched variation:`, matched)
                     break
                 }
             }
             
+            // If no exact match, find ANY variation with this color
+            if (!matched) {
+                console.log(`  No exact match, looking for any variation with color ${colorId}`)
+                for (const pv of priceMap) {
+                    const pvAttrs = (pv.attrs || [])
+                    if (pvAttrs.includes(colorId)) {
+                        matched = pv
+                        console.log(`  Fallback match found:`, matched)
+                        break
+                    }
+                }
+            }
+            
+            console.log(`  Final match:`, matched)
+            
             // Update price if match found
-            if (matched && (matched.price || matched.price_fmt)) {
-                const price = matched.price_fmt || this.formatPrice(Math.round(matched.price))
-                const origPrice = matched.orig_fmt || (matched.original_price ? this.formatPrice(Math.round(matched.original_price)) : null)
+            if (matched && matched.price) {
+                // Format price without decimals
+                const price = this.formatPrice(Math.round(matched.price))
+                const origPrice = matched.original_price ? this.formatPrice(Math.round(matched.original_price)) : null
                 
                 console.log(`  Updating to price: ${price}`)
                 
                 let html = `<span class="qs-var-item__price-sale">${price}</span>`
-                if (origPrice) {
+                if (origPrice && matched.original_price > matched.price) {
                     html += `<del class="qs-var-item__price-orig">${origPrice}</del>`
                 }
                 $priceDiv.html(html)
