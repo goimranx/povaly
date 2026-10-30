@@ -141,12 +141,20 @@ if (typeof jQuery === 'undefined') {
             },
 
             clearTemporaryForm: function() {
-                this.form[0].reset();
+                // Reset all form values
+                this.countrySelect.val('');
+                this.stateSelect.val('');
+                this.citySelect.val('');
+                this.addressInput.val('');
+                
+                // Hide all except country and reset state
                 this.stateSelect.closest('.form-group-location').hide();
+                this.stateSelect.prop('disabled', true).html('<option value="">Select state...</option>');
+                
                 this.citySelect.closest('.form-group-location').hide();
+                this.citySelect.prop('disabled', true).html('<option value="">Select city...</option>');
+                
                 $('.form-group-location.address-group').hide();
-                this.stateSelect.prop('disabled', true);
-                this.citySelect.prop('disabled', true);
             },
 
             initializeModalState: function() {
