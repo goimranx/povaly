@@ -52,10 +52,13 @@ return [
                 ->add('jquery-bar-rating-css', 'plugins/jquery-bar-rating/themes/fontawesome-stars.css');
             $theme->asset()->usePath()->add('select2-css', 'plugins/select2/css/select2.min.css');
             $theme->asset()->usePath()->add('fontawesome', 'plugins/font-awesome/css/font-awesome.min.css');
-            $theme->asset()->usePath()->add('style', 'css/style.css', [], [], $version . '.' . time());
+            
+            // Use VersionHelper for consistent cache busting across environments
+            $cacheVersion = \App\Helpers\VersionHelper::getCacheBustVersion();
+            $theme->asset()->usePath()->add('style', 'css/style.css', [], [], $cacheVersion);
 
             if (BaseHelper::isRtlEnabled()) {
-                $theme->asset()->usePath()->add('rtl', 'css/rtl.css', [], [], $version);
+                $theme->asset()->usePath()->add('rtl', 'css/rtl.css', [], [], $cacheVersion);
             }
 
             $theme->asset()->container('footer')->usePath()->add('jquery', 'plugins/jquery-3.7.1.min.js');
@@ -82,9 +85,6 @@ return [
 
             $theme->asset()->container('footer')->usePath()
                 ->add('masonry-js', 'plugins/masonry.pkgd.min.js', ['jquery']);
-
-            // Use VersionHelper for consistent cache busting across environments
-            $cacheVersion = \App\Helpers\VersionHelper::getCacheBustVersion();
             
             $theme->asset()->container('footer')->usePath()->add('main', 'js/main.js', ['jquery'], [], $cacheVersion);
             
