@@ -117,6 +117,11 @@
                     } else {
                         $product.find('[data-bb-value="product-original-price"]').hide()
                     }
+                    
+                    // Update swatch prices when variation changes
+                    if (window.swatchInstance && typeof window.swatchInstance.updateSwatchPricesSimple === 'function') {
+                        window.swatchInstance.updateSwatchPricesSimple(data, $attrs)
+                    }
                 }
             }
         })

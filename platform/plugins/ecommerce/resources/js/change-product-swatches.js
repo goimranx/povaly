@@ -28,7 +28,6 @@ class ChangeProductSwatches {
                 // Mark as hover preview (not selection)
                 $item.data('is-hover-preview', true)
                 _self.previewSwatchImage(swatchImage, $item)
-            } else {
             }
         })
 
@@ -353,6 +352,89 @@ class ChangeProductSwatches {
                 }
             }
         }
+        
+        // Update swatch prices based on currently selected variation
+        _self.updateSwatchPricesSimple(data, $productAttributes)
+    }
+    
+    updateSwatchPricesSimple(variationData, $productAttributes) {
+        const _self = this
+        
+        // Get ALL currently selected attribute IDs (from all sets)
+        const selectedAttrIds = []
+        $productAttributes.find('.bb-product-attribute-swatch-item.selected, .bb-product-attribute-swatch-item input:checked').each(function() {
+            const $this = $(this)
+            const $item = $this.hasClass('bb-product-attribute-swatch-item') ? $this : $this.closest('.bb-product-attribute-swatch-item')
+            const attrId = parseInt($item.data('id'))
+            if (attrId && !selectedAttrIds.includes(attrId)) {
+                selectedAttrIds.push(attrId)
+            }
+        })
+        
+        // ALSO check for selected dropdowns
+        $productAttributes.find('select.product-filter-item').each(function() {
+            const $select = $(this)
+            const selectedValue = parseInt($select.val())
+            if (selectedValue && !selectedAttrIds.includes(selectedValue)) {
+                selectedAttrIds.push(selectedValue)
+            }
+        })
+        
+        const ajaxUrl = $productAttributes.data('target')
+        if (!ajaxUrl) {
+            return
+        }
+        
+        // Update each visual swatch price by fetching its variation data
+        $productAttributes.find('.qs-var-item').each(function() {
+            const $item = $(this)
+            const colorId = parseInt($item.data('id'))
+            const $priceDiv = $item.find('.qs-var-item__price')
+            
+            if (!$priceDiv.length || !colorId) return
+            
+            // Build test combination: this swatch's color + all OTHER selected attributes
+            const $thisSet = $item.closest('.attribute-swatches-wrapper')
+            const testAttrIds = selectedAttrIds.filter(id => {
+                const $selectedItem = $productAttributes.find(`.bb-product-attribute-swatch-item[data-id="${id}"]`)
+                const $selectedSet = $selectedItem.closest('.attribute-swatches-wrapper')
+                return $selectedSet.data('slug') !== $thisSet.data('slug')
+            })
+            testAttrIds.push(colorId)
+            
+            // Fetch variation data for this combination
+            $.ajax({
+                url: ajaxUrl,
+                type: 'GET',
+                data: {
+                    attributes: testAttrIds,
+                    _: +new Date()
+                },
+                success: (res) => {
+                    if (res && res.data && !res.data.error_message) {
+                        const price = _self.formatPrice(Math.round(res.data.sale_price || res.data.price))
+                        const origPrice = res.data.price > res.data.sale_price ? _self.formatPrice(Math.round(res.data.price)) : null
+                        
+                        let html = `<span class="qs-var-item__price-sale">${price}</span>`
+                        if (origPrice) {
+                            html += `<del class="qs-var-item__price-orig">${origPrice}</del>`
+                        }
+                        $priceDiv.html(html)
+                    }
+                }
+            })
+        })
+    }
+
+    
+    formatPrice(price) {
+        const currencies = window.currencies || {}
+        const symbol = currencies.symbol || '$'
+        const isPrefix = currencies.is_prefix !== false
+        const thousands = currencies.thousands_separator || ','
+        const priceStr = Math.round(price).toString().replace(/\B(?=(\d{3})+(?!\d))/g, thousands)
+        
+        return isPrefix ? symbol + priceStr : priceStr + symbol
     }
     
     getFromCache(key) {
@@ -383,7 +465,6 @@ class ChangeProductSwatches {
     }
 
     previewSwatchImage(imageUrl, $item) {
-        
         // Preview image in main gallery without changing selection
         const $product = $item.closest('.bb-product-detail')
         
@@ -422,7 +503,6 @@ class ChangeProductSwatches {
     }
 
     restoreSelectedImage() {
-        
         // Restore to currently selected variation's image
         const $selectedSwatch = $('.product-attributes .visual-swatch input:checked').closest('.bb-product-attribute-swatch-item')
         
@@ -459,7 +539,10 @@ class ChangeProductSwatches {
                     const $mainImage = $pvGallery.find('#pv-main-image')
                     
                     if ($mainImage.length && selectedImage) {
-                        $mainImage.attr('src', selectedImage)
+                        // Strip size suffix to get full-size URL
+                        let fullSizeUrl = selectedImage.replace(/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
+                        fullSizeUrl = fullSizeUrl.replace(/-thumb(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
+                        $mainImage.attr('src', fullSizeUrl)
                     } else if ($mainImage.length && $mainImage.data('original-src')) {
                         // Restore original if no selection
                         $mainImage.attr('src', $mainImage.data('original-src'))
@@ -474,9 +557,16 @@ class ChangeProductSwatches {
 $(() => {
     const swatchInstance = new ChangeProductSwatches()
     
-    // Check initial selection on page load
+    // Expose instance globally for theme callbacks
+    window.swatchInstance = swatchInstance
+    
+    // Initialize swatch prices on page load
     $('.product-attribute-swatches').each(function() {
         const $container = $(this)
+        
+        // Update initial prices
+        swatchInstance.updateSwatchPricesSimple(null, $container)
+        
         const hasCheckedRadio = $container.find('input[type=radio]:checked:not(:disabled)').length > 0
         const hasSelectedDropdown = $container.find('select.product-filter-item').filter(function() {
             return !!$(this).val()
