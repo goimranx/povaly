@@ -5,6 +5,33 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.3] - 2026-10-30
+
+### ✨ Added
+
+- Product details page: Swatches now display in 5-column grid (changed from 6 columns)
+- Action buttons (share, wishlist, compare) now use `global-color-border-strong` for consistent border styling
+
+### 🐛 Fixed
+
+- Fixed thumbnail-size images (150x150) displaying in main gallery after variation changes
+- Fixed lens zoom box now properly hides when hovering over action buttons for cleaner interaction
+- Fixed `restoreSelectedImage()` to use gallery's full-size URLs instead of thumbnail URLs
+- Fixed main image and thumbnail `data-image` attributes to strip size suffixes (e.g., `-150x150`)
+- Fixed product gallery thumbnail reordering logic after variation selection
+- Updated pd-separator margins to 14px top/bottom (consistent spacing)
+
+### 🧹 Cleanup
+
+- Removed debug console.log statements from ecommerce JavaScript files
+  - `change-product-swatches.js`
+  - `pv-gallery.js`
+  - `front-ecommerce.js`
+  - `front-review.js`
+  - `front-upsale-crosssale.js`
+
+---
+
 ## [1.3.2] - 2026-10-26
 
 ### ✨ Added
