@@ -1818,7 +1818,7 @@
     }
 
     .pd-section-title {
-        font-size: 18px;
+        font-size: 25px;
         font-weight: 700;
         color: var(--global-color-text-main, #1a1a1a);
         margin: 0 0 12px 0;
@@ -1852,8 +1852,8 @@
         background: none;
         border: none;
         padding: 16px 0;
-        font-size: 15px;
-        font-weight: 600;
+        font-size: 20px;
+        font-weight: 500;
         color: var(--global-color-text-main, #1a1a1a);
         cursor: pointer;
         text-align: left;
@@ -1867,6 +1867,7 @@
 
         .pd-accordion-icon {
             font-size: 14px;
+            font-weight: 700;
             color: $color-text;
             transition: transform 0.25s ease;
             margin-left: auto;
