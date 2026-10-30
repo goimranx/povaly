@@ -411,7 +411,7 @@
                                                 @endif
                                                 - {{ $defaultAddress->zip_code }}
                                             </div>
-                                            <a href="{{ route('customer.address.index') }}" class="delivery-change-btn">{{ __('Change') }}</a>
+                                            <a href="{{ route('customer.address') }}" class="delivery-change-btn">{{ __('Change') }}</a>
                                         @else
                                             <div class="delivery-no-address">
                                                 {{ __('No delivery address set') }}
