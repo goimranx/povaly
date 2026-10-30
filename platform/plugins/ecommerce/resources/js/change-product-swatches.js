@@ -459,7 +459,10 @@ class ChangeProductSwatches {
                     const $mainImage = $pvGallery.find('#pv-main-image')
                     
                     if ($mainImage.length && selectedImage) {
-                        $mainImage.attr('src', selectedImage)
+                        // Strip size suffix to get full-size URL
+                        let fullSizeUrl = selectedImage.replace(/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
+                        fullSizeUrl = fullSizeUrl.replace(/-thumb(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
+                        $mainImage.attr('src', fullSizeUrl)
                     } else if ($mainImage.length && $mainImage.data('original-src')) {
                         // Restore original if no selection
                         $mainImage.attr('src', $mainImage.data('original-src'))
