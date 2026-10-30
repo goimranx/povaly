@@ -7,8 +7,6 @@
 if (typeof jQuery === 'undefined') {
     console.error('LocationModal: jQuery is not loaded!');
 } else {
-    console.log('Location Modal JS Loaded - jQuery version:', jQuery.fn.jquery);
-    
     (function($) {
         'use strict';
 
@@ -286,19 +284,14 @@ if (typeof jQuery === 'undefined') {
 
     // Initialize on document ready
     $(document).ready(function() {
-        console.log('LocationModal: Document ready, initializing...');
         LocationModal.init();
-        
-        console.log('LocationModal: Modal element exists?', $('#location-modal').length > 0);
 
         // Trigger modal on button click - use simple jQuery show
         $(document).on('click', '.delivery-change-btn, .delivery-add-btn, .trigger-location-modal', function(e) {
             e.preventDefault();
-            console.log('LocationModal: Button clicked!');
             
             const $modal = $('#location-modal');
             if ($modal.length > 0) {
-                console.log('LocationModal: Opening modal...');
                 $modal.fadeIn(300).addClass('show').css('display', 'block');
                 $('body').addClass('modal-open');
                 
@@ -306,15 +299,12 @@ if (typeof jQuery === 'undefined') {
                 if (!$('.modal-backdrop').length) {
                     $('<div class="modal-backdrop fade show"></div>').appendTo('body');
                 }
-            } else {
-                console.error('LocationModal: Modal element not found!');
             }
         });
         
         // Close modal on backdrop click or close button
         $(document).on('click', '.modal-backdrop, [data-bs-dismiss="modal"]', function(e) {
             e.preventDefault();
-            console.log('LocationModal: Closing modal...');
             $('#location-modal').fadeOut(300).removeClass('show');
             $('.modal-backdrop').remove();
             $('body').removeClass('modal-open');
