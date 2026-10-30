@@ -63,13 +63,11 @@
                 // Hover activates immediately
                 thumb.addEventListener('mouseenter', () => {
                     const index = parseInt(thumb.getAttribute('data-index'));
-                    console.log('[PV GALLERY] mouseenter on thumb - index:', index, 'data-image:', thumb.getAttribute('data-image'));
                     this.jumpToImage(index);
                 });
                 
                 // Mouse leave restores the active image with full-size URL
                 thumb.addEventListener('mouseleave', () => {
-                    console.log('[PV GALLERY] Mouse leave - restoring currentIndex:', this.currentIndex);
                     // Re-jump to current active index to ensure full-size URL is loaded
                     this.jumpToImage(this.currentIndex);
                 });
@@ -190,26 +188,6 @@
         jumpToImage(index) {
             const imageData = this.allImages.find(img => img.index === index);
             
-            // Log stack trace to see what's calling this
-            console.log('[PV GALLERY] jumpToImage called', {
-                requestedIndex: index,
-                currentIndex: this.currentIndex,
-                imageData: imageData,
-                imageUrl: imageData?.url,
-                imageUrlContains150: imageData?.url?.includes('150x150'),
-                allImagesCount: this.allImages.length,
-                stackTrace: new Error().stack?.split('\n').slice(0, 5).join('\n')
-            });
-            
-            // CRITICAL CHECK: If imageData.url contains -150x150, something is wrong!
-            if (imageData?.url?.includes('150x150')) {
-                console.error('[PV GALLERY ERROR] Attempting to load thumbnail URL in main image!', {
-                    index: index,
-                    url: imageData.url,
-                    allImages: this.allImages
-                });
-            }
-            
             if (!imageData || !this.mainImage) return;
             
             // Hide video facade and show main image
@@ -226,8 +204,6 @@
             this.mainImage.style.opacity = '0.5';
             this.mainImage.style.display = 'block';
             
-            console.log('[PV GALLERY] Setting mainImage.src to:', imageData.url);
-            
             // Store the target URL to verify in onload
             const targetUrl = imageData.url;
             
@@ -241,19 +217,14 @@
             // Set new onload handler - only process if URL still matches
             this.mainImage.onload = function() {
                 if (this.src === targetUrl) {
-                    console.log('[PV GALLERY MAIN IMAGE] Image loaded correctly:', this.src, 'Element:', this.id);
                     this.style.opacity = '1';
                     this.style.transition = 'opacity 0.2s ease';
-                } else {
-                    console.log('[PV GALLERY MAIN IMAGE] Image loaded but src changed - ignoring. Loaded:', this.src, 'Expected:', targetUrl);
                 }
             };
             
             // Update active state
             this.setActive(index);
             this.currentIndex = index;
-            
-            console.log('[PV GALLERY] After update - currentIndex:', this.currentIndex);
         }
         
         setActive(index) {
@@ -406,7 +377,6 @@
         }
         
         reorderThumbnails(variationId) {
-            console.log('[PV GALLERY] reorderThumbnails called with variationId:', variationId);
             
             // Get photo thumbnails container
             const photoContainer = this.container.querySelector('.pv-thumbs-photos');
@@ -466,22 +436,11 @@
                 thumb: thumb
             }));
             
-            console.log('[PV GALLERY] After reorderThumbnails - allImages:', this.allImages.map(img => ({
-                index: img.index,
-                url: img.url,
-                variationId: img.variationId
-            })));
-            
             // Update currentIndex to point to the currently active image's new position
             const activeThumb = allThumbs.find(t => t.classList.contains('pv-active'));
-            console.log('[PV GALLERY] Active thumb found:', activeThumb ? 'yes' : 'no', activeThumb?.getAttribute('data-index'));
-            
             if (activeThumb) {
                 const activeDataIndex = parseInt(activeThumb.getAttribute('data-index'));
                 const activeImageData = this.allImages.find(img => img.index === activeDataIndex);
-                
-                console.log('[PV GALLERY] Updating currentIndex from', this.currentIndex, 'to', activeImageData?.index);
-                
                 if (activeImageData) {
                     this.currentIndex = activeImageData.index;
                 }
