@@ -83,8 +83,8 @@ return [
             $theme->asset()->container('footer')->usePath()
                 ->add('masonry-js', 'plugins/masonry.pkgd.min.js', ['jquery']);
 
-            // Use timestamp for cache busting on staging, version on production
-            $cacheVersion = app()->environment('production') ? $version : time();
+            // Use VersionHelper for consistent cache busting across environments
+            $cacheVersion = \App\Helpers\VersionHelper::getCacheBustVersion();
             
             $theme->asset()->container('footer')->usePath()->add('main', 'js/main.js', ['jquery'], [], $cacheVersion);
             
@@ -92,7 +92,7 @@ return [
                 ->add('backend', 'js/backend.js', ['jquery'], [], $cacheVersion);
             
             $theme->asset()->container('footer')->usePath()
-                ->add('product-card-enhanced', 'js/product-card-enhanced.js', ['jquery', 'main'], [], time());
+                ->add('product-card-enhanced', 'js/product-card-enhanced.js', ['jquery', 'main'], [], $cacheVersion);
 
             if (function_exists('shortcode')) {
                 $theme->composer([
