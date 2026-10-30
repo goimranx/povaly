@@ -3279,6 +3279,7 @@
     }
 
     .modal-header {
+        background-color: var(--ec-global-color-card-bg);
         border-bottom: none;
         padding: 20px 24px 12px;
         position: relative;
@@ -3395,37 +3396,35 @@
     margin-bottom: 16px;
     
     .saved-address-item {
-        margin-bottom: 8px;
+        margin-bottom: 12px;
         
         .saved-address-label {
-            display: flex;
-            align-items: flex-start;
-            padding: 12px;
-            border: 1px solid #d5d9d9;
+            display: block;
+            padding: 14px;
+            border: 1px solid var(--ec-global-color-border-strong);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.15s ease;
+            position: relative;
             
             &:hover {
                 background-color: #f7fafa;
-                border-color: #007185;
             }
             
             input[type="radio"] {
-                margin-top: 2px;
-                margin-right: 10px;
-                flex-shrink: 0;
-                width: 15px;
-                height: 15px;
-                cursor: pointer;
+                position: absolute;
+                opacity: 0;
+                width: 0;
+                height: 0;
                 
                 &:checked ~ .address-details {
-                    font-weight: 500;
+                    .address-name {
+                        font-weight: 600;
+                    }
                 }
             }
             
             .address-details {
-                flex: 1;
                 
                 .address-name {
                     font-size: 14px;
@@ -3448,21 +3447,30 @@
                 .address-full {
                     font-size: 13px;
                     color: #565959;
-                    line-height: 1.4;
-                    margin-bottom: 2px;
+                    line-height: 1.5;
+                    margin-bottom: 4px;
                 }
                 
                 .address-phone {
                     font-size: 12px;
                     color: #565959;
+                    margin-bottom: 4px;
+                }
+                
+                .address-default-label {
+                    font-size: 12px;
+                    color: var(--ec-global-color-text-muted);
+                    font-style: italic;
                 }
             }
         }
         
-        input[type="radio"]:checked + .saved-address-label,
-        .saved-address-label:has(input[type="radio"]:checked) {
-            border-color: #e77600;
-            background-color: #fff7f0;
+        // Active state - show outline instead of radio dot
+        input[type="radio"]:checked + .saved-address-label {
+            border-color: var(--ec-global-color-link);
+            outline: 2px solid var(--ec-global-color-link);
+            outline-offset: -1px;
+            background-color: rgba(var(--ec-global-color-link-rgb, 0, 113, 133), 0.05);
         }
     }
 }

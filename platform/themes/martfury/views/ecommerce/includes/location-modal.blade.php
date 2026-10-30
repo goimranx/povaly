@@ -44,6 +44,9 @@
                                             @if($address->phone)
                                                 <div class="address-phone">{{ __('Phone') }}: {{ $address->phone }}</div>
                                             @endif
+                                            @if($address->is_default)
+                                                <div class="address-default-label">{{ __('Default address') }}</div>
+                                            @endif
                                         </div>
                                     </label>
                                 </div>
