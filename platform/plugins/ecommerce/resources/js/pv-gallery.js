@@ -196,10 +196,19 @@
                 currentIndex: this.currentIndex,
                 imageData: imageData,
                 imageUrl: imageData?.url,
+                imageUrlContains150: imageData?.url?.includes('150x150'),
                 allImagesCount: this.allImages.length,
-                allImages: this.allImages.map(img => ({ index: img.index, url: img.url, variationId: img.variationId })),
-                stackTrace: new Error().stack
+                stackTrace: new Error().stack?.split('\n').slice(0, 5).join('\n')
             });
+            
+            // CRITICAL CHECK: If imageData.url contains -150x150, something is wrong!
+            if (imageData?.url?.includes('150x150')) {
+                console.error('[PV GALLERY ERROR] Attempting to load thumbnail URL in main image!', {
+                    index: index,
+                    url: imageData.url,
+                    allImages: this.allImages
+                });
+            }
             
             if (!imageData || !this.mainImage) return;
             
@@ -219,15 +228,25 @@
             
             console.log('[PV GALLERY] Setting mainImage.src to:', imageData.url);
             
+            // Store the target URL to verify in onload
+            const targetUrl = imageData.url;
+            
             // Update main image
             this.mainImage.src = imageData.url;
             this.mainImage.srcset = '';
             
-            // Remove loading state when image loads
-            this.mainImage.onload = () => {
-                console.log('[PV GALLERY MAIN IMAGE] Image loaded:', this.mainImage.src, 'Element:', this.mainImage.id);
-                this.mainImage.style.opacity = '1';
-                this.mainImage.style.transition = 'opacity 0.2s ease';
+            // Clear previous onload handler
+            this.mainImage.onload = null;
+            
+            // Set new onload handler - only process if URL still matches
+            this.mainImage.onload = function() {
+                if (this.src === targetUrl) {
+                    console.log('[PV GALLERY MAIN IMAGE] Image loaded correctly:', this.src, 'Element:', this.id);
+                    this.style.opacity = '1';
+                    this.style.transition = 'opacity 0.2s ease';
+                } else {
+                    console.log('[PV GALLERY MAIN IMAGE] Image loaded but src changed - ignoring. Loaded:', this.src, 'Expected:', targetUrl);
+                }
             };
             
             // Update active state
