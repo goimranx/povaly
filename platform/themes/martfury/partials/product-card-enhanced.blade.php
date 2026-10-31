@@ -250,54 +250,50 @@
                     @endphp
                     
                     <div class="ec-card__delivery">
-                        @if ($displayAddress)
-                            {{-- Use same partial as product details page for consistency --}}
-                            @php
-                                // Extract country code from address (same as delivery-address-display.blade.php)
-                                $countryCode = null;
+                        @php
+                            // ALWAYS extract country code - from session address OR GeoIP OR default
+                            $countryCode = null;
+                            
+                            if ($displayAddress) {
+                                // We have an address (from session or default)
                                 if ($displayType === 'temporary') {
+                                    // Temporary address from session
                                     $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($displayAddress->country ?? null);
                                 } else {
+                                    // Saved or default address from database
                                     if (isset($displayAddress->country) && is_numeric($displayAddress->country)) {
                                         $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($displayAddress->country);
                                     }
                                 }
-                                
-                                // Calculate delivery date with FULL product object
-                                $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($countryCode, $product);
-                                $dayName = $deliveryDate->format('l');
-                                $monthDay = $deliveryDate->format('M j');
-                            @endphp
-                            <div class="ec-card__delivery-date">Get it as soon as <strong>{{ $dayName }}, {{ $monthDay }}</strong></div>
-                        @else
-                            {{-- No location set - auto-detect visitor country (same as product.blade.php) --}}
-                            @php
-                                $visitorCountryCode = null;
-                                
+                            }
+                            
+                            // If still no country code, try GeoIP detection
+                            if (!$countryCode) {
                                 try {
                                     if (function_exists('geoip')) {
                                         $geoip = geoip(request()->ip());
-                                        $visitorCountryCode = $geoip->iso_code ?? null;
+                                        $countryCode = $geoip->iso_code ?? null;
                                     } elseif (class_exists('\Stevebauman\Location\Facades\Location')) {
                                         $position = \Stevebauman\Location\Facades\Location::get(request()->ip());
-                                        $visitorCountryCode = $position ? $position->countryCode : null;
+                                        $countryCode = $position ? $position->countryCode : null;
                                     }
                                 } catch (\Exception $e) {
                                     // Silent fail
                                 }
-                                
-                                if (!$visitorCountryCode) {
-                                    $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
-                                    $visitorCountryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
-                                }
-                                
-                                // Calculate delivery date with FULL product object (not just ID)
-                                $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($visitorCountryCode, $product);
-                                $dayName = $deliveryDate->format('l');
-                                $monthDay = $deliveryDate->format('M j');
-                            @endphp
-                            <div class="ec-card__delivery-date">Get it as soon as <strong>{{ $dayName }}, {{ $monthDay }}</strong></div>
-                        @endif
+                            }
+                            
+                            // Final fallback: default country
+                            if (!$countryCode) {
+                                $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                                $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
+                            }
+                            
+                            // Now calculate delivery date with the country code we found
+                            $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($countryCode, $product);
+                            $dayName = $deliveryDate->format('l');
+                            $monthDay = $deliveryDate->format('M j');
+                        @endphp
+                        <div class="ec-card__delivery-date">Get it as soon as <strong>{{ $dayName }}, {{ $monthDay }}</strong></div>
                         
                         {{-- 8. Delivery Charge --}}
                         @php
