@@ -36,14 +36,26 @@ class DeliveryHelper
         }
         
         if ($product && is_object($product)) {
+            // DEBUG: Log what we're checking
+            \Log::info('DeliveryHelper::getHandlingTime DEBUG', [
+                'product_id' => $product->id,
+                'quantity' => $product->quantity,
+                'with_storehouse' => $product->with_storehouse_management,
+                'relation_loaded' => $product->relationLoaded('latestFlashSales'),
+            ]);
+            
             // Check stock availability
             if ($product->with_storehouse_management) {
                 if ($product->quantity <= 0) {
                     // Out of stock: need to source/restock
                     $handlingTime = 3; // 3 days to source from supplier
+                    \Log::info('OUT OF STOCK: handlingTime = 3');
                 } elseif ($product->quantity < 5) {
                     // Low stock: might need warehouse transfer
                     $handlingTime = 2; // Extra day for warehouse coordination
+                    \Log::info('LOW STOCK: handlingTime = 2');
+                } else {
+                    \Log::info('IN STOCK: handlingTime = 1');
                 }
                 // High stock (>5): standard 1 day handling
             }
@@ -53,14 +65,19 @@ class DeliveryHelper
             $inFlashSale = false;
             if ($product->relationLoaded('latestFlashSales')) {
                 $inFlashSale = $product->latestFlashSales && $product->latestFlashSales->isNotEmpty();
+                \Log::info('Flash sale check (from loaded relation)', ['in_flash_sale' => $inFlashSale]);
             } else {
                 // Fallback to query if not loaded
                 $inFlashSale = $product->latestFlashSales()->exists();
+                \Log::info('Flash sale check (from query)', ['in_flash_sale' => $inFlashSale]);
             }
             
             if ($inFlashSale && $product->quantity > 0) {
                 $handlingTime += 1; // Extra day due to high volume
+                \Log::info('FLASH SALE ACTIVE: handlingTime +1');
             }
+            
+            \Log::info('FINAL handlingTime', ['handlingTime' => $handlingTime]);
         }
         
         return $handlingTime;
@@ -167,9 +184,21 @@ class DeliveryHelper
      */
     public static function getEstimatedDeliveryDays(?string $countryCode = null, $product = null): int
     {
+        \Log::info('DeliveryHelper::getEstimatedDeliveryDays CALLED', [
+            'countryCode' => $countryCode,
+            'product_type' => is_object($product) ? get_class($product) : (is_numeric($product) ? 'ID: ' . $product : 'null'),
+            'backtrace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3)[1]['file'] ?? 'unknown'
+        ]);
+        
         // Amazon's formula: Handling Time + Transit Time
         $handlingTime = self::getHandlingTime($product);
         $transitTime = self::getTransitTime($countryCode);
+        
+        \Log::info('DeliveryHelper::getEstimatedDeliveryDays RESULT', [
+            'handlingTime' => $handlingTime,
+            'transitTime' => $transitTime,
+            'total' => $handlingTime + $transitTime
+        ]);
         
         $totalDays = $handlingTime + $transitTime;
         
