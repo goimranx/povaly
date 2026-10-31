@@ -281,9 +281,16 @@
                                     \Log::info('PRODUCT CARD - Temporary address', ['country' => $displayAddress->country ?? null, 'countryCode' => $countryCode]);
                                 } else {
                                     // Saved or default address from database
-                                    if (isset($displayAddress->country) && is_numeric($displayAddress->country)) {
-                                        $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($displayAddress->country);
-                                        \Log::info('PRODUCT CARD - Saved address', ['country' => $displayAddress->country, 'countryCode' => $countryCode]);
+                                    if (isset($displayAddress->country)) {
+                                        // Country can be either numeric ID or already a code string
+                                        if (is_numeric($displayAddress->country)) {
+                                            $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($displayAddress->country);
+                                            \Log::info('PRODUCT CARD - Saved address (numeric ID)', ['country_id' => $displayAddress->country, 'countryCode' => $countryCode]);
+                                        } else {
+                                            // Already a country code
+                                            $countryCode = $displayAddress->country;
+                                            \Log::info('PRODUCT CARD - Saved address (code string)', ['countryCode' => $countryCode]);
+                                        }
                                     }
                                 }
                             } else {
