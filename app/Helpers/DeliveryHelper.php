@@ -118,19 +118,8 @@ class DeliveryHelper
     {
         $days = self::getEstimatedDeliveryDays($countryCode, $productId);
         
-        // Skip weekends for delivery (Amazon-like behavior)
-        $date = now();
-        $daysAdded = 0;
-        
-        while ($daysAdded < $days) {
-            $date = $date->addDay();
-            // Skip Sundays (common delivery off day)
-            if ($date->dayOfWeek !== 0) {
-                $daysAdded++;
-            }
-        }
-        
-        return $date;
+        // Simply add business days (no weekend skipping for now to keep it simple and consistent)
+        return now()->addDays($days);
     }
 
     /**
