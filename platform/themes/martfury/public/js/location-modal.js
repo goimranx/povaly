@@ -275,19 +275,32 @@ if (typeof jQuery === 'undefined') {
                     url: '/ajax/get-delivery-display',
                     type: 'GET',
                     success: function(response) {
-                        // BaseHttpResponse returns data inside 'data' property
+                        // Update product details page delivery display
                         if (response.data && response.data.html) {
                             $('#delivery-address-display').html(response.data.html);
                         } else if (response.html) {
-                            // Fallback for direct html response
                             $('#delivery-address-display').html(response.html);
                         }
                         
-                        // Reinitialize Bootstrap tooltips after updating display
+                        // Reinitialize Bootstrap tooltips
                         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
                         tooltipTriggerList.map(function (tooltipTriggerEl) {
                             return new bootstrap.Tooltip(tooltipTriggerEl);
                         });
+                        
+                        // IMPORTANT: Broadcast location change event for product cards
+                        // This allows product cards on listing pages to update their delivery dates
+                        $(document).trigger('location:changed');
+                        
+                        // Also reload product card sections if we're on a listing page
+                        // This ensures all product cards show updated delivery information
+                        if ($('.ec-card').length > 0) {
+                            console.log('Location changed - reloading page to update all product delivery dates');
+                            // Small delay to ensure session is saved
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 500);
+                        }
                     },
                     error: function() {
                         console.error('Failed to update delivery display');

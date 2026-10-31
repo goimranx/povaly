@@ -216,11 +216,10 @@
                     {!! BaseHelper::clean($product->name) !!}
                 </a>
 
-                {{-- 7. Delivery Info --}}
+                {{-- 7. Delivery Info - SAME APPROACH AS PRODUCT DETAILS PAGE --}}
                 @if (!$product->isOutOfStock())
                     @php
-                        // EXACT SAME LOGIC AS PRODUCT DETAIL PAGE (product.blade.php)
-                        // Get address from session (same logic as LocationSessionController)
+                        // Get address from session (EXACT SAME as product.blade.php)
                         $orderHelper = app(\Botble\Ecommerce\Supports\OrderHelper::class);
                         $token = $orderHelper->getOrderSessionToken();
                         $sessionData = $orderHelper->getOrderSessionData($token);
@@ -248,89 +247,89 @@
                                 $displayAddress = auth('customer')->user()->addresses()->where('is_default', 1)->first();
                             }
                         }
-                        
-                        // NOW EXTRACT COUNTRY CODE FROM ADDRESS (same as delivery-address-display.blade.php)
-                        $countryCode = null;
-                        if ($displayAddress) {
-                            if ($displayType === 'temporary') {
-                                // For temporary addresses, get country code from address data
-                                $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($displayAddress->country ?? null);
-                            } else {
-                                // For saved addresses, get country code from address model
-                                if (isset($displayAddress->country) && is_numeric($displayAddress->country)) {
-                                    $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($displayAddress->country);
-                                }
-                            }
-                        } else {
-                            // No address at all - try GeoIP then fallback
-                            try {
-                                if (function_exists('geoip')) {
-                                    $geoip = geoip(request()->ip());
-                                    $countryCode = $geoip->iso_code ?? null;
-                                } elseif (class_exists('\Stevebauman\Location\Facades\Location')) {
-                                    $position = \Stevebauman\Location\Facades\Location::get(request()->ip());
-                                    $countryCode = $position ? $position->countryCode : null;
-                                }
-                            } catch (\Exception $e) {
-                                // Silent fail
-                            }
-                            
-                            // Final fallback: Default country from settings
-                            if (!$countryCode) {
-                                $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
-                                $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
-                            }
-                        }
-                        
-                        // Calculate delivery date based on country and product
-                        // Pass FULL product object, not just ID
-                        $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($countryCode, $product);
-                        $dayName = $deliveryDate->format('l');
-                        $monthDay = $deliveryDate->format('M j');
-                        
-                        // Check if free shipping is available globally or by weight
-                        $shippingInfo = null;
-                        $weight = $product->weight ?? 0;
-                        
-                        // Check for free shipping rules
-                        $hasFreeShipping = false;
-                        if (get_ecommerce_setting('free_shipping_enabled', false)) {
-                            $hasFreeShipping = true;
-                        } else {
-                            // Check if product weight qualifies for free shipping based on default rules
-                            try {
-                                $defaultCountry = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
-                                $shipping = \Botble\Ecommerce\Models\Shipping::query()
-                                    ->whereNull('country')
-                                    ->orWhere('country', $defaultCountry)
-                                    ->first();
-                                
-                                if ($shipping) {
-                                    // Check if any rule offers free shipping
-                                    $freeRule = \Botble\Ecommerce\Models\ShippingRule::query()
-                                        ->where('shipping_id', $shipping->id)
-                                        ->where('price', 0)
-                                        ->first();
-                                    
-                                    if ($freeRule) {
-                                        $hasFreeShipping = true;
+                    @endphp
+                    
+                    <div class="ec-card__delivery">
+                        @if ($displayAddress)
+                            {{-- Use same partial as product details page for consistency --}}
+                            @php
+                                // Extract country code from address (same as delivery-address-display.blade.php)
+                                $countryCode = null;
+                                if ($displayType === 'temporary') {
+                                    $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($displayAddress->country ?? null);
+                                } else {
+                                    if (isset($displayAddress->country) && is_numeric($displayAddress->country)) {
+                                        $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($displayAddress->country);
                                     }
                                 }
-                            } catch (\Exception $e) {
-                                // If shipping check fails, show generic shipping info
-                            }
-                        }
+                                
+                                // Calculate delivery date with FULL product object
+                                $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($countryCode, $product);
+                                $dayName = $deliveryDate->format('l');
+                                $monthDay = $deliveryDate->format('M j');
+                            @endphp
+                            <div class="ec-card__delivery-date">Get it as soon as <strong>{{ $dayName }}, {{ $monthDay }}</strong></div>
+                        @else
+                            {{-- No location set - auto-detect visitor country (same as product.blade.php) --}}
+                            @php
+                                $visitorCountryCode = null;
+                                
+                                try {
+                                    if (function_exists('geoip')) {
+                                        $geoip = geoip(request()->ip());
+                                        $visitorCountryCode = $geoip->iso_code ?? null;
+                                    } elseif (class_exists('\Stevebauman\Location\Facades\Location')) {
+                                        $position = \Stevebauman\Location\Facades\Location::get(request()->ip());
+                                        $visitorCountryCode = $position ? $position->countryCode : null;
+                                    }
+                                } catch (\Exception $e) {
+                                    // Silent fail
+                                }
+                                
+                                if (!$visitorCountryCode) {
+                                    $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                                    $visitorCountryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
+                                }
+                                
+                                // Calculate delivery date with FULL product object (not just ID)
+                                $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($visitorCountryCode, $product);
+                                $dayName = $deliveryDate->format('l');
+                                $monthDay = $deliveryDate->format('M j');
+                            @endphp
+                            <div class="ec-card__delivery-date">Get it as soon as <strong>{{ $dayName }}, {{ $monthDay }}</strong></div>
+                        @endif
                         
-                        if ($hasFreeShipping) {
-                            $shippingInfo = 'Free Delivery';
-                        } else {
-                            // Show generic shipping info since we can't calculate exact fee without location
-                            $shippingInfo = 'Shipping charges apply';
-                        }
-                    @endphp
-                    <div class="ec-card__delivery">
-                        <div class="ec-card__delivery-date">Get it as soon as <strong>{{ $dayName }}, {{ $monthDay }}</strong></div>
                         {{-- 8. Delivery Charge --}}
+                        @php
+                            // Check if free shipping is available
+                            $hasFreeShipping = false;
+                            if (get_ecommerce_setting('free_shipping_enabled', false)) {
+                                $hasFreeShipping = true;
+                            } else {
+                                try {
+                                    $defaultCountry = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                                    $shipping = \Botble\Ecommerce\Models\Shipping::query()
+                                        ->whereNull('country')
+                                        ->orWhere('country', $defaultCountry)
+                                        ->first();
+                                    
+                                    if ($shipping) {
+                                        $freeRule = \Botble\Ecommerce\Models\ShippingRule::query()
+                                            ->where('shipping_id', $shipping->id)
+                                            ->where('price', 0)
+                                            ->first();
+                                        
+                                        if ($freeRule) {
+                                            $hasFreeShipping = true;
+                                        }
+                                    }
+                                } catch (\Exception $e) {
+                                    // Silent fail
+                                }
+                            }
+                            
+                            $shippingInfo = $hasFreeShipping ? 'Free Delivery' : 'Shipping charges apply';
+                        @endphp
                         <div class="ec-card__delivery-charge">{{ $shippingInfo }}</div>
                     </div>
                 @endif
