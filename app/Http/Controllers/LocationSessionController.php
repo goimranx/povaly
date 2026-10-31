@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Botble\Base\Http\Controllers\BaseController;
 use Botble\Ecommerce\Models\Address;
+use Botble\Theme\Facades\Theme;
 use Illuminate\Http\Request;
 
 class LocationSessionController extends BaseController
@@ -49,7 +50,7 @@ class LocationSessionController extends BaseController
                     ->first();
 
                 if ($address) {
-                    $html = view('theme.martfury::ecommerce.includes.delivery-address-display', [
+                    $html = view(Theme::getThemeNamespace('views.ecommerce.includes.delivery-address-display'), [
                         'address' => $address,
                         'type' => 'saved'
                     ])->render();
@@ -59,7 +60,7 @@ class LocationSessionController extends BaseController
             $tempAddress = session('delivery_location_temp');
             
             if ($tempAddress) {
-                $html = view('theme.martfury::ecommerce.includes.delivery-address-display', [
+                $html = view(Theme::getThemeNamespace('views.ecommerce.includes.delivery-address-display'), [
                     'address' => (object) $tempAddress,
                     'type' => 'temporary'
                 ])->render();
@@ -70,7 +71,7 @@ class LocationSessionController extends BaseController
                 $defaultAddress = auth('customer')->user()->addresses()->where('is_default', 1)->first();
                 
                 if ($defaultAddress) {
-                    $html = view('theme.martfury::ecommerce.includes.delivery-address-display', [
+                    $html = view(Theme::getThemeNamespace('views.ecommerce.includes.delivery-address-display'), [
                         'address' => $defaultAddress,
                         'type' => 'default'
                     ])->render();
