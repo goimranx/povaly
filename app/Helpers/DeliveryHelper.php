@@ -8,13 +8,13 @@ use Botble\Location\Models\Country;
 class DeliveryHelper
 {
     /**
-     * Get estimated delivery days based on country with product-specific variance
+     * Get estimated delivery days based on country with REAL product factors
      * 
      * @param string|null $countryCode Country code (e.g., 'BD', 'US', 'IN')
-     * @param int|null $productId Optional product ID for consistent per-product variance
+     * @param \Botble\Ecommerce\Models\Product|int|null $product Product model or ID
      * @return int Number of days for delivery
      */
-    public static function getEstimatedDeliveryDays(?string $countryCode = null, ?int $productId = null): int
+    public static function getEstimatedDeliveryDays(?string $countryCode = null, $product = null): int
     {
         if (!$countryCode) {
             return 7; // Default 7 days if no country
@@ -83,27 +83,80 @@ class DeliveryHelper
         ];
 
         $baseDays = $deliveryEstimates[$countryCode] ?? 7;
+        $additionalDays = 0;
         
-        // Add product-specific variance (simulates different warehouse locations, processing times)
-        // If productId provided, use it for consistent variance per product
-        if ($productId) {
-            // Use product ID to generate consistent but varied delivery times
-            // This simulates: different warehouse locations, stock availability, processing complexity
-            $variance = ($productId % 5) - 2; // Range: -2 to +2 days
-            
-            // Occasionally add extra day for "special handling" products
-            if ($productId % 7 === 0) {
-                $variance += 1;
-            }
-            
-            $finalDays = $baseDays + $variance;
-        } else {
-            // No product ID - use small random variance
-            $variance = rand(-1, 2); // -1, 0, 1, or 2 days
-            $finalDays = $baseDays + $variance;
+        // Load product if ID provided
+        if (is_numeric($product)) {
+            $product = \Botble\Ecommerce\Models\Product::find($product);
         }
         
-        // Ensure minimum 2 days delivery (even local)
+        // Calculate based on REAL product attributes
+        if ($product && is_object($product)) {
+            
+            // 1. WEIGHT FACTOR: Heavier items take longer (real shipping constraint)
+            if ($product->weight) {
+                if ($product->weight > 20) {
+                    $additionalDays += 2; // Very heavy (>20kg) - special handling
+                } elseif ($product->weight > 10) {
+                    $additionalDays += 1; // Heavy (>10kg)
+                } elseif ($product->weight < 1) {
+                    $additionalDays -= 1; // Light items ship faster
+                }
+            }
+            
+            // 2. STOCK AVAILABILITY: Out of stock or low stock takes longer
+            if ($product->with_storehouse_management) {
+                if ($product->quantity <= 0) {
+                    $additionalDays += 3; // Out of stock - needs restocking/sourcing
+                } elseif ($product->quantity < 5) {
+                    $additionalDays += 1; // Low stock - may need sourcing from warehouse
+                } elseif ($product->quantity > 50) {
+                    $additionalDays -= 1; // High stock - readily available, faster processing
+                }
+            }
+            
+            // 3. STORE/VENDOR LOCATION: Different stores = different warehouses
+            if (is_plugin_active('marketplace') && $product->store_id) {
+                // Use store_id to create consistent variance per store
+                $storeVariance = ($product->store_id % 3) - 1; // -1, 0, or +1 days
+                $additionalDays += $storeVariance;
+            }
+            
+            // 4. PRODUCT SIZE/DIMENSIONS: Bulky items need special handling
+            if ($product->length || $product->wide || $product->height) {
+                $volume = ($product->length ?? 0) * ($product->wide ?? 0) * ($product->height ?? 0);
+                if ($volume > 1000000) { // Very bulky (>1 cubic meter)
+                    $additionalDays += 2;
+                } elseif ($volume > 100000) { // Bulky
+                    $additionalDays += 1;
+                }
+            }
+            
+            // 5. FEATURED/PRIORITY ITEMS: Featured items often ship faster
+            if ($product->is_featured) {
+                $additionalDays -= 1; // Priority handling
+            }
+            
+            // 6. FLASH SALE ITEMS: High demand can cause delays
+            $inFlashSale = $product->latestFlashSales()->exists();
+            if ($inFlashSale) {
+                $additionalDays += 1; // High order volume during flash sales
+            }
+            
+        } else {
+            // Fallback: use simple product ID variance if no product object
+            $productId = is_numeric($product) ? $product : null;
+            if ($productId) {
+                $additionalDays = ($productId % 5) - 2; // -2 to +2 days
+                if ($productId % 7 === 0) {
+                    $additionalDays += 1;
+                }
+            }
+        }
+        
+        $finalDays = $baseDays + $additionalDays;
+        
+        // Ensure minimum 2 days delivery (even express)
         return max(2, $finalDays);
     }
 
@@ -111,14 +164,14 @@ class DeliveryHelper
      * Get estimated delivery date based on country and product
      * 
      * @param string|null $countryCode Country code
-     * @param int|null $productId Optional product ID for consistent variance
+     * @param \Botble\Ecommerce\Models\Product|int|null $product Product model or ID
      * @return \Carbon\Carbon
      */
-    public static function getEstimatedDeliveryDate(?string $countryCode = null, ?int $productId = null): \Carbon\Carbon
+    public static function getEstimatedDeliveryDate(?string $countryCode = null, $product = null): \Carbon\Carbon
     {
-        $days = self::getEstimatedDeliveryDays($countryCode, $productId);
+        $days = self::getEstimatedDeliveryDays($countryCode, $product);
         
-        // Simply add business days (no weekend skipping for now to keep it simple and consistent)
+        // Simply add calendar days
         return now()->addDays($days);
     }
 
