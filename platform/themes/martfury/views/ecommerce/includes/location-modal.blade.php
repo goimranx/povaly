@@ -89,7 +89,6 @@
                             id="temp-country" 
                             class="form-select-location"
                         >
-                            <option value="">{{ __('Select country...') }}</option>
                             @foreach(\Botble\Ecommerce\Facades\EcommerceHelper::getAvailableCountries() as $countryCode => $countryName)
                                 <option value="{{ $countryCode }}">{{ $countryName }}</option>
                             @endforeach

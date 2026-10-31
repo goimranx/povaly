@@ -48,7 +48,8 @@ if (typeof jQuery === 'undefined') {
                 this.countrySelect.on('change', function() {
                     const countryId = $(this).val();
                     
-                    if (countryId) {
+                    // Treat "0" or empty as no selection
+                    if (countryId && countryId !== "0") {
                         // Show and enable state dropdown
                         self.stateSelect.prop('disabled', false);
                         self.stateSelect.closest('.form-group-location').show();
@@ -139,8 +140,8 @@ if (typeof jQuery === 'undefined') {
             },
 
             clearTemporaryForm: function() {
-                // Reset all form values to empty/placeholder
-                this.countrySelect.val('').trigger('change');
+                // Reset all form values to placeholder (0 for country, empty for others)
+                this.countrySelect.val('0').trigger('change');
                 this.stateSelect.val('');
                 this.citySelect.val('');
                 this.addressInput.val('');
