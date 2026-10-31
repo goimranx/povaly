@@ -923,6 +923,17 @@
 
     .ps-product__shopping-2 {
     }
+    
+    .number-items-available {
+        font-size: 18px;
+        font-weight: 400;
+        margin-top: 7px;
+        
+        span {
+            font-size: inherit;
+            font-weight: inherit;
+        }
+    }
 
     .ps-product__links {
         margin-bottom: 1.875rem; // Was 3rem (30px), now 30px/16px
@@ -1694,13 +1705,17 @@
         .delivery-location-row {
             display: flex;
             align-items: flex-start;
-            gap: 8px;
+            gap: 5px;
             
             .delivery-location-icon {
                 font-size: 18px;
                 color: var(--global-color-text-body, #666);
                 margin-top: 1px;
                 flex-shrink: 0;
+            }
+            
+            i {
+                margin-top: 3px;
             }
             
             .delivery-location-content {
