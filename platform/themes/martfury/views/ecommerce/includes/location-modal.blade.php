@@ -1,4 +1,12 @@
 {{-- Location Selection Modal - Amazon Style --}}
+@php
+    // Get session data to determine which address is currently selected (SAME AS PRODUCT PAGE)
+    $orderHelper = app(\Botble\Ecommerce\Supports\OrderHelper::class);
+    $token = $orderHelper->getOrderSessionToken();
+    $sessionData = $orderHelper->getOrderSessionData($token);
+    $sessionAddressId = $sessionData['address_id'] ?? null;
+@endphp
+
 <div class="modal fade location-modal" id="location-modal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true" style="display: none;">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -29,7 +37,13 @@
                                             name="saved_address" 
                                             value="{{ $address->id }}" 
                                             class="location-address-radio"
-                                            {{ $address->is_default ? 'checked' : '' }}
+                                            @if($sessionAddressId && $sessionAddressId !== 'new')
+                                                {{-- Check saved address if it matches session --}}
+                                                {{ $sessionAddressId == $address->id ? 'checked' : '' }}
+                                            @else
+                                                {{-- Default behavior: check default address if no session --}}
+                                                {{ $address->is_default && !$sessionAddressId ? 'checked' : '' }}
+                                            @endif
                                         >
                                         <div class="address-details">
                                             <div class="address-name">
@@ -90,14 +104,83 @@
                             class="form-select-location"
                             data-type="country"
                             data-form-parent="#location-modal"
+                            @if($sessionAddressId === 'new' && !empty($sessionData['country']))
+                                data-init-value="{{ $sessionData['country'] }}"
+                            @endif
                         >
                             @foreach(\Botble\Ecommerce\Facades\EcommerceHelper::getAvailableCountries() as $countryCode => $countryName)
-                                <option value="{{ $countryCode }}">{{ $countryName }}</option>
+                                <option 
+                                    value="{{ $countryCode }}"
+                                    @if($sessionAddressId === 'new' && ($sessionData['country'] ?? '') === $countryCode) selected @endif
+                                >{{ $countryName }}</option>
                             @endforeach
                         </select>
                     </div>
                     
                     {{-- State Dropdown (Hidden until country selected) --}}
+                    <div class="form-group-location state-group" @if($sessionAddressId === 'new' && !empty($sessionData['state'])) style="display:block" @endif>
+                        <select 
+                            name="state" 
+                            id="temp-state" 
+                            class="form-select-location" 
+                            data-type="state"
+                            data-form-parent="#location-modal"
+                            data-url="{{ route('ajax.states-by-country') }}"
+                            @if($sessionAddressId === 'new' && !empty($sessionData['country']))
+                                data-country-id="{{ $sessionData['country'] }}"
+                                data-init-value="{{ $sessionData['state'] ?? '' }}"
+                            @else
+                                disabled
+                            @endif
+                        ></select>
+                    </div>
+                    
+                    {{-- City Dropdown (Hidden until state selected) --}}
+                    <div class="form-group-location city-group" @if($sessionAddressId === 'new' && !empty($sessionData['city'])) style="display:block" @endif>
+                        <select 
+                            name="city" 
+                            id="temp-city" 
+                            class="form-select-location" 
+                            data-type="city"
+                            data-form-parent="#location-modal"
+                            data-url="{{ route('ajax.cities-by-state') }}"
+                            @if($sessionAddressId === 'new' && !empty($sessionData['state']))
+                                data-state-id="{{ $sessionData['state'] }}"
+                                data-country-id="{{ $sessionData['country'] }}"
+                                data-init-value="{{ $sessionData['city'] ?? '' }}"
+                            @else
+                                disabled
+                            @endif
+                        ></select>
+                    </div>
+                    
+                    {{-- Street Address (Hidden until city selected) --}}
+                    <div class="form-group-location address-group" @if($sessionAddressId === 'new' && !empty($sessionData['address'])) style="display:block" @endif>
+                        <input 
+                            type="text" 
+                            name="address" 
+                            id="temp-address" 
+                            class="form-input-location" 
+                            placeholder="{{ __('Enter street address') }}"
+                            @if($sessionAddressId === 'new' && !empty($sessionData['address']))
+                                value="{{ $sessionData['address'] }}"
+                            @endif
+                        >
+                    </div>
+                    
+                    {{-- Ship Outside Notice (Hidden for now) --}}
+                    <p class="modal-ship-notice" style="display: none;">
+                        <a href="#" id="ship-outside-link">{{ __('or ship outside the country') }}</a>
+                    </p>
+                </form>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn-done" id="save-location-btn">{{ __('Done') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
                     <div class="form-group-location state-group">
                         <select 
                             name="state" 

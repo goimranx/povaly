@@ -141,7 +141,7 @@ if (typeof jQuery === 'undefined') {
                     self.saveLocation();
                 });
 
-                // Modal shown event - reinitialize location.js for this modal
+                // Modal shown event - reinitialize location.js for this modal and restore session values
                 this.modal.on('shown.bs.modal', function() {
                     self.initializeModalState();
                 });
@@ -169,11 +169,49 @@ if (typeof jQuery === 'undefined') {
             },
 
             initializeModalState: function() {
-                const checkedRadio = $('.location-address-radio:checked');
-                if (checkedRadio.length > 0) {
-                    this.selectedData.type = 'saved';
-                    this.selectedData.addressId = checkedRadio.val();
-                    this.selectedData.tempAddress = null;
+                const self = this;
+                
+                // Check if temporary address fields have init values (from session)
+                const countryInitValue = this.countrySelect.data('init-value');
+                const stateInitValue = this.stateSelect.data('init-value');
+                const cityInitValue = this.citySelect.data('init-value');
+                
+                if (countryInitValue) {
+                    // Temporary address from session - restore fields progressively
+                    self.selectedData.type = 'temporary';
+                    self.selectedData.addressId = null;
+                    
+                    // Country is already selected in HTML, just trigger change to show state
+                    self.countrySelect.trigger('change');
+                    
+                    // Wait for location.js to populate state, then select it
+                    if (stateInitValue) {
+                        setTimeout(function() {
+                            self.stateSelect.val(stateInitValue);
+                            if (self.stateSelect.val() === stateInitValue) {
+                                // Successfully selected, trigger change
+                                self.stateSelect.trigger('change');
+                                
+                                // Wait for location.js to populate city, then select it
+                                if (cityInitValue) {
+                                    setTimeout(function() {
+                                        self.citySelect.val(cityInitValue);
+                                        if (self.citySelect.val() === cityInitValue) {
+                                            self.citySelect.trigger('change');
+                                        }
+                                    }, 300);
+                                }
+                            }
+                        }, 300);
+                    }
+                } else {
+                    // No temporary address - check if a saved address radio is checked
+                    const checkedRadio = $('.location-address-radio:checked');
+                    if (checkedRadio.length > 0) {
+                        self.selectedData.type = 'saved';
+                        self.selectedData.addressId = checkedRadio.val();
+                        self.selectedData.tempAddress = null;
+                    }
                 }
             },
 
