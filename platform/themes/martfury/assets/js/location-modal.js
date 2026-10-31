@@ -209,12 +209,15 @@ if (typeof jQuery === 'undefined') {
                 // Check for GeoIP detected country (used when no session/saved address)
                 const geoipCountry = this.countrySelect.data('geoip-country');
                 
-                if (countryInitValue) {
+                // Detect if we have session data to restore (either country has init-value OR state/city have values)
+                const hasSessionData = countryInitValue || stateInitValue || cityInitValue;
+                
+                if (hasSessionData) {
                     // Temporary address from session - restore fields progressively
                     self.selectedData.type = 'temporary';
                     self.selectedData.addressId = null;
                     
-                    // Country is already selected in HTML, just trigger change to show state
+                    // Trigger country change to show state field (country is already selected in HTML)
                     self.countrySelect.trigger('change');
                     
                     // Check if state is a text input or dropdown
@@ -222,14 +225,12 @@ if (typeof jQuery === 'undefined') {
                     
                     if (stateInitValue) {
                         if (isStateTextInput) {
-                            // State is text input - value is already set in HTML, just show the field
-                            self.stateSelect.closest('.form-group-location').show();
-                            
-                            // Trigger change/input to show city
+                            // State is text input - value is already set in HTML
+                            // Trigger input event to show city (with small delay to let country change complete)
                             setTimeout(function() {
                                 self.stateSelect.trigger('input');
                                 
-                                // If city also has value and is text input, make sure address shows
+                                // If city also has value and is text input, trigger its input too
                                 if (cityInitValue) {
                                     const isCityTextInput = self.citySelect.is('input[type="text"]');
                                     if (isCityTextInput) {
@@ -238,7 +239,7 @@ if (typeof jQuery === 'undefined') {
                                         }, 100);
                                     }
                                 }
-                            }, 100);
+                            }, 200);
                         } else {
                             // State is dropdown - wait for location.js to populate, then select it
                             setTimeout(function() {
@@ -257,7 +258,7 @@ if (typeof jQuery === 'undefined') {
                                         }, 300);
                                     }
                                 }
-                            }, 300);
+                            }, 400);
                         }
                     }
                 } else if (geoipCountry) {
