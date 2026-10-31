@@ -16,9 +16,8 @@
         }
     }
     
-    // Pass product ID if available for consistent per-product delivery estimates
-    $productId = isset($product) && is_object($product) ? $product->id : null;
-    $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($countryCode, $productId);
+    // Pass product object (not just ID) for consistent delivery estimates
+    $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($countryCode, $product ?? null);
     $formattedDate = \App\Helpers\DeliveryHelper::formatDeliveryDate($deliveryDate);
 @endphp
 
