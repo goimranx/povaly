@@ -3279,7 +3279,7 @@
     }
 
     .modal-header {
-        background-color: var(--ec-global-color-card-bg);
+        background-color: var(--global-color-card-bg);
         border-bottom: none;
         padding: 20px 24px 12px;
         position: relative;
@@ -3401,7 +3401,7 @@
         .saved-address-label {
             display: block;
             padding: 14px;
-            border: 1px solid var(--ec-global-color-border-strong);
+            border: 1px solid var(--global-color-border-strong, #d5d9d9);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.15s ease;
@@ -3459,7 +3459,7 @@
                 
                 .address-default-label {
                     font-size: 12px;
-                    color: var(--ec-global-color-text-muted);
+                    color: var(--global-color-text-muted);
                     font-style: italic;
                 }
             }
@@ -3467,10 +3467,10 @@
         
         // Active state - show outline instead of radio dot
         input[type="radio"]:checked + .saved-address-label {
-            border-color: var(--ec-global-color-link);
-            outline: 2px solid var(--ec-global-color-link);
+            border-color: var(--global-color-link, #007185);
+            outline: 2px solid var(--global-color-link, #007185);
             outline-offset: -1px;
-            background-color: rgba(var(--ec-global-color-link-rgb, 0, 113, 133), 0.05);
+            background-color: var(--global-color-link-subtle, rgba(0, 113, 133, 0.05));
         }
     }
 }
