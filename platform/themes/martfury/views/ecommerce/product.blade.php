@@ -852,4 +852,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @include(Theme::getThemeNamespace('views.ecommerce.includes.location-modal'))
 
+{{-- Include location.js plugin for cascading dropdowns --}}
+<script src="{{ asset('vendor/core/plugins/location/js/location.js') }}?v={{ cache_bust() }}"></script>
 <script src="{{ Theme::asset()->url('js/location-modal.js') }}?v={{ cache_bust() }}"></script>
