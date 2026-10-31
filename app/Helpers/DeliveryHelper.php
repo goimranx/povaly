@@ -4,164 +4,173 @@ namespace App\Helpers;
 
 use Botble\Ecommerce\Facades\EcommerceHelper;
 use Botble\Location\Models\Country;
+use Botble\Ecommerce\Models\Product;
 
 class DeliveryHelper
 {
     /**
-     * Get estimated delivery days based on country with REAL product factors
+     * Amazon's ACTUAL formula: Delivery Date = Handling Time + Transit Time + Weekends/Holidays
      * 
-     * @param string|null $countryCode Country code (e.g., 'BD', 'US', 'IN')
-     * @param \Botble\Ecommerce\Models\Product|int|null $product Product model or ID
-     * @return int Number of days for delivery
+     * HANDLING TIME: How long to prepare/pack the order (1-3 days typically)
+     * TRANSIT TIME: Shipping duration based on destination country/region
+     * 
+     * This is the REAL way e-commerce platforms calculate delivery dates!
      */
-    public static function getEstimatedDeliveryDays(?string $countryCode = null, $product = null): int
+    
+    /**
+     * Get handling time (order processing time) in days
+     * This is how long it takes to prepare and pack the order before shipping
+     * 
+     * @param \Botble\Ecommerce\Models\Product|null $product
+     * @return int Days needed to process the order
+     */
+    public static function getHandlingTime($product = null): int
     {
-        if (!$countryCode) {
-            return 7; // Default 7 days if no country
-        }
-
-        // Base delivery estimates by country (in days)
-        $deliveryEstimates = [
-            // Local/Fast countries (2-4 days)
-            'BD' => 3,  // Bangladesh (local)
-            'IN' => 4,  // India (nearby)
-            'PK' => 4,  // Pakistan (nearby)
-            'LK' => 4,  // Sri Lanka (nearby)
-            'NP' => 4,  // Nepal (nearby)
-            
-            // Asia region (5-7 days)
-            'CN' => 6,  // China
-            'TH' => 5,  // Thailand
-            'MY' => 5,  // Malaysia
-            'SG' => 5,  // Singapore
-            'ID' => 6,  // Indonesia
-            'VN' => 6,  // Vietnam
-            'PH' => 6,  // Philippines
-            'JP' => 7,  // Japan
-            'KR' => 7,  // South Korea
-            'AE' => 6,  // UAE
-            'SA' => 7,  // Saudi Arabia
-            'QA' => 6,  // Qatar
-            
-            // Europe (7-10 days)
-            'GB' => 8,  // United Kingdom
-            'DE' => 8,  // Germany
-            'FR' => 8,  // France
-            'IT' => 9,  // Italy
-            'ES' => 9,  // Spain
-            'NL' => 8,  // Netherlands
-            'BE' => 8,  // Belgium
-            'CH' => 8,  // Switzerland
-            'AT' => 8,  // Austria
-            'SE' => 9,  // Sweden
-            'NO' => 9,  // Norway
-            'DK' => 8,  // Denmark
-            'PL' => 9,  // Poland
-            'RU' => 10, // Russia
-            
-            // North America (8-12 days)
-            'US' => 10, // United States
-            'CA' => 10, // Canada
-            'MX' => 11, // Mexico
-            
-            // South America (10-14 days)
-            'BR' => 12, // Brazil
-            'AR' => 12, // Argentina
-            'CL' => 13, // Chile
-            'CO' => 12, // Colombia
-            'PE' => 13, // Peru
-            
-            // Oceania (9-12 days)
-            'AU' => 10, // Australia
-            'NZ' => 11, // New Zealand
-            
-            // Africa (10-14 days)
-            'ZA' => 11, // South Africa
-            'EG' => 10, // Egypt
-            'NG' => 12, // Nigeria
-            'KE' => 11, // Kenya
-        ];
-
-        $baseDays = $deliveryEstimates[$countryCode] ?? 7;
-        $additionalDays = 0;
+        // Default handling time: 1 day (standard processing)
+        // This is typical for most e-commerce businesses
+        $handlingTime = 1;
         
         // Load product if ID provided
         if (is_numeric($product)) {
-            $product = \Botble\Ecommerce\Models\Product::find($product);
+            $product = Product::find($product);
         }
         
-        // Calculate based on REAL product attributes
         if ($product && is_object($product)) {
-            
-            // 1. WEIGHT FACTOR: Heavier items take longer (real shipping constraint)
-            if ($product->weight) {
-                if ($product->weight > 20) {
-                    $additionalDays += 2; // Very heavy (>20kg) - special handling
-                } elseif ($product->weight > 10) {
-                    $additionalDays += 1; // Heavy (>10kg)
-                } elseif ($product->weight < 1) {
-                    $additionalDays -= 1; // Light items ship faster
-                }
-            }
-            
-            // 2. STOCK AVAILABILITY: Out of stock or low stock takes longer
+            // Check stock availability
             if ($product->with_storehouse_management) {
                 if ($product->quantity <= 0) {
-                    $additionalDays += 3; // Out of stock - needs restocking/sourcing
+                    // Out of stock: need to source/restock
+                    $handlingTime = 3; // 3 days to source from supplier
                 } elseif ($product->quantity < 5) {
-                    $additionalDays += 1; // Low stock - may need sourcing from warehouse
-                } elseif ($product->quantity > 50) {
-                    $additionalDays -= 1; // High stock - readily available, faster processing
+                    // Low stock: might need warehouse transfer
+                    $handlingTime = 2; // Extra day for warehouse coordination
                 }
+                // High stock (>5): standard 1 day handling
             }
             
-            // 3. STORE/VENDOR LOCATION: Different stores = different warehouses
-            if (is_plugin_active('marketplace') && $product->store_id) {
-                // Use store_id to create consistent variance per store
-                $storeVariance = ($product->store_id % 3) - 1; // -1, 0, or +1 days
-                $additionalDays += $storeVariance;
-            }
-            
-            // 4. PRODUCT SIZE/DIMENSIONS: Bulky items need special handling
-            if ($product->length || $product->wide || $product->height) {
-                $volume = ($product->length ?? 0) * ($product->wide ?? 0) * ($product->height ?? 0);
-                if ($volume > 1000000) { // Very bulky (>1 cubic meter)
-                    $additionalDays += 2;
-                } elseif ($volume > 100000) { // Bulky
-                    $additionalDays += 1;
-                }
-            }
-            
-            // 5. FEATURED/PRIORITY ITEMS: Featured items often ship faster
-            if ($product->is_featured) {
-                $additionalDays -= 1; // Priority handling
-            }
-            
-            // 6. FLASH SALE ITEMS: High demand can cause delays
+            // If in flash sale, add extra processing time (high order volume)
             $inFlashSale = $product->latestFlashSales()->exists();
-            if ($inFlashSale) {
-                $additionalDays += 1; // High order volume during flash sales
-            }
-            
-        } else {
-            // Fallback: use simple product ID variance if no product object
-            $productId = is_numeric($product) ? $product : null;
-            if ($productId) {
-                $additionalDays = ($productId % 5) - 2; // -2 to +2 days
-                if ($productId % 7 === 0) {
-                    $additionalDays += 1;
-                }
+            if ($inFlashSale && $product->quantity > 0) {
+                $handlingTime += 1; // Extra day due to high volume
             }
         }
         
-        $finalDays = $baseDays + $additionalDays;
+        return $handlingTime;
+    }
+    
+    /**
+     * Get transit time (shipping duration) based on destination
+     * This is the actual shipping time from warehouse to customer
+     * 
+     * @param string|null $countryCode Destination country code
+     * @return int Days for shipping
+     */
+    public static function getTransitTime(?string $countryCode = null): int
+    {
+        if (!$countryCode) {
+            return 5; // Default 5 days if no country
+        }
+
+        // Transit time estimates by destination (actual shipping days)
+        // These are realistic shipping times for international e-commerce
+        $transitTimes = [
+            // Local/Domestic (1-2 days)
+            'BD' => 2,  // Bangladesh (local/domestic)
+            
+            // Regional neighbors (2-3 days)
+            'IN' => 3,  // India
+            'PK' => 3,  // Pakistan
+            'LK' => 3,  // Sri Lanka
+            'NP' => 3,  // Nepal
+            'MM' => 3,  // Myanmar
+            'BT' => 3,  // Bhutan
+            
+            // Asia region (3-5 days)
+            'TH' => 4,  // Thailand
+            'MY' => 4,  // Malaysia
+            'SG' => 4,  // Singapore
+            'ID' => 4,  // Indonesia
+            'VN' => 4,  // Vietnam
+            'PH' => 4,  // Philippines
+            'CN' => 5,  // China
+            'JP' => 5,  // Japan
+            'KR' => 5,  // South Korea
+            'HK' => 4,  // Hong Kong
+            'TW' => 4,  // Taiwan
+            
+            // Middle East (4-6 days)
+            'AE' => 5,  // UAE
+            'SA' => 6,  // Saudi Arabia
+            'QA' => 5,  // Qatar
+            'KW' => 5,  // Kuwait
+            'OM' => 6,  // Oman
+            'BH' => 5,  // Bahrain
+            'TR' => 6,  // Turkey
+            
+            // Europe (5-8 days)
+            'GB' => 7,  // United Kingdom
+            'DE' => 7,  // Germany
+            'FR' => 7,  // France
+            'IT' => 8,  // Italy
+            'ES' => 8,  // Spain
+            'NL' => 7,  // Netherlands
+            'BE' => 7,  // Belgium
+            'CH' => 7,  // Switzerland
+            'AT' => 7,  // Austria
+            'SE' => 8,  // Sweden
+            'NO' => 8,  // Norway
+            'DK' => 7,  // Denmark
+            'PL' => 8,  // Poland
+            'RU' => 9,  // Russia
+            
+            // North America (7-10 days)
+            'US' => 9,  // United States
+            'CA' => 9,  // Canada
+            'MX' => 10, // Mexico
+            
+            // South America (9-12 days)
+            'BR' => 11, // Brazil
+            'AR' => 11, // Argentina
+            'CL' => 12, // Chile
+            'CO' => 11, // Colombia
+            'PE' => 12, // Peru
+            
+            // Oceania (8-10 days)
+            'AU' => 9,  // Australia
+            'NZ' => 10, // New Zealand
+            
+            // Africa (8-12 days)
+            'ZA' => 10, // South Africa
+            'EG' => 9,  // Egypt
+            'NG' => 11, // Nigeria
+            'KE' => 10, // Kenya
+            'GH' => 11, // Ghana
+        ];
+
+        return $transitTimes[$countryCode] ?? 5; // Default 5 days for unlisted countries
+    }
+    
+    /**
+     * Calculate total delivery days using Amazon's formula
+     * 
+     * @param string|null $countryCode Destination country
+     * @param \Botble\Ecommerce\Models\Product|int|null $product Product or product ID
+     * @return int Total delivery days
+     */
+    public static function getEstimatedDeliveryDays(?string $countryCode = null, $product = null): int
+    {
+        // Amazon's formula: Handling Time + Transit Time
+        $handlingTime = self::getHandlingTime($product);
+        $transitTime = self::getTransitTime($countryCode);
         
-        // Ensure minimum 2 days delivery (even express)
-        return max(2, $finalDays);
+        $totalDays = $handlingTime + $transitTime;
+        
+        // Minimum 2 days (even express local delivery)
+        return max(2, $totalDays);
     }
 
     /**
-     * Get estimated delivery date based on country and product
+     * Get estimated delivery date
      * 
      * @param string|null $countryCode Country code
      * @param \Botble\Ecommerce\Models\Product|int|null $product Product model or ID
@@ -171,7 +180,7 @@ class DeliveryHelper
     {
         $days = self::getEstimatedDeliveryDays($countryCode, $product);
         
-        // Simply add calendar days
+        // Add calendar days (Amazon counts calendar days, not business days)
         return now()->addDays($days);
     }
 
@@ -204,22 +213,24 @@ class DeliveryHelper
     }
 
     /**
-     * Get delivery date range (min-max days)
+     * Get delivery date range (for showing delivery window)
      * 
      * @param string|null $countryCode
+     * @param \Botble\Ecommerce\Models\Product|int|null $product
      * @return array [minDate, maxDate]
      */
-    public static function getDeliveryDateRange(?string $countryCode = null): array
+    public static function getDeliveryDateRange(?string $countryCode = null, $product = null): array
     {
-        $baseDays = self::getEstimatedDeliveryDays($countryCode);
+        $estimatedDays = self::getEstimatedDeliveryDays($countryCode, $product);
         
-        // Add a buffer of ±1-2 days for range
-        $minDays = max(2, $baseDays - 1);
-        $maxDays = $baseDays + 2;
+        // Provide a 1-2 day buffer window
+        $minDays = max(2, $estimatedDays - 1);
+        $maxDays = $estimatedDays + 1;
         
         return [
             'min' => now()->addDays($minDays),
             'max' => now()->addDays($maxDays),
+            'estimated' => now()->addDays($estimatedDays),
         ];
     }
 }
