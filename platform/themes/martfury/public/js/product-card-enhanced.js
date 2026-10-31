@@ -711,12 +711,12 @@
                     if (isInCompare) {
                         $btn.removeClass('js-add-to-compare-button')
                             .addClass('js-remove-from-compare-button active');
-                        } else {
+                    } else {
                         $btn.removeClass('js-remove-from-compare-button active')
                             .addClass('js-add-to-compare-button');
-                        }
+                    }
                 });
-                },
+            },
             error: function(xhr, status, error) {
                 // If compare endpoint doesn't exist, try to infer from button state
                 $('.ec-card__float-btn--compare.js-remove-from-compare-button, .ec-card__float-btn--compare.active').each(function() {
