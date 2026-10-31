@@ -217,25 +217,48 @@ if (typeof jQuery === 'undefined') {
                     // Country is already selected in HTML, just trigger change to show state
                     self.countrySelect.trigger('change');
                     
-                    // Wait for location.js to populate state, then select it
+                    // Check if state is a text input or dropdown
+                    const isStateTextInput = self.stateSelect.is('input[type="text"]');
+                    
                     if (stateInitValue) {
-                        setTimeout(function() {
-                            self.stateSelect.val(stateInitValue);
-                            if (self.stateSelect.val() === stateInitValue) {
-                                // Successfully selected, trigger change
-                                self.stateSelect.trigger('change');
+                        if (isStateTextInput) {
+                            // State is text input - value is already set in HTML, just show the field
+                            self.stateSelect.closest('.form-group-location').show();
+                            
+                            // Trigger change/input to show city
+                            setTimeout(function() {
+                                self.stateSelect.trigger('input');
                                 
-                                // Wait for location.js to populate city, then select it
+                                // If city also has value and is text input, make sure address shows
                                 if (cityInitValue) {
-                                    setTimeout(function() {
-                                        self.citySelect.val(cityInitValue);
-                                        if (self.citySelect.val() === cityInitValue) {
-                                            self.citySelect.trigger('change');
-                                        }
-                                    }, 300);
+                                    const isCityTextInput = self.citySelect.is('input[type="text"]');
+                                    if (isCityTextInput) {
+                                        setTimeout(function() {
+                                            self.citySelect.trigger('input');
+                                        }, 100);
+                                    }
                                 }
-                            }
-                        }, 300);
+                            }, 100);
+                        } else {
+                            // State is dropdown - wait for location.js to populate, then select it
+                            setTimeout(function() {
+                                self.stateSelect.val(stateInitValue);
+                                if (self.stateSelect.val() === stateInitValue) {
+                                    // Successfully selected, trigger change
+                                    self.stateSelect.trigger('change');
+                                    
+                                    // Wait for location.js to populate city, then select it
+                                    if (cityInitValue) {
+                                        setTimeout(function() {
+                                            self.citySelect.val(cityInitValue);
+                                            if (self.citySelect.val() === cityInitValue) {
+                                                self.citySelect.trigger('change');
+                                            }
+                                        }, 300);
+                                    }
+                                }
+                            }, 300);
+                        }
                     }
                 } else if (geoipCountry) {
                     // GeoIP detected country - pre-select it and trigger cascade to show state/city fields

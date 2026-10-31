@@ -186,6 +186,7 @@
                                 placeholder="{{ __('Enter state/province') }}"
                                 @if($sessionAddressId === 'new' && !empty($sessionData['state']))
                                     value="{{ $sessionData['state'] }}"
+                                    data-init-value="{{ $sessionData['state'] }}"
                                 @endif
                             >
                         @endif
@@ -202,6 +203,7 @@
                                 placeholder="{{ __('Enter city') }}"
                                 @if($sessionAddressId === 'new' && !empty($sessionData['city']))
                                     value="{{ $sessionData['city'] }}"
+                                    data-init-value="{{ $sessionData['city'] }}"
                                 @endif
                             >
                         @else
