@@ -1,6 +1,28 @@
+@php
+    // Calculate delivery date based on location
+    $countryCode = null;
+    
+    if ($type === 'temporary') {
+        // For temporary addresses, get country code from address data
+        $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($address->country ?? null);
+    } else {
+        // For saved addresses, get country code from address model
+        if (isset($address->country) && is_numeric($address->country)) {
+            $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($address->country);
+        } elseif (isset($address->country_name)) {
+            // Try to find country by name
+            $country = \Botble\Location\Models\Country::where('name', $address->country_name)->first();
+            $countryCode = $country ? $country->code : null;
+        }
+    }
+    
+    $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($countryCode);
+    $formattedDate = \App\Helpers\DeliveryHelper::formatDeliveryDate($deliveryDate);
+@endphp
+
 {{-- Delivered by date --}}
 <div class="delivery-date-info">
-    {{ __('Delivered by around') }} <strong>{{ now()->addDays(7)->format('l, F j') }}</strong>
+    {{ __('Delivered by around') }} <strong>{{ $formattedDate }}</strong>
 </div>
 
 {{-- Deliver to section with icon --}}

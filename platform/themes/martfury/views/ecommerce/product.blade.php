@@ -438,28 +438,38 @@
                                         @php
                                             // Auto-detect visitor's country using geoip
                                             $visitorCountry = null;
+                                            $visitorCountryCode = null;
+                                            
                                             try {
                                                 if (function_exists('geoip')) {
                                                     $geoip = geoip(request()->ip());
                                                     $visitorCountry = $geoip->country ?? null;
+                                                    $visitorCountryCode = $geoip->iso_code ?? null;
                                                 } elseif (class_exists('\Stevebauman\Location\Facades\Location')) {
                                                     $position = \Stevebauman\Location\Facades\Location::get(request()->ip());
                                                     $visitorCountry = $position ? $position->countryName : null;
+                                                    $visitorCountryCode = $position ? $position->countryCode : null;
                                                 }
                                             } catch (\Exception $e) {
                                                 // Fallback to default country if detection fails
                                                 $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
                                                 $visitorCountry = \Botble\Ecommerce\Facades\EcommerceHelper::getCountryNameById($defaultCountryId);
+                                                $visitorCountryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
                                             }
                                             
                                             if (!$visitorCountry) {
                                                 $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
                                                 $visitorCountry = \Botble\Ecommerce\Facades\EcommerceHelper::getCountryNameById($defaultCountryId);
+                                                $visitorCountryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
                                             }
+                                            
+                                            // Calculate delivery date based on visitor's country
+                                            $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($visitorCountryCode);
+                                            $formattedDate = \App\Helpers\DeliveryHelper::formatDeliveryDate($deliveryDate);
                                         @endphp
                                         
                                         <div class="delivery-date-info">
-                                            {{ __('Delivered by around') }} <strong>{{ now()->addDays(7)->format('l, F j') }}</strong>
+                                            {{ __('Delivered by around') }} <strong>{{ $formattedDate }}</strong>
                                         </div>
                                         
                                         <div class="delivery-location-row">
