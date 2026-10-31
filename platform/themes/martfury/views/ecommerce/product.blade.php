@@ -431,7 +431,8 @@
                                     @if ($displayAddress)
                                         @include(Theme::getThemeNamespace('views.ecommerce.includes.delivery-address-display'), [
                                             'address' => $displayAddress,
-                                            'type' => $displayType
+                                            'type' => $displayType,
+                                            'product' => $product
                                         ])
                                     @else
                                         {{-- No location set - auto-detect visitor country --}}
@@ -464,7 +465,7 @@
                                             }
                                             
                                             // Calculate delivery date based on visitor's country
-                                            $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($visitorCountryCode);
+                                            $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($visitorCountryCode, $product->id);
                                             $formattedDate = \App\Helpers\DeliveryHelper::formatDeliveryDate($deliveryDate);
                                         @endphp
                                         

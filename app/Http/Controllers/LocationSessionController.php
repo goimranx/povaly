@@ -66,15 +66,22 @@ class LocationSessionController extends BaseController
     /**
      * Get delivery display HTML from checkout session
      */
-    public function getDeliveryDisplay()
+    public function getDeliveryDisplay(Request $request)
     {
         $html = '';
+        $productId = $request->input('product_id'); // Optional product ID for per-product estimates
         
         $orderHelper = app(OrderHelper::class);
         $token = $orderHelper->getOrderSessionToken();
         $sessionData = $orderHelper->getOrderSessionData($token);
         
         $addressId = $sessionData['address_id'] ?? null;
+        
+        // Get product if ID provided
+        $product = null;
+        if ($productId) {
+            $product = \Botble\Ecommerce\Models\Product::find($productId);
+        }
         
         if ($addressId && $addressId !== 'new') {
             // Saved address from address book
@@ -87,23 +94,25 @@ class LocationSessionController extends BaseController
                 if ($address) {
                     $html = view(Theme::getThemeNamespace('views.ecommerce.includes.delivery-address-display'), [
                         'address' => $address,
-                        'type' => 'saved'
+                        'type' => 'saved',
+                        'product' => $product
                     ])->render();
                 } else {
-                    $html = $this->getDefaultAddressHtml();
+                    $html = $this->getDefaultAddressHtml($product);
                 }
             } else {
-                $html = $this->getDefaultAddressHtml();
+                $html = $this->getDefaultAddressHtml($product);
             }
         } elseif ($addressId === 'new' && !empty($sessionData['country'])) {
             // Temporary address entered in modal
             $html = view(Theme::getThemeNamespace('views.ecommerce.includes.delivery-address-display'), [
                 'address' => (object) $sessionData,
-                'type' => 'temporary'
+                'type' => 'temporary',
+                'product' => $product
             ])->render();
         } else {
             // No address set yet, show default
-            $html = $this->getDefaultAddressHtml();
+            $html = $this->getDefaultAddressHtml($product);
         }
 
         return $this->httpResponse()->setData(['html' => $html]);
@@ -112,7 +121,7 @@ class LocationSessionController extends BaseController
     /**
      * Get default address HTML (shows default saved address or "no address" message)
      */
-    private function getDefaultAddressHtml()
+    private function getDefaultAddressHtml($product = null)
     {
         if (auth('customer')->check()) {
             $defaultAddress = auth('customer')->user()->addresses()->where('is_default', 1)->first();
@@ -120,7 +129,8 @@ class LocationSessionController extends BaseController
             if ($defaultAddress) {
                 return view(Theme::getThemeNamespace('views.ecommerce.includes.delivery-address-display'), [
                     'address' => $defaultAddress,
-                    'type' => 'default'
+                    'type' => 'default',
+                    'product' => $product
                 ])->render();
             } else {
                 return '<div class="delivery-no-address">' . __('No delivery address set') . '</div>' .

@@ -8,19 +8,19 @@ use Botble\Location\Models\Country;
 class DeliveryHelper
 {
     /**
-     * Get estimated delivery days based on country
+     * Get estimated delivery days based on country with product-specific variance
      * 
      * @param string|null $countryCode Country code (e.g., 'BD', 'US', 'IN')
+     * @param int|null $productId Optional product ID for consistent per-product variance
      * @return int Number of days for delivery
      */
-    public static function getEstimatedDeliveryDays(?string $countryCode = null): int
+    public static function getEstimatedDeliveryDays(?string $countryCode = null, ?int $productId = null): int
     {
         if (!$countryCode) {
             return 7; // Default 7 days if no country
         }
 
-        // Delivery estimates by country (in days)
-        // You can customize these based on your actual shipping zones
+        // Base delivery estimates by country (in days)
         $deliveryEstimates = [
             // Local/Fast countries (2-4 days)
             'BD' => 3,  // Bangladesh (local)
@@ -82,20 +82,55 @@ class DeliveryHelper
             'KE' => 11, // Kenya
         ];
 
-        // Return specific estimate or default to 7 days
-        return $deliveryEstimates[$countryCode] ?? 7;
+        $baseDays = $deliveryEstimates[$countryCode] ?? 7;
+        
+        // Add product-specific variance (simulates different warehouse locations, processing times)
+        // If productId provided, use it for consistent variance per product
+        if ($productId) {
+            // Use product ID to generate consistent but varied delivery times
+            // This simulates: different warehouse locations, stock availability, processing complexity
+            $variance = ($productId % 5) - 2; // Range: -2 to +2 days
+            
+            // Occasionally add extra day for "special handling" products
+            if ($productId % 7 === 0) {
+                $variance += 1;
+            }
+            
+            $finalDays = $baseDays + $variance;
+        } else {
+            // No product ID - use small random variance
+            $variance = rand(-1, 2); // -1, 0, 1, or 2 days
+            $finalDays = $baseDays + $variance;
+        }
+        
+        // Ensure minimum 2 days delivery (even local)
+        return max(2, $finalDays);
     }
 
     /**
-     * Get estimated delivery date based on country
+     * Get estimated delivery date based on country and product
      * 
      * @param string|null $countryCode Country code
+     * @param int|null $productId Optional product ID for consistent variance
      * @return \Carbon\Carbon
      */
-    public static function getEstimatedDeliveryDate(?string $countryCode = null): \Carbon\Carbon
+    public static function getEstimatedDeliveryDate(?string $countryCode = null, ?int $productId = null): \Carbon\Carbon
     {
-        $days = self::getEstimatedDeliveryDays($countryCode);
-        return now()->addDays($days);
+        $days = self::getEstimatedDeliveryDays($countryCode, $productId);
+        
+        // Skip weekends for delivery (Amazon-like behavior)
+        $date = now();
+        $daysAdded = 0;
+        
+        while ($daysAdded < $days) {
+            $date = $date->addDay();
+            // Skip Sundays (common delivery off day)
+            if ($date->dayOfWeek !== 0) {
+                $daysAdded++;
+            }
+        }
+        
+        return $date;
     }
 
     /**

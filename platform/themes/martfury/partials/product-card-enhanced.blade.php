@@ -266,8 +266,9 @@
                             }
                         }
                         
-                        // Calculate delivery date based on country
-                        $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($countryCode);
+                        // Calculate delivery date based on country and product
+                        // Pass product ID for consistent per-product variance (simulates warehouse location, processing time)
+                        $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($countryCode, $product->id);
                         $dayName = $deliveryDate->format('l');
                         $monthDay = $deliveryDate->format('M j');
                         
