@@ -3,10 +3,20 @@
     <div class="delivery-address-text">
         <span class="delivery-temp-badge">{{ __('Temporary') }}</span>
         @php
-            // Get name-based fields for display (country_name, state_name, city_name)
+            // Get name-based fields for display
             $countryName = \Botble\Ecommerce\Facades\EcommerceHelper::getCountryNameById($address->country ?? '');
-            $stateName = $address->state ? get_state_by_id($address->state) : '';
-            $cityName = $address->city ? get_city_by_id($address->city) : '';
+            $stateName = '';
+            $cityName = '';
+            
+            if (!empty($address->state)) {
+                $state = \Botble\Location\Models\State::find($address->state);
+                $stateName = $state ? $state->name : '';
+            }
+            
+            if (!empty($address->city)) {
+                $city = \Botble\Location\Models\City::find($address->city);
+                $cityName = $city ? $city->name : '';
+            }
         @endphp
         {{ $address->address }}
         @if ($cityName), {{ $cityName }}@endif
