@@ -389,15 +389,13 @@
                                     'product' => $product,
                                     'priceWrapperTag' => 'h3',
                                     'priceWrapperClass' => 'ps-product__total-price',
+                                    'priceClass' => 'product-price', // Inherit from h3 parent
                                     'hiddenClasses' => ['ps-product__del-price'], // Hide regular price
                                 ]) !!}
                             </div>
                             
                             {{-- Delivery Details --}}
                             <div class="ps-product__delivery-details">
-                                <div class="delivery-details-header">
-                                    <span class="delivery-label">{{ __('Deliver to') }}</span>
-                                </div>
                                 <div class="delivery-address-content" id="delivery-address-display">
                                     @php
                                         // Get address from session (same logic as LocationSessionController)
@@ -436,17 +434,50 @@
                                             'type' => $displayType
                                         ])
                                     @else
-                                        @if (auth('customer')->check())
-                                            <div class="delivery-no-address">
-                                                {{ __('No delivery address set') }}
+                                        {{-- No location set - auto-detect visitor country --}}
+                                        @php
+                                            // Auto-detect visitor's country using geoip
+                                            $visitorCountry = null;
+                                            try {
+                                                if (function_exists('geoip')) {
+                                                    $geoip = geoip(request()->ip());
+                                                    $visitorCountry = $geoip->country ?? null;
+                                                } elseif (class_exists('\Stevebauman\Location\Facades\Location')) {
+                                                    $position = \Stevebauman\Location\Facades\Location::get(request()->ip());
+                                                    $visitorCountry = $position ? $position->countryName : null;
+                                                }
+                                            } catch (\Exception $e) {
+                                                // Fallback to default country if detection fails
+                                                $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                                                $visitorCountry = \Botble\Ecommerce\Facades\EcommerceHelper::getCountryNameById($defaultCountryId);
+                                            }
+                                            
+                                            if (!$visitorCountry) {
+                                                $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                                                $visitorCountry = \Botble\Ecommerce\Facades\EcommerceHelper::getCountryNameById($defaultCountryId);
+                                            }
+                                        @endphp
+                                        
+                                        <div class="delivery-date-info">
+                                            {{ __('Delivered by around') }} <strong>{{ now()->addDays(7)->format('l, F j') }}</strong>
+                                        </div>
+                                        
+                                        <div class="delivery-location-row">
+                                            <i class="ph ph-map-pin delivery-location-icon"></i>
+                                            <div class="delivery-location-content">
+                                                <div class="delivery-address-text">
+                                                    <span class="delivery-location-label">{{ __('Deliver to') }}</span>
+                                                    {{ $visitorCountry }}
+                                                </div>
                                             </div>
-                                            <a href="#" class="delivery-add-btn trigger-location-modal">{{ __('Add address') }}</a>
-                                        @else
-                                            <div class="delivery-no-address">
-                                                {{ __('No delivery address set') }}
-                                            </div>
-                                            <a href="#" class="delivery-add-btn trigger-location-modal">{{ __('Select location') }}</a>
-                                        @endif
+                                            <a href="#" class="delivery-change-btn trigger-location-modal">
+                                                @if (auth('customer')->check())
+                                                    {{ __('Update location') }}
+                                                @else
+                                                    {{ __('Select location') }}
+                                                @endif
+                                            </a>
+                                        </div>
                                     @endif
                                 </div>
                             </div>
@@ -675,6 +706,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 500);
     }
+    
+    // Initialize Bootstrap tooltips for delivery info
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
 
 
 
