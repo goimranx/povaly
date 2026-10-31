@@ -275,9 +275,16 @@ if (typeof jQuery === 'undefined') {
                     url: '/ajax/get-delivery-display',
                     type: 'GET',
                     success: function(response) {
-                        if (response.html) {
+                        // BaseHttpResponse returns data inside 'data' property
+                        if (response.data && response.data.html) {
+                            $('#delivery-address-display').html(response.data.html);
+                        } else if (response.html) {
+                            // Fallback for direct html response
                             $('#delivery-address-display').html(response.html);
                         }
+                    },
+                    error: function() {
+                        console.error('Failed to update delivery display');
                     }
                 });
             },
