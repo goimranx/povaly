@@ -87,8 +87,9 @@
                         <select 
                             name="country" 
                             id="temp-country" 
-                            class="form-select-location select-search-location"
+                            class="form-select-location"
                             data-type="country"
+                            data-form-parent="#location-modal"
                         >
                             @foreach(\Botble\Ecommerce\Facades\EcommerceHelper::getAvailableCountries() as $countryCode => $countryName)
                                 <option value="{{ $countryCode }}">{{ $countryName }}</option>
@@ -101,9 +102,11 @@
                         <select 
                             name="state" 
                             id="temp-state" 
-                            class="form-select-location select-search-location" 
+                            class="form-select-location" 
                             data-type="state"
+                            data-form-parent="#location-modal"
                             data-url="{{ route('ajax.states-by-country') }}"
+                            disabled
                         ></select>
                     </div>
                     
@@ -112,9 +115,11 @@
                         <select 
                             name="city" 
                             id="temp-city" 
-                            class="form-select-location select-search-location" 
+                            class="form-select-location" 
                             data-type="city"
+                            data-form-parent="#location-modal"
                             data-url="{{ route('ajax.cities-by-state') }}"
+                            disabled
                         ></select>
                     </div>
                     

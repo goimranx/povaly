@@ -1,7 +1,7 @@
 /**
  * Location Modal Handler
  * Manages temporary address selection with progressive field display
- * Uses location.js plugin for cascading dropdowns
+ * Integrates with location.js plugin for cascading dropdowns
  */
 
 if (typeof jQuery === 'undefined') {
@@ -44,41 +44,62 @@ if (typeof jQuery === 'undefined') {
             bindEvents: function() {
                 const self = this;
 
-                // Country change - show state dropdown (location.js handles the AJAX)
+                // Country change - show state dropdown and set data attributes for location.js
                 this.countrySelect.on('change', function() {
                     const countryId = $(this).val();
                     
-                    // Treat "0" or empty as no selection
+                    // Treat "0" as placeholder/empty
                     if (countryId && countryId !== "0") {
-                        // Show state dropdown (location.js will populate it)
+                        // Set data attribute for location.js
+                        self.stateSelect.attr('data-country-id', countryId);
+                        self.citySelect.attr('data-country-id', countryId);
+                        
+                        // Show and enable state dropdown
+                        self.stateSelect.prop('disabled', false);
                         self.stateSelect.closest('.form-group-location').show();
                         
-                        // Hide city and address until state is selected
+                        // Hide city and address
                         self.citySelect.closest('.form-group-location').hide();
                         $('.form-group-location.address-group').hide();
+                        
+                        // Reset state and city (location.js will populate state)
+                        self.stateSelect.val('').trigger('change');
+                        self.citySelect.val('');
                     } else {
                         // Hide everything except country
                         self.stateSelect.closest('.form-group-location').hide();
                         self.citySelect.closest('.form-group-location').hide();
                         $('.form-group-location.address-group').hide();
+                        self.stateSelect.prop('disabled', true);
+                        self.citySelect.prop('disabled', true);
                     }
                 });
 
-                // State change - show city dropdown (location.js handles the AJAX)
+                // State change - show city dropdown and set data attributes for location.js
                 this.stateSelect.on('change', function() {
                     const stateId = $(this).val();
+                    const countryId = self.countrySelect.val();
                     
-                    // Treat "0" or empty as no selection
+                    // Treat "0" or empty as placeholder/empty
                     if (stateId && stateId !== "0" && stateId !== "") {
-                        // Show city dropdown (location.js will populate it)
+                        // Set data attributes for location.js
+                        self.citySelect.attr('data-state-id', stateId);
+                        self.citySelect.attr('data-country-id', countryId);
+                        
+                        // Show and enable city dropdown
+                        self.citySelect.prop('disabled', false);
                         self.citySelect.closest('.form-group-location').show();
                         
-                        // Hide address until city is selected
+                        // Hide address
                         $('.form-group-location.address-group').hide();
+                        
+                        // Reset city (location.js will populate it)
+                        self.citySelect.val('');
                     } else {
                         // Hide city and address
                         self.citySelect.closest('.form-group-location').hide();
                         $('.form-group-location.address-group').hide();
+                        self.citySelect.prop('disabled', true);
                     }
                 });
 
@@ -86,7 +107,7 @@ if (typeof jQuery === 'undefined') {
                 this.citySelect.on('change', function() {
                     const cityId = $(this).val();
                     
-                    // Treat "0" or empty as no selection
+                    // Treat "0" or empty as placeholder/empty
                     if (cityId && cityId !== "0" && cityId !== "") {
                         $('.form-group-location.address-group').show();
                     } else {
@@ -107,7 +128,8 @@ if (typeof jQuery === 'undefined') {
                 // Temporary form field changes - deselect saved addresses
                 this.countrySelect.add(this.stateSelect).add(this.citySelect).add(this.addressInput).on('change input', function() {
                     const val = $(this).val();
-                    if (val && val !== "0") {
+                    // Only deselect if value is not placeholder
+                    if (val && val !== "0" && val !== "") {
                         $('.location-address-radio').prop('checked', false);
                         self.selectedData.type = 'temporary';
                         self.selectedData.addressId = null;
@@ -119,22 +141,30 @@ if (typeof jQuery === 'undefined') {
                     self.saveLocation();
                 });
 
-                // Modal shown event
+                // Modal shown event - reinitialize location.js for this modal
                 this.modal.on('shown.bs.modal', function() {
                     self.initializeModalState();
                 });
             },
 
             clearTemporaryForm: function() {
-                // Reset all form values to placeholder (0 for dropdowns)
+                // Reset all form values (use "0" for country since EcommerceHelper provides it)
                 this.countrySelect.val('0').trigger('change');
-                this.stateSelect.val('0');
-                this.citySelect.val('0');
+                this.stateSelect.val('');
+                this.citySelect.val('');
                 this.addressInput.val('');
                 
-                // Hide progressive fields
+                // Remove data attributes
+                this.stateSelect.removeAttr('data-country-id');
+                this.citySelect.removeAttr('data-country-id data-state-id');
+                
+                // Hide all progressive fields except country
                 this.stateSelect.closest('.form-group-location').hide();
+                this.stateSelect.prop('disabled', true);
+                
                 this.citySelect.closest('.form-group-location').hide();
+                this.citySelect.prop('disabled', true);
+                
                 $('.form-group-location.address-group').hide();
             },
 
@@ -157,11 +187,11 @@ if (typeof jQuery === 'undefined') {
                     this.showError('Please select a country');
                     return false;
                 }
-                if (!state || state === "0") {
+                if (!state || state === "0" || state === "") {
                     this.showError('Please select a state');
                     return false;
                 }
-                if (!city || city === "0") {
+                if (!city || city === "0" || city === "") {
                     this.showError('Please select a city');
                     return false;
                 }
