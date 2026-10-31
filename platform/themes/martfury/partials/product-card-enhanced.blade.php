@@ -219,9 +219,55 @@
                 {{-- 7. Delivery Info --}}
                 @if (!$product->isOutOfStock())
                     @php
-                        $minDays = 5;
-                        $maxDays = 7;
-                        $deliveryDate = \Carbon\Carbon::now()->addDays(rand($minDays, $maxDays));
+                        // Get user's location for delivery calculation
+                        $countryCode = null;
+                        
+                        // Priority 1: Check session for saved/temporary address
+                        $orderHelper = app(\Botble\Ecommerce\Supports\OrderHelper::class);
+                        $token = $orderHelper->getOrderSessionToken();
+                        $sessionData = $orderHelper->getOrderSessionData($token);
+                        $sessionAddressId = $sessionData['address_id'] ?? null;
+                        
+                        if ($sessionAddressId && $sessionAddressId !== 'new') {
+                            // Saved address from session
+                            if (auth('customer')->check()) {
+                                $address = \Botble\Ecommerce\Models\Address::find($sessionAddressId);
+                                if ($address && $address->customer_id == auth('customer')->id()) {
+                                    $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($address->country);
+                                }
+                            }
+                        } elseif ($sessionAddressId === 'new' && !empty($sessionData['country'])) {
+                            // Temporary address from session
+                            $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($sessionData['country']);
+                        } else {
+                            // Priority 2: Check default address for logged-in users
+                            if (auth('customer')->check()) {
+                                $defaultAddress = auth('customer')->user()->addresses()->where('is_default', 1)->first();
+                                if ($defaultAddress) {
+                                    $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultAddress->country);
+                                }
+                            }
+                        }
+                        
+                        // Priority 3: Auto-detect visitor's country if no address
+                        if (!$countryCode) {
+                            try {
+                                if (function_exists('geoip')) {
+                                    $geoip = geoip(request()->ip());
+                                    $countryCode = $geoip->iso_code ?? null;
+                                } elseif (class_exists('\Stevebauman\Location\Facades\Location')) {
+                                    $position = \Stevebauman\Location\Facades\Location::get(request()->ip());
+                                    $countryCode = $position ? $position->countryCode : null;
+                                }
+                            } catch (\Exception $e) {
+                                // Fallback to default country
+                                $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                                $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
+                            }
+                        }
+                        
+                        // Calculate delivery date based on country
+                        $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($countryCode);
                         $dayName = $deliveryDate->format('l');
                         $monthDay = $deliveryDate->format('M j');
                         
