@@ -88,8 +88,6 @@
                             name="country" 
                             id="temp-country" 
                             class="form-select-location"
-                            data-type="country"
-                            data-form-parent="#location-modal"
                         >
                             <option value="">{{ __('Select country...') }}</option>
                             @foreach(\Botble\Ecommerce\Facades\EcommerceHelper::getAvailableCountries() as $countryCode => $countryName)
@@ -104,8 +102,6 @@
                             name="state" 
                             id="temp-state" 
                             class="form-select-location" 
-                            data-type="state"
-                            data-form-parent="#location-modal"
                             data-url="{{ route('ajax.states-by-country') }}"
                             disabled
                         >
@@ -119,8 +115,6 @@
                             name="city" 
                             id="temp-city" 
                             class="form-select-location" 
-                            data-type="city"
-                            data-form-parent="#location-modal"
                             data-url="{{ route('ajax.cities-by-state') }}"
                             disabled
                         >
@@ -139,8 +133,8 @@
                         >
                     </div>
                     
-                    {{-- Ship Outside Notice --}}
-                    <p class="modal-ship-notice">
+                    {{-- Ship Outside Notice (Hidden for now) --}}
+                    <p class="modal-ship-notice" style="display: none;">
                         <a href="#" id="ship-outside-link">{{ __('or ship outside the country') }}</a>
                     </p>
                 </form>
