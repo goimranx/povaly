@@ -219,17 +219,19 @@
                 {{-- 7. Delivery Info --}}
                 @if (!$product->isOutOfStock())
                     @php
-                        // Get user's location for delivery calculation
+                        // Get user's country for delivery calculation
+                        // Use same logic as PublicCheckoutController::processOrderData
                         $countryCode = null;
-                        
-                        // Priority 1: Check session for saved/temporary address
                         $orderHelper = app(\Botble\Ecommerce\Supports\OrderHelper::class);
                         $token = $orderHelper->getOrderSessionToken();
                         $sessionData = $orderHelper->getOrderSessionData($token);
+                        
+                        // Get address from session OR fallback to default (same as checkout does)
+                        $address = null;
                         $sessionAddressId = $sessionData['address_id'] ?? null;
                         
                         if ($sessionAddressId && $sessionAddressId !== 'new') {
-                            // Saved address from session
+                            // Session has saved address ID - load it
                             if (auth('customer')->check()) {
                                 $address = \Botble\Ecommerce\Models\Address::find($sessionAddressId);
                                 if ($address && $address->customer_id == auth('customer')->id()) {
@@ -237,19 +239,21 @@
                                 }
                             }
                         } elseif ($sessionAddressId === 'new' && !empty($sessionData['country'])) {
-                            // Temporary address from session
+                            // Session has temporary address data
                             $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($sessionData['country']);
-                        } else {
-                            // Priority 2: Check default address for logged-in users
-                            if (auth('customer')->check()) {
-                                $defaultAddress = auth('customer')->user()->addresses()->where('is_default', 1)->first();
-                                if ($defaultAddress) {
-                                    $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultAddress->country);
-                                }
+                        } elseif (auth('customer')->check() && ! $sessionAddressId) {
+                            // No session address - use default (mirrors processOrderData logic)
+                            $address = \Botble\Ecommerce\Models\Address::query()
+                                ->where('customer_id', auth('customer')->id())
+                                ->where('is_default', 1)
+                                ->first();
+                            
+                            if ($address) {
+                                $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($address->country);
                             }
                         }
                         
-                        // Priority 3: Auto-detect visitor's country if no address
+                        // Fallback: Auto-detect visitor's country if still no address
                         if (!$countryCode) {
                             try {
                                 if (function_exists('geoip')) {
@@ -260,10 +264,14 @@
                                     $countryCode = $position ? $position->countryCode : null;
                                 }
                             } catch (\Exception $e) {
-                                // Fallback to default country
-                                $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
-                                $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
+                                // Silent fail
                             }
+                        }
+                        
+                        // Final fallback: Default country from settings
+                        if (!$countryCode) {
+                            $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                            $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
                         }
                         
                         // Calculate delivery date based on country and product
