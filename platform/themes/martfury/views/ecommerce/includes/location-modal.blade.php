@@ -87,7 +87,8 @@
                         <select 
                             name="country" 
                             id="temp-country" 
-                            class="form-select-location"
+                            class="form-select-location select-search-location"
+                            data-type="country"
                         >
                             @foreach(\Botble\Ecommerce\Facades\EcommerceHelper::getAvailableCountries() as $countryCode => $countryName)
                                 <option value="{{ $countryCode }}">{{ $countryName }}</option>
@@ -100,12 +101,10 @@
                         <select 
                             name="state" 
                             id="temp-state" 
-                            class="form-select-location" 
+                            class="form-select-location select-search-location" 
+                            data-type="state"
                             data-url="{{ route('ajax.states-by-country') }}"
-                            disabled
-                        >
-                            <option value="">{{ __('Select state...') }}</option>
-                        </select>
+                        ></select>
                     </div>
                     
                     {{-- City Dropdown (Hidden until state selected) --}}
@@ -113,12 +112,10 @@
                         <select 
                             name="city" 
                             id="temp-city" 
-                            class="form-select-location" 
+                            class="form-select-location select-search-location" 
+                            data-type="city"
                             data-url="{{ route('ajax.cities-by-state') }}"
-                            disabled
-                        >
-                            <option value="">{{ __('Select city...') }}</option>
-                        </select>
+                        ></select>
                     </div>
                     
                     {{-- Street Address (Hidden until city selected) --}}
