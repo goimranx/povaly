@@ -219,42 +219,50 @@
                 {{-- 7. Delivery Info --}}
                 @if (!$product->isOutOfStock())
                     @php
-                        // Get user's country for delivery calculation
-                        // Use same logic as PublicCheckoutController::processOrderData
-                        $countryCode = null;
+                        // EXACT SAME LOGIC AS PRODUCT DETAIL PAGE (product.blade.php)
+                        // Get address from session (same logic as LocationSessionController)
                         $orderHelper = app(\Botble\Ecommerce\Supports\OrderHelper::class);
                         $token = $orderHelper->getOrderSessionToken();
                         $sessionData = $orderHelper->getOrderSessionData($token);
-                        
-                        // Get address from session OR fallback to default (same as checkout does)
-                        $address = null;
                         $sessionAddressId = $sessionData['address_id'] ?? null;
                         
+                        $displayAddress = null;
+                        $displayType = 'default';
+                        
                         if ($sessionAddressId && $sessionAddressId !== 'new') {
-                            // Session has saved address ID - load it
+                            // Saved address from session
                             if (auth('customer')->check()) {
-                                $address = \Botble\Ecommerce\Models\Address::find($sessionAddressId);
-                                if ($address && $address->customer_id == auth('customer')->id()) {
-                                    $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($address->country);
-                                }
+                                $displayAddress = \Botble\Ecommerce\Models\Address::query()
+                                    ->where('id', $sessionAddressId)
+                                    ->where('customer_id', auth('customer')->id())
+                                    ->first();
+                                $displayType = 'saved';
                             }
                         } elseif ($sessionAddressId === 'new' && !empty($sessionData['country'])) {
-                            // Session has temporary address data
-                            $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($sessionData['country']);
-                        } elseif (auth('customer')->check() && ! $sessionAddressId) {
-                            // No session address - use default (mirrors processOrderData logic)
-                            $address = \Botble\Ecommerce\Models\Address::query()
-                                ->where('customer_id', auth('customer')->id())
-                                ->where('is_default', 1)
-                                ->first();
-                            
-                            if ($address) {
-                                $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($address->country);
+                            // Temporary address from session
+                            $displayAddress = (object) $sessionData;
+                            $displayType = 'temporary';
+                        } else {
+                            // No session address, show default saved address
+                            if (auth('customer')->check()) {
+                                $displayAddress = auth('customer')->user()->addresses()->where('is_default', 1)->first();
                             }
                         }
                         
-                        // Fallback: Auto-detect visitor's country if still no address
-                        if (!$countryCode) {
+                        // NOW EXTRACT COUNTRY CODE FROM ADDRESS (same as delivery-address-display.blade.php)
+                        $countryCode = null;
+                        if ($displayAddress) {
+                            if ($displayType === 'temporary') {
+                                // For temporary addresses, get country code from address data
+                                $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($displayAddress->country ?? null);
+                            } else {
+                                // For saved addresses, get country code from address model
+                                if (isset($displayAddress->country) && is_numeric($displayAddress->country)) {
+                                    $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($displayAddress->country);
+                                }
+                            }
+                        } else {
+                            // No address at all - try GeoIP then fallback
                             try {
                                 if (function_exists('geoip')) {
                                     $geoip = geoip(request()->ip());
@@ -266,12 +274,12 @@
                             } catch (\Exception $e) {
                                 // Silent fail
                             }
-                        }
-                        
-                        // Final fallback: Default country from settings
-                        if (!$countryCode) {
-                            $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
-                            $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
+                            
+                            // Final fallback: Default country from settings
+                            if (!$countryCode) {
+                                $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                                $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
+                            }
                         }
                         
                         // Calculate delivery date based on country and product
