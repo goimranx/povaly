@@ -49,7 +49,15 @@ class DeliveryHelper
             }
             
             // If in flash sale, add extra processing time (high order volume)
-            $inFlashSale = $product->latestFlashSales()->exists();
+            // Check if relationship is loaded first to avoid N+1 queries
+            $inFlashSale = false;
+            if ($product->relationLoaded('latestFlashSales')) {
+                $inFlashSale = $product->latestFlashSales && $product->latestFlashSales->isNotEmpty();
+            } else {
+                // Fallback to query if not loaded
+                $inFlashSale = $product->latestFlashSales()->exists();
+            }
+            
             if ($inFlashSale && $product->quantity > 0) {
                 $handlingTime += 1; // Extra day due to high volume
             }
