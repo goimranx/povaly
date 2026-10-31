@@ -205,12 +205,25 @@ if (typeof jQuery === 'undefined') {
             saveLocation: function() {
                 const self = this;
 
+                // Check if user selected a saved address
                 if (this.selectedData.type === 'saved' && this.selectedData.addressId) {
+                    // User selected saved address - no validation needed
                     this.saveToSession('saved', { addressId: this.selectedData.addressId }, function() {
                         self.updateDeliveryDisplay();
                         self.closeModal();
                     });
                 } else {
+                    // User is entering temporary address - check if any field is filled
+                    const country = this.countrySelect.val();
+                    const hasAnyInput = country && country !== "0";
+                    
+                    if (!hasAnyInput) {
+                        // No input at all - just close modal (user might want to cancel)
+                        self.closeModal();
+                        return;
+                    }
+                    
+                    // User started filling form - validate it
                     if (!this.validateTemporaryForm()) {
                         return;
                     }

@@ -399,30 +399,54 @@
                                     <span class="delivery-label">{{ __('Deliver to') }}</span>
                                 </div>
                                 <div class="delivery-address-content" id="delivery-address-display">
-                                    @if (auth('customer')->check())
-                                        @php
-                                            $defaultAddress = auth('customer')->user()->addresses()->where('is_default', 1)->first();
-                                        @endphp
-                                        @if ($defaultAddress)
-                                            <div class="delivery-address-text">
-                                                {{ $defaultAddress->name }}, {{ $defaultAddress->address }}, {{ $defaultAddress->city }}
-                                                @if ($defaultAddress->state)
-                                                    , {{ $defaultAddress->state }}
-                                                @endif
-                                                - {{ $defaultAddress->zip_code }}
-                                            </div>
-                                            <a href="#" class="delivery-change-btn trigger-location-modal">{{ __('Change') }}</a>
-                                        @else
+                                    @php
+                                        // Get address from session (same logic as LocationSessionController)
+                                        $orderHelper = app(\Botble\Ecommerce\Supports\OrderHelper::class);
+                                        $token = $orderHelper->getOrderSessionToken();
+                                        $sessionData = $orderHelper->getOrderSessionData($token);
+                                        $sessionAddressId = $sessionData['address_id'] ?? null;
+                                        
+                                        $displayAddress = null;
+                                        $displayType = 'default';
+                                        
+                                        if ($sessionAddressId && $sessionAddressId !== 'new') {
+                                            // Saved address from session
+                                            if (auth('customer')->check()) {
+                                                $displayAddress = \Botble\Ecommerce\Models\Address::query()
+                                                    ->where('id', $sessionAddressId)
+                                                    ->where('customer_id', auth('customer')->id())
+                                                    ->first();
+                                                $displayType = 'saved';
+                                            }
+                                        } elseif ($sessionAddressId === 'new' && !empty($sessionData['country'])) {
+                                            // Temporary address from session
+                                            $displayAddress = (object) $sessionData;
+                                            $displayType = 'temporary';
+                                        } else {
+                                            // No session address, show default saved address
+                                            if (auth('customer')->check()) {
+                                                $displayAddress = auth('customer')->user()->addresses()->where('is_default', 1)->first();
+                                            }
+                                        }
+                                    @endphp
+                                    
+                                    @if ($displayAddress)
+                                        @include(Theme::getThemeNamespace('views.ecommerce.includes.delivery-address-display'), [
+                                            'address' => $displayAddress,
+                                            'type' => $displayType
+                                        ])
+                                    @else
+                                        @if (auth('customer')->check())
                                             <div class="delivery-no-address">
                                                 {{ __('No delivery address set') }}
                                             </div>
                                             <a href="#" class="delivery-add-btn trigger-location-modal">{{ __('Add address') }}</a>
+                                        @else
+                                            <div class="delivery-no-address">
+                                                {{ __('No delivery address set') }}
+                                            </div>
+                                            <a href="#" class="delivery-add-btn trigger-location-modal">{{ __('Select location') }}</a>
                                         @endif
-                                    @else
-                                        <div class="delivery-no-address">
-                                            {{ __('No delivery address set') }}
-                                        </div>
-                                        <a href="#" class="delivery-add-btn trigger-location-modal">{{ __('Login to add address') }}</a>
                                     @endif
                                 </div>
                             </div>
