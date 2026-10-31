@@ -160,41 +160,67 @@
                         </select>
                     </div>
                     
-                    {{-- State Dropdown (Hidden until country selected) --}}
+                    {{-- State Field (Dropdown or Text based on plugin settings) --}}
                     <div class="form-group-location state-group" @if($sessionAddressId === 'new' && !empty($sessionData['state'])) style="display:block" @endif>
-                        <select 
-                            name="state" 
-                            id="temp-state" 
-                            class="form-select-location" 
-                            data-type="state"
-                            data-form-parent="#location-modal"
-                            data-url="{{ route('ajax.states-by-country') }}"
-                            @if($sessionAddressId === 'new' && !empty($sessionData['country']))
-                                data-country-id="{{ $sessionData['country'] }}"
-                                data-init-value="{{ $sessionData['state'] ?? '' }}"
-                            @else
-                                disabled
-                            @endif
-                        ></select>
+                        @if(\Botble\Ecommerce\Facades\EcommerceHelper::loadCountriesStatesCitiesFromPluginLocation())
+                            <select 
+                                name="state" 
+                                id="temp-state" 
+                                class="form-select-location" 
+                                data-type="state"
+                                data-form-parent="#location-modal"
+                                data-url="{{ route('ajax.states-by-country') }}"
+                                @if($sessionAddressId === 'new' && !empty($sessionData['country']))
+                                    data-country-id="{{ $sessionData['country'] }}"
+                                    data-init-value="{{ $sessionData['state'] ?? '' }}"
+                                @else
+                                    disabled
+                                @endif
+                            ></select>
+                        @else
+                            <input 
+                                type="text" 
+                                name="state" 
+                                id="temp-state" 
+                                class="form-input-location" 
+                                placeholder="{{ __('Enter state/province') }}"
+                                @if($sessionAddressId === 'new' && !empty($sessionData['state']))
+                                    value="{{ $sessionData['state'] }}"
+                                @endif
+                            >
+                        @endif
                     </div>
                     
-                    {{-- City Dropdown (Hidden until state selected) --}}
+                    {{-- City Field (Dropdown or Text based on plugin settings) --}}
                     <div class="form-group-location city-group" @if($sessionAddressId === 'new' && !empty($sessionData['city'])) style="display:block" @endif>
-                        <select 
-                            name="city" 
-                            id="temp-city" 
-                            class="form-select-location" 
-                            data-type="city"
-                            data-form-parent="#location-modal"
-                            data-url="{{ route('ajax.cities-by-state') }}"
-                            @if($sessionAddressId === 'new' && !empty($sessionData['state']))
-                                data-state-id="{{ $sessionData['state'] }}"
-                                data-country-id="{{ $sessionData['country'] }}"
-                                data-init-value="{{ $sessionData['city'] ?? '' }}"
-                            @else
-                                disabled
-                            @endif
-                        ></select>
+                        @if(\Botble\Ecommerce\Facades\EcommerceHelper::useCityFieldAsTextField())
+                            <input 
+                                type="text" 
+                                name="city" 
+                                id="temp-city" 
+                                class="form-input-location" 
+                                placeholder="{{ __('Enter city') }}"
+                                @if($sessionAddressId === 'new' && !empty($sessionData['city']))
+                                    value="{{ $sessionData['city'] }}"
+                                @endif
+                            >
+                        @else
+                            <select 
+                                name="city" 
+                                id="temp-city" 
+                                class="form-select-location" 
+                                data-type="city"
+                                data-form-parent="#location-modal"
+                                data-url="{{ route('ajax.cities-by-state') }}"
+                                @if($sessionAddressId === 'new' && !empty($sessionData['state']))
+                                    data-state-id="{{ $sessionData['state'] }}"
+                                    data-country-id="{{ $sessionData['country'] }}"
+                                    data-init-value="{{ $sessionData['city'] ?? '' }}"
+                                @else
+                                    disabled
+                                @endif
+                            ></select>
+                        @endif
                     </div>
                     
                     {{-- Street Address (Hidden until city selected) --}}

@@ -44,117 +44,101 @@ if (typeof jQuery === 'undefined') {
             bindEvents: function() {
                 const self = this;
 
-                // Country change - show state dropdown and set data attributes for location.js
+                // Country change - show state field (dropdown or text input)
                 this.countrySelect.on('change', function() {
                     const countryId = $(this).val();
                     
                     // Treat "0" as placeholder/empty
                     if (countryId && countryId !== "0") {
-                        // Set data attribute for location.js
-                        self.stateSelect.attr('data-country-id', countryId);
-                        self.citySelect.attr('data-country-id', countryId);
+                        const $stateGroup = self.stateSelect.closest('.form-group-location');
+                        const isStateTextInput = self.stateSelect.is('input[type="text"]');
                         
-                        // Check if this country has states available
-                        $.ajax({
-                            url: self.stateSelect.data('url'),
-                            data: { country_id: countryId },
-                            type: 'GET',
-                            success: function(response) {
-                                const hasStates = response.data && response.data.length > 0;
-                                
-                                if (hasStates) {
-                                    // Show state dropdown
-                                    self.stateSelect.prop('disabled', false);
-                                    self.stateSelect.closest('.form-group-location').show();
-                                    
-                                    // Reset state and city (location.js will populate state)
-                                    self.stateSelect.val('').trigger('change');
-                                } else {
-                                    // No states available - show text input instead
-                                    self.showStateAsTextInput();
-                                }
-                                
-                                // Hide city and address for now
-                                self.citySelect.closest('.form-group-location').hide();
-                                $('.form-group-location.address-group').hide();
-                                self.citySelect.val('');
-                            },
-                            error: function() {
-                                // On error, show dropdown anyway
-                                self.stateSelect.prop('disabled', false);
-                                self.stateSelect.closest('.form-group-location').show();
-                                self.stateSelect.val('').trigger('change');
-                                self.citySelect.closest('.form-group-location').hide();
-                                $('.form-group-location.address-group').hide();
-                                self.citySelect.val('');
-                            }
-                        });
+                        if (isStateTextInput) {
+                            // State is a text input - just show it
+                            $stateGroup.show();
+                            // Hide city and address for now
+                            self.citySelect.closest('.form-group-location').hide();
+                            $('.form-group-location.address-group').hide();
+                            self.citySelect.val('');
+                        } else {
+                            // State is a dropdown - set data attribute for location.js
+                            self.stateSelect.attr('data-country-id', countryId);
+                            self.citySelect.attr('data-country-id', countryId);
+                            
+                            // Show state dropdown
+                            self.stateSelect.prop('disabled', false);
+                            $stateGroup.show();
+                            
+                            // Reset state (location.js will populate it)
+                            self.stateSelect.val('').trigger('change');
+                            
+                            // Hide city and address for now
+                            self.citySelect.closest('.form-group-location').hide();
+                            $('.form-group-location.address-group').hide();
+                            self.citySelect.val('');
+                        }
                     } else {
                         // Hide everything except country
                         self.stateSelect.closest('.form-group-location').hide();
                         self.citySelect.closest('.form-group-location').hide();
                         $('.form-group-location.address-group').hide();
-                        self.stateSelect.prop('disabled', true);
-                        self.citySelect.prop('disabled', true);
+                        
+                        if (!self.stateSelect.is('input[type="text"]')) {
+                            self.stateSelect.prop('disabled', true);
+                        }
+                        if (!self.citySelect.is('input[type="text"]')) {
+                            self.citySelect.prop('disabled', true);
+                        }
                     }
                 });
 
-                // State change - show city dropdown and set data attributes for location.js
-                this.stateSelect.on('change', function() {
-                    const stateId = $(this).val();
+                // State change - show city field (dropdown or text input)
+                this.stateSelect.on('change input', function() {
+                    const stateValue = $(this).val();
                     const countryId = self.countrySelect.val();
+                    const isStateTextInput = $(this).is('input[type="text"]');
+                    const $cityGroup = self.citySelect.closest('.form-group-location');
+                    const isCityTextInput = self.citySelect.is('input[type="text"]');
                     
                     // Treat "0" or empty as placeholder/empty
-                    if (stateId && stateId !== "0" && stateId !== "") {
-                        // Set data attributes for location.js
-                        self.citySelect.attr('data-state-id', stateId);
-                        self.citySelect.attr('data-country-id', countryId);
-                        
-                        // Check if this state has cities available
-                        $.ajax({
-                            url: self.citySelect.data('url'),
-                            data: { state_id: stateId, country_id: countryId },
-                            type: 'GET',
-                            success: function(response) {
-                                const hasCities = response.data && response.data.length > 0;
-                                
-                                if (hasCities) {
-                                    // Show city dropdown
-                                    self.citySelect.prop('disabled', false);
-                                    self.citySelect.closest('.form-group-location').show();
-                                    
-                                    // Reset city (location.js will populate it)
-                                    self.citySelect.val('');
-                                } else {
-                                    // No cities available - show text input instead
-                                    self.showCityAsTextInput();
-                                }
-                                
-                                // Hide address for now
-                                $('.form-group-location.address-group').hide();
-                            },
-                            error: function() {
-                                // On error, show dropdown anyway
-                                self.citySelect.prop('disabled', false);
-                                self.citySelect.closest('.form-group-location').show();
-                                self.citySelect.val('');
-                                $('.form-group-location.address-group').hide();
-                            }
-                        });
+                    if (stateValue && stateValue !== "0" && stateValue.trim() !== "") {
+                        if (isCityTextInput) {
+                            // City is a text input - just show it
+                            $cityGroup.show();
+                            // Hide address for now
+                            $('.form-group-location.address-group').hide();
+                        } else {
+                            // City is a dropdown - set data attributes for location.js
+                            self.citySelect.attr('data-state-id', stateValue);
+                            self.citySelect.attr('data-country-id', countryId);
+                            
+                            // Show city dropdown
+                            self.citySelect.prop('disabled', false);
+                            $cityGroup.show();
+                            
+                            // Reset city (location.js will populate it)
+                            self.citySelect.val('');
+                            
+                            // Hide address for now
+                            $('.form-group-location.address-group').hide();
+                        }
                     } else {
                         // Hide city and address
-                        self.citySelect.closest('.form-group-location').hide();
+                        $cityGroup.hide();
                         $('.form-group-location.address-group').hide();
-                        self.citySelect.prop('disabled', true);
+                        if (!isCityTextInput) {
+                            self.citySelect.prop('disabled', true);
+                        }
                     }
                 });
 
                 // City change - show address field
-                this.citySelect.on('change', function() {
-                    const cityId = $(this).val();
+                this.citySelect.on('change input', function() {
+                    const cityValue = $(this).val();
+                    const isCityTextInput = $(this).is('input[type="text"]');
                     
                     // Treat "0" or empty as placeholder/empty
-                    if (cityId && cityId !== "0" && cityId !== "") {
+                    if (cityValue && cityValue !== "0" && cityValue.trim() !== "") {
                         $('.form-group-location.address-group').show();
                     } else {
                         $('.form-group-location.address-group').hide();
@@ -273,30 +257,19 @@ if (typeof jQuery === 'undefined') {
 
             validateTemporaryForm: function() {
                 const country = this.countrySelect.val();
-                
-                // Get state value (could be from select or text input)
-                let state = $('#temp-state').val();
-                if (!state || state === "0" || state === "") {
-                    state = $('#temp-state-text').val();
-                }
-                
-                // Get city value (could be from select or text input)
-                let city = $('#temp-city').val();
-                if (!city || city === "0" || city === "") {
-                    city = $('#temp-city-text').val();
-                }
-                
+                const state = this.stateSelect.val();
+                const city = this.citySelect.val();
                 const address = this.addressInput.val().trim();
 
                 if (!country || country === "0") {
                     this.showError('Please select a country');
                     return false;
                 }
-                if (!state || state === "0" || state === "") {
+                if (!state || state === "0" || state.trim() === "") {
                     this.showError('Please enter a state/province');
                     return false;
                 }
-                if (!city || city === "0" || city === "") {
+                if (!city || city === "0" || city.trim() === "") {
                     this.showError('Please enter a city');
                     return false;
                 }
@@ -333,25 +306,13 @@ if (typeof jQuery === 'undefined') {
                         return;
                     }
 
-                    // Get state value (could be from select or text input)
-                    let stateValue = $('#temp-state').val();
-                    if (!stateValue || stateValue === "0" || stateValue === "") {
-                        stateValue = $('#temp-state-text').val();
-                    }
-                    
-                    // Get city value (could be from select or text input)
-                    let cityValue = $('#temp-city').val();
-                    if (!cityValue || cityValue === "0" || cityValue === "") {
-                        cityValue = $('#temp-city-text').val();
-                    }
-
                     const tempAddress = {
                         name: '', // Can be filled by user later or from auth
                         phone: '', // Can be filled by user later
                         email: '', // Will be auto-filled from customer email if logged in
                         country: this.countrySelect.val(),
-                        state: stateValue,
-                        city: cityValue,
+                        state: this.stateSelect.val(),
+                        city: this.citySelect.val(),
                         address: this.addressInput.val().trim(),
                         zip_code: ''
                     };
@@ -433,59 +394,6 @@ if (typeof jQuery === 'undefined') {
 
             showError: function(message) {
                 alert(message);
-            },
-            
-            showStateAsTextInput: function() {
-                const $stateGroup = this.stateSelect.closest('.form-group-location');
-                const currentValue = this.stateSelect.val();
-                
-                // Replace select with text input
-                const $textInput = $('<input type="text" name="state" id="temp-state-text" class="form-input-location" placeholder="Enter state/province">');
-                if (currentValue) $textInput.val(currentValue);
-                
-                this.stateSelect.hide();
-                $stateGroup.append($textInput);
-                $stateGroup.show();
-                
-                // Update reference
-                this.stateSelect = $('#temp-state, #temp-state-text');
-                
-                // After state text input, show city as text too
-                const self = this;
-                $textInput.on('input change', function() {
-                    if ($(this).val().trim()) {
-                        self.showCityAsTextInput();
-                    } else {
-                        self.citySelect.closest('.form-group-location').hide();
-                        $('.form-group-location.address-group').hide();
-                    }
-                });
-            },
-            
-            showCityAsTextInput: function() {
-                const $cityGroup = this.citySelect.closest('.form-group-location');
-                const currentValue = this.citySelect.val();
-                
-                // Replace select with text input
-                const $textInput = $('<input type="text" name="city" id="temp-city-text" class="form-input-location" placeholder="Enter city">');
-                if (currentValue) $textInput.val(currentValue);
-                
-                this.citySelect.hide();
-                $cityGroup.append($textInput);
-                $cityGroup.show();
-                
-                // Update reference
-                this.citySelect = $('#temp-city, #temp-city-text');
-                
-                // After city text input, show address
-                const self = this;
-                $textInput.on('input change', function() {
-                    if ($(this).val().trim()) {
-                        $('.form-group-location.address-group').show();
-                    } else {
-                        $('.form-group-location.address-group').hide();
-                    }
-                });
             }
         };
 
