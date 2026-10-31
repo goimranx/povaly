@@ -54,17 +54,41 @@ if (typeof jQuery === 'undefined') {
                         self.stateSelect.attr('data-country-id', countryId);
                         self.citySelect.attr('data-country-id', countryId);
                         
-                        // Show and enable state dropdown
-                        self.stateSelect.prop('disabled', false);
-                        self.stateSelect.closest('.form-group-location').show();
-                        
-                        // Hide city and address
-                        self.citySelect.closest('.form-group-location').hide();
-                        $('.form-group-location.address-group').hide();
-                        
-                        // Reset state and city (location.js will populate state)
-                        self.stateSelect.val('').trigger('change');
-                        self.citySelect.val('');
+                        // Check if this country has states available
+                        $.ajax({
+                            url: self.stateSelect.data('url'),
+                            data: { country_id: countryId },
+                            type: 'GET',
+                            success: function(response) {
+                                const hasStates = response.data && response.data.length > 0;
+                                
+                                if (hasStates) {
+                                    // Show state dropdown
+                                    self.stateSelect.prop('disabled', false);
+                                    self.stateSelect.closest('.form-group-location').show();
+                                    
+                                    // Reset state and city (location.js will populate state)
+                                    self.stateSelect.val('').trigger('change');
+                                } else {
+                                    // No states available - show text input instead
+                                    self.showStateAsTextInput();
+                                }
+                                
+                                // Hide city and address for now
+                                self.citySelect.closest('.form-group-location').hide();
+                                $('.form-group-location.address-group').hide();
+                                self.citySelect.val('');
+                            },
+                            error: function() {
+                                // On error, show dropdown anyway
+                                self.stateSelect.prop('disabled', false);
+                                self.stateSelect.closest('.form-group-location').show();
+                                self.stateSelect.val('').trigger('change');
+                                self.citySelect.closest('.form-group-location').hide();
+                                $('.form-group-location.address-group').hide();
+                                self.citySelect.val('');
+                            }
+                        });
                     } else {
                         // Hide everything except country
                         self.stateSelect.closest('.form-group-location').hide();
@@ -86,15 +110,37 @@ if (typeof jQuery === 'undefined') {
                         self.citySelect.attr('data-state-id', stateId);
                         self.citySelect.attr('data-country-id', countryId);
                         
-                        // Show and enable city dropdown
-                        self.citySelect.prop('disabled', false);
-                        self.citySelect.closest('.form-group-location').show();
-                        
-                        // Hide address
-                        $('.form-group-location.address-group').hide();
-                        
-                        // Reset city (location.js will populate it)
-                        self.citySelect.val('');
+                        // Check if this state has cities available
+                        $.ajax({
+                            url: self.citySelect.data('url'),
+                            data: { state_id: stateId, country_id: countryId },
+                            type: 'GET',
+                            success: function(response) {
+                                const hasCities = response.data && response.data.length > 0;
+                                
+                                if (hasCities) {
+                                    // Show city dropdown
+                                    self.citySelect.prop('disabled', false);
+                                    self.citySelect.closest('.form-group-location').show();
+                                    
+                                    // Reset city (location.js will populate it)
+                                    self.citySelect.val('');
+                                } else {
+                                    // No cities available - show text input instead
+                                    self.showCityAsTextInput();
+                                }
+                                
+                                // Hide address for now
+                                $('.form-group-location.address-group').hide();
+                            },
+                            error: function() {
+                                // On error, show dropdown anyway
+                                self.citySelect.prop('disabled', false);
+                                self.citySelect.closest('.form-group-location').show();
+                                self.citySelect.val('');
+                                $('.form-group-location.address-group').hide();
+                            }
+                        });
                     } else {
                         // Hide city and address
                         self.citySelect.closest('.form-group-location').hide();
@@ -217,8 +263,19 @@ if (typeof jQuery === 'undefined') {
 
             validateTemporaryForm: function() {
                 const country = this.countrySelect.val();
-                const state = this.stateSelect.val();
-                const city = this.citySelect.val();
+                
+                // Get state value (could be from select or text input)
+                let state = $('#temp-state').val();
+                if (!state || state === "0" || state === "") {
+                    state = $('#temp-state-text').val();
+                }
+                
+                // Get city value (could be from select or text input)
+                let city = $('#temp-city').val();
+                if (!city || city === "0" || city === "") {
+                    city = $('#temp-city-text').val();
+                }
+                
                 const address = this.addressInput.val().trim();
 
                 if (!country || country === "0") {
@@ -226,11 +283,11 @@ if (typeof jQuery === 'undefined') {
                     return false;
                 }
                 if (!state || state === "0" || state === "") {
-                    this.showError('Please select a state');
+                    this.showError('Please enter a state/province');
                     return false;
                 }
                 if (!city || city === "0" || city === "") {
-                    this.showError('Please select a city');
+                    this.showError('Please enter a city');
                     return false;
                 }
                 if (!address) {
@@ -266,13 +323,25 @@ if (typeof jQuery === 'undefined') {
                         return;
                     }
 
+                    // Get state value (could be from select or text input)
+                    let stateValue = $('#temp-state').val();
+                    if (!stateValue || stateValue === "0" || stateValue === "") {
+                        stateValue = $('#temp-state-text').val();
+                    }
+                    
+                    // Get city value (could be from select or text input)
+                    let cityValue = $('#temp-city').val();
+                    if (!cityValue || cityValue === "0" || cityValue === "") {
+                        cityValue = $('#temp-city-text').val();
+                    }
+
                     const tempAddress = {
                         name: '', // Can be filled by user later or from auth
                         phone: '', // Can be filled by user later
                         email: '', // Will be auto-filled from customer email if logged in
                         country: this.countrySelect.val(),
-                        state: this.stateSelect.val(),
-                        city: this.citySelect.val(),
+                        state: stateValue,
+                        city: cityValue,
                         address: this.addressInput.val().trim(),
                         zip_code: ''
                     };
@@ -354,6 +423,59 @@ if (typeof jQuery === 'undefined') {
 
             showError: function(message) {
                 alert(message);
+            },
+            
+            showStateAsTextInput: function() {
+                const $stateGroup = this.stateSelect.closest('.form-group-location');
+                const currentValue = this.stateSelect.val();
+                
+                // Replace select with text input
+                const $textInput = $('<input type="text" name="state" id="temp-state-text" class="form-input-location" placeholder="Enter state/province">');
+                if (currentValue) $textInput.val(currentValue);
+                
+                this.stateSelect.hide();
+                $stateGroup.append($textInput);
+                $stateGroup.show();
+                
+                // Update reference
+                this.stateSelect = $('#temp-state, #temp-state-text');
+                
+                // After state text input, show city as text too
+                const self = this;
+                $textInput.on('input change', function() {
+                    if ($(this).val().trim()) {
+                        self.showCityAsTextInput();
+                    } else {
+                        self.citySelect.closest('.form-group-location').hide();
+                        $('.form-group-location.address-group').hide();
+                    }
+                });
+            },
+            
+            showCityAsTextInput: function() {
+                const $cityGroup = this.citySelect.closest('.form-group-location');
+                const currentValue = this.citySelect.val();
+                
+                // Replace select with text input
+                const $textInput = $('<input type="text" name="city" id="temp-city-text" class="form-input-location" placeholder="Enter city">');
+                if (currentValue) $textInput.val(currentValue);
+                
+                this.citySelect.hide();
+                $cityGroup.append($textInput);
+                $cityGroup.show();
+                
+                // Update reference
+                this.citySelect = $('#temp-city, #temp-city-text');
+                
+                // After city text input, show address
+                const self = this;
+                $textInput.on('input change', function() {
+                    if ($(this).val().trim()) {
+                        $('.form-group-location.address-group').show();
+                    } else {
+                        $('.form-group-location.address-group').hide();
+                    }
+                });
             }
         };
 
