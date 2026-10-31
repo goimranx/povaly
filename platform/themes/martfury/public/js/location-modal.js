@@ -216,13 +216,14 @@ if (typeof jQuery === 'undefined') {
                     }
 
                     const tempAddress = {
+                        name: '', // Can be filled by user later or from auth
+                        phone: '', // Can be filled by user later
+                        email: '', // Will be auto-filled from customer email if logged in
                         country: this.countrySelect.val(),
-                        country_name: this.countrySelect.find('option:selected').text(),
                         state: this.stateSelect.val(),
-                        state_name: this.stateSelect.find('option:selected').text(),
                         city: this.citySelect.val(),
-                        city_name: this.citySelect.find('option:selected').text(),
-                        address: this.addressInput.val().trim()
+                        address: this.addressInput.val().trim(),
+                        zip_code: ''
                     };
 
                     this.saveToSession('temporary', tempAddress, function() {
