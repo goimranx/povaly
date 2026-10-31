@@ -206,28 +206,43 @@ if (typeof jQuery === 'undefined') {
                 const stateInitValue = this.stateSelect.data('init-value');
                 const cityInitValue = this.citySelect.data('init-value');
                 
+                console.log('LocationModal: Initializing modal state', {
+                    countryInitValue: countryInitValue,
+                    stateInitValue: stateInitValue,
+                    cityInitValue: cityInitValue,
+                    countryVal: this.countrySelect.val(),
+                    stateVal: this.stateSelect.val(),
+                    cityVal: this.citySelect.val()
+                });
+                
                 // Check for GeoIP detected country (used when no session/saved address)
                 const geoipCountry = this.countrySelect.data('geoip-country');
                 
                 // Detect if we have session data to restore (either country has init-value OR state/city have values)
                 const hasSessionData = countryInitValue || stateInitValue || cityInitValue;
                 
+                console.log('LocationModal: hasSessionData?', hasSessionData, 'geoipCountry?', geoipCountry);
+                
                 if (hasSessionData) {
+                    console.log('LocationModal: Restoring session data...');
                     // Temporary address from session - restore fields progressively
                     self.selectedData.type = 'temporary';
                     self.selectedData.addressId = null;
                     
                     // Trigger country change to show state field (country is already selected in HTML)
+                    console.log('LocationModal: Triggering country change');
                     self.countrySelect.trigger('change');
                     
                     // Check if state is a text input or dropdown
                     const isStateTextInput = self.stateSelect.is('input[type="text"]');
+                    console.log('LocationModal: isStateTextInput?', isStateTextInput);
                     
                     if (stateInitValue) {
                         if (isStateTextInput) {
                             // State is text input - value is already set in HTML
                             // Trigger input event to show city (with small delay to let country change complete)
                             setTimeout(function() {
+                                console.log('LocationModal: Triggering state input (text)');
                                 self.stateSelect.trigger('input');
                                 
                                 // If city also has value and is text input, trigger its input too
@@ -235,6 +250,7 @@ if (typeof jQuery === 'undefined') {
                                     const isCityTextInput = self.citySelect.is('input[type="text"]');
                                     if (isCityTextInput) {
                                         setTimeout(function() {
+                                            console.log('LocationModal: Triggering city input (text)');
                                             self.citySelect.trigger('input');
                                         }, 100);
                                     }
@@ -243,25 +259,36 @@ if (typeof jQuery === 'undefined') {
                         } else {
                             // State is dropdown - wait for location.js to populate, then select it
                             setTimeout(function() {
+                                console.log('LocationModal: Setting state value', stateInitValue);
                                 self.stateSelect.val(stateInitValue);
+                                console.log('LocationModal: State value after set:', self.stateSelect.val());
                                 if (self.stateSelect.val() === stateInitValue) {
                                     // Successfully selected, trigger change
+                                    console.log('LocationModal: Triggering state change');
                                     self.stateSelect.trigger('change');
                                     
                                     // Wait for location.js to populate city, then select it
                                     if (cityInitValue) {
                                         setTimeout(function() {
+                                            console.log('LocationModal: Setting city value', cityInitValue);
                                             self.citySelect.val(cityInitValue);
+                                            console.log('LocationModal: City value after set:', self.citySelect.val());
                                             if (self.citySelect.val() === cityInitValue) {
+                                                console.log('LocationModal: Triggering city change');
                                                 self.citySelect.trigger('change');
+                                            } else {
+                                                console.log('LocationModal: City value mismatch, not triggering change');
                                             }
                                         }, 300);
                                     }
+                                } else {
+                                    console.log('LocationModal: State value mismatch, not triggering change');
                                 }
                             }, 400);
                         }
                     }
                 } else if (geoipCountry) {
+                    console.log('LocationModal: Using GeoIP country', geoipCountry);
                     // GeoIP detected country - pre-select it and trigger cascade to show state/city fields
                     // The country is already selected in HTML via the selected attribute
                     // We just need to trigger the change event to show the state dropdown
@@ -269,12 +296,16 @@ if (typeof jQuery === 'undefined') {
                         self.countrySelect.trigger('change');
                     }, 100);
                 } else {
+                    console.log('LocationModal: Checking for saved address');
                     // No temporary address or GeoIP - check if a saved address radio is checked
                     const checkedRadio = $('.location-address-radio:checked');
                     if (checkedRadio.length > 0) {
+                        console.log('LocationModal: Found checked radio', checkedRadio.val());
                         self.selectedData.type = 'saved';
                         self.selectedData.addressId = checkedRadio.val();
                         self.selectedData.tempAddress = null;
+                    } else {
+                        console.log('LocationModal: No saved address checked');
                     }
                 }
             },
