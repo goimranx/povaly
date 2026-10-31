@@ -225,13 +225,6 @@
                         $sessionData = $orderHelper->getOrderSessionData($token);
                         $sessionAddressId = $sessionData['address_id'] ?? null;
                         
-                        // DEBUG: Log session data
-                        \Log::info('PRODUCT CARD - Session data check', [
-                            'sessionAddressId' => $sessionAddressId,
-                            'sessionData' => $sessionData,
-                            'is_authenticated' => auth('customer')->check()
-                        ]);
-                        
                         $displayAddress = null;
                         $displayType = 'default';
                         
@@ -258,62 +251,38 @@
                     
                     <div class="ec-card__delivery">
                         @php
-                            // ALWAYS extract country code - from session address OR GeoIP OR default
-                            // DEBUG: Log that we're in the NEW version of the code
-                            \Log::info('PRODUCT CARD ENHANCED - NEW VERSION ACTIVE', [
-                                'file' => __FILE__,
-                                'line' => __LINE__,
-                                'product_id' => $product->id ?? 'unknown'
-                            ]);
-                            
                             $countryCode = null;
                             
                             if ($displayAddress) {
-                                // We have an address (from session or default)
-                                \Log::info('PRODUCT CARD - Display address found', [
-                                    'displayType' => $displayType,
-                                    'address' => $displayAddress
-                                ]);
-                                
                                 if ($displayType === 'temporary') {
                                     // Temporary address from session
                                     $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($displayAddress->country ?? null);
-                                    \Log::info('PRODUCT CARD - Temporary address', ['country' => $displayAddress->country ?? null, 'countryCode' => $countryCode]);
                                 } else {
                                     // Saved or default address from database
                                     if (isset($displayAddress->country)) {
                                         // Country can be either numeric ID or already a code string
                                         if (is_numeric($displayAddress->country)) {
                                             $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($displayAddress->country);
-                                            \Log::info('PRODUCT CARD - Saved address (numeric ID)', ['country_id' => $displayAddress->country, 'countryCode' => $countryCode]);
                                         } else {
                                             // Already a country code
                                             $countryCode = $displayAddress->country;
-                                            \Log::info('PRODUCT CARD - Saved address (code string)', ['countryCode' => $countryCode]);
                                         }
                                     }
                                 }
-                            } else {
-                                \Log::info('PRODUCT CARD - No display address found');
                             }
                             
                             // If still no country code, try GeoIP detection
                             if (!$countryCode) {
-                                \Log::info('PRODUCT CARD - Attempting GeoIP fallback', ['ip' => request()->ip()]);
                                 try {
                                     if (function_exists('geoip')) {
                                         $geoip = geoip(request()->ip());
                                         $countryCode = $geoip->iso_code ?? null;
-                                        \Log::info('PRODUCT CARD - GeoIP result (geoip function)', ['countryCode' => $countryCode]);
                                     } elseif (class_exists('\Stevebauman\Location\Facades\Location')) {
                                         $position = \Stevebauman\Location\Facades\Location::get(request()->ip());
                                         $countryCode = $position ? $position->countryCode : null;
-                                        \Log::info('PRODUCT CARD - GeoIP result (Location facade)', ['countryCode' => $countryCode]);
-                                    } else {
-                                        \Log::info('PRODUCT CARD - No GeoIP library available');
                                     }
                                 } catch (\Exception $e) {
-                                    \Log::info('PRODUCT CARD - GeoIP failed', ['error' => $e->getMessage()]);
+                                    // Silent fail
                                 }
                             }
                             
@@ -321,10 +290,7 @@
                             if (!$countryCode) {
                                 $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
                                 $countryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
-                                \Log::info('PRODUCT CARD - Using default country', ['defaultCountryId' => $defaultCountryId, 'countryCode' => $countryCode]);
                             }
-                            
-                            \Log::info('PRODUCT CARD - FINAL country code', ['countryCode' => $countryCode]);
                             
                             // Now calculate delivery date with the country code we found
                             $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($countryCode, $product);
