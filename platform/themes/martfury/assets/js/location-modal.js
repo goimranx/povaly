@@ -222,6 +222,9 @@ if (typeof jQuery === 'undefined') {
                 const stateInitValue = this.stateSelect.data('init-value');
                 const cityInitValue = this.citySelect.data('init-value');
                 
+                // Check for GeoIP detected country (used when no session/saved address)
+                const geoipCountry = this.countrySelect.data('geoip-country');
+                
                 if (countryInitValue) {
                     // Temporary address from session - restore fields progressively
                     self.selectedData.type = 'temporary';
@@ -250,8 +253,15 @@ if (typeof jQuery === 'undefined') {
                             }
                         }, 300);
                     }
+                } else if (geoipCountry) {
+                    // GeoIP detected country - pre-select it and trigger cascade to show state/city fields
+                    // The country is already selected in HTML via the selected attribute
+                    // We just need to trigger the change event to show the state dropdown
+                    setTimeout(function() {
+                        self.countrySelect.trigger('change');
+                    }, 100);
                 } else {
-                    // No temporary address - check if a saved address radio is checked
+                    // No temporary address or GeoIP - check if a saved address radio is checked
                     const checkedRadio = $('.location-address-radio:checked');
                     if (checkedRadio.length > 0) {
                         self.selectedData.type = 'saved';

@@ -5,6 +5,43 @@
     $token = $orderHelper->getOrderSessionToken();
     $sessionData = $orderHelper->getOrderSessionData($token);
     $sessionAddressId = $sessionData['address_id'] ?? null;
+    
+    // Detect visitor's GeoIP country when no session or saved address exists (SAME AS PRODUCT PAGE)
+    $visitorCountryCode = null;
+    $shouldUseGeoIP = false;
+    
+    // Check if we should use GeoIP: no session address OR temporary address with no country set
+    if (!$sessionAddressId || ($sessionAddressId === 'new' && empty($sessionData['country']))) {
+        // For logged-in users, also check if they have any saved addresses
+        if (auth('customer')->check()) {
+            $hasAddresses = auth('customer')->user()->addresses()->count() > 0;
+            $shouldUseGeoIP = !$hasAddresses;
+        } else {
+            // For guests, always use GeoIP if no session
+            $shouldUseGeoIP = true;
+        }
+    }
+    
+    if ($shouldUseGeoIP) {
+        try {
+            if (function_exists('geoip')) {
+                $geoip = geoip(request()->ip());
+                $visitorCountryCode = $geoip->iso_code ?? null;
+            } elseif (class_exists('\Stevebauman\Location\Facades\Location')) {
+                $position = \Stevebauman\Location\Facades\Location::get(request()->ip());
+                $visitorCountryCode = $position ? $position->countryCode : null;
+            }
+        } catch (\Exception $e) {
+            // Fallback to default country if detection fails
+            $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+            $visitorCountryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
+        }
+        
+        if (!$visitorCountryCode) {
+            $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+            $visitorCountryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
+        }
+    }
 @endphp
 
 <div class="modal fade location-modal" id="location-modal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true" style="display: none;">
@@ -106,12 +143,18 @@
                             data-form-parent="#location-modal"
                             @if($sessionAddressId === 'new' && !empty($sessionData['country']))
                                 data-init-value="{{ $sessionData['country'] }}"
+                            @elseif($visitorCountryCode)
+                                data-geoip-country="{{ $visitorCountryCode }}"
                             @endif
                         >
                             @foreach(\Botble\Ecommerce\Facades\EcommerceHelper::getAvailableCountries() as $countryCode => $countryName)
                                 <option 
                                     value="{{ $countryCode }}"
-                                    @if($sessionAddressId === 'new' && ($sessionData['country'] ?? '') === $countryCode) selected @endif
+                                    @if($sessionAddressId === 'new' && ($sessionData['country'] ?? '') === $countryCode)
+                                        selected
+                                    @elseif(!$sessionAddressId && $visitorCountryCode === $countryCode)
+                                        selected
+                                    @endif
                                 >{{ $countryName }}</option>
                             @endforeach
                         </select>
