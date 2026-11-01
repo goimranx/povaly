@@ -5,6 +5,17 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.12] - 2024-11-02
+
+### 🐛 Fixed
+
+- **System Updater**: Improved error handling in `checkUpdates()` method
+  - Now uses cached/local tags if `git fetch --tags` fails (network issues, auth issues, etc.)
+  - Added detailed error logging with exit codes and output
+  - Added `fetch_status` field in response to indicate if using cached tags
+  - Prevents "Failed to fetch tags from GitHub" error from blocking update checks
+  - System can now check for updates even with temporary git connectivity issues
+
 ## [1.3.11] - 2024-11-02
 
 ### 🐛 Debug & Troubleshooting - Enhanced
