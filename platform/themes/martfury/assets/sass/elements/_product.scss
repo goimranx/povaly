@@ -3381,23 +3381,18 @@
     // Mobile Header Section (only visible on mobile)
     .ps-product__mobile-header {
         display: block;
-        padding: 15px;
-        background: var(--global-color-card-bg);
+        padding: 0 0 10px 0;
+        background: transparent;
         
-        .pd-mobile-store-row {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
+        .pd-mobile-store-section {
             margin-bottom: 12px;
-            gap: 10px;
         }
         
-        .pd-mobile-store-info {
+        .pd-mobile-store-top {
             display: flex;
             align-items: center;
             gap: 10px;
-            flex: 1;
-            min-width: 0;
+            margin-bottom: 8px;
         }
         
         .pd-mobile-store-logo {
@@ -3406,30 +3401,48 @@
             border-radius: 50%;
             overflow: hidden;
             flex-shrink: 0;
-            background: var(--global-color-site-bg);
+            position: relative;
+            
+            // Triple border effect: primary-border -> link -> site-bg
+            border: 2px solid var(--global-color-primary-border);
+            padding: 2px;
+            background: var(--global-color-link);
+            
+            &::before {
+                content: '';
+                position: absolute;
+                inset: 2px;
+                border-radius: 50%;
+                background: var(--global-color-site-bg);
+                z-index: 0;
+            }
             
             img {
+                position: relative;
+                z-index: 1;
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
+                border-radius: 50%;
             }
-        }
-        
-        .pd-mobile-store-details {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            min-width: 0;
-            flex: 1;
         }
         
         .pd-mobile-store-name {
             font-size: 0.875rem;
             font-weight: 500;
             color: var(--global-color-text-main);
+            flex: 1;
+            min-width: 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+        
+        .pd-mobile-store-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
         }
         
         .pd-mobile-store-link {
@@ -3443,34 +3456,10 @@
             }
         }
         
+        // Rating uses desktop pd-rating-row class for consistent styling
         .pd-mobile-rating {
-            display: flex;
-            align-items: center;
+            margin: 0;
             flex-shrink: 0;
-        }
-        
-        .pd-mobile-rating-link {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            text-decoration: none;
-            color: var(--global-color-text-main);
-        }
-        
-        .pd-mobile-rating-avg {
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-        
-        .pd-mobile-rating-stars {
-            display: flex;
-            gap: 1px;
-            color: var(--global-color-star);
-            font-size: 0.75rem;
-            
-            i {
-                font-size: inherit;
-            }
         }
         
         .pd-mobile-title {
