@@ -3517,12 +3517,11 @@
         display: block !important;
     }
     
-    // Full width quantity input on mobile with no bottom margin
+    // Full width quantity input on mobile
     .ps-product__shopping {
         .form-group--number.product__qty {
             width: 100% !important;
             max-width: 100% !important;
-            margin-bottom: 0 !important;
         }
     }
     
