@@ -802,7 +802,7 @@
         }
 
         figure {
-            width: auto; // Figure should not be full width
+            width: 100%; // Changed from auto to 100%
             margin-bottom: 7px; // Add bottom margin
             
             figcaption {
@@ -946,9 +946,11 @@
 
         @media screen and (max-width: 1365px) {
             flex-flow: row wrap;
-            figure,
+            figure {
+                margin-right: 0; // Changed to 0
+            }
             .ps-btn {
-                margin-right: 10px;
+                margin-right: 0; // Changed to 0
             }
         }
 
@@ -956,6 +958,10 @@
             flex-flow: row wrap;
             > * {
                 margin-right: 10px;
+            }
+
+            figure {
+                margin-right: 0; // Remove margin for figure
             }
 
             .ps-btn {
