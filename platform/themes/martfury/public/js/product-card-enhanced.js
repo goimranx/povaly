@@ -361,7 +361,8 @@
                 // Parse cart items to find remove URL
                 $html.find('.ps-product--cart-mobile').each(function(index) {
                     var $item = $(this);
-                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    // Find product link (exclude the remove link)
+                    var $productLink = $item.find('.ps-product__content > a:not(.ps-product__remove):not(.remove-cart-item)').first();
                     
                     console.log('[DEBUG] removeFromCart - item', index, 'productLink found:', $productLink.length);
                     
@@ -379,7 +380,8 @@
                     // Match by slug first, then ID
                     if (productIdentifier == productSlug || productIdentifier == productId) {
                         console.log('[DEBUG] removeFromCart - MATCH FOUND for item', index);
-                        var $removeLink = $item.find('.ps-product__remove[data-url]');
+                        // Find remove link - it has class ps-product__remove or remove-cart-item
+                        var $removeLink = $item.find('.ps-product__remove, .remove-cart-item');
                         console.log('[DEBUG] removeFromCart - removeLink elements found:', $removeLink.length);
                         removeUrl = $removeLink.data('url') || $removeLink.attr('data-url');
                         console.log('[DEBUG] removeFromCart - extracted removeUrl:', removeUrl);
@@ -478,7 +480,8 @@
                 // Parse cart items by finding product containers
                 $html.find('.ps-product--cart-mobile').each(function(index) {
                     var $item = $(this);
-                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    // Find product link (exclude the remove link)
+                    var $productLink = $item.find('.ps-product__content > a:not(.ps-product__remove):not(.remove-cart-item)').first();
                     
                     console.log('[DEBUG] syncCartState - item', index, 'productLink found:', $productLink.length);
                     
@@ -499,7 +502,7 @@
                     var qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
                     
                     // Find remove link
-                    var $removeLink = $item.find('.ps-product__remove[data-url]');
+                    var $removeLink = $item.find('.ps-product__remove, .remove-cart-item');
                     var removeUrl = $removeLink.data('url') || $removeLink.attr('data-url');
                     
                     if (productIdentifier && qty > 0) {
