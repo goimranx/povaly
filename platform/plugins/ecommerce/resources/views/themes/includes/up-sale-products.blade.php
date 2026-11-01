@@ -216,6 +216,105 @@
                 </div>
             </div>
         </section>
+        
+        {{-- MOBILE ONLY: Simple upsell with images + buy all button --}}
+        <section class="ec-upsell-mobile-simple" data-upsale-mobile-simple>
+            <div class="container">
+                @php
+                    $totalBundlePrice = 0;
+                    $productCount = 0;
+                    $bundleProductData = [];
+                @endphp
+                
+                <div class="ec-upsell-mobile-header">
+                    <h4>{{ trans('plugins/ecommerce::products.up_sale.title') }}</h4>
+                </div>
+
+                <div class="ec-upsell-mobile-images">
+                    @foreach ($products as $product)
+                        @php
+                            $productVariation = $product;
+                            $productImage = $product->image;
+
+                            if ($product->variations->isNotEmpty()) {
+                                [$productImages, $productVariation, $selectedAttrs] = \Botble\Ecommerce\Facades\EcommerceHelper::getProductVariationInfo($product);
+                                if ($productImages && count($productImages) > 0) {
+                                    $productImage = $productImages[0];
+                                }
+                            }
+
+                            $salePrice = $productVariation->price()->getPrice();
+                            $bundleDiscountPrice = $product->pivot->price ?? 0;
+                            $bundleDiscountType = $product->pivot->price_type ?? 'fixed';
+                            $isPercentDiscount = $bundleDiscountType === 'percent' || $bundleDiscountType === \Botble\Ecommerce\Enums\UpSellPriceType::PERCENT;
+
+                            $bundlePrice = $salePrice;
+                            if ($bundleDiscountPrice > 0) {
+                                if ($isPercentDiscount) {
+                                    $bundlePrice = $salePrice - ($salePrice * $bundleDiscountPrice / 100);
+                                } else {
+                                    $bundlePrice = max(0, $salePrice - $bundleDiscountPrice);
+                                }
+                            }
+
+                            $displayPrice = $bundlePrice;
+                            if (!$currency->is_default && $currency->exchange_rate > 0) {
+                                $displayPrice = $bundlePrice * $currency->exchange_rate;
+                            }
+
+                            $totalBundlePrice += $displayPrice;
+                            $productCount++;
+                            
+                            $cartId = $productVariation->is_variation ? $productVariation->id : $product->id;
+                            $bundleProductData[] = [
+                                'id' => $cartId,
+                                'name' => $product->name,
+                                'price' => $displayPrice,
+                                'image' => $productImage,
+                                'url' => $product->url,
+                            ];
+                        @endphp
+                        
+                        <a href="{{ $product->url }}" class="ec-upsell-mobile-image-item">
+                            {{ RvMedia::image($productImage, $product->name, 'thumb', true) }}
+                        </a>
+                        
+                        @if(!$loop->last)
+                            <div class="ec-upsell-mobile-plus-icon">
+                                <i class="ph ph-plus"></i>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+
+                <button 
+                    type="button" 
+                    class="ec-upsell-mobile-buy-btn"
+                    data-upsale-mobile-modal-open
+                    data-bundle-products="{{ json_encode($bundleProductData) }}"
+                    data-total-price="{{ $totalBundlePrice }}"
+                >
+                    <span>Buy all ({{ $productCount }}): {{ format_price($totalBundlePrice) }}</span>
+                    <i class="ph ph-caret-right"></i>
+                </button>
+            </div>
+        </section>
+
+        {{-- Mobile Modal --}}
+        <div class="ec-upsell-mobile-modal" id="upsale-mobile-modal" style="display: none;">
+            <div class="ec-upsell-mobile-modal-backdrop"></div>
+            <div class="ec-upsell-mobile-modal-content">
+                <div class="ec-upsell-mobile-modal-header">
+                    <h4>Review Bundle</h4>
+                    <button type="button" class="ec-upsell-mobile-modal-close">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
+                <div class="ec-upsell-mobile-modal-body">
+                    {{-- Will be populated by JS --}}
+                </div>
+            </div>
+        </div>
     @endif
 @else
     <div data-bb-toggle="block-lazy-loading" data-url="{{ route('public.ajax.up-sale-products', $parentProduct) }}">
