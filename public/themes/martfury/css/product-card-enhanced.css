@@ -461,6 +461,17 @@
 
 .ec-card__float-btn i { font-size: 14px; }
 
+/* Phosphor Icons Support */
+.ec-card__float-btn i.ph {
+    font-weight: 400; /* Regular/outline weight */
+    transition: font-weight 0.2s ease;
+}
+
+.ec-card__float-btn i.ph-fill {
+    font-weight: 700; /* Fill weight */
+    color: var(--global-color-text-main);
+}
+
 .ec-card__float-toggle {
     width: 28px;
     height: 28px;

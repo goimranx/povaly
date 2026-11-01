@@ -5,6 +5,65 @@
 <div class="ps-page--product">
     <div class="ps-product--detail ps-product--fullwidth bb-product-detail" id="app">
             
+            <!-- MOBILE ONLY: Header Section (Store + Title + Rating + Bought) -->
+            <div class="ps-product__mobile-header">
+                @php $product->loadMissing('productCollections'); @endphp
+                
+                {{-- Mobile Store Info with Rating --}}
+                @if (is_plugin_active('marketplace') && $product->store_id)
+                    <div class="pd-mobile-store-row">
+                        <div class="pd-mobile-store-info">
+                            <div class="pd-mobile-store-logo">
+                                {!! RvMedia::image($product->store->logo, $product->store->name, 'thumb') !!}
+                            </div>
+                            <div class="pd-mobile-store-details">
+                                <div class="pd-mobile-store-name">{{ $product->store->name }}</div>
+                                <a href="{{ $product->store->url }}" class="pd-mobile-store-link">
+                                    {{ __('Shop the store') }}
+                                </a>
+                            </div>
+                        </div>
+                        
+                        {{-- Rating on the same row (right side) --}}
+                        @if (EcommerceHelper::isReviewEnabled() && $product->reviews_count > 0)
+                            <div class="pd-mobile-rating">
+                                <a href="#tab-reviews" class="pd-mobile-rating-link">
+                                    <span class="pd-mobile-rating-avg">{{ number_format($product->reviews_avg, 1) }}</span>
+                                    <span class="pd-mobile-rating-stars">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            @if ($i <= floor($product->reviews_avg))
+                                                <i class="ph-fill ph-star"></i>
+                                            @else
+                                                <i class="ph ph-star"></i>
+                                            @endif
+                                        @endfor
+                                    </span>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+                
+                {{-- Mobile Product Title --}}
+                <h1 class="pd-mobile-title">{{ $product->name }}</h1>
+                
+                {{-- Mobile Bought Count --}}
+                @php
+                    $boughtLastMonth = \DB::table('ec_order_product')
+                        ->join('ec_orders', 'ec_orders.id', '=', 'ec_order_product.order_id')
+                        ->where('ec_order_product.product_id', $product->id)
+                        ->where('ec_orders.created_at', '>=', now()->subDays(30)->startOfDay())
+                        ->where('ec_orders.created_at', '<', now()->startOfDay())
+                        ->sum('ec_order_product.qty');
+                @endphp
+                @if ($boughtLastMonth > 0)
+                    <div class="pd-mobile-bought">
+                        <i class="ph ph-trend-up"></i>
+                        {{ number_format($boughtLastMonth) }} {{ __('bought in past month') }}
+                    </div>
+                @endif
+            </div>
+            
             <!-- PRODUCT HEADER: Gallery + Product Info + Purchase Box -->
             <div class="ps-product__header">
                 <!-- Gallery Wrapper (48%) -->
