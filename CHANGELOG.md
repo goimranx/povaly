@@ -5,6 +5,63 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.9] - 2024-11-02
+
+### ✨ Added - Mobile Product Page Enhancements
+
+#### Mobile-Optimized Layout
+- Created mobile-specific product page header with logo, store name, rating, and buy button above thumbnail
+- Added reusable `product-details-section.blade.php` partial for consistent product info display
+- Moved product details section below purchase area on mobile for better flow
+- Full-width quantity selector on mobile (removed desktop margin override)
+
+#### Mobile Upsell System
+- Added simple mobile-only upsell section with product images + plus icons + "Buy all" button
+- Created reusable product bundle modal component for both upsell and cross-sale
+  - Modal slides up from bottom (75vh height) with smooth animations
+  - Slide down animation when closing
+  - Inline checkboxes with product cards in column layout
+  - Sticky header and footer with shadow effects
+  - Shows total price and saved amount (dynamic calculation)
+  - Dynamic button text: "Add to Cart", "Add both to Cart", "Add X items to Cart"
+- Locked state when parent product not in cart:
+  - Images grayed out (50% opacity + grayscale filter)
+  - Button shows lock icon with unlock message inside button
+  - Auto-refreshes and unlocks via AJAX when parent added to cart
+- Modal properly adds items to cart using same logic as desktop:
+  - Sends `reference_product_for_upsale` parameter
+  - Sequential product addition with success tracking
+  - Updates cart UI and triggers events
+  - Shows success message and closes with animation
+
+#### Mobile UI Polish
+- Removed bottom margin/padding/border from product header on mobile
+- Simplified store logo to single 1px border with `global-color-primary-border`
+- Updated review highlights to use standard `pd-rating` classes
+- Container padding: 15px bottom for mobile sections
+- Overlay background: `rgba(0, 0, 0, 0.3)` for modal
+- Close button positioned above modal with no background, white icon color
+- Footer layout: column-wise with 5px gap, price row horizontal
+
+### 🐛 Fixed
+
+- Fixed duplicate mobile upsell sections appearing after cart refresh by wrapping both desktop and mobile sections in single `data-upsale-bundle` container
+- Fixed modal not opening when parent product not in cart (added disabled check)
+- Fixed modal add-to-cart not working (now uses proper AJAX with CSRF token)
+- Fixed saved amount and button text calculations (reuses desktop currency formatting logic)
+- Removed orphaned CSS causing syntax errors in front-upsale-crosssale.scss
+
+### 🎨 Changed
+
+- Modal height increased from 50vh to 75vh for more item space
+- Modal z-index: 10002
+- Info gap reduced from 6px to 3px
+- Footer gap reduced from 15px to 5px
+- Hide original price and discount badge in modal items
+- Buy all button: outline style with `global-color-primary-border` (no fill, no transform on click)
+
+---
+
 ## [1.3.3] - 2026-10-30
 
 ### ✨ Added
