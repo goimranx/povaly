@@ -250,7 +250,7 @@
                         @endif
 
                         {{-- 8. Product details section --}}
-                        <div class="pd-section">
+                        <div class="pd-section pd-section-desktop">
                             <div class="pd-section-header">
                                 <h2 class="pd-section-title">{{ __('Product Details') }}</h2>
                                 <div class="pd-section-separator"></div>
