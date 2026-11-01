@@ -3481,6 +3481,41 @@
         }
     }
     
+    // Reorder sections on mobile using flexbox
+    .ps-product__info-wrapper {
+        display: flex;
+        flex-direction: column;
+        
+        .ps-product__details {
+            order: 1; // Gallery, variations come first
+            
+            // Hide price row below thumbnail on mobile
+            .pd-price-row {
+                display: none !important;
+            }
+        }
+        
+        .ps-product__purchase {
+            order: 2; // Purchase section after variations
+            border-top: 2px solid var(--global-color-primary-border);
+            padding-top: 10px;
+        }
+        
+        // Move pd-section to appear after purchase section
+        .pd-section {
+            order: 3 !important;
+        }
+    }
+    
+    // Full width quantity input on mobile with no bottom margin
+    .ps-product__shopping {
+        .form-group--number.product__qty {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin-bottom: 0 !important;
+        }
+    }
+    
     // Hide desktop store link, title, rating, and bought count on mobile
     .ps-product__details {
         .pd-store-link,
