@@ -731,6 +731,12 @@
     // Open modal when "Buy all" button is clicked
     $(document).on('click', '[data-upsale-mobile-modal-open]', function (e) {
         e.preventDefault()
+        
+        // Check if button is disabled (parent product not in cart)
+        if ($(this).prop('disabled')) {
+            return
+        }
+        
         const modal = $('#upsale-mobile-modal')
         if (modal.length) {
             modal.fadeIn(300)
@@ -833,38 +839,97 @@
         e.preventDefault()
         const $btn = $(this)
         const url = $btn.data('url')
+        const parentProduct = $btn.closest('[data-bundle-modal]').find('[data-upsale-mobile-modal-open]').data('parent-product')
         const $checkedItems = $('.ec-bundle-modal-checkbox input[type="checkbox"]:checked')
         
         if ($checkedItems.length === 0) {
             return
         }
         
-        $btn.prop('disabled', true).text('Adding...')
+        $btn.prop('disabled', true)
+        const $btnText = $btn.find('[data-bundle-button-text]')
+        const originalText = $btnText.text()
+        $btnText.text('Adding...')
         
-        const products = []
+        const selectedProducts = []
         $checkedItems.each(function () {
-            products.push({
-                id: $(this).data('product-id'),
-                qty: 1
-            })
+            selectedProducts.push($(this).data('product-id'))
         })
         
-        // Add products to cart (you'll need to implement the actual cart addition logic)
-        console.log('Adding products to cart:', products)
+        // Get CSRF token
+        const getCsrfToken = function () {
+            return $('meta[name="csrf-token"]').attr('content') || ''
+        }
         
-        // Close modal after adding
-        setTimeout(function () {
-            const $modal = $('.ec-bundle-modal')
-            $modal.addClass('closing')
+        // Add products sequentially like desktop
+        let index = 0
+        let successCount = 0
+        let lastResponse = null
+        
+        const addNextProduct = function () {
+            if (index >= selectedProducts.length) {
+                // All done
+                const $modal = $('.ec-bundle-modal')
+                $modal.addClass('closing')
+                
+                setTimeout(function() {
+                    $modal.fadeOut(0, function() {
+                        $modal.removeClass('closing')
+                    })
+                    $('body').css('overflow', '')
+                    $btn.prop('disabled', false)
+                    $btnText.text(originalText)
+                }, 300)
+                
+                // Show success message
+                if (successCount > 0) {
+                    if (window.Theme && typeof window.Theme.showSuccess === 'function') {
+                        window.Theme.showSuccess('Added ' + successCount + ' item(s) to cart')
+                    } else if (window.MartApp && typeof window.MartApp.showSuccess === 'function') {
+                        window.MartApp.showSuccess('Added ' + successCount + ' item(s) to cart')
+                    }
+                }
+                
+                // Trigger cart update
+                if (lastResponse && lastResponse.data) {
+                    document.dispatchEvent(new CustomEvent('ecommerce.cart.added', {
+                        detail: {
+                            data: lastResponse.data,
+                            element: $btn[0]
+                        }
+                    }))
+                    
+                    // Update cart if function exists
+                    if (typeof window.loadAjaxCart === 'function') {
+                        window.loadAjaxCart(lastResponse.data)
+                    }
+                }
+                
+                return
+            }
             
-            setTimeout(function() {
-                $modal.fadeOut(0, function() {
-                    $modal.removeClass('closing')
-                })
-                $('body').css('overflow', '')
-                $btn.prop('disabled', false).html('<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg><span>Add to Cart</span>')
-            }, 300)
-        }, 1000)
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    id: selectedProducts[index],
+                    reference_product_for_upsale: parentProduct,
+                    _token: getCsrfToken()
+                },
+                success: function (response) {
+                    if (!response.error) {
+                        successCount++
+                        lastResponse = response
+                    }
+                },
+                complete: function () {
+                    index++
+                    addNextProduct()
+                }
+            })
+        }
+        
+        addNextProduct()
     })
 
 })(jQuery)
