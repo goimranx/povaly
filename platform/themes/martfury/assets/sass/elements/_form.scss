@@ -497,7 +497,7 @@ textarea.form-control {
         text-align: center;
         font-size: 14px;
         color: $color-heading;
-        @include border-radius(50px);
+        @include border-radius(7px); // Changed from 50px to 7px
         background-color: transparent;
         @include placeholder() {
             color: $color-heading;

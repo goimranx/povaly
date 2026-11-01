@@ -791,43 +791,83 @@
         display: flex;
         margin-bottom: 1.875rem; // Was 3rem (30px), now 30px/16px
         padding-bottom: 30px;
-        flex-flow: row nowrap;
-        align-items: flex-end;
+        flex-flow: column nowrap; // Changed to column for full width
+        align-items: stretch; // Changed to stretch for full width
         border-bottom: 1px solid #e1e1e1;
+        gap: 15px; // Add gap between elements
 
         > * {
-            margin-right: 30px;
+            margin-right: 0; // Remove right margin since we're stacking
+            width: 100%; // Full width
         }
 
         figure {
+            width: auto; // Figure should not be full width
+            
             figcaption {
                 margin-bottom: 4px;
+                display: inline-block;
+                position: relative;
+                top: 20px; // Align vertically with qty selector top border
+                left: 0;
+                background: white;
+                padding: 0 8px 0 0;
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--global-color-text-main, #1a1a1a);
             }
         }
 
         .form-group--number {
-            max-width: 115px;
+            max-width: none; // Remove max-width
+            width: 100%; // Full width
+            margin-top: -10px; // Adjust for figcaption overlap
 
             input {
-                border-radius: 0;
-                border-color: rgba(#000, 0.25);
+                width: 100%;
+                border-radius: 7px;
+                border-color: var(--global-color-border-strong, #333);
+                border-width: 1px;
+                height: 50px;
+                font-size: 16px;
             }
 
-            i {
-                color: rgba(#000, 0.25);
+            button {
+                i {
+                    color: var(--global-color-text-main, #1a1a1a);
+                }
             }
         }
 
         .ps-btn {
             font-weight: 600;
-            padding-left: 30px;
-            padding-right: 30px;
+            padding: 15px 30px;
             vertical-align: top;
-            max-height: 50px;
-            font-size: 18px;
+            height: 50px;
+            font-size: 16px;
+            border-radius: 7px;
+            width: 100%; // Full width
+            max-width: none; // Remove max-width
+            text-align: center;
+            border: none;
 
-            &.ps-btn--black {
-                color: #fff;
+            &.ps-btn--black,
+            &.add-to-cart-button:not([name="checkout"]) {
+                background-color: var(--ec-btn-cart-bg, #fcb800);
+                color: var(--ec-btn-cart-text, #000);
+                
+                &:hover:not(:disabled) {
+                    background-color: var(--ec-btn-cart-bg-hover, #e5a800);
+                }
+            }
+            
+            &[name="checkout"] {
+                background-color: var(--ec-btn-buy-bg, #000);
+                color: var(--ec-btn-buy-text, #fff);
+                
+                &:hover:not(:disabled) {
+                    background-color: var(--ec-btn-buy-bg-hover, #333);
+                }
             }
         }
 
@@ -858,6 +898,7 @@
 
         .ps-product__actions {
             margin-right: 0;
+            width: auto; // Actions should not be full width
 
             a {
                 display: inline-block;
