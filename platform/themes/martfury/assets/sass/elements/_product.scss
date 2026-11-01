@@ -3013,6 +3013,8 @@
         border-bottom: 1px solid var(--global-color-border-strong, #333);
         padding-bottom: 15px;
         margin-bottom: 15px;
+        padding-left: 0;
+        padding-right: 0;
     }
 }
 
@@ -3024,6 +3026,9 @@
     .ec-upsell-bundle-wrapper {
         border-radius: 0;
         box-shadow: none;
+        background: var(--global-color-site-bg, #fff);
+        padding: 0;
+        border: none;
     }
 
     .ec-upsell-bundle-header {
@@ -3031,22 +3036,18 @@
         padding: 0;
         background: none;
         border: none;
-        
-        .ec-upsell-bundle-icon {
-            display: none; // Hide icon
-        }
+        display: flex;
+        align-items: center;
 
         .ec-upsell-bundle-title {
+            flex: 1;
+
             h4 {
                 font-size: 18px;
                 font-weight: 600;
                 color: var(--global-color-text-main, #1a1a1a);
                 margin: 0;
                 padding: 0;
-            }
-
-            p {
-                display: none; // Hide description
             }
         }
     }
@@ -3302,6 +3303,9 @@
     .ec-cross-sale-wrapper {
         border-radius: 0;
         box-shadow: none;
+        background: var(--global-color-site-bg, #fff);
+        padding: 0;
+        border: none;
     }
 
     .ec-cross-sale-header {
@@ -3309,22 +3313,18 @@
         padding: 0;
         background: none;
         border: none;
-        
-        .ec-cross-sale-icon {
-            display: none; // Hide icon
-        }
+        display: flex;
+        align-items: center;
 
         .ec-cross-sale-title {
+            flex: 1;
+
             h4 {
                 font-size: 18px;
                 font-weight: 600;
                 color: var(--global-color-text-main, #1a1a1a);
                 margin: 0;
                 padding: 0;
-            }
-
-            p {
-                display: none; // Hide description
             }
         }
     }
@@ -3407,10 +3407,6 @@
     .ec-cross-sale-card {
         position: relative;
         height: 100%;
-    }
-
-    .ec-cross-sale-plus {
-        display: none; // Hide the plus icons
     }
 
     .ec-cross-sale-card-inner {
