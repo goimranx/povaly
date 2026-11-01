@@ -371,10 +371,21 @@
                     var productUrl = $productLink.attr('href');
                     console.log('[DEBUG] removeFromCart - item', index, 'productUrl:', productUrl);
                     
-                    var urlParts = productUrl.split('/products/');
-                    if (urlParts.length < 2) return;
+                    // Extract product slug - handle both /p/ and /products/ formats
+                    var productIdentifier = null;
+                    if (productUrl.includes('/products/')) {
+                        var urlParts = productUrl.split('/products/');
+                        productIdentifier = urlParts[1] ? urlParts[1].replace(/\/$/, '') : null;
+                    } else if (productUrl.includes('/p/')) {
+                        var urlParts = productUrl.split('/p/');
+                        productIdentifier = urlParts[1] ? urlParts[1].replace(/\/$/, '') : null;
+                    }
                     
-                    var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    if (!productIdentifier) {
+                        console.log('[DEBUG] removeFromCart - item', index, 'could not extract product identifier');
+                        return;
+                    }
+                    
                     console.log('[DEBUG] removeFromCart - item', index, 'productIdentifier:', productIdentifier, 'looking for:', productSlug, 'or', productId);
                     
                     // Match by slug first, then ID
