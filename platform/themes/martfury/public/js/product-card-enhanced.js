@@ -14,15 +14,25 @@
 
     // ── Helper: Extract product identifier from URL ──────────────────────
     function extractProductIdentifier(productUrl) {
+        if (!productUrl) return null;
+        
         var prefix = getProductUrlPrefix();
         var prefixPath = '/' + prefix + '/';
         
+        // Handle both full URLs and relative paths
         if (productUrl.includes(prefixPath)) {
             var parts = productUrl.split(prefixPath);
-            return parts[1] ? parts[1].replace(/\/$/, '') : null;
+            return parts[1] ? parts[1].replace(/\/$/, '').split('?')[0].split('#')[0] : null;
         }
         
         return null;
+    }
+    
+    // ── Helper: Check if URL is a product URL ─────────────────────────────
+    function isProductUrl(url) {
+        if (!url) return false;
+        var prefix = getProductUrlPrefix();
+        return url.includes('/' + prefix + '/');
     }
 
     // ── Tooltip smart positioning ─────────────────────────────────────────
@@ -383,21 +393,30 @@
                     method: 'GET',
                     dataType: 'json',
                     success: function(response) {
-                        // Transform back to "Add to Cart" button
-                        var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
-                            'data-id="' + productId + '" ' +
-                            (productSlug ? 'data-slug="' + productSlug + '" ' : '') +
-                            'data-url="/cart/add-to-cart" ' +
-                            'data-show-toast-on-success="false" ' +
-                            'data-bb-toggle="add-to-cart">' +
-                            'Add to Cart</button>';
-                        
-                        $actions.html(btnHtml);
+                        // Transform back to "Add to Cart" button for ALL instances of this product
+                        $('.ec-card__qty-control[data-id="' + productId + '"]').each(function() {
+                            var $ctrl = $(this);
+                            var $actions = $ctrl.closest('.ec-card__actions');
+                            var ctrlSlug = $ctrl.data('slug');
+                            
+                            var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
+                                'data-id="' + productId + '" ' +
+                                (ctrlSlug ? 'data-slug="' + ctrlSlug + '" ' : '') +
+                                'data-url="/cart/add-to-cart" ' +
+                                'data-show-toast-on-success="false" ' +
+                                'data-bb-toggle="add-to-cart">' +
+                                'Add to Cart</button>';
+                            
+                            $actions.html(btnHtml);
+                        });
                         
                         // Update mini-cart
                         if (typeof window.loadCart === 'function') {
                             window.loadCart();
                         }
+                        
+                        // Update cart icon states (flyout buttons)
+                        syncCartIconStates();
                     },
                     error: function(xhr) {
                         }
@@ -506,8 +525,7 @@
                     var $actions = $control.closest('.ec-card__actions');
                     var $card = $actions.closest('.ec-card');
                     var $originalLink = $card.find('a').filter(function() {
-                        var href = $(this).attr('href');
-                        return href && extractProductIdentifier(href);
+                        return isProductUrl($(this).attr('href'));
                     }).first();
                     var productSlug = null;
                     
@@ -623,8 +641,7 @@
                     var productId = $btn.data('product-id') || $btn.data('id');
                     var $card = $btn.closest('.ec-card');
                     var $productLink = $card.find('a').filter(function() {
-                        var href = $(this).attr('href');
-                        return href && extractProductIdentifier(href);
+                        return isProductUrl($(this).attr('href'));
                     }).first();
                     var productSlug = null;
                     
