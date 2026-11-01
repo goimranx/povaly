@@ -31,7 +31,10 @@
                 'decimal_separator' => $currency->decimal_separator,
             ];
         @endphp
-        <section class="ec-upsell-bundle" data-upsale-bundle data-currency-config="{{ json_encode($currencyConfig) }}">
+        
+        {{-- Wrapper for both desktop and mobile sections so they refresh together --}}
+        <div data-upsale-bundle data-currency-config="{{ json_encode($currencyConfig) }}">
+        <section class="ec-upsell-bundle">
             <div class="container">
                 <div class="ec-upsell-bundle-wrapper">
                     <div class="ec-upsell-bundle-header">
@@ -323,6 +326,8 @@
             'modalTitle' => trans('plugins/ecommerce::products.up_sale.title'),
             'products' => $products
         ])
+        </div>
+        {{-- End wrapper for refresh --}}
     @endif
 @else
     <div data-bb-toggle="block-lazy-loading" data-url="{{ route('public.ajax.up-sale-products', $parentProduct) }}">
