@@ -77,6 +77,7 @@
 
     @media (max-width: 991px) {
         flex-direction: column;
+        gap: 15px;
     }
 }
 
@@ -246,13 +247,6 @@
     height: 100%;
 }
 
-@media (max-width: 575px) {
-    .ec-upsell-bundle-item-inner {
-        gap: 10px;
-        padding: 10px;
-    }
-}
-
 .ec-upsell-bundle-checkbox {
     position: absolute;
     top: 10px;
@@ -349,13 +343,6 @@
         width: 80px;
         height: 80px;
         object-fit: cover;
-    }
-}
-
-@media (max-width: 575px) {
-    .ec-upsell-bundle-thumb {
-        width: 60px;
-        height: 60px;
     }
 }
 
@@ -565,13 +552,6 @@
     &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
-    }
-}
-
-@media (max-width: 575px) {
-    .ec-upsell-bundle-add-all {
-        width: 100%;
-        padding: 14px 24px;
     }
 }
 
