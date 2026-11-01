@@ -720,3 +720,91 @@
         window.EcommerceUpSaleCrossSale.init()
     })
 })(jQuery)
+
+
+/**
+ * Mobile Modal Functionality for Upsell Bundle
+ */
+;(function ($) {
+    'use strict'
+
+    // Open modal when "Buy all" button is clicked
+    $(document).on('click', '[data-upsale-mobile-modal-open]', function (e) {
+        e.preventDefault()
+        const modal = $('#upsale-mobile-modal')
+        if (modal.length) {
+            modal.fadeIn(300)
+            $('body').css('overflow', 'hidden')
+            
+            // Calculate and update total price
+            updateModalTotal()
+        }
+    })
+
+    // Close modal when backdrop or close button is clicked
+    $(document).on('click', '[data-bundle-modal-close], .ec-bundle-modal-overlay', function (e) {
+        e.preventDefault()
+        const modal = $(this).closest('.ec-bundle-modal')
+        modal.fadeOut(300)
+        $('body').css('overflow', '')
+    })
+
+    // Update total when checkbox is toggled
+    $(document).on('change', '.ec-bundle-modal-checkbox input[type="checkbox"]', function () {
+        updateModalTotal()
+    })
+
+    // Calculate and update modal total price
+    function updateModalTotal() {
+        let total = 0
+        $('.ec-bundle-modal-checkbox input[type="checkbox"]:checked').each(function () {
+            const price = parseFloat($(this).data('price')) || 0
+            total += price
+        })
+        
+        // Update total price display
+        const $totalPrice = $('[data-bundle-total-price]')
+        if ($totalPrice.length) {
+            $totalPrice.text(formatPrice(total))
+        }
+    }
+
+    // Simple price formatting (you can enhance this based on your currency settings)
+    function formatPrice(amount) {
+        // This is a basic formatter - you may want to use the actual currency config
+        return '$' + amount.toFixed(2)
+    }
+
+    // Add all selected products to cart
+    $(document).on('click', '[data-bundle-add-all]', function (e) {
+        e.preventDefault()
+        const $btn = $(this)
+        const url = $btn.data('url')
+        const $checkedItems = $('.ec-bundle-modal-checkbox input[type="checkbox"]:checked')
+        
+        if ($checkedItems.length === 0) {
+            return
+        }
+        
+        $btn.prop('disabled', true).text('Adding...')
+        
+        const products = []
+        $checkedItems.each(function () {
+            products.push({
+                id: $(this).data('product-id'),
+                qty: 1
+            })
+        })
+        
+        // Add products to cart (you'll need to implement the actual cart addition logic)
+        console.log('Adding products to cart:', products)
+        
+        // Close modal after adding
+        setTimeout(function () {
+            $('.ec-bundle-modal').fadeOut(300)
+            $('body').css('overflow', '')
+            $btn.prop('disabled', false).html('<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg><span>Add to Cart</span>')
+        }, 1000)
+    })
+
+})(jQuery)
