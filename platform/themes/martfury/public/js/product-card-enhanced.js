@@ -5,6 +5,26 @@
 (function ($) {
     'use strict';
 
+    // ── Helper: Get product URL prefix from settings ─────────────────────
+    function getProductUrlPrefix() {
+        return window.povalyConfig && window.povalyConfig.productUrlPrefix 
+            ? window.povalyConfig.productUrlPrefix 
+            : 'products';
+    }
+
+    // ── Helper: Extract product identifier from URL ──────────────────────
+    function extractProductIdentifier(productUrl) {
+        var prefix = getProductUrlPrefix();
+        var prefixPath = '/' + prefix + '/';
+        
+        if (productUrl.includes(prefixPath)) {
+            var parts = productUrl.split(prefixPath);
+            return parts[1] ? parts[1].replace(/\/$/, '') : null;
+        }
+        
+        return null;
+    }
+
     // ── Tooltip smart positioning ─────────────────────────────────────────
     // Default: below. If not enough space below, show above.
     $(document).on('mouseenter', '.ec-card__info-icon', function () {
@@ -258,15 +278,14 @@
                 // Find the cart item by matching product URL
                 $html.find('.ps-product--cart-mobile').each(function() {
                     var $item = $(this);
-                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    var $productLink = $item.find('.ps-product__content > a').not('.ps-product__remove, .remove-cart-item').first();
                     
                     if (!$productLink.length) return;
                     
                     var productUrl = $productLink.attr('href');
-                    var urlParts = productUrl.split('/products/');
-                    if (urlParts.length < 2) return;
+                    var productIdentifier = extractProductIdentifier(productUrl);
                     
-                    var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    if (!productIdentifier) return;
                     
                     // Match by slug first (most reliable), then by ID
                     if (productIdentifier == productSlug || productIdentifier == productId) {
@@ -338,15 +357,14 @@
                 // Parse cart items to find remove URL
                 $html.find('.ps-product--cart-mobile').each(function() {
                     var $item = $(this);
-                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    var $productLink = $item.find('.ps-product__content > a').not('.ps-product__remove, .remove-cart-item').first();
                     
                     if (!$productLink.length) return;
                     
                     var productUrl = $productLink.attr('href');
-                    var urlParts = productUrl.split('/products/');
-                    if (urlParts.length < 2) return;
+                    var productIdentifier = extractProductIdentifier(productUrl);
                     
-                    var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    if (!productIdentifier) return;
                     
                     // Match by slug first, then ID
                     if (productIdentifier == productSlug || productIdentifier == productId) {
@@ -435,15 +453,14 @@
                 // Parse cart items by finding product containers
                 $html.find('.ps-product--cart-mobile').each(function() {
                     var $item = $(this);
-                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    var $productLink = $item.find('.ps-product__content > a').not('.ps-product__remove, .remove-cart-item').first();
                     
                     if (!$productLink.length) return;
                     
                     var productUrl = $productLink.attr('href');
-                    var urlParts = productUrl.split('/products/');
-                    if (urlParts.length < 2) return;
+                    var productIdentifier = extractProductIdentifier(productUrl);
                     
-                    var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    if (!productIdentifier) return;
                     
                     // Find quantity in the text "X x" format
                     var $qtyText = $item.find('.ps-product__content p small .d-inline-block');
@@ -488,15 +505,15 @@
                     // Find the original button to get its slug
                     var $actions = $control.closest('.ec-card__actions');
                     var $card = $actions.closest('.ec-card');
-                    var $originalLink = $card.find('a[href*="/products/"]').first();
+                    var $originalLink = $card.find('a').filter(function() {
+                        var href = $(this).attr('href');
+                        return href && extractProductIdentifier(href);
+                    }).first();
                     var productSlug = null;
                     
                     if ($originalLink.length) {
                         var href = $originalLink.attr('href');
-                        var parts = href.split('/products/');
-                        if (parts.length > 1) {
-                            productSlug = parts[1].replace(/\/$/, '');
-                        }
+                        productSlug = extractProductIdentifier(href);
                     }
                     
                     var cartItem = cartItems[productSlug] || cartItems[productId];
@@ -588,15 +605,15 @@
                 // Parse cart items to get product IDs
                 $html.find('.ps-product--cart-mobile').each(function() {
                     var $item = $(this);
-                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    var $productLink = $item.find('.ps-product__content > a').not('.ps-product__remove, .remove-cart-item').first();
                     
                     if (!$productLink.length) return;
                     
                     var productUrl = $productLink.attr('href');
-                    var urlParts = productUrl.split('/products/');
-                    if (urlParts.length < 2) return;
+                    var productIdentifier = extractProductIdentifier(productUrl);
                     
-                    var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    if (!productIdentifier) return;
+                    
                     cartProductIds.push(productIdentifier);
                 });
                 
@@ -604,11 +621,15 @@
                 $('.ec-card__float-btn--cart').each(function() {
                     var $btn = $(this);
                     var productId = $btn.data('product-id') || $btn.data('id');
-                    var productSlug = $btn.closest('.ec-card').find('a[href*="/products/"]').first().attr('href');
+                    var $card = $btn.closest('.ec-card');
+                    var $productLink = $card.find('a').filter(function() {
+                        var href = $(this).attr('href');
+                        return href && extractProductIdentifier(href);
+                    }).first();
+                    var productSlug = null;
                     
-                    if (productSlug) {
-                        var parts = productSlug.split('/products/');
-                        productSlug = parts.length > 1 ? parts[1].replace(/\/$/, '') : null;
+                    if ($productLink.length) {
+                        productSlug = extractProductIdentifier($productLink.attr('href'));
                     }
                     
                     // Check if product is in cart

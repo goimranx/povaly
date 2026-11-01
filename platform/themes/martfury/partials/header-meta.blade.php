@@ -2896,6 +2896,13 @@
     {!! Theme::header() !!}
 <script>
 // ═══════════════════════════════════════════════════════════════════
+// Global Configuration - Product URL Prefix
+// ═══════════════════════════════════════════════════════════════════
+window.povalyConfig = {
+    productUrlPrefix: '{{ \Botble\Slug\Facades\SlugHelper::getPrefix(\Botble\Ecommerce\Models\Product::class) ?: "products" }}'
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // Preloader - Hide when page fully loads
 // ═══════════════════════════════════════════════════════════════════
 window.addEventListener('load', function() {
