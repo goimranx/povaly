@@ -40,7 +40,9 @@
                         </div>
                     </div>
 
-                    <div class="ec-upsell-bundle-list">
+                    <div class="ec-upsell-bundle-content">
+                        <div class="ec-upsell-bundle-carousel-wrapper">
+                            <div class="ec-upsell-bundle-list ec-upsell-carousel" data-upsale-carousel>
                         @foreach ($products as $product)
                             @php
                                 $productVariation = $product;
@@ -180,9 +182,11 @@
                             </div>
                         @endforeach
                     </div>
+                    <div class="ec-upsell-bundle-arrows"></div>
+                </div>
 
-                    @if(EcommerceHelper::isCartEnabled())
-                        <div class="ec-upsell-bundle-footer">
+                @if(EcommerceHelper::isCartEnabled())
+                    <div class="ec-upsell-bundle-footer">
                             @if(!$parentProductInCart)
                                 <div class="ec-upsell-bundle-notice">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -217,6 +221,7 @@
                             @endif
                         </div>
                     @endif
+                    </div>
                 </div>
             </div>
         </section>
