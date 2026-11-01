@@ -2,38 +2,37 @@
  * product-card-enhanced.js
  * Loaded via config.php after main.js — handles ec-card button interactions.
  */
-(function ($) {
-    'use strict';
 
-    // ── Helper: Get product URL prefix from settings ─────────────────────
-    function getProductUrlPrefix() {
-        return window.povalyConfig && window.povalyConfig.productUrlPrefix 
-            ? window.povalyConfig.productUrlPrefix 
-            : 'products';
-    }
+// ── Global Helper Functions (must be outside IIFE for accessibility) ──────
+function getProductUrlPrefix() {
+    return window.povalyConfig && window.povalyConfig.productUrlPrefix 
+        ? window.povalyConfig.productUrlPrefix 
+        : 'products';
+}
 
-    // ── Helper: Extract product identifier from URL ──────────────────────
-    function extractProductIdentifier(productUrl) {
-        if (!productUrl) return null;
-        
-        var prefix = getProductUrlPrefix();
-        var prefixPath = '/' + prefix + '/';
-        
-        // Handle both full URLs and relative paths
-        if (productUrl.includes(prefixPath)) {
-            var parts = productUrl.split(prefixPath);
-            return parts[1] ? parts[1].replace(/\/$/, '').split('?')[0].split('#')[0] : null;
-        }
-        
-        return null;
+function extractProductIdentifier(productUrl) {
+    if (!productUrl) return null;
+    
+    var prefix = getProductUrlPrefix();
+    var prefixPath = '/' + prefix + '/';
+    
+    // Handle both full URLs and relative paths
+    if (productUrl.includes(prefixPath)) {
+        var parts = productUrl.split(prefixPath);
+        return parts[1] ? parts[1].replace(/\/$/, '').split('?')[0].split('#')[0] : null;
     }
     
-    // ── Helper: Check if URL is a product URL ─────────────────────────────
-    function isProductUrl(url) {
-        if (!url) return false;
-        var prefix = getProductUrlPrefix();
-        return url.includes('/' + prefix + '/');
-    }
+    return null;
+}
+
+function isProductUrl(url) {
+    if (!url) return false;
+    var prefix = getProductUrlPrefix();
+    return url.includes('/' + prefix + '/');
+}
+
+(function ($) {
+    'use strict';
 
     // ── Tooltip smart positioning ─────────────────────────────────────────
     // Default: below. If not enough space below, show above.
