@@ -1929,20 +1929,11 @@
 
             $checkboxes.filter(':checked').each(function() {
                 const price = parseFloat($(this).attr('data-price')) || 0;
+                const savedAmount = parseFloat($(this).attr('data-saved-amount')) || 0;
+                
                 total += price;
+                totalSaved += savedAmount;
                 selectedCount++;
-                
-                // Calculate saved amount if there's a discount
-                const bundleDiscount = parseFloat($(this).attr('data-bundle-discount')) || 0;
-                const discountType = $(this).attr('data-bundle-discount-type');
-                
-                if (bundleDiscount > 0) {
-                    if (discountType === 'percent') {
-                        totalSaved += (price / (1 - bundleDiscount / 100)) * (bundleDiscount / 100);
-                    } else {
-                        totalSaved += bundleDiscount;
-                    }
-                }
             });
 
             $totalPrice.text(formatPrice(total));

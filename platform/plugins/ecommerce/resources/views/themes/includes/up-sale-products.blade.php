@@ -106,6 +106,8 @@
                                             data-name="{{ $product->name }}"
                                             data-bundle-discount="{{ $bundleDiscountPrice }}"
                                             data-bundle-discount-type="{{ $isPercentDiscount ? 'percent' : 'fixed' }}"
+                                            data-original-price="{{ $salePrice * ($currency->is_default ? 1 : $currency->exchange_rate) }}"
+                                            data-saved-amount="{{ ($salePrice - $bundlePrice) * ($currency->is_default ? 1 : $currency->exchange_rate) }}"
                                             @checked($parentProductInCart)
                                             @disabled(! $parentProductInCart)
                                         >
