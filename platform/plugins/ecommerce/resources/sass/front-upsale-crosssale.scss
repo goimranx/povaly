@@ -92,8 +92,8 @@
         top: 50%;
         transform: translateY(-50%);
         z-index: 10;
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
         border-radius: 50%;
         background: transparent;
         border: 1px solid var(--global-color-primary-border, #e8e8e8);
@@ -109,14 +109,18 @@
         }
 
         svg {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
         }
 
-        &:hover {
-            background: var(--global-color-card-bg, #f5f5f5);
-            color: var(--global-color-text-main, #333);
-            border-color: var(--global-color-text-main, #333);
+        &:not(.slick-disabled) {
+            border-color: var(--global-color-border-strong, #333);
+            color: var(--global-color-text-body, #666);
+
+            &:hover {
+                background: var(--global-color-card-bg, #f5f5f5);
+                color: var(--global-color-text-main, #333);
+            }
         }
 
         &.slick-disabled {
@@ -125,11 +129,11 @@
         }
 
         &.slick-prev {
-            left: -16px;
+            left: -14px;
         }
 
         &.slick-next {
-            right: -16px;
+            right: -14px;
         }
     }
 }
