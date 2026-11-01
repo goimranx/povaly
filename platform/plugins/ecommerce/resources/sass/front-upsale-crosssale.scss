@@ -71,7 +71,7 @@
 .ec-upsell-bundle-content {
     display: flex;
     align-items: stretch;
-    gap: 20px;
+    gap: 60px;
 
     @media (max-width: 991px) {
         flex-direction: column;
@@ -120,6 +120,7 @@
             &:hover {
                 background: var(--global-color-card-bg, #f5f5f5);
                 color: var(--global-color-text-main, #333);
+                border-color: var(--global-color-border-strong, #333);
             }
         }
 
@@ -324,7 +325,7 @@
 .ec-upsell-bundle-thumb {
     position: relative;
     width: auto;
-    height: auto;
+    height: 100%;
     flex-shrink: 0;
     border-radius: 0;
     overflow: hidden;
