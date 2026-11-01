@@ -3374,6 +3374,13 @@
 
 // Responsive
 @media (max-width: 767px) {
+    // Remove bottom margin, padding, and border from ps-product__header on mobile
+    .ps-product__header {
+        border-bottom: none !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+    }
+    
     // Mobile Header Section (only visible on mobile)
     .ps-product__mobile-header {
         display: block;
