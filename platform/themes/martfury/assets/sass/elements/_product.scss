@@ -3388,11 +3388,10 @@
             margin-bottom: 12px;
         }
         
-        .pd-mobile-store-top {
+        .pd-mobile-store-row {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 10px;
-            margin-bottom: 8px;
         }
         
         .pd-mobile-store-logo {
@@ -3401,44 +3400,41 @@
             border-radius: 50%;
             overflow: hidden;
             flex-shrink: 0;
-            position: relative;
+            display: block;
             
-            // Triple border effect: primary-border -> link -> site-bg
-            border: 2px solid var(--global-color-primary-border);
-            padding: 2px;
+            // Triple border: 1px primary-border, 1px link, inner site-bg
+            border: 1px solid var(--global-color-primary-border);
+            padding: 1px;
             background: var(--global-color-link);
             
-            &::before {
-                content: '';
-                position: absolute;
-                inset: 2px;
-                border-radius: 50%;
-                background: var(--global-color-site-bg);
-                z-index: 0;
-            }
-            
             img {
-                position: relative;
-                z-index: 1;
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
                 border-radius: 50%;
+                border: 1px solid var(--global-color-site-bg);
+                background: var(--global-color-site-bg);
             }
+        }
+        
+        .pd-mobile-store-content {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
         
         .pd-mobile-store-name {
             font-size: 0.875rem;
             font-weight: 500;
             color: var(--global-color-text-main);
-            flex: 1;
-            min-width: 0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         
-        .pd-mobile-store-bottom {
+        .pd-mobile-store-actions {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -3450,6 +3446,7 @@
             color: var(--global-color-link);
             text-decoration: none;
             white-space: nowrap;
+            flex-shrink: 0;
             
             &:hover {
                 text-decoration: underline;

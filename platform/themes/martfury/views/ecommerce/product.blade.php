@@ -12,37 +12,39 @@
                 {{-- Mobile Store Info --}}
                 @if (is_plugin_active('marketplace') && $product->store_id)
                     <div class="pd-mobile-store-section">
-                        <div class="pd-mobile-store-top">
-                            <div class="pd-mobile-store-logo">
+                        <div class="pd-mobile-store-row">
+                            <a href="{{ $product->store->url }}" class="pd-mobile-store-logo">
                                 {!! RvMedia::image($product->store->logo, $product->store->name, 'thumb') !!}
-                            </div>
-                            <div class="pd-mobile-store-name">{{ $product->store->name }}</div>
-                        </div>
-                        <div class="pd-mobile-store-bottom">
-                            <a href="{{ $product->store->url }}" class="pd-mobile-store-link">
-                                {{ __('Shop the store') }}
                             </a>
-                            
-                            {{-- Rating on the same row (right side) --}}
-                            @if (EcommerceHelper::isReviewEnabled() && $product->reviews_count > 0)
-                                <div class="pd-rating-row pd-mobile-rating">
-                                    <a href="#tab-reviews" class="pd-rating-link">
-                                        <span class="pd-rating-avg">{{ number_format($product->reviews_avg, 1) }}</span>
-                                        <span class="pd-rating-stars">
-                                            @for ($i = 1; $i <= 5; $i++)
-                                                @if ($i <= floor($product->reviews_avg))
-                                                    <i class="ph-fill ph-star"></i>
-                                                @elseif ($i - $product->reviews_avg < 1)
-                                                    <i class="ph-fill ph-star-half"></i>
-                                                @else
-                                                    <i class="ph ph-star"></i>
-                                                @endif
-                                            @endfor
-                                        </span>
-                                        <span class="pd-rating-count">({{ number_format($product->reviews_count) }})</span>
+                            <div class="pd-mobile-store-content">
+                                <div class="pd-mobile-store-name">{{ $product->store->name }}</div>
+                                <div class="pd-mobile-store-actions">
+                                    <a href="{{ $product->store->url }}" class="pd-mobile-store-link">
+                                        {{ __('Shop the store') }}
                                     </a>
+                                    
+                                    {{-- Rating on the same row (right side) --}}
+                                    @if (EcommerceHelper::isReviewEnabled() && $product->reviews_count > 0)
+                                        <div class="pd-rating-row pd-mobile-rating">
+                                            <a href="#tab-reviews" class="pd-rating-link">
+                                                <span class="pd-rating-avg">{{ number_format($product->reviews_avg, 1) }}</span>
+                                                <span class="pd-rating-stars">
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        @if ($i <= floor($product->reviews_avg))
+                                                            <i class="ph-fill ph-star"></i>
+                                                        @elseif ($i - $product->reviews_avg < 1)
+                                                            <i class="ph-fill ph-star-half"></i>
+                                                        @else
+                                                            <i class="ph ph-star"></i>
+                                                        @endif
+                                                    @endfor
+                                                </span>
+                                                <span class="pd-rating-count">({{ number_format($product->reviews_count) }})</span>
+                                            </a>
+                                        </div>
+                                    @endif
                                 </div>
-                            @endif
+                            </div>
                         </div>
                     </div>
                 @endif
