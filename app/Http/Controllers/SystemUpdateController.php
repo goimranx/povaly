@@ -201,6 +201,13 @@ class SystemUpdateController extends Controller
                 $sendMessage("\n=== Rebuilding Caches ===", 'header');
                 $this->optimizeApplicationWithProgress($sendMessage);
                 $sendMessage("✓ Application optimized", 'success');
+                
+                // Step 9.5: CRITICAL - Reset OpCache AGAIN after view compilation
+                if (function_exists('opcache_reset')) {
+                    $sendMessage("→ Final OpCache reset (ensuring fresh compiled views)...", 'info');
+                    opcache_reset();
+                    $sendMessage("✓ OpCache reset after view compilation", 'success');
+                }
 
                 // Step 10: Update cache bust version
                 $sendMessage("\n=== Updating Asset Version ===", 'header');
@@ -962,7 +969,21 @@ class SystemUpdateController extends Controller
                 }
             }
         }
-        $sendMessage("✓ Deleted {$deletedFiles} cache files", 'success');
+        $sendMessage("✓ Deleted {$deletedFiles} cache files (including ALL compiled Blade views)", 'success');
+        
+        // 3.5 Additional NUCLEAR view clearing - delete storage/framework/views completely and recreate
+        $sendMessage("→ Nuclear view cache directory reset...", 'info');
+        $viewCachePath = storage_path('framework/views');
+        if (File::exists($viewCachePath)) {
+            try {
+                File::deleteDirectory($viewCachePath);
+                File::makeDirectory($viewCachePath, 0755, true);
+                File::put($viewCachePath . '/.gitignore', "*\n!.gitignore\n");
+                $sendMessage("✓ View cache directory completely rebuilt", 'success');
+            } catch (\Exception $e) {
+                $sendMessage("⚠ View directory reset failed: " . $e->getMessage(), 'warning');
+            }
+        }
         
         // 4. Bootstrap cache files
         $sendMessage("→ Clearing bootstrap cache...", 'info');

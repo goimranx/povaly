@@ -185,8 +185,14 @@
                             </div>
                         @endif
 
-                        {{-- 8. Product details accordion --}}
-                        <div class="pd-accordion" id="pd-accordion">
+                        {{-- 8. Product details section --}}
+                        <div class="pd-section">
+                            <div class="pd-section-header">
+                                <h2 class="pd-section-title">{{ __('Product Details') }}</h2>
+                                <div class="pd-section-separator"></div>
+                            </div>
+                            
+                            <div class="pd-accordion" id="pd-accordion">
 
                             {{-- 8a. About this item --}}
                             @if ($product->description)
@@ -198,7 +204,9 @@
                                     <div id="pd-about" class="collapse show" data-bs-parent="#pd-accordion">
                                         <div class="pd-accordion-body ps-list--dot">
                                             {!! apply_filters('ecommerce_before_product_description', null, $product) !!}
-                                            {!! BaseHelper::clean($product->description) !!}
+                                            <div class="pd-description-content pd-description-collapsed" id="pd-description-content">
+                                                {!! BaseHelper::clean($product->description) !!}
+                                            </div><button type="button" class="pd-read-more-btn" id="pd-read-more-btn" onclick="toggleDescription()">{{ __('Read more') }}</button>
                                             {!! apply_filters('ecommerce_after_product_description', null, $product) !!}
                                         </div>
                                     </div>
@@ -276,9 +284,8 @@
                                 </button>
                                 <div id="pd-return" class="collapse" data-bs-parent="#pd-accordion">
                                     <div class="pd-accordion-body pd-return-policy">
-                                        <div class="pd-return-icon"><i class="ph ph-arrow-counter-clockwise"></i></div>
                                         <div class="pd-return-text">
-                                            <p><strong>{{ __('30-day returns') }}</strong></p>
+                                            <p><strong>{{ __('7 day returns') }}</strong></p>
                                             <p>{{ __('Return within 7 days of receiving your order. We cover full refund minus the delivery charge. Simply contact us and we\'ll handle the rest.') }}</p>
                                         </div>
                                     </div>
@@ -368,12 +375,8 @@
                                 @endforeach
                             </div>
                         @endif
-
-                        {{-- Sharing --}}
-                        <div class="pd-sharing">
-                            <span>{{ __('Share:') }}</span>
-                            {!! Theme::renderSocialSharing($product->url, SeoHelper::getDescription(), $product->image) !!}
                         </div>
+                        {{-- End of pd-section --}}
 
                     </div>
                     <!-- END: Product Details -->
@@ -386,10 +389,111 @@
                                     'product' => $product,
                                     'priceWrapperTag' => 'h3',
                                     'priceWrapperClass' => 'ps-product__total-price',
+                                    'priceClass' => 'product-price', // Inherit from h3 parent
+                                    'hiddenClasses' => ['ps-product__del-price'], // Hide regular price
                                 ]) !!}
                             </div>
                             
-                            <div class="number-items-available mb-3">
+                            {{-- Delivery Details --}}
+                            <div class="ps-product__delivery-details">
+                                <div class="delivery-address-content" id="delivery-address-display">
+                                    @php
+                                        // Get address from session (same logic as LocationSessionController)
+                                        $orderHelper = app(\Botble\Ecommerce\Supports\OrderHelper::class);
+                                        $token = $orderHelper->getOrderSessionToken();
+                                        $sessionData = $orderHelper->getOrderSessionData($token);
+                                        $sessionAddressId = $sessionData['address_id'] ?? null;
+                                        
+                                        $displayAddress = null;
+                                        $displayType = 'default';
+                                        
+                                        if ($sessionAddressId && $sessionAddressId !== 'new') {
+                                            // Saved address from session
+                                            if (auth('customer')->check()) {
+                                                $displayAddress = \Botble\Ecommerce\Models\Address::query()
+                                                    ->where('id', $sessionAddressId)
+                                                    ->where('customer_id', auth('customer')->id())
+                                                    ->first();
+                                                $displayType = 'saved';
+                                            }
+                                        } elseif ($sessionAddressId === 'new' && !empty($sessionData['country'])) {
+                                            // Temporary address from session
+                                            $displayAddress = (object) $sessionData;
+                                            $displayType = 'temporary';
+                                        } else {
+                                            // No session address, show default saved address
+                                            if (auth('customer')->check()) {
+                                                $displayAddress = auth('customer')->user()->addresses()->where('is_default', 1)->first();
+                                            }
+                                        }
+                                    @endphp
+                                    
+                                    @if ($displayAddress)
+                                        @include(Theme::getThemeNamespace('views.ecommerce.includes.delivery-address-display'), [
+                                            'address' => $displayAddress,
+                                            'type' => $displayType,
+                                            'product' => $product
+                                        ])
+                                    @else
+                                        {{-- No location set - auto-detect visitor country --}}
+                                        @php
+                                            // Auto-detect visitor's country using geoip
+                                            $visitorCountry = null;
+                                            $visitorCountryCode = null;
+                                            
+                                            try {
+                                                if (function_exists('geoip')) {
+                                                    $geoip = geoip(request()->ip());
+                                                    $visitorCountry = $geoip->country ?? null;
+                                                    $visitorCountryCode = $geoip->iso_code ?? null;
+                                                } elseif (class_exists('\Stevebauman\Location\Facades\Location')) {
+                                                    $position = \Stevebauman\Location\Facades\Location::get(request()->ip());
+                                                    $visitorCountry = $position ? $position->countryName : null;
+                                                    $visitorCountryCode = $position ? $position->countryCode : null;
+                                                }
+                                            } catch (\Exception $e) {
+                                                // Fallback to default country if detection fails
+                                                $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                                                $visitorCountry = \Botble\Ecommerce\Facades\EcommerceHelper::getCountryNameById($defaultCountryId);
+                                                $visitorCountryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
+                                            }
+                                            
+                                            if (!$visitorCountry) {
+                                                $defaultCountryId = \Botble\Ecommerce\Facades\EcommerceHelper::getFirstCountryId();
+                                                $visitorCountry = \Botble\Ecommerce\Facades\EcommerceHelper::getCountryNameById($defaultCountryId);
+                                                $visitorCountryCode = \App\Helpers\DeliveryHelper::getCountryCodeById($defaultCountryId);
+                                            }
+                                            
+                                            // Calculate delivery date based on visitor's country
+                                            $deliveryDate = \App\Helpers\DeliveryHelper::getEstimatedDeliveryDate($visitorCountryCode, $product->id);
+                                            $formattedDate = \App\Helpers\DeliveryHelper::formatDeliveryDate($deliveryDate);
+                                        @endphp
+                                        
+                                        <div class="delivery-date-info">
+                                            {{ __('Delivered by around') }} <strong>{{ $formattedDate }}</strong>
+                                        </div>
+                                        
+                                        <div class="delivery-location-row">
+                                            <i class="ph ph-map-pin delivery-location-icon"></i>
+                                            <div class="delivery-location-content">
+                                                <div class="delivery-address-text">
+                                                    <span class="delivery-location-label">{{ __('Deliver to') }}</span>
+                                                    {{ $visitorCountry }}
+                                                </div>
+                                            </div>
+                                            <a href="#" class="delivery-change-btn trigger-location-modal">
+                                                @if (auth('customer')->check())
+                                                    {{ __('Update location') }}
+                                                @else
+                                                    {{ __('Select location') }}
+                                                @endif
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            
+                            <div class="number-items-available">
                                 @if ($product->isOutOfStock())
                                     <span class="text-danger">({{ __('Out of stock') }})</span>
                                 @else
@@ -436,14 +540,6 @@
                                         <button class="ps-btn add-to-cart-button @if ($product->isOutOfStock()) btn-disabled @endif" type="submit" name="checkout" value="1" {!! EcommerceHelper::jsAttributes('add-to-cart', $product, additional: ['data-bb-toggle' => 'none']) !!} @if ($product->isOutOfStock()) disabled @endif>{{ __('Buy Now') }}</button>
                                     @endif
                                 @endif
-                                <div class="ps-product__actions">
-                                    @if (EcommerceHelper::isWishlistEnabled())
-                                        <a class="js-add-to-wishlist-button" href="#" data-url="{{ route('public.wishlist.add', $product->id) }}"><i class="icon-heart"></i></a>
-                                    @endif
-                                    @if (EcommerceHelper::isCompareEnabled())
-                                        <a class="js-add-to-compare-button" href="#" data-url="{{ route('public.compare.add', $product->id) }}" title="{{ __('Compare') }}"><i class="icon-chart-bars"></i></a>
-                                    @endif
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -613,6 +709,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 500);
     }
+    
+    // Initialize Bootstrap tooltips for delivery info
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
 
 
 
@@ -810,3 +913,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 </script>
+
+
+@include(Theme::getThemeNamespace('views.ecommerce.includes.location-modal'))
+
+{{-- Include location.js plugin for cascading dropdowns --}}
+<script src="{{ asset('vendor/core/plugins/location/js/location.js') }}?v={{ cache_bust() }}"></script>
+<script src="{{ Theme::asset()->url('js/location-modal.js') }}?v={{ cache_bust() }}"></script>

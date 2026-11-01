@@ -30,3 +30,14 @@ Route::prefix(config('core.base.general.admin_dir', 'pv-admin'))->middleware(['w
         Route::post('/clear-cache', [SystemUpdateController::class, 'clearCacheOnly'])->name('clear-cache')->middleware('auth');
     });
 });
+
+
+// Location Session Routes
+Route::post('/ajax/save-temporary-location', [App\Http\Controllers\LocationSessionController::class, 'saveTemporaryLocation'])
+    ->name('ajax.save-temporary-location');
+
+Route::get('/ajax/get-delivery-display', [App\Http\Controllers\LocationSessionController::class, 'getDeliveryDisplay'])
+    ->name('ajax.get-delivery-display');
+
+Route::post('/ajax/clear-temporary-location', [App\Http\Controllers\LocationSessionController::class, 'clearTemporaryLocation'])
+    ->name('ajax.clear-temporary-location');

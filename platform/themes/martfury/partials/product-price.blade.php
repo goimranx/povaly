@@ -11,16 +11,20 @@
     $priceOriginalWrapperClass ??= '';
     $priceOriginalClass ??= '';
     $salePercentageClass ??= '';
+    $hiddenClasses ??= []; // Classes to hide
 
     $shouldShowPrice = (! EcommerceHelper::hideProductPrice() || EcommerceHelper::isCartEnabled())
         && (! EcommerceHelper::hideProductPriceWhenZero() || $priceValue > 0);
+    
+    // Check if original price should be hidden
+    $hideOriginalPrice = in_array('ps-product__del-price', $hiddenClasses);
 @endphp
 
 @if ($shouldShowPrice)
     <{{ $priceWrapperTag }} class="{{ trim($priceWrapperClass . ($product->isOnSale() ? ' sale' : '')) }}">
         <span class="{{ trim($priceClass) }}" data-bb-value="product-price">{{ $priceFormatted }}</span>
 
-        @if ($product->isOnSale())
+        @if ($product->isOnSale() && !$hideOriginalPrice)
             <span class="{{ trim($priceOriginalWrapperClass) }}">
                 <small>
                     <del class="{{ trim($priceOriginalClass) }}" data-bb-value="product-original-price">

@@ -35,20 +35,14 @@
             <div class="container">
                 <div class="ec-upsell-bundle-wrapper">
                     <div class="ec-upsell-bundle-header">
-                        <div class="ec-upsell-bundle-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
-                        </div>
                         <div class="ec-upsell-bundle-title">
                             <h4>{{ trans('plugins/ecommerce::products.up_sale.title') }}</h4>
-                            <p>{{ trans('plugins/ecommerce::products.up_sale.description') }}</p>
                         </div>
                     </div>
 
-                    <div class="ec-upsell-bundle-list">
+                    <div class="ec-upsell-bundle-content">
+                        <div class="ec-upsell-bundle-carousel-wrapper">
+                            <div class="ec-upsell-bundle-list ec-upsell-carousel" data-upsale-carousel>
                         @foreach ($products as $product)
                             @php
                                 $productVariation = $product;
@@ -112,6 +106,8 @@
                                             data-name="{{ $product->name }}"
                                             data-bundle-discount="{{ $bundleDiscountPrice }}"
                                             data-bundle-discount-type="{{ $isPercentDiscount ? 'percent' : 'fixed' }}"
+                                            data-original-price="{{ $salePrice * ($currency->is_default ? 1 : $currency->exchange_rate) }}"
+                                            data-saved-amount="{{ ($salePrice - $bundlePrice) * ($currency->is_default ? 1 : $currency->exchange_rate) }}"
                                             @checked($parentProductInCart)
                                             @disabled(! $parentProductInCart)
                                         >
@@ -165,32 +161,15 @@
                                             </div>
                                         @endif
                                     </div>
-
-                                    <div class="ec-upsell-bundle-action">
-                                        <button
-                                            type="button"
-                                            class="ec-upsell-add-btn"
-                                            data-upsale-add-btn
-                                            aria-label="{{ __('Add :name to cart', ['name' => $product->name]) }}"
-                                            data-url="{{ route('public.cart.add-to-cart') }}"
-                                            data-id="{{ $cartId }}"
-                                            data-parent-product="{{ $parentProduct->slug }}"
-                                            @disabled(!$parentProductInCart)
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <circle cx="9" cy="21" r="1"></circle>
-                                                <circle cx="20" cy="21" r="1"></circle>
-                                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
                         @endforeach
                     </div>
+                    <div class="ec-upsell-bundle-arrows"></div>
+                </div>
 
-                    @if(EcommerceHelper::isCartEnabled())
-                        <div class="ec-upsell-bundle-footer">
+                @if(EcommerceHelper::isCartEnabled())
+                    <div class="ec-upsell-bundle-footer">
                             @if(!$parentProductInCart)
                                 <div class="ec-upsell-bundle-notice">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -201,11 +180,19 @@
                                     <span>{{ trans('plugins/ecommerce::products.up_sale.unlock_discount', ['product' => $parentProduct->name]) }}</span>
                                 </div>
                             @else
-                                <div class="ec-upsell-bundle-total">
-                                    <span class="ec-upsell-total-label">{{ trans('plugins/ecommerce::products.up_sale.selected_items_total') }}</span>
-                                    <span class="ec-upsell-total-price" data-upsale-total-price data-base-price="0">
-                                        {{ format_price(0) }}
-                                    </span>
+                                <div>
+                                    <div class="ec-upsell-bundle-total">
+                                        <span class="ec-upsell-total-label">Total price:</span>
+                                        <span class="ec-upsell-total-price" data-upsale-total-price data-base-price="0">
+                                            {{ format_price(0) }}
+                                        </span>
+                                    </div>
+                                    <div class="ec-upsell-bundle-saved" style="display: none;" data-upsale-saved>
+                                        <span class="ec-upsell-saved-label">Saved:</span>
+                                        <span class="ec-upsell-saved-amount" data-upsale-saved-amount>
+                                            {{ format_price(0) }}
+                                        </span>
+                                    </div>
                                 </div>
                                 <button
                                     type="button"
@@ -220,11 +207,12 @@
                                         <circle cx="20" cy="21" r="1"></circle>
                                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                                     </svg>
-                                    {{ trans('plugins/ecommerce::products.up_sale.add_selected_to_cart') }}
+                                    <span data-upsale-button-text>{{ trans('plugins/ecommerce::products.up_sale.add_selected_to_cart') }}</span>
                                 </button>
                             @endif
                         </div>
                     @endif
+                    </div>
                 </div>
             </div>
         </section>

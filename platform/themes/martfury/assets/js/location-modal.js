@@ -1,0 +1,489 @@
+/**
+ * Location Modal Handler
+ * Manages temporary address selection with progressive field display
+ * Integrates with location.js plugin for cascading dropdowns
+ */
+
+if (typeof jQuery === 'undefined') {
+    console.error('LocationModal: jQuery is not loaded!');
+} else {
+    (function($) {
+        'use strict';
+
+        const LocationModal = {
+            modal: null,
+            form: null,
+            countrySelect: null,
+            stateSelect: null,
+            citySelect: null,
+            addressInput: null,
+            saveBtn: null,
+            selectedData: {
+                type: null,
+                addressId: null,
+                tempAddress: null
+            },
+
+            init: function() {
+                this.modal = $('#location-modal');
+                this.form = $('#temporary-address-form');
+                this.countrySelect = $('#temp-country');
+                this.stateSelect = $('#temp-state');
+                this.citySelect = $('#temp-city');
+                this.addressInput = $('#temp-address');
+                this.saveBtn = $('#save-location-btn');
+
+                // Progressive display: hide all fields except country initially
+                this.stateSelect.closest('.form-group-location').hide();
+                this.citySelect.closest('.form-group-location').hide();
+                $('.form-group-location.address-group').hide();
+
+                this.bindEvents();
+            },
+
+            bindEvents: function() {
+                const self = this;
+
+                // Country change - show state field (dropdown or text input)
+                this.countrySelect.on('change', function() {
+                    const countryId = $(this).val();
+                    
+                    // Treat "0" as placeholder/empty
+                    if (countryId && countryId !== "0") {
+                        const $stateGroup = self.stateSelect.closest('.form-group-location');
+                        const isStateTextInput = self.stateSelect.is('input[type="text"]');
+                        
+                        if (isStateTextInput) {
+                            // State is a text input - just show it
+                            $stateGroup.show();
+                            // Hide city and address for now
+                            self.citySelect.closest('.form-group-location').hide();
+                            $('.form-group-location.address-group').hide();
+                            self.citySelect.val('');
+                        } else {
+                            // State is a dropdown - set data attribute for location.js
+                            self.stateSelect.attr('data-country-id', countryId);
+                            self.citySelect.attr('data-country-id', countryId);
+                            
+                            // Show state dropdown
+                            self.stateSelect.prop('disabled', false);
+                            $stateGroup.show();
+                            
+                            // Reset state (location.js will populate it)
+                            self.stateSelect.val('').trigger('change');
+                            
+                            // Hide city and address for now
+                            self.citySelect.closest('.form-group-location').hide();
+                            $('.form-group-location.address-group').hide();
+                            self.citySelect.val('');
+                        }
+                    } else {
+                        // Hide everything except country
+                        self.stateSelect.closest('.form-group-location').hide();
+                        self.citySelect.closest('.form-group-location').hide();
+                        $('.form-group-location.address-group').hide();
+                        
+                        if (!self.stateSelect.is('input[type="text"]')) {
+                            self.stateSelect.prop('disabled', true);
+                        }
+                        if (!self.citySelect.is('input[type="text"]')) {
+                            self.citySelect.prop('disabled', true);
+                        }
+                    }
+                });
+
+                // State change - show city field (dropdown or text input)
+                this.stateSelect.on('change input', function() {
+                    const stateValue = $(this).val();
+                    const countryId = self.countrySelect.val();
+                    const isStateTextInput = $(this).is('input[type="text"]');
+                    const $cityGroup = self.citySelect.closest('.form-group-location');
+                    const isCityTextInput = self.citySelect.is('input[type="text"]');
+                    
+                    // Treat "0" or empty as placeholder/empty
+                    if (stateValue && stateValue !== "0" && stateValue.trim() !== "") {
+                        if (isCityTextInput) {
+                            // City is a text input - just show it
+                            $cityGroup.show();
+                            // Hide address for now
+                            $('.form-group-location.address-group').hide();
+                        } else {
+                            // City is a dropdown - set data attributes for location.js
+                            self.citySelect.attr('data-state-id', stateValue);
+                            self.citySelect.attr('data-country-id', countryId);
+                            
+                            // Show city dropdown
+                            self.citySelect.prop('disabled', false);
+                            $cityGroup.show();
+                            
+                            // Reset city (location.js will populate it)
+                            self.citySelect.val('');
+                            
+                            // Hide address for now
+                            $('.form-group-location.address-group').hide();
+                        }
+                    } else {
+                        // Hide city and address
+                        $cityGroup.hide();
+                        $('.form-group-location.address-group').hide();
+                        if (!isCityTextInput) {
+                            self.citySelect.prop('disabled', true);
+                        }
+                    }
+                });
+
+                // City change - show address field
+                this.citySelect.on('change input', function() {
+                    const cityValue = $(this).val();
+                    const isCityTextInput = $(this).is('input[type="text"]');
+                    
+                    // Treat "0" or empty as placeholder/empty
+                    if (cityValue && cityValue !== "0" && cityValue.trim() !== "") {
+                        $('.form-group-location.address-group').show();
+                    } else {
+                        $('.form-group-location.address-group').hide();
+                    }
+                });
+
+                // Saved address radio selection
+                $(document).on('change', '.location-address-radio', function() {
+                    if ($(this).is(':checked')) {
+                        self.selectedData.type = 'saved';
+                        self.selectedData.addressId = $(this).val();
+                        self.selectedData.tempAddress = null;
+                        self.clearTemporaryForm();
+                    }
+                });
+
+                // Temporary form field changes - deselect saved addresses
+                this.countrySelect.add(this.stateSelect).add(this.citySelect).add(this.addressInput).on('change input', function() {
+                    const val = $(this).val();
+                    // Only deselect if value is not placeholder
+                    if (val && val !== "0" && val !== "") {
+                        $('.location-address-radio').prop('checked', false);
+                        self.selectedData.type = 'temporary';
+                        self.selectedData.addressId = null;
+                    }
+                });
+
+                // Save button click
+                this.saveBtn.on('click', function() {
+                    self.saveLocation();
+                });
+
+                // Modal shown event - reinitialize location.js for this modal and restore session values
+                this.modal.on('shown.bs.modal', function() {
+                    self.initializeModalState();
+                });
+            },
+
+            clearTemporaryForm: function() {
+                // Reset all form values (use "0" for country since EcommerceHelper provides it)
+                this.countrySelect.val('0').trigger('change');
+                this.stateSelect.val('');
+                this.citySelect.val('');
+                this.addressInput.val('');
+                
+                // Remove data attributes
+                this.stateSelect.removeAttr('data-country-id');
+                this.citySelect.removeAttr('data-country-id data-state-id');
+                
+                // Hide all progressive fields except country
+                this.stateSelect.closest('.form-group-location').hide();
+                this.stateSelect.prop('disabled', true);
+                
+                this.citySelect.closest('.form-group-location').hide();
+                this.citySelect.prop('disabled', true);
+                
+                $('.form-group-location.address-group').hide();
+            },
+
+            initializeModalState: function() {
+                const self = this;
+                
+                // Check if temporary address fields have init values (from session)
+                const countryInitValue = this.countrySelect.data('init-value');
+                const stateInitValue = this.stateSelect.data('init-value');
+                const cityInitValue = this.citySelect.data('init-value');
+                
+                console.log('LocationModal: Initializing modal state', {
+                    countryInitValue: countryInitValue,
+                    stateInitValue: stateInitValue,
+                    cityInitValue: cityInitValue,
+                    countryVal: this.countrySelect.val(),
+                    stateVal: this.stateSelect.val(),
+                    cityVal: this.citySelect.val()
+                });
+                
+                // Check for GeoIP detected country (used when no session/saved address)
+                const geoipCountry = this.countrySelect.data('geoip-country');
+                
+                // Detect if we have session data to restore (either country has init-value OR state/city have values)
+                const hasSessionData = countryInitValue || stateInitValue || cityInitValue;
+                
+                console.log('LocationModal: hasSessionData?', hasSessionData, 'geoipCountry?', geoipCountry);
+                
+                if (hasSessionData) {
+                    console.log('LocationModal: Restoring session data...');
+                    // Temporary address from session - restore fields progressively
+                    self.selectedData.type = 'temporary';
+                    self.selectedData.addressId = null;
+                    
+                    // Trigger country change to show state field (country is already selected in HTML)
+                    console.log('LocationModal: Triggering country change');
+                    self.countrySelect.trigger('change');
+                    
+                    // Check if state is a text input or dropdown
+                    const isStateTextInput = self.stateSelect.is('input[type="text"]');
+                    console.log('LocationModal: isStateTextInput?', isStateTextInput);
+                    
+                    if (stateInitValue) {
+                        if (isStateTextInput) {
+                            // State is text input - value is already set in HTML
+                            // Trigger input event to show city (with small delay to let country change complete)
+                            setTimeout(function() {
+                                console.log('LocationModal: Triggering state input (text)');
+                                self.stateSelect.trigger('input');
+                                
+                                // If city also has value and is text input, trigger its input too
+                                if (cityInitValue) {
+                                    const isCityTextInput = self.citySelect.is('input[type="text"]');
+                                    if (isCityTextInput) {
+                                        setTimeout(function() {
+                                            console.log('LocationModal: Triggering city input (text)');
+                                            self.citySelect.trigger('input');
+                                        }, 100);
+                                    }
+                                }
+                            }, 200);
+                        } else {
+                            // State is dropdown - wait for location.js to populate, then select it
+                            setTimeout(function() {
+                                console.log('LocationModal: Setting state value', stateInitValue);
+                                self.stateSelect.val(stateInitValue);
+                                console.log('LocationModal: State value after set:', self.stateSelect.val());
+                                if (self.stateSelect.val() === stateInitValue) {
+                                    // Successfully selected, trigger change
+                                    console.log('LocationModal: Triggering state change');
+                                    self.stateSelect.trigger('change');
+                                    
+                                    // Wait for location.js to populate city, then select it
+                                    if (cityInitValue) {
+                                        setTimeout(function() {
+                                            console.log('LocationModal: Setting city value', cityInitValue);
+                                            self.citySelect.val(cityInitValue);
+                                            console.log('LocationModal: City value after set:', self.citySelect.val());
+                                            if (self.citySelect.val() === cityInitValue) {
+                                                console.log('LocationModal: Triggering city change');
+                                                self.citySelect.trigger('change');
+                                            } else {
+                                                console.log('LocationModal: City value mismatch, not triggering change');
+                                            }
+                                        }, 300);
+                                    }
+                                } else {
+                                    console.log('LocationModal: State value mismatch, not triggering change');
+                                }
+                            }, 400);
+                        }
+                    }
+                } else if (geoipCountry) {
+                    console.log('LocationModal: Using GeoIP country', geoipCountry);
+                    // GeoIP detected country - pre-select it and trigger cascade to show state/city fields
+                    // The country is already selected in HTML via the selected attribute
+                    // We just need to trigger the change event to show the state dropdown
+                    setTimeout(function() {
+                        self.countrySelect.trigger('change');
+                    }, 100);
+                } else {
+                    console.log('LocationModal: Checking for saved address');
+                    // No temporary address or GeoIP - check if a saved address radio is checked
+                    const checkedRadio = $('.location-address-radio:checked');
+                    if (checkedRadio.length > 0) {
+                        console.log('LocationModal: Found checked radio', checkedRadio.val());
+                        self.selectedData.type = 'saved';
+                        self.selectedData.addressId = checkedRadio.val();
+                        self.selectedData.tempAddress = null;
+                    } else {
+                        console.log('LocationModal: No saved address checked');
+                    }
+                }
+            },
+
+            validateTemporaryForm: function() {
+                const country = this.countrySelect.val();
+                const state = this.stateSelect.val();
+                const city = this.citySelect.val();
+                const address = this.addressInput.val().trim();
+
+                if (!country || country === "0") {
+                    this.showError('Please select a country');
+                    return false;
+                }
+                if (!state || state === "0" || state.trim() === "") {
+                    this.showError('Please enter a state/province');
+                    return false;
+                }
+                if (!city || city === "0" || city.trim() === "") {
+                    this.showError('Please enter a city');
+                    return false;
+                }
+                if (!address) {
+                    this.showError('Please enter a street address');
+                    return false;
+                }
+                return true;
+            },
+
+            saveLocation: function() {
+                const self = this;
+
+                // Check if user selected a saved address
+                if (this.selectedData.type === 'saved' && this.selectedData.addressId) {
+                    // User selected saved address - no validation needed
+                    this.saveToSession('saved', { addressId: this.selectedData.addressId }, function() {
+                        self.updateDeliveryDisplay();
+                        self.closeModal();
+                    });
+                } else {
+                    // User is entering temporary address - check if any field is filled
+                    const country = this.countrySelect.val();
+                    const hasAnyInput = country && country !== "0";
+                    
+                    if (!hasAnyInput) {
+                        // No input at all - just close modal (user might want to cancel)
+                        self.closeModal();
+                        return;
+                    }
+                    
+                    // User started filling form - validate it
+                    if (!this.validateTemporaryForm()) {
+                        return;
+                    }
+
+                    const tempAddress = {
+                        name: '', // Can be filled by user later or from auth
+                        phone: '', // Can be filled by user later
+                        email: '', // Will be auto-filled from customer email if logged in
+                        country: this.countrySelect.val(),
+                        state: this.stateSelect.val(),
+                        city: this.citySelect.val(),
+                        address: this.addressInput.val().trim(),
+                        zip_code: ''
+                    };
+
+                    this.saveToSession('temporary', tempAddress, function() {
+                        self.updateDeliveryDisplay();
+                        self.closeModal();
+                    });
+                }
+            },
+
+            saveToSession: function(type, data, callback) {
+                $.ajax({
+                    url: '/ajax/save-temporary-location',
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        type: type,
+                        data: data
+                    },
+                    success: function(response) {
+                        if (response.error === false) {
+                            if (typeof callback === 'function') {
+                                callback();
+                            }
+                        } else {
+                            alert(response.message || 'Error saving location');
+                        }
+                    },
+                    error: function() {
+                        alert('Error saving location. Please try again.');
+                    }
+                });
+            },
+
+            updateDeliveryDisplay: function() {
+                $.ajax({
+                    url: '/ajax/get-delivery-display',
+                    type: 'GET',
+                    success: function(response) {
+                        // Update product details page delivery display
+                        if (response.data && response.data.html) {
+                            $('#delivery-address-display').html(response.data.html);
+                        } else if (response.html) {
+                            $('#delivery-address-display').html(response.html);
+                        }
+                        
+                        // Reinitialize Bootstrap tooltips
+                        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                        tooltipTriggerList.map(function (tooltipTriggerEl) {
+                            return new bootstrap.Tooltip(tooltipTriggerEl);
+                        });
+                        
+                        // IMPORTANT: Broadcast location change event for product cards
+                        // This allows product cards on listing pages to update their delivery dates
+                        $(document).trigger('location:changed');
+                        
+                        // Also reload product card sections if we're on a listing page
+                        // This ensures all product cards show updated delivery information
+                        if ($('.ec-card').length > 0) {
+                            console.log('Location changed - reloading page to update all product delivery dates');
+                            // Small delay to ensure session is saved
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 500);
+                        }
+                    },
+                    error: function() {
+                        console.error('Failed to update delivery display');
+                    }
+                });
+            },
+
+            closeModal: function() {
+                this.modal.fadeOut(300).removeClass('show');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open');
+            },
+
+            showError: function(message) {
+                alert(message);
+            }
+        };
+
+        // Initialize on document ready
+        $(document).ready(function() {
+            LocationModal.init();
+
+            // Trigger modal on button click
+            $(document).on('click', '.delivery-change-btn, .delivery-add-btn, .trigger-location-modal', function(e) {
+                e.preventDefault();
+                
+                const $modal = $('#location-modal');
+                if ($modal.length > 0) {
+                    $modal.fadeIn(300).addClass('show').css('display', 'block');
+                    $('body').addClass('modal-open');
+                    
+                    if (!$('.modal-backdrop').length) {
+                        $('<div class="modal-backdrop fade show"></div>').appendTo('body');
+                    }
+                }
+            });
+            
+            // Close modal on backdrop click or close button
+            $(document).on('click', '.modal-backdrop, [data-bs-dismiss="modal"]', function(e) {
+                e.preventDefault();
+                $('#location-modal').fadeOut(300).removeClass('show');
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open');
+            });
+            
+            // Prevent modal close when clicking inside modal content
+            $(document).on('click', '.modal-dialog', function(e) {
+                e.stopPropagation();
+            });
+        });
+
+    })(jQuery);
+}

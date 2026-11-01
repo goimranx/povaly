@@ -1710,6 +1710,9 @@
                     // Initialize slick carousel for cross-sale section
                     MartApp.initSlickCarousel();
 
+                    // Initialize slick carousel for up-sale section
+                    MartApp.initUpSaleCarousel();
+
                     // Initialize up-sale bundle
                     MartApp.initUpSaleBundle();
                 },
@@ -1821,6 +1824,34 @@
         }
     };
 
+    // Initialize slick carousel for up-sale section
+    MartApp.initUpSaleCarousel = function() {
+        const $carousel = $('.ec-upsell-carousel:not(.slick-initialized)');
+
+        if ($carousel.length && typeof $.fn.slick !== 'undefined') {
+            $carousel.slick({
+                rtl: isRTL,
+                slidesToShow: 2,
+                slidesToScroll: 1,
+                arrows: true,
+                dots: false,
+                infinite: false,
+                vertical: false,
+                appendArrows: $carousel.closest('.ec-upsell-bundle-carousel-wrapper'),
+                prevArrow: '<button class="slick-prev" type="button" aria-label="Previous"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>',
+                nextArrow: '<button class="slick-next" type="button" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>',
+                responsive: [
+                    {
+                        breakpoint: 992,
+                        settings: {
+                            slidesToShow: 1
+                        }
+                    }
+                ]
+            });
+        }
+    };
+
     // Refresh up-sale section when cart changes
     MartApp.refreshUpSaleSection = function() {
         if (!MartApp.upsellRefreshUrl) {
@@ -1847,6 +1878,9 @@
                     window.lazyLoadInstance.update();
                 }
 
+                // Re-initialize carousel
+                MartApp.initUpSaleCarousel();
+
                 // Re-initialize bundle
                 MartApp.initUpSaleBundle();
             },
@@ -1863,7 +1897,10 @@
 
         const $checkboxes = $section.find('[data-upsale-checkbox]');
         const $totalPrice = $section.find('[data-upsale-total-price]');
+        const $savedAmount = $section.find('[data-upsale-saved-amount]');
+        const $savedContainer = $section.find('[data-upsale-saved]');
         const $addAllBtn = $section.find('[data-upsale-add-all]');
+        const $buttonText = $addAllBtn.find('[data-upsale-button-text]');
 
         // Currency formatting helper
         const formatPrice = function(price) {
@@ -1887,16 +1924,42 @@
         // Update total price based on checked items
         const updateTotal = function() {
             let total = 0;
+            let totalSaved = 0;
             let selectedCount = 0;
 
             $checkboxes.filter(':checked').each(function() {
                 const price = parseFloat($(this).attr('data-price')) || 0;
+                const savedAmount = parseFloat($(this).attr('data-saved-amount')) || 0;
+                
                 total += price;
+                totalSaved += savedAmount;
                 selectedCount++;
             });
 
             $totalPrice.text(formatPrice(total));
-            $addAllBtn.prop('disabled', selectedCount === 0);
+            
+            // Update saved amount display
+            if (totalSaved > 0 && selectedCount > 0) {
+                $savedAmount.text(formatPrice(totalSaved));
+                $savedContainer.show();
+            } else {
+                $savedContainer.hide();
+            }
+            
+            // Update button text based on selected count
+            if (selectedCount === 0) {
+                $buttonText.text('Add to cart');
+                $addAllBtn.prop('disabled', true);
+            } else if (selectedCount === 1) {
+                $buttonText.text('Add to cart');
+                $addAllBtn.prop('disabled', false);
+            } else if (selectedCount === 2) {
+                $buttonText.text('Add both to cart');
+                $addAllBtn.prop('disabled', false);
+            } else {
+                $buttonText.text('Add ' + selectedCount + ' items to cart');
+                $addAllBtn.prop('disabled', false);
+            }
         };
 
         // Checkbox change handler
@@ -2130,3 +2193,47 @@
     });
 })(jQuery);
 
+
+
+    // ── Product Description Read More/Less ─────────────────────────────────
+    window.toggleDescription = function() {
+        const content = document.getElementById('pd-description-content');
+        const btn = document.getElementById('pd-read-more-btn');
+        
+        if (!content || !btn) return;
+        
+        if (content.classList.contains('pd-description-collapsed')) {
+            content.classList.remove('pd-description-collapsed');
+            btn.textContent = btn.dataset.lessText || 'Read less';
+        } else {
+            content.classList.add('pd-description-collapsed');
+            btn.textContent = btn.dataset.moreText || 'Read more';
+        }
+    };
+
+    // Initialize read more button - hide if content is short
+    $(document).ready(function() {
+        const content = document.getElementById('pd-description-content');
+        const btn = document.getElementById('pd-read-more-btn');
+        
+        if (content && btn) {
+            // Store button texts
+            btn.dataset.moreText = btn.textContent;
+            btn.dataset.lessText = 'Read less';
+            
+            // Check if content needs read more button
+            const lineHeight = parseFloat(getComputedStyle(content).lineHeight);
+            const maxHeight = lineHeight * 6; // 6 lines
+            
+            // Temporarily show full content to measure
+            content.classList.remove('pd-description-collapsed');
+            const fullHeight = content.scrollHeight;
+            content.classList.add('pd-description-collapsed');
+            
+            // Hide button if content is short enough
+            if (fullHeight <= maxHeight) {
+                btn.classList.add('pd-hidden');
+                content.classList.remove('pd-description-collapsed');
+            }
+        }
+    });
