@@ -540,14 +540,6 @@
                                         <button class="ps-btn add-to-cart-button @if ($product->isOutOfStock()) btn-disabled @endif" type="submit" name="checkout" value="1" {!! EcommerceHelper::jsAttributes('add-to-cart', $product, additional: ['data-bb-toggle' => 'none']) !!} @if ($product->isOutOfStock()) disabled @endif>{{ __('Buy Now') }}</button>
                                     @endif
                                 @endif
-                                <div class="ps-product__actions">
-                                    @if (EcommerceHelper::isWishlistEnabled())
-                                        <a class="js-add-to-wishlist-button" href="#" data-url="{{ route('public.wishlist.add', $product->id) }}"><i class="icon-heart"></i></a>
-                                    @endif
-                                    @if (EcommerceHelper::isCompareEnabled())
-                                        <a class="js-add-to-compare-button" href="#" data-url="{{ route('public.compare.add', $product->id) }}" title="{{ __('Compare') }}"><i class="icon-chart-bars"></i></a>
-                                    @endif
-                                </div>
                             </div>
                         </div>
                     </div>

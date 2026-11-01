@@ -789,11 +789,8 @@
 
     .ps-product__shopping {
         display: flex;
-        margin-bottom: 1.875rem; // Was 3rem (30px), now 30px/16px
-        padding-bottom: 30px;
         flex-flow: column nowrap; // Changed to column for full width
         align-items: stretch; // Changed to stretch for full width
-        border-bottom: 1px solid #e1e1e1;
         gap: 5px; // Changed from 15px to 5px
 
         > * {
@@ -877,42 +874,6 @@
         .ps-btn--gray {
             background-color: rgba(#000, 0.5);
             color: #ffffff;
-        }
-
-        .ps-product__favorite {
-            position: relative;
-            display: inline-block;
-            margin-right: 0;
-            width: 40px;
-            height: 40px;
-            vertical-align: top;
-            border: 1px solid $color-heading;
-            @include border-radius(50%);
-
-            i {
-                padding-top: 2px;
-                @include center();
-            }
-
-            &:hover {
-                border-color: $color-1st;
-            }
-        }
-
-        .ps-product__actions {
-            margin-right: 0;
-            width: auto; // Actions should not be full width
-
-            a {
-                display: inline-block;
-                margin-right: 20px;
-                font-size: 26px;
-                color: #999;
-
-                &:last-child {
-                    margin-right: 0;
-                }
-            }
         }
 
         &.extend {
