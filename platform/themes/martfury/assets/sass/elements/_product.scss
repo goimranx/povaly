@@ -3523,6 +3523,14 @@
             width: 100% !important;
             max-width: 100% !important;
         }
+        
+        // Override vendor CSS that sets margin:0 at 479px - use desktop margin instead
+        figure {
+            .form-group--number,
+            .product__qty {
+                margin-top: -10px !important;
+            }
+        }
     }
     
     // Hide desktop store link, title, rating, and bought count on mobile
