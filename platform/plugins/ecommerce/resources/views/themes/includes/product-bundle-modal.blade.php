@@ -65,6 +65,8 @@
                                     id="modal-product-{{ $cartId }}"
                                     data-product-id="{{ $cartId }}"
                                     data-price="{{ $displayPrice }}"
+                                    data-original-price="{{ $salePrice * ($currency->is_default ? 1 : $currency->exchange_rate) }}"
+                                    data-saved-amount="{{ ($salePrice - $bundlePrice) * ($currency->is_default ? 1 : $currency->exchange_rate) }}"
                                     data-name="{{ $product->name }}"
                                     checked
                                 >
@@ -118,9 +120,15 @@
         
         {{-- Sticky Footer --}}
         <div class="ec-bundle-modal-footer">
-            <div class="ec-bundle-modal-total">
-                <span class="total-label">{{ __('Total price:') }}</span>
-                <span class="total-price" data-bundle-total-price>{{ format_price(0) }}</span>
+            <div class="ec-bundle-modal-pricing">
+                <div class="ec-bundle-modal-total">
+                    <span class="total-label">{{ __('Total price:') }}</span>
+                    <span class="total-price" data-bundle-total-price>{{ format_price(0) }}</span>
+                </div>
+                <div class="ec-bundle-modal-saved" style="display: none;" data-bundle-saved>
+                    <span class="saved-label">{{ __('Saved:') }}</span>
+                    <span class="saved-amount" data-bundle-saved-amount>{{ format_price(0) }}</span>
+                </div>
             </div>
             
             <button 
@@ -134,7 +142,7 @@
                     <circle cx="20" cy="21" r="1"></circle>
                     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                 </svg>
-                <span>{{ __('Add to Cart') }}</span>
+                <span data-bundle-button-text>{{ __('Add to Cart') }}</span>
             </button>
         </div>
     </div>

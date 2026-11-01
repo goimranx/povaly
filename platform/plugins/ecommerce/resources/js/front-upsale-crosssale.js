@@ -736,8 +736,10 @@
             modal.fadeIn(300)
             $('body').css('overflow', 'hidden')
             
-            // Calculate and update total price
-            updateModalTotal()
+            // Use the same updateTotal logic as desktop - it's already initialized
+            // by MartApp.initUpSaleBundle() or EcommerceUpSaleCrossSale.initUpSaleBundle()
+            // Just trigger a change event to update totals
+            modal.find('[data-bundle-modal-items] input[type="checkbox"]:checked').first().trigger('change')
         }
     })
 
@@ -749,31 +751,73 @@
         $('body').css('overflow', '')
     })
 
-    // Update total when checkbox is toggled
+    // Update total when checkbox is toggled (will use same formatPrice from desktop)
     $(document).on('change', '.ec-bundle-modal-checkbox input[type="checkbox"]', function () {
-        updateModalTotal()
-    })
-
-    // Calculate and update modal total price
-    function updateModalTotal() {
+        const $modal = $(this).closest('.ec-bundle-modal')
+        const $section = $modal.closest('[data-upsale-bundle]')
+        
+        // Get format settings from parent section or use defaults
+        const dataConfig = $section.data('currency-config') || window.currencies || {}
+        const symbol = dataConfig.symbol || '$'
+        const isPrefix = dataConfig.is_prefix !== false
+        const decimals = dataConfig.decimals ?? 2
+        const thousandsSeparator = dataConfig.thousands_separator || ','
+        const decimalSeparator = dataConfig.decimal_separator || '.'
+        
+        const formatPrice = function (price) {
+            const formattedNumber = parseFloat(price)
+                .toFixed(decimals)
+                .replace('.', decimalSeparator)
+                .replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator)
+            
+            return isPrefix ? symbol + formattedNumber : formattedNumber + symbol
+        }
+        
         let total = 0
-        $('.ec-bundle-modal-checkbox input[type="checkbox"]:checked').each(function () {
+        let totalSaved = 0
+        let selectedCount = 0
+        
+        $modal.find('.ec-bundle-modal-checkbox input[type="checkbox"]:checked').each(function () {
             const price = parseFloat($(this).data('price')) || 0
+            const savedAmount = parseFloat($(this).data('saved-amount')) || 0
+            
             total += price
+            totalSaved += savedAmount
+            selectedCount++
         })
         
         // Update total price display
-        const $totalPrice = $('[data-bundle-total-price]')
+        const $totalPrice = $modal.find('[data-bundle-total-price]')
         if ($totalPrice.length) {
             $totalPrice.text(formatPrice(total))
         }
-    }
-
-    // Simple price formatting (you can enhance this based on your currency settings)
-    function formatPrice(amount) {
-        // This is a basic formatter - you may want to use the actual currency config
-        return '$' + amount.toFixed(2)
-    }
+        
+        // Update saved amount display
+        const $savedContainer = $modal.find('[data-bundle-saved]')
+        const $savedAmountEl = $modal.find('[data-bundle-saved-amount]')
+        if ($savedContainer.length && $savedAmountEl.length) {
+            if (totalSaved > 0) {
+                $savedAmountEl.text(formatPrice(totalSaved))
+                $savedContainer.show()
+            } else {
+                $savedContainer.hide()
+            }
+        }
+        
+        // Update button text based on selected count (same logic as desktop)
+        const $buttonText = $modal.find('[data-bundle-button-text]')
+        if ($buttonText.length) {
+            if (selectedCount === 0) {
+                $buttonText.text('Add to Cart')
+            } else if (selectedCount === 1) {
+                $buttonText.text('Add to Cart')
+            } else if (selectedCount === 2) {
+                $buttonText.text('Add both to Cart')
+            } else {
+                $buttonText.text('Add ' + selectedCount + ' items to Cart')
+            }
+        }
+    })
 
     // Add all selected products to cart
     $(document).on('click', '[data-bundle-add-all]', function (e) {
