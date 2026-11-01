@@ -5,6 +5,22 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.11] - 2024-11-02
+
+### 🐛 Debug & Troubleshooting - Enhanced
+
+- Enhanced debug logging in `product-card-enhanced.js` with detailed cart HTML parsing traces
+- Added debug logs for cart item iteration showing:
+  - Cart HTML length and structure validation
+  - Number of `.ps-product--cart-mobile` items found
+  - Product link discovery for each cart item
+  - Product URL and identifier extraction
+  - Product identifier matching logic (slug vs ID)
+  - Remove link element discovery
+  - Remove URL extraction results
+- Enables pinpointing exact cart HTML parsing failures between stage and main servers
+- Helps identify structural differences, selector mismatches, or timing issues
+
 ## [1.3.10] - 2024-11-02
 
 ### 🐛 Debug & Troubleshooting
