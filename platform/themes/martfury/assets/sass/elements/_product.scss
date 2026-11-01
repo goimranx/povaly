@@ -794,7 +794,7 @@
         flex-flow: column nowrap; // Changed to column for full width
         align-items: stretch; // Changed to stretch for full width
         border-bottom: 1px solid #e1e1e1;
-        gap: 15px; // Add gap between elements
+        gap: 5px; // Changed from 15px to 5px
 
         > * {
             margin-right: 0; // Remove right margin since we're stacking
@@ -803,6 +803,7 @@
 
         figure {
             width: auto; // Figure should not be full width
+            margin-bottom: 7px; // Add bottom margin
             
             figcaption {
                 margin-bottom: 4px;
@@ -851,6 +852,7 @@
             max-width: none; // Remove max-width
             text-align: center;
             border: none;
+            margin: 0; // Remove all margins
 
             &.ps-btn--black,
             &.add-to-cart-button:not([name="checkout"]) {
@@ -969,7 +971,8 @@
     .number-items-available {
         font-size: 18px;
         font-weight: 400;
-        margin-top: 7px;
+        margin-top: 5px; // Changed from 7px to 5px
+        margin-bottom: 0; // Explicitly set to 0
         
         span {
             font-size: inherit;
