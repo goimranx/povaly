@@ -355,23 +355,34 @@
                 var $html = $(cartResponse.data.html);
                 var removeUrl = null;
                 
+                console.log('[DEBUG] removeFromCart - cart HTML length:', cartResponse.data.html.length);
+                console.log('[DEBUG] removeFromCart - found .ps-product--cart-mobile items:', $html.find('.ps-product--cart-mobile').length);
+                
                 // Parse cart items to find remove URL
-                $html.find('.ps-product--cart-mobile').each(function() {
+                $html.find('.ps-product--cart-mobile').each(function(index) {
                     var $item = $(this);
                     var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    
+                    console.log('[DEBUG] removeFromCart - item', index, 'productLink found:', $productLink.length);
                     
                     if (!$productLink.length) return;
                     
                     var productUrl = $productLink.attr('href');
+                    console.log('[DEBUG] removeFromCart - item', index, 'productUrl:', productUrl);
+                    
                     var urlParts = productUrl.split('/products/');
                     if (urlParts.length < 2) return;
                     
                     var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    console.log('[DEBUG] removeFromCart - item', index, 'productIdentifier:', productIdentifier, 'looking for:', productSlug, 'or', productId);
                     
                     // Match by slug first, then ID
                     if (productIdentifier == productSlug || productIdentifier == productId) {
+                        console.log('[DEBUG] removeFromCart - MATCH FOUND for item', index);
                         var $removeLink = $item.find('.ps-product__remove[data-url]');
+                        console.log('[DEBUG] removeFromCart - removeLink elements found:', $removeLink.length);
                         removeUrl = $removeLink.data('url') || $removeLink.attr('data-url');
+                        console.log('[DEBUG] removeFromCart - extracted removeUrl:', removeUrl);
                         return false; // break
                     }
                 });
@@ -461,18 +472,26 @@
                 var $html = $(cartResponse.data.html);
                 var cartItems = {};
                 
+                console.log('[DEBUG] syncCartState - cart HTML length:', cartResponse.data.html.length);
+                console.log('[DEBUG] syncCartState - found .ps-product--cart-mobile items:', $html.find('.ps-product--cart-mobile').length);
+                
                 // Parse cart items by finding product containers
-                $html.find('.ps-product--cart-mobile').each(function() {
+                $html.find('.ps-product--cart-mobile').each(function(index) {
                     var $item = $(this);
                     var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    
+                    console.log('[DEBUG] syncCartState - item', index, 'productLink found:', $productLink.length);
                     
                     if (!$productLink.length) return;
                     
                     var productUrl = $productLink.attr('href');
+                    console.log('[DEBUG] syncCartState - item', index, 'productUrl:', productUrl);
+                    
                     var urlParts = productUrl.split('/products/');
                     if (urlParts.length < 2) return;
                     
                     var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    console.log('[DEBUG] syncCartState - item', index, 'productIdentifier:', productIdentifier);
                     
                     // Find quantity in the text "X x" format
                     var $qtyText = $item.find('.ps-product__content p small .d-inline-block');
