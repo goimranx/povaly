@@ -1878,6 +1878,9 @@
                     window.lazyLoadInstance.update();
                 }
 
+                // Re-initialize carousel
+                MartApp.initUpSaleCarousel();
+
                 // Re-initialize bundle
                 MartApp.initUpSaleBundle();
             },
