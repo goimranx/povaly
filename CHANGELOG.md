@@ -5,6 +5,17 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.14] - 2024-11-02
+
+### 🐛 Fixed - Cart URL Parsing
+
+- **CRITICAL FIX**: Handle both `/p/` and `/products/` URL formats in cart item parsing
+  - Cart was using `/p/demo-product` format but code only looked for `/products/` format
+  - Added logic to extract product identifier from both URL formats
+  - Fixes the issue where `productIdentifier` extraction failed causing `removeUrl: null`
+- This explains why the selector fix in v1.3.13 wasn't enough - the URL parsing was also broken
+- Both `removeFromCart()` and `syncCartState()` functions updated with proper URL handling
+
 ## [1.3.13] - 2024-11-02
 
 ### 🐛 Fixed - Cart Functionality
