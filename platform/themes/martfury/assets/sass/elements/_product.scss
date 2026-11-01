@@ -3390,7 +3390,7 @@
         
         .pd-mobile-store-row {
             display: flex;
-            align-items: center; // Changed from flex-start to center
+            align-items: center;
             gap: 10px;
         }
         
@@ -3481,6 +3481,15 @@
         }
     }
     
+    // Hide desktop pd-section, show mobile pd-section
+    .pd-section-desktop {
+        display: none !important;
+    }
+    
+    .pd-section-mobile {
+        display: block !important;
+    }
+    
     // Reorder sections on mobile using flexbox
     .ps-product__info-wrapper {
         display: flex;
@@ -3493,11 +3502,6 @@
             .pd-price-row {
                 display: none !important;
             }
-            
-            // Hide desktop pd-section on mobile
-            .pd-section-desktop {
-                display: none !important;
-            }
         }
         
         .ps-product__purchase {
@@ -3505,9 +3509,12 @@
             border-top: 2px solid var(--global-color-primary-border);
             padding-top: 10px;
         }
-        
-        // Move pd-section to appear after purchase section (but it's inside details, so CSS can't truly move it)
-        // Instead, we hide desktop version and would need to duplicate for mobile
+    }
+    
+    // Mobile pd-section appears after purchase (outside the form)
+    .ps-product__header > .pd-section-mobile {
+        order: 3;
+        display: block !important;
     }
     
     // Full width quantity input on mobile with no bottom margin
@@ -3544,10 +3551,14 @@
     }
 }
 
-// Hide mobile header on desktop (767px and up)
+// Hide mobile header and mobile pd-section on desktop (767px and up)
 @media (min-width: 768px) {
     .ps-product__mobile-header {
         display: none;
+    }
+    
+    .pd-section-mobile {
+        display: none !important;
     }
     
     .pd-section-desktop {
