@@ -124,8 +124,8 @@
             <button class="pd-accordion-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pd-reviews{{ $idSuffix }}" aria-expanded="false">
                 <span>{{ __('Review highlights') }}</span>
                 <span class="pd-accordion-rating-inline">
-                    <span class="pd-rating-avg-sm">{{ number_format($product->reviews_avg, 1) }}</span>
-                    <span class="pd-rating-stars-sm">
+                    <span class="pd-rating-avg">{{ number_format($product->reviews_avg, 1) }}</span>
+                    <span class="pd-rating-stars">
                         @for ($i = 1; $i <= 5; $i++)
                             @if ($i <= floor($product->reviews_avg))
                                 <i class="ph-fill ph-star"></i>
@@ -136,7 +136,7 @@
                             @endif
                         @endfor
                     </span>
-                    <span class="pd-rating-count-sm">({{ number_format($product->reviews_count) }})</span>
+                    <span class="pd-rating-count">({{ number_format($product->reviews_count) }})</span>
                 </span>
                 <i class="ph ph-caret-down pd-accordion-icon"></i>
             </button>
