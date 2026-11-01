@@ -463,20 +463,15 @@
     width: 280px;
     padding: 0;
     border: none;
-    border-left: 1px solid #e1e1e1;
-    padding-left: 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 15px;
+    gap: 40px;
     background: none;
     align-self: stretch;
 
     @media (max-width: 991px) {
         width: 100%;
-        border-left: none;
-        border-top: 1px solid #e1e1e1;
-        padding-left: 0;
         padding-top: 15px;
         margin-top: 0;
     }
@@ -484,21 +479,40 @@
 
 .ec-upsell-bundle-total {
     display: flex;
-    flex-direction: column;
-    gap: 5px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
     font-size: 14px;
-    text-align: left;
 }
 
 .ec-upsell-total-label {
-    font-size: 13px;
-    color: #666;
+    font-size: 14px;
+    color: var(--global-color-text-main, #333);
 }
 
 .ec-upsell-total-price {
     font-size: 18px;
-    font-weight: 700;
-    color: var(--global-color-text-main, #1a1a1a);
+    font-weight: 400;
+    color: var(--global-color-text-main, #333);
+}
+
+.ec-upsell-bundle-saved {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+.ec-upsell-saved-label {
+    font-size: 14px;
+    color: var(--global-color-text-main, #333);
+}
+
+.ec-upsell-saved-amount {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--global-color-text-main, #333);
 }
 
 .ec-upsell-bundle-add-all {
@@ -506,13 +520,13 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background-color: var(--global-color-border-strong, #333);
-    color: #fff;
+    background-color: var(--global-color-primary, #fcb800);
+    color: var(--global-color-primary-contrast, #fff);
     font-size: 14px;
     font-weight: 600;
-    padding: 12px 20px;
+    padding: 10px 18px;
     border: none;
-    border-radius: 4px;
+    border-radius: 50px;
     cursor: pointer;
     transition: all 0.2s ease;
     width: 100%;
@@ -523,7 +537,8 @@
     }
 
     &:hover:not(:disabled) {
-        opacity: 0.9;
+        background-color: var(--global-color-primary-hover, #e5a800);
+        color: var(--global-color-primary-contrast, #fff);
     }
 
     &:disabled {

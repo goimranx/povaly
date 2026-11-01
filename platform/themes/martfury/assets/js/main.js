@@ -1897,7 +1897,10 @@
 
         const $checkboxes = $section.find('[data-upsale-checkbox]');
         const $totalPrice = $section.find('[data-upsale-total-price]');
+        const $savedAmount = $section.find('[data-upsale-saved-amount]');
+        const $savedContainer = $section.find('[data-upsale-saved]');
         const $addAllBtn = $section.find('[data-upsale-add-all]');
+        const $buttonText = $addAllBtn.find('[data-upsale-button-text]');
 
         // Currency formatting helper
         const formatPrice = function(price) {
@@ -1921,16 +1924,51 @@
         // Update total price based on checked items
         const updateTotal = function() {
             let total = 0;
+            let totalSaved = 0;
             let selectedCount = 0;
 
             $checkboxes.filter(':checked').each(function() {
                 const price = parseFloat($(this).attr('data-price')) || 0;
                 total += price;
                 selectedCount++;
+                
+                // Calculate saved amount if there's a discount
+                const bundleDiscount = parseFloat($(this).attr('data-bundle-discount')) || 0;
+                const discountType = $(this).attr('data-bundle-discount-type');
+                
+                if (bundleDiscount > 0) {
+                    if (discountType === 'percent') {
+                        totalSaved += (price / (1 - bundleDiscount / 100)) * (bundleDiscount / 100);
+                    } else {
+                        totalSaved += bundleDiscount;
+                    }
+                }
             });
 
             $totalPrice.text(formatPrice(total));
-            $addAllBtn.prop('disabled', selectedCount === 0);
+            
+            // Update saved amount display
+            if (totalSaved > 0 && selectedCount > 0) {
+                $savedAmount.text(formatPrice(totalSaved));
+                $savedContainer.show();
+            } else {
+                $savedContainer.hide();
+            }
+            
+            // Update button text based on selected count
+            if (selectedCount === 0) {
+                $buttonText.text('Add to cart');
+                $addAllBtn.prop('disabled', true);
+            } else if (selectedCount === 1) {
+                $buttonText.text('Add to cart');
+                $addAllBtn.prop('disabled', false);
+            } else if (selectedCount === 2) {
+                $buttonText.text('Add both to cart');
+                $addAllBtn.prop('disabled', false);
+            } else {
+                $buttonText.text('Add ' + selectedCount + ' items to cart');
+                $addAllBtn.prop('disabled', false);
+            }
         };
 
         // Checkbox change handler

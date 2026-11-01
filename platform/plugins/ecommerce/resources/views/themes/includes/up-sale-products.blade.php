@@ -178,11 +178,19 @@
                                     <span>{{ trans('plugins/ecommerce::products.up_sale.unlock_discount', ['product' => $parentProduct->name]) }}</span>
                                 </div>
                             @else
-                                <div class="ec-upsell-bundle-total">
-                                    <span class="ec-upsell-total-label">{{ trans('plugins/ecommerce::products.up_sale.selected_items_total') }}</span>
-                                    <span class="ec-upsell-total-price" data-upsale-total-price data-base-price="0">
-                                        {{ format_price(0) }}
-                                    </span>
+                                <div>
+                                    <div class="ec-upsell-bundle-total">
+                                        <span class="ec-upsell-total-label">Total price:</span>
+                                        <span class="ec-upsell-total-price" data-upsale-total-price data-base-price="0">
+                                            {{ format_price(0) }}
+                                        </span>
+                                    </div>
+                                    <div class="ec-upsell-bundle-saved" style="display: none;" data-upsale-saved>
+                                        <span class="ec-upsell-saved-label">Saved:</span>
+                                        <span class="ec-upsell-saved-amount" data-upsale-saved-amount>
+                                            {{ format_price(0) }}
+                                        </span>
+                                    </div>
                                 </div>
                                 <button
                                     type="button"
@@ -197,7 +205,7 @@
                                         <circle cx="20" cy="21" r="1"></circle>
                                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                                     </svg>
-                                    {{ trans('plugins/ecommerce::products.up_sale.add_selected_to_cart') }}
+                                    <span data-upsale-button-text>{{ trans('plugins/ecommerce::products.up_sale.add_selected_to_cart') }}</span>
                                 </button>
                             @endif
                         </div>
