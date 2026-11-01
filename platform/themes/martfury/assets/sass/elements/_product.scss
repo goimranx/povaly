@@ -1633,10 +1633,14 @@
         }
 
         .ps-product__shopping {
-            display: block;
-
             figure {
                 width: 100%;
+                margin: 0;
+
+                .form-group--number,
+                .product__qty {
+                    margin: 0;
+                }
             }
 
             .ps-btn {
