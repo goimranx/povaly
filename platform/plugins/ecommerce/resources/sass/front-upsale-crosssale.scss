@@ -95,7 +95,7 @@
         width: 28px;
         height: 28px;
         border-radius: 50%;
-        background: transparent;
+        background: var(--global-color-site-bg, #fff);
         border: 1px solid var(--global-color-primary-border, #e8e8e8);
         color: var(--global-color-text-body, #666);
         cursor: pointer;
@@ -130,7 +130,7 @@
             border-color: var(--global-color-border-strong, #333);
 
             &:hover {
-                background: transparent;
+                background: var(--global-color-site-bg, #fff);
                 color: var(--global-color-text-body, #666);
             }
         }
