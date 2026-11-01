@@ -253,7 +253,7 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
                         data-image="{{ $fullSizeUrl }}"
                         data-variation-id="{{ $imgData['variationId'] }}"
                     >
-                        <img src="{{ RvMedia::getImageUrl($imgData['src'], 'thumb') }}" alt="{{ $product->name }}" loading="lazy" />
+                        <img src="{{ RvMedia::getImageUrl($imgData['src'], 'thumb', false, RvMedia::url($imgData['src'])) }}" alt="{{ $product->name }}" loading="lazy" />
                         
                         {{-- Show counter on 4th item (index 3) if more exist --}}
                         @if ($index === 3 && $totalImages > 3)
