@@ -959,7 +959,7 @@
             }
 
             .ps-btn {
-                margin-right: 10px;
+                margin: 0; // Changed to 0 from margin-right: 10px
                 text-align: center;
             }
         }
@@ -971,7 +971,7 @@
     .number-items-available {
         font-size: 18px;
         font-weight: 400;
-        margin-top: 5px; // Changed from 7px to 5px
+        margin-top: 15px; // Changed to 15px as requested
         margin-bottom: 0; // Explicitly set to 0
         
         span {
