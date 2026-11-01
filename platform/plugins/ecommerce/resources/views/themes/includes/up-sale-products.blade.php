@@ -301,20 +301,11 @@
         </section>
 
         {{-- Mobile Modal --}}
-        <div class="ec-upsell-mobile-modal" id="upsale-mobile-modal" style="display: none;">
-            <div class="ec-upsell-mobile-modal-backdrop"></div>
-            <div class="ec-upsell-mobile-modal-content">
-                <div class="ec-upsell-mobile-modal-header">
-                    <h4>Review Bundle</h4>
-                    <button type="button" class="ec-upsell-mobile-modal-close">
-                        <i class="ph ph-x"></i>
-                    </button>
-                </div>
-                <div class="ec-upsell-mobile-modal-body">
-                    {{-- Will be populated by JS --}}
-                </div>
-            </div>
-        </div>
+        @include('plugins/ecommerce::themes.includes.product-bundle-modal', [
+            'modalId' => 'upsale-mobile-modal',
+            'modalTitle' => trans('plugins/ecommerce::products.up_sale.title'),
+            'products' => $products
+        ])
     @endif
 @else
     <div data-bb-toggle="block-lazy-loading" data-url="{{ route('public.ajax.up-sale-products', $parentProduct) }}">
