@@ -609,9 +609,27 @@ function isProductUrl(url) {
             method: 'GET',
             success: function(cartResponse) {
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
-                    // No cart data - all icons should be outline
+                    // No cart data - all icons should be outline, all buttons should revert
                     $('.ec-card__float-btn--cart').each(function() {
                         updateIconState($(this), false);
+                    });
+                    
+                    // Revert ALL quantity controls back to buttons
+                    $('.ec-card__qty-control').each(function() {
+                        var $ctrl = $(this);
+                        var $actions = $ctrl.closest('.ec-card__actions');
+                        var productId = $ctrl.data('id');
+                        var ctrlSlug = $ctrl.data('slug');
+                        
+                        var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
+                            'data-id="' + productId + '" ' +
+                            (ctrlSlug ? 'data-slug="' + ctrlSlug + '" ' : '') +
+                            'data-url="/cart/add-to-cart" ' +
+                            'data-show-toast-on-success="false" ' +
+                            'data-bb-toggle="add-to-cart">' +
+                            'Add to Cart</button>';
+                        
+                        $actions.html(btnHtml);
                     });
                     return;
                 }
@@ -653,6 +671,32 @@ function isProductUrl(url) {
                                    (productSlug && cartProductIds.includes(productSlug));
                     
                     updateIconState($btn, isInCart);
+                });
+                
+                // Check ALL quantity controls and revert if product not in cart
+                $('.ec-card__qty-control').each(function() {
+                    var $ctrl = $(this);
+                    var productId = $ctrl.data('id');
+                    var ctrlSlug = $ctrl.data('slug');
+                    
+                    // Check if this product is still in cart
+                    var isInCart = cartProductIds.includes(String(productId)) || 
+                                   (ctrlSlug && cartProductIds.includes(ctrlSlug));
+                    
+                    // If not in cart, revert to button
+                    if (!isInCart) {
+                        var $actions = $ctrl.closest('.ec-card__actions');
+                        
+                        var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
+                            'data-id="' + productId + '" ' +
+                            (ctrlSlug ? 'data-slug="' + ctrlSlug + '" ' : '') +
+                            'data-url="/cart/add-to-cart" ' +
+                            'data-show-toast-on-success="false" ' +
+                            'data-bb-toggle="add-to-cart">' +
+                            'Add to Cart</button>';
+                        
+                        $actions.html(btnHtml);
+                    }
                 });
             },
             error: function() {
