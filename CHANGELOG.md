@@ -5,6 +5,21 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.10] - 2024-11-02
+
+### 🐛 Debug & Troubleshooting
+
+- Added comprehensive console.log debug statements to `product-card-enhanced.js` for troubleshooting cart behavior differences between stage and main servers
+- Debug logs trace execution flow through:
+  - `transformToQuantityControl()` - button to quantity control transformation
+  - `updateCartQuantity()` - cart quantity updates
+  - `removeFromCart()` - cart item removal
+  - `syncCartState()` - cart state synchronization
+  - `ecommerce.cart.added` event listener
+  - Quantity control button clicks and user interactions
+- Logs include productId, productSlug, quantities, cart items, and AJAX responses
+- Enables identification of where execution differs between identical codebases on different servers
+
 ## [1.3.9] - 2024-11-02
 
 ### ✨ Added - Mobile Product Page Enhancements
