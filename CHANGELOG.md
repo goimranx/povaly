@@ -5,6 +5,18 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.13] - 2024-11-02
+
+### 🐛 Fixed - Cart Functionality
+
+- **CRITICAL FIX**: Corrected jQuery selectors in `product-card-enhanced.js` for cart item parsing
+  - Fixed product link selector to exclude remove button: `.ps-product__content > a:not(.ps-product__remove):not(.remove-cart-item)`
+  - Previous selector was matching the remove link instead of product link (both are direct children of `.ps-product__content`)
+  - Fixed remove link selector to work without requiring `[data-url]` attribute selector
+  - This fix resolves the "removeUrl: null" issue preventing cart item removal
+- **Root Cause**: The cart template has remove link as first child and product link as second child, but code was using `.first()` which selected wrong link
+- Affects both production and staging servers (bug existed in both, just manifested differently based on test conditions)
+
 ## [1.3.12] - 2024-11-02
 
 ### 🐛 Fixed
