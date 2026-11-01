@@ -1316,6 +1316,7 @@
 .ec-upsell-mobile-simple {
     display: none; // Hidden by default
     margin: 20px 0;
+    position: relative;
     
     @media (max-width: 767px) {
         display: block; // Show ONLY on mobile
@@ -1323,6 +1324,24 @@
     
     .container {
         padding: 0 0 15px 0;
+    }
+    
+    // Locked state when parent product not in cart
+    &.is-locked {
+        .ec-upsell-mobile-image-item {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: grayscale(50%);
+        }
+        
+        .ec-upsell-mobile-plus-icon {
+            opacity: 0.5;
+        }
+        
+        .ec-upsell-mobile-buy-btn {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     }
 }
 
@@ -1404,6 +1423,10 @@
     }
 }
 
+.ec-upsell-mobile-btn-wrapper {
+    position: relative;
+}
+
 .ec-upsell-mobile-buy-btn {
     width: 100%;
     display: flex;
@@ -1417,18 +1440,49 @@
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: border-color 0.2s ease;
+    transition: all 0.2s ease;
     
-    &:hover {
-        border-color: var(--global-color-border-strong, #333);
+    &:hover:not(:disabled) {
+        border-color: var(--global-color-link, #fcb800);
+        color: var(--global-color-link, #fcb800);
     }
     
-    &:active {
-        border-color: var(--global-color-link, #fcb800);
+    &:disabled {
+        cursor: not-allowed;
     }
     
     i {
         font-size: 16px;
+    }
+}
+
+.ec-upsell-mobile-unlock-notice {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    z-index: 10;
+    max-width: 90%;
+    text-align: center;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    
+    svg {
         flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+    }
+    
+    span {
+        flex: 1;
     }
 }

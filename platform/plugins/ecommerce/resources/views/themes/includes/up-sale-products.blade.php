@@ -218,7 +218,7 @@
         </section>
         
         {{-- MOBILE ONLY: Simple upsell with images + buy all button --}}
-        <section class="ec-upsell-mobile-simple" data-upsale-mobile-simple>
+        <section class="ec-upsell-mobile-simple" data-upsale-mobile-simple @class(['is-locked' => !$parentProductInCart])>
             <div class="container">
                 @php
                     $totalBundlePrice = 0;
@@ -275,7 +275,7 @@
                             ];
                         @endphp
                         
-                        <a href="{{ $product->url }}" class="ec-upsell-mobile-image-item">
+                        <a href="{{ $product->url }}" class="ec-upsell-mobile-image-item" @unless($parentProductInCart) onclick="return false;" @endunless>
                             {{ RvMedia::image($productImage, $product->name, 'thumb', true) }}
                         </a>
                         
@@ -287,16 +287,30 @@
                     @endforeach
                 </div>
 
-                <button 
-                    type="button" 
-                    class="ec-upsell-mobile-buy-btn"
-                    data-upsale-mobile-modal-open
-                    data-bundle-products="{{ json_encode($bundleProductData) }}"
-                    data-total-price="{{ $totalBundlePrice }}"
-                >
-                    <span>Buy all ({{ $productCount }}): {{ format_price($totalBundlePrice) }}</span>
-                    <i class="ph ph-caret-right"></i>
-                </button>
+                <div class="ec-upsell-mobile-btn-wrapper">
+                    <button 
+                        type="button" 
+                        class="ec-upsell-mobile-buy-btn"
+                        data-upsale-mobile-modal-open
+                        data-bundle-products="{{ json_encode($bundleProductData) }}"
+                        data-total-price="{{ $totalBundlePrice }}"
+                        data-parent-product="{{ $parentProduct->slug }}"
+                        @disabled(!$parentProductInCart)
+                    >
+                        <span>Buy all ({{ $productCount }}): {{ format_price($totalBundlePrice) }}</span>
+                        <i class="ph ph-caret-right"></i>
+                    </button>
+                    
+                    @unless($parentProductInCart)
+                        <div class="ec-upsell-mobile-unlock-notice">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            <span>{{ trans('plugins/ecommerce::products.up_sale.unlock_discount', ['product' => $parentProduct->name]) }}</span>
+                        </div>
+                    @endunless
+                </div>
             </div>
         </section>
 
