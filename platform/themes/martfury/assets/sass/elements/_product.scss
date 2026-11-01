@@ -843,11 +843,11 @@
 
         .ps-btn {
             font-weight: 600;
-            padding: 15px 30px;
+            padding: 10px 16px; // Changed from 15px 30px
             vertical-align: top;
-            height: 50px;
+            height: auto; // Changed from 50px to auto
             font-size: 16px;
-            border-radius: 7px;
+            border-radius: 50px; // Changed from 7px to 50px
             width: 100%; // Full width
             max-width: none; // Remove max-width
             text-align: center;
