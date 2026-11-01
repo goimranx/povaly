@@ -127,6 +127,13 @@
         &.slick-disabled {
             opacity: 0.3;
             cursor: not-allowed;
+            border-color: var(--global-color-primary-border, #e8e8e8);
+
+            &:hover {
+                background: transparent;
+                color: var(--global-color-text-body, #666);
+                border-color: var(--global-color-primary-border, #e8e8e8);
+            }
         }
 
         &.slick-prev {
