@@ -70,8 +70,12 @@
 
 .ec-upsell-bundle-content {
     display: flex;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 20px;
+
+    @media (max-width: 991px) {
+        flex-direction: column;
+    }
 }
 
 .ec-upsell-bundle-carousel-wrapper {
@@ -80,6 +84,8 @@
     display: flex;
     align-items: center;
     gap: 15px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .ec-upsell-bundle-arrows {
@@ -130,24 +136,27 @@
     padding: 0;
     background: none;
     display: block;
+    overflow: hidden;
 
     &.slick-initialized {
         .ec-upsell-bundle-item {
             margin: 0;
+            padding: 0 7px;
         }
     }
 
     .slick-list {
-        margin: 0;
+        margin: 0 -7px;
+        overflow: visible;
     }
 
     .slick-track {
         display: flex !important;
-        gap: 15px;
     }
 
     .slick-slide {
         height: auto !important;
+        width: 50% !important;
         
         > div {
             height: 100%;
@@ -161,6 +170,7 @@
     border-radius: 0;
     transition: all 0.2s ease;
     position: relative;
+    width: 100%;
 
     &:hover {
         .ec-upsell-bundle-item-inner {
@@ -451,16 +461,14 @@
     gap: 15px;
     background: none;
     align-self: stretch;
-}
 
-@media (max-width: 575px) {
-    .ec-upsell-bundle-footer {
+    @media (max-width: 991px) {
         width: 100%;
         border-left: none;
         border-top: 1px solid #e1e1e1;
         padding-left: 0;
         padding-top: 15px;
-        margin-top: 15px;
+        margin-top: 0;
     }
 }
 
