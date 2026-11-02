@@ -5,6 +5,41 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2] - 2024-11-02
+
+### 🔧 Fixed - Admin Panel CSS/JS Issues
+
+- **CRITICAL FIX**: Downgraded `@tabler/core` from v1.7.3 to v1.4.0
+  - Resolved admin panel CSS/JS compatibility issues
+  - Fixed CSS variables from modern `oklch()` colors back to hex colors with `--bb-` prefix
+  - Reduced core.css file size from 688KB to 565KB (120KB reduction)
+  - Restored proper `--bb-black`, `--bb-gray`, etc. variable naming convention
+  - All admin panel styles now render correctly
+
+### ✨ Improvements
+
+- **Build System**: Enhanced CSS syntax fix automation
+  - Automated fix for Tabler CSS output bugs (closing braces without newlines)
+  - Fixed empty CSS variable declarations
+  - Applied 44 syntax fixes automatically during production build
+  
+- **Version Update**: Core version bumped from 2.1 to 2.2
+  - Updated `platform/core/core.json` version identifier
+  - Cache busting for new release
+
+### 📦 Technical Changes
+
+- Fixed package dependency resolution in workspace
+- Copied `@tabler/core` to root node_modules for proper Vite resolution
+- Cleaned and optimized git repository (36,018 objects processed)
+- All assets compiled and published to both `platform/` and `public/vendor/` directories
+
+### 🚀 Deployment
+
+- Merged stage branch to main with all fixes
+- Production assets rebuilt and optimized
+- All changes committed and pushed to main branch
+
 ## [1.10.0] - 2024-11-02
 
 ### ✨ New Features
