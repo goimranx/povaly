@@ -76,6 +76,12 @@
         background: transparent !important;
     }
     
+    /* Override alert list colors to black text */
+    .alert-warning ul li,
+    .alert-info ul li {
+        color: #000 !important;
+    }
+    
     #update-output {
         font-family: 'Courier New', monospace;
         font-size: 12px;
