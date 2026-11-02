@@ -1,7 +1,7 @@
 @extends('core/base::layouts.master')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid povaly-system-updater-v2">
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -71,6 +71,11 @@
 </div>
 
 <style>
+    /* POVALY SYSTEM UPDATER V2 - TEST MARKER */
+    .povaly-system-updater-v2 {
+        background: transparent !important;
+    }
+    
     #update-output {
         font-family: 'Courier New', monospace;
         font-size: 12px;
