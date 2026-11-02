@@ -1894,6 +1894,11 @@
                 ]
             });
         }
+        
+        // Initialize cross-sale bundle functionality (checkboxes, price calculation)
+        if (typeof window.EcommerceCrossSaleBundle !== 'undefined') {
+            window.EcommerceCrossSaleBundle.initCrossSaleBundle();
+        }
     };
 
     // Refresh up-sale section when cart changes
