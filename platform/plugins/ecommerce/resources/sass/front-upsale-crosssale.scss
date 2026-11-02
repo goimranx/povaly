@@ -839,13 +839,13 @@
     &.slick-initialized {
         .ec-crosssale-bundle-item {
             margin: 0;
-            padding: 0 14px; // Increased padding for plus icons
+            padding: 0 14px; // 14px padding for 24px icon at -28px position
             width: auto !important;
         }
     }
 
     .slick-list {
-        margin: 0 -14px; // Match the padding
+        margin: 0 -14px;
         overflow: visible;
         padding-right: 1px !important;
     }
@@ -963,7 +963,7 @@
     aspect-ratio: 1;
     flex-shrink: 0;
     border-radius: 7px;
-    overflow: hidden;
+    overflow: visible; // Changed to visible for plus icon
     background: var(--global-color-card-bg, #f5f5f5);
     padding: 10px;
     display: flex;
@@ -980,22 +980,23 @@
 .ec-crosssale-plus-icon {
     position: absolute;
     top: 50%;
-    right: -14px;
+    right: -28px;
     transform: translateY(-50%);
     z-index: 5;
-    width: 28px;
-    height: 28px;
-    background: white;
-    border: 2px solid var(--global-color-border-strong, #333);
-    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    background: none; // No background
+    border: none; // No border
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--global-color-border-strong, #333);
+    color: var(--global-color-text-main, #333);
 
     svg {
-        width: 16px;
-        height: 16px;
+        width: 24px;
+        height: 24px;
+        stroke: var(--global-color-text-main, #333);
     }
 
     @media (max-width: 991px) {
