@@ -60,11 +60,15 @@
 
 .ec-upsell-bundle-title {
     h4 {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 500;
         color: var(--global-color-text-main, #1a1a1a);
         margin: 0;
         padding: 0;
+
+        @media (max-width: 767px) {
+            font-size: 20px;
+        }
     }
 
     p {
@@ -737,11 +741,15 @@
 
 .ec-crosssale-bundle-title {
     h4 {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 500;
         color: var(--global-color-text-main, #1a1a1a);
         margin: 0;
         padding: 0;
+
+        @media (max-width: 767px) {
+            font-size: 20px;
+        }
     }
 }
 
