@@ -2038,7 +2038,7 @@
     }
 
     .pd-accordion-body {
-        padding: 0;
+        padding: 0 0 10px 0;
         margin: 0;
         font-size: 14px;
         color: var(--global-color-text-body, #666);
@@ -2046,7 +2046,7 @@
         
         &.ps-list--dot {
             margin: 0 !important;
-            padding: 0 !important;
+            padding: 0 0 10px 0 !important;
             
             li {
                 margin-bottom: 0 !important;
