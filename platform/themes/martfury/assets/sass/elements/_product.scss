@@ -1982,9 +1982,14 @@
 
     .pd-accordion-item {
         border-bottom: 1px solid var(--global-color-primary-border, #e5e5e5);
+        margin-bottom: 10px;
         
         &:first-child {
             border-top: 1px solid var(--global-color-primary-border, #e5e5e5);
+        }
+
+        &:last-child {
+            margin-bottom: 0;
         }
     }
 
@@ -2061,10 +2066,6 @@
                 font-weight: 600;
             }
         }
-    }
-
-    .collapse {
-        margin-bottom: 10px;
     }
 
     // Description with read more/less
