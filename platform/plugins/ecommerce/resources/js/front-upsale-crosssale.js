@@ -950,7 +950,6 @@
     window.EcommerceCrossSaleBundle = {
         init: function () {
             this.initCrossSaleBundle()
-            this.initCrossSaleCarousel()
             this.bindEvents()
         },
 
@@ -958,54 +957,7 @@
             const self = this
             $(document).on('crosssale-bundle-loaded', function () {
                 self.initCrossSaleBundle()
-                self.initCrossSaleCarousel()
             })
-        },
-
-        initCrossSaleCarousel: function () {
-            const $carousel = $('[data-crosssale-carousel]')
-            if ($carousel.length === 0) return
-
-            const productCount = parseInt($carousel.data('product-count')) || 0
-            
-            // Only initialize carousel if more than 4 products
-            if (productCount > 4 && typeof $.fn.slick !== 'undefined') {
-                // Destroy existing carousel if it exists
-                if ($carousel.hasClass('slick-initialized')) {
-                    $carousel.slick('unslick')
-                }
-
-                $carousel.slick({
-                    slidesToShow: 4,
-                    slidesToScroll: 1,
-                    infinite: false,
-                    arrows: true,
-                    dots: false,
-                    appendArrows: $('.ec-crosssale-bundle-arrows'),
-                    prevArrow: $('.ec-crosssale-bundle-arrows .slick-prev'),
-                    nextArrow: $('.ec-crosssale-bundle-arrows .slick-next'),
-                    responsive: [
-                        {
-                            breakpoint: 1200,
-                            settings: {
-                                slidesToShow: 3,
-                            }
-                        },
-                        {
-                            breakpoint: 992,
-                            settings: {
-                                slidesToShow: 2,
-                            }
-                        },
-                        {
-                            breakpoint: 768,
-                            settings: {
-                                slidesToShow: 1,
-                            }
-                        }
-                    ]
-                })
-            }
         },
 
         initCrossSaleBundle: function () {

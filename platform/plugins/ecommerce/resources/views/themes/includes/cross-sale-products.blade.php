@@ -24,7 +24,7 @@
 
                     <div class="ec-crosssale-bundle-content">
                         <div class="ec-crosssale-bundle-carousel-wrapper">
-                            <div class="ec-crosssale-bundle-list" data-crosssale-carousel data-product-count="{{ $products->count() }}">
+                            <div class="ec-crosssale-bundle-list ec-crosssale-carousel" data-crosssale-carousel>
                         @foreach ($products as $product)
                             @php
                                 $productVariation = $product;
@@ -113,19 +113,7 @@
                                             </a>
                                         </h5>
                                         <div class="ec-crosssale-bundle-price">
-                                            @if($showOriginalPrice)
-                                                <span class="ec-crosssale-price-original">{{ format_price($showOriginalPrice) }}</span>
-                                            @endif
                                             <span class="ec-crosssale-price-sale">{{ format_price($bundlePrice) }}</span>
-                                            @if($bundleDiscountPrice > 0)
-                                                <span class="ec-crosssale-discount-badge ec-crosssale-discount-badge--inline">
-                                                    @if($isPercentDiscount)
-                                                        -{{ (int) $bundleDiscountPrice }}%
-                                                    @else
-                                                        -{{ format_price($bundleDiscountPrice) }}
-                                                    @endif
-                                                </span>
-                                            @endif
                                         </div>
 
                                         @if($product->variations->isNotEmpty())
@@ -141,57 +129,41 @@
                                 </div>
                             </div>
                         @endforeach
-                        
-                        {{-- Footer as the 5th column in carousel --}}
-                        @if(EcommerceHelper::isCartEnabled())
-                            <div class="ec-crosssale-bundle-item ec-crosssale-footer-item" data-crosssale-footer-item>
-                                <div class="ec-crosssale-bundle-footer">
-                                    <div class="ec-crosssale-bundle-total">
-                                        <span class="ec-crosssale-total-label">Total price:</span>
-                                        <span class="ec-crosssale-total-price" data-crosssale-total-price data-base-price="0">
-                                            {{ format_price(0) }}
-                                        </span>
-                                    </div>
-                                    <div class="ec-crosssale-bundle-saved" style="display: none;" data-crosssale-saved>
-                                        <span class="ec-crosssale-saved-label">Saved:</span>
-                                        <span class="ec-crosssale-saved-amount" data-crosssale-saved-amount>
-                                            {{ format_price(0) }}
-                                        </span>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        class="ec-crosssale-bundle-add-all"
-                                        data-crosssale-add-all
-                                        data-url="{{ route('public.cart.add-to-cart') }}"
-                                        data-parent-product="{{ $parentProduct->slug }}"
-                                        disabled
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <circle cx="9" cy="21" r="1"></circle>
-                                            <circle cx="20" cy="21" r="1"></circle>
-                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                                        </svg>
-                                        <span data-crosssale-button-text>{{ __('Add Selected to Cart') }}</span>
-                                    </button>
-                                </div>
-                            </div>
-                        @endif
                     </div>
-                    <div class="ec-crosssale-bundle-arrows">
-                        <button type="button" class="slick-prev" aria-label="Previous">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="15 18 9 12 15 6"></polyline>
-                            </svg>
-                        </button>
-                        <button type="button" class="slick-next" aria-label="Next">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                        </button>
-                    </div>
+                    {{-- Arrows will be appended here by Slick --}}
                 </div>
 
-                {{-- Removed old footer location --}}
+                @if(EcommerceHelper::isCartEnabled())
+                    <div class="ec-crosssale-bundle-footer">
+                        <div class="ec-crosssale-bundle-total">
+                            <span class="ec-crosssale-total-label">Total price:</span>
+                            <span class="ec-crosssale-total-price" data-crosssale-total-price data-base-price="0">
+                                {{ format_price(0) }}
+                            </span>
+                        </div>
+                        <div class="ec-crosssale-bundle-saved" style="display: none;" data-crosssale-saved>
+                            <span class="ec-crosssale-saved-label">Saved:</span>
+                            <span class="ec-crosssale-saved-amount" data-crosssale-saved-amount>
+                                {{ format_price(0) }}
+                            </span>
+                        </div>
+                        <button
+                            type="button"
+                            class="ec-crosssale-bundle-add-all"
+                            data-crosssale-add-all
+                            data-url="{{ route('public.cart.add-to-cart') }}"
+                            data-parent-product="{{ $parentProduct->slug }}"
+                            disabled
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="9" cy="21" r="1"></circle>
+                                <circle cx="20" cy="21" r="1"></circle>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                            </svg>
+                            <span data-crosssale-button-text>{{ __('Add Selected to Cart') }}</span>
+                        </button>
+                    </div>
+                @endif
                     </div>
                 </div>
             </div>
