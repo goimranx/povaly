@@ -11,8 +11,8 @@
     "scripts": {
         "dev": "node vite-build.mjs",
         "development": "node vite-build.mjs",
-        "prod": "cross-env NODE_ENV=production node vite-build.mjs",
-        "production": "cross-env NODE_ENV=production node vite-build.mjs",
+        "prod": "cross-env NODE_ENV=production node vite-build.mjs && node fix-css-syntax.mjs",
+        "production": "cross-env NODE_ENV=production node vite-build.mjs && node fix-css-syntax.mjs",
         "screenshot": "node platform/core/base/resources/js/screenshot.js",
         "admin-screenshot": "node platform/core/base/resources/js/admin-screenshot.js"
     },
