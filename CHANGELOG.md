@@ -5,6 +5,51 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.0] - 2024-11-02
+
+### ✨ New Features
+
+- **Dynamic Product URL Support**: Cart functionality now works with ANY permalink setting from admin
+  - Added `window.povalyConfig.productUrlPrefix` configuration in header
+  - Backend automatically detects current permalink setting using `SlugHelper::getPrefix(Product::class)`
+  - Helper functions dynamically extract product identifiers regardless of URL format (`/products/`, `/p/`, or any custom prefix)
+  - No more hardcoded URL assumptions - fully adapts to Settings → Permalinks configuration
+
+### 🐛 Fixed - Cart & UI Enhancements
+
+- **Cart State Synchronization**: Fixed product card buttons not reverting after cart removal
+  - Enhanced `syncCartIconStates()` to check ALL quantity controls and revert to "Add to Cart" if product not in cart
+  - Fixed issue where removing item from header flyout cart didn't update product card button state
+  - Now properly syncs both flyout cart icons AND product card buttons after any cart change
+  
+- **JavaScript Scope Fix**: Moved helper functions outside IIFE for global accessibility
+  - `getProductUrlPrefix()`, `extractProductIdentifier()`, and `isProductUrl()` now globally accessible
+  - Fixed "isProductUrl is not defined" error at line 644
+  - Maintains backward compatibility while enabling proper function access across scopes
+
+- **Toast Notifications**: Enabled success messages for all add-to-cart actions
+  - Quick shop modal buttons (Add to cart / Order now) now show success toast
+  - Product card enhanced buttons now show success toast
+  - Changed `data-show-toast-on-success` from `"false"` to `"true"` in both contexts
+  - Provides consistent user feedback across all cart interactions
+
+### 🔧 Technical Improvements
+
+- **All Product Instances Updated**: When removing from cart, ALL matching product cards update simultaneously
+  - Uses jQuery selector to find all instances: `$('.ec-card__qty-control[data-id="' + productId + '"]')`
+  - Ensures consistent state across duplicate products on same page (e.g., related products, search results)
+  
+- **Robust Cart Sync**: Multiple sync mechanisms for reliability
+  - Event-based sync when `productId` is provided in `ecommerce.cart.removed` event
+  - Fallback server-based sync via `syncCartIconStates()` when event data unavailable
+  - Handles both scenarios: direct card removal and header flyout removal
+
+### 📝 Notes
+
+- This release removes all debug logging added in v1.3.10-v1.3.14
+- Fully compatible with dynamic permalink settings - no code changes needed when changing URL structure
+- All cart functionality now works seamlessly with product URLs, shopping cart operations, and UI state management
+
 ## [1.3.14] - 2024-11-02
 
 ### 🐛 Fixed - Cart URL Parsing
