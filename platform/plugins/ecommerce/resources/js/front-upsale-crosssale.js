@@ -213,7 +213,15 @@
                                 url: url,
                             })
 
+                            // Legacy event for backward compatibility
+                            $(document).trigger('crosssale-bundle-loaded')
+
                             self.initSlickCarousel()
+                            
+                            // Initialize cross-sale bundle if available
+                            if (typeof window.EcommerceCrossSaleBundle !== 'undefined') {
+                                window.EcommerceCrossSaleBundle.initCrossSaleBundle()
+                            }
                         }
                     },
                     error: function (error) {
@@ -429,6 +437,22 @@
 
             // Checkbox change handler
             $checkboxes.off('change.upsale').on('change.upsale', updateTotal)
+
+            // Click on item to toggle checkbox (except title link)
+            $section.find('[data-upsale-bundle-item]').off('click.upsale-toggle').on('click.upsale-toggle', function (e) {
+                // Don't toggle if clicking on links, buttons, or form elements
+                if ($(e.target).is('a, button, input, select, textarea, label') || 
+                    $(e.target).closest('a, button, input, select, textarea, label').length > 0) {
+                    return
+                }
+
+                const $item = $(this)
+                const $checkbox = $item.find('[data-upsale-checkbox]')
+                
+                if ($checkbox.length && !$checkbox.prop('disabled')) {
+                    $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change')
+                }
+            })
 
             // Individual add to cart button handler
             $section.find('[data-upsale-add-btn]').off('click.upsale').on('click.upsale', function (e) {
@@ -1014,6 +1038,22 @@
 
             // Checkbox change handler
             $checkboxes.off('change.crosssale').on('change.crosssale', updateTotal)
+
+            // Click on item to toggle checkbox (except title link)
+            $section.find('[data-crosssale-bundle-item]').off('click.crosssale-toggle').on('click.crosssale-toggle', function (e) {
+                // Don't toggle if clicking on links, buttons, or form elements
+                if ($(e.target).is('a, button, input, select, textarea, label') || 
+                    $(e.target).closest('a, button, input, select, textarea, label').length > 0) {
+                    return
+                }
+
+                const $item = $(this)
+                const $checkbox = $item.find('[data-crosssale-checkbox]')
+                
+                if ($checkbox.length && !$checkbox.prop('disabled')) {
+                    $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change')
+                }
+            })
 
             // Add all button handler
             $addAllBtn.off('click.crosssale').on('click.crosssale', function (e) {
