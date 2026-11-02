@@ -1012,20 +1012,20 @@
 
 .ec-crosssale-bundle-name {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 400; // Changed from 600 to 400
     margin: 0 0 6px 0;
     line-height: 1.4;
 
     a {
-        color: var(--global-color-text-body, #333);
+        color: var(--global-color-text-main, #333); // Changed from text-body
         display: -webkit-box;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 3; // Changed from 2 to 3 lines
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-decoration: none;
 
         &:hover {
-            color: var(--global-color-text-body, #333);
+            color: var(--global-color-text-main, #333);
             text-decoration: underline;
         }
     }
