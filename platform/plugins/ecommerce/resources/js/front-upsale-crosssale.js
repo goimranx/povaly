@@ -453,6 +453,11 @@
                     $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change')
                 }
             })
+            
+            // Prevent links and buttons from triggering item click
+            $section.find('[data-upsale-bundle-item] a, [data-upsale-bundle-item] button').off('click.upsale-prevent').on('click.upsale-prevent', function (e) {
+                e.stopPropagation()
+            })
 
             // Individual add to cart button handler
             $section.find('[data-upsale-add-btn]').off('click.upsale').on('click.upsale', function (e) {
@@ -1053,6 +1058,11 @@
                 if ($checkbox.length && !$checkbox.prop('disabled')) {
                     $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change')
                 }
+            })
+            
+            // Prevent links and buttons from triggering item click
+            $section.find('[data-crosssale-bundle-item] a, [data-crosssale-bundle-item] button').off('click.crosssale-prevent').on('click.crosssale-prevent', function (e) {
+                e.stopPropagation()
             })
 
             // Add all button handler

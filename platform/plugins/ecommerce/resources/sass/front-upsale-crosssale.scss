@@ -1048,7 +1048,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 5px;
+    gap: 0;
     background: none;
     align-self: stretch;
 
@@ -1115,6 +1115,7 @@
     transition: all 0.2s ease;
     width: 100%;
     max-width: 220px;
+    margin-top: 5px;
 
     svg {
         width: 16px;

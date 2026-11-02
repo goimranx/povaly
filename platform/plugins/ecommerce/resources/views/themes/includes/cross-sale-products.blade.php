@@ -86,15 +86,13 @@
                                             data-bundle-discount-type="{{ $isPercentDiscount ? 'percent' : 'fixed' }}"
                                             data-original-price="{{ $salePrice * ($currency->is_default ? 1 : $currency->exchange_rate) }}"
                                             data-saved-amount="{{ ($salePrice - $bundlePrice) * ($currency->is_default ? 1 : $currency->exchange_rate) }}"
-                                            @checked(false)
+                                            @checked(true)
                                         >
                                         <span class="ec-crosssale-checkmark"></span>
                                     </div>
 
                                     <div class="ec-crosssale-bundle-thumb">
-                                        <a href="{{ $product->url }}">
-                                            {{ RvMedia::image($productImage, $product->name, 'thumb', true) }}
-                                        </a>
+                                        {{ RvMedia::image($productImage, $product->name, 'thumb', true) }}
                                         
                                         @if(!$loop->last)
                                             <div class="ec-crosssale-plus-icon">
@@ -109,7 +107,7 @@
                                     <div class="ec-crosssale-bundle-info">
                                         <h5 class="ec-crosssale-bundle-name">
                                             <a href="{{ $product->url }}" title="{{ $product->name }}">
-                                                {{ Str::limit($product->name, 50) }}
+                                                {{ $product->name }}
                                             </a>
                                         </h5>
                                         <div class="ec-crosssale-bundle-price">
