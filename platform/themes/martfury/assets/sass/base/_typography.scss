@@ -252,3 +252,60 @@ figure {
         color: $color-heading;
     }
 }
+
+/* ============================================
+   Global Section Title & Subtitle Classes
+   ============================================
+   Use these classes throughout the site for consistent heading sizes:
+   
+   - .section-title-lg: Large section titles (22px desktop, 20px mobile)
+   - .section-title-md: Medium section titles (20px desktop, 18px mobile)
+   - .section-title-sm: Small section titles (18px desktop, 16px mobile)
+   - .section-subtitle: Subtitles/descriptions (14px all devices)
+   
+   All titles have font-weight: 700 by default
+   ============================================ */
+
+.section-title-lg {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--global-color-text-main, #1a1a1a);
+    line-height: 1.3;
+    margin: 0;
+
+    @media (max-width: 767px) {
+        font-size: 20px;
+    }
+}
+
+.section-title-md {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--global-color-text-main, #1a1a1a);
+    line-height: 1.3;
+    margin: 0;
+
+    @media (max-width: 767px) {
+        font-size: 18px;
+    }
+}
+
+.section-title-sm {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--global-color-text-main, #1a1a1a);
+    line-height: 1.3;
+    margin: 0;
+
+    @media (max-width: 767px) {
+        font-size: 16px;
+    }
+}
+
+.section-subtitle {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--global-color-text-body, #666);
+    line-height: 1.6;
+    margin: 0;
+}
