@@ -746,48 +746,87 @@
 }
 
 .ec-crosssale-bundle-content {
-    display: flex;
-    align-items: stretch;
-    gap: 60px;
-
-    @media (max-width: 991px) {
-        flex-direction: column;
-        gap: 15px;
-    }
+    display: block;
+    position: relative;
 }
 
 .ec-crosssale-bundle-carousel-wrapper {
-    flex: 1;
     position: relative;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    min-width: 0;
-    overflow: visible;
-}
-
-.ec-crosssale-bundle-list {
-    flex: 1;
-    padding: 0;
-    background: none;
-    display: flex;
-    gap: 15px;
     overflow: hidden;
 }
 
+.ec-crosssale-bundle-list {
+    display: flex;
+    gap: 15px;
+    padding: 0;
+    background: none;
+    overflow: visible;
+    
+    // Slick carousel initialized
+    &.slick-initialized {
+        display: block;
+        
+        .slick-list {
+            margin: 0 -7.5px;
+            overflow: visible;
+        }
+        
+        .slick-track {
+            display: flex !important;
+        }
+        
+        .slick-slide {
+            height: auto !important;
+            margin: 0 7.5px;
+            
+            > div {
+                height: 100%;
+            }
+        }
+    }
+    
+    // When NOT initialized as carousel (1-4 items)
+    &:not(.slick-initialized) {
+        .ec-crosssale-bundle-item {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .ec-crosssale-footer-item {
+            flex: 0 0 280px;
+            min-width: 280px;
+        }
+    }
+}
+
 .ec-crosssale-bundle-item {
-    background: white;
+    background: transparent;
     border: none;
     border-radius: 0;
     transition: all 0.2s ease;
     position: relative;
-    flex: 1;
-    min-width: 0;
 
     &:hover {
         .ec-crosssale-bundle-item-inner {
             border-color: var(--global-color-border-strong, #333);
             box-shadow: 0 2px 12px rgba(255, 107, 53, 0.15);
+        }
+    }
+    
+    // Footer item styling
+    &.ec-crosssale-footer-item {
+        background: transparent;
+        border: none;
+        
+        &:hover {
+            .ec-crosssale-bundle-item-inner {
+                border: none;
+                box-shadow: none;
+            }
+        }
+        
+        .ec-crosssale-bundle-footer {
+            height: 100%;
         }
     }
 }
@@ -798,11 +837,12 @@
     padding: 0;
     cursor: pointer;
     margin: 0;
-    border: 1px solid var(--global-color-primary-border, #e8e8e8);
-    border-radius: 5px;
+    border: none; // Remove border
+    border-radius: 0;
     overflow: hidden;
     height: 100%;
     position: relative;
+    background: transparent;
 }
 
 .ec-crosssale-bundle-checkbox {
@@ -886,34 +926,13 @@
 }
 
 .ec-crosssale-plus-icon {
-    position: absolute;
-    top: calc(50% - 50px); // Adjust based on image height
-    right: -28px;
-    z-index: 5;
-    width: 28px;
-    height: 28px;
-    background: white;
-    border: 2px solid var(--global-color-border-strong, #333);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--global-color-border-strong, #333);
-
-    svg {
-        width: 16px;
-        height: 16px;
-    }
-
-    @media (max-width: 991px) {
-        display: none;
-    }
+    display: none; // Hide plus icons in carousel
 }
 
 .ec-crosssale-bundle-info {
     flex: 1;
     min-width: 0;
-    padding: 10px;
+    padding: 0; // Remove padding as requested
 }
 
 .ec-crosssale-bundle-name {
@@ -979,31 +998,29 @@
 
 .ec-crosssale-bundle-footer {
     flex-shrink: 0;
-    width: 280px;
-    padding: 0;
+    padding: 15px;
     border: none;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 5px;
-    background: none;
-    align-self: stretch;
+    gap: 10px;
+    background: var(--global-color-card-bg, #f5f5f5);
+    border-radius: 5px;
+    height: 100%;
 
     @media (max-width: 991px) {
-        width: 100%;
-        padding-top: 15px;
-        margin-top: 0;
+        padding: 15px;
     }
 }
 
 .ec-crosssale-bundle-total {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 7px;
-    font-size: 14px;
+    gap: 5px;
+    text-align: center;
 }
 
 .ec-crosssale-total-label {
@@ -1012,29 +1029,29 @@
 }
 
 .ec-crosssale-total-price {
-    font-size: 18px;
-    font-weight: 400;
+    font-size: 20px;
+    font-weight: 600;
     color: var(--global-color-text-main, #333);
 }
 
 .ec-crosssale-bundle-saved {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 7px;
-    font-size: 14px;
+    gap: 5px;
+    text-align: center;
 }
 
 .ec-crosssale-saved-label {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--global-color-text-main, #333);
 }
 
 .ec-crosssale-saved-amount {
-    font-size: 18px;
-    font-weight: 400;
-    color: var(--global-color-text-main, #333);
+    font-size: 16px;
+    font-weight: 600;
+    color: #28a745;
 }
 
 .ec-crosssale-bundle-add-all {
@@ -1046,13 +1063,13 @@
     color: var(--ec-btn-cart-text, #fff);
     font-size: 14px;
     font-weight: 600;
-    padding: 7px 12px;
+    padding: 12px 20px;
     border: none;
     border-radius: 50px;
     cursor: pointer;
     transition: all 0.2s ease;
     width: 100%;
-    max-width: 220px;
+    white-space: nowrap;
 
     svg {
         width: 16px;
@@ -1067,6 +1084,72 @@
     &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+    }
+}
+
+// Carousel arrows
+.ec-crosssale-bundle-arrows {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 10;
+    
+    .slick-arrow {
+        position: absolute;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--global-color-site-bg, #fff);
+        border: 1px solid var(--global-color-primary-border, #e8e8e8);
+        color: var(--global-color-text-body, #666);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        font-size: 0;
+        line-height: 0;
+        padding: 0;
+
+        svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        &:not(.slick-disabled) {
+            border-color: var(--global-color-border-strong, #333);
+            color: var(--global-color-text-body, #666);
+
+            &:hover {
+                background: var(--global-color-card-bg, #f5f5f5);
+                color: var(--global-color-text-main, #333);
+                border-color: var(--global-color-border-strong, #333);
+            }
+        }
+
+        &.slick-disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: var(--global-color-border-strong, #333);
+            background: var(--global-color-site-bg, #fff);
+
+            &:hover {
+                background: var(--global-color-site-bg, #fff);
+                color: var(--global-color-text-body, #666);
+            }
+        }
+
+        &.slick-prev {
+            left: -16px;
+        }
+
+        &.slick-next {
+            right: -16px;
+        }
     }
 }
 
