@@ -757,7 +757,7 @@
 ;(function ($) {
     'use strict'
 
-    // Open modal when "Buy all" button is clicked
+    // Open modal when "Buy all" button is clicked (Upsale)
     $(document).on('click', '[data-upsale-mobile-modal-open]', function (e) {
         e.preventDefault()
         
@@ -773,6 +773,22 @@
             
             // Use the same updateTotal logic as desktop - it's already initialized
             // by MartApp.initUpSaleBundle() or EcommerceUpSaleCrossSale.initUpSaleBundle()
+            // Just trigger a change event to update totals
+            modal.find('[data-bundle-modal-items] input[type="checkbox"]:checked').first().trigger('change')
+        }
+    })
+
+    // Open modal when "Buy all" button is clicked (Cross-sale)
+    $(document).on('click', '[data-crosssale-mobile-modal-open]', function (e) {
+        e.preventDefault()
+        
+        const modal = $('#crosssale-mobile-modal')
+        if (modal.length) {
+            modal.fadeIn(300)
+            $('body').css('overflow', 'hidden')
+            
+            // Use the same updateTotal logic as desktop - it's already initialized
+            // by MartApp.initCrossSaleBundle() or EcommerceCrossSale.initCrossSaleBundle()
             // Just trigger a change event to update totals
             modal.find('[data-bundle-modal-items] input[type="checkbox"]:checked').first().trigger('change')
         }
@@ -798,7 +814,12 @@
     // Update total when checkbox is toggled (will use same formatPrice from desktop)
     $(document).on('change', '.ec-bundle-modal-checkbox input[type="checkbox"]', function () {
         const $modal = $(this).closest('.ec-bundle-modal')
-        const $section = $modal.closest('[data-upsale-bundle]')
+        
+        // Try to find parent section from either upsale or cross-sale
+        let $section = $modal.closest('[data-upsale-bundle]')
+        if (!$section.length) {
+            $section = $modal.closest('[data-crosssale-bundle]')
+        }
         
         // Get format settings from parent section or use defaults
         const dataConfig = $section.data('currency-config') || window.currencies || {}
@@ -868,7 +889,14 @@
         e.preventDefault()
         const $btn = $(this)
         const url = $btn.data('url')
-        const parentProduct = $btn.closest('[data-bundle-modal]').find('[data-upsale-mobile-modal-open]').data('parent-product')
+        const $modal = $btn.closest('[data-bundle-modal]')
+        
+        // Try to find parent product from either upsale or cross-sale mobile button
+        let parentProduct = $modal.find('[data-upsale-mobile-modal-open]').data('parent-product')
+        if (!parentProduct) {
+            parentProduct = $modal.find('[data-crosssale-mobile-modal-open]').data('parent-product')
+        }
+        
         const $checkedItems = $('.ec-bundle-modal-checkbox input[type="checkbox"]:checked')
         
         if ($checkedItems.length === 0) {
