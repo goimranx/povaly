@@ -54,15 +54,17 @@
                     </div>
 
                     <!-- Important Notes -->
-                    <div class="alert alert-warning mt-4">
-                        <h5><i class="fas fa-exclamation-triangle"></i> Important Notes</h5>
-                        <ul class="mb-0">
-                            <li>The site will go into maintenance mode during the update</li>
-                            <li>Make sure you have a database backup before updating</li>
-                            <li>The update process may take 2-5 minutes</li>
-                            <li>Don't close this page until the update is complete</li>
-                            <li><strong>Force Update</strong> will update even if no changes are detected</li>
-                        </ul>
+                    <div class="note">
+                        <div class="alert alert-warning mt-4">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Important Notes</h5>
+                            <ul class="mb-0">
+                                <li>The site will go into maintenance mode during the update</li>
+                                <li>Make sure you have a database backup before updating</li>
+                                <li>The update process may take 2-5 minutes</li>
+                                <li>Don't close this page until the update is complete</li>
+                                <li><strong>Force Update</strong> will update even if no changes are detected</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
