@@ -356,7 +356,7 @@
                                     data-id="{{ $product->id }}"
                                     data-slug="{{ $product->slug }}"
                                     data-url="{{ route('public.cart.add-to-cart') }}"
-                                    data-show-toast-on-success="false"
+                                    data-show-toast-on-success="true"
                                     {!! EcommerceHelper::jsAttributes('add-to-cart', $product) !!}>
                                 {{ __('Add to Cart') }}
                             </button>

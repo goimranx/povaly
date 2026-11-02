@@ -2,6 +2,35 @@
  * product-card-enhanced.js
  * Loaded via config.php after main.js — handles ec-card button interactions.
  */
+
+// ── Global Helper Functions (must be outside IIFE for accessibility) ──────
+function getProductUrlPrefix() {
+    return window.povalyConfig && window.povalyConfig.productUrlPrefix 
+        ? window.povalyConfig.productUrlPrefix 
+        : 'products';
+}
+
+function extractProductIdentifier(productUrl) {
+    if (!productUrl) return null;
+    
+    var prefix = getProductUrlPrefix();
+    var prefixPath = '/' + prefix + '/';
+    
+    // Handle both full URLs and relative paths
+    if (productUrl.includes(prefixPath)) {
+        var parts = productUrl.split(prefixPath);
+        return parts[1] ? parts[1].replace(/\/$/, '').split('?')[0].split('#')[0] : null;
+    }
+    
+    return null;
+}
+
+function isProductUrl(url) {
+    if (!url) return false;
+    var prefix = getProductUrlPrefix();
+    return url.includes('/' + prefix + '/');
+}
+
 (function ($) {
     'use strict';
 
@@ -42,8 +71,6 @@
     // ── Cart update after add-to-cart ─────────────────────────────────────
     // Suppress toast notification and transform button to quantity control
     document.addEventListener('ecommerce.cart.added', function (e) {
-        console.log('[DEBUG] ecommerce.cart.added event fired', e.detail);
-        
         // Update mini-cart
         if (typeof window.loadCart === 'function') {
             window.loadCart();
@@ -51,16 +78,12 @@
 
         // Check if this was from an enhanced card button
         var element = e.detail && e.detail.element ? e.detail.element : null;
-        console.log('[DEBUG] cart.added element:', element);
-        
         if (element) {
             // Ensure element is a jQuery object
             var $element = element instanceof $ ? element : $(element);
-            console.log('[DEBUG] $element hasClass ec-card__btn--cart:', $element.hasClass('ec-card__btn--cart'));
             
             if ($element.hasClass('ec-card__btn--cart')) {
                 var productId = $element.data('id');
-                console.log('[DEBUG] transforming to qty control for productId:', productId);
                 if (productId) {
                     transformToQuantityControl(productId, 1);
                 }
@@ -74,13 +97,10 @@
     // ── Quantity Control Functions ────────────────────────────────────────
     
     function transformToQuantityControl(productId, quantity) {
-        console.log('[DEBUG] transformToQuantityControl called - productId:', productId, 'quantity:', quantity);
         var $btn = $('.ec-card__btn--cart[data-id="' + productId + '"]');
-        console.log('[DEBUG] found button count:', $btn.length);
         if (!$btn.length) return;
 
         var $actions = $btn.closest('.ec-card__actions');
-        console.log('[DEBUG] found actions container:', $actions.length);
         
         // Store the slug before replacing the button
         var productSlug = $btn.data('slug');
@@ -111,8 +131,6 @@
         e.preventDefault();
         e.stopPropagation();
         
-        console.log('[DEBUG] qty-btn clicked');
-        
         var $btn = $(this);
         var $control = $btn.closest('.ec-card__qty-control');
         var productId = $control.data('id');
@@ -121,11 +139,8 @@
         var currentQty = parseInt($qtyInput.val()) || 1;
         var newQty = currentQty;
         
-        console.log('[DEBUG] qty-btn - productId:', productId, 'action:', action, 'currentQty:', currentQty);
-        
         if (action === 'decrease') {
             if (currentQty === 1) {
-                console.log('[DEBUG] qty is 1, calling removeFromCart');
                 removeFromCart(productId, $control);
                 return;
             } else {
@@ -134,8 +149,6 @@
         } else if (action === 'increase') {
             newQty = currentQty + 1;
         }
-        
-        console.log('[DEBUG] updating to newQty:', newQty);
         
         // OPTIMISTIC UPDATE: Update UI immediately on ALL controls for this product (including carousel clones)
         $('.ec-card__qty-control[data-id="' + productId + '"]').each(function() {
@@ -253,13 +266,11 @@
     });
 
     function updateCartQuantity(productId, newQty, $control) {
-        console.log('[DEBUG] updateCartQuantity called - productId:', productId, 'newQty:', newQty);
         // Allow multiple simultaneous updates for instant feel
         // Each click creates its own request
         
         // Get slug from the control itself (stored when transformed)
         var productSlug = $control.data('slug');
-        console.log('[DEBUG] productSlug:', productSlug);
         
         // Get cart to find the rowId
         $.ajax({
@@ -276,15 +287,14 @@
                 // Find the cart item by matching product URL
                 $html.find('.ps-product--cart-mobile').each(function() {
                     var $item = $(this);
-                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    var $productLink = $item.find('.ps-product__content > a').not('.ps-product__remove, .remove-cart-item').first();
                     
                     if (!$productLink.length) return;
                     
                     var productUrl = $productLink.attr('href');
-                    var urlParts = productUrl.split('/products/');
-                    if (urlParts.length < 2) return;
+                    var productIdentifier = extractProductIdentifier(productUrl);
                     
-                    var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    if (!productIdentifier) return;
                     
                     // Match by slug first (most reliable), then by ID
                     if (productIdentifier == productSlug || productIdentifier == productId) {
@@ -336,12 +346,10 @@
     }
 
     function removeFromCart(productId, $control) {
-        console.log('[DEBUG] removeFromCart called - productId:', productId);
         var $actions = $control.closest('.ec-card__actions');
         
         // Get slug from the control itself
         var productSlug = $control.data('slug');
-        console.log('[DEBUG] removeFromCart - productSlug:', productSlug);
         
         // Get cart to find the remove URL
         $.ajax({
@@ -358,15 +366,14 @@
                 // Parse cart items to find remove URL
                 $html.find('.ps-product--cart-mobile').each(function() {
                     var $item = $(this);
-                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    var $productLink = $item.find('.ps-product__content > a').not('.ps-product__remove, .remove-cart-item').first();
                     
                     if (!$productLink.length) return;
                     
                     var productUrl = $productLink.attr('href');
-                    var urlParts = productUrl.split('/products/');
-                    if (urlParts.length < 2) return;
+                    var productIdentifier = extractProductIdentifier(productUrl);
                     
-                    var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    if (!productIdentifier) return;
                     
                     // Match by slug first, then ID
                     if (productIdentifier == productSlug || productIdentifier == productId) {
@@ -376,10 +383,7 @@
                     }
                 });
                 
-                console.log('[DEBUG] removeFromCart - found removeUrl:', removeUrl);
-                
                 if (!removeUrl) {
-                    console.log('[DEBUG] removeFromCart - no removeUrl found, aborting');
                     return;
                 }
                 
@@ -388,27 +392,33 @@
                     method: 'GET',
                     dataType: 'json',
                     success: function(response) {
-                        console.log('[DEBUG] removeFromCart success - response:', response);
-                        // Transform back to "Add to Cart" button
-                        var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
-                            'data-id="' + productId + '" ' +
-                            (productSlug ? 'data-slug="' + productSlug + '" ' : '') +
-                            'data-url="/cart/add-to-cart" ' +
-                            'data-show-toast-on-success="false" ' +
-                            'data-bb-toggle="add-to-cart">' +
-                            'Add to Cart</button>';
-                        
-                        console.log('[DEBUG] replacing control with button HTML');
-                        $actions.html(btnHtml);
+                        // Transform back to "Add to Cart" button for ALL instances of this product
+                        $('.ec-card__qty-control[data-id="' + productId + '"]').each(function() {
+                            var $ctrl = $(this);
+                            var $actions = $ctrl.closest('.ec-card__actions');
+                            var ctrlSlug = $ctrl.data('slug');
+                            
+                            var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
+                                'data-id="' + productId + '" ' +
+                                (ctrlSlug ? 'data-slug="' + ctrlSlug + '" ' : '') +
+                                'data-url="/cart/add-to-cart" ' +
+                                'data-show-toast-on-success="false" ' +
+                                'data-bb-toggle="add-to-cart">' +
+                                'Add to Cart</button>';
+                            
+                            $actions.html(btnHtml);
+                        });
                         
                         // Update mini-cart
                         if (typeof window.loadCart === 'function') {
                             window.loadCart();
                         }
+                        
+                        // Update cart icon states (flyout buttons)
+                        syncCartIconStates();
                     },
                     error: function(xhr) {
-                        console.error('[DEBUG] removeFromCart error:', xhr.status, xhr.responseText);
-                    }
+                        }
                 });
             },
             error: function(xhr) {
@@ -447,14 +457,11 @@
     });
     
     function syncCartState() {
-        console.log('[DEBUG] syncCartState called');
         $.ajax({
             url: '/ajax/cart',
             method: 'GET',
             success: function(cartResponse) {
-                console.log('[DEBUG] syncCartState - cart response received');
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
-                    console.log('[DEBUG] syncCartState - no cart data');
                     return;
                 }
                 
@@ -464,15 +471,14 @@
                 // Parse cart items by finding product containers
                 $html.find('.ps-product--cart-mobile').each(function() {
                     var $item = $(this);
-                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    var $productLink = $item.find('.ps-product__content > a').not('.ps-product__remove, .remove-cart-item').first();
                     
                     if (!$productLink.length) return;
                     
                     var productUrl = $productLink.attr('href');
-                    var urlParts = productUrl.split('/products/');
-                    if (urlParts.length < 2) return;
+                    var productIdentifier = extractProductIdentifier(productUrl);
                     
-                    var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    if (!productIdentifier) return;
                     
                     // Find quantity in the text "X x" format
                     var $qtyText = $item.find('.ps-product__content p small .d-inline-block');
@@ -491,8 +497,6 @@
                     }
                 });
                 
-                console.log('[DEBUG] syncCartState - found cart items:', cartItems);
-                
                 // Update all enhanced cards
                 $('.ec-card__btn--cart').each(function() {
                     var $btn = $(this);
@@ -503,8 +507,6 @@
                     
                     // Try to find cart item by slug first (most reliable), then by ID
                     var cartItem = cartItems[productSlug] || cartItems[productId];
-                    
-                    console.log('[DEBUG] checking button - productId:', productId, 'productSlug:', productSlug, 'cartItem:', cartItem);
                     
                     if (cartItem && cartItem.qty) {
                         transformToQuantityControl(productId, cartItem.qty);
@@ -521,24 +523,20 @@
                     // Find the original button to get its slug
                     var $actions = $control.closest('.ec-card__actions');
                     var $card = $actions.closest('.ec-card');
-                    var $originalLink = $card.find('a[href*="/products/"]').first();
+                    var $originalLink = $card.find('a').filter(function() {
+                        return isProductUrl($(this).attr('href'));
+                    }).first();
                     var productSlug = null;
                     
                     if ($originalLink.length) {
                         var href = $originalLink.attr('href');
-                        var parts = href.split('/products/');
-                        if (parts.length > 1) {
-                            productSlug = parts[1].replace(/\/$/, '');
-                        }
+                        productSlug = extractProductIdentifier(href);
                     }
                     
                     var cartItem = cartItems[productSlug] || cartItems[productId];
                     
-                    console.log('[DEBUG] checking control - productId:', productId, 'productSlug:', productSlug, 'cartItem:', cartItem);
-                    
                     if (cartItem && cartItem.qty) {
                         var qty = cartItem.qty;
-                        console.log('[DEBUG] updating control quantity to:', qty);
                         $control.find('.ec-card__qty-input').val(qty);
                         
                         var $minusBtn = $control.find('.ec-card__qty-btn--minus');
@@ -548,7 +546,6 @@
                             $minusBtn.html('<i class="ph ph-minus"></i>');
                         }
                     } else {
-                        console.log('[DEBUG] product not in cart - reverting to button');
                         var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
                             'data-id="' + productId + '" ' +
                             (productSlug ? 'data-slug="' + productSlug + '" ' : '') +
@@ -561,8 +558,7 @@
                 });
             },
             error: function(xhr) {
-                console.error('[DEBUG] syncCartState error:', xhr.status, xhr.responseText);
-            }
+                }
         });
     }
 
@@ -613,9 +609,27 @@
             method: 'GET',
             success: function(cartResponse) {
                 if (!cartResponse || !cartResponse.data || !cartResponse.data.html) {
-                    // No cart data - all icons should be outline
+                    // No cart data - all icons should be outline, all buttons should revert
                     $('.ec-card__float-btn--cart').each(function() {
                         updateIconState($(this), false);
+                    });
+                    
+                    // Revert ALL quantity controls back to buttons
+                    $('.ec-card__qty-control').each(function() {
+                        var $ctrl = $(this);
+                        var $actions = $ctrl.closest('.ec-card__actions');
+                        var productId = $ctrl.data('id');
+                        var ctrlSlug = $ctrl.data('slug');
+                        
+                        var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
+                            'data-id="' + productId + '" ' +
+                            (ctrlSlug ? 'data-slug="' + ctrlSlug + '" ' : '') +
+                            'data-url="/cart/add-to-cart" ' +
+                            'data-show-toast-on-success="false" ' +
+                            'data-bb-toggle="add-to-cart">' +
+                            'Add to Cart</button>';
+                        
+                        $actions.html(btnHtml);
                     });
                     return;
                 }
@@ -626,15 +640,15 @@
                 // Parse cart items to get product IDs
                 $html.find('.ps-product--cart-mobile').each(function() {
                     var $item = $(this);
-                    var $productLink = $item.find('.ps-product__content > a[href*="/products/"]').first();
+                    var $productLink = $item.find('.ps-product__content > a').not('.ps-product__remove, .remove-cart-item').first();
                     
                     if (!$productLink.length) return;
                     
                     var productUrl = $productLink.attr('href');
-                    var urlParts = productUrl.split('/products/');
-                    if (urlParts.length < 2) return;
+                    var productIdentifier = extractProductIdentifier(productUrl);
                     
-                    var productIdentifier = urlParts[1].replace(/\/$/, '');
+                    if (!productIdentifier) return;
+                    
                     cartProductIds.push(productIdentifier);
                 });
                 
@@ -642,11 +656,14 @@
                 $('.ec-card__float-btn--cart').each(function() {
                     var $btn = $(this);
                     var productId = $btn.data('product-id') || $btn.data('id');
-                    var productSlug = $btn.closest('.ec-card').find('a[href*="/products/"]').first().attr('href');
+                    var $card = $btn.closest('.ec-card');
+                    var $productLink = $card.find('a').filter(function() {
+                        return isProductUrl($(this).attr('href'));
+                    }).first();
+                    var productSlug = null;
                     
-                    if (productSlug) {
-                        var parts = productSlug.split('/products/');
-                        productSlug = parts.length > 1 ? parts[1].replace(/\/$/, '') : null;
+                    if ($productLink.length) {
+                        productSlug = extractProductIdentifier($productLink.attr('href'));
                     }
                     
                     // Check if product is in cart
@@ -654,6 +671,32 @@
                                    (productSlug && cartProductIds.includes(productSlug));
                     
                     updateIconState($btn, isInCart);
+                });
+                
+                // Check ALL quantity controls and revert if product not in cart
+                $('.ec-card__qty-control').each(function() {
+                    var $ctrl = $(this);
+                    var productId = $ctrl.data('id');
+                    var ctrlSlug = $ctrl.data('slug');
+                    
+                    // Check if this product is still in cart
+                    var isInCart = cartProductIds.includes(String(productId)) || 
+                                   (ctrlSlug && cartProductIds.includes(ctrlSlug));
+                    
+                    // If not in cart, revert to button
+                    if (!isInCart) {
+                        var $actions = $ctrl.closest('.ec-card__actions');
+                        
+                        var btnHtml = '<button type="button" class="ec-card__btn ec-card__btn--cart" ' +
+                            'data-id="' + productId + '" ' +
+                            (ctrlSlug ? 'data-slug="' + ctrlSlug + '" ' : '') +
+                            'data-url="/cart/add-to-cart" ' +
+                            'data-show-toast-on-success="false" ' +
+                            'data-bb-toggle="add-to-cart">' +
+                            'Add to Cart</button>';
+                        
+                        $actions.html(btnHtml);
+                    }
                 });
             },
             error: function() {
