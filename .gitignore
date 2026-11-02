@@ -24,8 +24,7 @@ __MACOSX
 /.phpintel
 /.php_cs.cache
 
-# Removed: public/vendor/core (admin assets must be tracked in Git)
-# The admin panel requires these assets to function properly
+public/vendor/core
 
 _ide_helper.php
 yarn.lock
