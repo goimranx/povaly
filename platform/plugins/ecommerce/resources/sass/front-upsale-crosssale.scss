@@ -764,6 +764,11 @@
     gap: 15px;
     min-width: 0;
     overflow: visible;
+    
+    // Only show carousel list, not the footer in carousel
+    > .ec-crosssale-bundle-list {
+        flex: 1;
+    }
 
     .slick-arrow {
         position: absolute;
@@ -834,25 +839,25 @@
     &.slick-initialized {
         .ec-crosssale-bundle-item {
             margin: 0;
-            padding: 0 7.5px;
-            width: auto !important; // Let items take natural width
+            padding: 0 14px; // Increased padding for plus icons
+            width: auto !important;
         }
     }
 
     .slick-list {
-        margin: 0 -7.5px;
+        margin: 0 -14px; // Match the padding
         overflow: visible;
         padding-right: 1px !important;
     }
 
     .slick-track {
         display: flex !important;
-        width: auto !important; // Don't force full width
+        width: auto !important;
     }
 
     .slick-slide {
         height: auto !important;
-        width: auto !important; // Natural width based on content
+        width: auto !important;
         float: none;
         
         > div {
@@ -873,7 +878,6 @@
 
     &:hover {
         .ec-crosssale-bundle-item-inner {
-            border-color: var(--global-color-border-strong, #333);
             box-shadow: 0 2px 12px rgba(255, 107, 53, 0.15);
         }
     }
@@ -887,7 +891,7 @@
     margin: 0;
     border: none;
     border-radius: 0;
-    overflow: hidden;
+    overflow: visible; // Changed from hidden to visible for plus icons
     height: 100%;
     position: relative;
     background: transparent;
@@ -975,8 +979,9 @@
 
 .ec-crosssale-plus-icon {
     position: absolute;
-    top: calc(50% - 50px);
-    right: -28px;
+    top: 50%;
+    right: -14px;
+    transform: translateY(-50%);
     z-index: 5;
     width: 28px;
     height: 28px;
