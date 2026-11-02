@@ -270,10 +270,21 @@ class SystemUpdateController extends Controller
             
             if ($isProduction) {
                 // Production: Check for new tags
-                $output = $this->executeCommand('git fetch --tags', $returnCode);
-                
-                if ($returnCode !== 0) {
-                    throw new \Exception("Failed to fetch tags from GitHub");
+                try {
+                    $output = $this->executeCommand('git fetch --tags', $returnCode);
+                    
+                    if ($returnCode !== 0) {
+                        $errorOutput = implode("\n", $output);
+                        Log::warning('Git fetch tags failed, using cached tags', [
+                            'return_code' => $returnCode,
+                            'output' => $errorOutput,
+                            'cwd' => base_path()
+                        ]);
+                        // Don't throw - continue with cached/local tags
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Git fetch exception, using cached tags', ['error' => $e->getMessage()]);
+                    // Continue with cached/local tags
                 }
                 
                 // Clear version cache to get fresh data
@@ -299,7 +310,8 @@ class SystemUpdateController extends Controller
                     'current_version' => $currentVersion,
                     'latest_version' => $latestTag ?? $currentVersion,
                     'available_tags' => array_slice($tags, 0, 5),
-                    'changes' => $changesList
+                    'changes' => $changesList,
+                    'fetch_status' => isset($returnCode) && $returnCode === 0 ? 'success' : 'using_cached'
                 ]);
                 
             } else {
