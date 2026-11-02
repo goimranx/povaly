@@ -840,7 +840,6 @@
         .ec-crosssale-bundle-item {
             margin: 0;
             padding: 0 14px; // 14px padding for 24px icon at -28px position
-            width: auto !important;
         }
     }
 
@@ -852,17 +851,13 @@
 
     .slick-track {
         display: flex !important;
-        width: auto !important;
     }
 
     .slick-slide {
         height: auto !important;
-        width: auto !important;
-        float: none;
         
         > div {
             height: 100%;
-            width: auto;
         }
     }
 }
@@ -871,16 +866,10 @@
     background: transparent;
     border: none;
     border-radius: 0;
-    transition: all 0.2s ease;
+    transition: none;
     position: relative;
     width: 100%;
     height: 100%;
-
-    &:hover {
-        .ec-crosssale-bundle-item-inner {
-            box-shadow: 0 2px 12px rgba(255, 107, 53, 0.15);
-        }
-    }
 }
 
 .ec-crosssale-bundle-item-inner {
@@ -1013,7 +1002,7 @@
 .ec-crosssale-bundle-name {
     font-size: 14px;
     font-weight: 400; // Changed from 600 to 400
-    margin: 0 0 6px 0;
+    margin: 10px 0 6px 0;
     line-height: 1.4;
 
     a {
@@ -1214,7 +1203,7 @@
     display: block;
     width: 24px;
     height: 24px;
-    border-radius: 50%;
+    border-radius: 3px;
     border: 2px solid #e8e8e8;
     transition: all 0.2s ease;
 }
