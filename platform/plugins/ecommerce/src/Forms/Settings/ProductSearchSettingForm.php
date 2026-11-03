@@ -41,6 +41,7 @@ class ProductSearchSettingForm extends SettingForm
                         'description' => trans('plugins/ecommerce::products.form.description'),
                         'brand' => trans('plugins/ecommerce::products.form.brand'),
                         'tag' => trans('plugins/ecommerce::products.form.tags'),
+                        'category' => trans('plugins/ecommerce::products.form.categories'),
                     ])
                     ->selected(old('product_collections', EcommerceHelper::getProductsSearchBy()))
             )

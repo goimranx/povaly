@@ -59,12 +59,17 @@
 }
 
 .ec-upsell-bundle-title {
-    h4 {
-        font-size: 20px;
-        font-weight: 600;
+    h2 {
+        font-size: 22px;
+        font-weight: 700;
         color: var(--global-color-text-main, #1a1a1a);
+        line-height: 1.3;
         margin: 0;
         padding: 0;
+
+        @media (max-width: 767px) {
+            font-size: 20px;
+        }
     }
 
     p {
@@ -79,6 +84,8 @@
     display: flex;
     align-items: stretch;
     gap: 60px;
+    padding-left: 15px;
+    padding-right: 15px;
 
     @media (max-width: 991px) {
         flex-direction: column;
@@ -699,15 +706,673 @@
 }
 
 /* ============================================
-   Cross-Sale Section (Shofy Style)
+   Cross-Sale Bundle Section (Matching Upsell Design)
+   ============================================ */
+.ec-crosssale-bundle {
+    margin: 0;
+    padding: 0;
+}
+
+@media (max-width: 575px) {
+    .ec-crosssale-bundle {
+        margin: 0;
+    }
+}
+
+.ec-crosssale-bundle-wrapper {
+    background: var(--global-color-site-bg, #fff);
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+@media (max-width: 575px) {
+    .ec-crosssale-bundle-wrapper {
+        padding: 0;
+    }
+}
+
+.ec-crosssale-bundle-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding: 0;
+    border: none;
+}
+
+.ec-crosssale-bundle-title {
+    h2 {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--global-color-text-main, #1a1a1a);
+        line-height: 1.3;
+        margin: 0;
+        padding: 0;
+
+        @media (max-width: 767px) {
+            font-size: 20px;
+        }
+    }
+}
+
+.ec-crosssale-bundle-content {
+    display: flex;
+    align-items: stretch;
+    gap: 60px;
+    padding-left: 15px;
+    padding-right: 15px;
+
+    @media (max-width: 991px) {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+.ec-crosssale-bundle-carousel-wrapper {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    min-width: 0;
+    overflow: visible;
+    
+    // Only show carousel list, not the footer in carousel
+    > .ec-crosssale-bundle-list {
+        flex: 1;
+    }
+
+    .slick-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--global-color-site-bg, #fff);
+        border: 1px solid var(--global-color-primary-border, #e8e8e8);
+        color: var(--global-color-text-body, #666);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+
+        &:before {
+            display: none;
+        }
+
+        svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        &:not(.slick-disabled) {
+            border-color: var(--global-color-border-strong, #333);
+            color: var(--global-color-text-body, #666);
+
+            &:hover {
+                background: var(--global-color-card-bg, #f5f5f5);
+                color: var(--global-color-text-main, #333);
+                border-color: var(--global-color-border-strong, #333);
+            }
+        }
+
+        &.slick-disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            border-color: var(--global-color-border-strong, #333);
+            background: var(--global-color-site-bg, #fff);
+
+            &:hover {
+                background: var(--global-color-site-bg, #fff);
+                color: var(--global-color-text-body, #666);
+            }
+        }
+
+        &.slick-prev {
+            left: -14px;
+        }
+
+        &.slick-next {
+            right: -14px;
+        }
+    }
+}
+
+.ec-crosssale-bundle-list {
+    flex: 1;
+    padding: 0;
+    background: none;
+    display: block;
+    overflow: hidden;
+
+    &.slick-initialized {
+        .ec-crosssale-bundle-item {
+            margin: 0;
+            padding: 0 14px; // 14px padding for 24px icon at -28px position
+        }
+    }
+
+    .slick-list {
+        margin: 0 -14px;
+        overflow: visible;
+        padding-right: 1px !important;
+    }
+
+    .slick-track {
+        display: flex !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    .slick-slide {
+        height: auto !important;
+        
+        > div {
+            height: 100%;
+        }
+    }
+}
+
+.ec-crosssale-bundle-item {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    transition: none;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.ec-crosssale-bundle-item-inner {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    cursor: pointer;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    overflow: visible; // Changed from hidden to visible for plus icons
+    height: 100%;
+    position: relative;
+    background: transparent;
+}
+
+.ec-crosssale-bundle-checkbox {
+    position: absolute;
+    top: 10px;
+    right: 17px;
+    z-index: 10;
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+
+    input[type="checkbox"] {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        margin: 0;
+
+        &:checked ~ .ec-crosssale-checkmark {
+            background-color: var(--global-color-link, #fcb800);
+            border-color: var(--global-color-link, #fcb800);
+
+            &:after {
+                display: block;
+            }
+        }
+
+        &:disabled ~ .ec-crosssale-checkmark {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    }
+}
+
+.ec-crosssale-checkmark {
+    display: block;
+    width: 22px;
+    height: 22px;
+    background-color: white;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    position: relative;
+    transition: all 0.2s ease;
+
+    &:after {
+        content: "";
+        position: absolute;
+        display: none;
+        left: 7px;
+        top: 3px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+}
+
+.ec-crosssale-bundle-thumb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    flex-shrink: 0;
+    border-radius: 7px;
+    overflow: visible; // Changed to visible for plus icon
+    background: var(--global-color-card-bg, #f5f5f5);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+
+.ec-crosssale-plus-icon {
+    position: absolute;
+    top: 50%;
+    right: -28px;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: 24px;
+    height: 24px;
+    background: none; // No background
+    border: none; // No border
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--global-color-text-main, #333);
+
+    svg {
+        width: 24px;
+        height: 24px;
+        stroke: var(--global-color-text-main, #333);
+    }
+
+    @media (max-width: 991px) {
+        display: none;
+    }
+}
+
+.ec-crosssale-bundle-info {
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+}
+
+.ec-crosssale-bundle-name {
+    font-size: 14px;
+    font-weight: 400; // Changed from 600 to 400
+    margin: 10px 0 6px 0;
+    line-height: 1.4;
+
+    a {
+        color: var(--global-color-text-main, #333); // Changed from text-body
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-decoration: none;
+
+        &:hover {
+            color: var(--global-color-text-main, #333);
+            text-decoration: underline;
+        }
+    }
+}
+
+.ec-crosssale-bundle-price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.ec-crosssale-price-sale {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--global-color-text-main, #333);
+}
+
+.ec-crosssale-attributes-wrapper {
+    margin-top: 8px;
+}
+
+.ec-crosssale-bundle-footer {
+    flex-shrink: 0;
+    width: 280px;
+    padding: 0;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    background: none;
+    align-self: stretch;
+
+    @media (max-width: 991px) {
+        width: 100%;
+        padding-top: 15px;
+        margin-top: 0;
+    }
+}
+
+.ec-crosssale-bundle-total {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    font-size: 14px;
+}
+
+.ec-crosssale-total-label {
+    font-size: 14px;
+    color: var(--global-color-text-main, #333);
+}
+
+.ec-crosssale-total-price {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--global-color-text-main, #333);
+}
+
+.ec-crosssale-bundle-saved {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    font-size: 14px;
+}
+
+.ec-crosssale-saved-label {
+    font-size: 14px;
+    color: var(--global-color-text-main, #333);
+}
+
+.ec-crosssale-saved-amount {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--global-color-text-main, #333);
+}
+
+.ec-crosssale-bundle-add-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--ec-btn-cart-bg, #fcb800);
+    color: var(--ec-btn-cart-text, #fff);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 7px 12px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    max-width: 220px;
+    margin-top: 5px;
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    &:hover:not(:disabled) {
+        background-color: var(--ec-btn-cart-bg-hover, #e5a800);
+        color: var(--ec-btn-cart-text, #fff);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+/* Cross-Sale Attributes (matching upsell structure) */
+.ec-crosssale-attributes {
+    margin-top: 8px;
+}
+
+.ec-crosssale-attribute-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.ec-crosssale-attribute-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--global-color-text-main, #333);
+}
+
+.ec-crosssale-attribute-options {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ec-crosssale-attribute-option {
+    position: relative;
+    cursor: pointer;
+    margin: 0;
+
+    label {
+        cursor: pointer;
+        margin: 0;
+    }
+
+    input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+
+        &:checked + .ec-crosssale-attribute-visual {
+            border-color: var(--global-color-link, #fcb800);
+            box-shadow: 0 0 0 2px var(--global-color-link, #fcb800);
+        }
+
+        &:checked + .ec-crosssale-attribute-text {
+            background: transparent;
+            color: inherit;
+            border-color: var(--global-color-link, #fcb800);
+            box-shadow: 0 0 0 1px var(--global-color-link, #fcb800);
+        }
+    }
+
+    &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+
+        label {
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+    }
+}
+
+.ec-crosssale-attribute-visual {
+    display: block;
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    border: 2px solid #e8e8e8;
+    transition: all 0.2s ease;
+}
+
+.ec-crosssale-attribute-text {
+    display: inline-block;
+    background: transparent;
+    color: inherit;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--global-color-primary-border, #e8e8e8);
+    transition: all 0.2s ease;
+}
+
+/* Mobile Cross-Sale Simple */
+.ec-crosssale-mobile-simple {
+    display: none;
+    margin: 20px 0;
+    
+    @media (max-width: 767px) {
+        display: block;
+    }
+    
+    .container {
+        padding: 0 0 15px 0;
+    }
+}
+
+@media (max-width: 767px) {
+    .ec-crosssale-bundle {
+        display: none !important;
+    }
+}
+
+.ec-crosssale-mobile-header {
+    margin-bottom: 15px;
+    
+    h2 {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--global-color-text-main, #1a1a1a);
+        line-height: 1.3;
+        margin: 0;
+        
+        @media (max-width: 767px) {
+            font-size: 20px;
+        }
+    }
+}
+
+.ec-crosssale-mobile-images {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.ec-crosssale-mobile-image-item {
+    flex: 0 0 auto;
+    width: calc((100% - 60px) / 3);
+    aspect-ratio: 1 / 1;
+    background: var(--global-color-card-bg, #f5f5f5);
+    border-radius: 7px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    scroll-snap-align: start;
+    text-decoration: none;
+    transition: background 0.2s ease;
+    
+    &:hover {
+        background: var(--global-color-primary-border, #e8e8e8);
+    }
+    
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+
+.ec-crosssale-mobile-plus-icon {
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--global-color-text-main, #333);
+    
+    svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.ec-crosssale-mobile-btn-wrapper {
+    position: relative;
+}
+
+.ec-crosssale-mobile-buy-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: transparent;
+    color: var(--global-color-text-main, #333);
+    border: 2px solid var(--global-color-primary-border, #e8e8e8);
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 8px;
+    
+    &:hover:not(:disabled) {
+        border-color: var(--global-color-link, #fcb800);
+        color: var(--global-color-link, #fcb800);
+    }
+    
+    &:disabled {
+        cursor: not-allowed;
+    }
+    
+    i, svg {
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+}
+
+/* ============================================
+   Cross-Sale Section (Old Carousel Style - Legacy)
    ============================================ */
 .ec-cross-sale-section {
-    margin-bottom: 70px;
+    margin-bottom: 15px;
 }
 
 @media (max-width: 575px) {
     .ec-cross-sale-section {
-        margin-bottom: 50px;
+        margin-bottom: 15px;
     }
 }
 
@@ -1355,11 +2020,16 @@
 .ec-upsell-mobile-header {
     margin-bottom: 15px;
     
-    h4 {
-        font-size: 18px;
-        font-weight: 600;
+    h2 {
+        font-size: 22px;
+        font-weight: 700;
         color: var(--global-color-text-main, #1a1a1a);
+        line-height: 1.3;
         margin: 0;
+        
+        @media (max-width: 767px) {
+            font-size: 20px;
+        }
     }
 }
 

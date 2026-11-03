@@ -463,18 +463,28 @@
                 </div>
             @endif
 
+            <!-- TOP RATED RELATED ITEMS SECTION -->
+            @include(EcommerceHelper::viewPath('includes.top-rated-related'), ['product' => $product])
+
+            <!-- STORE PRODUCTS SECTION (SIBLING OF HEADER) -->
+            @if (is_plugin_active('marketplace'))
+                @include(EcommerceHelper::viewPath('includes.store-products'), ['product' => $product])
+            @endif
+
             <!-- TABS SECTION (SIBLING OF HEADER) -->
             <div class="ps-product__content ps-tab-root">
+                <!-- Product Information Title -->
+                <div class="ps-product-info-header">
+                    <h2>{{ __('Product Information') }}</h2>
+                </div>
+                
                 <ul class="ps-tab-list">
-                    <li class="active"><a href="#tab-description">{{ __('Description') }}</a></li>
+                    <li class="active"><a href="#tab-description">{{ __('Product details') }}</a></li>
                     @if (EcommerceHelper::isProductSpecificationEnabled() && $product->specificationAttributes->where('pivot.hidden', false)->isNotEmpty())
                         <li><a href="#tab-specification">{{ __('Specification') }}</a></li>
                     @endif
                     @if (EcommerceHelper::isReviewEnabled())
                         <li><a href="#tab-reviews">{{ __('Reviews') }}&nbsp;({{ $product->reviews_count }})</a></li>
-                    @endif
-                    @if (is_plugin_active('marketplace') && $product->store_id)
-                        <li><a href="#tab-vendor">{{ __('Vendor') }}</a></li>
                     @endif
                     @if (is_plugin_active('faq'))
                         @if (count($product->faq_items) > 0)
@@ -504,19 +514,6 @@
                     @if (EcommerceHelper::isReviewEnabled())
                         <div class="ps-tab" id="tab-reviews">
                             @include('plugins/ecommerce::themes.includes.reviews', ['reviewButtonClass' => 'ps-btn'])
-                        </div>
-                    @endif
-
-                    @if (is_plugin_active('marketplace') && $product->store_id)
-                        <div class="ps-tab" id="tab-vendor">
-                            <h4>{{ $product->store->name }} {!! $product->store->badge !!}</h4>
-                            <div>
-                                {!! BaseHelper::clean($product->store->content) !!}
-                            </div>
-
-                            <a href="{{ $product->store->url }}" class="more-products">
-                                {{ __('More Products from :store',  ['store' => $product->store->name]) }}
-                            </a>
                         </div>
                     @endif
 
@@ -558,37 +555,492 @@
             </div>
             <!-- END: ps-product__content -->
 
-            <!-- RELATED PRODUCTS SECTION (SIBLING OF HEADER) -->
-            <div class="ps-section--default">
-                <div class="ps-section__header">
-                    <h3>{{ __('Related products') }}</h3>
-                </div>
-                <div class="ps-section__content">
-                    <div class="ps-carousel--responsive owl-slider"
-                         data-owl-auto="true"
-                         data-owl-loop="false"
-                         data-owl-speed="10000"
-                         data-owl-gap="0"
-                         data-owl-nav="false"
-                         data-owl-dots="true"
-                         data-owl-item="7"
-                         data-owl-item-xs="2"
-                         data-owl-item-sm="2"
-                         data-owl-item-md="3"
-                         data-owl-item-lg="4"
-                         data-owl-item-xl="6"
-                         data-owl-duration="1000"
-                         data-owl-mousedrag="on"
-                    >
-                        @foreach(get_related_products($product, 7) as $relatedProduct)
-                            <div class="ps-product">
-                                {!! Theme::partial('product-item', ['product' => $relatedProduct]) !!}
+            <!-- CUSTOMER REVIEW PHOTOS GALLERY -->
+            @php
+                // Get review images using the same method as the reviews tab
+                $reviewImages = collect();
+                
+                if (EcommerceHelper::isReviewEnabled() && EcommerceHelper::isCustomerReviewImageUploadEnabled()) {
+                    // Get reviews with images
+                    $reviewsWithImages = \Botble\Ecommerce\Models\Review::query()
+                        ->where('product_id', $product->id)
+                        ->where('status', \Botble\Base\Enums\BaseStatusEnum::PUBLISHED)
+                        ->whereNotNull('images')
+                        ->with('user')
+                        ->get();
+                    
+                    // Build image collection with customer info
+                    foreach ($reviewsWithImages as $review) {
+                        if (!empty($review->images)) {
+                            $images = is_array($review->images) ? $review->images : json_decode($review->images, true);
+                            if ($images && is_array($images)) {
+                                foreach ($images as $image) {
+                                    $reviewImages->push([
+                                        'url' => RvMedia::getImageUrl($image),
+                                        'thumb' => RvMedia::getImageUrl($image, 'thumb'),
+                                        'review_id' => $review->id,
+                                        'customer_name' => $review->display_name,
+                                        'rating' => $review->star,
+                                        'comment' => $review->comment,
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                $totalImages = $reviewImages->count();
+                $imagesPerPage = 24;
+                $totalPages = $totalImages > 0 ? ceil($totalImages / $imagesPerPage) : 0;
+            @endphp
+
+            @if($totalImages > 0)
+            <div class="ps-customer-photos-gallery">
+                <div class="ps-container">
+                    <div class="ps-block--customer-photos">
+                        <div class="ps-block__header">
+                            <h2>Customer Photos ({{ $totalImages }})</h2>
+                            <a href="#tab-reviews" class="ps-btn--read-reviews" onclick="event.preventDefault(); document.getElementById('review-tab-link').click(); setTimeout(() => document.getElementById('tab-reviews').scrollIntoView({behavior: 'smooth', block: 'start'}), 100);">
+                                Read Reviews
+                            </a>
+                        </div>
+                        <div class="ps-block__content">
+                            <!-- Main Photo Viewer -->
+                            <div class="ps-photo-viewer">
+                                <button class="ps-photo-nav ps-photo-nav--prev" id="photoNavPrev">
+                                    <i class="icon-chevron-left"></i>
+                                </button>
+                                <div class="ps-photo-viewer__main">
+                                    <img src="{{ $reviewImages->first()['url'] }}" alt="Customer photo" id="mainPhotoImg" />
+                                    <div class="ps-photo-viewer__info">
+                                        <div class="ps-photo-rating" id="photoRating">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <i class="fa {{ $i <= $reviewImages->first()['rating'] ? 'fa-star' : 'fa-star-o' }}"></i>
+                                            @endfor
+                                        </div>
+                                        <p class="ps-photo-customer" id="photoCustomer">{{ $reviewImages->first()['customer_name'] }}</p>
+                                    </div>
+                                </div>
+                                <button class="ps-photo-nav ps-photo-nav--next" id="photoNavNext">
+                                    <i class="icon-chevron-right"></i>
+                                </button>
                             </div>
-                        @endforeach
+
+                            <!-- Thumbnail Grid with Pagination -->
+                            <div class="ps-photo-thumbnails">
+                                <div class="ps-photo-thumbnails__grid" id="thumbnailGrid">
+                                    <!-- Thumbnails loaded via JavaScript -->
+                                </div>
+                                @if($totalPages > 1)
+                                <div class="ps-photo-pagination">
+                                    <button class="ps-pagination-btn ps-pagination-btn--prev" id="thumbnailPrevPage" disabled>
+                                        <i class="icon-chevron-left"></i> Previous
+                                    </button>
+                                    <span class="ps-pagination-info" id="paginationInfo">Page 1 of {{ $totalPages }}</span>
+                                    <button class="ps-pagination-btn ps-pagination-btn--next" id="thumbnailNextPage" {{ $totalPages <= 1 ? 'disabled' : '' }}>
+                                        Next <i class="icon-chevron-right"></i>
+                                    </button>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <!-- END: ps-section--default -->
+
+            <script>
+            (function() {
+                // Review images data
+                const reviewImages = @json($reviewImages->values());
+                const imagesPerPage = {{ $imagesPerPage }};
+                const totalPages = {{ $totalPages }};
+                
+                let currentImageIndex = 0;
+                let currentPage = 1;
+                let loadedPages = new Set([1]); // Track which pages are loaded
+
+                // Initialize
+                document.addEventListener('DOMContentLoaded', function() {
+                    loadThumbnailPage(1);
+                    updateMainPhoto();
+                    setupEventListeners();
+                });
+
+                function setupEventListeners() {
+                    // Main photo navigation
+                    document.getElementById('photoNavPrev').addEventListener('click', () => navigatePhoto(-1));
+                    document.getElementById('photoNavNext').addEventListener('click', () => navigatePhoto(1));
+
+                    // Thumbnail pagination
+                    const prevBtn = document.getElementById('thumbnailPrevPage');
+                    const nextBtn = document.getElementById('thumbnailNextPage');
+                    
+                    if (prevBtn) prevBtn.addEventListener('click', () => changeThumbnailPage(-1));
+                    if (nextBtn) nextBtn.addEventListener('click', () => changeThumbnailPage(1));
+
+                    // Keyboard navigation
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key === 'ArrowLeft') navigatePhoto(-1);
+                        if (e.key === 'ArrowRight') navigatePhoto(1);
+                    });
+                }
+
+                function navigatePhoto(direction) {
+                    currentImageIndex += direction;
+                    
+                    // Wrap around
+                    if (currentImageIndex < 0) currentImageIndex = reviewImages.length - 1;
+                    if (currentImageIndex >= reviewImages.length) currentImageIndex = 0;
+
+                    // Check if we need to load a different page
+                    const requiredPage = Math.floor(currentImageIndex / imagesPerPage) + 1;
+                    if (requiredPage !== currentPage) {
+                        currentPage = requiredPage;
+                        if (!loadedPages.has(currentPage)) {
+                            loadThumbnailPage(currentPage);
+                        }
+                        updatePaginationUI();
+                    }
+
+                    updateMainPhoto();
+                    updateThumbnailActive();
+                }
+
+                function updateMainPhoto() {
+                    const photo = reviewImages[currentImageIndex];
+                    const mainImg = document.getElementById('mainPhotoImg');
+                    const rating = document.getElementById('photoRating');
+                    const customer = document.getElementById('photoCustomer');
+
+                    mainImg.src = photo.url;
+                    customer.textContent = photo.customer_name;
+
+                    // Update rating stars
+                    let starsHtml = '';
+                    for (let i = 1; i <= 5; i++) {
+                        starsHtml += `<i class="fa ${i <= photo.rating ? 'fa-star' : 'fa-star-o'}"></i>`;
+                    }
+                    rating.innerHTML = starsHtml;
+                }
+
+                function loadThumbnailPage(page) {
+                    const startIdx = (page - 1) * imagesPerPage;
+                    const endIdx = Math.min(startIdx + imagesPerPage, reviewImages.length);
+                    const grid = document.getElementById('thumbnailGrid');
+
+                    // Clear grid if loading a different page
+                    if (page !== currentPage || !loadedPages.has(page)) {
+                        grid.innerHTML = '';
+                    }
+
+                    for (let i = startIdx; i < endIdx; i++) {
+                        const photo = reviewImages[i];
+                        const thumb = document.createElement('div');
+                        thumb.className = 'ps-photo-thumbnail' + (i === currentImageIndex ? ' active' : '');
+                        thumb.dataset.index = i;
+                        thumb.innerHTML = `<img src="${photo.thumb || photo.url}" alt="Customer photo" loading="lazy" />`;
+                        thumb.addEventListener('click', () => {
+                            currentImageIndex = i;
+                            updateMainPhoto();
+                            updateThumbnailActive();
+                        });
+                        grid.appendChild(thumb);
+                    }
+
+                    loadedPages.add(page);
+                }
+
+                function changeThumbnailPage(direction) {
+                    const newPage = currentPage + direction;
+                    if (newPage < 1 || newPage > totalPages) return;
+
+                    currentPage = newPage;
+                    if (!loadedPages.has(currentPage)) {
+                        loadThumbnailPage(currentPage);
+                    } else {
+                        // Just update visibility if already loaded
+                        updateThumbnailVisibility();
+                    }
+                    updatePaginationUI();
+                }
+
+                function updateThumbnailVisibility() {
+                    const startIdx = (currentPage - 1) * imagesPerPage;
+                    const endIdx = startIdx + imagesPerPage;
+                    
+                    document.querySelectorAll('.ps-photo-thumbnail').forEach((thumb, idx) => {
+                        const thumbIdx = parseInt(thumb.dataset.index);
+                        thumb.style.display = (thumbIdx >= startIdx && thumbIdx < endIdx) ? 'block' : 'none';
+                    });
+                }
+
+                function updateThumbnailActive() {
+                    document.querySelectorAll('.ps-photo-thumbnail').forEach(thumb => {
+                        thumb.classList.toggle('active', parseInt(thumb.dataset.index) === currentImageIndex);
+                    });
+                }
+
+                function updatePaginationUI() {
+                    const prevBtn = document.getElementById('thumbnailPrevPage');
+                    const nextBtn = document.getElementById('thumbnailNextPage');
+                    const info = document.getElementById('paginationInfo');
+
+                    if (prevBtn) prevBtn.disabled = currentPage === 1;
+                    if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+                    if (info) info.textContent = `Page ${currentPage} of ${totalPages}`;
+                }
+            })();
+            </script>
+
+            <style>
+                /* Customer Photos Gallery */
+                .ps-customer-photos-gallery {
+                    margin: 30px 0;
+                    background: var(--global-color-site-bg);
+                }
+
+                .ps-block--customer-photos {
+                    border: none;
+                    border-radius: 0;
+                    padding: 0;
+                }
+
+                .ps-block--customer-photos .ps-block__header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 20px;
+                    padding: 0 0 10px 0;
+                    flex-wrap: wrap;
+                    gap: 15px;
+                }
+
+                .ps-block--customer-photos .ps-block__header h2 {
+                    font-size: 22px;
+                    font-weight: 700;
+                    color: var(--global-color-text-main);
+                    line-height: 1.3;
+                    margin: 0;
+                    padding: 0;
+                }
+
+                @media (max-width: 767px) {
+                    .ps-block--customer-photos .ps-block__header h2 {
+                        font-size: 20px;
+                    }
+                }
+
+                .ps-btn--read-reviews {
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: var(--global-color-primary);
+                    text-decoration: none;
+                    padding: 8px 20px;
+                    border: 1px solid var(--global-color-primary);
+                    border-radius: 4px;
+                    transition: all 0.3s ease;
+                    background: transparent;
+                    cursor: pointer;
+                }
+
+                .ps-btn--read-reviews:hover {
+                    background: var(--global-color-primary);
+                    color: #fff;
+                }
+
+                /* Main Photo Viewer */
+                .ps-photo-viewer {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: 20px;
+                    background: #f8f8f8;
+                    border-radius: 8px;
+                    overflow: hidden;
+                }
+
+                .ps-photo-viewer__main {
+                    position: relative;
+                    width: 100%;
+                    max-width: 800px;
+                    aspect-ratio: 4/3;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .ps-photo-viewer__main img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                }
+
+                .ps-photo-viewer__info {
+                    position: absolute;
+                    bottom: 15px;
+                    left: 15px;
+                    background: rgba(0, 0, 0, 0.7);
+                    color: #fff;
+                    padding: 10px 15px;
+                    border-radius: 6px;
+                }
+
+                .ps-photo-rating {
+                    margin-bottom: 5px;
+                }
+
+                .ps-photo-rating i {
+                    color: #ffa900;
+                    font-size: 14px;
+                    margin-right: 2px;
+                }
+
+                .ps-photo-customer {
+                    margin: 0;
+                    font-size: 13px;
+                    font-weight: 500;
+                }
+
+                .ps-photo-nav {
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 45px;
+                    height: 45px;
+                    background: rgba(255, 255, 255, 0.95);
+                    border: 1px solid #ddd;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    z-index: 10;
+                }
+
+                .ps-photo-nav:hover {
+                    background: var(--global-color-primary);
+                    color: #fff;
+                    border-color: var(--global-color-primary);
+                }
+
+                .ps-photo-nav--prev {
+                    left: 15px;
+                }
+
+                .ps-photo-nav--next {
+                    right: 15px;
+                }
+
+                .ps-photo-nav i {
+                    font-size: 20px;
+                }
+
+                /* Thumbnail Grid */
+                .ps-photo-thumbnails {
+                    margin-top: 20px;
+                }
+
+                .ps-photo-thumbnails__grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                    gap: 10px;
+                    margin-bottom: 20px;
+                }
+
+                @media (min-width: 768px) {
+                    .ps-photo-thumbnails__grid {
+                        grid-template-columns: repeat(8, 1fr);
+                    }
+                }
+
+                @media (min-width: 1200px) {
+                    .ps-photo-thumbnails__grid {
+                        grid-template-columns: repeat(12, 1fr);
+                    }
+                }
+
+                .ps-photo-thumbnail {
+                    aspect-ratio: 1;
+                    border-radius: 6px;
+                    overflow: hidden;
+                    cursor: pointer;
+                    border: 2px solid transparent;
+                    transition: all 0.3s ease;
+                }
+
+                .ps-photo-thumbnail:hover {
+                    border-color: var(--global-color-primary);
+                    transform: scale(1.05);
+                }
+
+                .ps-photo-thumbnail.active {
+                    border-color: var(--global-color-primary);
+                    box-shadow: 0 0 10px rgba(252, 184, 0, 0.5);
+                }
+
+                .ps-photo-thumbnail img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                /* Pagination */
+                .ps-photo-pagination {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 20px;
+                    margin-top: 20px;
+                }
+
+                .ps-pagination-btn {
+                    padding: 8px 16px;
+                    background: var(--global-color-primary);
+                    color: #fff;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+
+                .ps-pagination-btn:hover:not(:disabled) {
+                    background: var(--global-color-primary-hover);
+                    transform: translateY(-2px);
+                }
+
+                .ps-pagination-btn:disabled {
+                    background: #ccc;
+                    cursor: not-allowed;
+                    opacity: 0.6;
+                }
+
+                .ps-pagination-info {
+                    font-size: 14px;
+                    color: var(--global-color-text-main);
+                    font-weight: 500;
+                }
+            </style>
+            @endif
+            <!-- END: Customer Photos Gallery -->
+
+            <!-- BROWSING HISTORY SECTION -->
+            <div class="ps-product__browsing-history">
+                {!! shortcode()->compile('[recently-viewed-products title="Your browsing history" enable_caching="no" enable_lazy_loading="no"][/recently-viewed-products]') !!}
+            </div>
+            <!-- END: Browsing History -->
+
+            <!-- SIMILAR CUSTOMERS RECOMMENDATIONS SECTION -->
+            <div class="ps-product__similar-customers">
+                {!! shortcode()->compile('[similar-customers-recommendations enable_caching="no" enable_lazy_loading="no"][/similar-customers-recommendations]') !!}
+            </div>
+            <!-- END: Similar Customers Recommendations -->
 
     </div>
     <!-- END: ps-product--detail -->

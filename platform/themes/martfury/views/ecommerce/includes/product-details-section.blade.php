@@ -24,8 +24,9 @@
                     {!! apply_filters('ecommerce_before_product_description', null, $product) !!}
                     <div class="pd-description-content pd-description-collapsed" id="pd-description-content{{ $idSuffix }}">
                         {!! BaseHelper::clean($product->description) !!}
-                    </div><button type="button" class="pd-read-more-btn" id="pd-read-more-btn{{ $idSuffix }}" onclick="toggleDescription()">{{ __('Read more') }}</button>
+                    </div><button type="button" class="pd-read-more-btn" id="pd-read-more-btn{{ $idSuffix }}" onclick="toggleDescription{{ $idSuffix === '-mobile' ? 'Mobile' : '' }}()">{{ __('Read more') }}</button>
                     {!! apply_filters('ecommerce_after_product_description', null, $product) !!}
+                    <a href="#tab-description" class="pd-see-details-btn">{{ __('See full details') }}</a>
                 </div>
             </div>
         </div>

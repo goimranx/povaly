@@ -213,7 +213,15 @@
                                 url: url,
                             })
 
+                            // Legacy event for backward compatibility
+                            $(document).trigger('crosssale-bundle-loaded')
+
                             self.initSlickCarousel()
+                            
+                            // Initialize cross-sale bundle if available
+                            if (typeof window.EcommerceCrossSaleBundle !== 'undefined') {
+                                window.EcommerceCrossSaleBundle.initCrossSaleBundle()
+                            }
                         }
                     },
                     error: function (error) {
@@ -365,6 +373,42 @@
         },
 
         /**
+         * Refresh cross-sale section when products are added
+         */
+        refreshCrossSaleSection: function () {
+            if (!this.crossSaleRefreshUrl) return
+
+            const $section = $('[data-crosssale-bundle]')
+            if ($section.length === 0) return
+
+            $section.css('opacity', '0.5')
+
+            $.ajax({
+                url: this.crossSaleRefreshUrl,
+                type: 'GET',
+                success: function (response) {
+                    const data = response.data !== undefined ? response.data : response;
+                    replaceWithSafe($section, data)
+
+                    dispatchEvent('ecommerce.crosssale.section.refreshed', {
+                        html: data,
+                    })
+
+                    // Trigger event to reinitialize
+                    $(document).trigger('crosssale-bundle-loaded')
+
+                    // Reinitialize cross-sale bundle
+                    if (window.EcommerceCrossSaleBundle) {
+                        window.EcommerceCrossSaleBundle.init()
+                    }
+                },
+                error: function () {
+                    $section.css('opacity', '1')
+                },
+            })
+        },
+
+        /**
          * Initialize up-sale bundle checkboxes and functionality
          */
         initUpSaleBundle: function () {
@@ -429,6 +473,27 @@
 
             // Checkbox change handler
             $checkboxes.off('change.upsale').on('change.upsale', updateTotal)
+
+            // Click on item to toggle checkbox (except title link)
+            $section.find('[data-upsale-bundle-item]').off('click.upsale-toggle').on('click.upsale-toggle', function (e) {
+                // Don't toggle if clicking on links, buttons, or form elements
+                if ($(e.target).is('a, button, input, select, textarea, label') || 
+                    $(e.target).closest('a, button, input, select, textarea, label').length > 0) {
+                    return
+                }
+
+                const $item = $(this)
+                const $checkbox = $item.find('[data-upsale-checkbox]')
+                
+                if ($checkbox.length && !$checkbox.prop('disabled')) {
+                    $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change')
+                }
+            })
+            
+            // Prevent links and buttons from triggering item click
+            $section.find('[data-upsale-bundle-item] a, [data-upsale-bundle-item] button').off('click.upsale-prevent').on('click.upsale-prevent', function (e) {
+                e.stopPropagation()
+            })
 
             // Individual add to cart button handler
             $section.find('[data-upsale-add-btn]').off('click.upsale').on('click.upsale', function (e) {
@@ -728,7 +793,7 @@
 ;(function ($) {
     'use strict'
 
-    // Open modal when "Buy all" button is clicked
+    // Open modal when "Buy all" button is clicked (Upsale)
     $(document).on('click', '[data-upsale-mobile-modal-open]', function (e) {
         e.preventDefault()
         
@@ -744,6 +809,22 @@
             
             // Use the same updateTotal logic as desktop - it's already initialized
             // by MartApp.initUpSaleBundle() or EcommerceUpSaleCrossSale.initUpSaleBundle()
+            // Just trigger a change event to update totals
+            modal.find('[data-bundle-modal-items] input[type="checkbox"]:checked').first().trigger('change')
+        }
+    })
+
+    // Open modal when "Buy all" button is clicked (Cross-sale)
+    $(document).on('click', '[data-crosssale-mobile-modal-open]', function (e) {
+        e.preventDefault()
+        
+        const modal = $('#crosssale-mobile-modal')
+        if (modal.length) {
+            modal.fadeIn(300)
+            $('body').css('overflow', 'hidden')
+            
+            // Use the same updateTotal logic as desktop - it's already initialized
+            // by MartApp.initCrossSaleBundle() or EcommerceCrossSale.initCrossSaleBundle()
             // Just trigger a change event to update totals
             modal.find('[data-bundle-modal-items] input[type="checkbox"]:checked').first().trigger('change')
         }
@@ -769,7 +850,12 @@
     // Update total when checkbox is toggled (will use same formatPrice from desktop)
     $(document).on('change', '.ec-bundle-modal-checkbox input[type="checkbox"]', function () {
         const $modal = $(this).closest('.ec-bundle-modal')
-        const $section = $modal.closest('[data-upsale-bundle]')
+        
+        // Try to find parent section from either upsale or cross-sale
+        let $section = $modal.closest('[data-upsale-bundle]')
+        if (!$section.length) {
+            $section = $modal.closest('[data-crosssale-bundle]')
+        }
         
         // Get format settings from parent section or use defaults
         const dataConfig = $section.data('currency-config') || window.currencies || {}
@@ -839,7 +925,14 @@
         e.preventDefault()
         const $btn = $(this)
         const url = $btn.data('url')
-        const parentProduct = $btn.closest('[data-bundle-modal]').find('[data-upsale-mobile-modal-open]').data('parent-product')
+        const $modal = $btn.closest('[data-bundle-modal]')
+        
+        // Try to find parent product from either upsale or cross-sale mobile button
+        let parentProduct = $modal.find('[data-upsale-mobile-modal-open]').data('parent-product')
+        if (!parentProduct) {
+            parentProduct = $modal.find('[data-crosssale-mobile-modal-open]').data('parent-product')
+        }
+        
         const $checkedItems = $('.ec-bundle-modal-checkbox input[type="checkbox"]:checked')
         
         if ($checkedItems.length === 0) {
@@ -932,4 +1025,277 @@
         addNextProduct()
     })
 
+})(jQuery)
+
+
+/**
+ * Cross-Sale Bundle Functionality
+ * Handles the new cross-sale bundle design (matching upsell layout)
+ */
+;(function ($) {
+    'use strict'
+
+    // Skip if theme already provides this
+    if (typeof window.EcommerceCrossSaleBundle !== 'undefined') {
+        return
+    }
+
+    window.EcommerceCrossSaleBundle = {
+        init: function () {
+            this.initCrossSaleBundle()
+            this.bindEvents()
+        },
+
+        bindEvents: function () {
+            const self = this
+            $(document).on('crosssale-bundle-loaded', function () {
+                self.initCrossSaleBundle()
+            })
+        },
+
+        // Get CSRF token for AJAX requests
+        getCsrfToken: function () {
+            return $('meta[name="csrf-token"]').attr('content') || ''
+        },
+
+        initCrossSaleBundle: function () {
+            const $section = $('[data-crosssale-bundle]')
+            if ($section.length === 0) return
+
+            const $checkboxes = $section.find('[data-crosssale-checkbox]')
+            const $totalPrice = $section.find('[data-crosssale-total-price]')
+            const $savedAmount = $section.find('[data-crosssale-saved-amount]')
+            const $savedSection = $section.find('[data-crosssale-saved]')
+            const $addAllBtn = $section.find('[data-crosssale-add-all]')
+
+            const formatPrice = function (price) {
+                const dataConfig = $section.data('currency-config')
+                const currencies = dataConfig || window.currencies || {}
+
+                const symbol = currencies.symbol || '$'
+                const isPrefix = currencies.is_prefix !== false
+                const decimals = currencies.decimals ?? 2
+                const thousandsSeparator = currencies.thousands_separator || ','
+                const decimalSeparator = currencies.decimal_separator || '.'
+
+                const formattedNumber = parseFloat(price)
+                    .toFixed(decimals)
+                    .replace('.', decimalSeparator)
+                    .replace(/\B(?=(\d{3})+(?!\d))/g, thousandsSeparator)
+
+                return isPrefix ? symbol + formattedNumber : formattedNumber + symbol
+            }
+
+            const updateTotal = function () {
+                let total = 0
+                let saved = 0
+                let selectedCount = 0
+
+                $checkboxes.filter(':checked').each(function () {
+                    const $checkbox = $(this)
+                    total += parseFloat($checkbox.attr('data-price')) || 0
+                    saved += parseFloat($checkbox.attr('data-saved-amount')) || 0
+                    selectedCount++
+                })
+
+                $totalPrice.text(formatPrice(total))
+                
+                if (saved > 0 && selectedCount > 0) {
+                    $savedAmount.text(formatPrice(saved))
+                    $savedSection.show()
+                } else {
+                    $savedSection.hide()
+                }
+
+                // Update button text and state based on selected count
+                // Note: Cross-sell items are never disabled (no lock like up-sell)
+                const $buttonText = $addAllBtn.find('[data-crosssale-button-text]')
+                if (selectedCount === 0) {
+                    $buttonText.text('Add to cart')
+                    $addAllBtn.prop('disabled', true)
+                } else if (selectedCount === 1) {
+                    $buttonText.text('Add to cart')
+                    $addAllBtn.prop('disabled', false)
+                } else if (selectedCount === 2) {
+                    $buttonText.text('Add both to cart')
+                    $addAllBtn.prop('disabled', false)
+                } else {
+                    $buttonText.text(`Add ${selectedCount} items to cart`)
+                    $addAllBtn.prop('disabled', false)
+                }
+            }
+
+            // Checkbox change handler
+            $checkboxes.off('change.crosssale').on('change.crosssale', updateTotal)
+
+            // Initialize total on load (important after section refresh)
+            updateTotal()
+
+            // Click on item to toggle checkbox (except title link)
+            $section.find('[data-crosssale-bundle-item]').off('click.crosssale-toggle').on('click.crosssale-toggle', function (e) {
+                // Don't toggle if clicking on links, buttons, or form elements
+                if ($(e.target).is('a, button, input, select, textarea, label') || 
+                    $(e.target).closest('a, button, input, select, textarea, label').length > 0) {
+                    return
+                }
+
+                const $item = $(this)
+                const $checkbox = $item.find('[data-crosssale-checkbox]')
+                
+                if ($checkbox.length && !$checkbox.prop('disabled')) {
+                    $checkbox.prop('checked', !$checkbox.prop('checked')).trigger('change')
+                }
+            })
+            
+            // Prevent links and buttons from triggering item click
+            $section.find('[data-crosssale-bundle-item] a, [data-crosssale-bundle-item] button').off('click.crosssale-prevent').on('click.crosssale-prevent', function (e) {
+                e.stopPropagation()
+            })
+
+            // Add all button handler
+            $addAllBtn.off('click.crosssale').on('click.crosssale', function (e) {
+                e.preventDefault()
+
+                const $btn = $(this)
+                const selectedProducts = []
+                const parentProduct = $btn.data('parent-product')
+
+                $checkboxes.filter(':checked').each(function () {
+                    selectedProducts.push($(this).attr('data-id'))
+                })
+
+                if (selectedProducts.length === 0) return
+
+                $btn.addClass('loading').prop('disabled', true)
+
+                let index = 0
+                let lastResponse = null
+                let successCount = 0
+
+                const addNextProduct = function () {
+                    if (index >= selectedProducts.length) {
+                        $btn.removeClass('loading')
+
+                        if (successCount > 0) {
+                            showSuccess(`Added ${successCount} item(s) to cart`)
+                        }
+
+                        if (lastResponse && lastResponse.data) {
+                            document.dispatchEvent(new CustomEvent('ecommerce.cart.added', {
+                                detail: { data: lastResponse.data, element: $btn[0] }
+                            }))
+                            if (typeof window.loadAjaxCart === 'function') {
+                                window.loadAjaxCart(lastResponse.data)
+                            }
+                        }
+
+                        // Refresh the cross-sale section to keep items checked
+                        if (window.EcommerceUpSaleCrossSale && window.EcommerceUpSaleCrossSale.refreshCrossSaleSection) {
+                            window.EcommerceUpSaleCrossSale.refreshCrossSaleSection()
+                        }
+
+                        return
+                    }
+
+                    $.ajax({
+                        url: $btn.data('url'),
+                        type: 'POST',
+                        data: {
+                            id: selectedProducts[index],
+                            reference_product_for_crosssale: parentProduct,
+                            _token: window.EcommerceCrossSaleBundle.getCsrfToken(),
+                        },
+                        success: function (response) {
+                            if (response.error) {
+                                showError(response.message || 'Failed to add product to cart')
+                            } else {
+                                successCount++
+                            }
+                            lastResponse = response
+                        },
+                        complete: function () {
+                            index++
+                            addNextProduct()
+                        },
+                    })
+                }
+
+                addNextProduct()
+            })
+
+            // Variation attribute change handler
+            $section.find('.ec-crosssale-attributes .product-filter-item').off('change.crosssale').on('change.crosssale', function () {
+                if ($(this).prop('disabled')) return
+
+                const $input = $(this)
+                const $attrs = $input.closest('.ec-crosssale-attributes')
+                const $item = $attrs.closest('[data-crosssale-bundle-item]')
+                const url = $attrs.data('target')
+
+                if (!url) return
+
+                const data = { attributes: {} }
+                $attrs.find('.product-filter-item:checked').each(function () {
+                    const slug = $(this).closest('.ec-crosssale-attribute-group').data('slug')
+                    if (slug) {
+                        data.attributes[slug] = $(this).val()
+                    }
+                })
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: data,
+                    success: function (response) {
+                        if (response.data) {
+                            const variationId = response.data.id
+                            let price = response.data.sale_price || response.data.price
+                            const unavailableAttrIds = response.data.unavailable_attribute_ids || []
+
+                            $attrs.find('.ec-crosssale-attribute-option').each(function () {
+                                const $option = $(this)
+                                const attrId = parseInt($option.data('id'))
+                                const $optionInput = $option.find('input[type="radio"]')
+
+                                if (unavailableAttrIds.includes(attrId)) {
+                                    $option.addClass('disabled').attr('title', $option.data('unavailable-text') || 'Not available')
+                                    $optionInput.prop('disabled', true)
+                                } else {
+                                    $option.removeClass('disabled').removeAttr('title')
+                                    $optionInput.prop('disabled', false)
+                                }
+                            })
+
+                            if (variationId && price) {
+                                $item.find('.ec-crosssale-variation-id').val(variationId)
+                                $item.find('[data-crosssale-checkbox]').attr('data-id', variationId)
+
+                                const $checkbox = $item.find('[data-crosssale-checkbox]')
+                                const bundleDiscount = parseFloat($checkbox.attr('data-bundle-discount')) || 0
+                                const bundleDiscountType = $checkbox.attr('data-bundle-discount-type')
+
+                                if (bundleDiscount > 0) {
+                                    if (bundleDiscountType === 'percent') {
+                                        price = price - (price * bundleDiscount / 100)
+                                    } else {
+                                        price = Math.max(0, price - bundleDiscount)
+                                    }
+                                }
+
+                                $checkbox.attr('data-price', price)
+                                updateTotal()
+                            }
+                        }
+                    },
+                })
+            })
+
+            updateTotal()
+        },
+    }
+
+    // Initialize on document ready
+    $(function () {
+        window.EcommerceCrossSaleBundle.init()
+    })
 })(jQuery)

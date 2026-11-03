@@ -23,6 +23,7 @@ use Botble\Ecommerce\Services\HandleApplyCouponService;
 use Botble\Ecommerce\Services\HandleApplyPromotionsService;
 use Botble\Ecommerce\Services\HandleRemoveCouponService;
 use Botble\Ecommerce\Services\Products\GetProductWithUpSalesBySlugService;
+use Botble\Ecommerce\Services\Products\ProductCrossSalePriceService;
 use Botble\Ecommerce\Services\Products\ProductUpSalePriceService;
 use Botble\SeoHelper\Facades\SeoHelper;
 use Botble\Theme\Facades\Theme;
@@ -195,6 +196,56 @@ class PublicCartController extends BaseController
                 // Store reference in extras for cart persistence
                 $extras = $request->input('extras', []);
                 $extras['upsale_reference_product'] = $referenceProductSlug;
+                $request->merge(['extras' => $extras]);
+
+                // Force quantity to 1 for bundle items
+                $request->merge(['qty' => 1]);
+            }
+        }
+
+        // Apply cross-sale pricing if reference product is provided
+        $isCrossSaleBundle = false;
+        if ($request->filled('reference_product_for_crosssale')) {
+            $referenceProductSlug = $request->input('reference_product_for_crosssale');
+            $referenceProduct = Product::query()->where('slug', $referenceProductSlug)->first();
+
+            // For cross-sale, we're on the product page, so no need to validate if it's in cart
+            if ($referenceProduct) {
+                $referenceProduct->loadMissing('crossSales');
+                
+                // Get the parent product ID to check for any variation of this product
+                $parentProductId = $product->original_product?->id ?? $product->id;
+
+                // Check if any variation of this product already exists in cart with bundle discount (limit 1 product per bundle)
+                $existingBundleItem = Cart::instance('cart')->content()->first(function ($item) use ($parentProductId, $referenceProductSlug) {
+                    // Check if this cart item has the same crosssale reference
+                    if (($item->options['extras']['crosssale_reference_product'] ?? null) !== $referenceProductSlug) {
+                        return false;
+                    }
+
+                    // Check if this cart item belongs to the same parent product
+                    $cartProduct = Product::query()->find($item->id);
+                    if (! $cartProduct) {
+                        return false;
+                    }
+
+                    $cartProductParentId = $cartProduct->original_product?->id ?? $cartProduct->id;
+
+                    return $cartProductParentId == $parentProductId;
+                });
+
+                if ($existingBundleItem) {
+                    return $response
+                        ->setError()
+                        ->setMessage(trans('plugins/ecommerce::products.cart.bundle_item_already_in_cart'));
+                }
+
+                app(ProductCrossSalePriceService::class)->applyProduct($referenceProduct);
+                $isCrossSaleBundle = true;
+
+                // Store reference in extras for cart persistence
+                $extras = $request->input('extras', []);
+                $extras['crosssale_reference_product'] = $referenceProductSlug;
                 $request->merge(['extras' => $extras]);
 
                 // Force quantity to 1 for bundle items

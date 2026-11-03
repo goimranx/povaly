@@ -417,6 +417,26 @@
         });
 
         labelOwlDots(container);
+        
+        // Hide navigation when both arrows are disabled (all items visible or single item)
+        setTimeout(function() {
+            selector.each(function() {
+                let $carousel = $(this);
+                if ($carousel.hasClass('owl-loaded')) {
+                    let $nav = $carousel.find('.owl-nav');
+                    let $prev = $nav.find('.owl-prev');
+                    let $next = $nav.find('.owl-next');
+                    
+                    // Check if both arrows are disabled
+                    if ($prev.hasClass('disabled') && $next.hasClass('disabled')) {
+                        $nav.hide();
+                        // Remove padding when nav is hidden
+                        $carousel.css('padding-left', '0');
+                        $carousel.css('padding-right', '0');
+                    }
+                }
+            });
+        }, 100);
     }
 
     function labelOwlDots(container) {
@@ -1712,6 +1732,9 @@
 
                     // Initialize slick carousel for up-sale section
                     MartApp.initUpSaleCarousel();
+                    
+                    // Initialize slick carousel for cross-sale section
+                    MartApp.initCrossSaleCarousel();
 
                     // Initialize up-sale bundle
                     MartApp.initUpSaleBundle();
@@ -1831,7 +1854,7 @@
         if ($carousel.length && typeof $.fn.slick !== 'undefined') {
             $carousel.slick({
                 rtl: isRTL,
-                slidesToShow: 2,
+                slidesToShow: 2.3, // Show 2 full items + partial 3rd item
                 slidesToScroll: 1,
                 arrows: true,
                 dots: false,
@@ -1849,6 +1872,52 @@
                     }
                 ]
             });
+        }
+    };
+
+    // Initialize slick carousel for cross-sale section
+    MartApp.initCrossSaleCarousel = function() {
+        const $carousel = $('.ec-crosssale-carousel:not(.slick-initialized)');
+
+        if ($carousel.length && typeof $.fn.slick !== 'undefined') {
+            $carousel.slick({
+                rtl: isRTL,
+                slidesToShow: 4,
+                slidesToScroll: 1,
+                arrows: true,
+                dots: false,
+                infinite: false,
+                vertical: false,
+                variableWidth: false,
+                appendArrows: $carousel.closest('.ec-crosssale-bundle-carousel-wrapper'),
+                prevArrow: '<button class="slick-prev" type="button" aria-label="Previous"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>',
+                nextArrow: '<button class="slick-next" type="button" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>',
+                responsive: [
+                    {
+                        breakpoint: 1200,
+                        settings: {
+                            slidesToShow: 3
+                        }
+                    },
+                    {
+                        breakpoint: 992,
+                        settings: {
+                            slidesToShow: 2
+                        }
+                    },
+                    {
+                        breakpoint: 768,
+                        settings: {
+                            slidesToShow: 1
+                        }
+                    }
+                ]
+            });
+        }
+        
+        // Initialize cross-sale bundle functionality (checkboxes, price calculation)
+        if (typeof window.EcommerceCrossSaleBundle !== 'undefined') {
+            window.EcommerceCrossSaleBundle.initCrossSaleBundle();
         }
     };
 
@@ -2211,8 +2280,24 @@
         }
     };
 
+    window.toggleDescriptionMobile = function() {
+        const content = document.getElementById('pd-description-content-mobile');
+        const btn = document.getElementById('pd-read-more-btn-mobile');
+        
+        if (!content || !btn) return;
+        
+        if (content.classList.contains('pd-description-collapsed')) {
+            content.classList.remove('pd-description-collapsed');
+            btn.textContent = btn.dataset.lessText || 'Read less';
+        } else {
+            content.classList.add('pd-description-collapsed');
+            btn.textContent = btn.dataset.moreText || 'Read more';
+        }
+    };
+
     // Initialize read more button - hide if content is short
     $(document).ready(function() {
+        // Desktop version
         const content = document.getElementById('pd-description-content');
         const btn = document.getElementById('pd-read-more-btn');
         
@@ -2236,4 +2321,30 @@
                 content.classList.remove('pd-description-collapsed');
             }
         }
+
+        // Mobile version
+        const contentMobile = document.getElementById('pd-description-content-mobile');
+        const btnMobile = document.getElementById('pd-read-more-btn-mobile');
+        
+        if (contentMobile && btnMobile) {
+            // Store button texts
+            btnMobile.dataset.moreText = btnMobile.textContent;
+            btnMobile.dataset.lessText = 'Read less';
+            
+            // Check if content needs read more button
+            const lineHeight = parseFloat(getComputedStyle(contentMobile).lineHeight);
+            const maxHeight = lineHeight * 6; // 6 lines
+            
+            // Temporarily show full content to measure
+            contentMobile.classList.remove('pd-description-collapsed');
+            const fullHeight = contentMobile.scrollHeight;
+            contentMobile.classList.add('pd-description-collapsed');
+            
+            // Hide button if content is short enough
+            if (fullHeight <= maxHeight) {
+                btnMobile.classList.add('pd-hidden');
+                contentMobile.classList.remove('pd-description-collapsed');
+            }
+        }
     });
+
