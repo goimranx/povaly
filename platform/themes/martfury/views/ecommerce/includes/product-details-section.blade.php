@@ -17,6 +17,7 @@
         <div class="pd-accordion-item">
             <button class="pd-accordion-btn" type="button" data-bs-toggle="collapse" data-bs-target="#pd-about{{ $idSuffix }}" aria-expanded="true">
                 <span>{{ __('About this item') }}</span>
+                <a href="#tab-description" class="pd-see-details-btn">{{ __('See full details') }}</a>
                 <i class="ph ph-caret-down pd-accordion-icon"></i>
             </button>
             <div id="pd-about{{ $idSuffix }}" class="collapse show" data-bs-parent="#pd-accordion{{ $idSuffix }}">
@@ -24,7 +25,7 @@
                     {!! apply_filters('ecommerce_before_product_description', null, $product) !!}
                     <div class="pd-description-content pd-description-collapsed" id="pd-description-content{{ $idSuffix }}">
                         {!! BaseHelper::clean($product->description) !!}
-                    </div><button type="button" class="pd-read-more-btn" id="pd-read-more-btn{{ $idSuffix }}" onclick="toggleDescription()">{{ __('Read more') }}</button>
+                    </div><button type="button" class="pd-read-more-btn" id="pd-read-more-btn{{ $idSuffix }}" onclick="toggleDescription{{ $idSuffix === '-mobile' ? 'Mobile' : '' }}()">{{ __('Read more') }}</button>
                     {!! apply_filters('ecommerce_after_product_description', null, $product) !!}
                 </div>
             </div>
