@@ -620,6 +620,22 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
                                 });
                             });
                         }
+                        
+                        // Amazon-style: Also search in category names (improves discoverability)
+                        $function = $hasWhere ? 'orWhereHas' : 'whereHas';
+                        $hasWhere = true;
+                        
+                        $query->{$function}('categories', function (EloquentBuilder $query) use ($keyword, $keywords, $useMultiWordSearch): void {
+                            $query->where(function (BaseQueryBuilder $subQuery) use ($keyword, $keywords, $useMultiWordSearch): void { // @phpstan-ignore-line
+                                if ($useMultiWordSearch) {
+                                    foreach ($keywords as $word) {
+                                        $subQuery->orWhere('name', 'LIKE', "%{$word}%");
+                                    }
+                                } else {
+                                    $subQuery->addSearch('name', $keyword, false);
+                                }
+                            });
+                        });
                     });
             } else {
                 $this->model = $this->model
@@ -750,6 +766,22 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
                                 });
                             });
                         }
+                        
+                        // Amazon-style: Also search in category names (improves discoverability)
+                        $function = $hasWhere ? 'orWhereHas' : 'whereHas';
+                        $hasWhere = true;
+                        
+                        $query->{$function}('categories', function (EloquentBuilder $query) use ($keyword, $keywords, $useMultiWordSearch): void {
+                            $query->where(function (BaseQueryBuilder $subQuery) use ($keyword, $keywords, $useMultiWordSearch): void { // @phpstan-ignore-line
+                                if ($useMultiWordSearch) {
+                                    foreach ($keywords as $word) {
+                                        $subQuery->orWhere('name', 'LIKE', "%{$word}%");
+                                    }
+                                } else {
+                                    $subQuery->addSearch('name', $keyword, false);
+                                }
+                            });
+                        });
                     });
             }
 
