@@ -39,7 +39,7 @@
                 <div class="ec-upsell-bundle-wrapper">
                     <div class="ec-upsell-bundle-header">
                         <div class="ec-upsell-bundle-title">
-                            <h4>{{ trans('plugins/ecommerce::products.up_sale.title') }}</h4>
+                            <h2>{{ trans('plugins/ecommerce::products.up_sale.title') }}</h2>
                         </div>
                     </div>
 
@@ -230,7 +230,7 @@
                 @endphp
                 
                 <div class="ec-upsell-mobile-header">
-                    <h4>{{ trans('plugins/ecommerce::products.up_sale.title') }}</h4>
+                    <h2>{{ trans('plugins/ecommerce::products.up_sale.title') }}</h2>
                 </div>
 
                 <div class="ec-upsell-mobile-images">

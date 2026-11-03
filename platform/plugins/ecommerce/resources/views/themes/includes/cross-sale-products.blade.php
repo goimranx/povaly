@@ -18,7 +18,7 @@
                 <div class="ec-crosssale-bundle-wrapper">
                     <div class="ec-crosssale-bundle-header">
                         <div class="ec-crosssale-bundle-title">
-                            <h4>{{ __('Frequently Bought Together') }}</h4>
+                            <h2>{{ __('Frequently Bought Together') }}</h2>
                         </div>
                     </div>
 
@@ -177,7 +177,7 @@
                 @endphp
                 
                 <div class="ec-crosssale-mobile-header">
-                    <h4>{{ __('Frequently Bought Together') }}</h4>
+                    <h2>{{ __('Frequently Bought Together') }}</h2>
                 </div>
 
                 <div class="ec-crosssale-mobile-images">
