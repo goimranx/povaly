@@ -239,18 +239,25 @@
 
             /* Navigation Arrows - Desktop only (≥768px) */
             @media (min-width: 768px) {
-                /* Default: NO padding (for when all items fit or only 1 item) */
+                /* Default: NO padding */
                 .ps-carousel--top-rated-related {
                     padding: 0;
                 }
                 
-                /* Add padding ONLY when carousel is initialized and navigation exists */
-                .ps-carousel--top-rated-related.owl-carousel:not(.owl-loaded) {
-                    padding: 0;
+                /* Add padding ONLY when NOT single item carousel */
+                .ps-carousel--top-rated-related:not(.single-item-carousel) {
+                    padding: 0 70px;
                 }
                 
-                .ps-carousel--top-rated-related.owl-carousel.owl-drag {
-                    padding: 0 70px;
+                /* Force center single items */
+                .ps-carousel--top-rated-related.single-item-carousel .owl-stage {
+                    display: flex !important;
+                    justify-content: center !important;
+                }
+                
+                .ps-carousel--top-rated-related.single-item-carousel .owl-item {
+                    width: auto !important;
+                    max-width: 200px !important;
                 }
 
                 .ps-carousel--top-rated-related .owl-nav {
@@ -262,6 +269,11 @@
                     transform: translateY(-50%);
                     pointer-events: none;
                     z-index: 10;
+                }
+                
+                /* Hide navigation for single item */
+                .ps-carousel--top-rated-related.single-item-carousel .owl-nav {
+                    display: none !important;
                 }
 
                 .ps-carousel--top-rated-related .owl-nav button {

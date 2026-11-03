@@ -205,7 +205,7 @@
 
                 {{-- 5. Sale price --}}
                 <div class="ec-card__price-sale">
-                    <span class="ec-card__price-amount">{{ format_price($product->front_sale_price !== 0 ? $product->front_sale_price : $product->price) }}</span>
+                    <span class="ec-card__price-amount">{{ format_price($product->front_sale_price && $product->front_sale_price !== $product->price ? $product->front_sale_price : $product->price) }}</span>
                     @if ($soldCount > 0)
                         <span class="ec-card__sold">+{{ number_format($soldCount) }} sold</span>
                     @endif
