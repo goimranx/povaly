@@ -2537,21 +2537,6 @@
         }
     }
 
-    .pd-see-details-btn {
-        display: inline-flex;
-        align-items: center;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--global-color-link, #256baf);
-        text-decoration: none;
-        margin-top: 10px;
-        
-        &:hover {
-            color: var(--global-color-link-hover, #1a4d8f);
-            text-decoration: underline;
-        }
-    }
-
     .pd-accordion-body {
         padding: 0 0 10px 0;
         margin: 0;
@@ -2623,24 +2608,18 @@
         position: relative;
         
         &.pd-description-collapsed {
-            max-height: calc(1.6em * 6); // 6 lines
+            display: -webkit-box;
+            -webkit-line-clamp: 6;
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            position: relative;
-            
-            &::after {
-                content: '...';
-                position: absolute;
-                right: 0;
-                bottom: 0;
-                padding-left: 40px;
-                background: linear-gradient(to right, transparent, white 50%);
-            }
+            text-overflow: ellipsis;
         }
 
         p {
             margin: 0 !important;
             padding: 0 !important;
             line-height: 1.6;
+            display: inline;
         }
     }
 
@@ -2663,6 +2642,26 @@
         
         &.pd-hidden {
             display: none;
+        }
+    }
+    
+    .pd-see-details-btn {
+        display: inline;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--global-color-link, #0066cc);
+        text-decoration: none;
+        margin-left: 4px;
+        
+        &::before {
+            content: '•';
+            margin: 0 6px;
+            color: var(--global-color-text-muted, #999);
+        }
+        
+        &:hover {
+            color: var(--global-color-link-hover, #004999);
+            text-decoration: underline;
         }
     }
 
@@ -2706,7 +2705,7 @@
         }
     }
 
-    .pd-review-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 14px; }
+    .pd-review-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 0; }
 
     .pd-review-item {
         padding-bottom: 14px;
