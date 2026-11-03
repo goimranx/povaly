@@ -328,6 +328,22 @@
         ])
         </div>
         {{-- End wrapper for refresh --}}
+        
+        <style>
+            /* Fix for single-item carousel display */
+            .ec-upsell-carousel.slick-initialized {
+                /* When there's only 1 item, make it display at proper width */
+                .slick-slide:only-child {
+                    width: auto !important;
+                    max-width: 50%;
+                }
+                
+                /* Center single item */
+                .slick-track:has(.slick-slide:only-child) {
+                    justify-content: center;
+                }
+            }
+        </style>
     @endif
 @else
     <div data-bb-toggle="block-lazy-loading" data-url="{{ route('public.ajax.up-sale-products', $parentProduct) }}">

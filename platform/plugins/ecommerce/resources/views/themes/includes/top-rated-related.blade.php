@@ -84,21 +84,6 @@
                 <div class="ps-block--top-rated-related">
                     <div class="ps-top-rated-related__header">
                         <h2>{{ __('Top Rated Related Items') }}</h2>
-                        @php
-                            // Build search query from product categories
-                            $mainCategories = $product->categories
-                                ->filter(function($category) {
-                                    // Filter out promotional/special categories
-                                    $excludeNames = ['deal of the day', 'winter collection', 'summer collection', 'sale', 'hot deals', 'new arrivals', 'featured', 'trending'];
-                                    return !in_array(strtolower($category->name), $excludeNames);
-                                })
-                                ->take(2)
-                                ->pluck('name')
-                                ->toArray();
-                            $searchQuery = !empty($mainCategories) ? implode(' ', $mainCategories) : $product->name;
-                            $viewAllUrl = route('public.products') . '?q=' . urlencode($searchQuery) . '&sort_by=reviews_avg_star-desc';
-                        @endphp
-                        <a href="{{ $viewAllUrl }}" class="ps-top-rated-related__more" title="{{ __('View all top rated products') }}">{{ __('View All') }}</a>
                     </div>
                     <div class="ps-block__content">
                         <div class="ps-carousel--top-rated-related owl-slider"
@@ -189,20 +174,6 @@
                 }
             }
 
-            .ps-top-rated-related__more {
-                font-size: 14px;
-                color: var(--global-color-link);
-                text-decoration: none;
-                transition: color 0.3s ease;
-                flex-shrink: 0;
-                margin-right: auto;
-            }
-
-            .ps-top-rated-related__more:hover {
-                color: var(--global-color-link-hover);
-                text-decoration: underline;
-            }
-
             /* Mobile Header Layout */
             @media (max-width: 480px) {
                 .ps-top-rated-related__header {
@@ -213,11 +184,6 @@
 
                 .ps-top-rated-related__header h2 {
                     width: 100%;
-                }
-
-                .ps-top-rated-related__more {
-                    margin-left: auto;
-                    margin-right: 0;
                 }
             }
 
