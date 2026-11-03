@@ -558,6 +558,11 @@
             </div>
             <!-- END: ps-product__content -->
 
+            <!-- STORE PRODUCTS SECTION (SIBLING OF HEADER) -->
+            @if (is_plugin_active('marketplace'))
+                @include(EcommerceHelper::viewPath('includes.store-products'), ['product' => $product])
+            @endif
+
             <!-- RELATED PRODUCTS SECTION (SIBLING OF HEADER) -->
             <div class="ps-section--default">
                 <div class="ps-section__header">
