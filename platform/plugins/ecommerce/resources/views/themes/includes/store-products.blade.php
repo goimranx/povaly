@@ -321,7 +321,7 @@
                 }
 
                 .ps-store-products__header {
-                    padding: 0 10px 10px 10px;
+                    padding-bottom: 10px;
                     margin-bottom: 0;
                 }
 
@@ -340,7 +340,7 @@
             /* Mobile (≤480px): Header bottom padding */
             @media (max-width: 480px) {
                 .ps-store-products__header {
-                    padding: 0 10px 10px 10px;
+                    padding-bottom: 10px;
                 }
             }
 
