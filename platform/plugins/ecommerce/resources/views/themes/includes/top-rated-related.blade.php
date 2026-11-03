@@ -26,7 +26,7 @@
         $searchWords = array_unique($searchWords);
         
         // Build query to find products matching ANY of these words
-        // Calculate match score based on how many words match and where they match
+        // Calculate match score: how many keywords match in each field
         $topRatedProducts = \Botble\Ecommerce\Models\Product::query()
             ->where('id', '!=', $product->id)
             ->where('status', \Botble\Base\Enums\BaseStatusEnum::PUBLISHED)
@@ -51,13 +51,26 @@
                     });
                 }
             })
+            // Calculate match score: count how many keywords match and where
+            ->selectRaw('
+                ec_products.*,
+                (
+                    ' . implode(' + ', array_map(function($word) {
+                        $word = addslashes($word);
+                        return "(
+                            CASE WHEN LOWER(ec_products.name) LIKE '%" . $word . "%' THEN 3 ELSE 0 END +
+                            CASE WHEN LOWER(ec_products.description) LIKE '%" . $word . "%' THEN 1 ELSE 0 END
+                        )";
+                    }, $searchWords)) . '
+                ) as match_score
+            ')
             // Filter: Only 4+ star products with at least 1 review
             ->having('reviews_avg_star', '>=', 4.0)
             ->having('reviews_count', '>=', 1)
-            // Sort by: best match (most keywords matched) + highest rating
+            // Sort by: BEST MATCH FIRST (most keywords matched), then highest rating
+            ->orderByDesc('match_score')
             ->orderByDesc('reviews_avg_star')
             ->orderByDesc('reviews_count')
-            ->orderByDesc('views')
             ->limit(12)
             ->get();
     @endphp
