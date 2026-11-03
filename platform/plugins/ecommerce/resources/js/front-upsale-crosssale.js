@@ -1128,6 +1128,9 @@
             // Checkbox change handler
             $checkboxes.off('change.crosssale').on('change.crosssale', updateTotal)
 
+            // Initialize total on load (important after section refresh)
+            updateTotal()
+
             // Click on item to toggle checkbox (except title link)
             $section.find('[data-crosssale-bundle-item]').off('click.crosssale-toggle').on('click.crosssale-toggle', function (e) {
                 // Don't toggle if clicking on links, buttons, or form elements
