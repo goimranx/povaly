@@ -1071,6 +1071,31 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<style>
+    /* Product Page Layout Fixes */
+    
+    /* ps-container: Remove padding, add bottom spacing and border */
+    .ps-page--product .ps-container {
+        padding: 0 !important;
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--global-color-border-strong);
+        padding-bottom: 15px !important;
+    }
+    
+    /* ps-product__content: Add spacing and border */
+    .ps-product__content {
+        padding: 0 !important;
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--global-color-border-strong);
+        padding-bottom: 15px !important;
+    }
+    
+    /* Force remove margin from price-desc divs */
+    .price-desc > div {
+        margin: 0 !important;
+    }
+</style>
+
 
 @include(Theme::getThemeNamespace('views.ecommerce.includes.location-modal'))
 
