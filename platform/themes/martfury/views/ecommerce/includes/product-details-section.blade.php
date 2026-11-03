@@ -17,7 +17,7 @@
         <div class="pd-accordion-item">
             <button class="pd-accordion-btn" type="button" data-bs-toggle="collapse" data-bs-target="#pd-about{{ $idSuffix }}" aria-expanded="true">
                 <span>{{ __('About this item') }}</span>
-                <a href="#tab-description" class="pd-see-details-btn">{{ __('See full details') }}</a>
+                <a href="#tab-description" class="pd-see-details-btn" onclick="event.stopPropagation(); scrollToProductTab(event, 'tab-description');">{{ __('See full details') }}</a>
                 <i class="ph ph-caret-down pd-accordion-icon"></i>
             </button>
             <div id="pd-about{{ $idSuffix }}" class="collapse show" data-bs-parent="#pd-accordion{{ $idSuffix }}">
