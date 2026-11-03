@@ -1017,6 +1017,11 @@
             })
         },
 
+        // Get CSRF token for AJAX requests
+        getCsrfToken: function () {
+            return $('meta[name="csrf-token"]').attr('content') || ''
+        },
+
         initCrossSaleBundle: function () {
             const $section = $('[data-crosssale-bundle]')
             if ($section.length === 0) return
@@ -1158,7 +1163,7 @@
                         data: {
                             id: selectedProducts[index],
                             reference_product_for_crosssale: parentProduct,
-                            _token: getCsrfToken(),
+                            _token: window.EcommerceCrossSaleBundle.getCsrfToken(),
                         },
                         success: function (response) {
                             if (response.error) {
