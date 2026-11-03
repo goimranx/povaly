@@ -121,6 +121,10 @@
     }
     
     @media (max-width: 767px) {
+        .ps-block--recently-viewed .ps-block__header {
+            flex-wrap: wrap;
+        }
+
         .ps-block--recently-viewed .ps-block__header h2 {
             font-size: 20px;
         }

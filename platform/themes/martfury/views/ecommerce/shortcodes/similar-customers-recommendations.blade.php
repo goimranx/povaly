@@ -178,6 +178,10 @@
     }
     
     @media (max-width: 767px) {
+        .ps-block--similar-customers .ps-block__header {
+            flex-wrap: wrap;
+        }
+
         .ps-block--similar-customers .ps-block__header h2 {
             font-size: 20px;
         }
