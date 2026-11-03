@@ -417,6 +417,26 @@
         });
 
         labelOwlDots(container);
+        
+        // Hide navigation when both arrows are disabled (all items visible or single item)
+        setTimeout(function() {
+            selector.each(function() {
+                let $carousel = $(this);
+                if ($carousel.hasClass('owl-loaded')) {
+                    let $nav = $carousel.find('.owl-nav');
+                    let $prev = $nav.find('.owl-prev');
+                    let $next = $nav.find('.owl-next');
+                    
+                    // Check if both arrows are disabled
+                    if ($prev.hasClass('disabled') && $next.hasClass('disabled')) {
+                        $nav.hide();
+                        // Remove padding when nav is hidden
+                        $carousel.css('padding-left', '0');
+                        $carousel.css('padding-right', '0');
+                    }
+                }
+            });
+        }, 100);
     }
 
     function labelOwlDots(container) {
