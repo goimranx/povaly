@@ -490,10 +490,11 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
             
             // Smart multi-word search: split query into individual words
             // Search for products matching ANY word (like Amazon/eBay)
-            // Only use multi-word search for words with 3+ characters to avoid too many irrelevant results
+            // Configurable minimum word length to avoid too many irrelevant results
+            $minWordLength = (int) get_ecommerce_setting('search_minimum_word_length', 3);
             $keywords = preg_split('/\s+/', trim($keyword), -1, PREG_SPLIT_NO_EMPTY);
-            $keywords = array_values(array_filter($keywords, function($word) {
-                return strlen($word) >= 3; // Only words with 3+ characters
+            $keywords = array_values(array_filter($keywords, function($word) use ($minWordLength) {
+                return strlen($word) >= $minWordLength;
             }));
             $useMultiWordSearch = count($keywords) > 1 && $isPartial;
 
@@ -621,21 +622,23 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
                             });
                         }
                         
-                        // Amazon-style: Also search in category names (improves discoverability)
-                        $function = $hasWhere ? 'orWhereHas' : 'whereHas';
-                        $hasWhere = true;
-                        
-                        $query->{$function}('categories', function (EloquentBuilder $query) use ($keyword, $keywords, $useMultiWordSearch): void {
-                            $query->where(function (BaseQueryBuilder $subQuery) use ($keyword, $keywords, $useMultiWordSearch): void { // @phpstan-ignore-line
-                                if ($useMultiWordSearch) {
-                                    foreach ($keywords as $word) {
-                                        $subQuery->orWhere('name', 'LIKE', "%{$word}%");
+                        // Amazon-style: Search in category names (if enabled in settings)
+                        if (in_array('category', $searchProductsBy)) {
+                            $function = $hasWhere ? 'orWhereHas' : 'whereHas';
+                            $hasWhere = true;
+                            
+                            $query->{$function}('categories', function (EloquentBuilder $query) use ($keyword, $keywords, $useMultiWordSearch): void {
+                                $query->where(function (BaseQueryBuilder $subQuery) use ($keyword, $keywords, $useMultiWordSearch): void { // @phpstan-ignore-line
+                                    if ($useMultiWordSearch) {
+                                        foreach ($keywords as $word) {
+                                            $subQuery->orWhere('name', 'LIKE', "%{$word}%");
+                                        }
+                                    } else {
+                                        $subQuery->addSearch('name', $keyword, false);
                                     }
-                                } else {
-                                    $subQuery->addSearch('name', $keyword, false);
-                                }
+                                });
                             });
-                        });
+                        }
                     });
             } else {
                 $this->model = $this->model
@@ -767,21 +770,23 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
                             });
                         }
                         
-                        // Amazon-style: Also search in category names (improves discoverability)
-                        $function = $hasWhere ? 'orWhereHas' : 'whereHas';
-                        $hasWhere = true;
-                        
-                        $query->{$function}('categories', function (EloquentBuilder $query) use ($keyword, $keywords, $useMultiWordSearch): void {
-                            $query->where(function (BaseQueryBuilder $subQuery) use ($keyword, $keywords, $useMultiWordSearch): void { // @phpstan-ignore-line
-                                if ($useMultiWordSearch) {
-                                    foreach ($keywords as $word) {
-                                        $subQuery->orWhere('name', 'LIKE', "%{$word}%");
+                        // Amazon-style: Search in category names (if enabled in settings)
+                        if (in_array('category', $searchProductsBy)) {
+                            $function = $hasWhere ? 'orWhereHas' : 'whereHas';
+                            $hasWhere = true;
+                            
+                            $query->{$function}('categories', function (EloquentBuilder $query) use ($keyword, $keywords, $useMultiWordSearch): void {
+                                $query->where(function (BaseQueryBuilder $subQuery) use ($keyword, $keywords, $useMultiWordSearch): void { // @phpstan-ignore-line
+                                    if ($useMultiWordSearch) {
+                                        foreach ($keywords as $word) {
+                                            $subQuery->orWhere('name', 'LIKE', "%{$word}%");
+                                        }
+                                    } else {
+                                        $subQuery->addSearch('name', $keyword, false);
                                     }
-                                } else {
-                                    $subQuery->addSearch('name', $keyword, false);
-                                }
+                                });
                             });
-                        });
+                        }
                     });
             }
 

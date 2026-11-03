@@ -123,6 +123,8 @@ return [
         'form' => [
             'search_for_an_exact_phrase' => 'Search for an exact phrase',
             'search_products_by' => 'Search products by:',
+            'minimum_word_length' => 'Minimum word length for multi-word search',
+            'minimum_word_length_helper' => 'Only words with this many characters or more will be used in multi-word search. Shorter words will be filtered out to prevent irrelevant results. Default is 3 characters (recommended).',
             'enable_filter_products_by_categories' => 'Enable filter products by categories',
             'enable_filter_products_by_brands' => 'Enable filter products by brands',
             'enable_filter_products_by_rating' => 'Enable filter products by rating',
