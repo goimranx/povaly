@@ -249,7 +249,7 @@
         }
 
         .ps-block--recently-viewed .ps-block__header {
-            padding: 0 10px 10px 10px !important;
+            padding: 0 0 10px 0 !important;
         }
 
         .ps-grid--recently-viewed {

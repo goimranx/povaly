@@ -348,10 +348,10 @@
         }
     }
 
-    /* Mobile (≤480px): Header bottom padding */
+    /* Mobile (≤480px): Header bottom padding only */
     @media (max-width: 480px) {
         .ps-block--similar-customers .ps-block__header {
-            padding: 0 10px 10px 10px !important;
+            padding: 0 0 10px 0 !important;
         }
     }
 </style>
