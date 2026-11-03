@@ -557,7 +557,7 @@
 
             <!-- BROWSING HISTORY SECTION -->
             <div class="ps-product__browsing-history">
-                {!! shortcode()->compile('[browsing-history-products][/browsing-history-products]') !!}
+                {!! shortcode()->compile('[recently-viewed-products][/recently-viewed-products]') !!}
             </div>
             <!-- END: Browsing History -->
 
