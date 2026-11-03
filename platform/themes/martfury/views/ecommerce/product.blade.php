@@ -871,8 +871,18 @@
                 }
 
                 @media (max-width: 767px) {
+                    .ps-block--customer-photos .ps-block__header {
+                        padding: 0 0 10px 0 !important;
+                        margin: 0 !important;
+                    }
+
+                    .ps-block--customer-photos .ps-block__header-left {
+                        flex-wrap: wrap;
+                    }
+
                     .ps-block--customer-photos .ps-block__header h2 {
                         font-size: 20px;
+                        word-break: break-word;
                     }
                 }
 
