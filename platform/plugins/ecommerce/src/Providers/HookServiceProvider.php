@@ -1201,6 +1201,32 @@ class HookServiceProvider extends ServiceProvider
                         ]);
                 });
             }
+            
+            // Similar Customers Recommendations Shortcode
+            add_shortcode(
+                'similar-customers-recommendations',
+                __('Customers with Similar Interests Also Viewed'),
+                __('Show products viewed by customers with similar browsing patterns'),
+                function (Shortcode $shortcode) {
+                    return view(
+                        EcommerceHelper::viewPath('shortcodes.similar-customers-recommendations'),
+                        compact('shortcode')
+                    )->render();
+                }
+            );
+
+            shortcode()->setAdminConfig('similar-customers-recommendations', function (array $attributes) {
+                return ShortcodeForm::createFromArray($attributes)
+                    ->withLazyLoading()
+                    ->add('title', 'text', [
+                        'label' => trans('core/base::forms.title'),
+                        'default_value' => __('Customers with similar interests also viewed'),
+                    ])
+                    ->add('limit', 'number', [
+                        'label' => __('Limit'),
+                        'default_value' => 12,
+                    ]);
+            });
         }
 
         if (is_plugin_active('payment')) {
