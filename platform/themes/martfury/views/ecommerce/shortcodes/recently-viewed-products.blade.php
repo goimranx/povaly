@@ -2,6 +2,9 @@
     // Get recently viewed products directly
     $recentlyViewedProducts = collect();
     
+    // Get current product ID to exclude from recently viewed
+    $currentProductId = isset($product) ? $product->id : (request()->route('slug') ? app(\Botble\Ecommerce\Repositories\Interfaces\ProductInterface::class)->getFirstBy(['slug' => request()->route('slug')])?->id : null);
+    
     if (EcommerceHelper::isEnabledCustomerRecentlyViewedProducts()) {
         $productRepository = app(\Botble\Ecommerce\Repositories\Interfaces\ProductInterface::class);
         
@@ -24,6 +27,13 @@
             if ($itemIds) {
                 $recentlyViewedProducts = $productRepository->getProductsByIds($itemIds, $queryParams);
             }
+        }
+        
+        // Exclude current product from the list
+        if ($currentProductId) {
+            $recentlyViewedProducts = $recentlyViewedProducts->filter(function($item) use ($currentProductId) {
+                return $item->id != $currentProductId;
+            });
         }
     }
 @endphp
