@@ -213,16 +213,18 @@
                     padding: 0;
                 }
                 
-                /* Single item carousel - constrain width */
+                /* Single item carousel - match multi-item width */
                 .ps-carousel--store-products.single-item-carousel .owl-stage-outer {
                     width: auto !important;
-                    max-width: 300px;
-                    margin: 0 auto;
+                    max-width: 190.833px;
+                }
+                
+                .ps-carousel--store-products.single-item-carousel .owl-stage {
+                    width: auto !important;
                 }
                 
                 .ps-carousel--store-products.single-item-carousel .owl-item {
-                    width: auto !important;
-                    max-width: 300px;
+                    width: 190.833px !important;
                 }
                 
                 /* Add padding ONLY when carousel is initialized and navigation exists */
