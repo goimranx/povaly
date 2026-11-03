@@ -213,6 +213,18 @@
                     padding: 0;
                 }
                 
+                /* Single item carousel - constrain width */
+                .ps-carousel--store-products.single-item-carousel .owl-stage-outer {
+                    width: auto !important;
+                    max-width: 300px;
+                    margin: 0 auto;
+                }
+                
+                .ps-carousel--store-products.single-item-carousel .owl-item {
+                    width: auto !important;
+                    max-width: 300px;
+                }
+                
                 /* Add padding ONLY when carousel is initialized and navigation exists */
                 .ps-carousel--store-products.owl-carousel:not(.owl-loaded) {
                     padding: 0;
@@ -220,6 +232,11 @@
                 
                 .ps-carousel--store-products.owl-carousel.owl-drag {
                     padding: 0 70px;
+                }
+                
+                /* Remove padding for single item carousel */
+                .ps-carousel--store-products.single-item-carousel {
+                    padding: 0 !important;
                 }
 
                 .ps-carousel--store-products .owl-nav {
@@ -269,6 +286,11 @@
 
                 /* Hide navigation when both arrows are disabled (all items visible) */
                 .ps-carousel--store-products .owl-nav:has(.owl-prev.disabled):has(.owl-next.disabled) {
+                    display: none !important;
+                }
+                
+                /* Hide navigation when it has disabled class (single item) */
+                .ps-carousel--store-products .owl-nav.disabled {
                     display: none !important;
                 }
 
