@@ -190,6 +190,8 @@
 
                 .ps-top-rated-related__header h2 {
                     font-size: 20px;
+                    word-break: break-word;
+                    overflow-wrap: break-word;
                 }
             }
 

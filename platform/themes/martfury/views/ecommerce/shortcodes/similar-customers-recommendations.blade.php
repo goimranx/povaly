@@ -180,10 +180,13 @@
     @media (max-width: 767px) {
         .ps-block--similar-customers .ps-block__header {
             flex-wrap: wrap;
+            padding: 0 0 10px 0 !important;
         }
 
         .ps-block--similar-customers .ps-block__header h2 {
             font-size: 20px;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
     }
 

@@ -883,6 +883,7 @@
                     .ps-block--customer-photos .ps-block__header h2 {
                         font-size: 20px;
                         word-break: break-word;
+                        overflow-wrap: break-word;
                     }
                 }
 

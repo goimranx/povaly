@@ -159,6 +159,8 @@
 
                 .ps-store-products__header h2 {
                     font-size: 20px;
+                    word-break: break-word;
+                    overflow-wrap: break-word;
                 }
             }
 
