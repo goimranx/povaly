@@ -1066,7 +1066,21 @@
                     $savedSection.hide()
                 }
 
-                $addAllBtn.prop('disabled', selectedCount === 0)
+                // Update button text and state based on selected count
+                const $buttonText = $addAllBtn.find('[data-crosssale-button-text]')
+                if (selectedCount === 0) {
+                    $buttonText.text('Add to cart')
+                    $addAllBtn.prop('disabled', true)
+                } else if (selectedCount === 1) {
+                    $buttonText.text('Add to cart')
+                    $addAllBtn.prop('disabled', false)
+                } else if (selectedCount === 2) {
+                    $buttonText.text('Add both to cart')
+                    $addAllBtn.prop('disabled', false)
+                } else {
+                    $buttonText.text(`Add ${selectedCount} items to cart`)
+                    $addAllBtn.prop('disabled', false)
+                }
             }
 
             // Checkbox change handler
