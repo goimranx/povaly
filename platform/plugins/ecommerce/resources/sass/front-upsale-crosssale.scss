@@ -89,6 +89,12 @@
         flex-direction: column;
         gap: 15px;
     }
+
+    // Add padding when carousel shows all items (both arrows disabled)
+    &:has(.slick-prev.slick-disabled):has(.slick-next.slick-disabled) {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
 }
 
 .ec-upsell-bundle-carousel-wrapper {
@@ -763,6 +769,12 @@
     @media (max-width: 991px) {
         flex-direction: column;
         gap: 15px;
+    }
+
+    // Add padding when carousel shows all items (both arrows disabled)
+    &:has(.slick-prev.slick-disabled):has(.slick-next.slick-disabled) {
+        padding-left: 15px;
+        padding-right: 15px;
     }
 }
 

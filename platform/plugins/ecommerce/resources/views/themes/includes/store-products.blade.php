@@ -91,6 +91,15 @@
             .ps-store-products .ps-container {
                 padding-left: 0 !important;
                 padding-right: 0 !important;
+                border-bottom: 1px solid var(--global-color-border-strong, #333);
+                padding-bottom: 15px;
+                margin-bottom: 15px;
+            }
+
+            /* Add padding to content when no carousel (all items visible) */
+            .ps-block--store-products .ps-block__content:has(.owl-nav .owl-prev.disabled):has(.owl-nav .owl-next.disabled) {
+                padding-left: 15px !important;
+                padding-right: 15px !important;
             }
 
             /* Store Products Block */
@@ -356,6 +365,7 @@
                     -webkit-box-orient: vertical !important;
                     -webkit-line-clamp: 5 !important;
                     overflow: hidden !important;
+                    margin-bottom: 0 !important;
                 }
 
                 .ec-card__title:hover {
@@ -363,15 +373,13 @@
                     text-decoration: underline !important;
                 }
 
-                /* Price styling - keep at end and 1.3rem on mobile */
+                /* Price styling - keep at end and 1.3rem size */
                 .ec-card__price-sale {
                     order: 999 !important; /* Keep at the end */
                 }
 
-                @media (max-width: 767px) {
-                    .ec-card__price-amount {
-                        font-size: 1.3rem !important;
-                    }
+                .ec-card__price-amount {
+                    font-size: 1.3rem !important;
                 }
             }
         </style>
