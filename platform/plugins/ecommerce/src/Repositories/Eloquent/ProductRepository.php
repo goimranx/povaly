@@ -487,16 +487,27 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
         if ($keyword = $filters['keyword']) {
             $searchProductsBy = EcommerceHelper::getProductsSearchBy();
             $isPartial = (int) get_ecommerce_setting('search_for_an_exact_phrase', 0) != 1;
+            
+            // Smart multi-word search: split query into individual words
+            // Search for products matching ANY word (like Amazon/eBay)
+            $keywords = preg_split('/\s+/', trim($keyword), -1, PREG_SPLIT_NO_EMPTY);
+            $useMultiWordSearch = count($keywords) > 1 && $isPartial;
 
             if (is_plugin_active('language') && is_plugin_active('language-advanced') && Language::getCurrentLocale() != Language::getDefaultLocale()) {
                 $this->model = $this->model
-                    ->where(function (EloquentBuilder $query) use ($keyword, $searchProductsBy, $isPartial): void {
+                    ->where(function (EloquentBuilder $query) use ($keyword, $keywords, $useMultiWordSearch, $searchProductsBy, $isPartial): void {
                         $hasWhere = false;
 
                         if (in_array('sku', $searchProductsBy)) {
                             $query
-                                ->where(function (BaseQueryBuilder $subQuery) use ($keyword): void { // @phpstan-ignore-line
-                                    $subQuery->addSearch('ec_products.sku', $keyword, false);
+                                ->where(function (BaseQueryBuilder $subQuery) use ($keyword, $keywords, $useMultiWordSearch): void { // @phpstan-ignore-line
+                                    if ($useMultiWordSearch) {
+                                        foreach ($keywords as $word) {
+                                            $subQuery->orWhere('ec_products.sku', 'LIKE', "%{$word}%");
+                                        }
+                                    } else {
+                                        $subQuery->addSearch('ec_products.sku', $keyword, false);
+                                    }
                                 });
 
                             $hasWhere = true;
@@ -507,14 +518,30 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
                             $hasWhere = true;
 
                             $query
-                                ->{$function}('translations', function (EloquentBuilder $query) use ($keyword, $searchProductsBy, $isPartial): void {
-                                    $query->where(function (BaseQueryBuilder $subQuery) use ($keyword, $searchProductsBy, $isPartial): void { // @phpstan-ignore-line
+                                ->{$function}('translations', function (EloquentBuilder $query) use ($keyword, $keywords, $useMultiWordSearch, $searchProductsBy, $isPartial): void {
+                                    $query->where(function (BaseQueryBuilder $subQuery) use ($keyword, $keywords, $useMultiWordSearch, $searchProductsBy, $isPartial): void { // @phpstan-ignore-line
                                         if (in_array('name', $searchProductsBy)) {
-                                            $subQuery->addSearch('name', $keyword, $isPartial);
+                                            if ($useMultiWordSearch) {
+                                                $subQuery->where(function ($nameQuery) use ($keywords): void {
+                                                    foreach ($keywords as $word) {
+                                                        $nameQuery->orWhere('name', 'LIKE', "%{$word}%");
+                                                    }
+                                                });
+                                            } else {
+                                                $subQuery->addSearch('name', $keyword, $isPartial);
+                                            }
                                         }
 
                                         if (in_array('description', $searchProductsBy)) {
-                                            $subQuery->addSearch('description', $keyword, false);
+                                            if ($useMultiWordSearch) {
+                                                $subQuery->orWhere(function ($descQuery) use ($keywords): void {
+                                                    foreach ($keywords as $word) {
+                                                        $descQuery->orWhere('description', 'LIKE', "%{$word}%");
+                                                    }
+                                                });
+                                            } else {
+                                                $subQuery->addSearch('description', $keyword, false);
+                                            }
                                         }
                                     });
                                 });
@@ -522,13 +549,29 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
                             // Cross-language search: also match the default-language name/description
                             // stored on the base ec_products table so a product can still be found by
                             // its default (e.g. English) name while browsing a translated storefront.
-                            $query->orWhere(function (BaseQueryBuilder $subQuery) use ($keyword, $searchProductsBy, $isPartial): void { // @phpstan-ignore-line
+                            $query->orWhere(function (BaseQueryBuilder $subQuery) use ($keyword, $keywords, $useMultiWordSearch, $searchProductsBy, $isPartial): void { // @phpstan-ignore-line
                                 if (in_array('name', $searchProductsBy)) {
-                                    $subQuery->addSearch('ec_products.name', $keyword, $isPartial);
+                                    if ($useMultiWordSearch) {
+                                        $subQuery->where(function ($nameQuery) use ($keywords): void {
+                                            foreach ($keywords as $word) {
+                                                $nameQuery->orWhere('ec_products.name', 'LIKE', "%{$word}%");
+                                            }
+                                        });
+                                    } else {
+                                        $subQuery->addSearch('ec_products.name', $keyword, $isPartial);
+                                    }
                                 }
 
                                 if (in_array('description', $searchProductsBy)) {
-                                    $subQuery->addSearch('ec_products.description', $keyword, false);
+                                    if ($useMultiWordSearch) {
+                                        $subQuery->orWhere(function ($descQuery) use ($keywords): void {
+                                            foreach ($keywords as $word) {
+                                                $descQuery->orWhere('ec_products.description', 'LIKE', "%{$word}%");
+                                            }
+                                        });
+                                    } else {
+                                        $subQuery->addSearch('ec_products.description', $keyword, false);
+                                    }
                                 }
                             });
                         }
@@ -576,26 +619,58 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
                     });
             } else {
                 $this->model = $this->model
-                    ->where(function (EloquentBuilder $query) use ($keyword, $searchProductsBy, $isPartial): void {
+                    ->where(function (EloquentBuilder $query) use ($keyword, $keywords, $useMultiWordSearch, $searchProductsBy, $isPartial): void {
                         $hasWhere = false;
 
                         if (in_array('name', $searchProductsBy) || in_array('sku', $searchProductsBy) || in_array('description', $searchProductsBy) || in_array('barcode', $searchProductsBy)) {
                             $query
-                                ->where(function (BaseQueryBuilder $subQuery) use ($keyword, $searchProductsBy, $isPartial): void { // @phpstan-ignore-line
+                                ->where(function (BaseQueryBuilder $subQuery) use ($keyword, $keywords, $useMultiWordSearch, $searchProductsBy, $isPartial): void { // @phpstan-ignore-line
                                     if (in_array('name', $searchProductsBy)) {
-                                        $subQuery->addSearch('ec_products.name', $keyword, $isPartial);
+                                        if ($useMultiWordSearch) {
+                                            $subQuery->where(function ($nameQuery) use ($keywords): void {
+                                                foreach ($keywords as $word) {
+                                                    $nameQuery->orWhere('ec_products.name', 'LIKE', "%{$word}%");
+                                                }
+                                            });
+                                        } else {
+                                            $subQuery->addSearch('ec_products.name', $keyword, $isPartial);
+                                        }
                                     }
 
                                     if (in_array('sku', $searchProductsBy)) {
-                                        $subQuery->addSearch('ec_products.sku', $keyword, false);
+                                        if ($useMultiWordSearch) {
+                                            $subQuery->orWhere(function ($skuQuery) use ($keywords): void {
+                                                foreach ($keywords as $word) {
+                                                    $skuQuery->orWhere('ec_products.sku', 'LIKE', "%{$word}%");
+                                                }
+                                            });
+                                        } else {
+                                            $subQuery->addSearch('ec_products.sku', $keyword, false);
+                                        }
                                     }
 
                                     if (in_array('barcode', $searchProductsBy)) {
-                                        $subQuery->addSearch('ec_products.barcode', $keyword, false);
+                                        if ($useMultiWordSearch) {
+                                            $subQuery->orWhere(function ($barcodeQuery) use ($keywords): void {
+                                                foreach ($keywords as $word) {
+                                                    $barcodeQuery->orWhere('ec_products.barcode', 'LIKE', "%{$word}%");
+                                                }
+                                            });
+                                        } else {
+                                            $subQuery->addSearch('ec_products.barcode', $keyword, false);
+                                        }
                                     }
 
                                     if (in_array('description', $searchProductsBy)) {
-                                        $subQuery->addSearch('ec_products.description', $keyword, false);
+                                        if ($useMultiWordSearch) {
+                                            $subQuery->orWhere(function ($descQuery) use ($keywords): void {
+                                                foreach ($keywords as $word) {
+                                                    $descQuery->orWhere('ec_products.description', 'LIKE', "%{$word}%");
+                                                }
+                                            });
+                                        } else {
+                                            $subQuery->addSearch('ec_products.description', $keyword, false);
+                                        }
                                     }
                                 });
 
@@ -611,14 +686,30 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
                             $function = $hasWhere ? 'orWhereHas' : 'whereHas';
                             $hasWhere = true;
 
-                            $query->{$function}('translations', function (EloquentBuilder $query) use ($keyword, $searchProductsBy, $isPartial): void {
-                                $query->where(function (BaseQueryBuilder $subQuery) use ($keyword, $searchProductsBy, $isPartial): void { // @phpstan-ignore-line
+                            $query->{$function}('translations', function (EloquentBuilder $query) use ($keyword, $keywords, $useMultiWordSearch, $searchProductsBy, $isPartial): void {
+                                $query->where(function (BaseQueryBuilder $subQuery) use ($keyword, $keywords, $useMultiWordSearch, $searchProductsBy, $isPartial): void { // @phpstan-ignore-line
                                     if (in_array('name', $searchProductsBy)) {
-                                        $subQuery->addSearch('name', $keyword, $isPartial);
+                                        if ($useMultiWordSearch) {
+                                            $subQuery->where(function ($nameQuery) use ($keywords): void {
+                                                foreach ($keywords as $word) {
+                                                    $nameQuery->orWhere('name', 'LIKE', "%{$word}%");
+                                                }
+                                            });
+                                        } else {
+                                            $subQuery->addSearch('name', $keyword, $isPartial);
+                                        }
                                     }
 
                                     if (in_array('description', $searchProductsBy)) {
-                                        $subQuery->addSearch('description', $keyword, false);
+                                        if ($useMultiWordSearch) {
+                                            $subQuery->orWhere(function ($descQuery) use ($keywords): void {
+                                                foreach ($keywords as $word) {
+                                                    $descQuery->orWhere('description', 'LIKE', "%{$word}%");
+                                                }
+                                            });
+                                        } else {
+                                            $subQuery->addSearch('description', $keyword, false);
+                                        }
                                     }
                                 });
                             });

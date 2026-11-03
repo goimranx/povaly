@@ -45,25 +45,26 @@
                             <a href="{{ $product->store->url }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
                         @else
                             @php
-                                // Use category filter instead of search for better results
-                                // Filter out promotional/special categories
+                                // Build smart search query URL for fallback products
+                                // Use only first 2 main category names to avoid too specific search
                                 $mainCategories = $product->categories
                                     ->filter(function($category) {
                                         // Filter out promotional/special categories
                                         $excludeNames = ['deal of the day', 'winter collection', 'summer collection', 'sale', 'hot deals', 'new arrivals', 'featured', 'trending'];
                                         return !in_array(strtolower($category->name), $excludeNames);
                                     })
-                                    ->take(3)
-                                    ->pluck('id')
+                                    ->take(2)
+                                    ->pluck('name')
                                     ->toArray();
                                 
-                                // Build URL with category filter
-                                if (!empty($mainCategories)) {
-                                    $viewAllUrl = route('public.products') . '?' . http_build_query(['categories' => $mainCategories]);
+                                // Fallback to product name if no suitable categories
+                                if (empty($mainCategories)) {
+                                    $searchQuery = $product->name;
                                 } else {
-                                    // Fallback to search by product name
-                                    $viewAllUrl = route('public.products') . '?q=' . urlencode($product->name);
+                                    $searchQuery = implode(' ', $mainCategories);
                                 }
+                                
+                                $viewAllUrl = route('public.products') . '?q=' . urlencode($searchQuery);
                             @endphp
                             <a href="{{ $viewAllUrl }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
                         @endif
