@@ -334,8 +334,8 @@
             .ec-upsell-carousel.slick-initialized {
                 /* When there's only 1 item, make it display at proper width */
                 .slick-slide:only-child {
-                    width: auto !important;
-                    max-width: 50%;
+                    width: 381px !important;
+                    max-width: 100%;
                 }
                 
                 /* Center single item */
