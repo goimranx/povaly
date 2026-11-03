@@ -27,24 +27,10 @@ class ProductSearchSettingForm extends SettingForm
             ->add('search_for_an_exact_phrase', 'onOffCheckbox', [
                 'label' => trans('plugins/ecommerce::setting.product_search.form.search_for_an_exact_phrase'),
                 'value' => get_ecommerce_setting('search_for_an_exact_phrase', false),
-                'help_block' => [
-                    'text' => trans('plugins/ecommerce::setting.product_search.form.search_for_an_exact_phrase_helper'),
-                ],
-                'attr' => [
-                    'id' => 'search_for_an_exact_phrase',
-                    'data-conflict-with' => 'enable_smart_search',
-                ],
             ])
             ->add('enable_smart_search', 'onOffCheckbox', [
                 'label' => trans('plugins/ecommerce::setting.product_search.form.enable_smart_search'),
                 'value' => get_ecommerce_setting('enable_smart_search', true),
-                'help_block' => [
-                    'text' => trans('plugins/ecommerce::setting.product_search.form.enable_smart_search_helper'),
-                ],
-                'attr' => [
-                    'id' => 'enable_smart_search',
-                    'data-conflict-with' => 'search_for_an_exact_phrase',
-                ],
             ])
             ->add(
                 'search_minimum_word_length',
