@@ -38,10 +38,10 @@
                                     }
                                 }
 
-                                // Get the base price WITHOUT cross-sell discount applied
-                                // Use the original base price (not sale price) for cross-sell calculations
-                                $originalPrice = $productVariation->price_with_taxes;
-                                $basePrice = $productVariation->price_with_taxes;
+                                // Match up-sell behavior: apply discount to sale price (not original price)
+                                $originalPrice = $productVariation->price()->getPriceOriginal();
+                                $salePrice = $productVariation->price()->getPrice();
+                                $basePrice = $salePrice;  // Use sale price as base for discount calculation
 
                                 $bundleDiscountPrice = $product->pivot->price ?? 0;
                                 $bundleDiscountType = $product->pivot->price_type ?? 'fixed';
@@ -196,9 +196,9 @@
                                 }
                             }
 
-                            // Get the base price WITHOUT cross-sell discount applied
-                            // Use the original base price (not sale price) for cross-sell calculations
-                            $basePrice = $productVariation->price_with_taxes;
+                            // Match up-sell behavior: apply discount to sale price
+                            $salePrice = $productVariation->price()->getPrice();
+                            $basePrice = $salePrice;
                             $bundleDiscountPrice = $product->pivot->price ?? 0;
                             $bundleDiscountType = $product->pivot->price_type ?? 'fixed';
                             $isPercentDiscount = $bundleDiscountType === 'percent' || $bundleDiscountType === \Botble\Ecommerce\Enums\CrossSellPriceType::PERCENT;
