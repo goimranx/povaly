@@ -1,31 +1,65 @@
 @if(isset($product))
     @php
-        // Get top-rated products from similar categories
+        // Smart search-like query: Extract keywords from current product
+        // Split product name, tags, and categories into individual words for matching
+        $productName = $product->name;
+        $productTags = $product->tags->pluck('name')->toArray();
+        $categoryNames = $product->categories->pluck('name')->toArray();
+        
+        // Combine all keywords
+        $allKeywords = array_merge(
+            [$productName],
+            $productTags,
+            $categoryNames
+        );
+        
+        // Split into individual words and filter (min 3 characters, like search)
+        $searchWords = [];
+        foreach ($allKeywords as $text) {
+            $words = preg_split('/\s+/', trim($text), -1, PREG_SPLIT_NO_EMPTY);
+            foreach ($words as $word) {
+                if (strlen($word) >= 3) {
+                    $searchWords[] = strtolower($word);
+                }
+            }
+        }
+        $searchWords = array_unique($searchWords);
+        
+        // Build query to find products matching ANY of these words
+        // Calculate match score based on how many words match and where they match
         $topRatedProducts = \Botble\Ecommerce\Models\Product::query()
-            ->whereHas('categories', function($query) use ($product) {
-                $query->whereIn('ec_product_categories.id', $product->categories->pluck('id'));
-            })
             ->where('id', '!=', $product->id)
             ->where('status', \Botble\Base\Enums\BaseStatusEnum::PUBLISHED)
             ->withAvg('reviews', 'star')
-            ->having('reviews_avg_star', '>=', 4.0) // Only 4+ star rated products
+            ->withCount('reviews')
+            ->where(function ($query) use ($searchWords) {
+                foreach ($searchWords as $word) {
+                    // Search in product name (highest priority)
+                    $query->orWhere('ec_products.name', 'LIKE', "%{$word}%");
+                    
+                    // Search in description (medium priority)
+                    $query->orWhere('ec_products.description', 'LIKE', "%{$word}%");
+                    
+                    // Search in tags
+                    $query->orWhereHas('tags', function($tagQuery) use ($word) {
+                        $tagQuery->where('name', 'LIKE', "%{$word}%");
+                    });
+                    
+                    // Search in categories  
+                    $query->orWhereHas('categories', function($catQuery) use ($word) {
+                        $catQuery->where('name', 'LIKE', "%{$word}%");
+                    });
+                }
+            })
+            // Filter: Only 4+ star products with at least 1 review
+            ->having('reviews_avg_star', '>=', 4.0)
+            ->having('reviews_count', '>=', 1)
+            // Sort by: best match (most keywords matched) + highest rating
             ->orderByDesc('reviews_avg_star')
             ->orderByDesc('reviews_count')
+            ->orderByDesc('views')
             ->limit(12)
             ->get();
-        
-        // If not enough high-rated products in same categories, get from all categories
-        if ($topRatedProducts->count() < 6) {
-            $topRatedProducts = \Botble\Ecommerce\Models\Product::query()
-                ->where('id', '!=', $product->id)
-                ->where('status', \Botble\Base\Enums\BaseStatusEnum::PUBLISHED)
-                ->withAvg('reviews', 'star')
-                ->having('reviews_avg_star', '>=', 4.0)
-                ->orderByDesc('reviews_avg_star')
-                ->orderByDesc('reviews_count')
-                ->limit(12)
-                ->get();
-        }
     @endphp
 
     @if($topRatedProducts->isNotEmpty())
