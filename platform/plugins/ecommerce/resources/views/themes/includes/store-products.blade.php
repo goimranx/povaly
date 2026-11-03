@@ -87,6 +87,12 @@
                 background: var(--global-color-site-bg);
             }
 
+            /* Remove padding from container */
+            .ps-store-products .ps-container {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
             /* Store Products Block */
             .ps-block--store-products {
                 border: none;
@@ -280,13 +286,8 @@
                 }
             }
 
-            /* Tablet (481-767px): Add ps-container padding and header bottom padding */
+            /* Tablet (481-767px): Header bottom padding only */
             @media (min-width: 481px) and (max-width: 767px) {
-                .ps-store-products .ps-container {
-                    padding-left: 15px !important;
-                    padding-right: 15px !important;
-                }
-
                 .ps-block--store-products .ps-block__header {
                     padding: 0 0 10px 0 !important;
                 }
