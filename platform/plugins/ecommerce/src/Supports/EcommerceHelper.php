@@ -998,7 +998,7 @@ class EcommerceHelper
         $setting = get_ecommerce_setting('search_products_by');
 
         if (empty($setting)) {
-            return ['name', 'sku', 'description', 'category'];
+            return ['name', 'sku', 'description'];
         }
 
         if (is_array($setting)) {
