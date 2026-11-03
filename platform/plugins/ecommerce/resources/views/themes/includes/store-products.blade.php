@@ -312,6 +312,12 @@
 
             /* Hide specific elements for clean product cards in store products section */
             .ps-block--store-products .ps-product {
+                /* Make card body flexbox so order works for price positioning */
+                .ec-card__body {
+                    display: flex !important;
+                    flex-direction: column !important;
+                }
+
                 /* Hide flyout action button */
                 .ec-card__flyout-actions {
                     display: none !important;
@@ -343,9 +349,13 @@
                 }
 
                 /* Product title styling - link color and 5 lines */
+                .ec-card__title {
+                    -webkit-line-clamp: 5 !important;
+                    line-clamp: 5 !important;
+                }
+
                 .ec-card__title a {
                     color: var(--global-color-link) !important;
-                    -webkit-line-clamp: 5 !important;
                     text-decoration: none !important;
                 }
 
@@ -354,7 +364,7 @@
                     text-decoration: underline !important;
                 }
 
-                /* Price styling - 1.3rem on mobile */
+                /* Price styling - keep at end and 1.3rem on mobile */
                 .ec-card__price-sale {
                     order: 999 !important; /* Keep at the end */
                 }
