@@ -397,9 +397,9 @@
                     // Trigger event to reinitialize
                     $(document).trigger('crosssale-bundle-loaded')
 
-                    // Reinitialize cross-sale bundle
+                    // Reinitialize cross-sale bundle directly (not init() to avoid rebinding events)
                     if (window.EcommerceCrossSaleBundle) {
-                        window.EcommerceCrossSaleBundle.init()
+                        window.EcommerceCrossSaleBundle.initCrossSaleBundle()
                     }
                 },
                 error: function () {
