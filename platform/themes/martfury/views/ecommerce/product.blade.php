@@ -561,6 +561,12 @@
             </div>
             <!-- END: Browsing History -->
 
+            <!-- SIMILAR CUSTOMERS RECOMMENDATIONS SECTION -->
+            <div class="ps-product__similar-customers">
+                {!! shortcode()->compile('[similar-customers-recommendations enable_caching="no" enable_lazy_loading="no"][/similar-customers-recommendations]') !!}
+            </div>
+            <!-- END: Similar Customers Recommendations -->
+
             <!-- RELATED PRODUCTS SECTION (SIBLING OF HEADER) -->
             <div class="ps-section--default">
                 <div class="ps-section__header">
