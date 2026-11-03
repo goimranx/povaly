@@ -43,7 +43,7 @@
     <div class="ps-container">
         <div class="ps-block--recently-viewed">
             <div class="ps-block__header">
-                <h3>{{ $shortcode->title ?: __('Recently Viewed') }}</h3>
+                <h2>{{ $shortcode->title ?: __('Recently Viewed') }}</h2>
                 {{-- <button type="button" class="ps-block__clear-history" data-bs-toggle="modal" data-bs-target="#clearHistoryModal">
                     {{ __('Clear History') }}
                 </button> --}}
@@ -110,7 +110,7 @@
         gap: 15px;
     }
 
-    .ps-block--recently-viewed .ps-block__header h3 {
+    .ps-block--recently-viewed .ps-block__header h2 {
         font-size: 22px;
         font-weight: 700;
         color: var(--global-color-text-main);
@@ -121,7 +121,7 @@
     }
     
     @media (max-width: 767px) {
-        .ps-block--recently-viewed .ps-block__header h3 {
+        .ps-block--recently-viewed .ps-block__header h2 {
             font-size: 20px;
         }
     }
