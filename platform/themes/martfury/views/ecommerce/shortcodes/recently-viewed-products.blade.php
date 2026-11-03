@@ -121,14 +121,9 @@
     }
     
     @media (max-width: 767px) {
-        .ps-recently-viewed-products .ps-container {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
-
         .ps-block--recently-viewed .ps-block__header {
             flex-wrap: wrap;
-            padding: 0 10px 10px 10px !important;
+            padding: 0 0 10px 0 !important;
         }
 
         .ps-block--recently-viewed .ps-block__header h2 {

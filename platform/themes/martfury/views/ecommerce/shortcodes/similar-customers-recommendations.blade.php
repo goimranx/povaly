@@ -178,14 +178,9 @@
     }
     
     @media (max-width: 767px) {
-        .ps-similar-customers-recommendations .ps-container {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
-        }
-
         .ps-block--similar-customers .ps-block__header {
             flex-wrap: wrap;
-            padding: 0 10px 10px 10px !important;
+            padding: 0 0 10px 0 !important;
         }
 
         .ps-block--similar-customers .ps-block__header h2 {
