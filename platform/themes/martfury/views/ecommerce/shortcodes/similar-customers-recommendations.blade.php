@@ -107,7 +107,7 @@
     <div class="ps-container">
         <div class="ps-block--similar-customers">
             <div class="ps-block__header">
-                <h3>{{ $title }}</h3>
+                <h2>{{ $title }}</h2>
             </div>
             <div class="ps-block__content">
                 <div class="ps-carousel--similar-customers owl-slider"
@@ -167,12 +167,20 @@
         gap: 15px;
     }
 
-    .ps-block--similar-customers .ps-block__header h3 {
-        font-size: 1.65rem;
-        font-weight: 600;
+    .ps-block--similar-customers .ps-block__header h2 {
+        font-size: 22px;
+        font-weight: 700;
         color: var(--global-color-text-main);
+        line-height: 1.3;
         margin: 0;
+        padding: 0;
         flex-shrink: 0;
+    }
+    
+    @media (max-width: 767px) {
+        .ps-block--similar-customers .ps-block__header h2 {
+            font-size: 20px;
+        }
     }
 
     .ps-block--similar-customers .ps-block__content {
