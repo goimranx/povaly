@@ -1172,7 +1172,7 @@
                 const addNextProduct = function () {
                     if (index >= selectedProducts.length) {
                         $btn.removeClass('loading')
-
+                        
                         if (successCount > 0) {
                             showSuccess(`Added ${successCount} item(s) to cart`)
                         }
