@@ -560,7 +560,13 @@
                 // Get all review images for this product
                 $reviewImages = collect();
                 if (EcommerceHelper::isReviewEnabled()) {
-                    $reviews = get_product_reviews($product->id, 0, 1000); // Get all reviews
+                    $reviews = \Botble\Ecommerce\Models\Review::query()
+                        ->where('product_id', $product->id)
+                        ->where('status', \Botble\Base\Enums\BaseStatusEnum::PUBLISHED)
+                        ->whereNotNull('images')
+                        ->with('customer')
+                        ->get();
+                    
                     foreach ($reviews as $review) {
                         if (!empty($review->images)) {
                             $images = is_array($review->images) ? $review->images : json_decode($review->images, true);
