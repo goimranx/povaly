@@ -607,43 +607,47 @@
                             </div>
                         </div>
                         <div class="ps-block__content">
-                            <!-- Main Photo Viewer -->
-                            <div class="ps-photo-viewer">
-                                <button class="ps-photo-nav ps-photo-nav--prev" id="photoNavPrev">
-                                    <i class="icon-chevron-left"></i>
-                                </button>
-                                <div class="ps-photo-viewer__main">
-                                    <img src="{{ $reviewImages->first()['url'] }}" alt="Customer photo" id="mainPhotoImg" />
-                                </div>
-                                <div class="ps-photo-viewer__info">
-                                    <div class="ps-photo-rating" id="photoRating">
-                                        @for($i = 1; $i <= 5; $i++)
-                                            <i class="fa {{ $i <= $reviewImages->first()['rating'] ? 'fa-star' : 'fa-star-o' }}"></i>
-                                        @endfor
+                            <div class="ps-photo-layout">
+                                <!-- Main Photo Viewer (Left) -->
+                                <div class="ps-photo-viewer">
+                                    <button class="ps-photo-nav ps-photo-nav--prev" id="photoNavPrev">
+                                        <i class="icon-chevron-left"></i>
+                                    </button>
+                                    <div class="ps-photo-viewer__main">
+                                        <img src="{{ $reviewImages->first()['url'] }}" alt="Customer photo" id="mainPhotoImg" />
                                     </div>
-                                    <p class="ps-photo-customer" id="photoCustomer">{{ $reviewImages->first()['customer_name'] }}</p>
+                                    <div class="ps-photo-viewer__info">
+                                        <div class="ps-photo-rating" id="photoRating">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <i class="fa {{ $i <= $reviewImages->first()['rating'] ? 'fa-star' : 'fa-star-o' }}"></i>
+                                            @endfor
+                                        </div>
+                                        <p class="ps-photo-customer" id="photoCustomer">{{ $reviewImages->first()['customer_name'] }}</p>
+                                    </div>
+                                    <button class="ps-photo-nav ps-photo-nav--next" id="photoNavNext">
+                                        <i class="icon-chevron-right"></i>
+                                    </button>
                                 </div>
-                                <button class="ps-photo-nav ps-photo-nav--next" id="photoNavNext">
-                                    <i class="icon-chevron-right"></i>
-                                </button>
-                            </div>
 
-                            <!-- Thumbnail Grid with Pagination -->
-                            <div class="ps-photo-thumbnails">
-                                <div class="ps-photo-thumbnails__grid" id="thumbnailGrid">
-                                    <!-- Thumbnails loaded via JavaScript -->
+                                <!-- Thumbnail Sidebar (Right) -->
+                                <div class="ps-photo-sidebar">
+                                    <div class="ps-photo-thumbnails">
+                                        <div class="ps-photo-thumbnails__grid" id="thumbnailGrid">
+                                            <!-- Thumbnails loaded via JavaScript -->
+                                        </div>
+                                        @if($totalPages > 1)
+                                        <div class="ps-photo-pagination">
+                                            <button class="ps-pagination-btn ps-pagination-btn--prev" id="thumbnailPrevPage" disabled>
+                                                <i class="icon-chevron-left"></i> Previous
+                                            </button>
+                                            <span class="ps-pagination-info" id="paginationInfo">Page 1 of {{ $totalPages }}</span>
+                                            <button class="ps-pagination-btn ps-pagination-btn--next" id="thumbnailNextPage" {{ $totalPages <= 1 ? 'disabled' : '' }}>
+                                                Next <i class="icon-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                        @endif
+                                    </div>
                                 </div>
-                                @if($totalPages > 1)
-                                <div class="ps-photo-pagination">
-                                    <button class="ps-pagination-btn ps-pagination-btn--prev" id="thumbnailPrevPage" disabled>
-                                        <i class="icon-chevron-left"></i> Previous
-                                    </button>
-                                    <span class="ps-pagination-info" id="paginationInfo">Page 1 of {{ $totalPages }}</span>
-                                    <button class="ps-pagination-btn ps-pagination-btn--next" id="thumbnailNextPage" {{ $totalPages <= 1 ? 'disabled' : '' }}>
-                                        Next <i class="icon-chevron-right"></i>
-                                    </button>
-                                </div>
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -857,16 +861,24 @@
                     background: transparent !important;
                 }
 
-                /* Main Photo Viewer */
+                /* Photo Layout - Two Column */
+                .ps-photo-layout {
+                    display: flex;
+                    gap: 20px;
+                    align-items: flex-start;
+                }
+
+                /* Main Photo Viewer - Left Side */
                 .ps-photo-viewer {
                     position: relative;
+                    flex: 1;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    margin-bottom: 20px;
                     background: #f8f8f8;
                     border-radius: 8px;
                     overflow: hidden;
+                    min-height: 400px;
                 }
 
                 .ps-photo-viewer__main {
@@ -948,53 +960,71 @@
                     font-size: 20px;
                 }
 
+                /* Thumbnail Sidebar - Right Side */
+                .ps-photo-sidebar {
+                    width: 320px;
+                    flex-shrink: 0;
+                    border-top: 2px solid var(--global-color-primary);
+                    border-right: 2px solid var(--global-color-primary);
+                    border-bottom: 2px solid var(--global-color-primary);
+                    border-radius: 0 8px 8px 0;
+                    padding: 15px;
+                    background: var(--global-color-site-bg);
+                }
+
                 /* Thumbnail Grid */
                 .ps-photo-thumbnails {
-                    margin-top: 20px;
+                    margin: 0;
                 }
 
                 .ps-photo-thumbnails__grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-                    gap: 10px;
-                    margin-bottom: 20px;
-                }
-
-                @media (min-width: 768px) {
-                    .ps-photo-thumbnails__grid {
-                        grid-template-columns: repeat(8, 1fr);
-                    }
-                }
-
-                @media (min-width: 1200px) {
-                    .ps-photo-thumbnails__grid {
-                        grid-template-columns: repeat(12, 1fr);
-                    }
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 8px;
+                    margin-bottom: 15px;
                 }
 
                 .ps-photo-thumbnail {
-                    aspect-ratio: 1;
-                    border-radius: 6px;
+                    aspect-ratio: 3/4;
+                    border-radius: 4px;
                     overflow: hidden;
                     cursor: pointer;
-                    border: 2px solid transparent;
+                    border: 1px solid transparent;
                     transition: all 0.3s ease;
                 }
 
                 .ps-photo-thumbnail:hover {
-                    border-color: var(--global-color-primary);
-                    transform: scale(1.05);
+                    border-color: var(--global-color-link);
                 }
 
                 .ps-photo-thumbnail.active {
                     border-color: var(--global-color-primary);
-                    box-shadow: 0 0 10px rgba(252, 184, 0, 0.5);
                 }
 
                 .ps-photo-thumbnail img {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
+                }
+
+                /* Responsive Layout */
+                @media (max-width: 1199px) {
+                    .ps-photo-layout {
+                        flex-direction: column;
+                    }
+
+                    .ps-photo-sidebar {
+                        width: 100%;
+                        border-left: 2px solid var(--global-color-primary);
+                        border-radius: 8px;
+                        margin-top: 20px;
+                    }
+                }
+
+                @media (max-width: 767px) {
+                    .ps-photo-thumbnails__grid {
+                        grid-template-columns: repeat(4, 1fr);
+                    }
                 }
 
                 /* Pagination */
