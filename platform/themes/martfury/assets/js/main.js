@@ -2347,3 +2347,35 @@
             }
         }
     });
+
+    // ── Scroll to Product Information Tab ──────────────────────────────────
+    window.scrollToProductTab = function(event, tabId) {
+        event.preventDefault();
+        
+        // Find the tab link and activate it
+        const tabLink = document.querySelector(`a[href="#${tabId}"]`);
+        const tabContent = document.getElementById(tabId);
+        
+        if (tabLink && tabContent) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.ps-tab-list li').forEach(li => li.classList.remove('active'));
+            document.querySelectorAll('.ps-tab').forEach(tab => tab.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            tabLink.parentElement.classList.add('active');
+            tabContent.classList.add('active');
+            
+            // Scroll to the Product Information section
+            const productInfoSection = document.querySelector('.ps-product__content');
+            if (productInfoSection) {
+                const offset = 100; // Offset from top
+                const elementPosition = productInfoSection.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - offset;
+                
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        }
+    };
