@@ -34,6 +34,13 @@
             ->limit(50)
             ->pluck('product_id');
         
+        // DEBUG: Log the filtering process
+        \Log::info('=== SIMILAR CUSTOMERS RECOMMENDATIONS DEBUG ===');
+        \Log::info('Current user history (your viewed products):', $currentUserHistory->toArray());
+        \Log::info('Found ' . $similarCustomerIds->count() . ' similar customers');
+        \Log::info('Similar customer IDs:', $similarCustomerIds->toArray());
+        \Log::info('Products they viewed (before filtering):', $similarViewedProductIds->toArray());
+        
         if ($similarViewedProductIds->isNotEmpty()) {
             $productRepository = app(\Botble\Ecommerce\Repositories\Interfaces\ProductInterface::class);
             
@@ -76,6 +83,7 @@
                 
                 // Apply filtering
                 if (!empty($searchWords)) {
+                    \Log::info('Applying contextual filtering with keywords:', $searchWords);
                     $query->where(function ($q) use ($searchWords) {
                         foreach ($searchWords as $word) {
                             $q->orWhere('ec_products.name', 'LIKE', "%{$word}%")
@@ -88,12 +96,26 @@
                               });
                         }
                     });
+                } else {
+                    \Log::info('No keywords found for filtering');
                 }
+            } else {
+                \Log::info('Not on a single product page - showing all recommendations without filtering');
             }
             
             $limit = (int) ($shortcode->limit ?? 12);
             $recommendedProducts = $query->limit($limit)->get();
+            
+            // DEBUG: Log final results
+            \Log::info('Final recommended products count: ' . $recommendedProducts->count());
+            \Log::info('Final recommended product IDs:', $recommendedProducts->pluck('id')->toArray());
+            \Log::info('Final recommended product names:', $recommendedProducts->pluck('name')->toArray());
+            \Log::info('=== END DEBUG ===');
+        } else {
+            \Log::info('No products found from similar customers');
         }
+    } else {
+        \Log::info('Current user has no browsing history');
     }
     
     $title = $shortcode->title ?: __('Customers with similar interests also viewed');
