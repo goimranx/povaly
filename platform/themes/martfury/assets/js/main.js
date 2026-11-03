@@ -1834,7 +1834,7 @@
         if ($carousel.length && typeof $.fn.slick !== 'undefined') {
             $carousel.slick({
                 rtl: isRTL,
-                slidesToShow: 2,
+                slidesToShow: 2.3, // Show 2 full items + partial 3rd item
                 slidesToScroll: 1,
                 arrows: true,
                 dots: false,
