@@ -7,7 +7,6 @@
         if (auth('customer')->check()) {
             $currentUserHistory = DB::table('ec_customer_recently_viewed_products')
                 ->where('customer_id', auth('customer')->id())
-                ->orderBy('created_at', 'desc')
                 ->pluck('product_id');
         } else {
             // For guests, get from session cart
