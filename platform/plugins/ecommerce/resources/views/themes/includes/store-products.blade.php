@@ -33,7 +33,7 @@
         <div class="ps-store-products">
             <div class="ps-container">
                 <div class="ps-block--store-products">
-                    <div class="ps-block__header">
+                    <div class="ps-store-products__header">
                         <h3>
                             @if($hasStoreProducts)
                                 {{ __('Top products from :store', ['store' => $product->store->name]) }}
@@ -42,9 +42,9 @@
                             @endif
                         </h3>
                         @if($hasStoreProducts)
-                            <a href="{{ $product->store->url }}" class="ps-block__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
+                            <a href="{{ $product->store->url }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
                         @else
-                            <a href="{{ route('public.products') }}" class="ps-block__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
+                            <a href="{{ route('public.products') }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
                         @endif
                     </div>
                     <div class="ps-block__content">
@@ -110,7 +110,8 @@
                 height: 100%;
             }
 
-            .ps-block--store-products .ps-block__header {
+            /* Store Products Header */
+            .ps-store-products__header {
                 display: flex;
                 align-items: center;
                 justify-content: flex-start;
@@ -120,23 +121,7 @@
                 gap: 15px;
             }
 
-            @media (max-width: 480px) {
-                .ps-block--store-products .ps-block__header {
-                    flex-wrap: wrap !important;
-                    gap: 5px !important;
-                    padding-left: 0 !important;
-                }
-
-                .ps-block--store-products .ps-block__header h3 {
-                    width: 100%;
-                }
-
-                .ps-block--store-products .ps-block__more {
-                    margin-left: auto !important;
-                }
-            }
-
-            .ps-block--store-products .ps-block__header h3 {
+            .ps-store-products__header h3 {
                 font-size: 22px;
                 font-weight: 700;
                 color: var(--global-color-text-main);
@@ -146,12 +131,12 @@
             }
 
             @media (max-width: 767px) {
-                .ps-block--store-products .ps-block__header h3 {
+                .ps-store-products__header h3 {
                     font-size: 20px;
                 }
             }
 
-            .ps-block--store-products .ps-block__more {
+            .ps-store-products__more {
                 font-size: 14px;
                 color: var(--global-color-link);
                 text-decoration: none;
@@ -160,9 +145,27 @@
                 margin-right: auto;
             }
 
-            .ps-block--store-products .ps-block__more:hover {
+            .ps-store-products__more:hover {
                 color: var(--global-color-link-hover);
                 text-decoration: underline;
+            }
+
+            /* Mobile Header Layout */
+            @media (max-width: 480px) {
+                .ps-store-products__header {
+                    flex-wrap: wrap;
+                    gap: 5px;
+                    padding-left: 0;
+                }
+
+                .ps-store-products__header h3 {
+                    width: 100%;
+                }
+
+                .ps-store-products__more {
+                    margin-left: auto;
+                    margin-right: 0;
+                }
             }
 
             .ps-block--store-products .ps-block__content {
@@ -311,7 +314,7 @@
                     margin-bottom: 0 !important;
                 }
 
-                .ps-block--store-products .ps-block__header {
+                .ps-store-products__header {
                     padding: 0 10px 10px 10px !important;
                     margin-bottom: 0 !important;
                 }
@@ -323,14 +326,14 @@
 
             /* Tablet (481-767px): Header bottom padding only */
             @media (min-width: 481px) and (max-width: 767px) {
-                .ps-block--store-products .ps-block__header {
+                .ps-store-products__header {
                     padding: 0 0 10px 0 !important;
                 }
             }
 
             /* Mobile (≤480px): Header bottom padding */
             @media (max-width: 480px) {
-                .ps-block--store-products .ps-block__header {
+                .ps-store-products__header {
                     padding: 0 10px 10px 10px !important;
                 }
             }
@@ -377,17 +380,6 @@
                 .ec-card__actions {
                     display: none !important;
                 }
-            }
-
-            /* Override mobile viewport global styles to keep actions hidden */
-            @media (max-width: 480px) {
-                .ps-block--store-products .ps-product {
-                    .ec-card--flyout .ec-card__actions,
-                    .ec-card--inline .ec-card__actions {
-                        display: none !important;
-                    }
-                }
-            }
 
                 /* Product title styling - link color and 5 lines */
                 .ec-card__title {
@@ -413,6 +405,16 @@
 
                 .ec-card__price-amount {
                     font-size: 1.3rem !important;
+                }
+            }
+
+            /* Override mobile viewport global styles to keep actions hidden */
+            @media (max-width: 480px) {
+                .ps-block--store-products .ps-product {
+                    .ec-card--flyout .ec-card__actions,
+                    .ec-card--inline .ec-card__actions {
+                        display: none !important;
+                    }
                 }
             }
         </style>
