@@ -1,6 +1,7 @@
 @php
     // Get current user's browsing history
     $currentUserHistory = collect();
+    $isGuest = !auth('customer')->check();
     
     if (EcommerceHelper::isEnabledCustomerRecentlyViewedProducts()) {
         if (auth('customer')->check()) {
@@ -9,6 +10,7 @@
                 ->orderBy('created_at', 'desc')
                 ->pluck('product_id');
         } else {
+            // For guests, get from session cart
             $currentUserHistory = collect(Cart::instance('recently_viewed')->content())
                 ->pluck('id');
         }
@@ -17,10 +19,22 @@
     $recommendedProducts = collect();
     
     if ($currentUserHistory->isNotEmpty()) {
+        // DEBUG: Log user type
+        \Log::info('=== SIMILAR CUSTOMERS RECOMMENDATIONS DEBUG ===');
+        \Log::info('User type: ' . ($isGuest ? 'Guest (session-based)' : 'Logged-in customer'));
+        \Log::info('Current user history (your viewed products):', $currentUserHistory->toArray());
+        
+        if ($isGuest) {
+            \Log::info('NOTE: Guest users can only see recommendations from LOGGED-IN customers who viewed similar products');
+            \Log::info('For guest-to-guest recommendations, guest browsing would need to be stored in database');
+        }
+        
         // Find other customers who viewed similar products
+        // Note: This queries the database, so it finds logged-in customers only
         $similarCustomerIds = DB::table('ec_customer_recently_viewed_products')
             ->whereIn('product_id', $currentUserHistory->toArray())
             ->where('customer_id', '!=', auth('customer')->id() ?? 0)
+            ->where('customer_id', '>', 0) // Only logged-in customers (not guests with customer_id=0)
             ->groupBy('customer_id')
             ->pluck('customer_id');
         
@@ -34,9 +48,7 @@
             ->limit(50)
             ->pluck('product_id');
         
-        // DEBUG: Log the filtering process
-        \Log::info('=== SIMILAR CUSTOMERS RECOMMENDATIONS DEBUG ===');
-        \Log::info('Current user history (your viewed products):', $currentUserHistory->toArray());
+        // DEBUG: Log the collaborative filtering results
         \Log::info('Found ' . $similarCustomerIds->count() . ' similar customers');
         \Log::info('Similar customer IDs:', $similarCustomerIds->toArray());
         \Log::info('Products they viewed (before filtering):', $similarViewedProductIds->toArray());
