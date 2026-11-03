@@ -46,17 +46,6 @@ class ProductSearchSettingForm extends SettingForm
                     ->selected(old('product_collections', EcommerceHelper::getProductsSearchBy()))
             )
             ->add(
-                'search_minimum_word_length',
-                NumberField::class,
-                NumberFieldOption::make()
-                    ->label(trans('plugins/ecommerce::setting.product_search.form.minimum_word_length'))
-                    ->helperText(trans('plugins/ecommerce::setting.product_search.form.minimum_word_length_helper'))
-                    ->value(get_ecommerce_setting('search_minimum_word_length', 3))
-                    ->defaultValue(3)
-                    ->minNumber(1)
-                    ->maxNumber(10)
-            )
-            ->add(
                 'enable_filter_products_by_categories',
                 OnOffCheckboxField::class,
                 OnOffFieldOption::make()
