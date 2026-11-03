@@ -373,6 +373,11 @@
                     display: none !important;
                 }
 
+                /* Hide actions (mobile add to cart buttons) */
+                .ec-card__actions {
+                    display: none !important;
+                }
+
                 /* Product title styling - link color and 5 lines */
                 .ec-card__title {
                     color: var(--global-color-link) !important;
