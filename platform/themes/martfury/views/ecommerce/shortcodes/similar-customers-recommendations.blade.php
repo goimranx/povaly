@@ -74,41 +74,58 @@
             
             // Apply contextual filtering if on single product page
             if ($currentProduct) {
-                // Get product keywords for filtering (similar to top-rated-related logic)
-                $productName = $currentProduct->name;
-                $productTags = $currentProduct->tags->pluck('name')->toArray();
-                $categoryNames = $currentProduct->categories->pluck('name')->toArray();
+                // Get product categories and tags for filtering
+                $currentProductCategoryIds = $currentProduct->categories->pluck('id')->toArray();
+                $currentProductTagIds = $currentProduct->tags->pluck('id')->toArray();
                 
-                $allKeywords = array_merge([$productName], $productTags, $categoryNames);
-                $searchWords = [];
+                \Log::info('Current product categories:', $currentProductCategoryIds);
+                \Log::info('Current product tags:', $currentProductTagIds);
                 
-                foreach ($allKeywords as $text) {
-                    $words = preg_split('/\s+/', trim($text), -1, PREG_SPLIT_NO_EMPTY);
-                    foreach ($words as $word) {
-                        if (strlen($word) >= 3) {
-                            $searchWords[] = strtolower($word);
+                // Try filtering by categories/tags first (more accurate than keywords)
+                if (!empty($currentProductCategoryIds) || !empty($currentProductTagIds)) {
+                    $query->where(function ($q) use ($currentProductCategoryIds, $currentProductTagIds) {
+                        if (!empty($currentProductCategoryIds)) {
+                            $q->orWhereHas('categories', function($catQuery) use ($currentProductCategoryIds) {
+                                $catQuery->whereIn('ec_categories.id', $currentProductCategoryIds);
+                            });
                         }
-                    }
-                }
-                $searchWords = array_unique($searchWords);
-                
-                // Apply filtering
-                if (!empty($searchWords)) {
-                    \Log::info('Applying contextual filtering with keywords:', $searchWords);
-                    $query->where(function ($q) use ($searchWords) {
-                        foreach ($searchWords as $word) {
-                            $q->orWhere('ec_products.name', 'LIKE', "%{$word}%")
-                              ->orWhere('ec_products.description', 'LIKE', "%{$word}%")
-                              ->orWhereHas('tags', function($tagQuery) use ($word) {
-                                  $tagQuery->where('name', 'LIKE', "%{$word}%");
-                              })
-                              ->orWhereHas('categories', function($catQuery) use ($word) {
-                                  $catQuery->where('name', 'LIKE', "%{$word}%");
-                              });
+                        if (!empty($currentProductTagIds)) {
+                            $q->orWhereHas('tags', function($tagQuery) use ($currentProductTagIds) {
+                                $tagQuery->whereIn('ec_tags.id', $currentProductTagIds);
+                            });
                         }
                     });
+                    \Log::info('Applying contextual filtering by categories/tags');
                 } else {
-                    \Log::info('No keywords found for filtering');
+                    // Fallback to keyword matching if no categories/tags
+                    $productName = $currentProduct->name;
+                    $productTags = $currentProduct->tags->pluck('name')->toArray();
+                    $categoryNames = $currentProduct->categories->pluck('name')->toArray();
+                    
+                    $allKeywords = array_merge([$productName], $productTags, $categoryNames);
+                    $searchWords = [];
+                    
+                    foreach ($allKeywords as $text) {
+                        $words = preg_split('/\s+/', trim($text), -1, PREG_SPLIT_NO_EMPTY);
+                        foreach ($words as $word) {
+                            if (strlen($word) >= 3) {
+                                $searchWords[] = strtolower($word);
+                            }
+                        }
+                    }
+                    $searchWords = array_unique($searchWords);
+                    
+                    if (!empty($searchWords)) {
+                        \Log::info('Applying contextual filtering with keywords:', $searchWords);
+                        $query->where(function ($q) use ($searchWords) {
+                            foreach ($searchWords as $word) {
+                                $q->orWhere('ec_products.name', 'LIKE', "%{$word}%")
+                                  ->orWhere('ec_products.description', 'LIKE', "%{$word}%");
+                            }
+                        });
+                    } else {
+                        \Log::info('No keywords found for filtering');
+                    }
                 }
             } else {
                 \Log::info('Not on a single product page - showing all recommendations without filtering');
