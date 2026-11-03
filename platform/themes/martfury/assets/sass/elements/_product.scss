@@ -1591,7 +1591,6 @@
             // Images
             img {
                 max-width: 100%;
-                width: 100%;
                 height: auto;
                 display: block;
                 margin: 0;
@@ -1600,13 +1599,11 @@
                 &.alignleft {
                     float: left;
                     margin: 5px 20px 15px 0;
-                    width: auto;
                 }
                 
                 &.alignright {
                     float: right;
                     margin: 5px 0 15px 20px;
-                    width: auto;
                 }
                 
                 &.aligncenter {
