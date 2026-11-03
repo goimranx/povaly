@@ -373,6 +373,42 @@
         },
 
         /**
+         * Refresh cross-sale section when products are added
+         */
+        refreshCrossSaleSection: function () {
+            if (!this.crossSaleRefreshUrl) return
+
+            const $section = $('[data-crosssale-bundle]')
+            if ($section.length === 0) return
+
+            $section.css('opacity', '0.5')
+
+            $.ajax({
+                url: this.crossSaleRefreshUrl,
+                type: 'GET',
+                success: function (response) {
+                    const data = response.data !== undefined ? response.data : response;
+                    replaceWithSafe($section, data)
+
+                    dispatchEvent('ecommerce.crosssale.section.refreshed', {
+                        html: data,
+                    })
+
+                    // Trigger event to reinitialize
+                    $(document).trigger('crosssale-bundle-loaded')
+
+                    // Reinitialize cross-sale bundle
+                    if (window.EcommerceCrossSaleBundle) {
+                        window.EcommerceCrossSaleBundle.init()
+                    }
+                },
+                error: function () {
+                    $section.css('opacity', '1')
+                },
+            })
+        },
+
+        /**
          * Initialize up-sale bundle checkboxes and functionality
          */
         initUpSaleBundle: function () {
@@ -1150,9 +1186,10 @@
                             }
                         }
 
-                        // Uncheck added items (don't disable for cross-sell - no lock feature)
-                        $checkboxes.filter(':checked').prop('checked', false)
-                        updateTotal()
+                        // Refresh the cross-sale section to keep items checked
+                        if (window.EcommerceUpSaleCrossSale && window.EcommerceUpSaleCrossSale.refreshCrossSaleSection) {
+                            window.EcommerceUpSaleCrossSale.refreshCrossSaleSection()
+                        }
 
                         return
                     }
