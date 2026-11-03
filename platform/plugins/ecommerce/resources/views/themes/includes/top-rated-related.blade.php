@@ -239,13 +239,26 @@
 
             /* Navigation Arrows - Desktop only (≥768px) */
             @media (min-width: 768px) {
+<<<<<<< HEAD
                 /* Default: NO padding */
+=======
+                /* Default: NO padding (for when all items fit or only 1 item) */
+>>>>>>> feature/product
                 .ps-carousel--top-rated-related {
                     padding: 0;
                 }
                 
+<<<<<<< HEAD
                 /* Add padding ONLY when NOT single item carousel */
                 .ps-carousel--top-rated-related:not(.single-item-carousel) {
+=======
+                /* Add padding ONLY when carousel is initialized and navigation exists */
+                .ps-carousel--top-rated-related.owl-carousel:not(.owl-loaded) {
+                    padding: 0;
+                }
+                
+                .ps-carousel--top-rated-related.owl-carousel.owl-drag {
+>>>>>>> feature/product
                     padding: 0 70px;
                 }
                 
