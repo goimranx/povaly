@@ -239,8 +239,17 @@
 
             /* Navigation Arrows - Desktop only (≥768px) */
             @media (min-width: 768px) {
-                /* Add padding to carousel wrapper to leave space for arrows */
+                /* Default: NO padding (for when all items fit or only 1 item) */
                 .ps-carousel--top-rated-related {
+                    padding: 0;
+                }
+                
+                /* Add padding ONLY when carousel is initialized and navigation exists */
+                .ps-carousel--top-rated-related.owl-carousel:not(.owl-loaded) {
+                    padding: 0;
+                }
+                
+                .ps-carousel--top-rated-related.owl-carousel.owl-drag {
                     padding: 0 70px;
                 }
 
