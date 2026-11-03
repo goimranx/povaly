@@ -555,6 +555,12 @@
             </div>
             <!-- END: ps-product__content -->
 
+            <!-- BROWSING HISTORY SECTION -->
+            <div class="ps-product__browsing-history">
+                {!! Theme::shortcode()->compile('[browsing-history-products][/browsing-history-products]') !!}
+            </div>
+            <!-- END: Browsing History -->
+
             <!-- RELATED PRODUCTS SECTION (SIBLING OF HEADER) -->
             <div class="ps-section--default">
                 <div class="ps-section__header">
