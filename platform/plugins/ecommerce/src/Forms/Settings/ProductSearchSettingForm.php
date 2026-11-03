@@ -24,32 +24,10 @@ class ProductSearchSettingForm extends SettingForm
                 trans('plugins/ecommerce::setting.product_search.product_search_settings_description')
             )
             ->setValidatorClass(ProductSearchSettingRequest::class)
-            ->add(
-                'search_for_an_exact_phrase',
-                OnOffCheckboxField::class,
-                OnOffFieldOption::make()
-                    ->label(trans('plugins/ecommerce::setting.product_search.form.search_for_an_exact_phrase'))
-                    ->value(get_ecommerce_setting('search_for_an_exact_phrase', false))
-            )
-            ->add(
-                'enable_smart_search',
-                OnOffCheckboxField::class,
-                OnOffFieldOption::make()
-                    ->label(trans('plugins/ecommerce::setting.product_search.form.enable_smart_search'))
-                    ->value(get_ecommerce_setting('enable_smart_search', true))
-                    ->defaultValue(true)
-            )
-            ->add(
-                'search_minimum_word_length',
-                NumberField::class,
-                NumberFieldOption::make()
-                    ->label(trans('plugins/ecommerce::setting.product_search.form.minimum_word_length'))
-                    ->helperText(trans('plugins/ecommerce::setting.product_search.form.minimum_word_length_helper'))
-                    ->value(get_ecommerce_setting('search_minimum_word_length', 3))
-                    ->defaultValue(3)
-                    ->minNumber(1)
-                    ->maxNumber(10)
-            )
+            ->add('search_for_an_exact_phrase', 'onOffCheckbox', [
+                'label' => trans('plugins/ecommerce::setting.product_search.form.search_for_an_exact_phrase'),
+                'value' => get_ecommerce_setting('search_for_an_exact_phrase', false),
+            ])
             ->add(
                 'search_products_by[]',
                 MultiCheckListField::class,
@@ -66,6 +44,17 @@ class ProductSearchSettingForm extends SettingForm
                         'category' => trans('plugins/ecommerce::products.form.categories'),
                     ])
                     ->selected(old('product_collections', EcommerceHelper::getProductsSearchBy()))
+            )
+            ->add(
+                'search_minimum_word_length',
+                NumberField::class,
+                NumberFieldOption::make()
+                    ->label(trans('plugins/ecommerce::setting.product_search.form.minimum_word_length'))
+                    ->helperText(trans('plugins/ecommerce::setting.product_search.form.minimum_word_length_helper'))
+                    ->value(get_ecommerce_setting('search_minimum_word_length', 3))
+                    ->defaultValue(3)
+                    ->minNumber(1)
+                    ->maxNumber(10)
             )
             ->add(
                 'enable_filter_products_by_categories',
