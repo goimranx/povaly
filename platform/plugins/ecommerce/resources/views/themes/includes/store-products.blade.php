@@ -120,6 +120,22 @@
                 gap: 15px;
             }
 
+            @media (max-width: 480px) {
+                .ps-block--store-products .ps-block__header {
+                    flex-wrap: wrap !important;
+                    gap: 5px !important;
+                    padding-left: 0 !important;
+                }
+
+                .ps-block--store-products .ps-block__header h3 {
+                    width: 100%;
+                }
+
+                .ps-block--store-products .ps-block__more {
+                    margin-left: auto !important;
+                }
+            }
+
             .ps-block--store-products .ps-block__header h3 {
                 font-size: 22px;
                 font-weight: 700;
