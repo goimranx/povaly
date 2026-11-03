@@ -11,6 +11,7 @@ class ProductSearchSettingRequest extends Request
     {
         return [
             'search_for_an_exact_phrase' => $onOffRule = new OnOffRule(),
+            'enable_smart_search' => $onOffRule,
             'search_products_by' => ['required', 'array'],
             'search_products_by.*' => ['required', 'in:name,sku,variation_sku,barcode,description,brand,tag,category'],
             'search_minimum_word_length' => ['nullable', 'integer', 'min:1', 'max:10'],

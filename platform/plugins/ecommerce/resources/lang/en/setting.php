@@ -122,9 +122,12 @@ return [
         'product_search_settings_description' => 'Configure rules for product search',
         'form' => [
             'search_for_an_exact_phrase' => 'Search for an exact phrase',
+            'search_for_an_exact_phrase_helper' => 'When enabled, searches for the complete query as a single phrase (e.g., "Office Electronic Batteries" as one complete term). NOTE: Conflicts with "Smart Search" - if both are enabled, this takes priority.',
+            'enable_smart_search' => 'Enable smart multi-word search (Amazon-style)',
+            'enable_smart_search_helper' => 'When enabled, splits search queries into individual words and finds products matching ANY word (e.g., "Office Electronic Batteries" finds products with "Office" OR "Electronic" OR "Batteries"). NOTE: Conflicts with "Exact Phrase Search" - if both are enabled, exact phrase takes priority.',
             'search_products_by' => 'Search products by:',
             'minimum_word_length' => 'Minimum word length for multi-word search',
-            'minimum_word_length_helper' => 'Only words with this many characters or more will be used in multi-word search. Shorter words will be filtered out to prevent irrelevant results. Default is 3 characters (recommended).',
+            'minimum_word_length_helper' => 'Only words with this many characters or more will be used in multi-word search. Shorter words will be filtered out to prevent irrelevant results. Recommended: 3 characters. Only applies when Smart Search is enabled.',
             'enable_filter_products_by_categories' => 'Enable filter products by categories',
             'enable_filter_products_by_brands' => 'Enable filter products by brands',
             'enable_filter_products_by_rating' => 'Enable filter products by rating',
