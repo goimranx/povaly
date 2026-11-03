@@ -795,7 +795,7 @@
             <style>
                 /* Customer Photos Gallery */
                 .ps-customer-photos-gallery {
-                    margin: 30px 0;
+                    margin: 0 0 30px 0;
                     background: var(--global-color-site-bg);
                 }
 
