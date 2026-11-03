@@ -487,24 +487,17 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
         if ($keyword = $filters['keyword']) {
             $searchProductsBy = EcommerceHelper::getProductsSearchBy();
             $exactPhraseSearch = (int) get_ecommerce_setting('search_for_an_exact_phrase', 0) == 1;
-            $smartSearchEnabled = (int) get_ecommerce_setting('enable_smart_search', 1) == 1;
-            
-            // Conflict detection: If both exact phrase and smart search are enabled, warn in logs
-            if ($exactPhraseSearch && $smartSearchEnabled) {
-                logger()->warning('Product search settings conflict: Both "exact phrase" and "smart search" are enabled. Exact phrase takes precedence.');
-            }
             
             // Determine search mode:
             // 1. If exact phrase is enabled: search for complete phrase (no splitting)
-            // 2. If smart search is enabled: split into words and match ANY word
-            // 3. Otherwise: default partial matching
+            // 2. Otherwise: smart multi-word search (Amazon-style) - split into words and match ANY word
             $isPartial = !$exactPhraseSearch;
             
             // Smart multi-word search (Amazon-style):
             // - Splits query into individual words (e.g., "Office Electronic Batteries" → ["Office", "Electronic", "Batteries"])
             // - Searches for products matching ANY word (OR logic)
             // - Filters out words shorter than minimum length (configurable, default 3)
-            // - Only activates when smart search is enabled AND exact phrase is disabled
+            // - Only activates when exact phrase search is disabled
             $minWordLength = (int) get_ecommerce_setting('search_minimum_word_length', 3);
             $keywords = preg_split('/\s+/', trim($keyword), -1, PREG_SPLIT_NO_EMPTY);
             $keywords = array_values(array_filter($keywords, function($word) use ($minWordLength) {
@@ -512,10 +505,9 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
             }));
             
             // Use multi-word search only if:
-            // 1. Smart search is enabled
-            // 2. Exact phrase search is NOT enabled (takes precedence)
-            // 3. Query has multiple valid words after filtering
-            $useMultiWordSearch = $smartSearchEnabled && !$exactPhraseSearch && count($keywords) > 1;
+            // 1. Exact phrase search is NOT enabled
+            // 2. Query has multiple valid words after filtering
+            $useMultiWordSearch = !$exactPhraseSearch && count($keywords) > 1;
 
             if (is_plugin_active('language') && is_plugin_active('language-advanced') && Language::getCurrentLocale() != Language::getDefaultLocale()) {
                 $this->model = $this->model
