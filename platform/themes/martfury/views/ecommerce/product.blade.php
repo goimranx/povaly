@@ -479,7 +479,7 @@
                 </div>
                 
                 <ul class="ps-tab-list">
-                    <li class="active"><a href="#tab-description">{{ __('Description') }}</a></li>
+                    <li class="active"><a href="#tab-description">{{ __('Product details') }}</a></li>
                     @if (EcommerceHelper::isProductSpecificationEnabled() && $product->specificationAttributes->where('pivot.hidden', false)->isNotEmpty())
                         <li><a href="#tab-specification">{{ __('Specification') }}</a></li>
                     @endif
