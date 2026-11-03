@@ -468,6 +468,9 @@
                 @include(EcommerceHelper::viewPath('includes.store-products'), ['product' => $product])
             @endif
 
+            <!-- TOP RATED RELATED ITEMS SECTION -->
+            @include(EcommerceHelper::viewPath('includes.top-rated-related'), ['product' => $product])
+
             <!-- TABS SECTION (SIBLING OF HEADER) -->
             <div class="ps-product__content ps-tab-root">
                 <ul class="ps-tab-list">
