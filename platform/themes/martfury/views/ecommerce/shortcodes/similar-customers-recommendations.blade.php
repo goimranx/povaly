@@ -187,6 +187,7 @@
             font-size: 20px;
             word-break: break-word;
             overflow-wrap: break-word;
+            max-width: 100%;
         }
     }
 
@@ -352,6 +353,12 @@
     @media (max-width: 480px) {
         .ps-block--similar-customers .ps-block__header {
             padding: 0 0 10px 0 !important;
+        }
+
+        .ps-block--similar-customers .ps-block__header h2 {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
     }
 </style>
