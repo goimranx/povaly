@@ -5,6 +5,101 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3] - 2024-11-04
+
+### ✨ Major New Features
+
+#### 🖼️ Customer Photos Gallery
+- **Interactive photo viewer** with large image display and navigation arrows
+- **Paginated thumbnail grid** (24 items per page) with lazy loading
+- **Smart navigation sync** between main viewer and thumbnails
+- Auto-loads next page when navigating via arrows
+- Displays customer ratings and names on each photo
+- "Read Reviews" button linking to reviews tab
+- Keyboard navigation support (arrow keys)
+- Optimized thumbnail loading using RvMedia thumb images
+- Responsive grid layout (12 columns desktop, 8 tablet, auto mobile)
+
+#### 🎯 Similar Customers Recommendations
+- **Collaborative filtering algorithm** showing products viewed by customers with similar browsing patterns
+- **Contextual filtering** on product/category/brand pages using keyword matching
+- Shows products OTHER customers viewed who also viewed SAME products as current visitor
+- Excludes current user's browsing history from recommendations
+- View count-based sorting for most popular recommendations
+- Carousel layout with 6 items (desktop), responsive breakpoints
+- Works for logged-in customers (database-based tracking)
+- Guest users see recommendations from logged-in customers
+
+#### 📜 Browsing History Section
+- "Your browsing history" shortcode displaying recently viewed products
+- Excludes current product from history display
+- Session-based for guests, database-based for logged-in customers
+- Grid layout with product cards
+
+### 🎨 UI/UX Improvements
+
+#### Product Page Layout
+- **Semantic HTML**: Changed section titles from `<h3>` to `<h2>` tags
+- **Consistent styling** across all sections (22px/700 weight, 20px mobile)
+- Removed generic "Related Products" section (replaced with personalized recommendations)
+- New section order:
+  1. Product Information tabs
+  2. Customer Photos Gallery (if photos exist)
+  3. Your Browsing History
+  4. Customers with Similar Interests Also Viewed
+
+#### Cross-Sale Products Enhancements
+- Improved modal styling and interactions
+- Enhanced product variation selection
+- Better bundle discount display
+- Fixed checkbox states and disabled states
+
+#### Product Details Section
+- Typography improvements with global classes
+- Enhanced mobile responsiveness
+- Better rating display
+
+### 🔧 Technical Improvements
+
+#### Backend
+- New shortcode: `similar-customers-recommendations` with full collaborative filtering logic
+- Registered in `HookServiceProvider.php`
+- Uses `ec_customer_recently_viewed_products` table for tracking
+- Efficient query optimization with view count aggregation
+- Proper eager loading of product relationships
+
+#### Frontend Performance
+- Lazy loading for customer photo thumbnails
+- Paginated loading to keep page lightweight
+- Thumbnail optimization using RvMedia thumb version
+- Efficient page tracking (Set data structure)
+- Only loads 24 thumbnails per page initially
+
+#### Code Quality
+- Fixed Review model relationship usage (`user` not `customer`)
+- Uses `display_name` attribute for customer names
+- Consistent with existing review system
+- Proper null checks and fallbacks
+
+### 📦 New Files Created
+- `platform/themes/martfury/views/ecommerce/shortcodes/similar-customers-recommendations.blade.php`
+- `platform/plugins/ecommerce/resources/views/themes/includes/top-rated-related.blade.php`
+- `platform/plugins/ecommerce/resources/views/themes/includes/store-products.blade.php`
+- `.kiro/GLOBAL_TYPOGRAPHY_CLASSES.md`
+
+### 🔄 Modified Files
+- Product page template with 540+ lines of new functionality
+- Recently viewed products shortcode (title styling update)
+- Cross-sale products styling and functionality
+- Main.js with enhanced interactions
+- Typography and product SCSS improvements
+
+### 🐛 Bug Fixes
+- Fixed `Call to undefined function get_product_reviews()` error
+- Fixed `Call to undefined relationship [customer]` error on Review model
+- Corrected SQL column reference (removed non-existent `created_at` ORDER BY)
+- Fixed review image loading to match reviews tab approach
+
 ## [2.2] - 2024-11-02
 
 ### 🔧 Fixed - Admin Panel CSS/JS Issues
