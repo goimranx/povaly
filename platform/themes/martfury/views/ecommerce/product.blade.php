@@ -599,10 +599,12 @@
                 <div class="ps-container">
                     <div class="ps-block--customer-photos">
                         <div class="ps-block__header">
-                            <h2>Customer Photos ({{ $totalImages }})</h2>
-                            <a href="#tab-reviews" class="ps-btn--read-reviews" onclick="event.preventDefault(); document.getElementById('review-tab-link').click(); setTimeout(() => document.getElementById('tab-reviews').scrollIntoView({behavior: 'smooth', block: 'start'}), 100);">
-                                Read Reviews
-                            </a>
+                            <div class="ps-block__header-left">
+                                <h2>Customer Photos ({{ $totalImages }})</h2>
+                                <a href="#tab-reviews" class="ps-btn--read-reviews" onclick="event.preventDefault(); document.getElementById('review-tab-link').click(); setTimeout(() => document.getElementById('tab-reviews').scrollIntoView({behavior: 'smooth', block: 'start'}), 100);">
+                                    Read Reviews
+                                </a>
+                            </div>
                         </div>
                         <div class="ps-block__content">
                             <!-- Main Photo Viewer -->
@@ -612,14 +614,14 @@
                                 </button>
                                 <div class="ps-photo-viewer__main">
                                     <img src="{{ $reviewImages->first()['url'] }}" alt="Customer photo" id="mainPhotoImg" />
-                                    <div class="ps-photo-viewer__info">
-                                        <div class="ps-photo-rating" id="photoRating">
-                                            @for($i = 1; $i <= 5; $i++)
-                                                <i class="fa {{ $i <= $reviewImages->first()['rating'] ? 'fa-star' : 'fa-star-o' }}"></i>
-                                            @endfor
-                                        </div>
-                                        <p class="ps-photo-customer" id="photoCustomer">{{ $reviewImages->first()['customer_name'] }}</p>
+                                </div>
+                                <div class="ps-photo-viewer__info">
+                                    <div class="ps-photo-rating" id="photoRating">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <i class="fa {{ $i <= $reviewImages->first()['rating'] ? 'fa-star' : 'fa-star-o' }}"></i>
+                                        @endfor
                                     </div>
+                                    <p class="ps-photo-customer" id="photoCustomer">{{ $reviewImages->first()['customer_name'] }}</p>
                                 </div>
                                 <button class="ps-photo-nav ps-photo-nav--next" id="photoNavNext">
                                     <i class="icon-chevron-right"></i>
@@ -815,6 +817,12 @@
                     gap: 15px;
                 }
 
+                .ps-block--customer-photos .ps-block__header-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                }
+
                 .ps-block--customer-photos .ps-block__header h2 {
                     font-size: 22px;
                     font-weight: 700;
@@ -833,19 +841,20 @@
                 .ps-btn--read-reviews {
                     font-size: 14px;
                     font-weight: 500;
-                    color: var(--global-color-primary);
-                    text-decoration: none;
-                    padding: 8px 20px;
-                    border: 1px solid var(--global-color-primary);
-                    border-radius: 4px;
-                    transition: all 0.3s ease;
-                    background: transparent;
+                    color: var(--global-color-link) !important;
+                    text-decoration: none !important;
+                    padding: 0 !important;
+                    border: none !important;
+                    border-radius: 0 !important;
+                    background: transparent !important;
                     cursor: pointer;
+                    transition: all 0.3s ease;
                 }
 
                 .ps-btn--read-reviews:hover {
-                    background: var(--global-color-primary);
-                    color: #fff;
+                    text-decoration: underline !important;
+                    color: var(--global-color-link-hover) !important;
+                    background: transparent !important;
                 }
 
                 /* Main Photo Viewer */
@@ -880,10 +889,11 @@
                     position: absolute;
                     bottom: 15px;
                     left: 15px;
-                    background: rgba(0, 0, 0, 0.7);
-                    color: #fff;
+                    background: var(--global-color-secondary) !important;
+                    color: var(--global-color-text-on-dark) !important;
                     padding: 10px 15px;
-                    border-radius: 6px;
+                    border-radius: 4px !important;
+                    z-index: 5;
                 }
 
                 .ps-photo-rating {
@@ -891,7 +901,7 @@
                 }
 
                 .ps-photo-rating i {
-                    color: #ffa900;
+                    color: var(--global-color-primary) !important;
                     font-size: 14px;
                     margin-right: 2px;
                 }
@@ -900,6 +910,7 @@
                     margin: 0;
                     font-size: 13px;
                     font-weight: 500;
+                    color: var(--global-color-text-on-dark) !important;
                 }
 
                 .ps-photo-nav {
@@ -909,8 +920,8 @@
                     width: 45px;
                     height: 45px;
                     background: rgba(255, 255, 255, 0.95);
-                    border: 1px solid #ddd;
-                    border-radius: 50%;
+                    border: 1px solid var(--global-color-border-strong) !important;
+                    border-radius: 6px !important;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -920,9 +931,9 @@
                 }
 
                 .ps-photo-nav:hover {
-                    background: var(--global-color-primary);
-                    color: #fff;
-                    border-color: var(--global-color-primary);
+                    background: var(--global-color-card-bg) !important;
+                    color: inherit;
+                    border-color: var(--global-color-border-strong) !important;
                 }
 
                 .ps-photo-nav--prev {
