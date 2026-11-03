@@ -103,7 +103,10 @@
                 >
                     @foreach($topRatedProducts as $ratedProduct)
                         <div class="ps-product">
-                            {!! Theme::partial('product-item', ['product' => $ratedProduct]) !!}
+                            @include('theme.martfury::partials.product-card-enhanced', [
+                                'product' => $ratedProduct,
+                                'layout' => 'flyout'
+                            ])
                         </div>
                     @endforeach
                 </div>

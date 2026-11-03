@@ -60,7 +60,10 @@
                 >
                     @foreach($storeProducts as $storeProduct)
                         <div class="ps-product">
-                            {!! Theme::partial('product-item', ['product' => $storeProduct]) !!}
+                            @include('theme.martfury::partials.product-card-enhanced', [
+                                'product' => $storeProduct,
+                                'layout' => 'flyout'
+                            ])
                         </div>
                     @endforeach
                 </div>
