@@ -2280,8 +2280,24 @@
         }
     };
 
+    window.toggleDescriptionMobile = function() {
+        const content = document.getElementById('pd-description-content-mobile');
+        const btn = document.getElementById('pd-read-more-btn-mobile');
+        
+        if (!content || !btn) return;
+        
+        if (content.classList.contains('pd-description-collapsed')) {
+            content.classList.remove('pd-description-collapsed');
+            btn.textContent = btn.dataset.lessText || 'Read less';
+        } else {
+            content.classList.add('pd-description-collapsed');
+            btn.textContent = btn.dataset.moreText || 'Read more';
+        }
+    };
+
     // Initialize read more button - hide if content is short
     $(document).ready(function() {
+        // Desktop version
         const content = document.getElementById('pd-description-content');
         const btn = document.getElementById('pd-read-more-btn');
         
@@ -2303,6 +2319,31 @@
             if (fullHeight <= maxHeight) {
                 btn.classList.add('pd-hidden');
                 content.classList.remove('pd-description-collapsed');
+            }
+        }
+
+        // Mobile version
+        const contentMobile = document.getElementById('pd-description-content-mobile');
+        const btnMobile = document.getElementById('pd-read-more-btn-mobile');
+        
+        if (contentMobile && btnMobile) {
+            // Store button texts
+            btnMobile.dataset.moreText = btnMobile.textContent;
+            btnMobile.dataset.lessText = 'Read less';
+            
+            // Check if content needs read more button
+            const lineHeight = parseFloat(getComputedStyle(contentMobile).lineHeight);
+            const maxHeight = lineHeight * 6; // 6 lines
+            
+            // Temporarily show full content to measure
+            contentMobile.classList.remove('pd-description-collapsed');
+            const fullHeight = contentMobile.scrollHeight;
+            contentMobile.classList.add('pd-description-collapsed');
+            
+            // Hide button if content is short enough
+            if (fullHeight <= maxHeight) {
+                btnMobile.classList.add('pd-hidden');
+                contentMobile.classList.remove('pd-description-collapsed');
             }
         }
     });

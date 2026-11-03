@@ -2537,6 +2537,23 @@
         }
     }
 
+    .pd-see-details-btn {
+        display: inline-flex;
+        align-items: center;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--global-color-link, #256baf);
+        text-decoration: none;
+        margin-left: auto;
+        margin-right: 8px;
+        white-space: nowrap;
+        
+        &:hover {
+            color: var(--global-color-link-hover, #1a4d8f);
+            text-decoration: underline;
+        }
+    }
+
     .pd-accordion-body {
         padding: 0 0 10px 0;
         margin: 0;
