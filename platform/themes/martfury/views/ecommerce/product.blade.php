@@ -616,14 +616,14 @@
                                     <div class="ps-photo-viewer__main">
                                         <img src="{{ $reviewImages->first()['url'] }}" alt="Customer photo" id="mainPhotoImg" />
                                     </div>
-                                    <div class="ps-photo-viewer__info">
+                                    <a href="#" class="ps-photo-viewer__info" id="photoInfoLink">
                                         <div class="ps-photo-rating" id="photoRating">
                                             @for($i = 1; $i <= 5; $i++)
                                                 <i class="fa {{ $i <= $reviewImages->first()['rating'] ? 'fa-star' : 'fa-star-o' }}"></i>
                                             @endfor
                                         </div>
                                         <p class="ps-photo-customer" id="photoCustomer">{{ $reviewImages->first()['customer_name'] }}</p>
-                                    </div>
+                                    </a>
                                     <button class="ps-photo-nav ps-photo-nav--next" id="photoNavNext">
                                         <i class="icon-chevron-right"></i>
                                     </button>
@@ -631,6 +631,9 @@
 
                                 <!-- Thumbnail Sidebar (Right) -->
                                 <div class="ps-photo-sidebar">
+                                    <a href="#ps-product__header" class="ps-photo-product-title" onclick="event.preventDefault(); document.querySelector('.ps-product__header').scrollIntoView({behavior: 'smooth', block: 'start'});">
+                                        {{ $product->name }}
+                                    </a>
                                     <div class="ps-photo-thumbnails">
                                         <div class="ps-photo-thumbnails__grid" id="thumbnailGrid">
                                             <!-- Thumbnails loaded via JavaScript -->
@@ -669,13 +672,18 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     loadThumbnailPage(1);
                     updateMainPhoto();
+                    updateNavigationButtons();
                     setupEventListeners();
                 });
 
                 function setupEventListeners() {
                     // Main photo navigation
-                    document.getElementById('photoNavPrev').addEventListener('click', () => navigatePhoto(-1));
-                    document.getElementById('photoNavNext').addEventListener('click', () => navigatePhoto(1));
+                    document.getElementById('photoNavPrev').addEventListener('click', () => {
+                        if (reviewImages.length > 1) navigatePhoto(-1);
+                    });
+                    document.getElementById('photoNavNext').addEventListener('click', () => {
+                        if (reviewImages.length > 1) navigatePhoto(1);
+                    });
 
                     // Thumbnail pagination
                     const prevBtn = document.getElementById('thumbnailPrevPage');
@@ -686,12 +694,15 @@
 
                     // Keyboard navigation
                     document.addEventListener('keydown', function(e) {
+                        if (reviewImages.length <= 1) return;
                         if (e.key === 'ArrowLeft') navigatePhoto(-1);
                         if (e.key === 'ArrowRight') navigatePhoto(1);
                     });
                 }
 
                 function navigatePhoto(direction) {
+                    if (reviewImages.length <= 1) return;
+                    
                     currentImageIndex += direction;
                     
                     // Wrap around
@@ -710,6 +721,28 @@
 
                     updateMainPhoto();
                     updateThumbnailActive();
+                    updateNavigationButtons();
+                }
+
+                function updateNavigationButtons() {
+                    const prevBtn = document.getElementById('photoNavPrev');
+                    const nextBtn = document.getElementById('photoNavNext');
+                    
+                    // If only one image, disable and hide both
+                    if (reviewImages.length <= 1) {
+                        prevBtn.disabled = true;
+                        nextBtn.disabled = true;
+                        prevBtn.style.display = 'none';
+                        nextBtn.style.display = 'none';
+                    } else {
+                        // Show buttons
+                        prevBtn.style.display = 'flex';
+                        nextBtn.style.display = 'flex';
+                        
+                        // Disable buttons at boundaries (no wrap)
+                        prevBtn.disabled = currentImageIndex === 0;
+                        nextBtn.disabled = currentImageIndex === reviewImages.length - 1;
+                    }
                 }
 
                 function updateMainPhoto() {
@@ -749,6 +782,7 @@
                             currentImageIndex = i;
                             updateMainPhoto();
                             updateThumbnailActive();
+                            updateNavigationButtons();
                         });
                         grid.appendChild(thumb);
                     }
@@ -864,8 +898,8 @@
                 /* Photo Layout - Two Column */
                 .ps-photo-layout {
                     display: flex;
-                    gap: 20px;
-                    align-items: flex-start;
+                    gap: 0;
+                    align-items: stretch;
                 }
 
                 /* Main Photo Viewer - Left Side */
@@ -876,7 +910,7 @@
                     align-items: center;
                     justify-content: center;
                     background: #f8f8f8;
-                    border-radius: 8px;
+                    border-radius: 8px 0 0 8px;
                     overflow: hidden;
                     min-height: 400px;
                 }
@@ -901,11 +935,20 @@
                     position: absolute;
                     bottom: 15px;
                     left: 15px;
-                    background: var(--global-color-secondary) !important;
+                    background: rgba(0, 0, 0, 0.75) !important;
                     color: var(--global-color-text-on-dark) !important;
                     padding: 10px 15px;
                     border-radius: 4px !important;
                     z-index: 5;
+                    text-decoration: none;
+                    display: block;
+                    transition: all 0.3s ease;
+                    backdrop-filter: blur(4px);
+                }
+
+                .ps-photo-viewer__info:hover {
+                    opacity: 0.95;
+                    background: rgba(0, 0, 0, 0.85) !important;
                 }
 
                 .ps-photo-rating {
@@ -948,6 +991,16 @@
                     border-color: var(--global-color-border-strong) !important;
                 }
 
+                .ps-photo-nav:disabled {
+                    opacity: 0.4;
+                    cursor: not-allowed;
+                    pointer-events: none;
+                }
+
+                .ps-photo-nav:disabled:hover {
+                    background: rgba(255, 255, 255, 0.95) !important;
+                }
+
                 .ps-photo-nav--prev {
                     left: 15px;
                 }
@@ -964,17 +1017,38 @@
                 .ps-photo-sidebar {
                     width: 320px;
                     flex-shrink: 0;
-                    border-top: 2px solid var(--global-color-primary);
-                    border-right: 2px solid var(--global-color-primary);
-                    border-bottom: 2px solid var(--global-color-primary);
+                    display: flex;
+                    flex-direction: column;
+                    border: 1px solid var(--global-color-primary-border);
+                    border-left: none;
                     border-radius: 0 8px 8px 0;
                     padding: 15px;
                     background: var(--global-color-site-bg);
                 }
 
+                /* Product Title Link */
+                .ps-photo-product-title {
+                    font-size: 1rem;
+                    font-weight: 400;
+                    color: var(--global-color-text-main);
+                    text-decoration: none;
+                    margin-bottom: 15px;
+                    display: block;
+                    line-height: 1.4;
+                    transition: all 0.3s ease;
+                }
+
+                .ps-photo-product-title:hover {
+                    text-decoration: underline;
+                    color: var(--global-color-text-main);
+                }
+
                 /* Thumbnail Grid */
                 .ps-photo-thumbnails {
                     margin: 0;
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
                 }
 
                 .ps-photo-thumbnails__grid {
@@ -989,8 +1063,8 @@
                     border-radius: 4px;
                     overflow: hidden;
                     cursor: pointer;
-                    border: 1px solid transparent;
-                    transition: all 0.3s ease;
+                    border: 2px solid transparent;
+                    transition: border-color 0.3s ease;
                 }
 
                 .ps-photo-thumbnail:hover {
@@ -1008,22 +1082,75 @@
                 }
 
                 /* Responsive Layout */
-                @media (max-width: 1199px) {
+                @media (max-width: 1024px) {
                     .ps-photo-layout {
                         flex-direction: column;
                     }
 
+                    .ps-photo-viewer {
+                        width: 100%;
+                        border-radius: 8px 8px 0 0;
+                    }
+
                     .ps-photo-sidebar {
                         width: 100%;
-                        border-left: 2px solid var(--global-color-primary);
-                        border-radius: 8px;
-                        margin-top: 20px;
+                        border-left: 1px solid var(--global-color-primary-border);
+                        border-radius: 0 0 8px 8px;
+                        margin-top: 0;
+                    }
+
+                    .ps-photo-thumbnails__grid {
+                        display: flex;
+                        flex-direction: row;
+                        grid-template-columns: none;
+                        overflow-x: auto;
+                        overflow-y: hidden;
+                        scroll-snap-type: x mandatory;
+                        -webkit-overflow-scrolling: touch;
+                        scrollbar-width: thin;
+                        scrollbar-color: var(--global-color-primary) var(--global-color-border);
+                        padding-bottom: 5px;
+                    }
+
+                    .ps-photo-thumbnails__grid::-webkit-scrollbar {
+                        height: 6px;
+                    }
+
+                    .ps-photo-thumbnails__grid::-webkit-scrollbar-track {
+                        background: var(--global-color-border);
+                        border-radius: 3px;
+                    }
+
+                    .ps-photo-thumbnails__grid::-webkit-scrollbar-thumb {
+                        background: var(--global-color-primary);
+                        border-radius: 3px;
+                    }
+
+                    .ps-photo-thumbnail {
+                        flex: 0 0 auto;
+                        width: calc((100% - 40px) / 6);
+                        scroll-snap-align: start;
                     }
                 }
 
                 @media (max-width: 767px) {
-                    .ps-photo-thumbnails__grid {
-                        grid-template-columns: repeat(4, 1fr);
+                    .ps-photo-thumbnail {
+                        width: calc((100% - 32px) / 5);
+                    }
+
+                    .ps-photo-nav {
+                        width: 35px !important;
+                        height: 35px !important;
+                    }
+
+                    .ps-photo-nav i {
+                        font-size: 16px;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .ps-photo-thumbnail {
+                        width: calc((100% - 16px) / 3);
                     }
                 }
 
