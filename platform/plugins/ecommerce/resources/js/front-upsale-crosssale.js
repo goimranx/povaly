@@ -1067,6 +1067,7 @@
                 }
 
                 // Update button text and state based on selected count
+                // Note: Cross-sell items are never disabled (no lock like up-sell)
                 const $buttonText = $addAllBtn.find('[data-crosssale-button-text]')
                 if (selectedCount === 0) {
                     $buttonText.text('Add to cart')
@@ -1144,8 +1145,8 @@
                             }
                         }
 
-                        // Uncheck and disable added items
-                        $checkboxes.filter(':checked').prop('checked', false).prop('disabled', true)
+                        // Uncheck added items (don't disable for cross-sell - no lock feature)
+                        $checkboxes.filter(':checked').prop('checked', false)
                         updateTotal()
 
                         return
