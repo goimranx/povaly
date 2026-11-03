@@ -1485,12 +1485,23 @@
     }
 
     .ps-tab {
+        // Remove margins from ps-document wrapper
+        .ps-document {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
         // Description tab content styling (TinyMCE WYSIWYG content)
         .ps-document,
         .ck-content {
             color: var(--global-color-text-body, #666);
             font-size: 15px;
             line-height: 1.7;
+            
+            // Remove any negative margins from direct child divs
+            > div {
+                margin: 0 !important;
+            }
             
             // Paragraphs
             p {
@@ -1580,19 +1591,22 @@
             // Images
             img {
                 max-width: 100%;
+                width: 100%;
                 height: auto;
                 display: block;
-                margin: 20px 0;
-                border-radius: 5px;
+                margin: 0;
+                border-radius: 0;
                 
                 &.alignleft {
                     float: left;
                     margin: 5px 20px 15px 0;
+                    width: auto;
                 }
                 
                 &.alignright {
                     float: right;
                     margin: 5px 0 15px 20px;
+                    width: auto;
                 }
                 
                 &.aligncenter {
