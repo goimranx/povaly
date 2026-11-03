@@ -83,7 +83,7 @@
         <style>
             /* Store Products Section */
             .ps-store-products {
-                margin: 10px 0 !important;
+                margin: 0 !important;
                 background: var(--global-color-site-bg);
             }
 
@@ -376,6 +376,7 @@
                 /* Price styling - keep at end and 1.3rem size */
                 .ec-card__price-sale {
                     order: 999 !important; /* Keep at the end */
+                    margin-bottom: 0 !important;
                 }
 
                 .ec-card__price-amount {
