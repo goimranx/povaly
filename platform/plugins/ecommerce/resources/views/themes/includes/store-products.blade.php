@@ -208,6 +208,16 @@
                     border-color: var(--global-color-border-strong) !important;
                 }
 
+                /* Hide navigation when both arrows are disabled (all items visible) */
+                .ps-carousel--store-products .owl-nav:has(.owl-prev.disabled):has(.owl-next.disabled) {
+                    display: none !important;
+                }
+
+                /* Remove padding when navigation is hidden */
+                .ps-carousel--store-products:has(.owl-nav .owl-prev.disabled):has(.owl-nav .owl-next.disabled) {
+                    padding: 0 !important;
+                }
+
                 .ps-carousel--store-products .owl-nav .owl-prev {
                     left: 0;
                 }
