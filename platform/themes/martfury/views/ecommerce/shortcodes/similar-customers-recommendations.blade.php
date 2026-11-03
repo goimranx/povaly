@@ -145,7 +145,7 @@
 <style>
     /* Similar Customers Recommendations Section */
     .ps-similar-customers-recommendations {
-        margin: 10px 0 !important;
+        margin: 0 !important;
         background: var(--global-color-site-bg);
     }
 
