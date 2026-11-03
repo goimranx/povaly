@@ -56,7 +56,6 @@ class ProductSearchSettingForm extends SettingForm
                     ->defaultValue(3)
                     ->minNumber(1)
                     ->maxNumber(10)
-                    ->toArray()
             )
             ->add(
                 'search_products_by[]',
