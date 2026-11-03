@@ -45,26 +45,25 @@
                             <a href="{{ $product->store->url }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
                         @else
                             @php
-                                // Build smart search query URL for fallback products
-                                // Use only first 2 main category names to avoid too specific search
+                                // Use category filter instead of search for better results
+                                // Filter out promotional/special categories
                                 $mainCategories = $product->categories
                                     ->filter(function($category) {
                                         // Filter out promotional/special categories
                                         $excludeNames = ['deal of the day', 'winter collection', 'summer collection', 'sale', 'hot deals', 'new arrivals', 'featured', 'trending'];
                                         return !in_array(strtolower($category->name), $excludeNames);
                                     })
-                                    ->take(2)
-                                    ->pluck('name')
+                                    ->take(3)
+                                    ->pluck('id')
                                     ->toArray();
                                 
-                                // Fallback to product name if no suitable categories
-                                if (empty($mainCategories)) {
-                                    $searchQuery = $product->name;
+                                // Build URL with category filter
+                                if (!empty($mainCategories)) {
+                                    $viewAllUrl = route('public.products') . '?' . http_build_query(['categories' => $mainCategories]);
                                 } else {
-                                    $searchQuery = implode(' ', $mainCategories);
+                                    // Fallback to search by product name
+                                    $viewAllUrl = route('public.products') . '?q=' . urlencode($product->name);
                                 }
-                                
-                                $viewAllUrl = route('public.products') . '?q=' . urlencode($searchQuery);
                             @endphp
                             <a href="{{ $viewAllUrl }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
                         @endif
