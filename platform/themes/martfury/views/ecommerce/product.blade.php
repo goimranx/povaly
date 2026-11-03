@@ -486,9 +486,6 @@
                     @if (EcommerceHelper::isReviewEnabled())
                         <li><a href="#tab-reviews">{{ __('Reviews') }}&nbsp;({{ $product->reviews_count }})</a></li>
                     @endif
-                    @if (is_plugin_active('marketplace') && $product->store_id)
-                        <li><a href="#tab-vendor">{{ __('Vendor') }}</a></li>
-                    @endif
                     @if (is_plugin_active('faq'))
                         @if (count($product->faq_items) > 0)
                             <li><a href="#tab-faq">{{ __('Questions and Answers') }}</a></li>
@@ -517,19 +514,6 @@
                     @if (EcommerceHelper::isReviewEnabled())
                         <div class="ps-tab" id="tab-reviews">
                             @include('plugins/ecommerce::themes.includes.reviews', ['reviewButtonClass' => 'ps-btn'])
-                        </div>
-                    @endif
-
-                    @if (is_plugin_active('marketplace') && $product->store_id)
-                        <div class="ps-tab" id="tab-vendor">
-                            <h4>{{ $product->store->name }} {!! $product->store->badge !!}</h4>
-                            <div>
-                                {!! BaseHelper::clean($product->store->content) !!}
-                            </div>
-
-                            <a href="{{ $product->store->url }}" class="more-products">
-                                {{ __('More Products from :store',  ['store' => $product->store->name]) }}
-                            </a>
                         </div>
                     @endif
 
