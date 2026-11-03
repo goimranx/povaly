@@ -557,33 +557,43 @@
 
             <!-- CUSTOMER REVIEW PHOTOS GALLERY -->
             @php
-                // Get all review images for this product
+                // Get review images using the same method as the reviews tab
                 $reviewImages = collect();
-                if (EcommerceHelper::isReviewEnabled()) {
-                    $reviews = \Botble\Ecommerce\Models\Review::query()
-                        ->where('product_id', $product->id)
-                        ->where('status', \Botble\Base\Enums\BaseStatusEnum::PUBLISHED)
-                        ->whereNotNull('images')
-                        ->with('customer')
-                        ->get();
+                
+                if (EcommerceHelper::isReviewEnabled() && EcommerceHelper::isCustomerReviewImageUploadEnabled()) {
+                    // Use the product's review_images attribute (same as reviews tab)
+                    $allImages = $product->review_images ?? [];
                     
-                    foreach ($reviews as $review) {
-                        if (!empty($review->images)) {
-                            $images = is_array($review->images) ? $review->images : json_decode($review->images, true);
-                            if ($images && is_array($images)) {
-                                foreach ($images as $image) {
-                                    $reviewImages->push([
-                                        'url' => RvMedia::getImageUrl($image),
-                                        'review_id' => $review->id,
-                                        'customer_name' => $review->customer->name ?? 'Anonymous',
-                                        'rating' => $review->star,
-                                        'comment' => $review->comment,
-                                    ]);
+                    if (!empty($allImages)) {
+                        // Get reviews with images to get customer info
+                        $reviewsWithImages = \Botble\Ecommerce\Models\Review::query()
+                            ->where('product_id', $product->id)
+                            ->where('status', \Botble\Base\Enums\BaseStatusEnum::PUBLISHED)
+                            ->whereNotNull('images')
+                            ->with('customer')
+                            ->get();
+                        
+                        // Build image collection with customer info
+                        foreach ($reviewsWithImages as $review) {
+                            if (!empty($review->images)) {
+                                $images = is_array($review->images) ? $review->images : json_decode($review->images, true);
+                                if ($images && is_array($images)) {
+                                    foreach ($images as $image) {
+                                        $reviewImages->push([
+                                            'url' => RvMedia::getImageUrl($image),
+                                            'thumb' => RvMedia::getImageUrl($image, 'thumb'),
+                                            'review_id' => $review->id,
+                                            'customer_name' => $review->customer->name ?? 'Anonymous',
+                                            'rating' => $review->star,
+                                            'comment' => $review->comment,
+                                        ]);
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                
                 $totalImages = $reviewImages->count();
                 $imagesPerPage = 24;
                 $totalPages = $totalImages > 0 ? ceil($totalImages / $imagesPerPage) : 0;
@@ -733,7 +743,7 @@
                         const thumb = document.createElement('div');
                         thumb.className = 'ps-photo-thumbnail' + (i === currentImageIndex ? ' active' : '');
                         thumb.dataset.index = i;
-                        thumb.innerHTML = `<img src="${photo.url}" alt="Customer photo" loading="lazy" />`;
+                        thumb.innerHTML = `<img src="${photo.thumb || photo.url}" alt="Customer photo" loading="lazy" />`;
                         thumb.addEventListener('click', () => {
                             currentImageIndex = i;
                             updateMainPhoto();
