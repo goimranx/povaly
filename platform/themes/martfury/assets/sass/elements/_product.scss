@@ -1419,6 +1419,17 @@
         }
     }
 
+    // Browsing History section
+    .ps-product__browsing-history {
+        margin-top: 40px;
+        margin-bottom: 40px;
+        
+        @media (max-width: 767px) {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+    }
+
     .ps-tab-list {
         position: relative;
         display: block;

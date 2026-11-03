@@ -101,11 +101,19 @@
     }
 
     .ps-block--recently-viewed .ps-block__header h3 {
-        font-size: 1.65rem;
-        font-weight: 600;
+        font-size: 22px;
+        font-weight: 700;
         color: var(--global-color-text-main);
+        line-height: 1.3;
         margin: 0;
+        padding: 0;
         flex-shrink: 0;
+    }
+    
+    @media (max-width: 767px) {
+        .ps-block--recently-viewed .ps-block__header h3 {
+            font-size: 20px;
+        }
     }
 
     .ps-block__clear-history {
