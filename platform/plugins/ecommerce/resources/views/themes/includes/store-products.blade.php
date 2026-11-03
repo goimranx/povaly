@@ -44,7 +44,12 @@
                         @if($hasStoreProducts)
                             <a href="{{ $product->store->url }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
                         @else
-                            <a href="{{ route('public.products') }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
+                            @php
+                                // Build category filter URL for fallback products
+                                $categoryIds = $product->categories->pluck('id')->toArray();
+                                $viewAllUrl = route('public.products') . '?categories[]=' . implode('&categories[]=', $categoryIds);
+                            @endphp
+                            <a href="{{ $viewAllUrl }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
                         @endif
                     </div>
                     <div class="ps-block__content">
