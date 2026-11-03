@@ -1395,7 +1395,28 @@
     }
 
     > .ps-product__content {
-        padding-top: 100px;
+        padding-top: 0; // Removed top padding for all viewports
+    }
+    
+    // Product Information section styling
+    .ps-product-info-header {
+        margin-bottom: 15px;
+        padding: 0;
+        
+        h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--global-color-text-main);
+            line-height: 1.3;
+            margin: 0;
+            padding: 0;
+        }
+        
+        @media (max-width: 767px) {
+            h2 {
+                font-size: 20px;
+            }
+        }
     }
 
     .ps-tab-list {
@@ -1412,10 +1433,14 @@
                 position: relative;
                 display: block;
                 color: #999999;
-                font-size: 20px;
+                font-size: 18px; // Changed to match pd-accordion (product details accordion)
                 padding: 15px 20px;
                 line-height: 20px;
                 font-weight: 600;
+                
+                @media (max-width: 767px) {
+                    font-size: 17px; // Mobile size to match pd-accordion
+                }
 
                 &:before {
                     content: '';
@@ -1552,7 +1577,7 @@
             padding-right: 0;
         }
         > .ps-product__content {
-            padding-top: 75px;
+            padding-top: 0; // Removed padding for tablet
 
             .tab-list {
                 li {
@@ -1597,7 +1622,7 @@
         }
 
         > .ps-product__content {
-            padding-top: 50px;
+            padding-top: 0; // Removed padding for mobile
 
             .ps-tab-list {
                 li {

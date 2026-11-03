@@ -473,6 +473,11 @@
 
             <!-- TABS SECTION (SIBLING OF HEADER) -->
             <div class="ps-product__content ps-tab-root">
+                <!-- Product Information Title -->
+                <div class="ps-product-info-header">
+                    <h2>{{ __('Product Information') }}</h2>
+                </div>
+                
                 <ul class="ps-tab-list">
                     <li class="active"><a href="#tab-description">{{ __('Description') }}</a></li>
                     @if (EcommerceHelper::isProductSpecificationEnabled() && $product->specificationAttributes->where('pivot.hidden', false)->isNotEmpty())
