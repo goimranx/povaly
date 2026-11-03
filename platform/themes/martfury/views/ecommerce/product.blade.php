@@ -672,13 +672,18 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     loadThumbnailPage(1);
                     updateMainPhoto();
+                    updateNavigationButtons();
                     setupEventListeners();
                 });
 
                 function setupEventListeners() {
                     // Main photo navigation
-                    document.getElementById('photoNavPrev').addEventListener('click', () => navigatePhoto(-1));
-                    document.getElementById('photoNavNext').addEventListener('click', () => navigatePhoto(1));
+                    document.getElementById('photoNavPrev').addEventListener('click', () => {
+                        if (reviewImages.length > 1) navigatePhoto(-1);
+                    });
+                    document.getElementById('photoNavNext').addEventListener('click', () => {
+                        if (reviewImages.length > 1) navigatePhoto(1);
+                    });
 
                     // Thumbnail pagination
                     const prevBtn = document.getElementById('thumbnailPrevPage');
@@ -689,12 +694,15 @@
 
                     // Keyboard navigation
                     document.addEventListener('keydown', function(e) {
+                        if (reviewImages.length <= 1) return;
                         if (e.key === 'ArrowLeft') navigatePhoto(-1);
                         if (e.key === 'ArrowRight') navigatePhoto(1);
                     });
                 }
 
                 function navigatePhoto(direction) {
+                    if (reviewImages.length <= 1) return;
+                    
                     currentImageIndex += direction;
                     
                     // Wrap around
@@ -713,6 +721,28 @@
 
                     updateMainPhoto();
                     updateThumbnailActive();
+                    updateNavigationButtons();
+                }
+
+                function updateNavigationButtons() {
+                    const prevBtn = document.getElementById('photoNavPrev');
+                    const nextBtn = document.getElementById('photoNavNext');
+                    
+                    // If only one image, disable and hide both
+                    if (reviewImages.length <= 1) {
+                        prevBtn.disabled = true;
+                        nextBtn.disabled = true;
+                        prevBtn.style.display = 'none';
+                        nextBtn.style.display = 'none';
+                    } else {
+                        // Show buttons
+                        prevBtn.style.display = 'flex';
+                        nextBtn.style.display = 'flex';
+                        
+                        // Disable buttons at boundaries (no wrap)
+                        prevBtn.disabled = currentImageIndex === 0;
+                        nextBtn.disabled = currentImageIndex === reviewImages.length - 1;
+                    }
                 }
 
                 function updateMainPhoto() {
@@ -752,6 +782,7 @@
                             currentImageIndex = i;
                             updateMainPhoto();
                             updateThumbnailActive();
+                            updateNavigationButtons();
                         });
                         grid.appendChild(thumb);
                     }
@@ -956,6 +987,16 @@
                     background: var(--global-color-card-bg) !important;
                     color: inherit;
                     border-color: var(--global-color-border-strong) !important;
+                }
+
+                .ps-photo-nav:disabled {
+                    opacity: 0.4;
+                    cursor: not-allowed;
+                    pointer-events: none;
+                }
+
+                .ps-photo-nav:disabled:hover {
+                    background: rgba(255, 255, 255, 0.95) !important;
                 }
 
                 .ps-photo-nav--prev {
