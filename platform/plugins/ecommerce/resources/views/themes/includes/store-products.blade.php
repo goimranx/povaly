@@ -45,9 +45,10 @@
                             <a href="{{ $product->store->url }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
                         @else
                             @php
-                                // Build category filter URL for fallback products
-                                $categoryIds = $product->categories->pluck('id')->toArray();
-                                $viewAllUrl = route('public.products') . '?categories[]=' . implode('&categories[]=', $categoryIds);
+                                // Build search query URL for fallback products based on categories
+                                $categoryNames = $product->categories->pluck('name')->toArray();
+                                $searchQuery = implode(' ', $categoryNames);
+                                $viewAllUrl = route('public.products') . '?q=' . urlencode($searchQuery);
                             @endphp
                             <a href="{{ $viewAllUrl }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
                         @endif
