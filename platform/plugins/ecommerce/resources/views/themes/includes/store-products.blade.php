@@ -38,7 +38,7 @@
                             @if($hasStoreProducts)
                                 {{ __('Top products from :store', ['store' => $product->store->name]) }}
                             @else
-                                {{ __('You may also like') }}
+                                {{ __('Similar Products You Might Like') }}
                             @endif
                         </h3>
                         @if($hasStoreProducts)
