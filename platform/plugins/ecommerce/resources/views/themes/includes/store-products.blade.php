@@ -326,6 +326,34 @@
                 .ec-card__seller {
                     display: none !important;
                 }
+
+                /* Hide delivery info */
+                .ec-card__delivery {
+                    display: none !important;
+                }
+
+                /* Product title styling - link color and 5 lines */
+                .ec-card__title a {
+                    color: var(--global-color-link) !important;
+                    -webkit-line-clamp: 5 !important;
+                    text-decoration: none !important;
+                }
+
+                .ec-card__title a:hover {
+                    color: var(--global-color-link) !important;
+                    text-decoration: underline !important;
+                }
+
+                /* Price styling - 1.3rem on mobile */
+                .ec-card__price-sale {
+                    order: 999 !important; /* Keep at the end */
+                }
+
+                @media (max-width: 767px) {
+                    .ec-card__price-amount {
+                        font-size: 1.3rem !important;
+                    }
+                }
             }
         </style>
     @endif
