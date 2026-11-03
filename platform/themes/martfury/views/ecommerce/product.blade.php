@@ -871,8 +871,13 @@
                 }
 
                 @media (max-width: 767px) {
+                    .ps-customer-photos-gallery .ps-container {
+                        padding-left: 0 !important;
+                        padding-right: 0 !important;
+                    }
+
                     .ps-block--customer-photos .ps-block__header {
-                        padding: 0 0 10px 0 !important;
+                        padding: 0 10px 10px 10px !important;
                         margin: 0 !important;
                     }
 
@@ -883,6 +888,7 @@
                     .ps-block--customer-photos .ps-block__header h2 {
                         font-size: 20px;
                         word-break: break-word;
+                        overflow-wrap: break-word;
                     }
                 }
 
