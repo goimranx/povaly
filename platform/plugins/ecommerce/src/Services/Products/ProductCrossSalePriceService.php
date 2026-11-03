@@ -46,14 +46,10 @@ class ProductCrossSalePriceService extends ProductPriceHandlerService
 
     public function handle(Product $product, Closure $next)
     {
-        // IMPORTANT: Only apply cross-sell pricing if we're in a cross-sell display context
-        // Don't apply cross-sell discounts globally to product cards in other sections
         if (empty($this->appliedProducts)) {
             return $next($product);
         }
 
-        // Check if this is being called from a cross-sell/bundle context
-        // by checking if the product has the 'pivot' relationship loaded WITH cross-sell data
         $originalProduct = $product->original_product;
         $crossSaleProduct = null;
         $crossSaleOriginalProduct = null;
@@ -71,14 +67,11 @@ class ProductCrossSalePriceService extends ProductPriceHandlerService
             return $next($product);
         }
 
-        // SECURITY: Only apply cross-sell price if the product has the pivot loaded
-        // This ensures we only apply discounts in the actual cross-sell display,
-        // not in Store Products, Top Rated, or other regular product listings
         $pivot = null;
 
-        if ($crossSaleProduct && $crossSaleProduct->relationLoaded('pivot') && $crossSaleProduct->pivot && $crossSaleProduct->pivot->price) {
+        if ($crossSaleProduct && $crossSaleProduct->pivot && $crossSaleProduct->pivot->price) {
             $pivot = $crossSaleProduct->pivot;
-        } elseif ($crossSaleOriginalProduct && $crossSaleOriginalProduct->relationLoaded('pivot') && $crossSaleOriginalProduct->pivot && $crossSaleOriginalProduct->pivot->price) {
+        } elseif ($crossSaleOriginalProduct && $crossSaleOriginalProduct->pivot && $crossSaleOriginalProduct->pivot->price) {
             $pivot = $crossSaleOriginalProduct->pivot;
         }
 
