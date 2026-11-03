@@ -184,6 +184,10 @@
             }
 
             @media (max-width: 767px) {
+                .ps-top-rated-related__header {
+                    flex-wrap: wrap;
+                }
+
                 .ps-top-rated-related__header h2 {
                     font-size: 20px;
                 }
@@ -206,7 +210,6 @@
             /* Mobile Header Layout */
             @media (max-width: 480px) {
                 .ps-top-rated-related__header {
-                    flex-wrap: wrap;
                     gap: 5px;
                     padding-left: 0;
                 }
