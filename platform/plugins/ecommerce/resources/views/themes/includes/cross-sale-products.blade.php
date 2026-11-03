@@ -38,24 +38,26 @@
                                     }
                                 }
 
+                                // Get the base price WITHOUT cross-sell discount applied
+                                $basePrice = $productVariation->getFinalPrice();
                                 $originalPrice = $productVariation->price()->getPriceOriginal();
-                                $salePrice = $productVariation->price()->getPrice();
 
                                 $bundleDiscountPrice = $product->pivot->price ?? 0;
                                 $bundleDiscountType = $product->pivot->price_type ?? 'fixed';
                                 $isPercentDiscount = $bundleDiscountType === 'percent' || $bundleDiscountType === \Botble\Ecommerce\Enums\CrossSellPriceType::PERCENT;
 
-                                $bundlePrice = $salePrice;
+                                // Calculate bundle price from base price (not already-discounted price)
+                                $bundlePrice = $basePrice;
                                 if ($bundleDiscountPrice > 0) {
                                     if ($isPercentDiscount) {
-                                        $bundlePrice = $salePrice - ($salePrice * $bundleDiscountPrice / 100);
+                                        $bundlePrice = $basePrice - ($basePrice * $bundleDiscountPrice / 100);
                                     } else {
-                                        $bundlePrice = max(0, $salePrice - $bundleDiscountPrice);
+                                        $bundlePrice = max(0, $basePrice - $bundleDiscountPrice);
                                     }
                                 }
 
-                                $hasDiscount = $bundlePrice < $salePrice || $salePrice < $originalPrice;
-                                $showOriginalPrice = $bundlePrice < $salePrice ? $salePrice : ($salePrice < $originalPrice ? $originalPrice : null);
+                                $hasDiscount = $bundlePrice < $basePrice || $basePrice < $originalPrice;
+                                $showOriginalPrice = $bundlePrice < $basePrice ? $basePrice : ($basePrice < $originalPrice ? $originalPrice : null);
 
                                 $displayPrice = $bundlePrice;
                                 if (!$currency->is_default && $currency->exchange_rate > 0) {
@@ -84,8 +86,8 @@
                                             data-name="{{ $product->name }}"
                                             data-bundle-discount="{{ $bundleDiscountPrice }}"
                                             data-bundle-discount-type="{{ $isPercentDiscount ? 'percent' : 'fixed' }}"
-                                            data-original-price="{{ $salePrice * ($currency->is_default ? 1 : $currency->exchange_rate) }}"
-                                            data-saved-amount="{{ ($salePrice - $bundlePrice) * ($currency->is_default ? 1 : $currency->exchange_rate) }}"
+                                            data-original-price="{{ $basePrice * ($currency->is_default ? 1 : $currency->exchange_rate) }}"
+                                            data-saved-amount="{{ ($basePrice - $bundlePrice) * ($currency->is_default ? 1 : $currency->exchange_rate) }}"
                                             @checked(true)
                                         >
                                         <span class="ec-crosssale-checkmark"></span>
@@ -193,17 +195,18 @@
                                 }
                             }
 
-                            $salePrice = $productVariation->price()->getPrice();
+                            $basePrice = $productVariation->getFinalPrice();
                             $bundleDiscountPrice = $product->pivot->price ?? 0;
                             $bundleDiscountType = $product->pivot->price_type ?? 'fixed';
                             $isPercentDiscount = $bundleDiscountType === 'percent' || $bundleDiscountType === \Botble\Ecommerce\Enums\CrossSellPriceType::PERCENT;
 
-                            $bundlePrice = $salePrice;
+                            // Calculate bundle price from base price (not already-discounted price)
+                            $bundlePrice = $basePrice;
                             if ($bundleDiscountPrice > 0) {
                                 if ($isPercentDiscount) {
-                                    $bundlePrice = $salePrice - ($salePrice * $bundleDiscountPrice / 100);
+                                    $bundlePrice = $basePrice - ($basePrice * $bundleDiscountPrice / 100);
                                 } else {
-                                    $bundlePrice = max(0, $salePrice - $bundleDiscountPrice);
+                                    $bundlePrice = max(0, $basePrice - $bundleDiscountPrice);
                                 }
                             }
 
