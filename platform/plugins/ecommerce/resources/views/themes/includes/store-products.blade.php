@@ -34,13 +34,13 @@
             <div class="ps-container">
                 <div class="ps-block--store-products">
                     <div class="ps-store-products__header">
-                        <h3>
+                        <h2>
                             @if($hasStoreProducts)
                                 {{ __('Top products from :store', ['store' => $product->store->name]) }}
                             @else
                                 {{ __('Similar Products You Might Like') }}
                             @endif
-                        </h3>
+                        </h2>
                         @if($hasStoreProducts)
                             <a href="{{ $product->store->url }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
                         @else
@@ -89,14 +89,14 @@
         <style>
             /* Store Products Section */
             .ps-store-products {
-                margin: 0 !important;
+                margin: 0;
                 background: var(--global-color-site-bg);
             }
 
             /* Remove padding from container */
             .ps-store-products .ps-container {
-                padding-left: 0 !important;
-                padding-right: 0 !important;
+                padding-left: 0;
+                padding-right: 0;
                 border-bottom: 1px solid var(--global-color-border-strong, #333);
                 padding-bottom: 15px;
                 margin-bottom: 15px;
@@ -104,8 +104,8 @@
 
             /* Add padding to content when no carousel (all items visible) */
             .ps-block--store-products .ps-block__content:has(.owl-nav .owl-prev.disabled):has(.owl-nav .owl-next.disabled) {
-                padding-left: 15px !important;
-                padding-right: 15px !important;
+                padding-left: 15px;
+                padding-right: 15px;
             }
 
             /* Store Products Block */
@@ -127,17 +127,17 @@
                 gap: 15px;
             }
 
-            .ps-store-products__header h3 {
+            .ps-store-products__header h2 {
                 font-size: 22px;
                 font-weight: 700;
                 color: var(--global-color-text-main);
+                line-height: 1.3;
                 margin: 0;
                 flex-shrink: 0;
-                line-height: 1.3;
             }
 
             @media (max-width: 767px) {
-                .ps-store-products__header h3 {
+                .ps-store-products__header h2 {
                     font-size: 20px;
                 }
             }
@@ -164,7 +164,7 @@
                     padding-left: 0;
                 }
 
-                .ps-store-products__header h3 {
+                .ps-store-products__header h2 {
                     width: 100%;
                 }
 
@@ -311,36 +311,36 @@
                 }
 
                 .ps-store-products .ps-container {
-                    padding-left: 0 !important;
-                    padding-right: 0 !important;
+                    padding-left: 0;
+                    padding-right: 0;
                 }
 
                 .ps-block--store-products {
-                    padding: 0 !important;
-                    margin-bottom: 0 !important;
+                    padding: 0;
+                    margin-bottom: 0;
                 }
 
                 .ps-store-products__header {
-                    padding: 0 10px 10px 10px !important;
-                    margin-bottom: 0 !important;
+                    padding: 0 10px 10px 10px;
+                    margin-bottom: 0;
                 }
 
                 .ps-block--store-products .ps-block__content {
-                    padding: 0 !important;
+                    padding: 0;
                 }
             }
 
             /* Tablet (481-767px): Header bottom padding only */
             @media (min-width: 481px) and (max-width: 767px) {
                 .ps-store-products__header {
-                    padding: 0 0 10px 0 !important;
+                    padding: 0 0 10px 0;
                 }
             }
 
             /* Mobile (≤480px): Header bottom padding */
             @media (max-width: 480px) {
                 .ps-store-products__header {
-                    padding: 0 10px 10px 10px !important;
+                    padding: 0 10px 10px 10px;
                 }
             }
 
