@@ -312,8 +312,8 @@
 
             /* Hide specific elements for clean product cards in store products section */
             .ps-block--store-products .ps-product {
-                /* Make card body flexbox so order works for price positioning */
-                .ec-card__body {
+                /* Make card content flexbox so order works for price positioning */
+                .ec-card__content {
                     display: flex !important;
                     flex-direction: column !important;
                 }
@@ -350,16 +350,15 @@
 
                 /* Product title styling - link color and 5 lines */
                 .ec-card__title {
-                    -webkit-line-clamp: 5 !important;
-                    line-clamp: 5 !important;
-                }
-
-                .ec-card__title a {
                     color: var(--global-color-link) !important;
                     text-decoration: none !important;
+                    display: -webkit-box !important;
+                    -webkit-box-orient: vertical !important;
+                    -webkit-line-clamp: 5 !important;
+                    overflow: hidden !important;
                 }
 
-                .ec-card__title a:hover {
+                .ec-card__title:hover {
                     color: var(--global-color-link) !important;
                     text-decoration: underline !important;
                 }
