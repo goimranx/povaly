@@ -377,6 +377,17 @@
                 .ec-card__actions {
                     display: none !important;
                 }
+            }
+
+            /* Override mobile viewport global styles to keep actions hidden */
+            @media (max-width: 480px) {
+                .ps-block--store-products .ps-product {
+                    .ec-card--flyout .ec-card__actions,
+                    .ec-card--inline .ec-card__actions {
+                        display: none !important;
+                    }
+                }
+            }
 
                 /* Product title styling - link color and 5 lines */
                 .ec-card__title {
