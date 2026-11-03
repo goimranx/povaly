@@ -45,9 +45,25 @@
                             <a href="{{ $product->store->url }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
                         @else
                             @php
-                                // Build search query URL for fallback products based on categories
-                                $categoryNames = $product->categories->pluck('name')->toArray();
-                                $searchQuery = implode(' ', $categoryNames);
+                                // Build smart search query URL for fallback products
+                                // Use only first 2 main category names to avoid too specific search
+                                $mainCategories = $product->categories
+                                    ->filter(function($category) {
+                                        // Filter out promotional/special categories
+                                        $excludeNames = ['deal of the day', 'winter collection', 'summer collection', 'sale', 'hot deals', 'new arrivals', 'featured', 'trending'];
+                                        return !in_array(strtolower($category->name), $excludeNames);
+                                    })
+                                    ->take(2)
+                                    ->pluck('name')
+                                    ->toArray();
+                                
+                                // Fallback to product name if no suitable categories
+                                if (empty($mainCategories)) {
+                                    $searchQuery = $product->name;
+                                } else {
+                                    $searchQuery = implode(' ', $mainCategories);
+                                }
+                                
                                 $viewAllUrl = route('public.products') . '?q=' . urlencode($searchQuery);
                             @endphp
                             <a href="{{ $viewAllUrl }}" class="ps-store-products__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
