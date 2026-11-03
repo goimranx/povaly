@@ -561,33 +561,28 @@
                 $reviewImages = collect();
                 
                 if (EcommerceHelper::isReviewEnabled() && EcommerceHelper::isCustomerReviewImageUploadEnabled()) {
-                    // Use the product's review_images attribute (same as reviews tab)
-                    $allImages = $product->review_images ?? [];
+                    // Get reviews with images
+                    $reviewsWithImages = \Botble\Ecommerce\Models\Review::query()
+                        ->where('product_id', $product->id)
+                        ->where('status', \Botble\Base\Enums\BaseStatusEnum::PUBLISHED)
+                        ->whereNotNull('images')
+                        ->with('user')
+                        ->get();
                     
-                    if (!empty($allImages)) {
-                        // Get reviews with images to get customer info
-                        $reviewsWithImages = \Botble\Ecommerce\Models\Review::query()
-                            ->where('product_id', $product->id)
-                            ->where('status', \Botble\Base\Enums\BaseStatusEnum::PUBLISHED)
-                            ->whereNotNull('images')
-                            ->with('customer')
-                            ->get();
-                        
-                        // Build image collection with customer info
-                        foreach ($reviewsWithImages as $review) {
-                            if (!empty($review->images)) {
-                                $images = is_array($review->images) ? $review->images : json_decode($review->images, true);
-                                if ($images && is_array($images)) {
-                                    foreach ($images as $image) {
-                                        $reviewImages->push([
-                                            'url' => RvMedia::getImageUrl($image),
-                                            'thumb' => RvMedia::getImageUrl($image, 'thumb'),
-                                            'review_id' => $review->id,
-                                            'customer_name' => $review->customer->name ?? 'Anonymous',
-                                            'rating' => $review->star,
-                                            'comment' => $review->comment,
-                                        ]);
-                                    }
+                    // Build image collection with customer info
+                    foreach ($reviewsWithImages as $review) {
+                        if (!empty($review->images)) {
+                            $images = is_array($review->images) ? $review->images : json_decode($review->images, true);
+                            if ($images && is_array($images)) {
+                                foreach ($images as $image) {
+                                    $reviewImages->push([
+                                        'url' => RvMedia::getImageUrl($image),
+                                        'thumb' => RvMedia::getImageUrl($image, 'thumb'),
+                                        'review_id' => $review->id,
+                                        'customer_name' => $review->display_name,
+                                        'rating' => $review->star,
+                                        'comment' => $review->comment,
+                                    ]);
                                 }
                             }
                         }
