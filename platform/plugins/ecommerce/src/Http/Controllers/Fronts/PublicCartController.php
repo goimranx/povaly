@@ -23,6 +23,7 @@ use Botble\Ecommerce\Services\HandleApplyCouponService;
 use Botble\Ecommerce\Services\HandleApplyPromotionsService;
 use Botble\Ecommerce\Services\HandleRemoveCouponService;
 use Botble\Ecommerce\Services\Products\GetProductWithUpSalesBySlugService;
+use Botble\Ecommerce\Services\Products\ProductCrossSalePriceService;
 use Botble\Ecommerce\Services\Products\ProductUpSalePriceService;
 use Botble\SeoHelper\Facades\SeoHelper;
 use Botble\Theme\Facades\Theme;
