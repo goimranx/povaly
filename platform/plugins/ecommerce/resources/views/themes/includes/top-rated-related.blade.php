@@ -26,7 +26,6 @@
         $searchWords = array_unique($searchWords);
         
         // Build query to find products matching ANY of these words
-        // Calculate match score: how many keywords match in each field
         $topRatedProducts = \Botble\Ecommerce\Models\Product::query()
             ->where('id', '!=', $product->id)
             ->where('status', \Botble\Base\Enums\BaseStatusEnum::PUBLISHED)
@@ -51,28 +50,32 @@
                     });
                 }
             })
-            // Calculate match score: count how many keywords match and where
-            ->selectRaw('
-                ec_products.*,
-                (
-                    ' . implode(' + ', array_map(function($word) {
-                        $word = addslashes($word);
-                        return "(
-                            CASE WHEN LOWER(ec_products.name) LIKE '%" . $word . "%' THEN 3 ELSE 0 END +
-                            CASE WHEN LOWER(ec_products.description) LIKE '%" . $word . "%' THEN 1 ELSE 0 END
-                        )";
-                    }, $searchWords)) . '
-                ) as match_score
-            ')
             // Filter: Only 4+ star products with at least 1 review
             ->having('reviews_avg_star', '>=', 4.0)
             ->having('reviews_count', '>=', 1)
-            // Sort by: BEST MATCH FIRST (most keywords matched), then highest rating
-            ->orderByDesc('match_score')
-            ->orderByDesc('reviews_avg_star')
-            ->orderByDesc('reviews_count')
             ->limit(12)
             ->get();
+        
+        // Calculate match score in PHP and sort
+        $topRatedProducts = $topRatedProducts->map(function($product) use ($searchWords) {
+            $matchScore = 0;
+            foreach ($searchWords as $word) {
+                // Name matches (3 points each)
+                if (stripos($product->name, $word) !== false) {
+                    $matchScore += 3;
+                }
+                // Description matches (1 point each)
+                if (stripos($product->description, $word) !== false) {
+                    $matchScore += 1;
+                }
+            }
+            $product->match_score = $matchScore;
+            return $product;
+        })->sortByDesc('match_score')
+          ->sortByDesc('reviews_avg_star')
+          ->sortByDesc('reviews_count')
+          ->take(12)
+          ->values();
     @endphp
 
     @if($topRatedProducts->isNotEmpty())
