@@ -425,7 +425,8 @@ class PublicProductController extends BaseController
         $parentProduct = $product;
         $products = get_cross_sale_products($product);
 
-        $productCrossSalePriceService->applyProduct($product);
+        // Don't apply ProductCrossSalePriceService here - let the template calculate prices
+        // like up-sale does, so we can show original price vs bundle price correctly
 
         return $this
             ->httpResponse()
