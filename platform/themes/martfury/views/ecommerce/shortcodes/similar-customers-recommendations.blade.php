@@ -18,16 +18,6 @@
     $recommendedProducts = collect();
     
     if ($currentUserHistory->isNotEmpty()) {
-        // DEBUG: Log user type
-        \Log::info('=== SIMILAR CUSTOMERS RECOMMENDATIONS DEBUG ===');
-        \Log::info('User type: ' . ($isGuest ? 'Guest (session-based)' : 'Logged-in customer'));
-        \Log::info('Current user history (your viewed products):', $currentUserHistory->toArray());
-        
-        if ($isGuest) {
-            \Log::info('NOTE: Guest users can only see recommendations from LOGGED-IN customers who viewed similar products');
-            \Log::info('For guest-to-guest recommendations, guest browsing would need to be stored in database');
-        }
-        
         // Find other customers who viewed similar products
         // Note: This queries the database, so it finds logged-in customers only
         $similarCustomerIds = DB::table('ec_customer_recently_viewed_products')
@@ -46,11 +36,6 @@
             ->orderByDesc('view_count')
             ->limit(50)
             ->pluck('product_id');
-        
-        // DEBUG: Log the collaborative filtering results
-        \Log::info('Found ' . $similarCustomerIds->count() . ' similar customers');
-        \Log::info('Similar customer IDs:', $similarCustomerIds->toArray());
-        \Log::info('Products they viewed (before filtering):', $similarViewedProductIds->toArray());
         
         if ($similarViewedProductIds->isNotEmpty()) {
             $productRepository = app(\Botble\Ecommerce\Repositories\Interfaces\ProductInterface::class);
@@ -74,76 +59,44 @@
             
             // Apply contextual filtering if on single product page
             if ($currentProduct) {
-                // Get product categories and tags for filtering
-                $currentProductCategoryIds = $currentProduct->categories->pluck('id')->toArray();
-                $currentProductTagIds = $currentProduct->tags->pluck('id')->toArray();
+                // Get product keywords for filtering (similar to top-rated-related logic)
+                $productName = $currentProduct->name;
+                $productTags = $currentProduct->tags->pluck('name')->toArray();
+                $categoryNames = $currentProduct->categories->pluck('name')->toArray();
                 
-                \Log::info('Current product categories:', $currentProductCategoryIds);
-                \Log::info('Current product tags:', $currentProductTagIds);
+                $allKeywords = array_merge([$productName], $productTags, $categoryNames);
+                $searchWords = [];
                 
-                // Try filtering by categories/tags first (more accurate than keywords)
-                if (!empty($currentProductCategoryIds) || !empty($currentProductTagIds)) {
-                    $query->where(function ($q) use ($currentProductCategoryIds, $currentProductTagIds) {
-                        if (!empty($currentProductCategoryIds)) {
-                            $q->orWhereHas('categories', function($catQuery) use ($currentProductCategoryIds) {
-                                $catQuery->whereIn('ec_categories.id', $currentProductCategoryIds);
-                            });
+                foreach ($allKeywords as $text) {
+                    $words = preg_split('/\s+/', trim($text), -1, PREG_SPLIT_NO_EMPTY);
+                    foreach ($words as $word) {
+                        if (strlen($word) >= 3) {
+                            $searchWords[] = strtolower($word);
                         }
-                        if (!empty($currentProductTagIds)) {
-                            $q->orWhereHas('tags', function($tagQuery) use ($currentProductTagIds) {
-                                $tagQuery->whereIn('ec_tags.id', $currentProductTagIds);
-                            });
-                        }
-                    });
-                    \Log::info('Applying contextual filtering by categories/tags');
-                } else {
-                    // Fallback to keyword matching if no categories/tags
-                    $productName = $currentProduct->name;
-                    $productTags = $currentProduct->tags->pluck('name')->toArray();
-                    $categoryNames = $currentProduct->categories->pluck('name')->toArray();
-                    
-                    $allKeywords = array_merge([$productName], $productTags, $categoryNames);
-                    $searchWords = [];
-                    
-                    foreach ($allKeywords as $text) {
-                        $words = preg_split('/\s+/', trim($text), -1, PREG_SPLIT_NO_EMPTY);
-                        foreach ($words as $word) {
-                            if (strlen($word) >= 3) {
-                                $searchWords[] = strtolower($word);
-                            }
-                        }
-                    }
-                    $searchWords = array_unique($searchWords);
-                    
-                    if (!empty($searchWords)) {
-                        \Log::info('Applying contextual filtering with keywords:', $searchWords);
-                        $query->where(function ($q) use ($searchWords) {
-                            foreach ($searchWords as $word) {
-                                $q->orWhere('ec_products.name', 'LIKE', "%{$word}%")
-                                  ->orWhere('ec_products.description', 'LIKE', "%{$word}%");
-                            }
-                        });
-                    } else {
-                        \Log::info('No keywords found for filtering');
                     }
                 }
-            } else {
-                \Log::info('Not on a single product page - showing all recommendations without filtering');
+                $searchWords = array_unique($searchWords);
+                
+                // Apply filtering
+                if (!empty($searchWords)) {
+                    $query->where(function ($q) use ($searchWords) {
+                        foreach ($searchWords as $word) {
+                            $q->orWhere('ec_products.name', 'LIKE', "%{$word}%")
+                              ->orWhere('ec_products.description', 'LIKE', "%{$word}%")
+                              ->orWhereHas('tags', function($tagQuery) use ($word) {
+                                  $tagQuery->where('name', 'LIKE', "%{$word}%");
+                              })
+                              ->orWhereHas('categories', function($catQuery) use ($word) {
+                                  $catQuery->where('name', 'LIKE', "%{$word}%");
+                              });
+                        }
+                    });
+                }
             }
             
             $limit = (int) ($shortcode->limit ?? 12);
             $recommendedProducts = $query->limit($limit)->get();
-            
-            // DEBUG: Log final results
-            \Log::info('Final recommended products count: ' . $recommendedProducts->count());
-            \Log::info('Final recommended product IDs:', $recommendedProducts->pluck('id')->toArray());
-            \Log::info('Final recommended product names:', $recommendedProducts->pluck('name')->toArray());
-            \Log::info('=== END DEBUG ===');
-        } else {
-            \Log::info('No products found from similar customers');
         }
-    } else {
-        \Log::info('Current user has no browsing history');
     }
     
     $title = $shortcode->title ?: __('Customers with similar interests also viewed');
