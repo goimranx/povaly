@@ -463,6 +463,11 @@
                 </div>
             @endif
 
+            <!-- STORE PRODUCTS SECTION (SIBLING OF HEADER) -->
+            @if (is_plugin_active('marketplace'))
+                @include(EcommerceHelper::viewPath('includes.store-products'), ['product' => $product])
+            @endif
+
             <!-- TABS SECTION (SIBLING OF HEADER) -->
             <div class="ps-product__content ps-tab-root">
                 <ul class="ps-tab-list">
@@ -557,11 +562,6 @@
                 </div>
             </div>
             <!-- END: ps-product__content -->
-
-            <!-- STORE PRODUCTS SECTION (SIBLING OF HEADER) -->
-            @if (is_plugin_active('marketplace'))
-                @include(EcommerceHelper::viewPath('includes.store-products'), ['product' => $product])
-            @endif
 
             <!-- RELATED PRODUCTS SECTION (SIBLING OF HEADER) -->
             <div class="ps-section--default">

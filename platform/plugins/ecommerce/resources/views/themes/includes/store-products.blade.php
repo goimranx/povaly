@@ -291,6 +291,29 @@
                     padding: 0 10px 10px 10px !important;
                 }
             }
+
+            /* Hide specific elements for clean product cards in store products section */
+            .ps-block--store-products .ps-product {
+                /* Hide flyout action button */
+                .ec-card__flyout-actions {
+                    display: none !important;
+                }
+
+                /* Hide price row (original price with strikethrough) */
+                .ec-card__price-row {
+                    display: none !important;
+                }
+
+                /* Hide sale duration */
+                .ec-card__sale-duration {
+                    display: none !important;
+                }
+
+                /* Hide seller info */
+                .ec-card__seller {
+                    display: none !important;
+                }
+            }
         </style>
     @endif
 @endif
