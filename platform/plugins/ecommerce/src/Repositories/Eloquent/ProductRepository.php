@@ -490,7 +490,11 @@ class ProductRepository extends RepositoriesAbstract implements ProductInterface
             
             // Smart multi-word search: split query into individual words
             // Search for products matching ANY word (like Amazon/eBay)
+            // Only use multi-word search for words with 3+ characters to avoid too many irrelevant results
             $keywords = preg_split('/\s+/', trim($keyword), -1, PREG_SPLIT_NO_EMPTY);
+            $keywords = array_filter($keywords, function($word) {
+                return strlen($word) >= 3; // Only words with 3+ characters
+            });
             $useMultiWordSearch = count($keywords) > 1 && $isPartial;
 
             if (is_plugin_active('language') && is_plugin_active('language-advanced') && Language::getCurrentLocale() != Language::getDefaultLocale()) {
