@@ -106,11 +106,18 @@
             }
 
             .ps-block--store-products .ps-block__header h3 {
-                font-size: 1.65rem;
-                font-weight: 600;
+                font-size: 22px;
+                font-weight: 700;
                 color: var(--global-color-text-main);
                 margin: 0;
                 flex-shrink: 0;
+                line-height: 1.3;
+            }
+
+            @media (max-width: 767px) {
+                .ps-block--store-products .ps-block__header h3 {
+                    font-size: 20px;
+                }
             }
 
             .ps-block--store-products .ps-block__more {
@@ -296,6 +303,11 @@
             .ps-block--store-products .ps-product {
                 /* Hide flyout action button */
                 .ec-card__flyout-actions {
+                    display: none !important;
+                }
+
+                /* Hide float toggle (wishlist/compare buttons) */
+                .ec-card__float-toggle {
                     display: none !important;
                 }
 
