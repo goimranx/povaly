@@ -1,6 +1,5 @@
 /* Cart Enhanced Styles */
 .ps-shopping-cart-enhanced {
-    background: var(--global-color-card-bg);
     min-height: 100vh;
     padding: 40px 0;
 }
@@ -9,6 +8,7 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 15px;
+    background: var(--global-color-card-bg);
 }
 
 .ps-cart-layout {
