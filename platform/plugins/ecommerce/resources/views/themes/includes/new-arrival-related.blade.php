@@ -141,8 +141,7 @@
 
             /* Remove padding from container */
             .ps-new-arrival-related .ps-container {
-                padding-left: 0;
-                padding-right: 0;
+                padding: 0;
             }
 
             /* Add padding to content when no carousel (all items visible) */
