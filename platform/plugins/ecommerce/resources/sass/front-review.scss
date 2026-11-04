@@ -1269,6 +1269,33 @@
             font-size: 1rem;
         }
     }
+
+    // Visual Gallery Link - Custom styling
+    #offcanvas-visual-gallery {
+        a {
+            border: none !important;
+            padding: 0 !important;
+            background: none !important;
+            color: var(--global-color-link) !important;
+            font-size: 1rem !important;
+            font-weight: 400 !important;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background: none !important;
+                color: var(--global-color-link-hover) !important;
+                text-decoration: underline !important;
+            }
+
+            i {
+                font-size: 1rem;
+            }
+        }
+    }
 }
 
 
