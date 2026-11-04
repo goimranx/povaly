@@ -201,18 +201,5 @@
 @endforeach
 
 <div class="tp-pagination">
-    @if ($reviews->hasMorePages())
-        <button 
-            type="button" 
-            class="btn-load-more-reviews" 
-            data-next-page="{{ $reviews->currentPage() + 1 }}"
-            data-product-id="{{ $product->id }}"
-        >
-            <span class="btn-text">{{ __('See more reviews') }}</span>
-            <span class="btn-loading d-none">
-                <i class="ph ph-circle-notch ph-spin"></i>
-                {{ __('Loading...') }}
-            </span>
-        </button>
-    @endif
+    {{ $reviews->links() }}
 </div>
