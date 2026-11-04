@@ -52,11 +52,13 @@
                     });
                 }
             })
-            ->orderBy('created_at', 'desc') // Newest first
+            // Filter: Only 4+ star products with at least 1 review
+            ->having('reviews_avg_star', '>=', 4.0)
+            ->having('reviews_count', '>=', 1)
             ->limit(12)
             ->get();
         
-        // Calculate match score in PHP and sort by relevance, then by date
+        // Calculate match score in PHP and sort
         $newArrivalProducts = $newArrivalProducts->map(function($product) use ($searchWords) {
             $matchScore = 0;
             foreach ($searchWords as $word) {
@@ -95,9 +97,9 @@
                                 ->pluck('name')
                                 ->toArray();
                             $searchQuery = !empty($mainCategories) ? implode(' ', $mainCategories) : $product->name;
-                            $viewAllUrl = route('public.products') . '?q=' . urlencode($searchQuery) . '&sort_by=created_at-desc';
+                            $viewAllUrl = route('public.products') . '?q=' . urlencode($searchQuery) . '&sort_by=reviews_avg_star-desc';
                         @endphp
-                        <a href="{{ $viewAllUrl }}" class="ps-new-arrival-related__more" title="{{ __('View all new arrival products') }}">{{ __('View All') }}</a>
+                        <a href="{{ $viewAllUrl }}" class="ps-new-arrival-related__more" title="{{ __('View all top rated products') }}">{{ __('View All') }}</a>
                     </div>
                     <div class="ps-block__content">
                         <div class="ps-carousel--new-arrival-related owl-slider"
@@ -133,7 +135,7 @@
         </div>
 
         <style>
-            /* New Arrival Related Section - Same styles as top rated */
+            /* Top Rated Related Section - Same styles as store products */
             .ps-new-arrival-related {
                 margin: 0;
                 background: var(--global-color-site-bg);
@@ -154,54 +156,53 @@
                 padding-right: 15px;
             }
 
-            /* New Arrival Related Block */
+            /* Top Rated Related Block */
             .ps-block--new-arrival-related {
                 border: none;
                 border-radius: 0;
-                margin-bottom: 0;
-                padding-top: 0;
+                padding: 0;
+                height: 100%;
             }
 
-            /* New Arrival Related Header */
+            /* Top Rated Related Header */
             .ps-new-arrival-related__header {
                 display: flex;
                 align-items: center;
-                justify-content: start;
-                padding: 20px 15px 15px 15px;
-                border-top: 1px solid var(--global-color-border-strong);
+                justify-content: flex-start;
                 margin-bottom: 0;
-                flex-wrap: wrap;
+                padding: 0 0 10px 0;
+                flex-wrap: nowrap;
+                gap: 15px;
+            }
+
+            .ps-new-arrival-related__header h2 {
+                font-size: 22px;
+                font-weight: 700;
+                color: var(--global-color-text-main);
+                line-height: 1.3;
+                margin: 0;
+                flex-shrink: 0;
             }
 
             @media (max-width: 767px) {
                 .ps-new-arrival-related__header {
-                    padding: 15px 15px 10px 15px;
                     flex-wrap: wrap;
                 }
 
                 .ps-new-arrival-related__header h2 {
                     font-size: 20px;
                     word-break: break-word;
-                    margin-bottom: 0;
+                    overflow-wrap: break-word;
                 }
-            }
-
-            .ps-new-arrival-related__header h2 {
-                font-size: 22px;
-                font-weight: 700;
-                margin: 0;
-                color: var(--global-color-text-main);
-                flex-grow: 0;
-                line-height: 1.3;
             }
 
             .ps-new-arrival-related__more {
                 font-size: 14px;
                 color: var(--global-color-link);
                 text-decoration: none;
-                white-space: nowrap;
-                margin-left: 15px;
+                transition: color 0.3s ease;
                 flex-shrink: 0;
+                margin-right: auto;
             }
 
             .ps-new-arrival-related__more:hover {
@@ -212,7 +213,6 @@
             /* Mobile Header Layout */
             @media (max-width: 480px) {
                 .ps-new-arrival-related__header {
-                    flex-direction: column;
                     gap: 5px;
                     padding-left: 0;
                 }
@@ -236,13 +236,14 @@
             .ps-block--new-arrival-related .ps-product {
                 padding: 0;
                 margin: 0;
+                border: none !important;
             }
 
             .ps-block--new-arrival-related .ps-product:hover {
                 border: none !important;
             }
 
-            /* Desktop Carousel Styles */
+            /* Navigation Arrows - Desktop only (≥768px) */
             @media (min-width: 768px) {
                 /* Default: NO padding */
                 .ps-carousel--new-arrival-related {
@@ -272,11 +273,9 @@
                     display: block !important;
                     position: absolute;
                     top: 50%;
-                    transform: translateY(-50%);
                     left: 0;
                     right: 0;
-                    width: 100%;
-                    height: 0;
+                    transform: translateY(-50%);
                     pointer-events: none;
                     z-index: 10;
                 }
@@ -290,17 +289,18 @@
                     position: absolute;
                     width: 40px;
                     height: 40px;
-                    border-radius: 50%;
-                    background: transparent !important;
+                    border-radius: 6px;
                     border: 1px solid var(--global-color-border-strong) !important;
+                    background: transparent !important;
                     color: var(--global-color-text-main) !important;
-                    font-size: 16px;
-                    line-height: 1;
-                    pointer-events: all;
-                    transition: all 0.3s ease;
                     display: flex !important;
                     align-items: center;
                     justify-content: center;
+                    pointer-events: auto;
+                    transition: all 0.3s ease;
+                    font-size: 16px;
+                    margin: 0 !important;
+                    padding: 0 !important;
                 }
 
                 .ps-carousel--new-arrival-related .owl-nav button:hover {
@@ -311,7 +311,7 @@
                 .ps-carousel--new-arrival-related .owl-nav button.disabled {
                     opacity: 0.3 !important;
                     cursor: not-allowed !important;
-                    pointer-events: none !important;
+                    pointer-events: auto !important;
                 }
 
                 .ps-carousel--new-arrival-related .owl-nav button.disabled:hover {
@@ -343,7 +343,7 @@
                 }
             }
 
-            /* Mobile Carousel Styles */
+            /* Navigation Dots - Mobile only (<768px) */
             @media (max-width: 767px) {
                 /* Hide arrows on mobile */
                 .ps-carousel--new-arrival-related .owl-nav {
@@ -357,20 +357,21 @@
                     align-items: center;
                     gap: 6px;
                     margin-top: 15px;
-                    padding: 0 15px;
+                    padding: 0;
                 }
 
                 .ps-carousel--new-arrival-related .owl-dots .owl-dot {
                     width: 6px !important;
                     height: 6px !important;
+                    min-width: 6px !important;
+                    min-height: 6px !important;
+                    border-radius: 50% !important;
                     background: var(--global-color-border-strong) !important;
-                    border-radius: 3px !important;
                     border: none !important;
-                    transition: all 0.3s ease;
                     padding: 0 !important;
                     margin: 0 !important;
-                    cursor: pointer;
-                    opacity: 0.5;
+                    transition: all 0.3s ease !important;
+                    flex-shrink: 0 !important;
                 }
 
                 .ps-carousel--new-arrival-related .owl-dots .owl-dot span {
@@ -380,8 +381,10 @@
                 .ps-carousel--new-arrival-related .owl-dots .owl-dot.active {
                     background: var(--global-color-primary) !important;
                     width: 20px !important;
-                    opacity: 1;
-                    border-radius: 10px !important;
+                    min-width: 20px !important;
+                    height: 6px !important;
+                    min-height: 6px !important;
+                    border-radius: 3px !important;
                 }
 
                 .ps-new-arrival-related .ps-container {
@@ -395,7 +398,7 @@
                 }
 
                 .ps-new-arrival-related__header {
-                    padding-bottom: 15px;
+                    padding-bottom: 10px;
                     margin-bottom: 0;
                 }
 
@@ -403,6 +406,101 @@
                     padding: 0;
                 }
             }
+
+            /* Tablet (481-767px): Header bottom padding only */
+            @media (min-width: 481px) and (max-width: 767px) {
+                .ps-new-arrival-related__header {
+                    padding: 0 0 10px 0;
+                }
+            }
+
+            /* Mobile (≤480px): Header bottom padding */
+            @media (max-width: 480px) {
+                .ps-new-arrival-related__header {
+                    padding-bottom: 10px;
+                }
+            }
+
+            /* Hide specific elements for clean product cards in top rated section */
+            .ps-block--new-arrival-related .ps-product {
+                /* Make card content flexbox so order works for price positioning */
+                .ec-card__content {
+                    display: flex !important;
+                    flex-direction: column !important;
+                }
+
+                /* Hide flyout action button */
+                .ec-card__flyout-actions {
+                    display: none !important;
+                }
+
+                /* Hide float toggle (wishlist/compare buttons) */
+                .ec-card__float-toggle {
+                    display: none !important;
+                }
+
+                /* Hide price row (original price with strikethrough) */
+                .ec-card__price-row {
+                    display: none !important;
+                }
+
+                /* Hide sale duration */
+                .ec-card__sale-duration {
+                    display: none !important;
+                }
+
+                /* Hide seller info */
+                .ec-card__seller {
+                    display: none !important;
+                }
+
+                /* Hide delivery info */
+                .ec-card__delivery {
+                    display: none !important;
+                }
+
+                /* Hide actions (mobile add to cart buttons) */
+                .ec-card__actions {
+                    display: none !important;
+                }
+
+                /* Product title styling - link color and 5 lines */
+                .ec-card__title {
+                    color: var(--global-color-link) !important;
+                    text-decoration: none !important;
+                    display: -webkit-box !important;
+                    -webkit-box-orient: vertical !important;
+                    -webkit-line-clamp: 5 !important;
+                    overflow: hidden !important;
+                    margin-bottom: 0 !important;
+                }
+
+                .ec-card__title:hover {
+                    color: var(--global-color-link) !important;
+                    text-decoration: underline !important;
+                }
+
+                /* Price styling - keep at end and 1.3rem size */
+                .ec-card__price-sale {
+                    order: 999 !important; /* Keep at the end */
+                    margin-bottom: 0 !important;
+                }
+
+                .ec-card__price-amount {
+                    font-size: 1.3rem !important;
+                }
+            }
+
+            /* Override mobile viewport global styles to keep actions hidden */
+            @media (max-width: 480px) {
+                .ps-block--new-arrival-related .ps-product {
+                    .ec-card--flyout .ec-card__actions,
+                    .ec-card--inline .ec-card__actions {
+                        display: none !important;
+                    }
+                }
+            }
         </style>
     @endif
 @endif
+
