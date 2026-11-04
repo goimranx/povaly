@@ -865,8 +865,8 @@ $(() => {
         const reviewId = $reviewItem.find('.btn-helpful').data('review-id')
         if (!reviewId) return
         
-        // Check cache first
-        if (reviewDataCache.helpful[reviewId]) {
+        // Check cache first - DISABLED: cache causes cross-user state pollution
+        if (false && reviewDataCache.helpful[reviewId]) {
             const cachedData = reviewDataCache.helpful[reviewId]
             const $btn = $reviewItem.find('.btn-helpful')
             const $count = $btn.find('.helpful-count')
