@@ -1605,10 +1605,7 @@
     }
 
     &.current-customer-review {
-        background-color: rgba(var(--primary-color-rgb, 13, 110, 253), 0.02);
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 16px;
+        // No special styling for current customer review
     }
 
     // Main Section
@@ -1749,12 +1746,6 @@
                     border-radius: 6px;
                     overflow: hidden;
                     display: block;
-                    transition: all 0.2s ease;
-
-                    &:hover {
-                        border-color: var(--global-color-primary);
-                        transform: scale(1.05);
-                    }
 
                     img {
                         width: 100%;
@@ -1769,8 +1760,8 @@
     // Review Actions Section
     &__actions {
         display: flex;
-        flex-direction: column;
-        align-items: flex-end;
+        flex-direction: row;
+        align-items: center;
         gap: 12px;
         flex-shrink: 0;
         min-width: fit-content;
@@ -1899,9 +1890,7 @@
         display: flex;
         align-items: flex-end;
         justify-content: space-between;
-        padding-top: 12px;
-        margin-top: 12px;
-        border-top: 1px solid var(--global-color-border-light, #f0f0f0);
+        margin-top: 10px;
         font-size: 13px;
 
         .review-meta__left {
@@ -1962,13 +1951,26 @@
     // Vendor Reply Section
     &__reply {
         margin-top: 16px;
+        position: relative;
+        padding-left: 30px;
+
+        // Reply indicator line
+        &::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--global-color-border, #e5e7eb);
+        }
 
         .vendor-reply {
             display: flex;
             gap: 12px;
-            padding: 16px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
+            align-items: center;
+            padding: 0;
+            background: none;
 
             &__avatar {
                 flex-shrink: 0;
@@ -1992,7 +1994,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                margin-bottom: 8px;
+                margin-bottom: 0;
 
                 .vendor-reply__title {
                     font-size: 14px;
@@ -2028,6 +2030,7 @@
                 font-size: 14px;
                 line-height: 1.6;
                 color: var(--global-color-text-main);
+                margin-top: 4px;
             }
         }
     }
