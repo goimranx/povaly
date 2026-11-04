@@ -1122,16 +1122,17 @@
         margin: auto;
         display: flex;
         align-items: center;
-        min-height: calc(100vh - 3.5rem);
+        min-height: 100vh;
     }
 
     .review-modal-content {
         border-radius: 16px;
         border: 1px solid #e5e7eb;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        height: 70vh;
+        height: 80vh;
         display: flex;
         flex-direction: column;
+        width: 100%;
     }
 
     .review-modal-header {
@@ -1237,22 +1238,9 @@
 
                 i {
                     font-size: 28px;
-                    color: #d1d5db;
-                    transition: color 0.2s ease;
+                    color: var(--global-color-primary);
+                    transition: all 0.2s ease;
                 }
-            }
-
-            > input:checked ~ label i,
-            &:not(:checked) > label:hover i,
-            &:not(:checked) > label:hover ~ label i {
-                color: var(--global-color-primary);
-            }
-
-            > input:checked + label:hover i,
-            > input:checked ~ label:hover i,
-            > label:hover ~ input:checked ~ label i,
-            > input:checked ~ label:hover ~ label i {
-                color: var(--global-color-primary);
             }
         }
 
