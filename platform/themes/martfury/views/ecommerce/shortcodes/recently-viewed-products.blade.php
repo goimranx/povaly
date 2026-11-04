@@ -88,7 +88,7 @@
 <style>
     /* Recently Viewed Products Section */
     .ps-recently-viewed-products {
-        margin: 10px 0 !important;
+        margin: 0 !important;
         background: var(--global-color-site-bg);
     }
 
