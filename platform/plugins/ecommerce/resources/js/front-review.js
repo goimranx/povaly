@@ -659,3 +659,272 @@ $(() => {
         }
     }
 })
+
+
+// Review Helpful and Share functionality
+$(() => {
+    // Cache for review helpful/share data
+    const reviewDataCache = {
+        helpful: {}, // reviewId: {user_marked, total_count, timestamp}
+        shared: {}   // reviewId: {user_shared, timestamp}
+    }
+
+    // Initialize helpful buttons
+    const initHelpfulButtons = () => {
+        $(document).off('click', '.btn-helpful').on('click', '.btn-helpful', function(e) {
+            e.preventDefault()
+            e.stopPropagation()
+            
+            const $btn = $(this)
+            const reviewId = $btn.data('review-id')
+            const isHelpful = $btn.attr('data-helpful') === 'true'
+            const $count = $btn.find('.helpful-count')
+            const $icon = $btn.find('i')
+            const currentCount = parseInt($count.text()) || 0
+            
+            // Optimistic UI update
+            const newCount = isHelpful ? Math.max(0, currentCount - 1) : currentCount + 1
+            $count.text(newCount)
+            $btn.attr('data-helpful', !isHelpful)
+            
+            // Toggle icon between filled and outline
+            if (!isHelpful) {
+                $icon.removeClass('ph').addClass('ph-fill')
+            } else {
+                $icon.removeClass('ph-fill').addClass('ph')
+            }
+            
+            // Update cache optimistically
+            reviewDataCache.helpful[reviewId] = {
+                user_marked: !isHelpful,
+                total_count: newCount,
+                timestamp: Date.now(),
+                optimistic: true
+            }
+            
+            // Send to server
+            const apiCall = !isHelpful 
+                ? $.ajax({
+                    url: '/api/review-helpful',
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': Review.getCsrfToken()
+                    },
+                    data: JSON.stringify({
+                        review_id: reviewId,
+                        action: 'mark'
+                    }),
+                    contentType: 'application/json'
+                })
+                : $.ajax({
+                    url: `/api/review-helpful/${reviewId}`,
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': Review.getCsrfToken()
+                    }
+                })
+            
+            apiCall
+                .done((data) => {
+                    // Update cache with server truth
+                    reviewDataCache.helpful[reviewId] = {
+                        user_marked: data.user_marked !== undefined ? data.user_marked : !isHelpful,
+                        total_count: data.total_count !== undefined ? data.total_count : newCount,
+                        timestamp: Date.now(),
+                        optimistic: false
+                    }
+                    
+                    // Reconcile count if different
+                    if (data.total_count !== undefined && data.total_count !== newCount) {
+                        $count.text(data.total_count)
+                    }
+                })
+                .fail(() => {
+                    // Rollback on error
+                    $count.text(currentCount)
+                    $btn.attr('data-helpful', isHelpful)
+                    
+                    if (isHelpful) {
+                        $icon.removeClass('ph').addClass('ph-fill')
+                    } else {
+                        $icon.removeClass('ph-fill').addClass('ph')
+                    }
+                    
+                    reviewDataCache.helpful[reviewId] = {
+                        user_marked: isHelpful,
+                        total_count: currentCount,
+                        timestamp: Date.now(),
+                        optimistic: false
+                    }
+                })
+        })
+    }
+
+    // Initialize share buttons
+    const initShareButtons = () => {
+        $(document).off('click', '.btn-share').on('click', '.btn-share', function(e) {
+            e.preventDefault()
+            e.stopPropagation()
+            
+            const $btn = $(this)
+            const reviewId = $btn.data('review-id')
+            const $icon = $btn.find('i')
+            const isShared = $btn.attr('data-shared') === 'true'
+            
+            // Optimistic UI update
+            $btn.attr('data-shared', 'true')
+            $icon.removeClass('ph').addClass('ph-fill')
+            
+            // Update cache
+            reviewDataCache.shared[reviewId] = {
+                user_shared: true,
+                timestamp: Date.now()
+            }
+            
+            // Try native share API first
+            if (navigator.share) {
+                const shareData = {
+                    title: 'Product Review',
+                    text: 'Check out this review!',
+                    url: window.location.href
+                }
+                
+                navigator.share(shareData)
+                    .then(() => {
+                        // Send to server
+                        return $.ajax({
+                            url: '/api/review-share',
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': Review.getCsrfToken()
+                            },
+                            data: JSON.stringify({
+                                review_id: reviewId
+                            }),
+                            contentType: 'application/json'
+                        })
+                    })
+                    .catch((err) => {
+                        // User cancelled - rollback if not AbortError
+                        if (err.name !== 'AbortError') {
+                            $btn.attr('data-shared', isShared ? 'true' : 'false')
+                            if (!isShared) {
+                                $icon.removeClass('ph-fill').addClass('ph')
+                            }
+                        }
+                    })
+            } else {
+                // Fallback to clipboard
+                navigator.clipboard.writeText(window.location.href)
+                    .then(() => {
+                        Review.showSuccess('Review link copied to clipboard!')
+                        
+                        // Send to server
+                        return $.ajax({
+                            url: '/api/review-share',
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': Review.getCsrfToken()
+                            },
+                            data: JSON.stringify({
+                                review_id: reviewId
+                            }),
+                            contentType: 'application/json'
+                        })
+                    })
+                    .catch(() => {
+                        // Rollback on error
+                        $btn.attr('data-shared', isShared ? 'true' : 'false')
+                        if (!isShared) {
+                            $icon.removeClass('ph-fill').addClass('ph')
+                        }
+                    })
+            }
+        })
+    }
+
+    // Load review helpful/share status
+    const loadReviewStatus = ($reviewItem) => {
+        const reviewId = $reviewItem.find('.btn-helpful').data('review-id')
+        if (!reviewId) return
+        
+        // Check cache first
+        if (reviewDataCache.helpful[reviewId]) {
+            const cachedData = reviewDataCache.helpful[reviewId]
+            const $btn = $reviewItem.find('.btn-helpful')
+            const $count = $btn.find('.helpful-count')
+            const $icon = $btn.find('i')
+            
+            $count.text(cachedData.total_count)
+            $btn.attr('data-helpful', cachedData.user_marked ? 'true' : 'false')
+            
+            if (cachedData.user_marked) {
+                $icon.removeClass('ph').addClass('ph-fill')
+            } else {
+                $icon.removeClass('ph-fill').addClass('ph')
+            }
+        }
+        
+        // Fetch from server
+        $.ajax({
+            url: `/api/review-helpful/${reviewId}`,
+            method: 'GET'
+        })
+        .done((data) => {
+            // Update cache
+            reviewDataCache.helpful[reviewId] = {
+                user_marked: data.user_marked || false,
+                total_count: data.total_count || 0,
+                timestamp: Date.now(),
+                optimistic: false
+            }
+            
+            // Update UI
+            const $btn = $reviewItem.find('.btn-helpful')
+            const $count = $btn.find('.helpful-count')
+            const $icon = $btn.find('i')
+            
+            $count.text(data.total_count || 0)
+            $btn.attr('data-helpful', data.user_marked ? 'true' : 'false')
+            
+            if (data.user_marked) {
+                $icon.removeClass('ph').addClass('ph-fill')
+            } else {
+                $icon.removeClass('ph-fill').addClass('ph')
+            }
+        })
+        .fail(() => {
+            // Silent fail - keep current state
+        })
+    }
+
+    // Initialize on page load
+    initHelpfulButtons()
+    initShareButtons()
+    
+    // Load status for all visible reviews
+    $('.review-item').each(function() {
+        loadReviewStatus($(this))
+    })
+    
+    // Re-initialize after AJAX review list load
+    const originalGetReviewList = window.getReviewList || getReviewList
+    if (typeof getReviewList !== 'undefined') {
+        window.getReviewList = function(...args) {
+            const callback = args[1]
+            args[1] = function() {
+                if (callback) callback()
+                
+                // Re-initialize buttons
+                initHelpfulButtons()
+                initShareButtons()
+                
+                // Load status for new reviews
+                $('.review-item').each(function() {
+                    loadReviewStatus($(this))
+                })
+            }
+            return originalGetReviewList.apply(this, args)
+        }
+    }
+})
