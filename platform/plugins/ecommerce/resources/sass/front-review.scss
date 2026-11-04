@@ -1056,24 +1056,3 @@
     }
 }
 
-
-// Review Layout Classes
-.product-review-container {
-    &.review-layout-column {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem; // 20px
-    }
-
-    &.review-layout-row {
-        display: flex;
-        flex-direction: row;
-        gap: 1.25rem; // 20px
-    }
-}
-
-.review-sidebar-column {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem; // 12px
-}
