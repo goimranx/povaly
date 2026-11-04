@@ -5,6 +5,26 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.1] - 2024-11-05
+
+### 🐛 Bug Fixes
+
+#### Review Navigation Improvements
+- **Photo viewer info link** now navigates directly to the specific review
+- Added `data-review-id` tracking in photo viewer for accurate navigation
+- Hash-based navigation for reviews on different pages (pagination support)
+- Smooth scroll with 2-second highlight animation for target reviews
+
+#### Link Behavior Updates
+- **Product rating links** (pd-rating-link) now scroll to review section instead of opening tabs
+- **Read reviews button** (pd-read-reviews-btn) scrolls to review section
+- All review-related links use smooth scroll behavior for better UX
+
+### 🔧 Technical Improvements
+- Added `navigateToReview()` JavaScript function with pagination support
+- Review ID tracking updates dynamically as user navigates photos
+- Improved review element targeting with `#review-{id}` selectors
+
 ## [2.4] - 2024-11-05
 
 ### ✨ New Features
