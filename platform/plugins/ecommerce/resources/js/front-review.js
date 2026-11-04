@@ -801,6 +801,21 @@ $(() => {
                 timestamp: Date.now()
             }
             
+            // Track share function
+            const trackShare = () => {
+                return $.ajax({
+                    url: '/api/review-share',
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': Review.getCsrfToken()
+                    },
+                    data: JSON.stringify({
+                        review_id: reviewId
+                    }),
+                    contentType: 'application/json'
+                })
+            }
+            
             // Try native share API first
             if (navigator.share) {
                 const shareData = {
@@ -811,21 +826,11 @@ $(() => {
                 
                 navigator.share(shareData)
                     .then(() => {
-                        // Send to server
-                        return $.ajax({
-                            url: '/api/review-share',
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': Review.getCsrfToken()
-                            },
-                            data: JSON.stringify({
-                                review_id: reviewId
-                            }),
-                            contentType: 'application/json'
-                        })
+                        // User completed share, track it
+                        trackShare()
                     })
                     .catch((err) => {
-                        // User cancelled - rollback if not AbortError
+                        // User cancelled or error - rollback if not AbortError
                         if (err.name !== 'AbortError') {
                             $btn.attr('data-shared', isShared ? 'true' : 'false')
                             if (!isShared) {
@@ -833,36 +838,13 @@ $(() => {
                             }
                         }
                     })
-                    .fail((xhr) => {
-                        // Log warning if endpoint doesn't exist
-                        if (xhr && xhr.status === 404) {
-                            console.warn('[Review] Share API endpoint not implemented yet')
-                        }
-                    })
             } else {
                 // Fallback to clipboard
                 navigator.clipboard.writeText(reviewUrl)
                     .then(() => {
                         Review.showSuccess('Review link copied to clipboard!')
-                        
-                        // Send to server
-                        return $.ajax({
-                            url: '/api/review-share',
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': Review.getCsrfToken()
-                            },
-                            data: JSON.stringify({
-                                review_id: reviewId
-                            }),
-                            contentType: 'application/json'
-                        })
-                    })
-                    .fail((xhr) => {
-                        // Log warning if endpoint doesn't exist
-                        if (xhr && xhr.status === 404) {
-                            console.warn('[Review] Share API endpoint not implemented yet')
-                        }
+                        // Track the share
+                        trackShare()
                     })
                     .catch(() => {
                         // Rollback on error
