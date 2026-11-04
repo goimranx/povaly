@@ -109,14 +109,9 @@
                     <div class="review-logged-in-container">
                         <h3 class="review-section-title">{{ __('Review the product') }}</h3>
                         <p class="review-section-subtitle">{{ __('Share your thoughts with other customers') }}</p>
-                        <button type="button" class="btn-write-review-inline" id="btnWriteReviewInline">
-                            <i class="ph ph-pencil-simple"></i>
+                        <button type="button" class="btn-write-review-inline" id="btnWriteReview" data-bs-toggle="modal" data-bs-target="#reviewModal">
                             {{ trans('plugins/ecommerce::review.write_a_review') }}
                         </button>
-                    </div>
-                    
-                    <div class="review-form-container d-none" id="reviewFormContainer">
-                        @include($reviewFormView ?? EcommerceHelper::viewPath('includes.review-form'))
                     </div>
                 </div>
             @endguest
@@ -189,4 +184,21 @@
             @endif
         @endauth
     </div>
+
+    {{-- Review Modal --}}
+    @auth('customer')
+        <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reviewModalLabel">{{ trans('plugins/ecommerce::review.write_a_review') }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @include($reviewFormView ?? EcommerceHelper::viewPath('includes.review-form'))
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endauth
 @endif
