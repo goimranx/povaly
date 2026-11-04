@@ -1825,34 +1825,30 @@
                 display: inline-flex;
                 align-items: center;
                 gap: 4px;
-                padding: 4px 10px;
+                padding: 0;
                 background: none;
-                border: 1px solid var(--global-color-border);
-                border-radius: 16px;
+                border: none;
                 color: var(--global-color-text-main);
                 cursor: pointer;
                 font-size: 14px;
-                transition: all 0.2s ease;
+                transition: color 0.2s ease;
 
                 i {
-                    font-size: 16px;
+                    font-size: 18px;
+                    transition: color 0.2s ease;
                 }
 
                 .helpful-count {
-                    font-size: 13px;
+                    font-size: 14px;
                     font-weight: 500;
                 }
 
-                &:hover {
-                    border-color: var(--global-color-primary);
-                    background-color: rgba(var(--primary-color-rgb, 13, 110, 253), 0.05);
+                &:hover i {
                     color: var(--global-color-primary);
                 }
 
-                &.active {
-                    background-color: var(--global-color-primary);
-                    border-color: var(--global-color-primary);
-                    color: #fff;
+                &[data-helpful="true"] i {
+                    color: var(--global-color-primary);
                 }
             }
         }
@@ -1862,23 +1858,23 @@
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                width: 32px;
-                height: 32px;
                 padding: 0;
                 background: none;
-                border: 1px solid var(--global-color-border);
-                border-radius: 50%;
+                border: none;
                 color: var(--global-color-text-main);
                 cursor: pointer;
-                transition: all 0.2s ease;
+                transition: color 0.2s ease;
 
                 i {
                     font-size: 18px;
+                    transition: color 0.2s ease;
                 }
 
-                &:hover {
-                    border-color: var(--global-color-primary);
-                    background-color: rgba(var(--primary-color-rgb, 13, 110, 253), 0.05);
+                &:hover i {
+                    color: var(--global-color-primary);
+                }
+
+                &[data-shared="true"] i {
                     color: var(--global-color-primary);
                 }
             }
