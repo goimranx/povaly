@@ -259,7 +259,6 @@ class ReviewController extends BaseController
             ->httpResponse()
             ->setMessage(trans('plugins/ecommerce::review.deleted_reply_success'));
     }
-}
 
     /**
      * Get review action section HTML (for AJAX updates)
@@ -287,3 +286,4 @@ class ReviewController extends BaseController
                 'reviews_avg' => $product->reviews_avg,
             ]);
     }
+}
