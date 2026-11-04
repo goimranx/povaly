@@ -334,11 +334,11 @@
             border-radius: 6px;
             height: 1rem;
             background-color: transparent;
-            border: 2px solid var(--global-color-border-strong);
+            border: 1px solid var(--global-color-secondary);
 
             .progress-bar {
                 background-color: var(--global-color-primary);
-                border-radius: 4px;
+                border-radius: 5px;
             }
         }
 
