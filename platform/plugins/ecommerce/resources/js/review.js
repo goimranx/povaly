@@ -151,9 +151,25 @@ $(() => {
                 },
                 success: (res) => {
                     if (! res.error) {
+                        $this.find('.alert-message').html(res.message || 'Review submitted successfully!').removeClass('alert-warning').addClass('alert-success').removeClass('d-none')
+                        
+                        // Close modal and refresh review section via AJAX
                         setTimeout(() => {
-                            window.location.reload()
-                        }, 1000)
+                            const $modal = $this.closest('.modal')
+                            if ($modal.length) {
+                                $modal.modal('hide')
+                            }
+                            
+                            // Refresh review action section
+                            const productId = $this.find('input[name=product_id]').val()
+                            refreshReviewActionSection(productId)
+                            
+                            // Refresh review list
+                            const $reviewContainer = $('.review-list-container')
+                            if ($reviewContainer.length && $reviewContainer.data('ajax-url')) {
+                                refreshReviewList($reviewContainer.data('ajax-url'))
+                            }
+                        }, 1500)
                     } else {
                         $this.find('.alert-message').html(res.message).removeClass('d-none')
                     }
@@ -196,3 +212,70 @@ $(() => {
 
     submitReviewProduct()
 })
+
+
+    // Helper function to refresh review action section
+    function refreshReviewActionSection(productId) {
+        const $wrapper = $('.review-logged-in-wrapper')
+        if (!$wrapper.length) return
+
+        $.ajax({
+            url: `/product/${productId}/review-action-section`,
+            method: 'GET',
+            success: (response) => {
+                if (response.data && response.data.html) {
+                    $wrapper.html(response.data.html)
+                    
+                    // Update review count in header if exists
+                    if (response.data.reviews_count !== undefined) {
+                        $('.review-global-ratings-text').text(response.data.reviews_count + ' global public ratings')
+                    }
+                }
+            },
+            error: (xhr) => {
+                console.error('Failed to refresh review action section:', xhr)
+            }
+        })
+    }
+
+    // Helper function to refresh review list
+    function refreshReviewList(ajaxUrl) {
+        const $container = $('.review-list-container')
+        if (!$container.length) return
+
+        $.ajax({
+            url: ajaxUrl,
+            method: 'GET',
+            beforeSend: () => {
+                $container.append('<div class="loading-spinner"><div class="spinner-border"></div></div>')
+            },
+            success: (response) => {
+                if (response.data) {
+                    const $reviewList = $container.find('.review-list')
+                    if ($reviewList.length) {
+                        $reviewList.replaceWith(response.data)
+                    }
+                }
+                
+                if (response.message) {
+                    const $header = $('.product-reviews-container .product-reviews-header')
+                    if ($header.length) {
+                        $header.html(response.message)
+                    }
+                }
+                
+                // Trigger event for other scripts to reinitialize
+                $(document).trigger('reviewListUpdated')
+            },
+            error: (xhr) => {
+                console.error('Failed to refresh review list:', xhr)
+            },
+            complete: () => {
+                $container.find('.loading-spinner').remove()
+            }
+        })
+    }
+
+    // Expose functions globally for use in front-review.js
+    window.refreshReviewActionSection = refreshReviewActionSection
+    window.refreshReviewList = refreshReviewList

@@ -277,12 +277,15 @@ $(() => {
             success: ({ message }) => {
                 Review.showSuccess(message)
 
-                // Reload the review list
-                getReviewList($reviewListContainer.data('ajax-url'), () => {
-                    if (!$('.review-list .review-item').length) {
-                        setTimeout(() => window.location.reload(), 1000)
-                    }
-                }, getCurrentSearchParams())
+                // Refresh review action section and list via AJAX
+                const productId = $('.review-logged-in-wrapper').data('product-id')
+                if (productId && typeof window.refreshReviewActionSection === 'function') {
+                    window.refreshReviewActionSection(productId)
+                }
+                
+                if (typeof window.refreshReviewList === 'function') {
+                    window.refreshReviewList($reviewListContainer.data('ajax-url'))
+                }
             },
             error: (xhr) => {
                 let message = 'An error occurred while deleting the review.'

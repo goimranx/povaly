@@ -260,3 +260,30 @@ class ReviewController extends BaseController
             ->setMessage(trans('plugins/ecommerce::review.deleted_reply_success'));
     }
 }
+
+    /**
+     * Get review action section HTML (for AJAX updates)
+     */
+    public function getReviewActionSection(Request $request, int $productId)
+    {
+        abort_unless(EcommerceHelper::isReviewEnabled(), 404);
+
+        $product = Product::query()
+            ->where('id', $productId)
+            ->where('status', BaseStatusEnum::PUBLISHED)
+            ->first();
+
+        abort_unless($product, 404);
+
+        $checkReview = $this->checkReviewCondition($productId);
+
+        $html = view('plugins/ecommerce::themes.includes.review-action-section', compact('checkReview', 'product'))->render();
+
+        return $this
+            ->httpResponse()
+            ->setData([
+                'html' => $html,
+                'reviews_count' => $product->reviews_count,
+                'reviews_avg' => $product->reviews_avg,
+            ]);
+    }

@@ -52,3 +52,9 @@ Route::get('/ajax/get-delivery-display', [App\Http\Controllers\LocationSessionCo
 
 Route::post('/ajax/clear-temporary-location', [App\Http\Controllers\LocationSessionController::class, 'clearTemporaryLocation'])
     ->name('ajax.clear-temporary-location');
+
+// Review action section AJAX endpoint
+Route::get('/product/{id}/review-action-section', [
+    \Botble\Ecommerce\Http\Controllers\Fronts\ReviewController::class,
+    'getReviewActionSection'
+])->name('public.product.review-action-section');
