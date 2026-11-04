@@ -1224,9 +1224,6 @@
                 <div class="ps-product__reviews" id="tab-reviews">
                     <div class="ps-container">
                         <div class="ps-block--reviews">
-                            <div class="ps-block__header">
-                                <h2>{{ __('Customer Reviews') }}</h2>
-                            </div>
                             <div class="ps-block__content">
                                 @include('plugins/ecommerce::themes.includes.reviews', ['reviewButtonClass' => 'ps-btn'])
                             </div>
@@ -1253,40 +1250,6 @@
                     border: none;
                     border-radius: 0;
                     padding: 0;
-                }
-
-                .ps-block--reviews .ps-block__header {
-                    display: flex;
-                    align-items: center;
-                    justify-content: flex-start;
-                    margin-bottom: 20px;
-                    padding: 0 0 10px 0;
-                    flex-wrap: nowrap;
-                    gap: 15px;
-                }
-
-                .ps-block--reviews .ps-block__header h2 {
-                    font-size: 22px;
-                    font-weight: 700;
-                    color: var(--global-color-text-main);
-                    line-height: 1.3;
-                    margin: 0;
-                    padding: 0;
-                    flex-shrink: 0;
-                }
-
-                @media (max-width: 767px) {
-                    .ps-block--reviews .ps-block__header {
-                        flex-wrap: wrap;
-                        padding: 0 0 10px 0 !important;
-                    }
-
-                    .ps-block--reviews .ps-block__header h2 {
-                        font-size: 20px;
-                        word-break: break-word;
-                        overflow-wrap: break-word;
-                        max-width: 100%;
-                    }
                 }
 
                 .ps-block--reviews .ps-block__content {

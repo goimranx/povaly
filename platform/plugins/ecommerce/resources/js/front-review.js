@@ -548,10 +548,11 @@ $(() => {
 // Write Review Button Toggle
 document.addEventListener('DOMContentLoaded', function() {
     const btnWriteReview = document.getElementById('btnWriteReview');
+    const btnWriteReviewInline = document.getElementById('btnWriteReviewInline');
     const reviewFormContainer = document.getElementById('reviewFormContainer');
     
-    if (btnWriteReview && reviewFormContainer) {
-        btnWriteReview.addEventListener('click', function() {
+    function toggleReviewForm() {
+        if (reviewFormContainer) {
             reviewFormContainer.classList.toggle('d-none');
             reviewFormContainer.classList.toggle('show');
             
@@ -559,6 +560,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (reviewFormContainer.classList.contains('show')) {
                 reviewFormContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
-        });
+        }
+    }
+    
+    if (btnWriteReview) {
+        btnWriteReview.addEventListener('click', toggleReviewForm);
+    }
+    
+    if (btnWriteReviewInline) {
+        btnWriteReviewInline.addEventListener('click', toggleReviewForm);
     }
 });

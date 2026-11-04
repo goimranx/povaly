@@ -680,12 +680,14 @@
 // Guest Review Container
 .review-guest-container {
     padding: 20px 0;
+    text-align: center;
 
     .review-guest-title {
         font-size: 18px;
         font-weight: 600;
         color: var(--global-color-text-main);
         margin: 0 0 20px 0;
+        text-align: center;
     }
 
     .btn-review-signin {
@@ -695,8 +697,8 @@
         padding: 10px 30px;
         font-size: 14px;
         font-weight: 500;
-        color: var(--global-color-ec-text, #fff);
-        background-color: var(--global-color-ec, #fcb800);
+        color: var(--ec-btn-cart-text, #111111);
+        background-color: var(--ec-btn-cart-bg, #FFD814);
         border: none;
         border-radius: 50px;
         text-decoration: none;
@@ -704,8 +706,8 @@
         margin-bottom: 15px;
 
         &:hover {
-            background-color: var(--global-color-ec-hover, #e5a700);
-            color: var(--global-color-ec-text, #fff);
+            background-color: var(--ec-btn-cart-bg-hover, #f0c800);
+            color: var(--ec-btn-cart-text, #111111);
             text-decoration: none;
         }
     }
@@ -714,6 +716,7 @@
         font-size: 14px;
         color: var(--global-color-text-main);
         margin: 0;
+        text-align: center;
 
         .review-register-link {
             color: var(--global-color-link);
@@ -734,8 +737,8 @@
     }
 }
 
-// Write Review Button
-.btn-write-review {
+// Write Review Button (Sidebar)
+.btn-write-review-sidebar {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -745,8 +748,8 @@
     margin-top: 20px;
     font-size: 14px;
     font-weight: 500;
-    color: var(--global-color-ec-text, #fff);
-    background-color: var(--global-color-ec, #fcb800);
+    color: var(--ec-btn-cart-text, #111111);
+    background-color: var(--ec-btn-cart-bg, #FFD814);
     border: none;
     border-radius: 50px;
     cursor: pointer;
@@ -757,8 +760,39 @@
     }
 
     &:hover {
-        background-color: var(--global-color-ec-hover, #e5a700);
-        color: var(--global-color-ec-text, #fff);
+        background-color: var(--ec-btn-cart-bg-hover, #f0c800);
+        color: var(--ec-btn-cart-text, #111111);
+    }
+}
+
+// Write Review Button (Inline - Below Rating)
+.review-logged-in-container {
+    padding: 20px 0;
+    text-align: center;
+}
+
+.btn-write-review-inline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 30px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ec-btn-cart-text, #111111);
+    background-color: var(--ec-btn-cart-bg, #FFD814);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    i {
+        font-size: 16px;
+    }
+
+    &:hover {
+        background-color: var(--ec-btn-cart-bg-hover, #f0c800);
+        color: var(--ec-btn-cart-text, #111111);
     }
 }
 
