@@ -15,8 +15,8 @@
     <div class="d-flex flex-column gap-5 product-review-container">
         <div class="row g-3">
             @if ($showAvgRating)
-                <div class="col-12 col-md-4">
-                    <div class="product-review-number">
+                <div class="col-12 col-md-4 review-sidebar-wrapper">
+                    <div class="product-review-number review-sidebar-sticky">
                         <h2 class="product-review-number-title">{{ trans('plugins/ecommerce::review.customer_reviews') }}</h2>
 
                         <div class="product-review-summary">
@@ -71,11 +71,39 @@
                                 </div>
                             @endforeach
                         </div>
+
+                        @auth('customer')
+                            <button type="button" class="btn-write-review" id="btnWriteReview">
+                                <i class="ph ph-pencil-simple"></i>
+                                {{ trans('plugins/ecommerce::review.write_a_review') }}
+                            </button>
+                        @endauth
                     </div>
                 </div>
             @endif
 
-            @include($reviewFormView ?? EcommerceHelper::viewPath('includes.review-form'))
+            @guest('customer')
+                <div @class(['col-12', 'col-md-8' => $showAvgRating])>
+                    <div class="review-guest-container">
+                        <h3 class="review-guest-title">{{ trans('plugins/ecommerce::review.add_your_review') }}</h3>
+                        
+                        <a href="{{ route('customer.login') }}" class="btn-review-signin">
+                            {{ trans('plugins/ecommerce::ecommerce.sign_in') }}
+                        </a>
+                        
+                        <p class="review-guest-register">
+                            {{ trans('plugins/ecommerce::ecommerce.new_customer') }}
+                            <a href="{{ route('customer.register') }}" class="review-register-link">{{ trans('plugins/ecommerce::ecommerce.start_here') }}</a>
+                        </p>
+                    </div>
+                </div>
+            @else
+                <div @class(['col-12', 'col-md-8' => $showAvgRating])>
+                    <div class="review-form-container d-none" id="reviewFormContainer">
+                        @include($reviewFormView ?? EcommerceHelper::viewPath('includes.review-form'))
+                    </div>
+                </div>
+            @endguest
         </div>
 
         @if (EcommerceHelper::isCustomerReviewImageUploadEnabled() && get_ecommerce_setting('display_uploaded_customer_review_images_list', true) && ($reviewImagesCount = count($product->review_images)) > 0)

@@ -544,3 +544,21 @@ $(() => {
         sessionStorage.reloadReviewsTab = false
     }
 })
+
+// Write Review Button Toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const btnWriteReview = document.getElementById('btnWriteReview');
+    const reviewFormContainer = document.getElementById('reviewFormContainer');
+    
+    if (btnWriteReview && reviewFormContainer) {
+        btnWriteReview.addEventListener('click', function() {
+            reviewFormContainer.classList.toggle('d-none');
+            reviewFormContainer.classList.toggle('show');
+            
+            // Scroll to form when opened
+            if (reviewFormContainer.classList.contains('show')) {
+                reviewFormContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+    }
+});
