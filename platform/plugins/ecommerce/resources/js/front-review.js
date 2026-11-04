@@ -486,10 +486,14 @@ $(() => {
     $(document).on('change', '#reviewFiltersOffcanvas .review-star-filter', function() {
         if (isSyncing) return
         
+        console.log('[Offcanvas Star Filter] Changed to:', $(this).val())
+        
         isSyncing = true
         const selectedValue = $(this).val()
         // Update main page filter without triggering sync back
         $('.product-review-controls .review-star-filter').val(selectedValue)
+        
+        console.log('[Offcanvas Star Filter] Calling getReviewList with params:', getCurrentSearchParams())
         
         // Manually call the filter logic
         updateClearButtonVisibility()
@@ -497,7 +501,7 @@ $(() => {
             getReviewList($reviewListContainer.data('ajax-url'), null, getCurrentSearchParams())
         }
         
-        setTimeout(() => { isSyncing = false }, 100)
+        setTimeout(() => { isSyncing = false }, 300)
     })
 
     $(document).on('change', '#reviewFiltersOffcanvas .review-sort-select', function() {
