@@ -564,6 +564,12 @@
         .product-review-controls {
             margin-bottom: 20px;
 
+            .review-global-ratings-text {
+                font-size: 16px;
+                font-weight: 600;
+                color: var(--global-color-text-main);
+            }
+
             .review-control-buttons {
                 .review-control-btn.btn {
                     font-size: 14px;
