@@ -40,14 +40,14 @@
                                 </div>
                             </div>
 
-                            @include('theme.martfury::ecommerce.includes.cart-items-enhanced')
+                            @include('ecommerce.includes.cart-items-enhanced')
                         </div>
                     </div>
 
                     {{-- Right Section: Summary --}}
                     <div class="ps-cart-summary-section">
                         <div class="ps-cart-summary-card">
-                            @include('theme.martfury::ecommerce.includes.cart-summary')
+                            @include('ecommerce.includes.cart-summary')
                         </div>
                     </div>
                 </div>
