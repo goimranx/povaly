@@ -466,9 +466,6 @@
             <!-- TOP RATED RELATED ITEMS SECTION -->
             @include(EcommerceHelper::viewPath('includes.top-rated-related'), ['product' => $product])
 
-            <!-- NEW ARRIVAL RELATED ITEMS SECTION -->
-            @include(EcommerceHelper::viewPath('includes.new-arrival-related'), ['product' => $product])
-
             <!-- STORE PRODUCTS SECTION (SIBLING OF HEADER) -->
             @if (is_plugin_active('marketplace'))
                 @include(EcommerceHelper::viewPath('includes.store-products'), ['product' => $product])
@@ -1272,6 +1269,9 @@
                 </div>
             @endif
             <!-- END: Reviews -->
+
+            <!-- NEW ARRIVAL RELATED ITEMS SECTION -->
+            @include(EcommerceHelper::viewPath('includes.new-arrival-related'), ['product' => $product])
 
             <style>
                 /* Reviews Section */
