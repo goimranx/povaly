@@ -647,8 +647,13 @@ $(() => {
     initReviewCommentTruncation()
 
     // Re-initialize after AJAX load of reviews
-    const originalGetReviewList = window.getReviewList || getReviewList
-    if (typeof getReviewList !== 'undefined') {
+    $(document).on('reviewListUpdated', function() {
+        initReviewCommentTruncation()
+    })
+    
+    // Also hook into existing review list loader if available
+    if (typeof window.getReviewList !== 'undefined') {
+        const originalGetReviewList = window.getReviewList
         window.getReviewList = function(...args) {
             const callback = args[1]
             args[1] = function() {
@@ -739,7 +744,12 @@ $(() => {
                         $count.text(data.total_count)
                     }
                 })
-                .fail(() => {
+                .fail((xhr) => {
+                    // Log warning if endpoint doesn't exist
+                    if (xhr.status === 404) {
+                        console.warn('[Review] Helpful API endpoint not implemented yet')
+                    }
+                    
                     // Rollback on error
                     $count.text(currentCount)
                     $btn.attr('data-helpful', isHelpful)
@@ -813,6 +823,12 @@ $(() => {
                             }
                         }
                     })
+                    .fail((xhr) => {
+                        // Log warning if endpoint doesn't exist
+                        if (xhr && xhr.status === 404) {
+                            console.warn('[Review] Share API endpoint not implemented yet')
+                        }
+                    })
             } else {
                 // Fallback to clipboard
                 navigator.clipboard.writeText(window.location.href)
@@ -831,6 +847,12 @@ $(() => {
                             }),
                             contentType: 'application/json'
                         })
+                    })
+                    .fail((xhr) => {
+                        // Log warning if endpoint doesn't exist
+                        if (xhr && xhr.status === 404) {
+                            console.warn('[Review] Share API endpoint not implemented yet')
+                        }
                     })
                     .catch(() => {
                         // Rollback on error
@@ -865,7 +887,7 @@ $(() => {
             }
         }
         
-        // Fetch from server
+        // Fetch from server (silent fail if endpoint doesn't exist)
         $.ajax({
             url: `/api/review-helpful/${reviewId}`,
             method: 'GET'
@@ -894,7 +916,7 @@ $(() => {
             }
         })
         .fail(() => {
-            // Silent fail - keep current state
+            // Silent fail - keep current state (API endpoint may not exist yet)
         })
     }
 
@@ -908,8 +930,19 @@ $(() => {
     })
     
     // Re-initialize after AJAX review list load
-    const originalGetReviewList = window.getReviewList || getReviewList
-    if (typeof getReviewList !== 'undefined') {
+    $(document).on('reviewListUpdated', function() {
+        initHelpfulButtons()
+        initShareButtons()
+        
+        // Load status for new reviews
+        $('.review-item').each(function() {
+            loadReviewStatus($(this))
+        })
+    })
+    
+    // Also hook into the existing review list loader if available
+    if (typeof window.getReviewList !== 'undefined') {
+        const originalGetReviewList = window.getReviewList
         window.getReviewList = function(...args) {
             const callback = args[1]
             args[1] = function() {
