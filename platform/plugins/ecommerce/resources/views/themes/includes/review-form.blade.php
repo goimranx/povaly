@@ -1,4 +1,4 @@
-<div @class(['col-12', 'col-md-8' => $showAvgRating])>
+<div class="col-12">
     <h4 class="d-none">{{ trans('plugins/ecommerce::review.add_your_review') }}</h4>
 
     @if (isset($checkReview) && ! $checkReview['error'])
@@ -94,7 +94,7 @@
             <div class="d-flex align-items-center mb-3">
                 <label class="form-label mb-0 required" for="rating">{{ trans('plugins/ecommerce::review.your_rating') }}</label>
                 <div class="form-rating-stars ms-2">
-                    @for ($i = 5; $i >= 1; $i--)
+                    @for ($i = 1; $i <= 5; $i++)
                         <input
                             class="btn-check"
                             id="rating-star-{{ $i }}"
@@ -103,8 +103,8 @@
                             value="{{ $i }}"
                             @checked($i === 5)
                         >
-                        <label for="rating-star-{{ $i }}" title="{{ $i }} stars">
-                            <i class="ph-fill ph-star"></i>
+                        <label for="rating-star-{{ $i }}" title="{{ $i }} stars" data-star-value="{{ $i }}">
+                            <i class="ph ph-star"></i>
                         </label>
                     @endfor
                 </div>

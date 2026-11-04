@@ -547,3 +547,64 @@ $(() => {
 
 // Review Modal is handled by Bootstrap data attributes
 // No additional JavaScript needed for toggle
+
+
+// Star Rating Handler for Modal
+$(() => {
+    const updateStarRating = ($container) => {
+        const $labels = $container.find('label')
+        const $inputs = $container.find('input[type="radio"]')
+        
+        // Reset all stars to outline
+        $labels.find('i').removeClass('ph-fill').addClass('ph')
+        
+        // Find checked input
+        const $checked = $inputs.filter(':checked')
+        if ($checked.length) {
+            const checkedValue = parseInt($checked.val())
+            // Fill stars up to the checked value
+            $labels.each(function() {
+                const starValue = parseInt($(this).attr('data-star-value'))
+                if (starValue <= checkedValue) {
+                    $(this).find('i').removeClass('ph').addClass('ph-fill')
+                }
+            })
+        }
+    }
+    
+    // Handle star rating clicks
+    $(document).on('change', '.form-rating-stars input[type="radio"]', function() {
+        const $container = $(this).closest('.form-rating-stars')
+        updateStarRating($container)
+    })
+    
+    // Handle star rating hover
+    $(document).on('mouseenter', '.form-rating-stars label', function() {
+        const $container = $(this).closest('.form-rating-stars')
+        const $labels = $container.find('label')
+        const hoverValue = parseInt($(this).attr('data-star-value'))
+        
+        $labels.each(function() {
+            const starValue = parseInt($(this).attr('data-star-value'))
+            const $icon = $(this).find('i')
+            if (starValue <= hoverValue) {
+                $icon.removeClass('ph').addClass('ph-fill')
+            } else {
+                $icon.removeClass('ph-fill').addClass('ph')
+            }
+        })
+    })
+    
+    // Restore state on mouse leave
+    $(document).on('mouseleave', '.form-rating-stars', function() {
+        updateStarRating($(this))
+    })
+    
+    // Initialize stars when modal opens
+    $('#reviewModal').on('shown.bs.modal', function() {
+        const $container = $(this).find('.form-rating-stars')
+        if ($container.length) {
+            updateStarRating($container)
+        }
+    })
+})
