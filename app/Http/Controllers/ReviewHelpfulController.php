@@ -16,8 +16,19 @@ class ReviewHelpfulController extends Controller
         $userId = Auth::id();
         $sessionId = $request->session()->getId();
         
+        \Log::info('ReviewHelpful::show', [
+            'review_id' => $reviewId,
+            'user_id' => $userId,
+            'session_id' => $sessionId
+        ]);
+        
         $userMarked = ReviewHelpful::hasUserMarked($reviewId, $userId, $sessionId);
         $totalMarks = ReviewHelpful::getTotalMarks($reviewId);
+        
+        \Log::info('ReviewHelpful::show result', [
+            'user_marked' => $userMarked,
+            'total_count' => $totalMarks
+        ]);
         
         return response()->json([
             'success' => true,

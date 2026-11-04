@@ -37,12 +37,33 @@ class ReviewHelpful extends Model
         $query = self::where('review_id', $reviewId);
         
         if ($userId) {
-            $query->where('user_id', $userId);
+            // For logged-in users, check by user_id OR session_id
+            $query->where(function($q) use ($userId, $sessionId) {
+                $q->where('user_id', $userId);
+                if ($sessionId) {
+                    $q->orWhere(function($subQ) use ($sessionId) {
+                        $subQ->where('session_id', $sessionId)
+                             ->whereNull('user_id');
+                    });
+                }
+            });
         } else {
-            $query->where('session_id', $sessionId);
+            // For guests, check by session_id only
+            $query->where('session_id', $sessionId)
+                  ->whereNull('user_id');
         }
         
-        return $query->exists();
+        $exists = $query->exists();
+        
+        Log::info('ReviewHelpful::hasUserMarked', [
+            'review_id' => $reviewId,
+            'user_id' => $userId,
+            'session_id' => $sessionId,
+            'exists' => $exists,
+            'sql' => $query->toSql()
+        ]);
+        
+        return $exists;
     }
 
     /**
