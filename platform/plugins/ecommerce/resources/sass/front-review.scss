@@ -680,12 +680,58 @@
 // Guest Review Container
 .review-guest-container {
     padding: 20px 0;
-    text-align: center;
 
     .review-guest-title {
         font-size: 18px;
         font-weight: 600;
         color: var(--global-color-text-main);
+        margin: 0 0 15px 0;
+        text-align: left;
+    }
+
+    .review-guest-summary {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--global-color-text-main);
+        margin: 0 0 15px 0;
+        text-align: left;
+    }
+
+    .review-guest-signin-box {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 16px;
+        background-color: #f0f8ff;
+        border: 1px solid #d1e7f5;
+        border-radius: 8px;
+        font-size: 14px;
+
+        i {
+            font-size: 18px;
+            color: var(--global-color-link);
+            flex-shrink: 0;
+        }
+
+        .review-signin-link {
+            color: var(--global-color-link);
+            text-decoration: none;
+            font-weight: 500;
+
+            &:hover {
+                color: var(--global-color-link-hover);
+                text-decoration: underline;
+            }
+        }
+
+        span {
+            color: var(--global-color-text-main);
+        }
+    }
+
+    .review-guest-no-reviews {
+        font-size: 14px;
+        color: var(--global-color-text-secondary);
         margin: 0 0 20px 0;
         text-align: center;
     }
@@ -733,6 +779,10 @@
     @media (max-width: 767px) {
         .review-guest-title {
             font-size: 17px;
+        }
+
+        .review-guest-signin-box {
+            flex-wrap: wrap;
         }
     }
 }

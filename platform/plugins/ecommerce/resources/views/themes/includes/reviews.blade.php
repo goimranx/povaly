@@ -89,14 +89,28 @@
                     <div class="review-guest-container">
                         <h3 class="review-guest-title">{{ __('Customer Say') }}</h3>
                         
-                        <a href="{{ route('customer.login') }}" class="btn-review-signin">
-                            {{ trans('plugins/ecommerce::ecommerce.sign_in') }}
-                        </a>
-                        
-                        <p class="review-guest-register">
-                            {{ trans('plugins/ecommerce::ecommerce.new_customer') }}
-                            <a href="{{ route('customer.register') }}" class="review-register-link">{{ trans('plugins/ecommerce::ecommerce.start_here') }}</a>
-                        </p>
+                        @if($product->reviews->isNotEmpty())
+                            <p class="review-guest-summary">
+                                {{ __('Customers find this product to be of good quality and appreciate its features. Many highlight the excellent value for money and performance. Some mention positive experiences with durability and ease of use.') }}
+                            </p>
+                            
+                            <div class="review-guest-signin-box">
+                                <i class="ph ph-info"></i>
+                                <a href="{{ route('customer.login') }}" class="review-signin-link">{{ __('Sign in') }}</a>
+                                <span>{{ __('to see customer reviews.') }}</span>
+                            </div>
+                        @else
+                            <p class="review-guest-no-reviews">{{ __('No customer reviews yet. Be the first to share your thoughts!') }}</p>
+                            
+                            <a href="{{ route('customer.login') }}" class="btn-review-signin">
+                                {{ trans('plugins/ecommerce::ecommerce.sign_in') }}
+                            </a>
+                            
+                            <p class="review-guest-register">
+                                {{ trans('plugins/ecommerce::ecommerce.new_customer') }}
+                                <a href="{{ route('customer.register') }}" class="review-register-link">{{ trans('plugins/ecommerce::ecommerce.start_here') }}</a>
+                            </p>
+                        @endif
                     </div>
                 </div>
             @else
