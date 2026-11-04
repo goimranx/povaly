@@ -14,7 +14,7 @@
 
     <div class="product-review-container d-flex flex-row gap-5">
         {{-- Mobile: Rating Summary Header with Offcanvas Trigger --}}
-        <div class="review-mobile-header d-lg-none" id="review-mobile-header">
+        <div class="review-mobile-header d-lg-none" id="review-mobile-header" data-bs-toggle="offcanvas" data-bs-target="#reviewFiltersOffcanvas" role="button">
             <div class="review-mobile-summary">
                 <div class="review-mobile-summary-left">
                     <h2 class="product-review-number-title">{{ trans('plugins/ecommerce::review.customer_reviews') }}</h2>
@@ -38,9 +38,9 @@
                         {{ number_format($product->reviews_count) }} {{ __('global public ratings') }}
                     </div>
                 </div>
-                <button type="button" class="btn-review-offcanvas-toggle" data-bs-toggle="offcanvas" data-bs-target="#reviewFiltersOffcanvas">
+                <div class="btn-review-offcanvas-toggle">
                     <i class="ph ph-caret-right"></i>
-                </button>
+                </div>
             </div>
         </div>
 
@@ -346,7 +346,7 @@
                     
                     {{-- Search --}}
                     <div class="mb-3">
-                        <label class="form-label small">{{ __('Search reviews') }}</label>
+                        <label class="form-label small fw-semibold">{{ __('Search reviews') }}</label>
                         <div class="position-relative">
                             <input
                                 type="search"
@@ -362,7 +362,7 @@
 
                     {{-- Filter by Rating --}}
                     <div class="mb-3">
-                        <label class="form-label small">{{ __('Rating:') }}</label>
+                        <label class="form-label small fw-semibold">{{ __('Rating:') }}</label>
                         <select class="form-select review-star-filter" data-bb-toggle="review-star-filter">
                             <option value="">{{ trans('plugins/ecommerce::review.all_stars') }}</option>
                             <option value="5">{{ trans('plugins/ecommerce::review.5_stars') }}</option>
@@ -375,7 +375,7 @@
 
                     {{-- Sort --}}
                     <div class="mb-3">
-                        <label class="form-label small">{{ __('Sort by:') }}</label>
+                        <label class="form-label small fw-semibold">{{ __('Sort by:') }}</label>
                         <select class="form-select review-sort-select" data-bb-toggle="review-sort">
                             <option value="newest">{{ trans('plugins/ecommerce::ecommerce.newest') }}</option>
                             <option value="oldest">{{ trans('plugins/ecommerce::ecommerce.oldest') }}</option>
@@ -384,8 +384,14 @@
                         </select>
                     </div>
 
+                    {{-- Apply Filters Button --}}
+                    <button type="button" class="btn btn-primary w-100 mb-2" data-bs-dismiss="offcanvas">
+                        <i class="ph ph-funnel me-1"></i>
+                        {{ __('Apply Filters') }}
+                    </button>
+
                     {{-- Clear Filters --}}
-                    <button type="button" class="btn btn-outline-secondary w-100 d-none" data-bb-toggle="review-clear-filters">
+                    <button type="button" class="btn btn-outline-secondary w-100 d-none" data-bb-toggle="review-clear-filters" data-bs-dismiss="offcanvas">
                         <i class="ph ph-x me-1"></i>
                         {{ trans('plugins/ecommerce::ecommerce.clear') }}
                     </button>

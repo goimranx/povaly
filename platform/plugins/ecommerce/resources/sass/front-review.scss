@@ -992,11 +992,13 @@
 // Mobile Review Header with Offcanvas Trigger
 .review-mobile-header {
     display: none;
-    background: var(--global-color-card-bg);
-    border: 1px solid var(--global-color-border-strong);
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1rem;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+        opacity: 0.8;
+    }
 
     .review-mobile-summary {
         display: flex;
@@ -1008,9 +1010,10 @@
             flex: 1;
 
             .product-review-number-title {
-                font-size: 16px;
+                font-size: 18px;
                 font-weight: 600;
                 margin: 0 0 0.5rem 0;
+                color: var(--global-color-text-main);
             }
 
             .product-review-summary-rating {
@@ -1024,7 +1027,7 @@
                     gap: 2px;
 
                     i {
-                        font-size: 0.9rem;
+                        font-size: 1rem;
                         color: #ddd;
 
                         &.filled {
@@ -1038,23 +1041,21 @@
                 }
 
                 .rating-text {
-                    font-size: 13px;
+                    font-size: 14px;
                     margin: 0;
                     color: var(--global-color-text-main);
+                    font-weight: 400;
                 }
             }
 
             .review-mobile-count {
-                font-size: 13px;
-                color: var(--global-color-text-secondary);
+                font-size: 14px;
+                font-weight: 500;
+                color: var(--global-color-text-main);
             }
         }
 
         .btn-review-offcanvas-toggle {
-            background: none;
-            border: none;
-            padding: 0.5rem;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1064,37 +1065,198 @@
             i {
                 font-size: 1.5rem;
             }
-
-            &:hover {
-                color: var(--global-color-primary);
-            }
         }
     }
 }
 
-// Offcanvas Styling
+// Offcanvas Styling - Match Desktop Design
 .offcanvas {
     &-section {
         &-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
             color: var(--global-color-text-main);
         }
     }
 
+    // Rating Summary - Match Desktop
     .product-review-summary {
         margin-bottom: 0;
+
+        &-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .rating-stars-custom {
+                display: flex;
+                gap: 3px;
+
+                i {
+                    font-size: 1.2rem;
+                    color: #ddd;
+
+                    &.filled {
+                        color: var(--global-color-primary);
+                    }
+
+                    &.half-filled {
+                        color: var(--global-color-primary);
+                    }
+                }
+            }
+
+            .rating-text {
+                font-size: 14px;
+                margin: 0;
+                color: var(--global-color-text-main);
+                font-weight: 400;
+            }
+        }
     }
 
+    // Progress Bars - Match Desktop
     .product-review-progress {
-        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-top: 0.75rem;
+
+        &-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 0.75rem;
+            padding: 0;
+            transition: none;
+
+            &.clickable {
+                cursor: pointer;
+                border-radius: 0;
+                padding: 0;
+
+                &:hover {
+                    background-color: transparent;
+
+                    .product-review-progress-bar-title,
+                    .product-review-progress-bar-percent {
+                        text-decoration: underline;
+                        color: var(--global-color-link-hover);
+                    }
+                }
+            }
+
+            &-value {
+                width: 100%;
+            }
+
+            &-title {
+                flex-shrink: 0;
+                min-width: 50px;
+                color: var(--global-color-link);
+                font-size: 14px;
+            }
+
+            &-percent {
+                width: 50px;
+                flex-shrink: 0;
+                color: var(--global-color-link);
+                font-size: 14px;
+            }
+        }
     }
 
+    // Progress bar styling
+    .progress {
+        border-radius: 6px;
+        height: 1rem;
+        background-color: transparent;
+        border: 1px solid var(--global-color-secondary);
+
+        .progress-bar {
+            background-color: var(--global-color-primary);
+            border-radius: 5px;
+        }
+    }
+
+    // Form controls - Match Desktop
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--global-color-text-main);
+
+        &.small {
+            font-size: 14px;
+        }
+    }
+
+    .form-control,
+    .form-select {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        color: var(--global-color-text-main);
+
+        &:focus {
+            border-color: #9ca3af;
+            box-shadow: none;
+            outline: none;
+        }
+    }
+
+    // Buttons
     .btn {
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 6px;
+        padding: 10px 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+
+        &-primary {
+            background-color: var(--ec-btn-cart-bg);
+            border-color: var(--ec-btn-cart-bg);
+            color: var(--ec-btn-cart-text);
+
+            &:hover {
+                opacity: 0.9;
+            }
+        }
+
+        &-outline-primary {
+            border-color: var(--global-color-primary);
+            color: var(--global-color-primary);
+
+            &:hover {
+                background-color: var(--global-color-primary);
+                color: #fff;
+            }
+        }
+
+        &-outline-secondary {
+            border-color: #e5e7eb;
+            color: #6b7280;
+
+            &:hover {
+                background-color: #f9fafb;
+                border-color: #d1d5db;
+                color: #374151;
+            }
+        }
+
         &-sm {
             font-size: 13px;
             padding: 8px 16px;
+        }
+
+        i {
+            font-size: 1rem;
         }
     }
 }
