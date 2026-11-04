@@ -52,6 +52,7 @@ return [
     '1_review' => '1 Review',
     'count_reviews' => ':count Reviews',
     'write_review_button' => 'Write Your Review',
+    'write_a_review' => 'Write a Review',
     '1_star' => '1 Star',
     '2_stars' => '2 Stars',
     '3_stars' => '3 Stars',
