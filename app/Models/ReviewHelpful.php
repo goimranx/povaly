@@ -31,6 +31,7 @@ class ReviewHelpful extends Model
 
     /**
      * Check if user/session has marked a review as helpful
+     * Debug timestamp: 2026-11-04 23:10
      */
     public static function hasUserMarked(int $reviewId, ?int $userId, ?string $sessionId): bool
     {
