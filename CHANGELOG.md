@@ -5,6 +5,67 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4] - 2024-11-05
+
+### ✨ New Features
+
+#### 🆕 Similar Items on New Arrival Section
+- **Smart new arrival recommendations** showing newly launched products (within last 60 days)
+- **Contextual matching** based on product name, tags, and categories
+- Displays below review section on product pages
+- Carousel layout with owl-slider integration
+- Match score-based sorting with newest products first
+- Clean product cards without extra actions/buttons
+- Border-free design with no container padding
+
+#### 👍 Review Helpful & Share Features
+- **Helpful button** allowing users to mark reviews as helpful
+- **Share functionality** for reviews with tracking
+- Guest users can interact with reviews
+- Real-time count updates via AJAX
+- Session-based tracking to prevent duplicate votes
+- Fixed 500 errors using existing CheckReviewConditionTrait
+
+### 🎨 UI/UX Improvements
+
+#### Review System Enhancements
+- **Mobile responsive review interface** with proper offcanvas filters
+- **Star rating filters** working correctly in mobile offcanvas sidebar
+- Fixed dropdown filter synchronization issues
+- Improved pagination UI (default 10 reviews per page)
+- Better proportions for review guest wrapper (max-width 400px)
+- Enhanced review sidebar layout (70% width, 80px gap)
+- Review list displays correctly with proper error handling
+
+#### Guest Sign-In Prompt
+- **New guest prompt section** below new arrivals
+- Centered content with personalized recommendations message
+- "Sign in now" button with ec-cart button styling
+- "Start here" registration link
+- No bottom padding for clean section transition
+
+#### Style Improvements
+- Arrow navigation with 6px border-radius (not circular)
+- Proper mobile dot sizing (6px inactive, 20px x 6px active pill)
+- Consistent carousel styling across all product sections
+- Fixed border-bottom styling across sections
+- Removed duplicate CSS rules
+
+### 🐛 Bug Fixes
+- Fixed SQL error: "Unknown column 'reviews_avg_star' in 'HAVING'" in new arrival queries
+- Removed incorrect review filters from new arrival product queries
+- Fixed mobile offcanvas star filtering not working
+- Resolved 500 errors when logged in users have no reviews
+- Fixed review list showing blank despite having reviews
+- Corrected checkReviewCondition logic using proper trait method
+
+### 🔧 Technical Improvements
+- Proper use of CheckReviewConditionTrait for review validation
+- Cleaned up duplicate CSS in responsive breakpoints
+- Added !important flags for style overrides where needed
+- Improved AJAX error handling in review interactions
+- Better SQL query optimization for new arrivals
+
 ## [2.3] - 2024-11-04
 
 ### ✨ Major New Features
