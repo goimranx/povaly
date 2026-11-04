@@ -1,6 +1,6 @@
 {{-- Shopping Cart Enhanced --}}
 @php
-    Theme::asset()->usePath()->add('cart-enhanced-css', 'sass/cart-enhanced.scss');
+    Theme::asset()->usePath()->add('cart-enhanced-css', 'css/cart-enhanced.css');
     Theme::asset()->container('footer')->usePath()->add('cart-enhanced-js', 'js/cart-enhanced.js');
 @endphp
 
