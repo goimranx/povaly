@@ -1,10 +1,9 @@
 <div @class(['col-12', 'col-md-8' => $showAvgRating])>
-    <h4>{{ trans('plugins/ecommerce::review.add_your_review') }}</h4>
+    <h4 class="d-none">{{ trans('plugins/ecommerce::review.add_your_review') }}</h4>
 
     @if (isset($checkReview) && ! $checkReview['error'])
-        <p>
+        <p class="review-form-notice">
             {{ trans('plugins/ecommerce::ecommerce.your_email_address_will_not_be_published_required_') }}
-            <span class="required"></span>
         </p>
     @endif
 
@@ -104,7 +103,7 @@
                             @checked($i === 5)
                         >
                         <label for="rating-star-{{ $i }}" title="{{ $i }} stars">
-                            <x-core::icon name="ti ti-star-filled" />
+                            <i class="ph-fill ph-star"></i>
                         </label>
                     @endfor
                 </div>
@@ -172,12 +171,12 @@
             <button
                 type="submit"
                 @class([
-                    $reviewButtonClass ?? 'btn btn-primary',
+                    $reviewButtonClass ?? 'btn btn-primary ps-btn',
                     'disabled' => ! auth('customer')->check(),
                 ])
                 @disabled(! auth('customer')->check())
             >
-                {{ trans('plugins/ecommerce::ecommerce.submit') }}
+                Submit Review
             </button>
         </x-core::form>
     @endif
