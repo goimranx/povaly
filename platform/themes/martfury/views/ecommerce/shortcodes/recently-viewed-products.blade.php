@@ -88,8 +88,14 @@
 <style>
     /* Recently Viewed Products Section */
     .ps-recently-viewed-products {
-        margin: 10px 0 !important;
+        margin: 0 !important;
         background: var(--global-color-site-bg);
+    }
+
+    .ps-recently-viewed-products .ps-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        border-bottom: none !important;
     }
 
     /* Recently Viewed Block */

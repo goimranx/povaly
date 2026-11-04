@@ -145,8 +145,12 @@
 <style>
     /* Similar Customers Recommendations Section */
     .ps-similar-customers-recommendations {
-        margin: 10px 0 !important;
+        margin: 0 !important;
         background: var(--global-color-site-bg);
+    }
+
+    .ps-similar-customers-recommendations .ps-container {
+        margin: 0 !important;
     }
 
     /* Similar Customers Block */

@@ -1209,6 +1209,13 @@
             @endif
             <!-- END: Customer Photos Gallery -->
 
+            <style>
+                /* Browsing History Section - Remove all margins */
+                .ps-product__browsing-history {
+                    margin: 0 !important;
+                }
+            </style>
+
             <!-- BROWSING HISTORY SECTION -->
             <div class="ps-product__browsing-history">
                 {!! shortcode()->compile('[recently-viewed-products title="Your browsing history" enable_caching="no" enable_lazy_loading="no"][/recently-viewed-products]') !!}
