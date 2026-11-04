@@ -148,58 +148,49 @@
                         <div class="review-global-ratings-text">
                             {{ number_format($product->reviews_count) }} {{ __('global public ratings') }}
                         </div>
-                        <div class="d-flex gap-2 review-control-buttons">
-                            <button type="button" class="btn review-control-btn" data-bb-toggle="review-search-toggle" title="{{ trans('plugins/ecommerce::review.search_reviews') }}">
-                                <x-core::icon name="ti ti-search" class="me-1" />
-                                {{ trans('plugins/ecommerce::ecommerce.search') }}
-                            </button>
-                            <button type="button" class="btn review-control-btn" data-bb-toggle="review-filter-toggle" title="{{ trans('plugins/ecommerce::review.filter_by_stars') }}">
-                                <x-core::icon name="ti ti-filter" class="me-1" />
-                                {{ trans('plugins/ecommerce::ecommerce.filter') }}
-                            </button>
-                            <button type="button" class="btn review-control-btn" data-bb-toggle="review-sort-toggle" title="{{ trans('plugins/ecommerce::review.sort_reviews') }}">
-                                <x-core::icon name="ti ti-sort-ascending" class="me-1" />
-                                {{ trans('plugins/ecommerce::ecommerce.sort') }}
-                            </button>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 mb-4 review-inline-controls">
+                        <div class="review-search-box">
+                            <div class="position-relative">
+                                <input
+                                    type="search"
+                                    class="form-control review-search-input"
+                                    placeholder="{{ trans('plugins/ecommerce::review.search_reviews_1') }}"
+                                    data-bb-toggle="review-search"
+                                >
+                                <div class="position-absolute top-50 end-0 translate-middle-y pe-3">
+                                    <x-core::icon name="ti ti-search" class="text-muted" />
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="review-filter-box d-flex align-items-center gap-2">
+                            <label class="review-filter-label mb-0">{{ __('Rating:') }}</label>
+                            <select class="form-select review-star-filter" data-bb-toggle="review-star-filter">
+                                <option value="">{{ trans('plugins/ecommerce::review.all_stars') }}</option>
+                                <option value="5">{{ trans('plugins/ecommerce::review.5_stars') }}</option>
+                                <option value="4">{{ trans('plugins/ecommerce::review.4_stars') }}</option>
+                                <option value="3">{{ trans('plugins/ecommerce::review.3_stars') }}</option>
+                                <option value="2">{{ trans('plugins/ecommerce::review.2_stars') }}</option>
+                                <option value="1">{{ trans('plugins/ecommerce::review.1_star') }}</option>
+                            </select>
+                        </div>
+
+                        <div class="review-sort-box d-flex align-items-center gap-2">
+                            <label class="review-sort-label mb-0">{{ __('Sort by:') }}</label>
+                            <select class="form-select review-sort-select" data-bb-toggle="review-sort">
+                                <option value="newest">{{ trans('plugins/ecommerce::ecommerce.newest') }}</option>
+                                <option value="oldest">{{ trans('plugins/ecommerce::ecommerce.oldest') }}</option>
+                                <option value="highest_rating">{{ trans('plugins/ecommerce::review.highest_rating') }}</option>
+                                <option value="lowest_rating">{{ trans('plugins/ecommerce::review.lowest_rating') }}</option>
+                            </select>
+                        </div>
+
                         <button type="button" class="btn review-clear-btn d-none" data-bb-toggle="review-clear-filters" title="{{ trans('plugins/ecommerce::ecommerce.clear_all_filters') }}">
                             <x-core::icon name="ti ti-x" class="me-1" />
                             {{ trans('plugins/ecommerce::ecommerce.clear') }}
                         </button>
-                    </div>
-
-                    <div class="review-search-container d-none mb-3">
-                        <div class="position-relative">
-                            <input
-                                type="search"
-                                class="form-control review-search-input"
-                                placeholder="{{ trans('plugins/ecommerce::review.search_reviews_1') }}"
-                                data-bb-toggle="review-search"
-                            >
-                            <div class="position-absolute top-50 end-0 translate-middle-y pe-3">
-                                <x-core::icon name="ti ti-search" class="text-muted" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="review-filter-container d-none mb-3">
-                        <select class="form-select review-star-filter" data-bb-toggle="review-star-filter">
-                            <option value="">{{ trans('plugins/ecommerce::review.all_stars') }}</option>
-                            <option value="5">{{ trans('plugins/ecommerce::review.5_stars') }}</option>
-                            <option value="4">{{ trans('plugins/ecommerce::review.4_stars') }}</option>
-                            <option value="3">{{ trans('plugins/ecommerce::review.3_stars') }}</option>
-                            <option value="2">{{ trans('plugins/ecommerce::review.2_stars') }}</option>
-                            <option value="1">{{ trans('plugins/ecommerce::review.1_star') }}</option>
-                        </select>
-                    </div>
-
-                    <div class="review-sort-container d-none mb-3">
-                        <select class="form-select review-sort-select" data-bb-toggle="review-sort">
-                            <option value="newest">{{ trans('plugins/ecommerce::ecommerce.newest') }}</option>
-                            <option value="oldest">{{ trans('plugins/ecommerce::ecommerce.oldest') }}</option>
-                            <option value="highest_rating">{{ trans('plugins/ecommerce::review.highest_rating') }}</option>
-                            <option value="lowest_rating">{{ trans('plugins/ecommerce::review.lowest_rating') }}</option>
-                        </select>
                     </div>
 
                     <div class="review-list"></div>
