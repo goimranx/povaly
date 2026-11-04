@@ -1,14 +1,13 @@
 /* Cart Enhanced Styles */
 .ps-shopping-cart-enhanced {
     min-height: 100vh;
-    padding: 40px 0;
+    padding: 20px 0;
 }
 
 .ps-cart-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 15px;
-    background: var(--global-color-card-bg);
+    background: var(--global-color-card-bg) !important;
 }
 
 .ps-cart-layout {
@@ -31,7 +30,6 @@
 
 .ps-cart-header {
     padding: 20px 24px;
-    border-bottom: 1px solid var(--global-color-border-strong);
     
     h1 {
         font-size: 24px;
@@ -234,7 +232,7 @@
     gap: 16px;
     align-items: start;
     padding-top: 15px;
-    border-top: 1px solid var(--global-color-border-primary);
+    border-top: 1px solid var(--global-color-primary-border);
     
     &:first-child {
         border-top: none;
@@ -311,25 +309,26 @@
     gap: 12px;
 }
 
-.ps-cart-product-quantity {
-    .product__qty {
-        margin: 0;
+.ps-cart-product-remove {
+    order: 1;
+    
+    a {
+        color: var(--global-color-text-muted);
+        text-decoration: none;
+        font-size: 13px;
+        transition: all 0.3s;
+        
+        &:hover {
+            text-decoration: underline;
+        }
     }
 }
 
-.ps-cart-product-remove a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 4px;
-    color: var(--global-color-text-muted);
-    transition: all 0.3s;
+.ps-cart-product-quantity {
+    order: 2;
     
-    &:hover {
-        background: var(--global-color-danger);
-        color: white;
+    .product__qty {
+        margin: 0;
     }
 }
 
