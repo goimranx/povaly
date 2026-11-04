@@ -1273,6 +1273,22 @@
             <!-- NEW ARRIVAL RELATED ITEMS SECTION -->
             @include(EcommerceHelper::viewPath('includes.new-arrival-related'), ['product' => $product])
 
+            <!-- GUEST SIGN IN PROMPT SECTION -->
+            @guest('customer')
+                <div class="ps-guest-signin-prompt">
+                    <div class="ps-container">
+                        <div class="ps-guest-signin-prompt__content">
+                            <h3 class="ps-guest-signin-prompt__title">{{ __('Shop easy and get personalized recommendations') }}</h3>
+                            <a href="{{ route('customer.login') }}" class="btn-guest-signin">{{ __('Sign in now') }}</a>
+                            <p class="ps-guest-signin-prompt__register">
+                                {{ __('New customer at povaly?') }} 
+                                <a href="{{ route('customer.register') }}" class="link-register">{{ __('Start here') }}</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endguest
+
             <style>
                 /* Reviews Section */
                 .ps-product__reviews {
@@ -1294,6 +1310,91 @@
 
                 .ps-block--reviews .ps-block__content {
                     margin: 0;
+                }
+
+                /* Guest Sign In Prompt Section */
+                .ps-guest-signin-prompt {
+                    margin: 0;
+                    padding: 40px 0;
+                    background: var(--global-color-site-bg);
+                    border-top: 1px solid var(--global-color-border-strong);
+                }
+
+                .ps-guest-signin-prompt .ps-container {
+                    padding: 0 15px;
+                }
+
+                .ps-guest-signin-prompt__content {
+                    text-align: center;
+                    max-width: 500px;
+                    margin: 0 auto;
+                }
+
+                .ps-guest-signin-prompt__title {
+                    font-size: 20px;
+                    font-weight: 600;
+                    color: var(--global-color-text-main);
+                    margin: 0 0 20px 0;
+                    line-height: 1.4;
+                }
+
+                .btn-guest-signin {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 10px 40px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: var(--ec-btn-cart-text);
+                    background-color: var(--ec-btn-cart-bg);
+                    border: none;
+                    border-radius: 50px;
+                    text-decoration: none;
+                    transition: all 0.3s ease;
+                    margin-bottom: 15px;
+                }
+
+                .btn-guest-signin:hover {
+                    background-color: var(--ec-btn-cart-bg-hover);
+                    color: var(--ec-btn-cart-text);
+                    text-decoration: none;
+                }
+
+                .ps-guest-signin-prompt__register {
+                    font-size: 14px;
+                    color: var(--global-color-text-main);
+                    margin: 0;
+                }
+
+                .ps-guest-signin-prompt__register .link-register {
+                    color: var(--global-color-link);
+                    text-decoration: underline;
+                    font-weight: 500;
+                }
+
+                .ps-guest-signin-prompt__register .link-register:hover {
+                    color: var(--global-color-link-hover);
+                    text-decoration: underline;
+                }
+
+                @media (max-width: 767px) {
+                    .ps-guest-signin-prompt {
+                        padding: 30px 0;
+                    }
+
+                    .ps-guest-signin-prompt__title {
+                        font-size: 18px;
+                        margin-bottom: 15px;
+                    }
+
+                    .btn-guest-signin {
+                        padding: 10px 30px;
+                        font-size: 13px;
+                    }
+
+                    .ps-guest-signin-prompt__register {
+                        font-size: 13px;
+                    }
                 }
             </style>
 
