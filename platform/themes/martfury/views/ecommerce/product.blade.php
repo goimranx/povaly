@@ -483,9 +483,6 @@
                     @if (EcommerceHelper::isProductSpecificationEnabled() && $product->specificationAttributes->where('pivot.hidden', false)->isNotEmpty())
                         <li><a href="#tab-specification">{{ __('Specification') }}</a></li>
                     @endif
-                    @if (EcommerceHelper::isReviewEnabled())
-                        <li><a href="#tab-reviews">{{ __('Reviews') }}&nbsp;({{ $product->reviews_count }})</a></li>
-                    @endif
                     @if (is_plugin_active('faq'))
                         @if (count($product->faq_items) > 0)
                             <li><a href="#tab-faq">{{ __('Questions and Answers') }}</a></li>
@@ -508,12 +505,6 @@
                             <div class="tp-product-details-additional-info">
                                 @include(EcommerceHelper::viewPath('includes.product-specification'))
                             </div>
-                        </div>
-                    @endif
-
-                    @if (EcommerceHelper::isReviewEnabled())
-                        <div class="ps-tab" id="tab-reviews">
-                            @include('plugins/ecommerce::themes.includes.reviews', ['reviewButtonClass' => 'ps-btn'])
                         </div>
                     @endif
 
@@ -601,7 +592,7 @@
                         <div class="ps-block__header">
                             <div class="ps-block__header-left">
                                 <h2>Customer Photos ({{ $totalImages }})</h2>
-                                <a href="#tab-reviews" class="ps-btn--read-reviews" onclick="event.preventDefault(); document.getElementById('review-tab-link').click(); setTimeout(() => document.getElementById('tab-reviews').scrollIntoView({behavior: 'smooth', block: 'start'}), 100);">
+                                <a href="#tab-reviews" class="ps-btn--read-reviews" onclick="event.preventDefault(); document.getElementById('tab-reviews').scrollIntoView({behavior: 'smooth', block: 'start'});">
                                     Read Reviews
                                 </a>
                             </div>
@@ -1227,6 +1218,81 @@
                 {!! shortcode()->compile('[similar-customers-recommendations enable_caching="no" enable_lazy_loading="no"][/similar-customers-recommendations]') !!}
             </div>
             <!-- END: Similar Customers Recommendations -->
+
+            <!-- REVIEWS SECTION -->
+            @if (EcommerceHelper::isReviewEnabled())
+                <div class="ps-product__reviews" id="tab-reviews">
+                    <div class="ps-container">
+                        <div class="ps-block--reviews">
+                            <div class="ps-block__header">
+                                <h2>{{ __('Customer Reviews') }}</h2>
+                            </div>
+                            <div class="ps-block__content">
+                                @include('plugins/ecommerce::themes.includes.reviews', ['reviewButtonClass' => 'ps-btn'])
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            <!-- END: Reviews -->
+
+            <style>
+                /* Reviews Section */
+                .ps-product__reviews {
+                    margin: 0 !important;
+                    background: var(--global-color-site-bg);
+                }
+
+                .ps-product__reviews .ps-container {
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    border-bottom: none !important;
+                }
+
+                .ps-block--reviews {
+                    border: none;
+                    border-radius: 0;
+                    padding: 0;
+                }
+
+                .ps-block--reviews .ps-block__header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-start;
+                    margin-bottom: 20px;
+                    padding: 0 0 10px 0;
+                    flex-wrap: nowrap;
+                    gap: 15px;
+                }
+
+                .ps-block--reviews .ps-block__header h2 {
+                    font-size: 22px;
+                    font-weight: 700;
+                    color: var(--global-color-text-main);
+                    line-height: 1.3;
+                    margin: 0;
+                    padding: 0;
+                    flex-shrink: 0;
+                }
+
+                @media (max-width: 767px) {
+                    .ps-block--reviews .ps-block__header {
+                        flex-wrap: wrap;
+                        padding: 0 0 10px 0 !important;
+                    }
+
+                    .ps-block--reviews .ps-block__header h2 {
+                        font-size: 20px;
+                        word-break: break-word;
+                        overflow-wrap: break-word;
+                        max-width: 100%;
+                    }
+                }
+
+                .ps-block--reviews .ps-block__content {
+                    margin: 0;
+                }
+            </style>
 
     </div>
     <!-- END: ps-product--detail -->
