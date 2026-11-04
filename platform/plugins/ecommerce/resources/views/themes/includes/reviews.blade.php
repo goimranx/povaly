@@ -13,7 +13,7 @@
     @endphp
 
     <div class="d-flex flex-row gap-5 product-review-container">
-        <div class="d-flex flex-column gap-3">
+        <div class="d-flex flex-column gap-3" style="flex: 0 0 25%;">
             @if ($showAvgRating)
                 <div class="review-sidebar-wrapper">
                     <div class="product-review-number review-sidebar-sticky">
@@ -76,7 +76,7 @@
             @endif
 
             @guest('customer')
-                <div class="review-guest-wrapper">
+                <div class="review-guest-wrapper d-flex flex-row gap-3" style="flex: 0 0 75%;">
                     <div class="review-guest-container">
                         <h3 class="review-guest-title">{{ __('Customer Say') }}</h3>
                         
@@ -105,7 +105,7 @@
                     </div>
                 </div>
             @else
-                <div class="review-logged-in-wrapper">
+                <div class="review-logged-in-wrapper d-flex flex-column gap-3" style="flex: 0 0 75%;">
                     <div class="review-logged-in-container">
                         <button type="button" class="btn-write-review-inline" id="btnWriteReviewInline">
                             <i class="ph ph-pencil-simple"></i>
