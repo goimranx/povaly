@@ -82,11 +82,17 @@
                         </button>
                     </div>
                 @else
+                    @php
+                        $userId = auth('customer')->id();
+                        $sessionId = request()->session()->getId();
+                        $userMarked = \App\Models\ReviewHelpful::hasUserMarked($review->id, $userId, $sessionId);
+                        $totalMarks = \App\Models\ReviewHelpful::getTotalMarks($review->id);
+                    @endphp
                     <div class="review-action-helpful">
                         <span class="helpful-label">{{ __('Helpful?') }}</span>
-                        <button type="button" class="btn-helpful" data-review-id="{{ $review->id }}" data-helpful="false">
-                            <i class="ph ph-thumbs-up"></i>
-                            <span class="helpful-count">0</span>
+                        <button type="button" class="btn-helpful" data-review-id="{{ $review->id }}" data-helpful="{{ $userMarked ? 'true' : 'false' }}">
+                            <i class="ph {{ $userMarked ? 'ph-fill' : '' }} ph-thumbs-up"></i>
+                            <span class="helpful-count">{{ $totalMarks }}</span>
                         </button>
                     </div>
                     <div class="review-action-share">
