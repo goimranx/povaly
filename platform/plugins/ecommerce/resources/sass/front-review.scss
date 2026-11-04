@@ -859,7 +859,7 @@
 
 // Visual Gallery Link
 .review-visual-gallery-link {
-    padding: 0;
+    padding: 10px 0 0 0;
     text-align: center;
 }
 
@@ -1117,31 +1117,152 @@
 
 // Review Modal Styling
 #reviewModal {
-    .modal-content {
-        border-radius: 12px;
-        border: 1px solid var(--global-color-border);
+    .modal-dialog {
+        max-width: 500px;
     }
 
-    .modal-header {
-        border-bottom: 1px solid var(--global-color-border);
+    .review-modal-content {
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .review-modal-header {
+        border-bottom: 1px solid #e5e7eb;
         padding: 20px 24px;
+        background-color: #fff;
+        border-radius: 16px 16px 0 0;
+    }
 
-        .modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--global-color-text);
+    .review-modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--global-color-text);
+        margin: 0;
+    }
+
+    .review-modal-close {
+        opacity: 0.6;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        background-size: 14px;
+        
+        &:hover {
+            opacity: 1;
         }
+    }
 
-        .btn-close {
-            opacity: 0.5;
-            
-            &:hover {
-                opacity: 1;
+    .review-modal-body {
+        padding: 24px;
+        background-color: #fff;
+        border-radius: 0 0 16px 16px;
+
+        .form-group {
+            margin-bottom: 20px;
+
+            &:last-child {
+                margin-bottom: 0;
             }
         }
-    }
 
-    .modal-body {
-        padding: 24px;
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--global-color-text);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control,
+        textarea.form-control {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px;
+            color: var(--global-color-text);
+            transition: all 0.2s ease;
+
+            &:focus {
+                border-color: #9ca3af;
+                box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.1);
+                outline: none;
+            }
+
+            &::placeholder {
+                color: #9ca3af;
+            }
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-rating-stars {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+
+            > label {
+                cursor: pointer;
+                transition: transform 0.2s ease;
+                margin: 0;
+
+                &:hover {
+                    transform: scale(1.1);
+                }
+
+                svg {
+                    width: 28px;
+                    height: 28px;
+                }
+            }
+        }
+
+        .btn-primary {
+            width: 100%;
+            background-color: #FFD814;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #111111;
+            transition: all 0.2s ease;
+            margin-top: 20px;
+
+            &:hover {
+                background-color: #f0c800;
+                color: #111111;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(255, 216, 20, 0.3);
+            }
+
+            &:focus {
+                box-shadow: 0 0 0 3px rgba(255, 216, 20, 0.3);
+            }
+        }
+
+        .image-upload__uploader-container {
+            margin-top: 12px;
+        }
+
+        .image-upload__uploader {
+            border: 2px dashed #e5e7eb;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background-color: #f9fafb;
+                border-color: #9ca3af;
+            }
+        }
+
+        .image-viewer__item {
+            border-radius: 8px;
+            overflow: hidden;
+        }
     }
 }
+
