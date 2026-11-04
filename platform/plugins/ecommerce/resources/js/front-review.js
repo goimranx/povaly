@@ -545,24 +545,5 @@ $(() => {
     }
 })
 
-// Write Review Button Toggle
-document.addEventListener('DOMContentLoaded', function() {
-    const btnWriteReviewInline = document.getElementById('btnWriteReviewInline');
-    const reviewFormContainer = document.getElementById('reviewFormContainer');
-    
-    function toggleReviewForm() {
-        if (reviewFormContainer) {
-            reviewFormContainer.classList.toggle('d-none');
-            reviewFormContainer.classList.toggle('show');
-            
-            // Scroll to form when opened
-            if (reviewFormContainer.classList.contains('show')) {
-                reviewFormContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
-    }
-    
-    if (btnWriteReviewInline) {
-        btnWriteReviewInline.addEventListener('click', toggleReviewForm);
-    }
-});
+// Review Modal is handled by Bootstrap data attributes
+// No additional JavaScript needed for toggle

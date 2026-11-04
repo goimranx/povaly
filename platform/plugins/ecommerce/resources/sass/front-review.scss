@@ -792,6 +792,7 @@
 // Write Review Button (Inline - Below Rating)
 .review-logged-in-wrapper {
     border-top: 1px solid var(--global-color-border-strong);
+    border-bottom: 1px solid var(--global-color-border-strong);
 }
 
 .review-logged-in-container {
@@ -824,13 +825,13 @@
     justify-content: center;
     gap: 8px;
     width: 100%;
-    padding: 10px 30px;
+    padding: 8px 25px;
     font-size: 14px;
     font-weight: 500;
-    color: var(--global-color-text);
+    color: var(--global-color-text-main);
     background-color: transparent;
     border: 1px solid var(--global-color-border-strong);
-    border-radius: 8px;
+    border-radius: 50px;
     cursor: pointer;
     transition: all 0.3s ease;
 
@@ -839,8 +840,8 @@
     }
 
     &:hover {
-        background-color: var(--global-card-bg);
-        color: var(--global-color-text);
+        background-color: var(--global-color-card-bg);
+        color: var(--global-color-text-main);
     }
 }
 
@@ -1080,3 +1081,35 @@
     }
 }
 
+
+
+// Review Modal Styling
+#reviewModal {
+    .modal-content {
+        border-radius: 12px;
+        border: 1px solid var(--global-color-border);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid var(--global-color-border);
+        padding: 20px 24px;
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--global-color-text);
+        }
+
+        .btn-close {
+            opacity: 0.5;
+            
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+}
