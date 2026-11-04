@@ -16,19 +16,8 @@ class ReviewHelpfulController extends Controller
         $userId = Auth::id();
         $sessionId = $request->session()->getId();
         
-        \Log::info('ReviewHelpful::show', [
-            'review_id' => $reviewId,
-            'user_id' => $userId,
-            'session_id' => $sessionId
-        ]);
-        
         $userMarked = ReviewHelpful::hasUserMarked($reviewId, $userId, $sessionId);
         $totalMarks = ReviewHelpful::getTotalMarks($reviewId);
-        
-        \Log::info('ReviewHelpful::show result', [
-            'user_marked' => $userMarked,
-            'total_count' => $totalMarks
-        ]);
         
         return response()->json([
             'success' => true,
@@ -51,13 +40,6 @@ class ReviewHelpfulController extends Controller
         $sessionId = $request->session()->getId();
         $ipAddress = $request->ip();
 
-        \Log::info('ReviewHelpful::store', [
-            'review_id' => $reviewId,
-            'user_id' => $userId,
-            'session_id' => $sessionId,
-            'ip' => $ipAddress
-        ]);
-
         $success = ReviewHelpful::addMark(
             $reviewId,
             $userId,
@@ -68,11 +50,6 @@ class ReviewHelpfulController extends Controller
         if ($success) {
             $totalMarks = ReviewHelpful::getTotalMarks($reviewId);
             $userMarked = ReviewHelpful::hasUserMarked($reviewId, $userId, $sessionId);
-            
-            \Log::info('ReviewHelpful::store success', [
-                'total_count' => $totalMarks,
-                'user_marked' => $userMarked
-            ]);
             
             return response()->json([
                 'success' => true,

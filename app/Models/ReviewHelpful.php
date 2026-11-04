@@ -53,17 +53,7 @@ class ReviewHelpful extends Model
                   ->whereNull('user_id');
         }
         
-        $exists = $query->exists();
-        
-        Log::info('ReviewHelpful::hasUserMarked', [
-            'review_id' => $reviewId,
-            'user_id' => $userId,
-            'session_id' => $sessionId,
-            'exists' => $exists,
-            'sql' => $query->toSql()
-        ]);
-        
-        return $exists;
+        return $query->exists();
     }
 
     /**

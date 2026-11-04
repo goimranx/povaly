@@ -928,10 +928,7 @@ $(() => {
     initShareButtons()
     
     // Load status for all visible reviews
-    console.log('[Review] Initializing - found review items:', $('.review-item').length)
     $('.review-item').each(function() {
-        const reviewId = $(this).find('.btn-helpful').data('review-id')
-        console.log('[Review] Loading status for review:', reviewId)
         loadReviewStatus($(this))
     })
     
