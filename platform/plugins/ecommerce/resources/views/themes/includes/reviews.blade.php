@@ -12,8 +12,8 @@
         $showAvgRating ??= $product->reviews->isNotEmpty();
     @endphp
 
-    <div class="d-flex flex-row gap-5 product-review-container">
-        <div class="d-flex flex-column gap-3" style="flex: 0 0 25%;">
+    <div class="product-review-container @auth('customer') review-layout-column @else review-layout-row @endauth">
+        <div class="review-sidebar-column" style="flex: 0 0 25%;">
             @if ($showAvgRating)
                 <div class="review-sidebar-wrapper">
                     <div class="product-review-number review-sidebar-sticky">
@@ -76,7 +76,7 @@
             @endif
 
             @guest('customer')
-                <div class="review-guest-wrapper d-flex flex-row gap-3" style="flex: 0 0 75%;">
+                <div class="review-guest-wrapper" style="flex: 0 0 75%;">
                     <div class="review-guest-container">
                         <h3 class="review-guest-title">{{ __('Customer Say') }}</h3>
                         
@@ -105,7 +105,7 @@
                     </div>
                 </div>
             @else
-                <div class="review-logged-in-wrapper d-flex flex-column gap-3" style="flex: 0 0 75%;">
+                <div class="review-logged-in-wrapper" style="flex: 0 0 75%;">
                     <div class="review-logged-in-container">
                         <button type="button" class="btn-write-review-inline" id="btnWriteReviewInline">
                             <i class="ph ph-pencil-simple"></i>
