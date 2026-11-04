@@ -164,20 +164,10 @@ $(() => {
                             const productId = $this.find('input[name=product_id]').val()
                             refreshReviewActionSection(productId)
                             
-                            // Refresh review list using getReviewList if available
-                            if (typeof getReviewList === 'function') {
-                                const $reviewContainer = $('.review-list-container')
-                                if ($reviewContainer.length && $reviewContainer.data('ajax-url')) {
-                                    const getCurrentSearchParams = () => ({
-                                        search: $('.review-search-input').val() || '',
-                                        sort_by: $('.review-sort-select').val() || 'newest',
-                                        star: $('.review-star-filter').val() || ''
-                                    })
-                                    getReviewList($reviewContainer.data('ajax-url'), null, getCurrentSearchParams())
-                                }
-                            } else {
-                                // Fallback to custom refresh
-                                refreshReviewList($('.review-list-container').data('ajax-url'))
+                            // Refresh review list
+                            const $reviewContainer = $('.review-list-container')
+                            if ($reviewContainer.length && $reviewContainer.data('ajax-url')) {
+                                refreshReviewList($reviewContainer.data('ajax-url'))
                             }
                         }, 1500)
                     } else {
@@ -251,28 +241,26 @@ $(() => {
     // Helper function to refresh review list
     function refreshReviewList(ajaxUrl) {
         const $container = $('.review-list-container')
-        if (!$container.length || !ajaxUrl) return
+        if (!$container.length) return
 
         $.ajax({
             url: ajaxUrl,
             method: 'GET',
             beforeSend: () => {
-                $container.find('.review-list').html('<div class="loading-spinner text-center"><div class="spinner-border"></div></div>')
+                $container.append('<div class="loading-spinner"><div class="spinner-border"></div></div>')
             },
             success: (response) => {
-                console.log('[Review] List refresh success:', response)
-                
                 if (response.data) {
                     const $reviewList = $container.find('.review-list')
                     if ($reviewList.length) {
-                        $reviewList.html(response.data)
+                        $reviewList.replaceWith(response.data)
                     }
                 }
                 
                 if (response.message) {
-                    const $header = $container.find('h4')
+                    const $header = $('.product-reviews-container .product-reviews-header')
                     if ($header.length) {
-                        $header.text(response.message)
+                        $header.html(response.message)
                     }
                 }
                 
@@ -281,10 +269,9 @@ $(() => {
             },
             error: (xhr) => {
                 console.error('Failed to refresh review list:', xhr)
-                const $reviewList = $container.find('.review-list')
-                if ($reviewList.length) {
-                    $reviewList.html('<p class="text-danger text-center">Failed to load reviews. Please refresh the page.</p>')
-                }
+            },
+            complete: () => {
+                $container.find('.loading-spinner').remove()
             }
         })
     }
