@@ -219,6 +219,11 @@
                     <div class="modal-body review-modal-body">
                         @include($reviewFormView ?? EcommerceHelper::viewPath('includes.review-form'))
                     </div>
+                    <div class="modal-footer review-modal-footer">
+                        <button type="submit" form="review-form" class="btn btn-primary ps-btn">
+                            {{ trans('plugins/ecommerce::ecommerce.submit_review') }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
