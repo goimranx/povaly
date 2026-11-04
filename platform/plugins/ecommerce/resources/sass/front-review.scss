@@ -1628,7 +1628,8 @@
         align-items: center;
 
         .review-author-wrapper {
-            flex: 1;
+            flex: 0 0 50%;
+            width: 50%;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -1671,7 +1672,7 @@
 
             &__name {
                 font-size: 14px;
-                font-weight: 600;
+                font-weight: 400;
                 color: var(--global-color-text-main);
                 line-height: 1.4;
             }
@@ -1730,6 +1731,8 @@
     // Review Images Section (right side, vertically centered)
     &__info {
         .review-item__images {
+            flex: 0 0 50%;
+            width: 50%;
             display: flex;
             align-items: center;
             flex-shrink: 0;
@@ -1780,12 +1783,11 @@
             .badge-your-review {
                 display: inline-flex;
                 align-items: center;
-                padding: 4px 10px;
-                background-color: var(--global-color-primary);
-                color: #fff;
-                font-size: 12px;
+                padding: 0;
+                background: none;
+                color: var(--global-color-alert, #dc3545);
+                font-size: 13px;
                 font-weight: 500;
-                border-radius: 12px;
             }
 
             .btn-delete-review {
@@ -1908,30 +1910,51 @@
             gap: 4px;
 
             .meta-purchased-date {
-                color: var(--global-color-text-secondary);
-                font-weight: 500;
+                color: var(--global-color-text-muted, #6c757d);
+                font-weight: 400;
+                font-size: 13px;
             }
 
             .meta-variations {
                 display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
+                flex-direction: column;
+                gap: 2px;
 
-                .variation-item {
-                    padding: 2px 8px;
-                    background-color: var(--global-color-card-bg);
-                    border: 1px solid var(--global-color-border);
-                    border-radius: 4px;
-                    color: var(--global-color-text-secondary);
-                    font-size: 12px;
+                .variation-text {
+                    color: var(--global-color-text-muted, #6c757d);
+                    font-size: 13px;
+                    font-weight: 400;
                 }
             }
         }
 
         .review-meta__right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
             .review-date {
-                color: var(--global-color-text-secondary);
+                color: var(--global-color-text-muted, #6c757d);
                 font-size: 13px;
+            }
+
+            .vendor-reply-toggle-btn {
+                display: inline-flex;
+                align-items: center;
+                padding: 0;
+                background: none;
+                border: none;
+                color: var(--global-color-link);
+                font-size: 13px;
+                cursor: pointer;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                font-weight: 400;
+
+                &:hover {
+                    color: var(--global-color-link-hover);
+                    text-decoration: underline;
+                }
             }
         }
     }
@@ -2012,31 +2035,6 @@
     // Vendor Reply Form
     &__reply-form {
         margin-top: 12px;
-
-        .vendor-reply-toggle-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: none;
-            border: 1px solid var(--global-color-border);
-            border-radius: 6px;
-            color: var(--global-color-text-secondary);
-            font-size: 13px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s ease;
-
-            i {
-                font-size: 16px;
-            }
-
-            &:hover {
-                border-color: var(--global-color-primary);
-                color: var(--global-color-primary);
-                background-color: rgba(var(--primary-color-rgb, 13, 110, 253), 0.05);
-            }
-        }
 
         .vendor-reply-form {
             margin-top: 12px;
