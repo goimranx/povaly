@@ -586,7 +586,7 @@
             @endphp
 
             @if($totalImages > 0)
-            <div class="ps-customer-photos-gallery">
+            <div class="ps-customer-photos-gallery" id="ps-customer-photos-gallery">
                 <div class="ps-container">
                     <div class="ps-block--customer-photos">
                         <div class="ps-block__header">
