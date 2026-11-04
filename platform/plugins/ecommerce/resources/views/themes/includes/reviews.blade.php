@@ -12,10 +12,10 @@
         $showAvgRating ??= $product->reviews->isNotEmpty();
     @endphp
 
-    <div class="d-flex flex-column gap-5 product-review-container">
-        <div class="row g-3">
+    <div class="product-review-container">
+        <div class="d-flex flex-column gap-3">
             @if ($showAvgRating)
-                <div class="col-12 col-md-4 review-sidebar-wrapper">
+                <div class="review-sidebar-wrapper">
                     <div class="product-review-number review-sidebar-sticky">
                         <h2 class="product-review-number-title">{{ trans('plugins/ecommerce::review.customer_reviews') }}</h2>
 
@@ -71,21 +71,12 @@
                                 </div>
                             @endforeach
                         </div>
-
-                        @auth('customer')
-                            @if(isset($checkReview) && !$checkReview['error'])
-                                <button type="button" class="btn-write-review-sidebar" id="btnWriteReview">
-                                    <i class="ph ph-pencil-simple"></i>
-                                    {{ trans('plugins/ecommerce::review.write_a_review') }}
-                                </button>
-                            @endif
-                        @endauth
                     </div>
                 </div>
             @endif
 
             @guest('customer')
-                <div @class(['col-12', 'col-md-8' => $showAvgRating])>
+                <div class="review-guest-wrapper">
                     <div class="review-guest-container">
                         <h3 class="review-guest-title">{{ __('Customer Say') }}</h3>
                         
@@ -114,7 +105,7 @@
                     </div>
                 </div>
             @else
-                <div @class(['col-12', 'col-md-8' => $showAvgRating])>
+                <div class="review-logged-in-wrapper">
                     <div class="review-logged-in-container">
                         <button type="button" class="btn-write-review-inline" id="btnWriteReviewInline">
                             <i class="ph ph-pencil-simple"></i>

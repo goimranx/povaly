@@ -547,7 +547,6 @@ $(() => {
 
 // Write Review Button Toggle
 document.addEventListener('DOMContentLoaded', function() {
-    const btnWriteReview = document.getElementById('btnWriteReview');
     const btnWriteReviewInline = document.getElementById('btnWriteReviewInline');
     const reviewFormContainer = document.getElementById('reviewFormContainer');
     
@@ -561,10 +560,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 reviewFormContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }
-    }
-    
-    if (btnWriteReview) {
-        btnWriteReview.addEventListener('click', toggleReviewForm);
     }
     
     if (btnWriteReviewInline) {
