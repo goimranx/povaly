@@ -427,37 +427,75 @@ $(() => {
     })
 
     // Sync offcanvas filters with main page (for mobile offcanvas)
+    // Use a flag to prevent infinite loops
+    let isSyncing = false
+
     $(document).on('change', '#reviewFiltersOffcanvas .review-star-filter', function() {
+        if (isSyncing) return
+        
+        isSyncing = true
         const selectedValue = $(this).val()
-        // Update main page filter and trigger change event to fire existing listeners
-        $('.product-review-controls .review-star-filter').val(selectedValue).trigger('change')
+        // Update main page filter without triggering sync back
+        $('.product-review-controls .review-star-filter').val(selectedValue)
+        
+        // Manually call the filter logic
+        updateClearButtonVisibility()
+        if ($reviewListContainer.length) {
+            getReviewList($reviewListContainer.data('ajax-url'), null, getCurrentSearchParams())
+        }
+        
+        setTimeout(() => { isSyncing = false }, 100)
     })
 
     $(document).on('change', '#reviewFiltersOffcanvas .review-sort-select', function() {
+        if (isSyncing) return
+        
+        isSyncing = true
         const selectedValue = $(this).val()
-        // Update main page sort and trigger change event to fire existing listeners
-        $('.product-review-controls .review-sort-select').val(selectedValue).trigger('change')
+        // Update main page sort without triggering sync back
+        $('.product-review-controls .review-sort-select').val(selectedValue)
+        
+        // Manually call the sort logic
+        updateClearButtonVisibility()
+        if ($reviewListContainer.length) {
+            getReviewList($reviewListContainer.data('ajax-url'), null, getCurrentSearchParams())
+        }
+        
+        setTimeout(() => { isSyncing = false }, 100)
     })
 
     let offcanvasSearchTimeout
     $(document).on('input', '#reviewFiltersOffcanvas .review-search-input', function() {
+        if (isSyncing) return
+        
         const searchValue = $(this).val()
-        // Update main page search and trigger input event to fire existing listeners
-        $('.product-review-controls .review-search-input').val(searchValue).trigger('input')
+        // Update main page search without triggering sync back
+        $('.product-review-controls .review-search-input').val(searchValue)
+        
+        clearTimeout(offcanvasSearchTimeout)
+        offcanvasSearchTimeout = setTimeout(() => {
+            updateClearButtonVisibility()
+            if ($reviewListContainer.length) {
+                getReviewList($reviewListContainer.data('ajax-url'), null, getCurrentSearchParams())
+            }
+        }, 500)
     })
 
-    // Sync main page changes back to offcanvas
+    // Sync main page changes back to offcanvas (when not syncing from offcanvas)
     $(document).on('change', '.product-review-controls .review-star-filter', function() {
+        if (isSyncing) return
         const selectedValue = $(this).val()
         $('#reviewFiltersOffcanvas .review-star-filter').val(selectedValue)
     })
 
     $(document).on('change', '.product-review-controls .review-sort-select', function() {
+        if (isSyncing) return
         const selectedValue = $(this).val()
         $('#reviewFiltersOffcanvas .review-sort-select').val(selectedValue)
     })
 
     $(document).on('input', '.product-review-controls .review-search-input', function() {
+        if (isSyncing) return
         const searchValue = $(this).val()
         $('#reviewFiltersOffcanvas .review-search-input').val(searchValue)
     })
