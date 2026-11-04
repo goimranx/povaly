@@ -166,10 +166,11 @@
             .ps-new-arrival-related__header {
                 display: flex;
                 align-items: center;
-                justify-content: space-between;
+                justify-content: start;
                 padding: 20px 15px 15px 15px;
                 border-top: 1px solid var(--global-color-border-strong);
                 margin-bottom: 0;
+                flex-wrap: wrap;
             }
 
             @media (max-width: 767px) {
@@ -190,7 +191,7 @@
                 font-weight: 700;
                 margin: 0;
                 color: var(--global-color-text-main);
-                flex-grow: 1;
+                flex-grow: 0;
                 line-height: 1.3;
             }
 
