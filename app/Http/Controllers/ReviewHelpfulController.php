@@ -40,6 +40,13 @@ class ReviewHelpfulController extends Controller
         $sessionId = $request->session()->getId();
         $ipAddress = $request->ip();
 
+        \Log::info('ReviewHelpful::store', [
+            'review_id' => $reviewId,
+            'user_id' => $userId,
+            'session_id' => $sessionId,
+            'ip' => $ipAddress
+        ]);
+
         $success = ReviewHelpful::addMark(
             $reviewId,
             $userId,
@@ -49,11 +56,18 @@ class ReviewHelpfulController extends Controller
 
         if ($success) {
             $totalMarks = ReviewHelpful::getTotalMarks($reviewId);
+            $userMarked = ReviewHelpful::hasUserMarked($reviewId, $userId, $sessionId);
+            
+            \Log::info('ReviewHelpful::store success', [
+                'total_count' => $totalMarks,
+                'user_marked' => $userMarked
+            ]);
             
             return response()->json([
                 'success' => true,
                 'message' => 'Review marked as helpful',
                 'total_count' => $totalMarks,
+                'user_marked' => $userMarked,
             ]);
         }
 
