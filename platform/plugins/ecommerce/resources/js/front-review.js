@@ -947,6 +947,35 @@ $(() => {
         loadReviewStatus($(this))
     })
     
+    // Handle deep linking to specific review via anchor (#review-123)
+    const handleReviewDeepLink = () => {
+        const hash = window.location.hash
+        if (hash && hash.startsWith('#review-')) {
+            const reviewId = hash.replace('#review-', '')
+            const $targetReview = $('#review-' + reviewId)
+            
+            if ($targetReview.length) {
+                // Review found on current page - scroll to it
+                setTimeout(() => {
+                    $targetReview[0].scrollIntoView({ behavior: 'smooth', block: 'center' })
+                    $targetReview.addClass('highlight-review')
+                    setTimeout(() => $targetReview.removeClass('highlight-review'), 2000)
+                }, 500)
+            } else {
+                // Review not on current page - might be on another pagination page
+                // Try to load all reviews or search for it
+                console.log('[Review] Review #' + reviewId + ' not found on current page')
+                // You could add logic here to load the correct page if you have pagination data
+            }
+        }
+    }
+    
+    // Call on page load
+    handleReviewDeepLink()
+    
+    // Re-handle after AJAX updates
+    $(window).on('hashchange', handleReviewDeepLink)
+    
     // Re-initialize after AJAX review list load
     $(document).on('reviewListUpdated', function() {
         initHelpfulButtons()
@@ -956,6 +985,9 @@ $(() => {
         $('.review-item').each(function() {
             loadReviewStatus($(this))
         })
+        
+        // Re-check deep link in case review is now visible
+        handleReviewDeepLink()
     })
     
     // Also hook into the existing review list loader if available

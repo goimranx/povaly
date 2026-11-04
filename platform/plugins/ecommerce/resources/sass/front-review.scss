@@ -2129,3 +2129,26 @@
         }
     }
 }
+
+
+// Highlight animation for deep-linked reviews
+.review-item.highlight-review {
+    animation: highlightPulse 2s ease-in-out;
+    background: rgba(var(--global-color-primary-rgb, 13, 110, 253), 0.05) !important;
+    border-color: var(--global-color-primary) !important;
+}
+
+@keyframes highlightPulse {
+    0% {
+        background: rgba(var(--global-color-primary-rgb, 13, 110, 253), 0.15);
+        box-shadow: 0 0 0 0 rgba(var(--global-color-primary-rgb, 13, 110, 253), 0.4);
+    }
+    50% {
+        background: rgba(var(--global-color-primary-rgb, 13, 110, 253), 0.08);
+        box-shadow: 0 0 0 10px rgba(var(--global-color-primary-rgb, 13, 110, 253), 0);
+    }
+    100% {
+        background: rgba(var(--global-color-primary-rgb, 13, 110, 253), 0.05);
+        box-shadow: 0 0 0 0 rgba(var(--global-color-primary-rgb, 13, 110, 253), 0);
+    }
+}
