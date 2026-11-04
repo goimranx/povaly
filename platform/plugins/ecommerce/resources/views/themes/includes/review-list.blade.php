@@ -25,40 +25,46 @@
         <div class="review-item__main">
             {{-- Review Info Section --}}
             <div class="review-item__info">
-                <div class="review-author">
-                    <div class="review-author__avatar">
-                        <img src="{{ $review->customer_avatar_url }}" alt="{{ $review->display_name }}">
+                <div class="review-author-wrapper">
+                    <div class="review-author">
+                        <div class="review-author__avatar">
+                            @if($review->customer_avatar_url)
+                                <img src="{{ $review->customer_avatar_url }}" alt="{{ $review->display_name }}">
+                            @else
+                                <i class="ph ph-user"></i>
+                            @endif
+                        </div>
+                        <div class="review-author__details">
+                            <div class="review-author__name">{{ $review->display_name }}</div>
+                            <div class="review-author__rating">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    @if ($i <= $review->star)
+                                        <i class="ph-fill ph-star"></i>
+                                    @else
+                                        <i class="ph ph-star"></i>
+                                    @endif
+                                @endfor
+                            </div>
+                        </div>
                     </div>
-                    <div class="review-author__details">
-                        <div class="review-author__name">{{ $review->display_name }}</div>
-                        <div class="review-author__rating">
-                            @for ($i = 1; $i <= 5; $i++)
-                                @if ($i <= $review->star)
-                                    <i class="ph-fill ph-star"></i>
-                                @else
-                                    <i class="ph ph-star"></i>
-                                @endif
-                            @endfor
-                        </div>
-                        <div class="review-author__comment" data-full-comment="{{ $review->comment }}">
-                            {{ $review->comment }}
-                        </div>
+                    <div class="review-author__comment" data-full-comment="{{ $review->comment }}">
+                        {{ $review->comment }}
                     </div>
                 </div>
-            </div>
 
-            {{-- Review Images Section --}}
-            @if (EcommerceHelper::isCustomerReviewImageUploadEnabled() && $review->images)
-                <div class="review-item__images">
-                    <div class="review-images">
-                        @foreach ($review->images as $image)
-                            <a href="{{ RvMedia::getImageUrl($image) }}" class="review-image-thumb">
-                                <img src="{{ RvMedia::getImageUrl($image, 'thumb') }}" alt="{{ $review->comment }}">
-                            </a>
-                        @endforeach
+                {{-- Review Images Section --}}
+                @if (EcommerceHelper::isCustomerReviewImageUploadEnabled() && $review->images)
+                    <div class="review-item__images">
+                        <div class="review-images">
+                            @foreach ($review->images as $image)
+                                <a href="{{ RvMedia::getImageUrl($image) }}" class="review-image-thumb">
+                                    <img src="{{ RvMedia::getImageUrl($image, 'thumb') }}" alt="{{ $review->comment }}">
+                                </a>
+                            @endforeach
+                        </div>
                     </div>
-                </div>
-            @endif
+                @endif
+            </div>
 
             {{-- Review Actions Section --}}
             <div class="review-item__actions">
