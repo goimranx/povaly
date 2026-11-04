@@ -2,12 +2,15 @@
 .ps-shopping-cart-enhanced {
     min-height: 100vh;
     padding: 20px 0;
+    
+    .ps-container {
+        background: var(--global-color-card-bg);
+    }
 }
 
 .ps-cart-container {
     max-width: 1400px;
     margin: 0 auto;
-    background: var(--global-color-card-bg) !important;
 }
 
 .ps-cart-layout {
