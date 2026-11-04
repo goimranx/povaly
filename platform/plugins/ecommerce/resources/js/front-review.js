@@ -66,6 +66,9 @@ $(() => {
                 Review.updateLazyLoad()
 
                 initLightGallery($reviewListContainer.find('.review-images'))
+                
+                // Trigger event for other components to re-initialize
+                $(document).trigger('reviewListUpdated')
 
                 if (successCallback) {
                     successCallback()
