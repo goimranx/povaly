@@ -12,7 +12,6 @@ use Botble\Ecommerce\Http\Requests\Fronts\ReviewRequest;
 use Botble\Ecommerce\Http\Requests\ReviewReplyRequest;
 use Botble\Ecommerce\Models\Product;
 use Botble\Ecommerce\Models\Review;
-use Botble\Ecommerce\Models\Order;
 use Botble\Ecommerce\Traits\CheckReviewConditionTrait;
 use Botble\Media\Facades\RvMedia;
 use Botble\SeoHelper\Facades\SeoHelper;
@@ -158,41 +157,8 @@ class ReviewController extends BaseController
 
         $reviews = EcommerceHelper::getProductReviews($product, $star, $perPage, $search, $sortBy);
 
-        // Check review eligibility for mobile button
-        $checkReview = ['error' => false];
-        if (auth('customer')->check()) {
-            $customer = auth('customer')->user();
-            $existingReview = Review::query()
-                ->where('product_id', $product->id)
-                ->where('customer_id', $customer->id)
-                ->exists();
-
-            if ($existingReview) {
-                $checkReview = [
-                    'error' => true,
-                    'type' => 'already_reviewed',
-                ];
-            } elseif (EcommerceHelper::isReviewVerifiedPurchaseEnabled()) {
-                try {
-                    $hasPurchased = Order::query()
-                        ->where('user_id', $customer->id)
-                        ->whereHas('products', function ($query) use ($product) {
-                            $query->where('ec_order_product.product_id', $product->id);
-                        })
-                        ->exists();
-
-                    if (! $hasPurchased) {
-                        $checkReview = [
-                            'error' => true,
-                            'type' => 'purchase_required',
-                        ];
-                    }
-                } catch (\Exception $e) {
-                    // If there's an error checking purchase, allow review
-                    \Log::error('Error checking purchase for review: ' . $e->getMessage());
-                }
-            }
-        }
+        // Check review eligibility for mobile button using the existing trait method
+        $checkReview = $this->checkReviewCondition($product->id);
 
         if ($star) {
             $message = __(':total review(s) ":star star" for ":product"', [
