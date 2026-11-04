@@ -550,7 +550,7 @@ class EcommerceHelper
         return 'required|' . $rule;
     }
 
-    public function getProductReviews(Product $product, int $star = 0, int $perPage = 2, string $search = '', string $sortBy = 'newest'): LengthAwarePaginator
+    public function getProductReviews(Product $product, int $star = 0, int $perPage = 1, string $search = '', string $sortBy = 'newest'): LengthAwarePaginator
     {
         $product->loadMissing('variations');
 
