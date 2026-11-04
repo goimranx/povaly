@@ -978,6 +978,125 @@
         font-size: 13px !important;
         padding: 10px 20px !important;
     }
+
+    // Mobile-specific: Hide desktop controls, show mobile header
+    #review-controls-section {
+        display: none !important;
+    }
+
+    .review-mobile-header {
+        display: flex !important;
+    }
+}
+
+// Mobile Review Header with Offcanvas Trigger
+.review-mobile-header {
+    display: none;
+    background: var(--global-color-card-bg);
+    border: 1px solid var(--global-color-border-strong);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+
+    .review-mobile-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+
+        &-left {
+            flex: 1;
+
+            .product-review-number-title {
+                font-size: 16px;
+                font-weight: 600;
+                margin: 0 0 0.5rem 0;
+            }
+
+            .product-review-summary-rating {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 0.5rem;
+
+                .rating-stars-custom {
+                    display: flex;
+                    gap: 2px;
+
+                    i {
+                        font-size: 0.9rem;
+                        color: #ddd;
+
+                        &.filled {
+                            color: var(--global-color-primary);
+                        }
+
+                        &.half-filled {
+                            color: var(--global-color-primary);
+                        }
+                    }
+                }
+
+                .rating-text {
+                    font-size: 13px;
+                    margin: 0;
+                    color: var(--global-color-text-main);
+                }
+            }
+
+            .review-mobile-count {
+                font-size: 13px;
+                color: var(--global-color-text-secondary);
+            }
+        }
+
+        .btn-review-offcanvas-toggle {
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--global-color-text-main);
+            transition: all 0.2s ease;
+
+            i {
+                font-size: 1.5rem;
+            }
+
+            &:hover {
+                color: var(--global-color-primary);
+            }
+        }
+    }
+}
+
+// Offcanvas Styling
+.offcanvas {
+    &-section {
+        &-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--global-color-text-main);
+        }
+    }
+
+    .product-review-summary {
+        margin-bottom: 0;
+    }
+
+    .product-review-progress {
+        margin-top: 1rem;
+    }
+
+    .btn {
+        &-sm {
+            font-size: 13px;
+            padding: 8px 16px;
+        }
+    }
 }
 
 
