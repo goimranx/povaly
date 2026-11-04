@@ -116,7 +116,7 @@
         }
     }
 
-    &-item {
+    .product-review-item {
         &:last-child {
             border-bottom: none !important;
         }
@@ -138,6 +138,39 @@
                 height: 100%;
                 background-color: var(--primary-color, #0d6efd);
                 border-radius: 0.375rem 0 0 0.375rem;
+            }
+        }
+
+        &__images {
+            .review-images {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 10px;
+            }
+
+            .review-image-thumb {
+                display: block;
+                width: 80px;
+                height: 80px;
+                border: 1px solid #e5e7eb;
+                border-radius: 6px;
+                overflow: hidden;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                position: relative;
+
+                &:hover {
+                    border-color: var(--global-color-primary);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                    transform: translateY(-2px);
+                }
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
             }
         }
 
@@ -268,9 +301,9 @@
                 }
 
                 .btn-primary {
-                    background-color: var(--primary-color, #0d6efd) !important;
-                    border-color: var(--primary-color, #0d6efd) !important;
-                    color: #fff !important;
+                    background-color: var(--ec-btn-cart-bg) !important;
+                    border-color: var(--ec-btn-cart-bg) !important;
+                    color: var(--ec-btn-cart-text) !important;
 
                     &:hover {
                         opacity: 0.9;
@@ -802,6 +835,148 @@
         .review-guest-signin-box {
             flex-wrap: wrap;
         }
+    }
+}
+
+// Mobile Responsive Styles for Review Section
+@media (max-width: 991px) {
+    .product-review-container {
+        flex-direction: column !important;
+        gap: 2rem !important;
+
+        .review-sidebar-column {
+            width: 100% !important;
+            flex-direction: row !important;
+            gap: 2rem !important;
+            position: static !important;
+
+            .review-sidebar-wrapper {
+                flex: 1;
+            }
+
+            .review-guest-wrapper {
+                width: 100% !important;
+                flex: 1;
+            }
+
+            .review-logged-in-wrapper {
+                flex: 1;
+            }
+        }
+
+        .review-list-container {
+            width: 100% !important;
+        }
+    }
+
+    .product-review-controls {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+
+        .review-global-ratings-text {
+            width: 100%;
+        }
+
+        .review-inline-controls {
+            width: 100%;
+            flex-direction: column !important;
+            gap: 0.75rem !important;
+
+            .review-search-box,
+            .review-filter-box,
+            .review-sort-box {
+                width: 100%;
+            }
+
+            .review-star-filter,
+            .review-sort-select,
+            .review-search-input {
+                width: 100% !important;
+            }
+        }
+    }
+}
+
+@media (max-width: 767px) {
+    .product-review-container {
+        gap: 1.5rem !important;
+
+        .review-sidebar-column {
+            flex-direction: column !important;
+            gap: 1.5rem !important;
+
+            &.d-flex.flex-row {
+                flex-direction: column !important;
+            }
+
+            .review-sidebar-wrapper,
+            .review-guest-wrapper,
+            .review-logged-in-wrapper {
+                width: 100% !important;
+            }
+        }
+    }
+
+    .product-review-number-title {
+        font-size: 18px !important;
+    }
+
+    .product-review-summary-rating {
+        .rating-stars-custom i {
+            font-size: 1rem !important;
+        }
+
+        .rating-text {
+            font-size: 13px !important;
+        }
+    }
+
+    .product-review-progress-bar {
+        gap: 0.5rem !important;
+
+        &-title,
+        &-percent {
+            font-size: 13px !important;
+            min-width: 45px !important;
+        }
+    }
+
+    .product-review-controls {
+        gap: 0.75rem !important;
+
+        .review-global-ratings-text {
+            font-size: 14px !important;
+        }
+
+        .review-inline-controls {
+            gap: 0.5rem !important;
+        }
+
+        .review-filter-box,
+        .review-sort-box {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            width: 100%;
+
+            label {
+                margin-bottom: 0.25rem !important;
+                font-size: 13px !important;
+            }
+        }
+    }
+
+    .review-section-title {
+        font-size: 16px !important;
+    }
+
+    .review-section-subtitle {
+        font-size: 13px !important;
+    }
+
+    .btn-write-review-inline {
+        font-size: 13px !important;
+        padding: 10px 20px !important;
     }
 }
 

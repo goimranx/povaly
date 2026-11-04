@@ -667,6 +667,37 @@
                     setupEventListeners();
                 });
 
+                // Global function to scroll to gallery and activate specific image
+                window.scrollToGalleryImage = function(imageUrl) {
+                    // Find the index of the image
+                    const imageIndex = reviewImages.findIndex(img => img.url === imageUrl);
+                    
+                    if (imageIndex !== -1) {
+                        currentImageIndex = imageIndex;
+                        
+                        // Calculate which page this image is on
+                        const requiredPage = Math.floor(currentImageIndex / imagesPerPage) + 1;
+                        if (requiredPage !== currentPage) {
+                            currentPage = requiredPage;
+                            if (!loadedPages.has(currentPage)) {
+                                loadThumbnailPage(currentPage);
+                            }
+                            updatePaginationUI();
+                        }
+                        
+                        // Update display
+                        updateMainPhoto();
+                        updateThumbnailActive();
+                        updateNavigationButtons();
+                    }
+                    
+                    // Scroll to the gallery section
+                    const gallerySection = document.getElementById('ps-customer-photos-gallery');
+                    if (gallerySection) {
+                        gallerySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                };
+
                 function setupEventListeners() {
                     // Main photo navigation
                     document.getElementById('photoNavPrev').addEventListener('click', () => {

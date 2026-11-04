@@ -35,9 +35,10 @@ $(() => {
     let imagesReviewBuffer = []
 
     const initLightGallery = (element) => {
-        element.lightGallery({
-            thumbnail: true,
-        })
+        // Lightgallery removed - review images now link to customer photos gallery
+        // element.lightGallery({
+        //     thumbnail: true,
+        // })
     }
 
     const getReviewList = (url, successCallback, additionalParams = {}) => {

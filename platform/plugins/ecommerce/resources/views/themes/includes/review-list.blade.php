@@ -57,7 +57,10 @@
                     <div class="review-item__images">
                         <div class="review-images">
                             @foreach ($review->images as $image)
-                                <a href="{{ RvMedia::getImageUrl($image) }}" class="review-image-thumb">
+                                <a href="#ps-customer-photos-gallery" 
+                                   class="review-image-thumb review-image-gallery-link" 
+                                   data-image-url="{{ RvMedia::getImageUrl($image) }}"
+                                   onclick="event.preventDefault(); scrollToGalleryImage('{{ RvMedia::getImageUrl($image) }}');">
                                     <img src="{{ RvMedia::getImageUrl($image, 'thumb') }}" alt="{{ $review->comment }}">
                                 </a>
                             @endforeach
