@@ -40,14 +40,14 @@
                                 </div>
                             </div>
 
-                            @include('ecommerce.includes.cart-items-enhanced')
+                            @include(Theme::getThemeNamespace('ecommerce.includes.cart-items-enhanced'))
                         </div>
                     </div>
 
                     {{-- Right Section: Summary --}}
                     <div class="ps-cart-summary-section">
                         <div class="ps-cart-summary-card">
-                            @include('ecommerce.includes.cart-summary')
+                            @include(Theme::getThemeNamespace('ecommerce.includes.cart-summary'))
                         </div>
                     </div>
                 </div>
