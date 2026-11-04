@@ -129,26 +129,6 @@
             @endguest
         </div>
 
-        @if (EcommerceHelper::isCustomerReviewImageUploadEnabled() && get_ecommerce_setting('display_uploaded_customer_review_images_list', true) && ($reviewImagesCount = count($product->review_images)) > 0)
-            <div class="review-images-container">
-                <h4 class="mb-3">{{ trans('plugins/ecommerce::review.images_from_customer', ['count' => number_format($reviewImagesCount)]) }}</h4>
-
-                <div class="row g-1 review-images">
-                    @foreach ($product->review_images as $image)
-                        <a href="{{ RvMedia::getImageUrl($image) }}" class="col-3 col-md-2 col-xl-1 position-relative" @style(['display: none !important' => $loop->iteration > 12])>
-                            <img src="{{ RvMedia::getImageUrl($image, 'thumb') }}" alt="{{ $product->name }}" class="img-thumbnail">
-                            @if ($loop->iteration === 12)
-                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-75 rounded"></div>
-                                <div class="position-absolute top-50 start-50 translate-middle text-white">
-                                    <span class="badge bg-dark">+{{ trans('plugins/ecommerce::review.count_more', ['count' => number_format($reviewImagesCount - 12)]) }}</span>
-                                </div>
-                            @endif
-                        </a>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
         @if ($product->reviews->isNotEmpty())
             <div class="position-relative review-list-container" data-ajax-url="{{ route('public.ajax.reviews', $product->id) }}">
                 <h4 class="mb-3">{{ trans('plugins/ecommerce::review.total_reviews_for_product', ['total' => number_format($product->reviews_count), 'product' => $product->name]) }}</h4>
