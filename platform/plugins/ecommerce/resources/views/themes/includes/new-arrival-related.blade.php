@@ -168,8 +168,8 @@
                 align-items: center;
                 justify-content: space-between;
                 padding: 20px 15px 15px 15px;
-                border-bottom: 1px solid var(--global-color-border-strong);
-                margin-bottom: 20px;
+                border-top: 1px solid var(--global-color-border-strong);
+                margin-bottom: 0;
             }
 
             @media (max-width: 767px) {
@@ -394,7 +394,7 @@
                 }
 
                 .ps-new-arrival-related__header {
-                    padding-bottom: 10px;
+                    padding-bottom: 15px;
                     margin-bottom: 0;
                 }
 
