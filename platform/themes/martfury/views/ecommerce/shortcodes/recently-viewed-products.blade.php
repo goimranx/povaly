@@ -92,6 +92,12 @@
         background: var(--global-color-site-bg);
     }
 
+    .ps-recently-viewed-products .ps-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        border-bottom: none !important;
+    }
+
     /* Recently Viewed Block */
     .ps-block--recently-viewed {
         border: none;

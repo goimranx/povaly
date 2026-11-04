@@ -149,6 +149,10 @@
         background: var(--global-color-site-bg);
     }
 
+    .ps-similar-customers-recommendations .ps-container {
+        margin: 0 !important;
+    }
+
     /* Similar Customers Block */
     .ps-block--similar-customers {
         border: none;
