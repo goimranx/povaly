@@ -44,6 +44,7 @@ use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Routing\RouteRegistrar;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -550,7 +551,7 @@ class EcommerceHelper
         return 'required|' . $rule;
     }
 
-    public function getProductReviews(Product $product, int $star = 0, int $perPage = 1, string $search = '', string $sortBy = 'newest'): LengthAwarePaginator
+    public function getProductReviews(Product $product, int $star = 0, int $perPage = 1, string $search = '', string $sortBy = 'newest'): Paginator
     {
         $product->loadMissing('variations');
 
@@ -607,8 +608,7 @@ class EcommerceHelper
             ->when($sortBy === 'newest' || ! in_array($sortBy, ['oldest', 'highest_rating', 'lowest_rating']), function ($query): void {
                 $query->orderByDesc('created_at');
             })
-            ->paginate($perPage)
-            ->onEachSide(1)
+            ->simplePaginate($perPage)
             ->appends(['star' => $star, 'search' => $search, 'sort_by' => $sortBy]);
     }
 
