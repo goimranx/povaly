@@ -164,10 +164,20 @@ $(() => {
                             const productId = $this.find('input[name=product_id]').val()
                             refreshReviewActionSection(productId)
                             
-                            // Refresh review list
-                            const $reviewContainer = $('.review-list-container')
-                            if ($reviewContainer.length && $reviewContainer.data('ajax-url')) {
-                                refreshReviewList($reviewContainer.data('ajax-url'))
+                            // Refresh review list using getReviewList if available
+                            if (typeof getReviewList === 'function') {
+                                const $reviewContainer = $('.review-list-container')
+                                if ($reviewContainer.length && $reviewContainer.data('ajax-url')) {
+                                    const getCurrentSearchParams = () => ({
+                                        search: $('.review-search-input').val() || '',
+                                        sort_by: $('.review-sort-select').val() || 'newest',
+                                        star: $('.review-star-filter').val() || ''
+                                    })
+                                    getReviewList($reviewContainer.data('ajax-url'), null, getCurrentSearchParams())
+                                }
+                            } else {
+                                // Fallback to custom refresh
+                                refreshReviewList($('.review-list-container').data('ajax-url'))
                             }
                         }, 1500)
                     } else {

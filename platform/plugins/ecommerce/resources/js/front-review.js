@@ -277,15 +277,14 @@ $(() => {
             success: ({ message }) => {
                 Review.showSuccess(message)
 
-                // Refresh review action section and list via AJAX
+                // Refresh review action section via AJAX
                 const productId = $('.review-logged-in-wrapper').data('product-id')
                 if (productId && typeof window.refreshReviewActionSection === 'function') {
                     window.refreshReviewActionSection(productId)
                 }
                 
-                if (typeof window.refreshReviewList === 'function') {
-                    window.refreshReviewList($reviewListContainer.data('ajax-url'))
-                }
+                // Reload the review list using original function
+                getReviewList($reviewListContainer.data('ajax-url'), null, getCurrentSearchParams())
             },
             error: (xhr) => {
                 let message = 'An error occurred while deleting the review.'
