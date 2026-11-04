@@ -886,8 +886,6 @@ $(() => {
             method: 'GET'
         })
         .done((data) => {
-            console.log('[Review] Load status success:', data)
-            
             // Update cache
             reviewDataCache.helpful[reviewId] = {
                 user_marked: data.user_marked || false,

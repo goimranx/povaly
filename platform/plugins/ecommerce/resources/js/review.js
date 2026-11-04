@@ -130,7 +130,7 @@ $(() => {
             }
         )
 
-        $(document).on('submit', '.ecommerce-form-review-product', function (e) {
+        $(document).on('submit', '.ecommerce-form-review-product, #review-form', function (e) {
             e.preventDefault()
             e.stopPropagation()
             const $this = $(e.currentTarget)
