@@ -135,24 +135,25 @@
                 </script>
 
                 <div class="image-upload__viewer d-flex">
-                    <div class="image-viewer__list position-relative">
-                        <div class="image-upload__uploader-container">
-                            <div class="d-table">
-                                <div class="image-upload__uploader">
-                                    <x-core::icon name="ti ti-photo" />
-                                    <div class="image-upload__text">{{ trans('plugins/ecommerce::ecommerce.upload_photos') }}</div>
-                                    <input
-                                        class="image-upload__file-input"
-                                        name="images[]"
-                                        data-max-files="{{ EcommerceHelper::reviewMaxFileNumber() }}"
-                                        data-max-size="{{ EcommerceHelper::reviewMaxFileSize(true) }}"
-                                        data-max-size-message="{{ trans('validation.max.file', ['attribute' => '__attribute__', 'max' => '__max__']) }}"
-                                        type="file"
-                                        accept="image/png,image/jpeg,image/jpg"
-                                        multiple="multiple"
-                                    >
-                                </div>
-                            </div>
+                    <div class="image-viewer__list position-relative"></div>
+                </div>
+
+                <div class="image-upload__uploader-container">
+                    <div class="d-table">
+                        <div class="image-upload__uploader">
+                            <x-core::icon name="ti ti-photo" />
+                            <div class="image-upload__text">{{ trans('plugins/ecommerce::ecommerce.upload_photos') }}</div>
+                            <div class="image-upload__file-info">PNG, JPG (Max {{ EcommerceHelper::reviewMaxFileSize() }})</div>
+                            <input
+                                class="image-upload__file-input"
+                                name="images[]"
+                                data-max-files="{{ EcommerceHelper::reviewMaxFileNumber() }}"
+                                data-max-size="{{ EcommerceHelper::reviewMaxFileSize(true) }}"
+                                data-max-size-message="{{ trans('validation.max.file', ['attribute' => '__attribute__', 'max' => '__max__']) }}"
+                                type="file"
+                                accept="image/png,image/jpeg,image/jpg"
+                                multiple="multiple"
+                            >
                         </div>
                     </div>
                 </div>
@@ -169,16 +170,18 @@
                 </div>
             @endif
 
-            <button
-                type="submit"
-                @class([
-                    $reviewButtonClass ?? 'btn btn-primary ps-btn',
-                    'disabled' => ! auth('customer')->check(),
-                ])
-                @disabled(! auth('customer')->check())
-            >
-                {{ trans('plugins/ecommerce::ecommerce.submit_review') }}
-            </button>
+            <div class="review-modal-footer">
+                <button
+                    type="submit"
+                    @class([
+                        $reviewButtonClass ?? 'btn btn-primary ps-btn',
+                        'disabled' => ! auth('customer')->check(),
+                    ])
+                    @disabled(! auth('customer')->check())
+                >
+                    {{ trans('plugins/ecommerce::ecommerce.submit_review') }}
+                </button>
+            </div>
         </x-core::form>
     @endif
 </div>
