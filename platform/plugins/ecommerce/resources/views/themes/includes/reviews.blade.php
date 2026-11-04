@@ -210,13 +210,13 @@
     {{-- Review Modal --}}
     @auth('customer')
         <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="reviewModalLabel">{{ trans('plugins/ecommerce::review.write_a_review') }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content review-modal-content">
+                    <div class="modal-header review-modal-header">
+                        <h5 class="modal-title review-modal-title" id="reviewModalLabel">{{ trans('plugins/ecommerce::review.write_a_review') }}</h5>
+                        <button type="button" class="btn-close review-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body review-modal-body">
                         @include($reviewFormView ?? EcommerceHelper::viewPath('includes.review-form'))
                     </div>
                 </div>
