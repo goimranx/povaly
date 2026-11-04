@@ -73,10 +73,12 @@
                         </div>
 
                         @auth('customer')
-                            <button type="button" class="btn-write-review" id="btnWriteReview">
-                                <i class="ph ph-pencil-simple"></i>
-                                {{ trans('plugins/ecommerce::review.write_a_review') }}
-                            </button>
+                            @if(isset($checkReview) && !$checkReview['error'])
+                                <button type="button" class="btn-write-review-sidebar" id="btnWriteReview">
+                                    <i class="ph ph-pencil-simple"></i>
+                                    {{ trans('plugins/ecommerce::review.write_a_review') }}
+                                </button>
+                            @endif
                         @endauth
                     </div>
                 </div>
@@ -85,7 +87,7 @@
             @guest('customer')
                 <div @class(['col-12', 'col-md-8' => $showAvgRating])>
                     <div class="review-guest-container">
-                        <h3 class="review-guest-title">{{ trans('plugins/ecommerce::review.add_your_review') }}</h3>
+                        <h3 class="review-guest-title">{{ __('Customer Say') }}</h3>
                         
                         <a href="{{ route('customer.login') }}" class="btn-review-signin">
                             {{ trans('plugins/ecommerce::ecommerce.sign_in') }}
@@ -99,6 +101,13 @@
                 </div>
             @else
                 <div @class(['col-12', 'col-md-8' => $showAvgRating])>
+                    <div class="review-logged-in-container">
+                        <button type="button" class="btn-write-review-inline" id="btnWriteReviewInline">
+                            <i class="ph ph-pencil-simple"></i>
+                            {{ trans('plugins/ecommerce::review.write_a_review') }}
+                        </button>
+                    </div>
+                    
                     <div class="review-form-container d-none" id="reviewFormContainer">
                         @include($reviewFormView ?? EcommerceHelper::viewPath('includes.review-form'))
                     </div>

@@ -192,4 +192,7 @@ return [
     'download_now' => 'Download now',
     'checkout' => 'Checkout',
     'complete_order' => 'Complete order',
+    'sign_in' => 'Sign in',
+    'new_customer' => 'New at Povaly?',
+    'start_here' => 'Start here',
 ];
