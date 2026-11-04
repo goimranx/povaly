@@ -98,30 +98,40 @@
             </div>
         </div>
 
-        {{-- Review Meta Section --}}
+        {{-- Review Meta Info (Overall Fit, Color, Size, Date) --}}
         <div class="review-item__meta">
             <div class="review-meta__left">
                 @php
                     $badgeType = $review->badge_type?->getValue() ?? \Botble\Ecommerce\Enums\ReviewBadgeEnum::AUTO;
                 @endphp
                 @if ($badgeType === \Botble\Ecommerce\Enums\ReviewBadgeEnum::AUTO && $review->order_created_at)
-                    <div class="meta-purchased-date">{{ __('Purchased date:') }} {{ $review->order_created_at->format('M d, Y') }}</div>
+                    <div class="meta-purchased-date">{{ __('Purchased:') }} {{ $review->order_created_at->format('M d, Y') }}</div>
                 @elseif ($badgeType === \Botble\Ecommerce\Enums\ReviewBadgeEnum::PURCHASED)
-                    <div class="meta-purchased-date">{{ __('Purchased date:') }} {{ $review->created_at->subHours(12)->format('M d, Y') }}</div>
+                    <div class="meta-purchased-date">{{ __('Purchased:') }} {{ $review->created_at->subHours(12)->format('M d, Y') }}</div>
                 @endif
                 
                 @if ($review->meta && isset($review->meta['variations']) && !empty($review->meta['variations']))
                     <div class="meta-variations">
                         @foreach ($review->meta['variations'] as $key => $value)
-                            <span class="variation-item">{{ $key }}: {{ $value }}</span>
+                            <span class="variation-text">{{ $key }}: {{ $value }}</span>
                         @endforeach
                     </div>
                 @endif
             </div>
             <div class="review-meta__right">
                 <time class="review-date" datetime="{{ $review->created_at->translatedFormat('Y-m-d\TH:i:sP') }}">
-                    {{ $review->created_at->format('M d, Y') }}
+                    {{ $review->created_at->format('d M Y') }}
                 </time>
+                
+                @if ($canReply)
+                    <button
+                        type="button"
+                        class="vendor-reply-toggle-btn"
+                        data-review-id="{{ $review->id }}"
+                    >
+                        {{ trans('plugins/ecommerce::review.reply') }}
+                    </button>
+                @endif
             </div>
         </div>
 
@@ -152,17 +162,11 @@
                     </div>
                 </div>
             </div>
-        @elseif ($canReply)
-            <div class="review-item__reply-form">
-                <button
-                    type="button"
-                    class="vendor-reply-toggle-btn"
-                    data-review-id="{{ $review->id }}"
-                >
-                    <i class="ph ph-message"></i>
-                    {{ trans('plugins/ecommerce::review.reply') }}
-                </button>
+        @endif
 
+        {{-- Vendor Reply Form --}}
+        @if ($canReply)
+            <div class="review-item__reply-form">
                 <div
                     class="vendor-reply-form d-none"
                     data-review-id="{{ $review->id }}"
