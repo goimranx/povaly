@@ -150,7 +150,7 @@
     }
 
     .ps-similar-customers-recommendations .ps-container {
-        margin: 0 !important;
+        margin: 0 0 15px 0 !important;
     }
 
     /* Similar Customers Block */

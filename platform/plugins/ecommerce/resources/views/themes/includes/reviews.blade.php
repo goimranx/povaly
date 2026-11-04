@@ -17,22 +17,23 @@
             @if ($showAvgRating)
                 <div class="col-12 col-md-4">
                     <div class="product-review-number">
-                        <h3 class="product-review-number-title">{{ trans('plugins/ecommerce::review.customer_reviews') }}</h3>
+                        <h2 class="product-review-number-title">{{ trans('plugins/ecommerce::review.customer_reviews') }}</h2>
 
                         <div class="product-review-summary">
-                            <div class="product-review-summary-value">
-                                <span>
-                                    {{ number_format($product->reviews_avg ?: 0, 2) }}
-                                </span>
-                            </div>
                             <div class="product-review-summary-rating">
-                                @include(EcommerceHelper::viewPath('includes.rating-star'), ['avg' => $product->reviews_avg, 'size' => 80])
-                                <p>
-                                    @if ($product->reviews_count === 1)
-                                        ({{ trans('plugins/ecommerce::review.1_review') }})
-                                    @else
-                                        ({{ trans('plugins/ecommerce::review.count_reviews', ['count' => number_format($product->reviews_count)]) }})
-                                    @endif
+                                <div class="rating-stars-custom">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        @if ($i <= floor($product->reviews_avg))
+                                            <i class="ph-fill ph-star filled"></i>
+                                        @elseif ($i - 0.5 <= $product->reviews_avg)
+                                            <i class="ph-fill ph-star-half half-filled"></i>
+                                        @else
+                                            <i class="ph ph-star"></i>
+                                        @endif
+                                    @endfor
+                                </div>
+                                <p class="rating-text">
+                                    {{ number_format($product->reviews_avg ?: 0, 1) }} out of 5
                                 </p>
                             </div>
                         </div>

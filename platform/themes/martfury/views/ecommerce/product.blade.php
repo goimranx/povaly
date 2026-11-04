@@ -591,7 +591,7 @@
                     <div class="ps-block--customer-photos">
                         <div class="ps-block__header">
                             <div class="ps-block__header-left">
-                                <h2>Customer Photos ({{ $totalImages }})</h2>
+                                <h2>Customer Visual Reviews ({{ $totalImages }})</h2>
                                 <a href="#tab-reviews" class="ps-btn--read-reviews" onclick="event.preventDefault(); document.getElementById('tab-reviews').scrollIntoView({behavior: 'smooth', block: 'start'});">
                                     Read Reviews
                                 </a>
