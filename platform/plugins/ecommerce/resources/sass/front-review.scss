@@ -739,7 +739,9 @@
 
 // Guest Review Container
 .review-guest-wrapper {
-    max-width: 400px;
+    max-width: 400px !important;
+    width: auto !important;
+    flex-grow: 1 !important;
 }
 
 .review-guest-container {
