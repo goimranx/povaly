@@ -136,15 +136,13 @@
             .ps-new-arrival-related {
                 margin: 0;
                 background: var(--global-color-site-bg);
+                border-bottom: 1px solid var(--global-color-border-strong, #333);
             }
 
             /* Remove padding from container */
             .ps-new-arrival-related .ps-container {
                 padding-left: 0;
                 padding-right: 0;
-                border-bottom: 1px solid var(--global-color-border-strong, #333);
-                padding-bottom: 15px;
-                margin-bottom: 15px;
             }
 
             /* Add padding to content when no carousel (all items visible) */
