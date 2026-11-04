@@ -241,26 +241,31 @@ $(() => {
     // Helper function to refresh review list
     function refreshReviewList(ajaxUrl) {
         const $container = $('.review-list-container')
-        if (!$container.length) return
+        if (!$container.length || !ajaxUrl) return
 
         $.ajax({
             url: ajaxUrl,
             method: 'GET',
             beforeSend: () => {
-                $container.append('<div class="loading-spinner"><div class="spinner-border"></div></div>')
+                const $reviewList = $container.find('.review-list')
+                if ($reviewList.length) {
+                    $reviewList.html('<div class="loading-spinner text-center"><div class="spinner-border"></div></div>')
+                }
             },
             success: (response) => {
+                console.log('[Review] List refresh success:', response)
+                
                 if (response.data) {
                     const $reviewList = $container.find('.review-list')
                     if ($reviewList.length) {
-                        $reviewList.replaceWith(response.data)
+                        $reviewList.html(response.data)
                     }
                 }
                 
                 if (response.message) {
-                    const $header = $('.product-reviews-container .product-reviews-header')
+                    const $header = $container.find('h4')
                     if ($header.length) {
-                        $header.html(response.message)
+                        $header.text(response.message)
                     }
                 }
                 
@@ -268,10 +273,7 @@ $(() => {
                 $(document).trigger('reviewListUpdated')
             },
             error: (xhr) => {
-                console.error('Failed to refresh review list:', xhr)
-            },
-            complete: () => {
-                $container.find('.loading-spinner').remove()
+                console.error('[Review] List refresh failed:', xhr)
             }
         })
     }
