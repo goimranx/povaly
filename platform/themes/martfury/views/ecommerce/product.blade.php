@@ -26,7 +26,7 @@
                                     {{-- Rating on the same row (right side) --}}
                                     @if (EcommerceHelper::isReviewEnabled() && $product->reviews_count > 0)
                                         <div class="pd-rating-row pd-mobile-rating">
-                                            <a href="#tab-reviews" class="pd-rating-link">
+                                            <a href="#tab-reviews" class="pd-rating-link" onclick="event.preventDefault(); document.getElementById('tab-reviews').scrollIntoView({behavior: 'smooth', block: 'start'});">
                                                 <span class="pd-rating-avg">{{ number_format($product->reviews_avg, 1) }}</span>
                                                 <span class="pd-rating-stars">
                                                     @for ($i = 1; $i <= 5; $i++)
@@ -140,7 +140,7 @@
                                 }
                             @endphp
                             <div class="pd-rating-row">
-                                <a href="#tab-reviews" class="pd-rating-link">
+                                <a href="#tab-reviews" class="pd-rating-link" onclick="event.preventDefault(); document.getElementById('tab-reviews').scrollIntoView({behavior: 'smooth', block: 'start'});">
                                     <span class="pd-rating-avg">{{ number_format($product->reviews_avg, 1) }}</span>
                                     <span class="pd-rating-stars">
                                         @for ($i = 1; $i <= 5; $i++)
@@ -607,7 +607,7 @@
                                     <div class="ps-photo-viewer__main">
                                         <img src="{{ $reviewImages->first()['url'] }}" alt="Customer photo" id="mainPhotoImg" />
                                     </div>
-                                    <a href="#" class="ps-photo-viewer__info" id="photoInfoLink">
+                                    <a href="#" class="ps-photo-viewer__info" id="photoInfoLink" data-review-id="{{ $reviewImages->first()['review_id'] }}">
                                         <div class="ps-photo-rating" id="photoRating">
                                             @for($i = 1; $i <= 5; $i++)
                                                 <i class="fa {{ $i <= $reviewImages->first()['rating'] ? 'fa-star' : 'fa-star-o' }}"></i>
@@ -699,6 +699,15 @@
                 };
 
                 function setupEventListeners() {
+                    // Photo info link - navigate to specific review
+                    document.getElementById('photoInfoLink').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const reviewId = this.dataset.reviewId;
+                        if (reviewId) {
+                            navigateToReview(reviewId);
+                        }
+                    });
+                    
                     // Main photo navigation
                     document.getElementById('photoNavPrev').addEventListener('click', () => {
                         if (reviewImages.length > 1) navigatePhoto(-1);
@@ -772,9 +781,13 @@
                     const mainImg = document.getElementById('mainPhotoImg');
                     const rating = document.getElementById('photoRating');
                     const customer = document.getElementById('photoCustomer');
+                    const infoLink = document.getElementById('photoInfoLink');
 
                     mainImg.src = photo.url;
                     customer.textContent = photo.customer_name;
+                    
+                    // Update review ID for navigation
+                    infoLink.dataset.reviewId = photo.review_id;
 
                     // Update rating stars
                     let starsHtml = '';
@@ -850,6 +863,31 @@
                     if (prevBtn) prevBtn.disabled = currentPage === 1;
                     if (nextBtn) nextBtn.disabled = currentPage === totalPages;
                     if (info) info.textContent = `Page ${currentPage} of ${totalPages}`;
+                }
+                
+                // Navigate to a specific review by ID (with pagination support)
+                function navigateToReview(reviewId) {
+                    // Scroll to reviews section
+                    const reviewsSection = document.getElementById('tab-reviews');
+                    if (reviewsSection) {
+                        reviewsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        
+                        // Wait for scroll, then try to find and highlight the review
+                        setTimeout(() => {
+                            const reviewElement = document.getElementById('review-' + reviewId);
+                            
+                            if (reviewElement) {
+                                // Review is on current page, scroll to it and highlight
+                                reviewElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                reviewElement.classList.add('highlight-review');
+                                setTimeout(() => reviewElement.classList.remove('highlight-review'), 2000);
+                            } else {
+                                // Review might be on another page - check if pagination exists
+                                // The review list AJAX will handle loading the correct page via hash
+                                window.location.hash = 'review-' + reviewId;
+                            }
+                        }, 500);
+                    }
                 }
             })();
             </script>

@@ -163,7 +163,7 @@
                             @endforeach
                         </div>
                     @endif
-                    <a href="#tab-reviews" class="pd-read-reviews-btn">{{ __('Read all reviews') }}</a>
+                    <a href="#tab-reviews" class="pd-read-reviews-btn" onclick="event.preventDefault(); document.getElementById('tab-reviews').scrollIntoView({behavior: 'smooth', block: 'start'});">{{ __('Read all reviews') }}</a>
                 </div>
             </div>
         </div>
