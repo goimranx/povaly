@@ -1,10 +1,10 @@
-{{-- Shopping Cart Redesign --}}
+{{-- Shopping Cart Enhanced --}}
 @php
-    Theme::asset()->usePath()->add('cart-redesign-css', 'sass/cart-redesign.scss');
-    Theme::asset()->container('footer')->usePath()->add('cart-redesign-js', 'js/cart-redesign.js');
+    Theme::asset()->usePath()->add('cart-enhanced-css', 'sass/cart-enhanced.scss');
+    Theme::asset()->container('footer')->usePath()->add('cart-enhanced-js', 'js/cart-enhanced.js');
 @endphp
 
-<div class="ps-section--shopping ps-shopping-cart-redesign">
+<div class="ps-section--shopping ps-shopping-cart-enhanced">
     <div class="ps-cart-container">
         <form class="form--shopping-cart" method="post" action="{{ route('public.cart.update') }}">
             @csrf
@@ -40,7 +40,7 @@
                                 </div>
                             </div>
 
-                            @include('theme.martfury::ecommerce.includes.cart-items-redesign')
+                            @include('theme.martfury::ecommerce.includes.cart-items-enhanced')
                         </div>
                     </div>
 

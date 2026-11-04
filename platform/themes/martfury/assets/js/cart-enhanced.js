@@ -1,5 +1,5 @@
 /**
- * Shopping Cart Redesign - Checkbox Selection System
+ * Shopping Cart Enhanced - Checkbox Selection System
  */
 (function() {
     'use strict';
