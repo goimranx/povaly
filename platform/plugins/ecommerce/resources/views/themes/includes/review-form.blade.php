@@ -88,7 +88,7 @@
             </div>
         </div>
     @else
-        <x-core::form :url="route('public.reviews.create')" method="post" :files="true">
+        <x-core::form id="review-form" :url="route('public.reviews.create')" method="post" :files="true">
             <input type="hidden" name="product_id" value="{{ $product->id }}">
 
             <div class="d-flex align-items-center mb-3">
@@ -169,19 +169,6 @@
                     </div>
                 </div>
             @endif
-
-            <div class="review-modal-footer">
-                <button
-                    type="submit"
-                    @class([
-                        $reviewButtonClass ?? 'btn btn-primary ps-btn',
-                        'disabled' => ! auth('customer')->check(),
-                    ])
-                    @disabled(! auth('customer')->check())
-                >
-                    {{ trans('plugins/ecommerce::ecommerce.submit_review') }}
-                </button>
-            </div>
         </x-core::form>
     @endif
 </div>
