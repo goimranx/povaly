@@ -142,9 +142,12 @@
         @auth('customer')
             @if ($product->reviews->isNotEmpty())
                 <div class="position-relative review-list-container" style="flex: 0 0 75%;" data-ajax-url="{{ route('public.ajax.reviews', $product->id) }}">
-                    <h4 class="mb-3">{{ trans('plugins/ecommerce::review.total_reviews_for_product', ['total' => number_format($product->reviews_count), 'product' => $product->name]) }}</h4>
+                    <h4 class="mb-3 d-none">{{ trans('plugins/ecommerce::review.total_reviews_for_product', ['total' => number_format($product->reviews_count), 'product' => $product->name]) }}</h4>
 
                     <div class="d-flex align-items-center justify-content-between mb-4 product-review-controls">
+                        <div class="review-global-ratings-text">
+                            {{ number_format($product->reviews_count) }} {{ __('global public ratings') }}
+                        </div>
                         <div class="d-flex gap-2 review-control-buttons">
                             <button type="button" class="btn review-control-btn" data-bb-toggle="review-search-toggle" title="{{ trans('plugins/ecommerce::review.search_reviews') }}">
                                 <x-core::icon name="ti ti-search" class="me-1" />
