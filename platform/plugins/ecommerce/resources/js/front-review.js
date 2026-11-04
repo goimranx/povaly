@@ -426,6 +426,55 @@ $(() => {
         }
     })
 
+    // Sync offcanvas filters with main page (for mobile offcanvas)
+    $(document).on('change', '#reviewFiltersOffcanvas .review-star-filter', function() {
+        const selectedValue = $(this).val()
+        $('.product-review-controls .review-star-filter').val(selectedValue)
+        updateClearButtonVisibility()
+        if ($reviewListContainer.length) {
+            getReviewList($reviewListContainer.data('ajax-url'), null, getCurrentSearchParams())
+        }
+    })
+
+    $(document).on('change', '#reviewFiltersOffcanvas .review-sort-select', function() {
+        const selectedValue = $(this).val()
+        $('.product-review-controls .review-sort-select').val(selectedValue)
+        updateClearButtonVisibility()
+        if ($reviewListContainer.length) {
+            getReviewList($reviewListContainer.data('ajax-url'), null, getCurrentSearchParams())
+        }
+    })
+
+    let offcanvasSearchTimeout
+    $(document).on('input', '#reviewFiltersOffcanvas .review-search-input', function() {
+        const searchValue = $(this).val()
+        $('.product-review-controls .review-search-input').val(searchValue)
+        
+        clearTimeout(offcanvasSearchTimeout)
+        offcanvasSearchTimeout = setTimeout(() => {
+            updateClearButtonVisibility()
+            if ($reviewListContainer.length) {
+                getReviewList($reviewListContainer.data('ajax-url'), null, getCurrentSearchParams())
+            }
+        }, 500)
+    })
+
+    // Sync main page changes back to offcanvas
+    $(document).on('change', '.product-review-controls .review-star-filter', function() {
+        const selectedValue = $(this).val()
+        $('#reviewFiltersOffcanvas .review-star-filter').val(selectedValue)
+    })
+
+    $(document).on('change', '.product-review-controls .review-sort-select', function() {
+        const selectedValue = $(this).val()
+        $('#reviewFiltersOffcanvas .review-sort-select').val(selectedValue)
+    })
+
+    $(document).on('input', '.product-review-controls .review-search-input', function() {
+        const searchValue = $(this).val()
+        $('#reviewFiltersOffcanvas .review-search-input').val(searchValue)
+    })
+
     // Vendor reply toggle
     $(document).on('click', '.vendor-reply-toggle-btn', function() {
         const reviewId = $(this).data('review-id')

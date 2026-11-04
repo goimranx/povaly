@@ -984,6 +984,11 @@
         width: 100% !important;
     }
 
+    .review-author-wrapper {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+
     // Mobile-specific: Hide desktop controls, show mobile header
     #review-controls-section {
         display: none !important;
