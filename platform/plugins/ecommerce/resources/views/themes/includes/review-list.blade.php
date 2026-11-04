@@ -17,139 +17,167 @@
     @endphp
 
     <div @class([
-        'row pb-3 mb-3 review-item',
+        'review-item',
         'border-bottom' => ! $loop->last,
         'opacity-50' => ! $review->is_approved,
         'current-customer-review' => $isCurrentCustomerReview
     ])>
-        <div class="col-auto">
-            <img class="rounded-circle" src="{{ $review->customer_avatar_url }}" alt="{{ $review->display_name }}" width="60" height="60" style="object-fit: cover;">
-        </div>
-        <div class="col">
-            <div class="d-flex flex-wrap align-items-center gap-2 mb-2 review-item__header">
-                <div class="fw-medium">
-                    {{ $review->display_name }}
-                </div>
-                @if ($isCurrentCustomerReview)
-                    <span class="badge bg-primary">
-                        {{ trans('plugins/ecommerce::review.your_review') }}
-                    </span>
-                @endif
-                <time class="text-muted small" datetime="{{ $review->created_at->translatedFormat('Y-m-d\TH:i:sP') }}">
-                    {{ $review->created_at->diffForHumans() }}
-                </time>
-                @php
-                    $badgeType = $review->badge_type?->getValue() ?? \Botble\Ecommerce\Enums\ReviewBadgeEnum::AUTO;
-                @endphp
-                @if ($badgeType === \Botble\Ecommerce\Enums\ReviewBadgeEnum::AUTO && $review->order_created_at)
-                    <div class="small text-muted">{{ trans('plugins/ecommerce::review.purchased_at_time', ['time' => $review->order_created_at->diffForHumans()]) }}</div>
-                @elseif ($badgeType === \Botble\Ecommerce\Enums\ReviewBadgeEnum::PURCHASED)
-                    <div class="small text-muted">{{ trans('plugins/ecommerce::review.purchased_at_time', ['time' => $review->created_at->subHours(12)->diffForHumans()]) }}</div>
-                @elseif ($badgeType !== \Botble\Ecommerce\Enums\ReviewBadgeEnum::AUTO && $badgeType !== \Botble\Ecommerce\Enums\ReviewBadgeEnum::NONE)
-                    <div class="small text-muted">{{ $review->badge_type->label() }}</div>
-                @endif
-                @if (! $review->is_approved)
-                    <div class="small text-warning">{{ trans('plugins/ecommerce::review.waiting_for_approval') }}</div>
-                @endif
-
-                @if ($isCurrentCustomerReview)
-                    <div class="review-item__actions">
-                        <a
-                            href="javascript:void(0)"
-                            class="text-danger delete-review-btn p-1"
-                            data-review-id="{{ $review->id }}"
-                            data-confirm-message="{{ trans('plugins/ecommerce::review.are_you_sure_you_want_to_delete_your_review') }}"
-                            title="{{ trans('plugins/ecommerce::review.delete_your_review') }}"
-                        >
-                            <x-core::icon name="ti ti-trash" />
-                        </a>
+        <div class="review-item__main">
+            {{-- Review Info Section --}}
+            <div class="review-item__info">
+                <div class="review-author">
+                    <div class="review-author__avatar">
+                        <img src="{{ $review->customer_avatar_url }}" alt="{{ $review->display_name }}">
                     </div>
-                @endif
+                    <div class="review-author__details">
+                        <div class="review-author__name">{{ $review->display_name }}</div>
+                        <div class="review-author__rating">
+                            @for ($i = 1; $i <= 5; $i++)
+                                @if ($i <= $review->star)
+                                    <i class="ph-fill ph-star"></i>
+                                @else
+                                    <i class="ph ph-star"></i>
+                                @endif
+                            @endfor
+                        </div>
+                        <div class="review-author__comment" data-full-comment="{{ $review->comment }}">
+                            {{ $review->comment }}
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="mb-2 review-item__rating">
-                @include(EcommerceHelper::viewPath('includes.rating-star'), ['avg' => $review->star, 'size' => 80])
-            </div>
-
-            <div class="review-item__body">
-                {{ $review->comment }}
-            </div>
-
+            {{-- Review Images Section --}}
             @if (EcommerceHelper::isCustomerReviewImageUploadEnabled() && $review->images)
-                <div class="review-item__images mt-3">
-                    <div class="row g-1 review-images">
+                <div class="review-item__images">
+                    <div class="review-images">
                         @foreach ($review->images as $image)
-                            <a href="{{ RvMedia::getImageUrl($image) }}" class="col-3 col-md-2 col-xl-1 position-relative">
-                                <img src="{{ RvMedia::getImageUrl($image, 'thumb') }}" alt="{{ $review->comment }}" class="img-thumbnail">
+                            <a href="{{ RvMedia::getImageUrl($image) }}" class="review-image-thumb">
+                                <img src="{{ RvMedia::getImageUrl($image, 'thumb') }}" alt="{{ $review->comment }}">
                             </a>
                         @endforeach
                     </div>
                 </div>
             @endif
 
-            @if ($review->reply)
-                <div class="review-item__reply mt-3">
-                    <div class="d-flex gap-3 p-3 rounded" style="background-color: #f8f9fa;">
-                        <div class="flex-shrink-0">
-                            <img class="rounded" src="{{ $review->reply->responder_avatar_url }}" alt="{{ $review->reply->responder_name }}" width="48" height="48" style="object-fit: cover;">
-                        </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="fw-semibold mb-1">{{ trans('plugins/ecommerce::review.seller_response') }}</div>
-                                @if ($canDeleteReply)
-                                    <a
-                                        href="javascript:void(0)"
-                                        class="text-danger vendor-delete-reply-btn"
-                                        data-review-id="{{ $review->id }}"
-                                        data-url="{{ route('public.reviews.reply.destroy', $review->id) }}"
-                                        data-confirm-message="{{ trans('plugins/ecommerce::review.confirm_delete_reply') }}"
-                                        title="{{ trans('plugins/ecommerce::review.delete_reply') }}"
-                                    >
-                                        <x-core::icon name="ti ti-trash" />
-                                    </a>
-                                @endif
-                            </div>
-                            <div>{{ $review->reply->message }}</div>
-                        </div>
+            {{-- Review Actions Section --}}
+            <div class="review-item__actions">
+                @if ($isCurrentCustomerReview)
+                    <div class="review-action-badge">
+                        <span class="badge-your-review">{{ __('Your review!') }}</span>
+                        <button
+                            type="button"
+                            class="btn-delete-review delete-review-btn"
+                            data-review-id="{{ $review->id }}"
+                            data-confirm-message="{{ trans('plugins/ecommerce::review.are_you_sure_you_want_to_delete_your_review') }}"
+                            title="{{ trans('plugins/ecommerce::review.delete_your_review') }}"
+                        >
+                            <i class="ph ph-trash"></i>
+                        </button>
                     </div>
-                </div>
-            @elseif ($canReply)
-                <div class="review-item__reply-form mt-2">
-                    <a
-                        href="javascript:void(0)"
-                        class="vendor-reply-toggle-btn"
-                        data-review-id="{{ $review->id }}"
-                        style="color: #6b7280; font-size: 13px; text-decoration: none;"
-                    >
-                        <x-core::icon name="ti ti-message" style="width: 14px; height: 14px; margin-right: 4px;" />
-                        {{ trans('plugins/ecommerce::review.reply') }}
-                    </a>
-
-                    <div
-                        class="vendor-reply-form mt-3 d-none"
-                        data-review-id="{{ $review->id }}"
-                        data-url="{{ route('public.reviews.reply', $review->id) }}"
-                    >
-                        <div class="mb-2">
-                            <textarea
-                                class="form-control vendor-reply-message"
-                                rows="2"
-                                placeholder="{{ trans('plugins/ecommerce::review.write_your_reply') }}"
-                                style="font-size: 14px; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; color: #374151;"
-                            ></textarea>
-                        </div>
-                        <div class="d-flex" style="gap: 8px;">
-                            <button type="button" class="vendor-reply-submit-btn" data-review-id="{{ $review->id }}" style="display: inline-block; width: auto; padding: 6px 16px; font-size: 13px; font-weight: 500; background-color: var(--primary-color, #0d6efd); border: none; color: #fff; border-radius: 6px; cursor: pointer;">
-                                {{ trans('plugins/ecommerce::review.submit_reply') }}
-                            </button>
-                            <button type="button" class="vendor-reply-cancel-btn" data-review-id="{{ $review->id }}" style="display: inline-block; width: auto; padding: 6px 12px; font-size: 13px; background: transparent; border: none; color: #6b7280; cursor: pointer;">
-                                {{ trans('plugins/ecommerce::review.cancel') }}
-                            </button>
-                        </div>
+                @else
+                    <div class="review-action-helpful">
+                        <span class="helpful-label">{{ __('Helpful?') }}</span>
+                        <button type="button" class="btn-helpful" data-review-id="{{ $review->id }}">
+                            <i class="ph ph-thumbs-up"></i>
+                            <span class="helpful-count">0</span>
+                        </button>
                     </div>
-                </div>
-            @endif
+                    <div class="review-action-share">
+                        <button type="button" class="btn-share" data-review-id="{{ $review->id }}" title="{{ __('Share this review') }}">
+                            <i class="ph ph-share-network"></i>
+                        </button>
+                    </div>
+                @endif
+            </div>
         </div>
+
+        {{-- Review Meta Section --}}
+        <div class="review-item__meta">
+            <div class="review-meta__left">
+                @php
+                    $badgeType = $review->badge_type?->getValue() ?? \Botble\Ecommerce\Enums\ReviewBadgeEnum::AUTO;
+                @endphp
+                @if ($badgeType === \Botble\Ecommerce\Enums\ReviewBadgeEnum::AUTO && $review->order_created_at)
+                    <div class="meta-purchased-date">{{ __('Purchased date:') }} {{ $review->order_created_at->format('M d, Y') }}</div>
+                @elseif ($badgeType === \Botble\Ecommerce\Enums\ReviewBadgeEnum::PURCHASED)
+                    <div class="meta-purchased-date">{{ __('Purchased date:') }} {{ $review->created_at->subHours(12)->format('M d, Y') }}</div>
+                @endif
+                
+                @if ($review->meta && isset($review->meta['variations']) && !empty($review->meta['variations']))
+                    <div class="meta-variations">
+                        @foreach ($review->meta['variations'] as $key => $value)
+                            <span class="variation-item">{{ $key }}: {{ $value }}</span>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+            <div class="review-meta__right">
+                <time class="review-date" datetime="{{ $review->created_at->translatedFormat('Y-m-d\TH:i:sP') }}">
+                    {{ $review->created_at->format('M d, Y') }}
+                </time>
+            </div>
+        </div>
+
+        {{-- Vendor Reply Section --}}
+        @if ($review->reply)
+            <div class="review-item__reply">
+                <div class="vendor-reply">
+                    <div class="vendor-reply__avatar">
+                        <img src="{{ $review->reply->responder_avatar_url }}" alt="{{ $review->reply->responder_name }}">
+                    </div>
+                    <div class="vendor-reply__content">
+                        <div class="vendor-reply__header">
+                            <span class="vendor-reply__title">{{ trans('plugins/ecommerce::review.seller_response') }}</span>
+                            @if ($canDeleteReply)
+                                <button
+                                    type="button"
+                                    class="vendor-delete-reply-btn"
+                                    data-review-id="{{ $review->id }}"
+                                    data-url="{{ route('public.reviews.reply.destroy', $review->id) }}"
+                                    data-confirm-message="{{ trans('plugins/ecommerce::review.confirm_delete_reply') }}"
+                                    title="{{ trans('plugins/ecommerce::review.delete_reply') }}"
+                                >
+                                    <i class="ph ph-trash"></i>
+                                </button>
+                            @endif
+                        </div>
+                        <div class="vendor-reply__message">{{ $review->reply->message }}</div>
+                    </div>
+                </div>
+            </div>
+        @elseif ($canReply)
+            <div class="review-item__reply-form">
+                <button
+                    type="button"
+                    class="vendor-reply-toggle-btn"
+                    data-review-id="{{ $review->id }}"
+                >
+                    <i class="ph ph-message"></i>
+                    {{ trans('plugins/ecommerce::review.reply') }}
+                </button>
+
+                <div
+                    class="vendor-reply-form d-none"
+                    data-review-id="{{ $review->id }}"
+                    data-url="{{ route('public.reviews.reply', $review->id) }}"
+                >
+                    <textarea
+                        class="form-control vendor-reply-message"
+                        rows="2"
+                        placeholder="{{ trans('plugins/ecommerce::review.write_your_reply') }}"
+                    ></textarea>
+                    <div class="vendor-reply-actions">
+                        <button type="button" class="vendor-reply-submit-btn btn btn-primary" data-review-id="{{ $review->id }}">
+                            {{ trans('plugins/ecommerce::review.submit_reply') }}
+                        </button>
+                        <button type="button" class="vendor-reply-cancel-btn btn btn-secondary" data-review-id="{{ $review->id }}">
+                            {{ trans('plugins/ecommerce::review.cancel') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 @endforeach
 

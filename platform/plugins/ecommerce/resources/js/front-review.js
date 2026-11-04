@@ -608,3 +608,54 @@ $(() => {
         }
     })
 })
+
+
+// Review Comment Read More functionality
+$(() => {
+    const initReviewCommentTruncation = () => {
+        $('.review-author__comment').each(function() {
+            const $comment = $(this)
+            const fullComment = $comment.data('full-comment') || $comment.text()
+            
+            // Check if content is truncated by checking scroll height
+            if (this.scrollHeight > this.clientHeight) {
+                // Add read more button if not already added
+                if (!$comment.next('.btn-read-more').length) {
+                    const $readMoreBtn = $('<button type="button" class="btn-read-more">Read more</button>')
+                    $comment.after($readMoreBtn)
+                }
+            }
+        })
+    }
+
+    // Handle read more button click
+    $(document).on('click', '.btn-read-more', function(e) {
+        e.preventDefault()
+        const $button = $(this)
+        const $comment = $button.prev('.review-author__comment')
+        
+        if ($comment.hasClass('expanded')) {
+            $comment.removeClass('expanded')
+            $button.text('Read more')
+        } else {
+            $comment.addClass('expanded')
+            $button.text('Show less')
+        }
+    })
+
+    // Initialize on page load
+    initReviewCommentTruncation()
+
+    // Re-initialize after AJAX load of reviews
+    const originalGetReviewList = window.getReviewList || getReviewList
+    if (typeof getReviewList !== 'undefined') {
+        window.getReviewList = function(...args) {
+            const callback = args[1]
+            args[1] = function() {
+                if (callback) callback()
+                initReviewCommentTruncation()
+            }
+            return originalGetReviewList.apply(this, args)
+        }
+    }
+})
