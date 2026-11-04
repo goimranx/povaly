@@ -31,7 +31,6 @@ class ReviewHelpful extends Model
 
     /**
      * Check if user/session has marked a review as helpful
-     * Debug timestamp: 2026-11-04 23:10
      */
     public static function hasUserMarked(int $reviewId, ?int $userId, ?string $sessionId): bool
     {
@@ -46,19 +45,7 @@ class ReviewHelpful extends Model
                   ->whereNull('user_id');
         }
         
-        $exists = $query->exists();
-        
-        \Log::info('ReviewHelpful::hasUserMarked DEBUG', [
-            'review_id' => $reviewId,
-            'user_id' => $userId,
-            'session_id' => $sessionId,
-            'sql' => $query->toSql(),
-            'bindings' => $query->getBindings(),
-            'result' => $exists,
-            'actual_records' => self::where('review_id', $reviewId)->get()->toArray()
-        ]);
-        
-        return $exists;
+        return $query->exists();
     }
 
     /**

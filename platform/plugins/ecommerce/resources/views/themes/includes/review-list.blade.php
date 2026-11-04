@@ -87,11 +87,7 @@
                         $sessionId = request()->session()->getId();
                         $userMarked = \App\Models\ReviewHelpful::hasUserMarked($review->id, $userId, $sessionId);
                         $totalMarks = \App\Models\ReviewHelpful::getTotalMarks($review->id);
-                        
-                        // DEBUG: Add HTML comment to see what PHP is checking
-                        $debugInfo = "<!-- Review {$review->id}: Checking user_id={$userId}, session_id={$sessionId}, result={$userMarked}, count={$totalMarks} -->";
                     @endphp
-                    {!! $debugInfo !!}
                     <div class="review-action-helpful">
                         <span class="helpful-label">{{ __('Helpful?') }}</span>
                         <button type="button" class="btn-helpful" data-review-id="{{ $review->id }}" data-helpful="{{ $userMarked ? 'true' : 'false' }}">
