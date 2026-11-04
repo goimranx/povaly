@@ -13,7 +13,7 @@ class ReviewHelpfulController extends Controller
      */
     public function show(Request $request, int $reviewId)
     {
-        $userId = Auth::id();
+        $userId = auth('customer')->id();
         $sessionId = $request->session()->getId();
         
         $userMarked = ReviewHelpful::hasUserMarked($reviewId, $userId, $sessionId);
@@ -36,7 +36,7 @@ class ReviewHelpfulController extends Controller
         ]);
 
         $reviewId = $request->input('review_id');
-        $userId = Auth::id();
+        $userId = auth('customer')->id();
         $sessionId = $request->session()->getId();
         $ipAddress = $request->ip();
 
@@ -70,7 +70,7 @@ class ReviewHelpfulController extends Controller
      */
     public function destroy(Request $request, int $reviewId)
     {
-        $userId = Auth::id();
+        $userId = auth('customer')->id();
         $sessionId = $request->session()->getId();
 
         $success = ReviewHelpful::removeMark($reviewId, $userId, $sessionId);
