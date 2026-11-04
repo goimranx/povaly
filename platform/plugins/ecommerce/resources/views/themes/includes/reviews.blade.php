@@ -105,7 +105,7 @@
                     </div>
                 </div>
             @else
-                <div class="review-logged-in-wrapper" style="flex: 0 0 75%;">
+                <div class="review-logged-in-wrapper">
                     <div class="review-logged-in-container">
                         <h3 class="review-section-title">{{ __('Review the product') }}</h3>
                         <p class="review-section-subtitle">{{ __('Share your thoughts with other customers') }}</p>
