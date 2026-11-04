@@ -1,7 +1,8 @@
 {{-- Shopping Cart Enhanced --}}
 @php
-    Theme::asset()->usePath()->add('cart-enhanced-css', 'css/cart-enhanced.css');
-    Theme::asset()->container('footer')->usePath()->add('cart-enhanced-js', 'js/cart-enhanced.js');
+    $cacheVersion = \App\Helpers\VersionHelper::getCacheBustVersion();
+    Theme::asset()->usePath()->add('cart-enhanced-css', 'css/cart-enhanced.css', [], [], $cacheVersion);
+    Theme::asset()->container('footer')->usePath()->add('cart-enhanced-js', 'js/cart-enhanced.js', ['jquery'], [], $cacheVersion);
 @endphp
 
 <div class="ps-section--shopping ps-shopping-cart-enhanced">
