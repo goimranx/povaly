@@ -173,18 +173,23 @@ class ReviewController extends BaseController
                     'type' => 'already_reviewed',
                 ];
             } elseif (EcommerceHelper::isReviewVerifiedPurchaseEnabled()) {
-                $hasPurchased = Order::query()
-                    ->where('user_id', $customer->id)
-                    ->whereHas('products', function ($query) use ($product) {
-                        $query->where('product_id', $product->id);
-                    })
-                    ->exists();
+                try {
+                    $hasPurchased = Order::query()
+                        ->where('user_id', $customer->id)
+                        ->whereHas('products', function ($query) use ($product) {
+                            $query->where('ec_order_product.product_id', $product->id);
+                        })
+                        ->exists();
 
-                if (! $hasPurchased) {
-                    $checkReview = [
-                        'error' => true,
-                        'type' => 'purchase_required',
-                    ];
+                    if (! $hasPurchased) {
+                        $checkReview = [
+                            'error' => true,
+                            'type' => 'purchase_required',
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    // If there's an error checking purchase, allow review
+                    \Log::error('Error checking purchase for review: ' . $e->getMessage());
                 }
             }
         }
