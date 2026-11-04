@@ -153,22 +153,14 @@ $(() => {
                     if (! res.error) {
                         $this.find('.alert-message').html(res.message || 'Review submitted successfully!').removeClass('alert-warning').addClass('alert-success').removeClass('d-none')
                         
-                        // Close modal and refresh review section via AJAX
+                        // Close modal and reload page
                         setTimeout(() => {
                             const $modal = $this.closest('.modal')
                             if ($modal.length) {
                                 $modal.modal('hide')
                             }
                             
-                            // Refresh review action section
-                            const productId = $this.find('input[name=product_id]').val()
-                            refreshReviewActionSection(productId)
-                            
-                            // Refresh review list
-                            const $reviewContainer = $('.review-list-container')
-                            if ($reviewContainer.length && $reviewContainer.data('ajax-url')) {
-                                refreshReviewList($reviewContainer.data('ajax-url'))
-                            }
+                            window.location.reload()
                         }, 1500)
                     } else {
                         $this.find('.alert-message').html(res.message).removeClass('d-none')
