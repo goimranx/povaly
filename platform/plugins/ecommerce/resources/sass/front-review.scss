@@ -979,6 +979,11 @@
         padding: 10px 20px !important;
     }
 
+    // Review item info full width on mobile
+    .review-item__info {
+        width: 100% !important;
+    }
+
     // Mobile-specific: Hide desktop controls, show mobile header
     #review-controls-section {
         display: none !important;
