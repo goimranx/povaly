@@ -52,9 +52,6 @@
                     });
                 }
             })
-            // Filter: Only 4+ star products with at least 1 review
-            ->having('reviews_avg_star', '>=', 4.0)
-            ->having('reviews_count', '>=', 1)
             ->limit(12)
             ->get();
         
