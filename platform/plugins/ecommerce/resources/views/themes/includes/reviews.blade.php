@@ -13,7 +13,7 @@
     @endphp
 
     <div class="product-review-container d-flex flex-row gap-5">
-        <div class="review-sidebar-column @auth('customer') d-flex flex-column gap-3 @else d-flex flex-row gap-3 @endauth" style="width: 20%; flex-grow: 1; max-width: 20%;">
+        <div class="review-sidebar-column @auth('customer') d-flex flex-column gap-3 @else d-flex flex-row gap-3 @endauth" style="width: 20%; flex-grow: 1;">
             @if ($showAvgRating)
                 <div class="review-sidebar-wrapper">
                     <div class="product-review-number review-sidebar-sticky">
