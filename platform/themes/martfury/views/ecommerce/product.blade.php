@@ -483,9 +483,6 @@
                     @if (EcommerceHelper::isProductSpecificationEnabled() && $product->specificationAttributes->where('pivot.hidden', false)->isNotEmpty())
                         <li><a href="#tab-specification">{{ __('Specification') }}</a></li>
                     @endif
-                    @if (EcommerceHelper::isReviewEnabled())
-                        <li><a href="#tab-reviews">{{ __('Reviews') }}&nbsp;({{ $product->reviews_count }})</a></li>
-                    @endif
                     @if (is_plugin_active('faq'))
                         @if (count($product->faq_items) > 0)
                             <li><a href="#tab-faq">{{ __('Questions and Answers') }}</a></li>
@@ -508,12 +505,6 @@
                             <div class="tp-product-details-additional-info">
                                 @include(EcommerceHelper::viewPath('includes.product-specification'))
                             </div>
-                        </div>
-                    @endif
-
-                    @if (EcommerceHelper::isReviewEnabled())
-                        <div class="ps-tab" id="tab-reviews">
-                            @include('plugins/ecommerce::themes.includes.reviews', ['reviewButtonClass' => 'ps-btn'])
                         </div>
                     @endif
 
@@ -595,53 +586,62 @@
             @endphp
 
             @if($totalImages > 0)
-            <div class="ps-customer-photos-gallery">
+            <div class="ps-customer-photos-gallery" id="ps-customer-photos-gallery">
                 <div class="ps-container">
                     <div class="ps-block--customer-photos">
                         <div class="ps-block__header">
-                            <h2>Customer Photos ({{ $totalImages }})</h2>
-                            <a href="#tab-reviews" class="ps-btn--read-reviews" onclick="event.preventDefault(); document.getElementById('review-tab-link').click(); setTimeout(() => document.getElementById('tab-reviews').scrollIntoView({behavior: 'smooth', block: 'start'}), 100);">
-                                Read Reviews
-                            </a>
+                            <div class="ps-block__header-left">
+                                <h2>Customer Visual Reviews ({{ $totalImages }})</h2>
+                                <a href="#tab-reviews" class="ps-btn--read-reviews" onclick="event.preventDefault(); document.getElementById('tab-reviews').scrollIntoView({behavior: 'smooth', block: 'start'});">
+                                    Read Reviews
+                                </a>
+                            </div>
                         </div>
                         <div class="ps-block__content">
-                            <!-- Main Photo Viewer -->
-                            <div class="ps-photo-viewer">
-                                <button class="ps-photo-nav ps-photo-nav--prev" id="photoNavPrev">
-                                    <i class="icon-chevron-left"></i>
-                                </button>
-                                <div class="ps-photo-viewer__main">
-                                    <img src="{{ $reviewImages->first()['url'] }}" alt="Customer photo" id="mainPhotoImg" />
-                                    <div class="ps-photo-viewer__info">
+                            <div class="ps-photo-layout">
+                                <!-- Main Photo Viewer (Left) -->
+                                <div class="ps-photo-viewer">
+                                    <button class="ps-photo-nav ps-photo-nav--prev" id="photoNavPrev">
+                                        <i class="icon-chevron-left"></i>
+                                    </button>
+                                    <div class="ps-photo-viewer__main">
+                                        <img src="{{ $reviewImages->first()['url'] }}" alt="Customer photo" id="mainPhotoImg" />
+                                    </div>
+                                    <a href="#" class="ps-photo-viewer__info" id="photoInfoLink">
                                         <div class="ps-photo-rating" id="photoRating">
                                             @for($i = 1; $i <= 5; $i++)
                                                 <i class="fa {{ $i <= $reviewImages->first()['rating'] ? 'fa-star' : 'fa-star-o' }}"></i>
                                             @endfor
                                         </div>
                                         <p class="ps-photo-customer" id="photoCustomer">{{ $reviewImages->first()['customer_name'] }}</p>
+                                    </a>
+                                    <button class="ps-photo-nav ps-photo-nav--next" id="photoNavNext">
+                                        <i class="icon-chevron-right"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Thumbnail Sidebar (Right) -->
+                                <div class="ps-photo-sidebar">
+                                    <a href="#ps-product__header" class="ps-photo-product-title" onclick="event.preventDefault(); document.querySelector('.ps-product__header').scrollIntoView({behavior: 'smooth', block: 'start'});">
+                                        {{ $product->name }}
+                                    </a>
+                                    <div class="ps-photo-thumbnails">
+                                        <div class="ps-photo-thumbnails__grid" id="thumbnailGrid">
+                                            <!-- Thumbnails loaded via JavaScript -->
+                                        </div>
+                                        @if($totalPages > 1)
+                                        <div class="ps-photo-pagination">
+                                            <button class="ps-pagination-btn ps-pagination-btn--prev" id="thumbnailPrevPage" disabled>
+                                                <i class="icon-chevron-left"></i> Previous
+                                            </button>
+                                            <span class="ps-pagination-info" id="paginationInfo">Page 1 of {{ $totalPages }}</span>
+                                            <button class="ps-pagination-btn ps-pagination-btn--next" id="thumbnailNextPage" {{ $totalPages <= 1 ? 'disabled' : '' }}>
+                                                Next <i class="icon-chevron-right"></i>
+                                            </button>
+                                        </div>
+                                        @endif
                                     </div>
                                 </div>
-                                <button class="ps-photo-nav ps-photo-nav--next" id="photoNavNext">
-                                    <i class="icon-chevron-right"></i>
-                                </button>
-                            </div>
-
-                            <!-- Thumbnail Grid with Pagination -->
-                            <div class="ps-photo-thumbnails">
-                                <div class="ps-photo-thumbnails__grid" id="thumbnailGrid">
-                                    <!-- Thumbnails loaded via JavaScript -->
-                                </div>
-                                @if($totalPages > 1)
-                                <div class="ps-photo-pagination">
-                                    <button class="ps-pagination-btn ps-pagination-btn--prev" id="thumbnailPrevPage" disabled>
-                                        <i class="icon-chevron-left"></i> Previous
-                                    </button>
-                                    <span class="ps-pagination-info" id="paginationInfo">Page 1 of {{ $totalPages }}</span>
-                                    <button class="ps-pagination-btn ps-pagination-btn--next" id="thumbnailNextPage" {{ $totalPages <= 1 ? 'disabled' : '' }}>
-                                        Next <i class="icon-chevron-right"></i>
-                                    </button>
-                                </div>
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -663,13 +663,49 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     loadThumbnailPage(1);
                     updateMainPhoto();
+                    updateNavigationButtons();
                     setupEventListeners();
                 });
 
+                // Global function to scroll to gallery and activate specific image
+                window.scrollToGalleryImage = function(imageUrl) {
+                    // Find the index of the image
+                    const imageIndex = reviewImages.findIndex(img => img.url === imageUrl);
+                    
+                    if (imageIndex !== -1) {
+                        currentImageIndex = imageIndex;
+                        
+                        // Calculate which page this image is on
+                        const requiredPage = Math.floor(currentImageIndex / imagesPerPage) + 1;
+                        if (requiredPage !== currentPage) {
+                            currentPage = requiredPage;
+                            if (!loadedPages.has(currentPage)) {
+                                loadThumbnailPage(currentPage);
+                            }
+                            updatePaginationUI();
+                        }
+                        
+                        // Update display
+                        updateMainPhoto();
+                        updateThumbnailActive();
+                        updateNavigationButtons();
+                    }
+                    
+                    // Scroll to the gallery section
+                    const gallerySection = document.getElementById('ps-customer-photos-gallery');
+                    if (gallerySection) {
+                        gallerySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                };
+
                 function setupEventListeners() {
                     // Main photo navigation
-                    document.getElementById('photoNavPrev').addEventListener('click', () => navigatePhoto(-1));
-                    document.getElementById('photoNavNext').addEventListener('click', () => navigatePhoto(1));
+                    document.getElementById('photoNavPrev').addEventListener('click', () => {
+                        if (reviewImages.length > 1) navigatePhoto(-1);
+                    });
+                    document.getElementById('photoNavNext').addEventListener('click', () => {
+                        if (reviewImages.length > 1) navigatePhoto(1);
+                    });
 
                     // Thumbnail pagination
                     const prevBtn = document.getElementById('thumbnailPrevPage');
@@ -680,12 +716,15 @@
 
                     // Keyboard navigation
                     document.addEventListener('keydown', function(e) {
+                        if (reviewImages.length <= 1) return;
                         if (e.key === 'ArrowLeft') navigatePhoto(-1);
                         if (e.key === 'ArrowRight') navigatePhoto(1);
                     });
                 }
 
                 function navigatePhoto(direction) {
+                    if (reviewImages.length <= 1) return;
+                    
                     currentImageIndex += direction;
                     
                     // Wrap around
@@ -704,6 +743,28 @@
 
                     updateMainPhoto();
                     updateThumbnailActive();
+                    updateNavigationButtons();
+                }
+
+                function updateNavigationButtons() {
+                    const prevBtn = document.getElementById('photoNavPrev');
+                    const nextBtn = document.getElementById('photoNavNext');
+                    
+                    // If only one image, disable and hide both
+                    if (reviewImages.length <= 1) {
+                        prevBtn.disabled = true;
+                        nextBtn.disabled = true;
+                        prevBtn.style.display = 'none';
+                        nextBtn.style.display = 'none';
+                    } else {
+                        // Show buttons
+                        prevBtn.style.display = 'flex';
+                        nextBtn.style.display = 'flex';
+                        
+                        // Disable buttons at boundaries (no wrap)
+                        prevBtn.disabled = currentImageIndex === 0;
+                        nextBtn.disabled = currentImageIndex === reviewImages.length - 1;
+                    }
                 }
 
                 function updateMainPhoto() {
@@ -743,6 +804,7 @@
                             currentImageIndex = i;
                             updateMainPhoto();
                             updateThumbnailActive();
+                            updateNavigationButtons();
                         });
                         grid.appendChild(thumb);
                     }
@@ -795,7 +857,7 @@
             <style>
                 /* Customer Photos Gallery */
                 .ps-customer-photos-gallery {
-                    margin: 30px 0;
+                    margin: 0 0 30px 0;
                     background: var(--global-color-site-bg);
                 }
 
@@ -815,6 +877,12 @@
                     gap: 15px;
                 }
 
+                .ps-block--customer-photos .ps-block__header-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                }
+
                 .ps-block--customer-photos .ps-block__header h2 {
                     font-size: 22px;
                     font-weight: 700;
@@ -825,39 +893,59 @@
                 }
 
                 @media (max-width: 767px) {
+                    .ps-block--customer-photos .ps-block__header {
+                        padding: 0 0 10px 0 !important;
+                        margin: 0 !important;
+                    }
+
+                    .ps-block--customer-photos .ps-block__header-left {
+                        flex-wrap: wrap;
+                    }
+
                     .ps-block--customer-photos .ps-block__header h2 {
                         font-size: 20px;
+                        word-break: break-word;
+                        overflow-wrap: break-word;
                     }
                 }
 
                 .ps-btn--read-reviews {
                     font-size: 14px;
                     font-weight: 500;
-                    color: var(--global-color-primary);
-                    text-decoration: none;
-                    padding: 8px 20px;
-                    border: 1px solid var(--global-color-primary);
-                    border-radius: 4px;
-                    transition: all 0.3s ease;
-                    background: transparent;
+                    color: var(--global-color-link) !important;
+                    text-decoration: none !important;
+                    padding: 0 !important;
+                    border: none !important;
+                    border-radius: 0 !important;
+                    background: transparent !important;
                     cursor: pointer;
+                    transition: all 0.3s ease;
                 }
 
                 .ps-btn--read-reviews:hover {
-                    background: var(--global-color-primary);
-                    color: #fff;
+                    text-decoration: underline !important;
+                    color: var(--global-color-link-hover) !important;
+                    background: transparent !important;
                 }
 
-                /* Main Photo Viewer */
+                /* Photo Layout - Two Column */
+                .ps-photo-layout {
+                    display: flex;
+                    gap: 0;
+                    align-items: stretch;
+                }
+
+                /* Main Photo Viewer - Left Side */
                 .ps-photo-viewer {
                     position: relative;
+                    flex: 1;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    margin-bottom: 20px;
                     background: #f8f8f8;
-                    border-radius: 8px;
+                    border-radius: 8px 0 0 8px;
                     overflow: hidden;
+                    min-height: 400px;
                 }
 
                 .ps-photo-viewer__main {
@@ -880,10 +968,20 @@
                     position: absolute;
                     bottom: 15px;
                     left: 15px;
-                    background: rgba(0, 0, 0, 0.7);
-                    color: #fff;
+                    background: rgba(0, 0, 0, 0.75) !important;
+                    color: var(--global-color-text-on-dark) !important;
                     padding: 10px 15px;
-                    border-radius: 6px;
+                    border-radius: 4px !important;
+                    z-index: 5;
+                    text-decoration: none;
+                    display: block;
+                    transition: all 0.3s ease;
+                    backdrop-filter: blur(4px);
+                }
+
+                .ps-photo-viewer__info:hover {
+                    opacity: 0.95;
+                    background: rgba(0, 0, 0, 0.85) !important;
                 }
 
                 .ps-photo-rating {
@@ -891,7 +989,7 @@
                 }
 
                 .ps-photo-rating i {
-                    color: #ffa900;
+                    color: var(--global-color-primary) !important;
                     font-size: 14px;
                     margin-right: 2px;
                 }
@@ -900,6 +998,7 @@
                     margin: 0;
                     font-size: 13px;
                     font-weight: 500;
+                    color: var(--global-color-text-on-dark) !important;
                 }
 
                 .ps-photo-nav {
@@ -909,8 +1008,8 @@
                     width: 45px;
                     height: 45px;
                     background: rgba(255, 255, 255, 0.95);
-                    border: 1px solid #ddd;
-                    border-radius: 50%;
+                    border: 1px solid var(--global-color-border-strong) !important;
+                    border-radius: 6px !important;
                     display: flex;
                     align-items: center;
                     justify-content: center;
@@ -920,9 +1019,19 @@
                 }
 
                 .ps-photo-nav:hover {
-                    background: var(--global-color-primary);
-                    color: #fff;
-                    border-color: var(--global-color-primary);
+                    background: var(--global-color-card-bg) !important;
+                    color: inherit;
+                    border-color: var(--global-color-border-strong) !important;
+                }
+
+                .ps-photo-nav:disabled {
+                    opacity: 0.4;
+                    cursor: not-allowed;
+                    pointer-events: none;
+                }
+
+                .ps-photo-nav:disabled:hover {
+                    background: rgba(255, 255, 255, 0.95) !important;
                 }
 
                 .ps-photo-nav--prev {
@@ -937,53 +1046,151 @@
                     font-size: 20px;
                 }
 
+                /* Thumbnail Sidebar - Right Side */
+                .ps-photo-sidebar {
+                    width: 320px;
+                    flex-shrink: 0;
+                    display: flex;
+                    flex-direction: column;
+                    border: 1px solid var(--global-color-primary-border);
+                    border-left: none;
+                    border-radius: 0 8px 8px 0;
+                    padding: 15px;
+                    background: var(--global-color-site-bg);
+                }
+
+                /* Product Title Link */
+                .ps-photo-product-title {
+                    font-size: 1rem;
+                    font-weight: 400;
+                    color: var(--global-color-text-main);
+                    text-decoration: none;
+                    margin-bottom: 15px;
+                    display: block;
+                    line-height: 1.4;
+                    transition: all 0.3s ease;
+                }
+
+                .ps-photo-product-title:hover {
+                    text-decoration: underline;
+                    color: var(--global-color-text-main);
+                }
+
+                @media (max-width: 767px) {
+                    .ps-photo-product-title {
+                        display: none !important;
+                    }
+                }
+
                 /* Thumbnail Grid */
                 .ps-photo-thumbnails {
-                    margin-top: 20px;
+                    margin: 0;
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
                 }
 
                 .ps-photo-thumbnails__grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-                    gap: 10px;
-                    margin-bottom: 20px;
-                }
-
-                @media (min-width: 768px) {
-                    .ps-photo-thumbnails__grid {
-                        grid-template-columns: repeat(8, 1fr);
-                    }
-                }
-
-                @media (min-width: 1200px) {
-                    .ps-photo-thumbnails__grid {
-                        grid-template-columns: repeat(12, 1fr);
-                    }
+                    grid-template-columns: repeat(5, 1fr);
+                    gap: 8px;
+                    margin-bottom: 15px;
                 }
 
                 .ps-photo-thumbnail {
-                    aspect-ratio: 1;
-                    border-radius: 6px;
+                    aspect-ratio: 3/4;
+                    border-radius: 4px;
                     overflow: hidden;
                     cursor: pointer;
                     border: 2px solid transparent;
-                    transition: all 0.3s ease;
+                    transition: border-color 0.3s ease;
                 }
 
                 .ps-photo-thumbnail:hover {
-                    border-color: var(--global-color-primary);
-                    transform: scale(1.05);
+                    border-color: var(--global-color-link);
                 }
 
                 .ps-photo-thumbnail.active {
                     border-color: var(--global-color-primary);
-                    box-shadow: 0 0 10px rgba(252, 184, 0, 0.5);
                 }
 
                 .ps-photo-thumbnail img {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
+                }
+
+                /* Responsive Layout */
+                @media (max-width: 1024px) {
+                    .ps-photo-layout {
+                        flex-direction: column;
+                    }
+
+                    .ps-photo-viewer {
+                        width: 100%;
+                        border-radius: 8px 8px 0 0;
+                    }
+
+                    .ps-photo-sidebar {
+                        width: 100%;
+                        border-left: 1px solid var(--global-color-primary-border);
+                        border-radius: 0 0 8px 8px;
+                        margin-top: 0;
+                    }
+
+                    .ps-photo-thumbnails__grid {
+                        display: flex;
+                        flex-direction: row;
+                        grid-template-columns: none;
+                        overflow-x: auto;
+                        overflow-y: hidden;
+                        scroll-snap-type: x mandatory;
+                        -webkit-overflow-scrolling: touch;
+                        scrollbar-width: thin;
+                        scrollbar-color: var(--global-color-primary) var(--global-color-border);
+                        padding-bottom: 5px;
+                    }
+
+                    .ps-photo-thumbnails__grid::-webkit-scrollbar {
+                        height: 6px;
+                    }
+
+                    .ps-photo-thumbnails__grid::-webkit-scrollbar-track {
+                        background: var(--global-color-border);
+                        border-radius: 3px;
+                    }
+
+                    .ps-photo-thumbnails__grid::-webkit-scrollbar-thumb {
+                        background: var(--global-color-primary);
+                        border-radius: 3px;
+                    }
+
+                    .ps-photo-thumbnail {
+                        flex: 0 0 auto;
+                        width: calc((100% - 40px) / 6);
+                        scroll-snap-align: start;
+                    }
+                }
+
+                @media (max-width: 767px) {
+                    .ps-photo-thumbnail {
+                        width: calc((100% - 32px) / 5);
+                    }
+
+                    .ps-photo-nav {
+                        width: 35px !important;
+                        height: 35px !important;
+                    }
+
+                    .ps-photo-nav i {
+                        font-size: 16px;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .ps-photo-thumbnail {
+                        width: calc((100% - 16px) / 3);
+                    }
                 }
 
                 /* Pagination */
@@ -1030,6 +1237,13 @@
             @endif
             <!-- END: Customer Photos Gallery -->
 
+            <style>
+                /* Browsing History Section - Remove all margins */
+                .ps-product__browsing-history {
+                    margin: 0 !important;
+                }
+            </style>
+
             <!-- BROWSING HISTORY SECTION -->
             <div class="ps-product__browsing-history">
                 {!! shortcode()->compile('[recently-viewed-products title="Your browsing history" enable_caching="no" enable_lazy_loading="no"][/recently-viewed-products]') !!}
@@ -1041,6 +1255,148 @@
                 {!! shortcode()->compile('[similar-customers-recommendations enable_caching="no" enable_lazy_loading="no"][/similar-customers-recommendations]') !!}
             </div>
             <!-- END: Similar Customers Recommendations -->
+
+            <!-- REVIEWS SECTION -->
+            @if (EcommerceHelper::isReviewEnabled())
+                <div class="ps-product__reviews" id="tab-reviews">
+                    <div class="ps-container">
+                        <div class="ps-block--reviews">
+                            <div class="ps-block__content">
+                                @include('plugins/ecommerce::themes.includes.reviews', ['reviewButtonClass' => 'ps-btn'])
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            <!-- END: Reviews -->
+
+            <!-- NEW ARRIVAL RELATED ITEMS SECTION -->
+            @include(EcommerceHelper::viewPath('includes.new-arrival-related'), ['product' => $product])
+
+            <!-- GUEST SIGN IN PROMPT SECTION -->
+            @guest('customer')
+                <div class="ps-guest-signin-prompt">
+                    <div class="ps-container">
+                        <div class="ps-guest-signin-prompt__content">
+                            <h3 class="ps-guest-signin-prompt__title">{{ __('Shop easy and get personalized recommendations') }}</h3>
+                            <a href="{{ route('customer.login') }}" class="btn-guest-signin">{{ __('Sign in now') }}</a>
+                            <p class="ps-guest-signin-prompt__register">
+                                {{ __('New customer at povaly?') }} 
+                                <a href="{{ route('customer.register') }}" class="link-register">{{ __('Start here') }}</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endguest
+
+            <style>
+                /* Reviews Section */
+                .ps-product__reviews {
+                    margin: 0 !important;
+                    background: var(--global-color-site-bg);
+                }
+
+                .ps-product__reviews .ps-container {
+                    padding: 0 !important;
+                    margin: 0 !important;
+                    border-bottom: none !important;
+                }
+
+                .ps-block--reviews {
+                    border: none;
+                    border-radius: 0;
+                    padding: 0;
+                }
+
+                .ps-block--reviews .ps-block__content {
+                    margin: 0;
+                }
+
+                /* Guest Sign In Prompt Section */
+                .ps-guest-signin-prompt {
+                    margin: 0;
+                    padding: 40px 0 0 0;
+                    background: var(--global-color-site-bg);
+                    border-top: 1px solid var(--global-color-border-strong);
+                }
+
+                .ps-guest-signin-prompt .ps-container {
+                    padding: 0 15px;
+                }
+
+                .ps-guest-signin-prompt__content {
+                    text-align: center;
+                    max-width: 500px;
+                    margin: 0 auto;
+                }
+
+                .ps-guest-signin-prompt__title {
+                    font-size: 20px;
+                    font-weight: 600;
+                    color: var(--global-color-text-main);
+                    margin: 0 0 20px 0;
+                    line-height: 1.4;
+                }
+
+                .btn-guest-signin {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 10px 40px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: var(--ec-btn-cart-text);
+                    background-color: var(--ec-btn-cart-bg);
+                    border: none;
+                    border-radius: 50px;
+                    text-decoration: none;
+                    transition: all 0.3s ease;
+                    margin-bottom: 15px;
+                }
+
+                .btn-guest-signin:hover {
+                    background-color: var(--ec-btn-cart-bg-hover);
+                    color: var(--ec-btn-cart-text);
+                    text-decoration: none;
+                }
+
+                .ps-guest-signin-prompt__register {
+                    font-size: 14px;
+                    color: var(--global-color-text-main);
+                    margin: 0;
+                }
+
+                .ps-guest-signin-prompt__register .link-register {
+                    color: var(--global-color-link);
+                    text-decoration: underline;
+                    font-weight: 500;
+                }
+
+                .ps-guest-signin-prompt__register .link-register:hover {
+                    color: var(--global-color-link-hover);
+                    text-decoration: underline;
+                }
+
+                @media (max-width: 767px) {
+                    .ps-guest-signin-prompt {
+                        padding: 30px 0 0 0;
+                    }
+
+                    .ps-guest-signin-prompt__title {
+                        font-size: 18px;
+                        margin-bottom: 15px;
+                    }
+
+                    .btn-guest-signin {
+                        padding: 10px 30px;
+                        font-size: 13px;
+                    }
+
+                    .ps-guest-signin-prompt__register {
+                        font-size: 13px;
+                    }
+                }
+            </style>
 
     </div>
     <!-- END: ps-product--detail -->
@@ -1070,6 +1426,31 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<style>
+    /* Product Page Layout Fixes */
+    
+    /* ps-container: Remove padding, add bottom spacing and border */
+    .ps-page--product .ps-container {
+        padding: 0 !important;
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--global-color-border-strong);
+        padding-bottom: 15px !important;
+    }
+    
+    /* ps-product__content: Add spacing and border */
+    .ps-product__content {
+        padding: 0 !important;
+        margin-bottom: 15px;
+        border-bottom: 1px solid var(--global-color-border-strong);
+        padding-bottom: 15px !important;
+    }
+    
+    /* Force remove margin from price-desc divs */
+    .price-desc > div {
+        margin: 0 !important;
+    }
+</style>
 
 
 @include(Theme::getThemeNamespace('views.ecommerce.includes.location-modal'))

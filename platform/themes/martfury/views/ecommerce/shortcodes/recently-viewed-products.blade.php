@@ -88,8 +88,14 @@
 <style>
     /* Recently Viewed Products Section */
     .ps-recently-viewed-products {
-        margin: 10px 0 !important;
+        margin: 0 !important;
         background: var(--global-color-site-bg);
+    }
+
+    .ps-recently-viewed-products .ps-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        border-bottom: none !important;
     }
 
     /* Recently Viewed Block */
@@ -121,8 +127,16 @@
     }
     
     @media (max-width: 767px) {
+        .ps-block--recently-viewed .ps-block__header {
+            flex-wrap: wrap;
+            padding: 0 0 10px 0 !important;
+        }
+
         .ps-block--recently-viewed .ps-block__header h2 {
             font-size: 20px;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
     }
 
@@ -242,7 +256,13 @@
         }
 
         .ps-block--recently-viewed .ps-block__header {
-            padding: 0 10px 10px 10px !important;
+            padding: 0 0 10px 0 !important;
+        }
+
+        .ps-block--recently-viewed .ps-block__header h2 {
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
         }
 
         .ps-grid--recently-viewed {

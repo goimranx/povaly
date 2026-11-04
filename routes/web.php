@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\CartCheckController;
+use App\Http\Controllers\ReviewHelpfulController;
+use App\Http\Controllers\ReviewShareController;
 use App\Http\Controllers\SystemUpdateController;
 use App\Http\Controllers\VideoLikeController;
 use App\Http\Controllers\VideoShareController;
@@ -15,6 +17,15 @@ Route::prefix('api')->middleware(['web'])->group(function () {
     // Video Shares API Routes
     Route::get('/video-shares/{videoId}', [VideoShareController::class, 'show'])->name('api.video-shares.show');
     Route::post('/video-shares', [VideoShareController::class, 'store'])->name('api.video-shares.store');
+    
+    // Review Helpful API Routes
+    Route::get('/review-helpful/{reviewId}', [ReviewHelpfulController::class, 'show'])->name('api.review-helpful.show');
+    Route::post('/review-helpful', [ReviewHelpfulController::class, 'store'])->name('api.review-helpful.store');
+    Route::delete('/review-helpful/{reviewId}', [ReviewHelpfulController::class, 'destroy'])->name('api.review-helpful.destroy');
+    
+    // Review Share API Routes
+    Route::get('/review-share/{reviewId}', [ReviewShareController::class, 'show'])->name('api.review-share.show');
+    Route::post('/review-share', [ReviewShareController::class, 'store'])->name('api.review-share.store');
     
     // Cart Check API Routes
     Route::get('/cart/check/{productId}', [CartCheckController::class, 'check'])->name('api.cart.check');

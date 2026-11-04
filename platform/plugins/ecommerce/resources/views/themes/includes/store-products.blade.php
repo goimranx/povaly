@@ -153,8 +153,14 @@
             }
 
             @media (max-width: 767px) {
+                .ps-store-products__header {
+                    flex-wrap: wrap;
+                }
+
                 .ps-store-products__header h2 {
                     font-size: 20px;
+                    word-break: break-word;
+                    overflow-wrap: break-word;
                 }
             }
 
@@ -175,7 +181,6 @@
             /* Mobile Header Layout */
             @media (max-width: 480px) {
                 .ps-store-products__header {
-                    flex-wrap: wrap;
                     gap: 5px;
                     padding-left: 0;
                 }

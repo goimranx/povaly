@@ -130,44 +130,6 @@ $(() => {
             }
         )
 
-        $(document).on('submit', '.ecommerce-form-review-product', function (e) {
-            e.preventDefault()
-            e.stopPropagation()
-            const $this = $(e.currentTarget)
-            const $button = $this.find('button[type=submit]')
-
-            const productId = $this.find('input[name=product_id]').val()
-
-            $.ajax({
-                type: 'POST',
-                cache: false,
-                url: $this.prop('action'),
-                data: new FormData($this[0]),
-                contentType: false,
-                processData: false,
-                beforeSend: () => {
-                    $button.prop('disabled', true).addClass('loading')
-                    $this.find('.alert-message').removeClass('alert-success').addClass('d-none alert-warning')
-                },
-                success: (res) => {
-                    if (! res.error) {
-                        setTimeout(() => {
-                            window.location.reload()
-                        }, 1000)
-                    } else {
-                        $this.find('.alert-message').html(res.message).removeClass('d-none')
-                    }
-                },
-                error: (res) => {
-                    let messages = handleError(res)
-                    $this.find('.alert-message').html(messages).removeClass('d-none')
-                },
-                complete: () => {
-                    $button.prop('disabled', false).removeClass('loading')
-                },
-            })
-        })
-
         $(document).on('click', '.ecommerce-product-star .ecommerce-icon', function (e) {
             const $this = $(e.currentTarget)
             const $product = $this.closest('.ecommerce-product-item')
@@ -196,3 +158,72 @@ $(() => {
 
     submitReviewProduct()
 })
+
+
+    // Helper function to refresh review action section
+    function refreshReviewActionSection(productId) {
+        const $wrapper = $('.review-logged-in-wrapper')
+        if (!$wrapper.length) return
+
+        $.ajax({
+            url: `/product/${productId}/review-action-section`,
+            method: 'GET',
+            success: (response) => {
+                if (response.data && response.data.html) {
+                    $wrapper.html(response.data.html)
+                    
+                    // Update review count in header if exists
+                    if (response.data.reviews_count !== undefined) {
+                        $('.review-global-ratings-text').text(response.data.reviews_count + ' global public ratings')
+                    }
+                }
+            },
+            error: (xhr) => {
+                console.error('Failed to refresh review action section:', xhr)
+            }
+        })
+    }
+
+    // Helper function to refresh review list
+    function refreshReviewList(ajaxUrl) {
+        const $container = $('.review-list-container')
+        if (!$container.length || !ajaxUrl) return
+
+        $.ajax({
+            url: ajaxUrl,
+            method: 'GET',
+            beforeSend: () => {
+                const $reviewList = $container.find('.review-list')
+                if ($reviewList.length) {
+                    $reviewList.html('<div class="loading-spinner text-center"><div class="spinner-border"></div></div>')
+                }
+            },
+            success: (response) => {
+                console.log('[Review] List refresh success:', response)
+                
+                if (response.data) {
+                    const $reviewList = $container.find('.review-list')
+                    if ($reviewList.length) {
+                        $reviewList.html(response.data)
+                    }
+                }
+                
+                if (response.message) {
+                    const $header = $container.find('h4')
+                    if ($header.length) {
+                        $header.text(response.message)
+                    }
+                }
+                
+                // Trigger event for other scripts to reinitialize
+                $(document).trigger('reviewListUpdated')
+            },
+            error: (xhr) => {
+                console.error('[Review] List refresh failed:', xhr)
+            }
+        })
+    }
+
+    // Expose functions globally for use in front-review.js
+    window.refreshReviewActionSection = refreshReviewActionSection
+    window.refreshReviewList = refreshReviewList

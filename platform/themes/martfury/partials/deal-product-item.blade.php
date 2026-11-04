@@ -479,11 +479,11 @@
     }
 
     .ps-product--deal .ps-product__rating .rating-stars i.filled {
-        color: #ffa500;
+        color: var(--global-color-primary);
     }
 
     .ps-product--deal .ps-product__rating .rating-stars i.half-filled {
-        color: #ffa500;
+        color: var(--global-color-primary);
         opacity: 0.5;
     }
 

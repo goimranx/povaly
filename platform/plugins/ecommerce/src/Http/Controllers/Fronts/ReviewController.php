@@ -157,6 +157,9 @@ class ReviewController extends BaseController
 
         $reviews = EcommerceHelper::getProductReviews($product, $star, $perPage, $search, $sortBy);
 
+        // Check review eligibility for mobile button using the existing trait method
+        $checkReview = $this->checkReviewCondition($product->id);
+
         if ($star) {
             $message = __(':total review(s) ":star star" for ":product"', [
                 'total' => $reviews->total(),
@@ -175,7 +178,7 @@ class ReviewController extends BaseController
             ->setData(
                 Theme::scope(
                     'ecommerce.includes.review-list',
-                    compact('reviews', 'product'),
+                    compact('reviews', 'product', 'checkReview'),
                     'plugins/ecommerce::themes.includes.review-list'
                 )->getContent() ?: ' '
             )

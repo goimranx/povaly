@@ -1,8 +1,8 @@
-<div @class(['col-12', 'col-md-8' => $showAvgRating])>
-    <h4>{{ trans('plugins/ecommerce::review.add_your_review') }}</h4>
+<div class="col-12">
+    <h4 class="d-none">{{ trans('plugins/ecommerce::review.add_your_review') }}</h4>
 
     @if (isset($checkReview) && ! $checkReview['error'])
-        <p>
+        <p class="review-form-notice">
             {{ trans('plugins/ecommerce::ecommerce.your_email_address_will_not_be_published_required_') }}
             <span class="required"></span>
         </p>
@@ -88,13 +88,13 @@
             </div>
         </div>
     @else
-        <x-core::form :url="route('public.reviews.create')" method="post" :files="true">
+        <x-core::form id="review-form" :url="route('public.reviews.create')" method="post" :files="true">
             <input type="hidden" name="product_id" value="{{ $product->id }}">
 
             <div class="d-flex align-items-center mb-3">
                 <label class="form-label mb-0 required" for="rating">{{ trans('plugins/ecommerce::review.your_rating') }}</label>
                 <div class="form-rating-stars ms-2">
-                    @for ($i = 5; $i >= 1; $i--)
+                    @for ($i = 1; $i <= 5; $i++)
                         <input
                             class="btn-check"
                             id="rating-star-{{ $i }}"
@@ -103,8 +103,8 @@
                             value="{{ $i }}"
                             @checked($i === 5)
                         >
-                        <label for="rating-star-{{ $i }}" title="{{ $i }} stars">
-                            <x-core::icon name="ti ti-star-filled" />
+                        <label for="rating-star-{{ $i }}" title="{{ $i }} stars" data-star-value="{{ $i }}">
+                            <i class="ph ph-star"></i>
                         </label>
                     @endfor
                 </div>
@@ -135,24 +135,25 @@
                 </script>
 
                 <div class="image-upload__viewer d-flex">
-                    <div class="image-viewer__list position-relative">
-                        <div class="image-upload__uploader-container">
-                            <div class="d-table">
-                                <div class="image-upload__uploader">
-                                    <x-core::icon name="ti ti-photo" />
-                                    <div class="image-upload__text">{{ trans('plugins/ecommerce::ecommerce.upload_photos') }}</div>
-                                    <input
-                                        class="image-upload__file-input"
-                                        name="images[]"
-                                        data-max-files="{{ EcommerceHelper::reviewMaxFileNumber() }}"
-                                        data-max-size="{{ EcommerceHelper::reviewMaxFileSize(true) }}"
-                                        data-max-size-message="{{ trans('validation.max.file', ['attribute' => '__attribute__', 'max' => '__max__']) }}"
-                                        type="file"
-                                        accept="image/png,image/jpeg,image/jpg"
-                                        multiple="multiple"
-                                    >
-                                </div>
-                            </div>
+                    <div class="image-viewer__list position-relative"></div>
+                </div>
+
+                <div class="image-upload__uploader-container">
+                    <div class="d-table">
+                        <div class="image-upload__uploader">
+                            <x-core::icon name="ti ti-photo" />
+                            <div class="image-upload__text">{{ trans('plugins/ecommerce::ecommerce.upload_photos') }}</div>
+                            <div class="image-upload__file-info">PNG, JPEG, JPG (Max {{ EcommerceHelper::reviewMaxFileSize() }}MB)</div>
+                            <input
+                                class="image-upload__file-input"
+                                name="images[]"
+                                data-max-files="{{ EcommerceHelper::reviewMaxFileNumber() }}"
+                                data-max-size="{{ EcommerceHelper::reviewMaxFileSize(true) }}"
+                                data-max-size-message="{{ trans('validation.max.file', ['attribute' => '__attribute__', 'max' => '__max__']) }}"
+                                type="file"
+                                accept="image/png,image/jpeg,image/jpg"
+                                multiple="multiple"
+                            >
                         </div>
                     </div>
                 </div>
@@ -168,17 +169,6 @@
                     </div>
                 </div>
             @endif
-
-            <button
-                type="submit"
-                @class([
-                    $reviewButtonClass ?? 'btn btn-primary',
-                    'disabled' => ! auth('customer')->check(),
-                ])
-                @disabled(! auth('customer')->check())
-            >
-                {{ trans('plugins/ecommerce::ecommerce.submit') }}
-            </button>
         </x-core::form>
     @endif
 </div>
