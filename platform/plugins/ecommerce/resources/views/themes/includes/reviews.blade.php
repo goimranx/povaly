@@ -122,7 +122,7 @@
 
         @auth('customer')
             @if ($product->reviews->isNotEmpty())
-                <div class="position-relative review-list-container" data-ajax-url="{{ route('public.ajax.reviews', $product->id) }}">
+                <div class="position-relative review-list-container" style="flex: 0 0 75%;" data-ajax-url="{{ route('public.ajax.reviews', $product->id) }}">
                     <h4 class="mb-3">{{ trans('plugins/ecommerce::review.total_reviews_for_product', ['total' => number_format($product->reviews_count), 'product' => $product->name]) }}</h4>
 
                     <div class="d-flex align-items-center justify-content-between mb-4 product-review-controls">
