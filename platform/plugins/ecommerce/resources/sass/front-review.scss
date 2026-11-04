@@ -797,13 +797,14 @@
 
 // Write Review Button (Inline - Below Rating)
 .review-logged-in-wrapper {
-    border-top: 1px solid var(--global-color-border-strong);
-    border-bottom: 1px solid var(--global-color-border-strong);
+    // borders removed, moved to container
 }
 
 .review-logged-in-container {
     padding: 20px 0;
     text-align: left;
+    border-top: 1px solid var(--global-color-border-strong);
+    border-bottom: 1px solid var(--global-color-border-strong);
 }
 
 .review-section-title {
@@ -858,7 +859,7 @@
 
 // Visual Gallery Link
 .review-visual-gallery-link {
-    padding: 16px 0 0 0;
+    padding: 0;
     text-align: center;
 }
 
