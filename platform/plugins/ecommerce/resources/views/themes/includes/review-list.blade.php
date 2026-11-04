@@ -21,7 +21,7 @@
         'border-bottom' => ! $loop->last,
         'opacity-50' => ! $review->is_approved,
         'current-customer-review' => $isCurrentCustomerReview
-    ])>
+    ]) id="review-{{ $review->id }}">
         <div class="review-item__main">
             {{-- Review Info Section --}}
             <div class="review-item__info">
@@ -90,7 +90,7 @@
                         </button>
                     </div>
                     <div class="review-action-share">
-                        <button type="button" class="btn-share" data-review-id="{{ $review->id }}" title="{{ __('Share this review') }}">
+                        <button type="button" class="btn-share" data-review-id="{{ $review->id }}" data-shared="false" title="{{ __('Share this review') }}">
                             <i class="ph ph-share-network"></i>
                         </button>
                     </div>

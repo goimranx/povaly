@@ -787,6 +787,10 @@ $(() => {
             const $icon = $btn.find('i')
             const isShared = $btn.attr('data-shared') === 'true'
             
+            // Build review-specific URL with anchor
+            const baseUrl = window.location.href.split('#')[0]
+            const reviewUrl = baseUrl + '#review-' + reviewId
+            
             // Optimistic UI update
             $btn.attr('data-shared', 'true')
             $icon.removeClass('ph').addClass('ph-fill')
@@ -802,7 +806,7 @@ $(() => {
                 const shareData = {
                     title: 'Product Review',
                     text: 'Check out this review!',
-                    url: window.location.href
+                    url: reviewUrl
                 }
                 
                 navigator.share(shareData)
@@ -837,7 +841,7 @@ $(() => {
                     })
             } else {
                 // Fallback to clipboard
-                navigator.clipboard.writeText(window.location.href)
+                navigator.clipboard.writeText(reviewUrl)
                     .then(() => {
                         Review.showSuccess('Review link copied to clipboard!')
                         
