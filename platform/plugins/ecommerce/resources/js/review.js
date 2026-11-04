@@ -130,52 +130,6 @@ $(() => {
             }
         )
 
-        $(document).on('submit', '.ecommerce-form-review-product, #review-form', function (e) {
-            e.preventDefault()
-            e.stopPropagation()
-            const $this = $(e.currentTarget)
-            const $button = $this.find('button[type=submit]')
-
-            const productId = $this.find('input[name=product_id]').val()
-
-            $.ajax({
-                type: 'POST',
-                cache: false,
-                url: $this.prop('action'),
-                data: new FormData($this[0]),
-                contentType: false,
-                processData: false,
-                beforeSend: () => {
-                    $button.prop('disabled', true).addClass('loading')
-                    $this.find('.alert-message').removeClass('alert-success').addClass('d-none alert-warning')
-                },
-                success: (res) => {
-                    if (! res.error) {
-                        $this.find('.alert-message').html(res.message || 'Review submitted successfully!').removeClass('alert-warning').addClass('alert-success').removeClass('d-none')
-                        
-                        // Close modal and reload page
-                        setTimeout(() => {
-                            const $modal = $this.closest('.modal')
-                            if ($modal.length) {
-                                $modal.modal('hide')
-                            }
-                            
-                            window.location.reload()
-                        }, 1500)
-                    } else {
-                        $this.find('.alert-message').html(res.message).removeClass('d-none')
-                    }
-                },
-                error: (res) => {
-                    let messages = handleError(res)
-                    $this.find('.alert-message').html(messages).removeClass('d-none')
-                },
-                complete: () => {
-                    $button.prop('disabled', false).removeClass('loading')
-                },
-            })
-        })
-
         $(document).on('click', '.ecommerce-product-star .ecommerce-icon', function (e) {
             const $this = $(e.currentTarget)
             const $product = $this.closest('.ecommerce-product-item')

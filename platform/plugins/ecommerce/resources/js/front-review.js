@@ -196,11 +196,18 @@ $(() => {
 
                     Review.showSuccess(message)
 
-                    getReviewList($reviewListContainer.data('ajax-url'), () => {
-                        if (!$('.review-list').length) {
-                            setTimeout(() => window.location.reload(), 1000)
-                        }
-                    }, getCurrentSearchParams())
+                    // Close modal if it's in modal
+                    const $modal = $form.closest('.modal')
+                    if ($modal.length) {
+                        setTimeout(() => {
+                            $modal.modal('hide')
+                        }, 500)
+                    }
+
+                    // Reload page after short delay
+                    setTimeout(() => {
+                        window.location.reload()
+                    }, 1000)
                 } else {
                     Review.showError(message)
                 }
