@@ -148,7 +148,7 @@ class ReviewController extends BaseController
             ->firstOrFail();
 
         $star = $request->integer('star');
-        $perPage = $request->integer('per_page', 10);
+        $perPage = $request->integer('per_page', 1);  // Changed default from 10 to 1 for pagination testing
         $search = (string) BaseHelper::stringify($request->input('search'));
         $sortBy = BaseHelper::stringify($request->input('sort_by'));
         $sortBy = $sortBy && in_array($sortBy, ['newest', 'oldest', 'highest_rating', 'lowest_rating'])
