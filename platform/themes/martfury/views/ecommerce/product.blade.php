@@ -1076,6 +1076,12 @@
                     color: var(--global-color-text-main);
                 }
 
+                @media (max-width: 767px) {
+                    .ps-photo-product-title {
+                        display: none !important;
+                    }
+                }
+
                 /* Thumbnail Grid */
                 .ps-photo-thumbnails {
                     margin: 0;
