@@ -12,8 +12,8 @@
         $showAvgRating ??= $product->reviews->isNotEmpty();
     @endphp
 
-    <div class="product-review-container @auth('customer') review-layout-column @else review-layout-row @endauth">
-        <div class="review-sidebar-column" style="flex: 0 0 25%;">
+    <div class="product-review-container d-flex flex-row gap-5">
+        <div class="review-sidebar-column @auth('customer') d-flex flex-column gap-3 @else d-flex flex-row gap-3 @endauth" style="flex: 0 0 25%;">
             @if ($showAvgRating)
                 <div class="review-sidebar-wrapper">
                     <div class="product-review-number review-sidebar-sticky">
