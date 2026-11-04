@@ -136,12 +136,12 @@
             .ps-new-arrival-related {
                 margin: 0;
                 background: var(--global-color-site-bg);
-                border-bottom: 1px solid var(--global-color-border-strong, #333);
             }
 
             /* Remove padding from container */
             .ps-new-arrival-related .ps-container {
                 padding: 0;
+                border-bottom: none !important;
             }
 
             /* Add padding to content when no carousel (all items visible) */
@@ -379,11 +379,6 @@
                     height: 6px !important;
                     min-height: 6px !important;
                     border-radius: 3px !important;
-                }
-
-                .ps-new-arrival-related .ps-container {
-                    padding-left: 0;
-                    padding-right: 0;
                 }
 
                 .ps-block--new-arrival-related {
