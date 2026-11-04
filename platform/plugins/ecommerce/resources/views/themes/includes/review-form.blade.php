@@ -143,7 +143,7 @@
                         <div class="image-upload__uploader">
                             <x-core::icon name="ti ti-photo" />
                             <div class="image-upload__text">{{ trans('plugins/ecommerce::ecommerce.upload_photos') }}</div>
-                            <div class="image-upload__file-info">PNG, JPG (Max {{ EcommerceHelper::reviewMaxFileSize() }})</div>
+                            <div class="image-upload__file-info">PNG, JPEG, JPG (Max {{ EcommerceHelper::reviewMaxFileSize() }}MB)</div>
                             <input
                                 class="image-upload__file-input"
                                 name="images[]"
