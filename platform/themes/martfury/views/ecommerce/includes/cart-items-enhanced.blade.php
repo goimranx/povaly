@@ -87,13 +87,27 @@
 
                     {{-- Product Details --}}
                     <div class="ps-cart-product-details">
-                        <a href="{{ $product->original_product->url }}" class="ps-cart-product-name">
-                            {{ $product->original_product->name }}
-                            @if ($product->isOutOfStock())
-                                <span class="stock-status-label">({!! $product->stock_status_html !!})</span>
-                            @endif
-                        </a>
+                        {{-- Product Name and Price --}}
+                        <div class="ps-cart-product-name-price">
+                            <a href="{{ $product->original_product->url }}" class="ps-cart-product-name">
+                                {{ $product->original_product->name }}
+                                @if ($product->isOutOfStock())
+                                    <span class="stock-status-label">({!! $product->stock_status_html !!})</span>
+                                @endif
+                            </a>
+                            
+                            {{-- Price --}}
+                            <div class="ps-cart-product-price">
+                                <div class="product__price @if ($product->front_sale_price != $product->price) sale @endif">
+                                    <span>{{ format_price($cartItem->price) }}</span>
+                                    @if ($product->front_sale_price != $product->price)
+                                        <small><del>{{ format_price($product->price) }}</del></small>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
 
+                        {{-- Variations --}}
                         @if (!empty($cartItem->options['attributes']))
                             <p class="ps-cart-product-attributes"><small>{{ $cartItem->options['attributes'] }}</small></p>
                         @endif
@@ -118,37 +132,23 @@
                         )
 
                         {!! apply_filters('ecommerce_cart_after_item_content', null, $cartItem) !!}
-                    </div>
 
-                    {{-- Price --}}
-                    <div class="ps-cart-product-price">
-                        <div class="product__price @if ($product->front_sale_price != $product->price) sale @endif">
-                            <span>{{ format_price($cartItem->price) }}</span>
-                            @if ($product->front_sale_price != $product->price)
-                                <small><del>{{ format_price($product->price) }}</del></small>
-                            @endif
+                        {{-- Quantity and Remove --}}
+                        <div class="ps-cart-product-actions">
+                            <div class="ps-cart-product-quantity">
+                                <div class="form-group--number product__qty">
+                                    <button class="up" type="button">+</button>
+                                    <button class="down" type="button">-</button>
+                                    <input type="number" class="form-control qty-input" min="1" value="{{ $cartItem->qty }}" title="{{ __('Qty') }}" name="items[{{ $key }}][values][qty]">
+                                </div>
+                            </div>
+
+                            <div class="ps-cart-product-remove">
+                                <a href="#" data-url="{{ route('public.cart.remove', $cartItem->rowId) }}" class="remove-cart-button" title="{{ __('Remove') }}">
+                                    <i class="icon-cross"></i>
+                                </a>
+                            </div>
                         </div>
-                    </div>
-
-                    {{-- Quantity --}}
-                    <div class="ps-cart-product-quantity">
-                        <div class="form-group--number product__qty">
-                            <button class="up" type="button">+</button>
-                            <button class="down" type="button">-</button>
-                            <input type="number" class="form-control qty-input" min="1" value="{{ $cartItem->qty }}" title="{{ __('Qty') }}" name="items[{{ $key }}][values][qty]">
-                        </div>
-                    </div>
-
-                    {{-- Total --}}
-                    <div class="ps-cart-product-total">
-                        <strong>{{ format_price($cartItem->price * $cartItem->qty) }}</strong>
-                    </div>
-
-                    {{-- Remove --}}
-                    <div class="ps-cart-product-remove">
-                        <a href="#" data-url="{{ route('public.cart.remove', $cartItem->rowId) }}" class="remove-cart-button" title="{{ __('Remove') }}">
-                            <i class="icon-cross"></i>
-                        </a>
                     </div>
                 </div>
             @endforeach
