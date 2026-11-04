@@ -4,6 +4,7 @@
     @if (isset($checkReview) && ! $checkReview['error'])
         <p class="review-form-notice">
             {{ trans('plugins/ecommerce::ecommerce.your_email_address_will_not_be_published_required_') }}
+            <span class="required"></span>
         </p>
     @endif
 
@@ -176,7 +177,7 @@
                 ])
                 @disabled(! auth('customer')->check())
             >
-                Submit Review
+                {{ trans('plugins/ecommerce::ecommerce.submit_review') }}
             </button>
         </x-core::form>
     @endif
