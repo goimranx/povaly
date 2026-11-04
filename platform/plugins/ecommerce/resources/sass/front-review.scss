@@ -28,7 +28,7 @@
                 gap: 3px;
 
                 i {
-                    font-size: 16px;
+                    font-size: 1.2rem;
                     color: #ddd;
 
                     &.filled {
@@ -45,7 +45,7 @@
                 font-size: 14px;
                 margin: 0;
                 color: var(--global-color-text-main);
-                font-weight: 500;
+                font-weight: 400;
             }
         }
     }
@@ -61,15 +61,21 @@
             justify-content: space-between;
             width: 100%;
             gap: 0.75rem;
-            transition: background-color 0.2s ease;
+            padding: 0;
+            transition: none;
 
             &.clickable {
                 cursor: pointer;
-                border-radius: 0.25rem;
-                padding: 0.25rem;
+                border-radius: 0;
+                padding: 0;
 
                 &:hover {
-                    background-color: rgba(var(--primary-color-rgb, 13, 110, 253), 0.05);
+                    background-color: transparent;
+
+                    .product-review-progress-bar-title,
+                    .product-review-progress-bar-percent {
+                        text-decoration: underline;
+                    }
                 }
 
                 &:focus {
@@ -325,11 +331,14 @@
         }
 
         .progress {
-            border-radius: 0;
-            height: 0.6rem;
+            border-radius: 6px;
+            height: 1rem;
+            background-color: transparent;
+            border: 2px solid var(--global-color-border-strong);
 
             .progress-bar {
                 background-color: var(--global-color-primary);
+                border-radius: 4px;
             }
         }
 
