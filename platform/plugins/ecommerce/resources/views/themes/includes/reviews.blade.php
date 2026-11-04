@@ -13,7 +13,7 @@
     @endphp
 
     <div class="product-review-container d-flex flex-row gap-5">
-        <div class="review-sidebar-column @auth('customer') d-flex flex-column gap-3 @else d-flex flex-row gap-3 @endauth" style="width: 20%; flex-grow: 1;">
+        <div class="review-sidebar-column @auth('customer') d-flex flex-column gap-3 @else d-flex flex-row gap-3 @endauth" style="width: 15.5%; flex-grow: 1;">
             @if ($showAvgRating)
                 <div class="review-sidebar-wrapper">
                     <div class="product-review-number review-sidebar-sticky">
@@ -122,7 +122,7 @@
 
         @auth('customer')
             @if ($product->reviews->isNotEmpty())
-                <div class="position-relative review-list-container" style="width: 60%; flex-grow: 1;" data-ajax-url="{{ route('public.ajax.reviews', $product->id) }}">
+                <div class="position-relative review-list-container" style="width: 65.5%; flex-grow: 1;" data-ajax-url="{{ route('public.ajax.reviews', $product->id) }}">
                     <h4 class="mb-3 d-none">{{ trans('plugins/ecommerce::review.total_reviews_for_product', ['total' => number_format($product->reviews_count), 'product' => $product->name]) }}</h4>
 
                     <div class="product-review-controls mb-4">
