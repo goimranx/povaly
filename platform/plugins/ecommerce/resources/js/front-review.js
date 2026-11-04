@@ -731,6 +731,8 @@ $(() => {
             
             apiCall
                 .done((data) => {
+                    console.log('[Review] Helpful API success:', data)
+                    
                     // Update cache with server truth
                     reviewDataCache.helpful[reviewId] = {
                         user_marked: data.user_marked !== undefined ? data.user_marked : !isHelpful,
@@ -745,10 +747,14 @@ $(() => {
                     }
                 })
                 .fail((xhr) => {
-                    // Log warning if endpoint doesn't exist
-                    if (xhr.status === 404) {
-                        console.warn('[Review] Helpful API endpoint not implemented yet')
-                    }
+                    // Log detailed error info
+                    console.error('[Review] Helpful API failed:', {
+                        status: xhr.status,
+                        statusText: xhr.statusText,
+                        response: xhr.responseJSON || xhr.responseText,
+                        reviewId: reviewId,
+                        action: !isHelpful ? 'mark' : 'unmark'
+                    })
                     
                     // Rollback on error
                     $count.text(currentCount)
@@ -893,6 +899,8 @@ $(() => {
             method: 'GET'
         })
         .done((data) => {
+            console.log('[Review] Load status success:', data)
+            
             // Update cache
             reviewDataCache.helpful[reviewId] = {
                 user_marked: data.user_marked || false,
@@ -915,8 +923,14 @@ $(() => {
                 $icon.removeClass('ph-fill').addClass('ph')
             }
         })
-        .fail(() => {
-            // Silent fail - keep current state (API endpoint may not exist yet)
+        .fail((xhr) => {
+            // Log detailed error
+            console.error('[Review] Load status failed:', {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                response: xhr.responseJSON || xhr.responseText,
+                reviewId: reviewId
+            })
         })
     }
 
