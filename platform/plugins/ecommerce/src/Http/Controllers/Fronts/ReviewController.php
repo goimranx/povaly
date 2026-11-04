@@ -12,6 +12,7 @@ use Botble\Ecommerce\Http\Requests\Fronts\ReviewRequest;
 use Botble\Ecommerce\Http\Requests\ReviewReplyRequest;
 use Botble\Ecommerce\Models\Product;
 use Botble\Ecommerce\Models\Review;
+use Botble\Ecommerce\Models\Order;
 use Botble\Ecommerce\Traits\CheckReviewConditionTrait;
 use Botble\Media\Facades\RvMedia;
 use Botble\SeoHelper\Facades\SeoHelper;
@@ -157,6 +158,37 @@ class ReviewController extends BaseController
 
         $reviews = EcommerceHelper::getProductReviews($product, $star, $perPage, $search, $sortBy);
 
+        // Check review eligibility for mobile button
+        $checkReview = ['error' => false];
+        if (auth('customer')->check()) {
+            $customer = auth('customer')->user();
+            $existingReview = Review::query()
+                ->where('product_id', $product->id)
+                ->where('customer_id', $customer->id)
+                ->exists();
+
+            if ($existingReview) {
+                $checkReview = [
+                    'error' => true,
+                    'type' => 'already_reviewed',
+                ];
+            } elseif (EcommerceHelper::isReviewVerifiedPurchaseEnabled()) {
+                $hasPurchased = Order::query()
+                    ->where('user_id', $customer->id)
+                    ->whereHas('products', function ($query) use ($product) {
+                        $query->where('product_id', $product->id);
+                    })
+                    ->exists();
+
+                if (! $hasPurchased) {
+                    $checkReview = [
+                        'error' => true,
+                        'type' => 'purchase_required',
+                    ];
+                }
+            }
+        }
+
         if ($star) {
             $message = __(':total review(s) ":star star" for ":product"', [
                 'total' => $reviews->total(),
@@ -175,7 +207,7 @@ class ReviewController extends BaseController
             ->setData(
                 Theme::scope(
                     'ecommerce.includes.review-list',
-                    compact('reviews', 'product'),
+                    compact('reviews', 'product', 'checkReview'),
                     'plugins/ecommerce::themes.includes.review-list'
                 )->getContent() ?: ' '
             )

@@ -2647,3 +2647,51 @@
         box-shadow: 0 0 0 0 rgba(var(--global-color-primary-rgb, 13, 110, 253), 0);
     }
 }
+
+
+// Mobile Write Review Button
+.review-mobile-write-btn-wrapper {
+    width: 100%;
+    margin-top: 20px;
+
+    .btn-mobile-write-review {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 15px 20px;
+        background: transparent;
+        border: 1px solid var(--global-color-border-strong);
+        border-radius: 50px;
+        color: var(--global-color-text-main);
+        font-size: 15px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+
+        .btn-text {
+            text-align: left;
+            flex: 1;
+        }
+
+        i {
+            font-size: 1.2rem;
+            color: var(--global-color-text-main);
+            flex-shrink: 0;
+        }
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+            border-color: var(--global-color-text-main);
+            color: var(--global-color-text-main);
+            text-decoration: none;
+        }
+
+        &:active,
+        &:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+    }
+}

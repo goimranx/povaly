@@ -203,3 +203,28 @@
 <div class="tp-pagination">
     {{ $reviews->links() }}
 </div>
+
+{{-- Mobile Write Review Button --}}
+<div class="review-mobile-write-btn-wrapper d-lg-none mt-4">
+    @if(isset($checkReview) && $checkReview['error'])
+        @if($checkReview['type'] === 'already_reviewed')
+            {{-- User has already reviewed --}}
+            <a href="{{ route('customer.product-reviews') }}" class="btn-mobile-write-review">
+                <span class="btn-text">{{ __('See your reviews') }}</span>
+                <i class="ph ph-caret-right"></i>
+            </a>
+        @elseif($checkReview['type'] === 'purchase_required')
+            {{-- User hasn't purchased the product --}}
+            <a href="{{ route('public.products') }}" class="btn-mobile-write-review">
+                <span class="btn-text">{{ __('Shop the Povaly first') }}</span>
+                <i class="ph ph-caret-right"></i>
+            </a>
+        @endif
+    @else
+        {{-- User can write a review --}}
+        <button type="button" class="btn-mobile-write-review" data-bs-toggle="modal" data-bs-target="#reviewModal">
+            <span class="btn-text">{{ trans('plugins/ecommerce::review.write_a_review') }}</span>
+            <i class="ph ph-caret-right"></i>
+        </button>
+    @endif
+</div>
