@@ -1315,7 +1315,7 @@
                 /* Guest Sign In Prompt Section */
                 .ps-guest-signin-prompt {
                     margin: 0;
-                    padding: 40px 0;
+                    padding: 40px 0 0 0;
                     background: var(--global-color-site-bg);
                     border-top: 1px solid var(--global-color-border-strong);
                 }
@@ -1379,7 +1379,7 @@
 
                 @media (max-width: 767px) {
                     .ps-guest-signin-prompt {
-                        padding: 30px 0;
+                        padding: 30px 0 0 0;
                     }
 
                     .ps-guest-signin-prompt__title {
