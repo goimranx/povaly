@@ -84,7 +84,7 @@
                 @else
                     <div class="review-action-helpful">
                         <span class="helpful-label">{{ __('Helpful?') }}</span>
-                        <button type="button" class="btn-helpful" data-review-id="{{ $review->id }}">
+                        <button type="button" class="btn-helpful" data-review-id="{{ $review->id }}" data-helpful="false">
                             <i class="ph ph-thumbs-up"></i>
                             <span class="helpful-count">0</span>
                         </button>
