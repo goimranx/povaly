@@ -91,7 +91,7 @@
                     <div class="review-action-helpful">
                         <span class="helpful-label">{{ __('Helpful?') }}</span>
                         <button type="button" class="btn-helpful" data-review-id="{{ $review->id }}" data-helpful="{{ $userMarked ? 'true' : 'false' }}">
-                            <i class="ph {{ $userMarked ? 'ph-fill' : '' }} ph-thumbs-up"></i>
+                            <i class="{{ $userMarked ? 'ph-fill' : 'ph' }} ph-thumbs-up"></i>
                             <span class="helpful-count">{{ $totalMarks }}</span>
                         </button>
                     </div>
