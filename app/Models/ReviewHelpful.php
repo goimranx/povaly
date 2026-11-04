@@ -37,16 +37,8 @@ class ReviewHelpful extends Model
         $query = self::where('review_id', $reviewId);
         
         if ($userId) {
-            // For logged-in users, check by user_id OR session_id
-            $query->where(function($q) use ($userId, $sessionId) {
-                $q->where('user_id', $userId);
-                if ($sessionId) {
-                    $q->orWhere(function($subQ) use ($sessionId) {
-                        $subQ->where('session_id', $sessionId)
-                             ->whereNull('user_id');
-                    });
-                }
-            });
+            // For logged-in users, check ONLY by user_id
+            $query->where('user_id', $userId);
         } else {
             // For guests, check by session_id only
             $query->where('session_id', $sessionId)
