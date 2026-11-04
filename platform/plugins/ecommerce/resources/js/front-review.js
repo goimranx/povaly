@@ -158,6 +158,59 @@ $(() => {
         getReviewList($reviewListContainer.data('ajax-url'), null, getCurrentSearchParams())
     }
 
+    // Load More Reviews functionality
+    $(document).on('click', '.btn-load-more-reviews', function() {
+        const $button = $(this)
+        const nextPage = $button.data('next-page')
+        const productId = $button.data('product-id')
+        const ajaxUrl = $reviewListContainer.data('ajax-url')
+        
+        // Build URL with pagination
+        const urlObj = new URL(ajaxUrl, window.location.origin)
+        const params = getCurrentSearchParams()
+        params.page = nextPage
+        
+        Object.keys(params).forEach(key => {
+            if (params[key]) {
+                urlObj.searchParams.set(key, params[key])
+            }
+        })
+
+        $.ajax({
+            url: urlObj.toString(),
+            method: 'GET',
+            beforeSend: () => {
+                $button.prop('disabled', true)
+                $button.find('.btn-text').addClass('d-none')
+                $button.find('.btn-loading').removeClass('d-none')
+            },
+            success: ({ data }) => {
+                const $newContent = $(data)
+                const $newReviews = $newContent.find('.review-item')
+                const $newPagination = $newContent.find('.tp-pagination')
+                
+                // Append new reviews to the list
+                $reviewListContainer.find('.review-list').append($newReviews)
+                
+                // Replace pagination (or remove if no more pages)
+                $reviewListContainer.find('.tp-pagination').replaceWith($newPagination)
+                
+                Review.updateLazyLoad()
+                
+                // Trigger event for other components
+                $(document).trigger('reviewListUpdated')
+            },
+            error: () => {
+                Review.showError('Failed to load more reviews')
+            },
+            complete: () => {
+                $button.prop('disabled', false)
+                $button.find('.btn-text').removeClass('d-none')
+                $button.find('.btn-loading').addClass('d-none')
+            },
+        })
+    })
+
     $reviewListContainer.on('click', '.pagination a', (e) => {
         e.preventDefault()
 
