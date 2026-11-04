@@ -107,6 +107,8 @@
             @else
                 <div class="review-logged-in-wrapper" style="flex: 0 0 75%;">
                     <div class="review-logged-in-container">
+                        <h3 class="review-section-title">{{ __('Review the product') }}</h3>
+                        <p class="review-section-subtitle">{{ __('Share your thoughts with other customers') }}</p>
                         <button type="button" class="btn-write-review-inline" id="btnWriteReviewInline">
                             <i class="ph ph-pencil-simple"></i>
                             {{ trans('plugins/ecommerce::review.write_a_review') }}
