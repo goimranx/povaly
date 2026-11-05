@@ -149,7 +149,19 @@
                 const firstItem = checked[0].closest('.ps-cart-product-item');
                 const cartInstance = firstItem?.querySelector('.remove-cart-button')?.dataset.cartInstance || 'cart';
                 
-                sessionStorage.setItem('cart_keep_tab', tabId);
+                // Save active tab to server before reloading
+                console.log('[Cart] Saving tab before delete:', tabId);
+                if (typeof jQuery !== 'undefined') {
+                    jQuery.ajax({
+                        url: window.location.pathname,
+                        method: 'POST',
+                        data: {
+                            _token: jQuery('meta[name="csrf-token"]').attr('content'),
+                            active_tab: tabId
+                        },
+                        async: false // Wait for this to complete
+                    });
+                }
                 
                 if (typeof jQuery !== 'undefined') {
                     jQuery.ajax({
@@ -179,9 +191,20 @@
         }
         
         tabContent.querySelectorAll('.qty-input').forEach(input => {
-            input.addEventListener('change', () => {
-                console.log('[Cart] Saving tab:', tabId);
-                sessionStorage.setItem('cart_keep_tab', tabId);
+            // Save active tab to server session when qty input is focused
+            input.addEventListener('focus', () => {
+                console.log('[Cart] Qty input focused, saving tab to server:', tabId);
+                if (typeof jQuery !== 'undefined') {
+                    jQuery.ajax({
+                        url: window.location.pathname,
+                        method: 'POST',
+                        data: {
+                            _token: jQuery('meta[name="csrf-token"]').attr('content'),
+                            active_tab: tabId
+                        },
+                        success: () => console.log('[Cart] Tab saved to server session:', tabId)
+                    });
+                }
             });
         });
         
@@ -202,32 +225,36 @@
     
     function initAll() {
         console.log('[Cart] Initializing both carts');
+        
         cartStates.shopping.initialized = false;
         cartStates['confirm-payment'].initialized = false;
         
         initCartTab('shopping');
         initCartTab('confirm-payment');
         
-        // Restore active tab after reload
-        const keepTab = sessionStorage.getItem('cart_keep_tab');
-        console.log('[Cart] Restore tab from storage:', keepTab);
-        if (keepTab) {
-            setTimeout(() => {
-                const btn = document.querySelector(`[data-tab="${keepTab}"]`);
-                console.log('[Cart] Found tab button:', btn);
-                if (btn && !btn.classList.contains('active')) {
-                    console.log('[Cart] Clicking tab button for:', keepTab);
-                    btn.click();
-                }
-                sessionStorage.removeItem('cart_keep_tab');
-            }, 100);
-        }
+        console.log('[Cart] Initialization complete');
     }
     
     function setupTabs() {
         document.querySelectorAll('.ps-cart-tab-button').forEach(btn => {
             btn.addEventListener('click', function() {
                 const tab = this.dataset.tab;
+                console.log('[Cart] Tab clicked:', tab);
+                
+                // Save to server session
+                if (typeof jQuery !== 'undefined') {
+                    jQuery.ajax({
+                        url: window.location.pathname,
+                        method: 'POST',
+                        data: {
+                            _token: jQuery('meta[name="csrf-token"]').attr('content'),
+                            active_tab: tab
+                        },
+                        success: () => console.log('[Cart] Tab saved to server:', tab)
+                    });
+                }
+                
+                // Update UI
                 document.querySelectorAll('.ps-cart-tab-button').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 document.querySelectorAll('.ps-cart-tab-content').forEach(c => {
