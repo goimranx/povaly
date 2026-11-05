@@ -33,111 +33,11 @@ class RestoreCustomerCartMiddleware
             } else {
                 $this->handleGuestCart($request, $cart);
             }
-            
-            // RESTORE abandoned checkout items when user LEAVES checkout
-            // Detect by checking if previous page (referrer) was checkout and current page is NOT
-            $isCheckoutPage = $request->is('checkout/*') || $request->is('*/checkout/*');
-            $referrer = $request->headers->get('referer');
-            $cameFromCheckout = $referrer && (
-                str_contains($referrer, '/checkout/') || 
-                str_contains($referrer, '/checkout?')
-            );
-            
-            // Only restore if:
-            // 1. User came FROM checkout (referrer check)
-            // 2. User is NOT on checkout now (navigated away)
-            // 3. Not an AJAX request (to avoid interference)
-            // 4. confirm_payment cart has items (checkout wasn't completed)
-            $isAjaxRequest = $request->ajax() || $request->wantsJson();
-            
-            \Log::info('[Middleware] Restoration check', [
-                'current_url' => $request->url(),
-                'current_path' => $request->path(),
-                'referrer' => $referrer,
-                'is_checkout_page' => $isCheckoutPage,
-                'came_from_checkout' => $cameFromCheckout,
-                'is_ajax' => $isAjaxRequest,
-                'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
-                'will_restore' => $cameFromCheckout && !$isCheckoutPage && !$isAjaxRequest
-            ]);
-            
-            if ($cameFromCheckout && !$isCheckoutPage && !$isAjaxRequest) {
-                $this->restoreAbandonedCheckout($cart, $request);
-            }
-            
         } catch (Throwable) {
             // Silently ignore during upgrade when customer_id column doesn't exist yet
         }
 
         return $next($request);
-    }
-    
-    protected function restoreAbandonedCheckout($cart, $request): void
-    {
-        // Only restore if confirm_payment cart has items (checkout was abandoned)
-        if (Cart::instance('confirm_payment')->isEmpty()) {
-            return;
-        }
-        
-        \Log::info('[Middleware] User left checkout - restoring abandoned items', [
-            'referrer' => $request->headers->get('referer'),
-            'current_url' => $request->url(),
-            'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
-            'main_cart_count_before' => $cart->count()
-        ]);
-        
-        $confirmPaymentItems = Cart::instance('confirm_payment')->content();
-        
-        foreach ($confirmPaymentItems as $item) {
-            // Check if item already exists in main cart
-            $existingInMainCart = $cart->search(function ($cartItem) use ($item) {
-                return $cartItem->id == $item->id && $cartItem->options == $item->options;
-            })->first();
-            
-            if (!$existingInMainCart) {
-                // Item not in main cart - add it back
-                $addedItem = $cart->add(
-                    $item->id,
-                    $item->name,
-                    $item->qty,
-                    $item->price,
-                    $item->options->toArray()
-                );
-                
-                // Associate model if available
-                if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
-                    $addedItem->associate($item->associatedModel);
-                }
-                
-                \Log::info('[Middleware] Restored abandoned item to main cart', [
-                    'product_id' => $item->id,
-                    'qty' => $item->qty
-                ]);
-            }
-        }
-        
-        // Clear confirm_payment cart after restoration
-        Cart::instance('confirm_payment')->destroy();
-        
-        // Persist the main cart
-        if (auth('customer')->check()) {
-            $cart->storeForCustomer(auth('customer')->id());
-        } else {
-            $guestIdentifier = $request->cookie('guest_cart_id');
-            if ($guestIdentifier) {
-                $cart->store($guestIdentifier);
-            }
-        }
-        
-        // Update cart timestamp to force global refresh
-        $cart->setLastUpdatedAt(now());
-        
-        // Clear middleware cache to ensure fresh data
-        session()->forget('cart_last_restored_at');
-        
-        \Log::info('[Middleware] Abandoned items restored and persisted globally', [
-            'main_cart_count_after' => $cart->count()
-        ]);
     }
 
     protected function handleCustomerCart($cart): void
