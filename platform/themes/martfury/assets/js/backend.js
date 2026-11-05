@@ -544,18 +544,36 @@
         function ajaxUpdateCart(_self) {
             _self.closest('.ps-table--shopping-cart, .ps-cart-products-card, .form--shopping-cart').addClass('content-loading')
             
+            // Get cart instance from qty input data attribute
+            const cartInstance = _self.data('cart-instance') || 'cart'
+            const rowId = _self.data('row-id')
+            const newQty = _self.val()
+            
+            console.log('[Cart Qty Update] Starting update:', {
+                cartInstance: cartInstance,
+                rowId: rowId,
+                newQty: newQty,
+                inputElement: _self[0]
+            })
+            
             // Save cart state before update
             if (typeof window.saveCartState === 'function') {
                 window.saveCartState()
             }
             
-            // Get cart instance from qty input data attribute
-            const cartInstance = _self.data('cart-instance') || 'cart'
             const form = _self.closest('form')
+            console.log('[Cart Qty Update] Form found:', form[0])
+            console.log('[Cart Qty Update] Form action:', form.prop('action'))
             
             // Create FormData and append cart_instance
             const formData = new FormData(form[0])
             formData.append('cart_instance', cartInstance)
+            
+            // Log all form data
+            console.log('[Cart Qty Update] FormData entries:')
+            for (let pair of formData.entries()) {
+                console.log('  ', pair[0], '=', pair[1])
+            }
 
             $.ajax({
                 type: 'POST',
@@ -565,14 +583,19 @@
                 contentType: false,
                 processData: false,
                 success: res => {
+                    console.log('[Cart Qty Update] Success response:', res)
+                    
                     if (res.error) {
+                        console.error('[Cart Qty Update] Error in response:', res.message)
                         Theme.showError(res.message)
                         _self.closest('.ps-table--shopping-cart, .ps-cart-products-card, .form--shopping-cart').removeClass('content-loading')
                         _self.closest('.product__qty').find('.qty-input').val(res.data.count).prop('placeholder', res.data.count)
                         return false
                     }
 
+                    console.log('[Cart Qty Update] Reloading cart section...')
                     $('.ps-section--shopping').load(window.location.href + ' .ps-section--shopping > *', function () {
+                        console.log('[Cart Qty Update] Cart section reloaded')
                         if (typeof Theme.lazyLoadInstance !== 'undefined') {
                             Theme.lazyLoadInstance.update()
                         }
@@ -586,6 +609,7 @@
                         url: window.siteUrl + '/ajax/cart',
                         method: 'GET',
                         success: response => {
+                            console.log('[Cart Qty Update] Mobile cart updated')
                             if (!response.error) {
                                 _self.closest('.ps-table--shopping-cart, .ps-cart-products-card, .form--shopping-cart').removeClass('content-loading')
                                 $('.ps-cart--mobile').html(response.data.html)
@@ -598,12 +622,14 @@
                             }
                         },
                         error: res => {
+                            console.error('[Cart Qty Update] Mobile cart update failed:', res)
                             _self.closest('.ps-table--shopping-cart, .ps-cart-products-card, .form--shopping-cart').removeClass('content-loading')
                             Theme.showError(res.message)
                         },
                     })
                 },
                 error: res => {
+                    console.error('[Cart Qty Update] AJAX error:', res)
                     _self.closest('.ps-table--shopping-cart, .ps-cart-products-card, .form--shopping-cart').removeClass('content-loading')
                     Theme.showError(res.message)
                 },
@@ -735,15 +761,37 @@
             event.preventDefault()
             event.stopPropagation()
             let currentVal = parseInt($(this).closest('.product__qty').find('.qty-input').val(), 10)
-            $(this).closest('.product__qty').find('.qty-input').val(currentVal + 1).prop('placeholder', currentVal + 1).trigger('change')
+            const qtyInput = $(this).closest('.product__qty').find('.qty-input')
+            const cartInstance = qtyInput.data('cart-instance') || 'cart'
+            
+            console.log('[Cart Qty Up] Clicked:', {
+                currentVal: currentVal,
+                newVal: currentVal + 1,
+                cartInstance: cartInstance,
+                rowId: qtyInput.data('row-id'),
+                inputElement: qtyInput[0]
+            })
+            
+            qtyInput.val(currentVal + 1).prop('placeholder', currentVal + 1).trigger('change')
         })
 
         $(document).on('click', '.product__qty .down', function(event) {
             event.preventDefault()
             event.stopPropagation()
             let currentVal = parseInt($(this).closest('.product__qty').find('.qty-input').val(), 10)
+            const qtyInput = $(this).closest('.product__qty').find('.qty-input')
+            const cartInstance = qtyInput.data('cart-instance') || 'cart'
+            
+            console.log('[Cart Qty Down] Clicked:', {
+                currentVal: currentVal,
+                newVal: currentVal - 1,
+                cartInstance: cartInstance,
+                rowId: qtyInput.data('row-id'),
+                inputElement: qtyInput[0]
+            })
+            
             if (currentVal > 1) {
-                $(this).closest('.product__qty').find('.qty-input').val(currentVal - 1).prop('placeholder', currentVal - 1).trigger('change')
+                qtyInput.val(currentVal - 1).prop('placeholder', currentVal - 1).trigger('change')
             }
         })
 
