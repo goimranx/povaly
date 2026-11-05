@@ -150,11 +150,10 @@ class PublicCartController extends BaseController
             $productIds = $confirmPaymentCart->content()->pluck('id')->unique()->toArray();
             \Log::info('[Cart Debug] Confirm payment product IDs from content:', ['ids' => $productIds]);
             
-            // Load products directly from database using these IDs
+            // Load products directly from database using these IDs (without eager loading relationships)
             $confirmPaymentProducts = Product::query()
                 ->whereIn('id', $productIds)
                 ->wherePublished()
-                ->with(['slugable', 'original_product', 'original_product.store'])
                 ->get();
             
             \Log::info('[Cart Debug] Confirm payment products count: ' . count($confirmPaymentProducts));
