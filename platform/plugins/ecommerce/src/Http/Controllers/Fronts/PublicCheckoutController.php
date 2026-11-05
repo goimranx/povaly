@@ -108,12 +108,10 @@ class PublicCheckoutController extends BaseController
         /**
          * @var Collection $products
          */
-        $allProducts = Cart::instance('cart')->products();
-        $products = $allProducts;
+        $products = Cart::instance('cart')->products();
         
-        // Filter products and create temporary cart for selected items if coming from enhanced cart
+        // Filter products based on selected items if coming from enhanced cart
         $selectedRowIds = session('checkout_selected_items');
-        $usingSelectedItems = false;
         
         if (!empty($selectedRowIds) && is_array($selectedRowIds)) {
             $cartContent = Cart::instance('cart')->content();
@@ -126,16 +124,18 @@ class PublicCheckoutController extends BaseController
             if ($selectedItems->isNotEmpty()) {
                 // Filter products to only selected ones
                 $selectedProductIds = $selectedItems->pluck('id')->toArray();
-                $products = $allProducts->filter(function ($product) use ($selectedProductIds) {
+                $products = $products->filter(function ($product) use ($selectedProductIds) {
                     return in_array($product->id, $selectedProductIds);
                 });
                 
-                // Create a temporary cart instance with only selected items
-                $tempCartInstance = 'checkout_temp_' . $token;
-                Cart::instance($tempCartInstance)->destroy();
+                // Store original cart content
+                $originalCartContent = $cartContent->all();
+                
+                // Temporarily replace cart content with only selected items
+                Cart::instance('cart')->destroy();
                 
                 foreach ($selectedItems as $item) {
-                    Cart::instance($tempCartInstance)->add(
+                    Cart::instance('cart')->add(
                         $item->id,
                         $item->name,
                         $item->qty,
@@ -144,17 +144,12 @@ class PublicCheckoutController extends BaseController
                     )->associate($item->model);
                 }
                 
-                // Temporarily switch cart instance for calculations
-                $originalInstance = Cart::currentInstance();
-                Cart::setInstance($tempCartInstance);
-                $usingSelectedItems = true;
+                // Store original cart in session to restore later
+                session(['checkout_original_cart' => $originalCartContent]);
             }
         }
         
         if ($products->isEmpty()) {
-            if ($usingSelectedItems) {
-                Cart::setInstance('cart');
-            }
             return $this
                 ->httpResponse()
                 ->setNextUrl(route('public.cart'));
@@ -262,11 +257,6 @@ class PublicCheckoutController extends BaseController
 
         app(GoogleTagManager::class)->beginCheckout($productsArray, $orderAmount);
         app(FacebookPixel::class)->checkout($productsArray, $orderAmount);
-        
-        // Restore original cart instance if we were using selected items
-        if (!empty($selectedRowIds) && $usingSelectedItems) {
-            Cart::setInstance('cart');
-        }
 
         $checkoutView = Theme::getThemeNamespace('views.ecommerce.orders.checkout');
 

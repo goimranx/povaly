@@ -82,6 +82,9 @@ class PublicCartController extends BaseController
 
     public function index(Request $request)
     {
+        // Restore original cart if user came back from checkout with selected items
+        $this->restoreOriginalCart();
+        
         if ($token = $request->query('token')) {
             try {
                 $abandonedCartService = app(AbandonedCartService::class);
@@ -126,6 +129,32 @@ class PublicCartController extends BaseController
             compact('promotionDiscountAmount', 'couponDiscountAmount', 'products', 'crossSellProducts'),
             'plugins/ecommerce::themes.cart'
         )->render();
+    }
+    
+    protected function restoreOriginalCart(): void
+    {
+        if (session()->has('checkout_original_cart')) {
+            $originalCartContent = session('checkout_original_cart');
+            
+            // Restore the full cart
+            Cart::instance('cart')->destroy();
+            
+            foreach ($originalCartContent as $item) {
+                Cart::instance('cart')->add(
+                    $item->id,
+                    $item->name,
+                    $item->qty,
+                    $item->price,
+                    $item->options->toArray()
+                )->associate($item->model);
+            }
+            
+            // Clear the backup
+            session()->forget('checkout_original_cart');
+            
+            // Persist the restored cart
+            $this->persistCart();
+        }
     }
 
     public function store(CartRequest $request)
