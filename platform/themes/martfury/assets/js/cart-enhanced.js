@@ -259,6 +259,43 @@
                 updateStoreCheckbox(cb.dataset.storeId);
             }
         });
+        
+        /**
+         * Monitor quantity changes to update totals
+         */
+        const qtyInputs = document.querySelectorAll('.ps-cart-product-item .qty-input');
+        qtyInputs.forEach(input => {
+            // Listen for input changes
+            input.addEventListener('change', function() {
+                updateCartSummary();
+            });
+            
+            // Listen for button clicks (+ and -)
+            const productItem = input.closest('.ps-cart-product-item');
+            if (productItem) {
+                const decreaseBtn = productItem.querySelector('.decrease');
+                const increaseBtn = productItem.querySelector('.increase');
+                
+                if (decreaseBtn) {
+                    decreaseBtn.addEventListener('click', function() {
+                        setTimeout(updateCartSummary, 100);
+                    });
+                }
+                
+                if (increaseBtn) {
+                    increaseBtn.addEventListener('click', function() {
+                        setTimeout(updateCartSummary, 100);
+                    });
+                }
+            }
+        });
+        
+        // Also monitor for updates via cart update AJAX
+        if (typeof jQuery !== 'undefined') {
+            jQuery(document).on('cart.updated', function() {
+                setTimeout(updateCartSummary, 300);
+            });
+        }
     }
     
     // Initialize on DOM ready

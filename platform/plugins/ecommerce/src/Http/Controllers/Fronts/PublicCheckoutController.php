@@ -108,44 +108,53 @@ class PublicCheckoutController extends BaseController
         /**
          * @var Collection $products
          */
-        $products = Cart::instance('cart')->products();
+        $allProducts = Cart::instance('cart')->products();
+        $products = $allProducts;
         
-        // Filter products based on selected items if coming from enhanced cart
-        if (session()->has('checkout_selected_items')) {
-            $selectedRowIds = session('checkout_selected_items');
+        // Filter products and create temporary cart for selected items if coming from enhanced cart
+        $selectedRowIds = session('checkout_selected_items');
+        $usingSelectedItems = false;
+        
+        if (!empty($selectedRowIds) && is_array($selectedRowIds)) {
             $cartContent = Cart::instance('cart')->content();
             
-            // Get product IDs from selected cart items
-            $selectedProductIds = $cartContent->filter(function ($item) use ($selectedRowIds) {
-                return in_array($item->rowId, $selectedRowIds);
-            })->pluck('id')->toArray();
-            
-            // Filter products to only include selected ones
-            $products = $products->filter(function ($product) use ($selectedProductIds) {
-                return in_array($product->id, $selectedProductIds);
-            });
-            
-            // Also filter the cart content to only selected items
-            // This ensures cart calculations (subtotal, tax, etc.) only use selected items
-            $originalContent = $cartContent->all();
-            $filteredContent = $cartContent->filter(function ($item) use ($selectedRowIds) {
+            // Get selected items data
+            $selectedItems = $cartContent->filter(function ($item) use ($selectedRowIds) {
                 return in_array($item->rowId, $selectedRowIds);
             });
             
-            // Temporarily replace cart content with filtered items
-            Cart::instance('cart')->destroy();
-            foreach ($filteredContent as $item) {
-                Cart::instance('cart')->add(
-                    $item->id,
-                    $item->name,
-                    $item->qty,
-                    $item->price,
-                    $item->options->toArray()
-                );
+            if ($selectedItems->isNotEmpty()) {
+                // Filter products to only selected ones
+                $selectedProductIds = $selectedItems->pluck('id')->toArray();
+                $products = $allProducts->filter(function ($product) use ($selectedProductIds) {
+                    return in_array($product->id, $selectedProductIds);
+                });
+                
+                // Create a temporary cart instance with only selected items
+                $tempCartInstance = 'checkout_temp_' . $token;
+                Cart::instance($tempCartInstance)->destroy();
+                
+                foreach ($selectedItems as $item) {
+                    Cart::instance($tempCartInstance)->add(
+                        $item->id,
+                        $item->name,
+                        $item->qty,
+                        $item->price,
+                        $item->options->toArray()
+                    )->associate($item->model);
+                }
+                
+                // Temporarily switch cart instance for calculations
+                $originalInstance = Cart::currentInstance();
+                Cart::setInstance($tempCartInstance);
+                $usingSelectedItems = true;
             }
         }
         
         if ($products->isEmpty()) {
+            if ($usingSelectedItems) {
+                Cart::setInstance('cart');
+            }
             return $this
                 ->httpResponse()
                 ->setNextUrl(route('public.cart'));
@@ -253,6 +262,11 @@ class PublicCheckoutController extends BaseController
 
         app(GoogleTagManager::class)->beginCheckout($productsArray, $orderAmount);
         app(FacebookPixel::class)->checkout($productsArray, $orderAmount);
+        
+        // Restore original cart instance if we were using selected items
+        if (!empty($selectedRowIds) && $usingSelectedItems) {
+            Cart::setInstance('cart');
+        }
 
         $checkoutView = Theme::getThemeNamespace('views.ecommerce.orders.checkout');
 
