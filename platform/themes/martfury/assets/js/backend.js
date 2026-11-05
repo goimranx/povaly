@@ -483,7 +483,7 @@
             event.preventDefault()
             let _self = $(this)
 
-            _self.closest('.ps-table--shopping-cart').addClass('content-loading')
+            _self.closest('.ps-table--shopping-cart, .ps-cart-products-card').addClass('content-loading')
 
             $.ajax({
                 url: _self.data('url'),
@@ -495,8 +495,11 @@
                         return false
                     }
 
-                    $('.ps-shopping-cart').load(window.location.href + ' .ps-shopping-cart > *', function() {
-                        _self.closest('.ps-table--shopping-cart').removeClass('content-loading')
+                    // Handle both old and new cart layouts
+                    const cartSelector = $('.ps-shopping-cart-enhanced').length > 0 ? '.ps-shopping-cart-enhanced' : '.ps-shopping-cart'
+                    
+                    $(cartSelector).load(window.location.href + ' ' + cartSelector + ' > *', function() {
+                        _self.closest('.ps-table--shopping-cart, .ps-cart-products-card').removeClass('content-loading')
                         Theme.showSuccess(res.message)
                     })
 
@@ -516,7 +519,7 @@
                     })
                 },
                 error: res => {
-                    _self.closest('.ps-table--shopping-cart').removeClass('content-loading')
+                    _self.closest('.ps-table--shopping-cart, .ps-cart-products-card').removeClass('content-loading')
                     Theme.showError(res.message)
                 },
             })
