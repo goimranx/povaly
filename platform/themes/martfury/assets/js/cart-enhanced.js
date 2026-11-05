@@ -315,9 +315,14 @@
      */
     document.addEventListener('click', function(e) {
         // Check if clicked element is the checkout button
-        const checkoutBtn = e.target.closest('.ps-cart-actions a[href*="checkout.information"]');
+        const checkoutBtn = e.target.closest('.ps-cart-actions a[href*="checkout"]') || 
+                           e.target.closest('.ps-btn--primary[href*="checkout"]') ||
+                           e.target.closest('a.ps-btn[href*="information"]');
         
-        if (checkoutBtn) {
+        // Only proceed if this is the main cart page checkout button
+        if (checkoutBtn && checkoutBtn.closest('.ps-cart-summary-card')) {
+            console.log('Checkout button clicked!', checkoutBtn);
+            
             const checkedItems = document.querySelectorAll('.ps-cart-checkbox-item:checked');
             
             if (checkedItems.length === 0) {
@@ -361,52 +366,52 @@
                 });
             }
         }
+    }, true);
+    
+    /**
+     * Handle flyout cart checkout - should use ALL items
+     */
+    document.addEventListener('click', function(e) {
+        const flyoutCheckoutBtn = e.target.closest('.ps-btn-flyout-checkout');
         
-        /**
-         * Handle flyout cart checkout - should use ALL items
-         */
-        document.addEventListener('click', function(e) {
-            const flyoutCheckoutBtn = e.target.closest('.ps-btn-flyout-checkout');
+        if (flyoutCheckoutBtn && typeof jQuery !== 'undefined') {
+            e.preventDefault();
             
-            if (flyoutCheckoutBtn && typeof jQuery !== 'undefined') {
-                e.preventDefault();
-                
-                // Clear selected items session for flyout cart checkout
-                jQuery.ajax({
-                    url: window.siteUrl + '/ajax/cart/clear-selected-items',
-                    method: 'POST',
-                    data: {
-                        _token: jQuery('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function() {
-                        window.location.href = flyoutCheckoutBtn.href;
-                    },
-                    error: function() {
-                        // If AJAX fails, proceed anyway
-                        window.location.href = flyoutCheckoutBtn.href;
-                    }
-                });
-            }
-        });
+            // Clear selected items session for flyout cart checkout
+            jQuery.ajax({
+                url: window.siteUrl + '/ajax/cart/clear-selected-items',
+                method: 'POST',
+                data: {
+                    _token: jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                success: function() {
+                    window.location.href = flyoutCheckoutBtn.href;
+                },
+                error: function() {
+                    // If AJAX fails, proceed anyway
+                    window.location.href = flyoutCheckoutBtn.href;
+                }
+            });
+        }
+    });
+    
+    /**
+     * Handle Buy Now button - should clear selected items session
+     */
+    document.addEventListener('click', function(e) {
+        const buyNowBtn = e.target.closest('[data-id][data-url][name="checkout"]');
         
-        /**
-         * Handle Buy Now button - should clear selected items session
-         */
-        document.addEventListener('click', function(e) {
-            const buyNowBtn = e.target.closest('[data-id][data-url][name="checkout"]');
-            
-            if (buyNowBtn && typeof jQuery !== 'undefined') {
-                // Clear selected items session before Buy Now proceeds
-                jQuery.ajax({
-                    url: window.siteUrl + '/ajax/cart/clear-selected-items',
-                    method: 'POST',
-                    data: {
-                        _token: jQuery('meta[name="csrf-token"]').attr('content')
-                    },
-                    async: false // Make it synchronous so session clears before buy now proceeds
-                });
-            }
-        });
+        if (buyNowBtn && typeof jQuery !== 'undefined') {
+            // Clear selected items session before Buy Now proceeds
+            jQuery.ajax({
+                url: window.siteUrl + '/ajax/cart/clear-selected-items',
+                method: 'POST',
+                data: {
+                    _token: jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                async: false // Make it synchronous so session clears before buy now proceeds
+            });
+        }
     });
 })();
 
