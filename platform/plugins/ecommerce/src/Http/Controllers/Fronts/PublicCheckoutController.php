@@ -108,57 +108,78 @@ class PublicCheckoutController extends BaseController
         /**
          * @var Collection $products
          */
-        $products = Cart::instance('cart')->products();
+        // PROFESSIONAL APPROACH: Use separate "checkout" cart instance
+        // This is the standard way big e-commerce sites handle checkout
         
-        // DEBUG: Let's see what's in session
-        \Log::info('=== CHECKOUT DEBUG ===');
-        \Log::info('Selected items session:', ['selected' => session('checkout_selected_items')]);
-        \Log::info('Original cart session:', ['has_original' => session()->has('checkout_original_cart')]);
-        \Log::info('All cart items:', ['count' => Cart::instance('cart')->count(), 'items' => Cart::instance('cart')->content()->pluck('name', 'rowId')->toArray()]);
-        \Log::info('Products count:', ['count' => $products->count(), 'names' => $products->pluck('name')->toArray()]);
-        
-        // ONLY filter if coming from cart page with selected items
-        // Otherwise work normally with all cart items
         $selectedRowIds = session('checkout_selected_items');
         
-        // If there's no selected items session, clear any old backup
-        if (empty($selectedRowIds) && session()->has('checkout_original_cart')) {
-            \Log::info('No selected items - clearing old checkout sessions');
-            session()->forget('checkout_original_cart');
-            session()->forget('checkout_processing_items');
-        }
-        
         if (!empty($selectedRowIds) && is_array($selectedRowIds)) {
-            \Log::info('Found selected items, filtering for display only (NOT destroying cart)');
+            \Log::info('Creating checkout cart from selected items');
             
-            // User selected specific items from cart page
-            // We ONLY filter what we display - we DON'T destroy the actual cart!
-            $cartContent = Cart::instance('cart')->content();
+            // Clear any existing checkout cart
+            Cart::instance('checkout')->destroy();
             
-            // Get selected items
-            $selectedItems = $cartContent->filter(function ($item) use ($selectedRowIds) {
+            // Get selected items from main cart
+            $mainCartContent = Cart::instance('cart')->content();
+            $selectedItems = $mainCartContent->filter(function ($item) use ($selectedRowIds) {
                 return in_array($item->rowId, $selectedRowIds);
             });
             
-            \Log::info('Selected items filtered:', ['count' => $selectedItems->count(), 'items' => $selectedItems->pluck('name', 'rowId')->toArray()]);
-            
-            if ($selectedItems->isNotEmpty()) {
-                // Filter products to only show selected ones in checkout
-                $selectedProductIds = $selectedItems->pluck('id')->toArray();
-                $products = $products->filter(function ($product) use ($selectedProductIds) {
-                    return in_array($product->id, $selectedProductIds);
-                });
+            // Copy selected items to checkout cart
+            foreach ($selectedItems as $item) {
+                $cartItem = Cart::instance('checkout')->add(
+                    $item->id,
+                    $item->name,
+                    $item->qty,
+                    $item->price,
+                    $item->options->toArray()
+                );
                 
-                \Log::info('After filtering products for display:', ['count' => $products->count()]);
-                
-                // Store selected row IDs for order processing
-                // This tells the order controller to only process these items
-                session(['checkout_processing_items' => $selectedRowIds]);
+                if ($item->associatedModel) {
+                    $cartItem->associate($item->associatedModel);
+                }
             }
+            
+            \Log::info('Checkout cart created with selected items', [
+                'main_cart_count' => Cart::instance('cart')->count(),
+                'checkout_cart_count' => Cart::instance('checkout')->count()
+            ]);
+            
+            // Get products from checkout cart
+            $products = Cart::instance('checkout')->products();
+            
         } else {
-            \Log::info('No selected items session, using all cart items');
+            \Log::info('Creating checkout cart from all items');
+            
+            // Clear any existing checkout cart
+            Cart::instance('checkout')->destroy();
+            
+            // Copy ALL items from main cart to checkout cart
+            foreach (Cart::instance('cart')->content() as $item) {
+                $cartItem = Cart::instance('checkout')->add(
+                    $item->id,
+                    $item->name,
+                    $item->qty,
+                    $item->price,
+                    $item->options->toArray()
+                );
+                
+                if ($item->associatedModel) {
+                    $cartItem->associate($item->associatedModel);
+                }
+            }
+            
+            \Log::info('Checkout cart created with all items', [
+                'main_cart_count' => Cart::instance('cart')->count(),
+                'checkout_cart_count' => Cart::instance('checkout')->count()
+            ]);
+            
+            // Get products from checkout cart
+            $products = Cart::instance('checkout')->products();
         }
-        // If no selected items session, proceed with all items (normal flow)
+        
+        // From this point forward, EVERYTHING uses the "checkout" cart instance
+        // Main cart remains untouched
         
         if ($products->isEmpty()) {
             return $this
@@ -466,9 +487,9 @@ class PublicCheckoutController extends BaseController
 
         $sessionData = array_merge($sessionData, $addressData);
 
-        Cart::instance('cart')->refresh();
+        Cart::instance('checkout')->refresh();
 
-        $products = Cart::instance('cart')->products();
+        $products = Cart::instance('checkout')->products();
 
         $shippingMethod = $request->input('shipping_method', Arr::get($sessionData, 'shipping_method'));
         $shippingOption = $request->input('shipping_option', Arr::get($sessionData, 'shipping_option'));
@@ -507,7 +528,7 @@ class PublicCheckoutController extends BaseController
         // its stale items/total while the payment is captured for the new cart amount. We
         // detect a cart change by comparing the cart's last-updated timestamp against the one
         // recorded when the order products were last built, and force a rebuild when they differ.
-        $cartLastUpdatedAt = Cart::instance('cart')->getLastUpdatedAt();
+        $cartLastUpdatedAt = Cart::instance('checkout')->getLastUpdatedAt();
         $storedCartUpdatedAt = Arr::get($sessionData, 'created_order_product');
         $cartChangedSinceOrder = $storedCartUpdatedAt
             && $cartLastUpdatedAt
@@ -537,7 +558,7 @@ class PublicCheckoutController extends BaseController
                     ? $existingOrder->payment_fee
                     : Arr::get($sessionData, 'payment_fee', 0);
 
-                $amountToUse = Cart::instance('cart')->rawTotal() + $shippingAmountToUse + $shippingTaxAmountToUse + $paymentFeeToUse;
+                $amountToUse = Cart::instance('checkout')->rawTotal() + $shippingAmountToUse + $shippingTaxAmountToUse + $paymentFeeToUse;
 
                 $shippingMethodToUse = $shippingMethod ?? ShippingMethodEnum::DEFAULT;
                 $shippingOptionToUse = $shippingOption;
@@ -545,7 +566,7 @@ class PublicCheckoutController extends BaseController
                 $shippingAmountToUse = $existingOrder ? $existingOrder->shipping_amount : 0;
                 $shippingTaxAmountToUse = $existingOrder ? $existingOrder->shipping_tax_amount : 0;
                 $paymentFeeToUse = $existingOrder ? $existingOrder->payment_fee : 0;
-                $amountToUse = $existingOrder ? $existingOrder->amount : Cart::instance('cart')->rawTotal();
+                $amountToUse = $existingOrder ? $existingOrder->amount : Cart::instance('checkout')->rawTotal();
                 $shippingMethodToUse = $existingOrder ? $existingOrder->shipping_method : ($shippingMethod ?? ShippingMethodEnum::DEFAULT);
                 $shippingOptionToUse = $existingOrder ? $existingOrder->shipping_option : $shippingOption;
             }
@@ -558,8 +579,8 @@ class PublicCheckoutController extends BaseController
                 'shipping_amount' => $shippingAmountToUse,
                 'shipping_tax_amount' => $shippingTaxAmountToUse,
                 'payment_fee' => $paymentFeeToUse,
-                'tax_amount' => Cart::instance('cart')->rawTax(),
-                'sub_total' => Cart::instance('cart')->rawSubTotal(),
+                'tax_amount' => Cart::instance('checkout')->rawTax(),
+                'sub_total' => Cart::instance('checkout')->rawSubTotal(),
                 'coupon_code' => session('applied_coupon_code'),
                 'discount_amount' => 0,
                 'status' => OrderStatusEnum::PENDING,
@@ -598,11 +619,11 @@ class PublicCheckoutController extends BaseController
         $canRebuildOrderProducts = $orderToBuildProductsFor && ! OrderHelper::isOrderLocked($orderToBuildProductsFor);
 
         if ($canRebuildOrderProducts && (! isset($sessionData['created_order_product']) || $cartChangedSinceOrder)) {
-            $weight = Cart::instance('cart')->weight();
+            $weight = Cart::instance('checkout')->weight();
 
             OrderProduct::query()->where(['order_id' => $sessionData['created_order_id']])->delete();
 
-            foreach (Cart::instance('cart')->content() as $cartItem) {
+            foreach (Cart::instance('checkout')->content() as $cartItem) {
                 $product = Product::query()->find($cartItem->id);
 
                 if (! $product) {
@@ -754,14 +775,14 @@ class PublicCheckoutController extends BaseController
                 ->setNextUrl(route('customer.login') . '?redirect=' . urlencode(route('public.checkout.information', $token)));
         }
 
-        if (Cart::instance('cart')->isEmpty()) {
+        if (Cart::instance('checkout')->isEmpty()) {
             return $this
                 ->httpResponse()
                 ->setError()
                 ->setMessage(__('No products in cart'));
         }
 
-        $products = Cart::instance('cart')->products();
+        $products = Cart::instance('checkout')->products();
 
         if (
             EcommerceHelper::isEnabledSupportDigitalProducts() &&
@@ -774,7 +795,7 @@ class PublicCheckoutController extends BaseController
                 ->setMessage(__('Your shopping cart has digital product(s), so you need to sign in to continue!'));
         }
 
-        $totalQuality = Cart::instance('cart')->rawTotalQuantity();
+        $totalQuality = Cart::instance('checkout')->rawTotalQuantity();
 
         if (($minimumQuantity = EcommerceHelper::getMinimumOrderQuantity()) > 0
             && $totalQuality < $minimumQuantity) {
@@ -822,7 +843,7 @@ class PublicCheckoutController extends BaseController
         $sessionData = $this->processOrderData($token, $sessionData, $request, true);
 
         $cartItems = [];
-        foreach (Cart::instance('cart')->content() as $cartItem) {
+        foreach (Cart::instance('checkout')->content() as $cartItem) {
             $cartItems[] = [
                 'product_id' => $cartItem->id,
                 'qty' => $cartItem->qty,
@@ -890,9 +911,9 @@ class PublicCheckoutController extends BaseController
         $promotionDiscountAmount = $handleApplyPromotionsService->execute($token);
         $couponDiscountAmount = Arr::get($sessionData, 'coupon_discount_amount');
         $totalDiscountAmount = $promotionDiscountAmount + $couponDiscountAmount;
-        $rawTotal = Cart::instance('cart')->rawTotal();
-        $subTotal = Cart::instance('cart')->rawSubTotal();
-        $taxAmount = Cart::instance('cart')->rawTax();
+        $rawTotal = Cart::instance('checkout')->rawTotal();
+        $subTotal = Cart::instance('checkout')->rawSubTotal();
+        $taxAmount = Cart::instance('checkout')->rawTax();
         $orderAmount = max($rawTotal - $totalDiscountAmount, 0);
 
         $isAvailableShipping = EcommerceHelper::isAvailableShipping($products);
@@ -1032,8 +1053,8 @@ class PublicCheckoutController extends BaseController
 
         OrderProduct::query()->where(['order_id' => $order->getKey()])->delete();
 
-        // Get cart content
-        $cartContent = Cart::instance('cart')->content();
+        // Get cart content from checkout instance
+        $cartContent = Cart::instance('checkout')->content();
         
         // If user selected specific items from cart page, only process those
         $processingItems = session('checkout_processing_items');
@@ -1154,9 +1175,32 @@ class PublicCheckoutController extends BaseController
 
         OrderHelper::clearSessions($token);
         
-        // Clear checkout-related sessions after successful checkout
+        // Remove ordered items from MAIN cart and destroy checkout cart
+        $checkoutCart = Cart::instance('checkout')->content();
+        $mainCart = Cart::instance('cart');
+        
+        foreach ($checkoutCart as $checkoutItem) {
+            // Find and remove this item from main cart by ID and options
+            $mainCartItem = $mainCart->content()->first(function ($mainItem) use ($checkoutItem) {
+                return $mainItem->id == $checkoutItem->id && 
+                       $mainItem->options == $checkoutItem->options;
+            });
+            
+            if ($mainCartItem) {
+                $mainCart->remove($mainCartItem->rowId);
+            }
+        }
+        
+        // Destroy checkout cart
+        Cart::instance('checkout')->destroy();
+        
+        // Clear checkout sessions
         session()->forget('checkout_selected_items');
         session()->forget('checkout_processing_items');
+        
+        \Log::info('Order completed, removed items from main cart', [
+            'remaining_cart_count' => Cart::instance('cart')->count()
+        ]);
 
         $thankYouView = Theme::getThemeNamespace('views.ecommerce.orders.thank-you');
 
