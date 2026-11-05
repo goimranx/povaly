@@ -136,21 +136,52 @@ class PublicCartController extends BaseController
         if (session()->has('checkout_original_cart')) {
             $originalCartContent = session('checkout_original_cart');
             
+            \Log::info('Restoring original cart', ['count' => count($originalCartContent)]);
+            
             // Restore the full cart
             Cart::instance('cart')->destroy();
             
-            foreach ($originalCartContent as $item) {
-                Cart::instance('cart')->add(
-                    $item->id,
-                    $item->name,
-                    $item->qty,
-                    $item->price,
-                    $item->options->toArray()
-                )->associate($item->model);
+            foreach ($originalCartContent as $itemData) {
+                // Convert array back to proper format
+                if (is_array($itemData)) {
+                    $options = isset($itemData['options']) && is_array($itemData['options']) 
+                        ? $itemData['options'] 
+                        : [];
+                    
+                    $cartItem = Cart::instance('cart')->add(
+                        $itemData['id'],
+                        $itemData['name'],
+                        $itemData['qty'],
+                        $itemData['price'],
+                        $options
+                    );
+                    
+                    // Associate model if it exists
+                    if (isset($itemData['associatedModel']) && $itemData['associatedModel']) {
+                        $cartItem->associate($itemData['associatedModel']);
+                    }
+                } else {
+                    // Handle object format (shouldn't happen but defensive)
+                    $cartItem = Cart::instance('cart')->add(
+                        $itemData->id,
+                        $itemData->name,
+                        $itemData->qty,
+                        $itemData->price,
+                        $itemData->options->toArray()
+                    );
+                    
+                    if ($itemData->associatedModel) {
+                        $cartItem->associate($itemData->associatedModel);
+                    }
+                }
             }
             
             // Clear the backup
             session()->forget('checkout_original_cart');
+            session()->forget('checkout_selected_items');
+            session()->forget('checkout_processing_items');
+            
+            \Log::info('Cart restored successfully', ['count' => Cart::instance('cart')->count()]);
             
             // Persist the restored cart
             $this->persistCart();

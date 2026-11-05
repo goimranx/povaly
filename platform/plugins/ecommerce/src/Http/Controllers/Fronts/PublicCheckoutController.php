@@ -142,8 +142,19 @@ class PublicCheckoutController extends BaseController
                 
                 \Log::info('After filtering products:', ['count' => $products->count()]);
                 
-                // Store original cart content to restore later
-                $originalCartContent = $cartContent->all();
+                // Store original cart content to restore later (convert to array for session storage)
+                $originalCartData = [];
+                foreach ($cartContent as $item) {
+                    $originalCartData[] = [
+                        'id' => $item->id,
+                        'name' => $item->name,
+                        'qty' => $item->qty,
+                        'price' => $item->price,
+                        'options' => $item->options->toArray(),
+                        'associatedModel' => $item->associatedModel,
+                        'rowId' => $item->rowId,
+                    ];
+                }
                 
                 // Temporarily replace cart with only selected items
                 Cart::instance('cart')->destroy();
@@ -165,8 +176,8 @@ class PublicCheckoutController extends BaseController
                 
                 \Log::info('Cart after replacement:', ['count' => Cart::instance('cart')->count()]);
                 
-                // Mark that cart was modified for selected items checkout
-                session(['checkout_original_cart' => $originalCartContent]);
+                // Store the original cart data for restoration
+                session(['checkout_original_cart' => $originalCartData]);
                 
                 // Prevent middleware from restoring full cart
                 session(['cart_last_restored_at' => now()->toIso8601String()]);
