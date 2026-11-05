@@ -119,13 +119,26 @@ class PublicCheckoutController extends BaseController
         // - After successful payment, confirm payment cart is cleared
         // - Both carts share same session lifetime for tracking/notification purposes
         
-        // Check if user has made a new selection (from cart page)
+        // Check if user has made a new selection (from cart page or Buy Now)
         $selectedRowIds = session('checkout_selected_items');
         $hasNewSelection = !empty($selectedRowIds) && is_array($selectedRowIds) && count($selectedRowIds) > 0;
+        
+        \Log::info('[Checkout Info] Session check', [
+            'session_checkout_selected_items' => $selectedRowIds,
+            'has_new_selection' => $hasNewSelection,
+            'is_array' => is_array($selectedRowIds),
+            'count' => is_array($selectedRowIds) ? count($selectedRowIds) : 0
+        ]);
         
         // Check if confirm payment cart already exists
         $existingConfirmCart = Cart::instance('confirm_payment')->content();
         $hasExistingConfirmCart = $existingConfirmCart->isNotEmpty();
+        
+        \Log::info('[Checkout Info] Cart status', [
+            'main_cart_count' => Cart::instance('cart')->count(),
+            'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
+            'has_existing_confirm_cart' => $hasExistingConfirmCart
+        ]);
         
         if (!$hasNewSelection && $hasExistingConfirmCart) {
             // No new selection AND confirm payment cart exists - use existing confirm payment cart
