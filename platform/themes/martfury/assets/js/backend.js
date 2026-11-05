@@ -484,6 +484,11 @@
             let _self = $(this)
             let cartInstance = _self.data('cart-instance') || 'cart'
 
+            // Save cart state before removal
+            if (typeof window.saveCartState === 'function') {
+                window.saveCartState()
+            }
+
             _self.closest('.ps-table--shopping-cart, .ps-cart-products-card').addClass('content-loading')
 
             $.ajax({
@@ -538,6 +543,11 @@
 
         function ajaxUpdateCart(_self) {
             _self.closest('.ps-table--shopping-cart, .ps-cart-products-card, .form--shopping-cart').addClass('content-loading')
+            
+            // Save cart state before update
+            if (typeof window.saveCartState === 'function') {
+                window.saveCartState()
+            }
             
             // Get cart instance from qty input data attribute
             const cartInstance = _self.data('cart-instance') || 'cart'

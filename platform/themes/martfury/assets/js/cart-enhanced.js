@@ -1,6 +1,7 @@
 /**
  * Shopping Cart Enhanced - Completely Separated Carts
  * Shopping and Confirm Payment carts are 100% independent
+ * WITH PERSISTENT STATE across AJAX reloads
  */
 (function() {
     'use strict';
@@ -10,6 +11,89 @@
         shopping: { initialized: false },
         'confirm-payment': { initialized: false }
     };
+    
+    // Storage keys for persistent state
+    const STORAGE_KEY_PREFIX = 'cart_enhanced_';
+    const ACTIVE_TAB_KEY = STORAGE_KEY_PREFIX + 'active_tab';
+    
+    /**
+     * Save checkbox states to sessionStorage
+     */
+    function saveCheckboxStates(tabId) {
+        const tabContent = document.querySelector(`[data-tab-content="${tabId}"]`);
+        if (!tabContent) return;
+        
+        const checkedItems = [];
+        tabContent.querySelectorAll('.ps-cart-checkbox-item:checked').forEach(cb => {
+            checkedItems.push(cb.dataset.rowId);
+        });
+        
+        sessionStorage.setItem(STORAGE_KEY_PREFIX + tabId + '_checked', JSON.stringify(checkedItems));
+        console.log('[Cart State] Saved checkbox states for', tabId, checkedItems);
+    }
+    
+    /**
+     * Restore checkbox states from sessionStorage
+     */
+    function restoreCheckboxStates(tabId) {
+        const tabContent = document.querySelector(`[data-tab-content="${tabId}"]`);
+        if (!tabContent) return;
+        
+        const savedStates = sessionStorage.getItem(STORAGE_KEY_PREFIX + tabId + '_checked');
+        if (!savedStates) return;
+        
+        try {
+            const checkedIds = JSON.parse(savedStates);
+            console.log('[Cart State] Restoring checkbox states for', tabId, checkedIds);
+            
+            checkedIds.forEach(rowId => {
+                const checkbox = tabContent.querySelector(`.ps-cart-checkbox-item[data-row-id="${rowId}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+        } catch (e) {
+            console.error('[Cart State] Failed to restore checkbox states:', e);
+        }
+    }
+    
+    /**
+     * Save active tab to sessionStorage AND server
+     */
+    function saveActiveTab(tabName) {
+        sessionStorage.setItem(ACTIVE_TAB_KEY, tabName);
+        console.log('[Cart State] Saved active tab to sessionStorage:', tabName);
+        
+        // Also save to server session
+        if (typeof jQuery !== 'undefined') {
+            jQuery.ajax({
+                url: window.location.pathname,
+                method: 'POST',
+                data: {
+                    _token: jQuery('meta[name="csrf-token"]').attr('content'),
+                    active_tab: tabName
+                },
+                success: () => console.log('[Cart State] Saved active tab to server:', tabName)
+            });
+        }
+    }
+    
+    /**
+     * Get active tab (from sessionStorage or default)
+     */
+    function getActiveTab() {
+        const saved = sessionStorage.getItem(ACTIVE_TAB_KEY);
+        if (saved) {
+            console.log('[Cart State] Restored active tab from sessionStorage:', saved);
+            return saved;
+        }
+        
+        // Fallback to server-rendered active tab
+        const activeButton = document.querySelector('.ps-cart-tab-button.active');
+        const tab = activeButton ? activeButton.dataset.tab : 'shopping';
+        console.log('[Cart State] Using server active tab:', tab);
+        return tab;
+    }
     
     /**
      * Initialize a cart tab - completely independent from other tabs
@@ -29,6 +113,11 @@
         if (!mainCheckbox || !itemCheckboxes.length) return;
         
         cartStates[tabId].initialized = true;
+        
+        console.log('[Cart Init] Initializing tab:', tabId);
+        
+        // Restore checkbox states FIRST
+        restoreCheckboxStates(tabId);
         
         function updateMainCheckbox() {
             const selected = tabContent.querySelectorAll('.ps-cart-checkbox-item:checked').length;
@@ -131,6 +220,8 @@
             cb.addEventListener('change', function() {
                 updateStoreCheckbox(this.dataset.storeId);
                 updateMainCheckbox();
+                // Save state when checkbox changes
+                saveCheckboxStates(tabId);
             });
         });
         
@@ -145,23 +236,15 @@
                 this.disabled = true;
                 this.textContent = 'Deleting...';
                 
+                // Save state before delete
+                saveActiveTab(tabId);
+                saveCheckboxStates(tabId);
+                
                 const rowIds = Array.from(checked).map(cb => cb.dataset.rowId);
                 const firstItem = checked[0].closest('.ps-cart-product-item');
                 const cartInstance = firstItem?.querySelector('.remove-cart-button')?.dataset.cartInstance || 'cart';
                 
-                // Save active tab to server before reloading
-                console.log('[Cart] Saving tab before delete:', tabId);
-                if (typeof jQuery !== 'undefined') {
-                    jQuery.ajax({
-                        url: window.location.pathname,
-                        method: 'POST',
-                        data: {
-                            _token: jQuery('meta[name="csrf-token"]').attr('content'),
-                            active_tab: tabId
-                        },
-                        async: false // Wait for this to complete
-                    });
-                }
+                console.log('[Cart] Deleting items, saved state for:', tabId);
                 
                 if (typeof jQuery !== 'undefined') {
                     jQuery.ajax({
@@ -175,6 +258,15 @@
                                 this.textContent = 'Delete Selected';
                             } else {
                                 Theme.showSuccess(res.message || 'Items removed');
+                                // Clear states for removed items
+                                const savedStates = sessionStorage.getItem(STORAGE_KEY_PREFIX + tabId + '_checked');
+                                if (savedStates) {
+                                    try {
+                                        const checkedIds = JSON.parse(savedStates);
+                                        const remainingIds = checkedIds.filter(id => !rowIds.includes(id));
+                                        sessionStorage.setItem(STORAGE_KEY_PREFIX + tabId + '_checked', JSON.stringify(remainingIds));
+                                    } catch (e) {}
+                                }
                                 location.reload();
                             }
                         },
@@ -191,20 +283,20 @@
         }
         
         tabContent.querySelectorAll('.qty-input').forEach(input => {
-            // Save active tab to server session when qty input is focused
+            // Save checkbox states and active tab before qty update triggers reload
             input.addEventListener('focus', () => {
-                console.log('[Cart] Qty input focused, saving tab to server:', tabId);
-                if (typeof jQuery !== 'undefined') {
-                    jQuery.ajax({
-                        url: window.location.pathname,
-                        method: 'POST',
-                        data: {
-                            _token: jQuery('meta[name="csrf-token"]').attr('content'),
-                            active_tab: tabId
-                        },
-                        success: () => console.log('[Cart] Tab saved to server session:', tabId)
-                    });
-                }
+                const activeTab = getActiveTab();
+                saveActiveTab(activeTab);
+                saveCheckboxStates(activeTab);
+                console.log('[Cart] Qty input focused, saved state for:', activeTab);
+            });
+            
+            // Also save when change event fires (just before AJAX)
+            input.addEventListener('change', () => {
+                const activeTab = getActiveTab();
+                saveActiveTab(activeTab);
+                saveCheckboxStates(activeTab);
+                console.log('[Cart] Qty changed, saved state for:', activeTab);
             });
         });
         
@@ -226,13 +318,34 @@
     function initAll() {
         console.log('[Cart] Initializing both carts');
         
+        // Reset initialization flags
         cartStates.shopping.initialized = false;
         cartStates['confirm-payment'].initialized = false;
         
+        // Restore and apply active tab FIRST
+        const activeTab = getActiveTab();
+        applyActiveTab(activeTab);
+        
+        // Initialize both tabs
         initCartTab('shopping');
         initCartTab('confirm-payment');
         
-        console.log('[Cart] Initialization complete');
+        console.log('[Cart] Initialization complete, active tab:', activeTab);
+    }
+    
+    /**
+     * Apply active tab to UI
+     */
+    function applyActiveTab(tabName) {
+        console.log('[Cart] Applying active tab:', tabName);
+        
+        document.querySelectorAll('.ps-cart-tab-button').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tabName);
+        });
+        
+        document.querySelectorAll('.ps-cart-tab-content').forEach(content => {
+            content.classList.toggle('active', content.dataset.tabContent === tabName);
+        });
     }
     
     function setupTabs() {
@@ -241,25 +354,18 @@
                 const tab = this.dataset.tab;
                 console.log('[Cart] Tab clicked:', tab);
                 
-                // Save to server session
-                if (typeof jQuery !== 'undefined') {
-                    jQuery.ajax({
-                        url: window.location.pathname,
-                        method: 'POST',
-                        data: {
-                            _token: jQuery('meta[name="csrf-token"]').attr('content'),
-                            active_tab: tab
-                        },
-                        success: () => console.log('[Cart] Tab saved to server:', tab)
-                    });
-                }
+                // Save active tab
+                saveActiveTab(tab);
                 
-                // Update UI
-                document.querySelectorAll('.ps-cart-tab-button').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                document.querySelectorAll('.ps-cart-tab-content').forEach(c => {
-                    c.classList.toggle('active', c.dataset.tabContent === tab);
-                });
+                // Apply to UI
+                applyActiveTab(tab);
+                
+                // Reinitialize (will restore checkbox states)
+                setTimeout(() => {
+                    if (typeof window.initCartEnhanced === 'function') {
+                        window.initCartEnhanced();
+                    }
+                }, 100);
             });
         });
     }
@@ -275,6 +381,16 @@
     }
     
     window.initCartEnhanced = initAll;
+    
+    /**
+     * Global function to save cart state (called from backend.js)
+     */
+    window.saveCartState = function() {
+        const activeTab = getActiveTab();
+        console.log('[Cart] saveCartState called, saving for:', activeTab);
+        saveActiveTab(activeTab);
+        saveCheckboxStates(activeTab);
+    };
     
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('.ps-cart-actions a[href*="checkout"], .ps-btn--primary[href*="checkout"], a.ps-btn[href*="information"]');
