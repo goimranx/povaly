@@ -4,7 +4,10 @@
 (function() {
     'use strict';
     
-    document.addEventListener('DOMContentLoaded', function() {
+    /**
+     * Initialize cart enhanced functionality
+     */
+    function initCartEnhanced() {
         const mainCheckbox = document.getElementById('selectAllCheckbox');
         const selectAllText = document.getElementById('selectAllText');
         const deleteBtn = document.getElementById('deleteSelectedBtn');
@@ -23,23 +26,24 @@
          */
         function updateMainCheckbox() {
             selectedCount = document.querySelectorAll('.ps-cart-checkbox-item:checked').length;
+            const currentTotal = document.querySelectorAll('.ps-cart-checkbox-item').length;
             
             if (selectedCount === 0) {
                 mainCheckbox.checked = false;
                 mainCheckbox.indeterminate = false;
-                selectAllText.textContent = selectAllText.dataset.textAll.replace('{count}', totalItems);
+                selectAllText.textContent = selectAllText.dataset.textAll.replace('{count}', currentTotal);
                 if (deleteBtn) deleteBtn.disabled = true;
-            } else if (selectedCount === totalItems) {
+            } else if (selectedCount === currentTotal) {
                 mainCheckbox.checked = true;
                 mainCheckbox.indeterminate = false;
-                selectAllText.textContent = selectAllText.dataset.textAllSelected.replace('{count}', totalItems);
+                selectAllText.textContent = selectAllText.dataset.textAllSelected.replace('{count}', currentTotal);
                 if (deleteBtn) deleteBtn.disabled = false;
             } else {
                 mainCheckbox.checked = false;
                 mainCheckbox.indeterminate = true;
                 selectAllText.textContent = selectAllText.dataset.textPartial
                     .replace('{selected}', selectedCount)
-                    .replace('{total}', totalItems);
+                    .replace('{total}', currentTotal);
                 if (deleteBtn) deleteBtn.disabled = false;
             }
         }
@@ -71,8 +75,10 @@
          */
         mainCheckbox.addEventListener('change', function() {
             const isChecked = this.checked;
-            itemCheckboxes.forEach(cb => cb.checked = isChecked);
-            storeCheckboxes.forEach(cb => {
+            const currentItems = document.querySelectorAll('.ps-cart-checkbox-item');
+            const currentStores = document.querySelectorAll('.ps-cart-checkbox-store');
+            currentItems.forEach(cb => cb.checked = isChecked);
+            currentStores.forEach(cb => {
                 cb.checked = isChecked;
                 cb.indeterminate = false;
             });
@@ -120,11 +126,9 @@
                     
                     // Remove items sequentially using the existing cart remove system
                     let currentIndex = 0;
-                    let totalRemoved = 0;
                     
                     function removeNext() {
                         if (currentIndex >= rowIds.length) {
-                            // All done - the last item's removal will trigger cart reload
                             return;
                         }
                         
@@ -132,17 +136,12 @@
                         const removeBtn = document.querySelector(`[data-row-id="${rowId}"] .remove-cart-button`);
                         
                         if (removeBtn) {
-                            // Use jQuery to trigger the existing event handler
                             if (typeof jQuery !== 'undefined') {
-                                // Trigger jQuery click event - this will use the existing backend.js handler
                                 jQuery(removeBtn).trigger('click');
-                                
-                                // Wait a bit before removing next item to prevent race conditions
                                 setTimeout(() => {
                                     currentIndex++;
-                                    totalRemoved++;
                                     removeNext();
-                                }, 500); // Delay between removals
+                                }, 500);
                             } else {
                                 currentIndex++;
                                 removeNext();
@@ -167,5 +166,17 @@
                 updateStoreCheckbox(cb.dataset.storeId);
             }
         });
-    });
+    }
+    
+    // Initialize on DOM ready
+    document.addEventListener('DOMContentLoaded', initCartEnhanced);
+    
+    // Reinitialize after AJAX cart reload
+    if (typeof jQuery !== 'undefined') {
+        jQuery(document).on('cartEnhancedReloaded', initCartEnhanced);
+    }
+    
+    // Make function globally available for manual reinit
+    window.initCartEnhanced = initCartEnhanced;
 })();
+

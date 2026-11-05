@@ -501,6 +501,11 @@
                     $(cartSelector).load(window.location.href + ' ' + cartSelector + ' > *', function() {
                         _self.closest('.ps-table--shopping-cart, .ps-cart-products-card').removeClass('content-loading')
                         Theme.showSuccess(res.message)
+                        
+                        // Reinitialize cart enhanced functionality
+                        if (typeof window.initCartEnhanced === 'function') {
+                            window.initCartEnhanced();
+                        }
                     })
 
                     $.ajax({
