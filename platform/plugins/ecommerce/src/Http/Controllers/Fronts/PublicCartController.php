@@ -563,9 +563,12 @@ class PublicCartController extends BaseController
             $newItemRowIds = collect($cartItems)->pluck('rowId')->filter()->toArray();
             if (!empty($newItemRowIds)) {
                 session(['checkout_selected_items' => $newItemRowIds]);
+                session()->save(); // Force session save before redirect
+                
                 \Log::info('[Buy Now] Set checkout_selected_items', [
                     'row_ids' => $newItemRowIds,
-                    'product_id' => $product->id
+                    'product_id' => $product->id,
+                    'session_saved' => true
                 ]);
             }
 

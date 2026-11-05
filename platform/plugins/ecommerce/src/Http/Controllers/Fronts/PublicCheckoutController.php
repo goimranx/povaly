@@ -140,10 +140,11 @@ class PublicCheckoutController extends BaseController
             'has_existing_confirm_cart' => $hasExistingConfirmCart
         ]);
         
-        if (!$hasNewSelection && $hasExistingConfirmCart) {
-            // No new selection AND confirm payment cart exists - use existing confirm payment cart
-            // This preserves any quantity changes user made during checkout
-            \Log::info('Using existing confirm payment cart', [
+        if (!$hasNewSelection && $hasExistingConfirmCart && Cart::instance('cart')->isEmpty()) {
+            // No new selection AND confirm payment cart exists AND main cart is empty
+            // = User is just refreshing/revisiting checkout page
+            // Use existing confirm payment cart without trying to merge
+            \Log::info('Using existing confirm payment cart (no new items to merge)', [
                 'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
                 'confirm_payment_items' => $existingConfirmCart->map(fn($item) => [
                     'id' => $item->id,
@@ -155,7 +156,8 @@ class PublicCheckoutController extends BaseController
             $products = Cart::instance('confirm_payment')->products();
             
         } else {
-            // New selection detected - MOVE/MERGE items from main cart to confirm payment cart
+            // Either we have a new selection OR main cart has items to merge
+            // MOVE/MERGE items from main cart to confirm payment cart
             
             $hasSelection = $hasNewSelection;
             
