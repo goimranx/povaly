@@ -121,6 +121,15 @@ class PublicCheckoutController extends BaseController
         // Otherwise work normally with all cart items
         $selectedRowIds = session('checkout_selected_items');
         
+        // If there's no selected items session but there's an original cart backup,
+        // it means user navigated away and came back - restore the full cart
+        if (empty($selectedRowIds) && session()->has('checkout_original_cart')) {
+            \Log::info('No selected items but original cart exists - restoring full cart');
+            $this->restoreOriginalCartFromCheckout();
+            // Refresh products after restoration
+            $products = Cart::instance('cart')->products();
+        }
+        
         if (!empty($selectedRowIds) && is_array($selectedRowIds)) {
             \Log::info('Found selected items, filtering cart');
             // User selected specific items from cart page - filter to only those
@@ -1168,8 +1177,10 @@ class PublicCheckoutController extends BaseController
 
         OrderHelper::clearSessions($token);
         
-        // Clear selected items session after successful checkout
+        // Clear all checkout-related sessions after successful checkout
         session()->forget('checkout_selected_items');
+        session()->forget('checkout_original_cart');
+        session()->forget('checkout_processing_items');
 
         $thankYouView = Theme::getThemeNamespace('views.ecommerce.orders.thank-you');
 
@@ -1395,5 +1406,48 @@ class PublicCheckoutController extends BaseController
         if (! empty($addressData)) {
             Cookie::queue('customer_checkout_address', json_encode($addressData), 525600);
         }
+    }
+    
+    protected function restoreOriginalCartFromCheckout(): void
+    {
+        if (!session()->has('checkout_original_cart')) {
+            return;
+        }
+        
+        $originalCartData = session('checkout_original_cart');
+        
+        \Log::info('Restoring original cart from checkout', ['count' => count($originalCartData)]);
+        
+        // Restore the full cart
+        Cart::instance('cart')->destroy();
+        
+        foreach ($originalCartData as $itemData) {
+            $options = isset($itemData['options']) && is_array($itemData['options']) 
+                ? $itemData['options'] 
+                : [];
+            
+            $cartItem = Cart::instance('cart')->add(
+                $itemData['id'],
+                $itemData['name'],
+                $itemData['qty'],
+                $itemData['price'],
+                $options
+            );
+            
+            // Associate model if it exists
+            if (isset($itemData['associatedModel']) && $itemData['associatedModel']) {
+                $cartItem->associate($itemData['associatedModel']);
+            }
+        }
+        
+        // Clear the backup sessions
+        session()->forget('checkout_original_cart');
+        session()->forget('checkout_selected_items');
+        session()->forget('checkout_processing_items');
+        
+        \Log::info('Cart restored successfully from checkout', ['count' => Cart::instance('cart')->count()]);
+        
+        // Persist the restored cart
+        Cart::instance('cart')->persist(auth('customer')->id());
     }
 }

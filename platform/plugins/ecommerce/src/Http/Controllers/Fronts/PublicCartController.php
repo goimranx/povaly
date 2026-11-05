@@ -190,6 +190,9 @@ class PublicCartController extends BaseController
 
     public function store(CartRequest $request)
     {
+        // Restore original cart if user is adding items after selected checkout
+        $this->restoreOriginalCart();
+        
         $response = $this->httpResponse();
 
         /**
