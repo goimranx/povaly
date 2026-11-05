@@ -839,20 +839,31 @@ class PublicCheckoutController extends BaseController
         HandleRemoveCouponService $removeCouponService,
         HandleApplyPromotionsService $handleApplyPromotionsService
     ) {
+        \Log::info('[POST Checkout] START', [
+            'token' => $token,
+            'payment_method' => $request->input('payment_method'),
+            'session_id' => session()->getId(),
+            'confirm_cart_count' => Cart::instance('confirm_payment')->count()
+        ]);
+        
         abort_unless(EcommerceHelper::isCartEnabled(), 404);
 
         if (! EcommerceHelper::isEnabledGuestCheckout() && ! auth('customer')->check()) {
+            \Log::warning('[POST Checkout] Not authenticated for guest checkout');
             return $this
                 ->httpResponse()
                 ->setNextUrl(route('customer.login') . '?redirect=' . urlencode(route('public.checkout.information', $token)));
         }
 
         if (Cart::instance('confirm_payment')->isEmpty()) {
+            \Log::error('[POST Checkout] Confirm payment cart is EMPTY');
             return $this
                 ->httpResponse()
                 ->setError()
                 ->setMessage(__('No products in cart'));
         }
+
+        \Log::info('[POST Checkout] Validation passed, proceeding with order');
 
         $products = Cart::instance('confirm_payment')->products();
 
@@ -933,8 +944,14 @@ class PublicCheckoutController extends BaseController
 
         $reservedItems = $stockValidation['reserved_items'] ?? [];
 
+        \Log::info('[POST Checkout] Stock validated, calling processCheckoutAfterStockReserved', [
+            'token' => $token,
+            'cart_items_count' => count($cartItems),
+            'reserved_items_count' => count($reservedItems)
+        ]);
+
         try {
-            return $this->processCheckoutAfterStockReserved(
+            $result = $this->processCheckoutAfterStockReserved(
                 $request,
                 $token,
                 $sessionData,
@@ -944,7 +961,20 @@ class PublicCheckoutController extends BaseController
                 $applyCouponService,
                 $removeCouponService,
             );
+            
+            \Log::info('[POST Checkout] processCheckoutAfterStockReserved completed', [
+                'token' => $token,
+                'result_type' => get_class($result)
+            ]);
+            
+            return $result;
         } catch (Exception $e) {
+            \Log::error('[POST Checkout] Exception in processCheckoutAfterStockReserved', [
+                'token' => $token,
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             OrderHelper::restoreReservedStock($reservedItems);
 
             throw $e;
