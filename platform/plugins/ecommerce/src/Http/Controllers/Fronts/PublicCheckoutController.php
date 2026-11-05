@@ -863,23 +863,7 @@ class PublicCheckoutController extends BaseController
                 ->setMessage(__('No products in cart'));
         }
 
-        \Log::info('[POST Checkout] Validation passed, proceeding with order');
-
-        \Log::info('[POST Checkout] About to fetch products from confirm_payment cart', [
-            'token' => $token,
-            'cart_instance' => 'confirm_payment',
-            'cart_count_before' => Cart::instance('confirm_payment')->count(),
-            'cart_content_keys' => Cart::instance('confirm_payment')->content()->keys()->toArray()
-        ]);
-
         $products = Cart::instance('confirm_payment')->products();
-        
-        \Log::info('[POST Checkout] Products fetched', [
-            'token' => $token,
-            'products_count' => $products->count(),
-            'product_ids' => $products->pluck('id')->toArray(),
-            'products_class' => get_class($products)
-        ]);
 
         if (
             EcommerceHelper::isEnabledSupportDigitalProducts() &&
@@ -1014,14 +998,6 @@ class PublicCheckoutController extends BaseController
         do_action('ecommerce_post_checkout', $products, $request, $token, $sessionData);
 
         if (is_plugin_active('marketplace')) {
-            \Log::info('[POST Checkout] BEFORE marketplace filter', [
-                'token' => $token,
-                'products_type' => get_class($products),
-                'products_count' => $products instanceof Collection ? $products->count() : count($products),
-                'product_ids' => $products->pluck('id')->toArray() ?? [],
-                'filter_name' => 'HANDLE_PROCESS_POST_CHECKOUT_ORDER_DATA_ECOMMERCE'
-            ]);
-            
             return apply_filters(
                 HANDLE_PROCESS_POST_CHECKOUT_ORDER_DATA_ECOMMERCE,
                 $products,
