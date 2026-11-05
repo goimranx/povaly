@@ -35,23 +35,24 @@ class RestoreCustomerCartMiddleware
             }
             
             // RESTORE abandoned checkout items when user LEAVES checkout
-            // Check if user WAS in checkout (session flag) but is NOT on checkout page now
+            // Detect by checking if previous page (referrer) was checkout and current page is NOT
             $isCheckoutPage = $request->is('checkout/*') || $request->is('*/checkout/*');
-            $wasInCheckout = session()->has('user_in_checkout');
+            $referrer = $request->headers->get('referer');
+            $cameFromCheckout = $referrer && (
+                str_contains($referrer, '/checkout/') || 
+                str_contains($referrer, '/checkout?')
+            );
             
-            // IMPORTANT: Only restore on full page loads (not AJAX) when leaving checkout
-            // This prevents interference with checkout AJAX updates
+            // Only restore if:
+            // 1. User came FROM checkout (referrer check)
+            // 2. User is NOT on checkout now (navigated away)
+            // 3. Not an AJAX request (to avoid interference)
+            // 4. confirm_payment cart has items (checkout wasn't completed)
             $isAjaxRequest = $request->ajax() || $request->wantsJson();
             
-            if ($wasInCheckout && !$isCheckoutPage && !$isAjaxRequest) {
-                // User has left checkout via full page navigation - restore items
+            if ($cameFromCheckout && !$isCheckoutPage && !$isAjaxRequest) {
                 $this->restoreAbandonedCheckout($cart, $request);
-                // Clear the flag so restoration only happens once
-                session()->forget('user_in_checkout');
             }
-            
-            // If we're back on checkout page, keep the flag (user might navigate back)
-            // If AJAX request, don't touch the flag (might be from checkout page)
             
         } catch (Throwable) {
             // Silently ignore during upgrade when customer_id column doesn't exist yet
@@ -67,7 +68,9 @@ class RestoreCustomerCartMiddleware
             return;
         }
         
-        \Log::info('[Middleware] Restoring abandoned checkout items to main cart', [
+        \Log::info('[Middleware] User left checkout - restoring abandoned items', [
+            'referrer' => $request->headers->get('referer'),
+            'current_url' => $request->url(),
             'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
             'main_cart_count_before' => $cart->count()
         ]);
@@ -121,9 +124,15 @@ class RestoreCustomerCartMiddleware
         // Clear middleware cache to ensure fresh data
         session()->forget('cart_last_restored_at');
         
-        \Log::info('[Middleware] Abandoned items restored and persisted', [
+        \Log::info('[Middleware] Abandoned items restored and persisted globally', [
             'main_cart_count_after' => $cart->count()
         ]);
+    }
+        } catch (Throwable) {
+            // Silently ignore during upgrade when customer_id column doesn't exist yet
+        }
+
+        return $next($request);
     }
 
     protected function handleCustomerCart($cart): void
