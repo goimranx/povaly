@@ -145,7 +145,17 @@ class PublicCartController extends BaseController
         if (Cart::instance('confirm_payment')->isNotEmpty()) {
             // Get products directly from confirm_payment instance
             $confirmPaymentCart = Cart::instance('confirm_payment');
-            $confirmPaymentProducts = $confirmPaymentCart->products();
+            
+            // Get product IDs from the cart content directly (not from products() which has a bug)
+            $productIds = $confirmPaymentCart->content()->pluck('id')->unique()->toArray();
+            \Log::info('[Cart Debug] Confirm payment product IDs from content:', ['ids' => $productIds]);
+            
+            // Load products directly from database using these IDs
+            $confirmPaymentProducts = Product::query()
+                ->whereIn('id', $productIds)
+                ->wherePublished()
+                ->with(['slugable', 'original_product', 'original_product.store'])
+                ->get();
             
             \Log::info('[Cart Debug] Confirm payment products count: ' . count($confirmPaymentProducts));
             \Log::info('[Cart Debug] Confirm payment instance: confirm_payment');
