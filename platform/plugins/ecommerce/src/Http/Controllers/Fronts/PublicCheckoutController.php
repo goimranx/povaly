@@ -110,11 +110,19 @@ class PublicCheckoutController extends BaseController
          */
         $products = Cart::instance('cart')->products();
         
+        // DEBUG: Let's see what's in session
+        \Log::info('=== CHECKOUT DEBUG ===');
+        \Log::info('Selected items session:', ['selected' => session('checkout_selected_items')]);
+        \Log::info('Original cart session:', ['has_original' => session()->has('checkout_original_cart')]);
+        \Log::info('All cart items:', ['count' => Cart::instance('cart')->count(), 'items' => Cart::instance('cart')->content()->pluck('name', 'rowId')->toArray()]);
+        \Log::info('Products count:', ['count' => $products->count(), 'names' => $products->pluck('name')->toArray()]);
+        
         // ONLY filter if coming from cart page with selected items
         // Otherwise work normally with all cart items
         $selectedRowIds = session('checkout_selected_items');
         
         if (!empty($selectedRowIds) && is_array($selectedRowIds)) {
+            \Log::info('Found selected items, filtering cart');
             // User selected specific items from cart page - filter to only those
             $cartContent = Cart::instance('cart')->content();
             
@@ -123,12 +131,16 @@ class PublicCheckoutController extends BaseController
                 return in_array($item->rowId, $selectedRowIds);
             });
             
+            \Log::info('Selected items filtered:', ['count' => $selectedItems->count(), 'items' => $selectedItems->pluck('name', 'rowId')->toArray()]);
+            
             if ($selectedItems->isNotEmpty()) {
                 // Filter products to only selected ones
                 $selectedProductIds = $selectedItems->pluck('id')->toArray();
                 $products = $products->filter(function ($product) use ($selectedProductIds) {
                     return in_array($product->id, $selectedProductIds);
                 });
+                
+                \Log::info('After filtering products:', ['count' => $products->count()]);
                 
                 // Store original cart content to restore later
                 $originalCartContent = $cartContent->all();
@@ -146,12 +158,16 @@ class PublicCheckoutController extends BaseController
                     )->associate($item->model);
                 }
                 
+                \Log::info('Cart after replacement:', ['count' => Cart::instance('cart')->count()]);
+                
                 // Mark that cart was modified for selected items checkout
                 session(['checkout_original_cart' => $originalCartContent]);
                 
                 // Prevent middleware from restoring full cart
                 session(['cart_last_restored_at' => now()->toIso8601String()]);
             }
+        } else {
+            \Log::info('No selected items session, using all cart items');
         }
         // If no selected items session, proceed with all items (normal flow)
         

@@ -22,8 +22,11 @@ class RestoreCustomerCartMiddleware
 
             // Skip restoration if we're in checkout with selected items (cart was already filtered)
             if (session()->has('checkout_original_cart')) {
+                \Log::info('RestoreCustomerCartMiddleware: Skipping restoration - checkout_original_cart exists');
                 return $next($request);
             }
+
+            \Log::info('RestoreCustomerCartMiddleware: Processing restoration', ['has_customer' => auth('customer')->check()]);
 
             if (auth('customer')->check()) {
                 $this->handleCustomerCart($cart);
