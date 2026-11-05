@@ -1,7 +1,9 @@
 {{-- Group products by store --}}
 @php
+    // Use checkout cart instance when in checkout, otherwise use main cart
+    $cartInstance = request()->is('checkout*') ? 'checkout' : 'cart';
     $groupedProducts = collect();
-    foreach(Cart::instance('cart')->content() as $key => $cartItem) {
+    foreach(Cart::instance($cartInstance)->content() as $key => $cartItem) {
         $product = $products->find($cartItem->id);
         if (!empty($product)) {
             $storeId = $product->original_product->store_id ?? 0;
