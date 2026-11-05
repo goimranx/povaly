@@ -135,7 +135,8 @@ class PublicCheckoutController extends BaseController
                     $item->options->toArray()
                 );
                 
-                if ($item->associatedModel) {
+                // Associate model if available (associatedModel is the class name string)
+                if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
                     $cartItem->associate($item->associatedModel);
                 }
             }
@@ -164,7 +165,8 @@ class PublicCheckoutController extends BaseController
                     $item->options->toArray()
                 );
                 
-                if ($item->associatedModel) {
+                // Associate model if available (associatedModel is the class name string)
+                if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
                     $cartItem->associate($item->associatedModel);
                 }
             }
