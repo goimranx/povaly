@@ -833,9 +833,17 @@ class PublicCartController extends BaseController
 
     public function storeSelectedItems(Request $request)
     {
+        \Log::info('storeSelectedItems called', [
+            'all_input' => $request->all(),
+            'selected_items_raw' => $request->input('selected_items'),
+            'method' => $request->method(),
+            'headers' => $request->headers->all(),
+        ]);
+        
         $selectedRowIds = $request->input('selected_items', []);
         
         if (empty($selectedRowIds)) {
+            \Log::warning('No selected items provided');
             return $this
                 ->httpResponse()
                 ->setError()
@@ -853,6 +861,10 @@ class PublicCartController extends BaseController
         }
 
         if (empty($validRowIds)) {
+            \Log::warning('No valid row IDs found in cart', [
+                'selected' => $selectedRowIds,
+                'cart_items' => $cart->content()->pluck('rowId')->toArray(),
+            ]);
             return $this
                 ->httpResponse()
                 ->setError()
@@ -861,6 +873,11 @@ class PublicCartController extends BaseController
 
         // Store selected items in session for checkout
         session(['checkout_selected_items' => $validRowIds]);
+        
+        \Log::info('Selected items stored in session', [
+            'valid_row_ids' => $validRowIds,
+            'session_check' => session('checkout_selected_items'),
+        ]);
 
         return $this
             ->httpResponse()

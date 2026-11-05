@@ -328,22 +328,32 @@
                 // Get selected row IDs
                 const selectedRowIds = Array.from(checkedItems).map(cb => cb.dataset.rowId);
                 
+                console.log('Selected row IDs:', selectedRowIds);
+                console.log('Site URL:', window.siteUrl);
+                console.log('CSRF Token:', jQuery('meta[name="csrf-token"]').attr('content'));
+                
                 // Store in session via AJAX before redirecting
                 if (typeof jQuery !== 'undefined') {
                     e.preventDefault();
                     
+                    const ajaxUrl = window.siteUrl + '/ajax/cart/store-selected-items';
+                    console.log('Making AJAX call to:', ajaxUrl);
+                    
                     jQuery.ajax({
-                        url: window.siteUrl + '/ajax/cart/store-selected-items',
+                        url: ajaxUrl,
                         method: 'POST',
                         data: {
                             _token: jQuery('meta[name="csrf-token"]').attr('content'),
                             selected_items: selectedRowIds
                         },
                         success: function(response) {
+                            console.log('AJAX success:', response);
                             // Redirect to checkout
                             window.location.href = checkoutBtn.href;
                         },
-                        error: function() {
+                        error: function(xhr, status, error) {
+                            console.error('AJAX error:', status, error);
+                            console.error('Response:', xhr.responseText);
                             // If AJAX fails, go to checkout with all items (fallback)
                             window.location.href = checkoutBtn.href;
                         }
