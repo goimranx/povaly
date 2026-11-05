@@ -168,6 +168,11 @@ class PublicCartController extends BaseController
             \Log::info('[Cart] Abandoned items restored, confirm_payment cleared', [
                 'main_cart_count_after' => Cart::instance('cart')->count()
             ]);
+            
+            // Persist the restored cart so it's available everywhere (flyout, header, etc.)
+            $this->persistCart();
+            
+            \Log::info('[Cart] Main cart persisted after restoration');
         }
         
         if ($token = $request->query('token')) {
