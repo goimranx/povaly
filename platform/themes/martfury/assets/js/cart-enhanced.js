@@ -212,57 +212,104 @@
          * Delete selected items
          */
         if (deleteBtn) {
-            deleteBtn.addEventListener('click', function() {
+            deleteBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
                 const checkedItems = tabContent.querySelectorAll('.ps-cart-checkbox-item:checked');
                 if (checkedItems.length === 0) return;
                 
                 const confirmMessage = deleteBtn.dataset.confirmMessage || 'Are you sure you want to remove the selected items?';
                 
-                if (confirm(confirmMessage)) {
-                    const rowIds = Array.from(checkedItems).map(cb => cb.dataset.rowId);
-                    
-                    // Get cart instance from first item's remove button
-                    const firstItem = checkedItems[0].closest('.ps-cart-product-item');
-                    const removeBtn = firstItem ? firstItem.querySelector('.remove-cart-button') : null;
-                    const cartInstance = removeBtn ? removeBtn.dataset.cartInstance : 'cart';
-                    
-                    let currentIndex = 0;
-                    
-                    function removeNext() {
-                        if (currentIndex >= rowIds.length) {
-                            location.reload();
-                            return;
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+                
+                // Disable button to prevent multiple clicks
+                deleteBtn.disabled = true;
+                deleteBtn.textContent = 'Deleting...';
+                
+                const rowIds = Array.from(checkedItems).map(cb => cb.dataset.rowId);
+                
+                // Get cart instance from first item's remove button
+                const firstItem = checkedItems[0].closest('.ps-cart-product-item');
+                const removeBtn = firstItem ? firstItem.querySelector('.remove-cart-button') : null;
+                const cartInstance = removeBtn ? removeBtn.dataset.cartInstance : 'cart';
+                
+                // Send all row IDs in a single batch request
+                if (typeof jQuery !== 'undefined') {
+                    jQuery.ajax({
+                        url: window.siteUrl + '/ajax/cart/remove-multiple',
+                        method: 'POST',
+                        data: {
+                            _token: jQuery('meta[name="csrf-token"]').attr('content'),
+                            cart_instance: cartInstance,
+                            row_ids: rowIds
+                        },
+                        success: function(response) {
+                            if (response.error) {
+                                Theme.showError(response.message);
+                                deleteBtn.disabled = false;
+                                deleteBtn.textContent = 'Delete Selected';
+                            } else {
+                                Theme.showSuccess(response.message || 'Items removed successfully');
+                                location.reload();
+                            }
+                        },
+                        error: function() {
+                            // Fallback: remove items one by one
+                            removeItemsSequentially(rowIds, cartInstance, deleteBtn);
                         }
-                        
-                        const rowId = rowIds[currentIndex];
-                        
-                        if (typeof jQuery !== 'undefined') {
-                            jQuery.ajax({
-                                url: window.siteUrl + '/ajax/cart/remove',
-                                method: 'POST',
-                                data: {
-                                    _token: jQuery('meta[name="csrf-token"]').attr('content'),
-                                    cart_instance: cartInstance,
-                                    row_id: rowId
-                                },
-                                success: function() {
-                                    currentIndex++;
-                                    removeNext();
-                                },
-                                error: function() {
-                                    currentIndex++;
-                                    removeNext();
-                                }
-                            });
-                        } else {
-                            currentIndex++;
-                            removeNext();
-                        }
-                    }
-                    
-                    removeNext();
+                    });
+                } else {
+                    location.reload();
                 }
             });
+        }
+        
+        /**
+         * Fallback function to remove items one by one
+         */
+        function removeItemsSequentially(rowIds, cartInstance, deleteBtn) {
+            let currentIndex = 0;
+            let successCount = 0;
+            
+            function removeNext() {
+                if (currentIndex >= rowIds.length) {
+                    if (successCount > 0) {
+                        Theme.showSuccess(successCount + ' item(s) removed successfully');
+                        location.reload();
+                    } else {
+                        Theme.showError('Failed to remove items');
+                        deleteBtn.disabled = false;
+                        deleteBtn.textContent = 'Delete Selected';
+                    }
+                    return;
+                }
+                
+                const rowId = rowIds[currentIndex];
+                
+                jQuery.ajax({
+                    url: window.siteUrl + '/ajax/cart/remove',
+                    method: 'POST',
+                    data: {
+                        _token: jQuery('meta[name="csrf-token"]').attr('content'),
+                        cart_instance: cartInstance,
+                        row_id: rowId
+                    },
+                    success: function() {
+                        successCount++;
+                        currentIndex++;
+                        removeNext();
+                    },
+                    error: function() {
+                        currentIndex++;
+                        removeNext();
+                    }
+                });
+            }
+            
+            removeNext();
         }
         
         /**

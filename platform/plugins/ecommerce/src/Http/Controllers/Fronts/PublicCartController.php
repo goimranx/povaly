@@ -752,6 +752,71 @@ class PublicCartController extends BaseController
         }
     }
 
+    public function destroyMultiple(Request $request)
+    {
+        try {
+            $cartInstance = $request->input('cart_instance', 'cart');
+            $rowIds = $request->input('row_ids', []);
+            
+            if (empty($rowIds) || !is_array($rowIds)) {
+                return $this
+                    ->httpResponse()
+                    ->setError()
+                    ->setMessage('No items selected for removal');
+            }
+            
+            $removedCount = 0;
+            $googleTagManager = app(GoogleTagManager::class);
+            
+            foreach ($rowIds as $rowId) {
+                $cartItem = Cart::instance($cartInstance)->get($rowId);
+                
+                if ($cartItem) {
+                    $product = Product::query()->find($cartItem->id);
+                    
+                    if ($product) {
+                        $googleTagManager->removeFromCart($cartItem);
+                        $removedProductSlug = $product->original_product?->slug;
+                        
+                        if ($removedProductSlug) {
+                            $this->resetUpSaleItemsForRemovedParent($removedProductSlug);
+                        }
+                    }
+                    
+                    Cart::instance($cartInstance)->remove($rowId);
+                    $removedCount++;
+                }
+            }
+            
+            if ($removedCount > 0) {
+                $this->persistCart();
+                
+                // Mark the cart as freshly synced
+                session(['cart_last_restored_at' => now()->toIso8601String()]);
+            }
+            
+            $message = trans('plugins/ecommerce::products.cart.removed_multiple_items_success', [
+                'count' => $removedCount
+            ]);
+            
+            // Fallback if translation doesn't exist
+            if ($message === 'plugins/ecommerce::products.cart.removed_multiple_items_success') {
+                $message = $removedCount . ' item(s) removed successfully';
+            }
+            
+            return $this
+                ->httpResponse()
+                ->setData($this->getDataForResponse())
+                ->setMessage($message);
+                
+        } catch (Throwable $e) {
+            return $this
+                ->httpResponse()
+                ->setError()
+                ->setMessage('Failed to remove items from cart');
+        }
+    }
+
     protected function resetUpSaleItemsForRemovedParent(string $parentSlug): void
     {
         $cart = Cart::instance('cart');

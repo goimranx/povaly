@@ -26,6 +26,7 @@ Theme::registerRoutes(function (): void {
         ->group(function (): void {
             Route::post('store-selected-items', 'storeSelectedItems')->name('store-selected-items');
             Route::post('clear-selected-items', 'clearSelectedItems')->name('clear-selected-items');
+            Route::post('remove-multiple', 'destroyMultiple')->name('remove-multiple');
         });
 
     Route::controller(PublicCartController::class)
