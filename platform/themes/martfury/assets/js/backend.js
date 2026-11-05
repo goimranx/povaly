@@ -482,12 +482,16 @@
         $(document).on('click', '.remove-cart-button', function(event) {
             event.preventDefault()
             let _self = $(this)
+            let cartInstance = _self.data('cart-instance') || 'cart'
 
             _self.closest('.ps-table--shopping-cart, .ps-cart-products-card').addClass('content-loading')
 
             $.ajax({
                 url: _self.data('url'),
                 method: 'GET',
+                data: {
+                    cart_instance: cartInstance
+                },
                 success: function(res) {
 
                     if (res.error) {
@@ -534,12 +538,20 @@
 
         function ajaxUpdateCart(_self) {
             _self.closest('.ps-table--shopping-cart, .ps-cart-products-card, .form--shopping-cart').addClass('content-loading')
+            
+            // Get cart instance from qty input data attribute
+            const cartInstance = _self.data('cart-instance') || 'cart'
+            const form = _self.closest('form')
+            
+            // Create FormData and append cart_instance
+            const formData = new FormData(form[0])
+            formData.append('cart_instance', cartInstance)
 
             $.ajax({
                 type: 'POST',
                 cache: false,
-                url: _self.closest('form').prop('action'),
-                data: new FormData(_self.closest('form')[0]),
+                url: form.prop('action'),
+                data: formData,
                 contentType: false,
                 processData: false,
                 success: res => {

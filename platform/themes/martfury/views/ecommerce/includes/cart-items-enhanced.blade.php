@@ -150,7 +150,7 @@
                         {{-- Quantity and Remove --}}
                         <div class="ps-cart-product-actions">
                             <div class="ps-cart-product-remove">
-                                <a href="#" data-url="{{ route('public.cart.remove', $cartItem->rowId) }}" class="remove-cart-button" title="{{ __('Remove') }}">
+                                <a href="#" data-url="{{ route('public.cart.remove', $cartItem->rowId) }}" data-cart-instance="{{ $instanceToUse }}" class="remove-cart-button" title="{{ __('Remove') }}">
                                     {{ __('Remove') }}
                                 </a>
                             </div>
@@ -158,6 +158,11 @@
                             <div class="ps-cart-product-quantity">
                                 <div class="form-group--number product__qty">
                                     <button class="up" type="button">+</button>
+                                    <button class="down" type="button">-</button>
+                                    <input type="number" class="form-control qty-input" min="1" value="{{ $cartItem->qty }}" title="{{ __('Qty') }}" name="items[{{ $key }}][values][qty]" data-cart-instance="{{ $instanceToUse }}" data-row-id="{{ $cartItem->rowId }}">
+                                </div>
+                            </div>
+                        </div>
                                     <button class="down" type="button">-</button>
                                     <input type="number" class="form-control qty-input" min="1" value="{{ $cartItem->qty }}" title="{{ __('Qty') }}" name="items[{{ $key }}][values][qty]">
                                 </div>

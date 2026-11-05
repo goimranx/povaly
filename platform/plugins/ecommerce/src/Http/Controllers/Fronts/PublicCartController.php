@@ -622,11 +622,14 @@ class PublicCartController extends BaseController
                 ->setNextUrl(route('public.checkout.information', $token));
         }
 
+        // Get cart instance from request, default to 'cart'
+        $cartInstance = $request->input('cart_instance', 'cart');
+
         $data = $request->input('items', []);
 
         $outOfQuantity = false;
         foreach ($data as $item) {
-            $cartItem = Cart::instance('cart')->get($item['rowId']);
+            $cartItem = Cart::instance($cartInstance)->get($item['rowId']);
 
             if (! $cartItem) {
                 continue;
@@ -654,7 +657,7 @@ class PublicCartController extends BaseController
                 if ($product->isOutOfStock()) {
                     $outOfQuantity = true;
                 } else {
-                    Cart::instance('cart')->update($item['rowId'], Arr::get($item, 'values'));
+                    Cart::instance($cartInstance)->update($item['rowId'], Arr::get($item, 'values'));
                 }
 
                 $product->quantity = $originalQuantity;
@@ -680,7 +683,10 @@ class PublicCartController extends BaseController
     public function destroy(string $id)
     {
         try {
-            $cartItem = Cart::instance('cart')->get($id);
+            // Get cart instance from request, default to 'cart'
+            $cartInstance = request()->input('cart_instance', 'cart');
+            
+            $cartItem = Cart::instance($cartInstance)->get($id);
 
             if (! $cartItem) {
                 return $this
@@ -701,7 +707,7 @@ class PublicCartController extends BaseController
 
             $removedProductSlug = $product?->original_product?->slug;
 
-            Cart::instance('cart')->remove($id);
+            Cart::instance($cartInstance)->remove($id);
 
             if ($removedProductSlug) {
                 $this->resetUpSaleItemsForRemovedParent($removedProductSlug);

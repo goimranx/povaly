@@ -135,6 +135,30 @@
                                             <p class="ps-cart-subtitle">{{ __('Items currently in checkout process - All items selected by default') }}</p>
                                         </div>
 
+                                        {{-- Selection Header --}}
+                                        <div class="ps-cart-selection-header">
+                                            <div class="ps-cart-selection-header-inner">
+                                                <div class="ps-cart-selection-left">
+                                                    <label class="ps-cart-checkbox-wrapper">
+                                                        <input type="checkbox" class="ps-cart-checkbox-main" id="selectAllCheckbox-confirm-payment">
+                                                        <span class="ps-cart-checkmark"></span>
+                                                        <span class="ps-cart-select-text" id="selectAllText-confirm-payment"
+                                                              data-text-all="{{ __('Select all') }} ({count})"
+                                                              data-text-all-selected="{{ __('All selected') }} ({count})"
+                                                              data-text-partial="{{ __('Select all') }} ({selected} {{ __('of') }} {total})">
+                                                            {{ __('Select all') }} ({{ count($currentProducts) }})
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                                <div class="ps-cart-selection-right">
+                                                    <button type="button" class="ps-cart-delete-btn" id="deleteSelectedBtn-confirm-payment" 
+                                                            data-confirm-message="{{ __('Are you sure you want to remove the selected items from checkout?') }}" disabled>
+                                                        <i class="icon-trash"></i> {{ __('Remove') }}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         @include(Theme::getThemeNamespace('views.ecommerce.includes.cart-items-enhanced'))
                                     </div>
                                 </div>
