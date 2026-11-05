@@ -802,6 +802,43 @@ class PublicCartController extends BaseController
             ->setMessage(trans('plugins/ecommerce::products.cart.empty_success'));
     }
 
+    public function storeSelectedItems(Request $request)
+    {
+        $selectedRowIds = $request->input('selected_items', []);
+        
+        if (empty($selectedRowIds)) {
+            return $this
+                ->httpResponse()
+                ->setError()
+                ->setMessage(__('Please select at least one item to checkout'));
+        }
+
+        // Validate that all selected items exist in cart
+        $cart = Cart::instance('cart');
+        $validRowIds = [];
+        
+        foreach ($selectedRowIds as $rowId) {
+            if ($cart->get($rowId)) {
+                $validRowIds[] = $rowId;
+            }
+        }
+
+        if (empty($validRowIds)) {
+            return $this
+                ->httpResponse()
+                ->setError()
+                ->setMessage(__('Selected items not found in cart'));
+        }
+
+        // Store selected items in session for checkout
+        session(['checkout_selected_items' => $validRowIds]);
+
+        return $this
+            ->httpResponse()
+            ->setData(['selected_count' => count($validRowIds)])
+            ->setMessage(__('Proceeding to checkout with selected items'));
+    }
+
     protected function getCartData(): array
     {
         if ($this->cachedCartData !== null) {

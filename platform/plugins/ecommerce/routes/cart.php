@@ -21,6 +21,13 @@ Theme::registerRoutes(function (): void {
         });
 
     Route::controller(PublicCartController::class)
+        ->prefix('ajax/cart')
+        ->name('public.ajax.cart.')
+        ->group(function (): void {
+            Route::post('store-selected-items', 'storeSelectedItems')->name('store-selected-items');
+        });
+
+    Route::controller(PublicCartController::class)
         ->prefix('abandoned-cart')
         ->name('public.abandoned-cart.')
         ->group(function (): void {

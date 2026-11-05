@@ -109,6 +109,42 @@ class PublicCheckoutController extends BaseController
          * @var Collection $products
          */
         $products = Cart::instance('cart')->products();
+        
+        // Filter products based on selected items if coming from enhanced cart
+        if (session()->has('checkout_selected_items')) {
+            $selectedRowIds = session('checkout_selected_items');
+            $cartContent = Cart::instance('cart')->content();
+            
+            // Get product IDs from selected cart items
+            $selectedProductIds = $cartContent->filter(function ($item) use ($selectedRowIds) {
+                return in_array($item->rowId, $selectedRowIds);
+            })->pluck('id')->toArray();
+            
+            // Filter products to only include selected ones
+            $products = $products->filter(function ($product) use ($selectedProductIds) {
+                return in_array($product->id, $selectedProductIds);
+            });
+            
+            // Also filter the cart content to only selected items
+            // This ensures cart calculations (subtotal, tax, etc.) only use selected items
+            $originalContent = $cartContent->all();
+            $filteredContent = $cartContent->filter(function ($item) use ($selectedRowIds) {
+                return in_array($item->rowId, $selectedRowIds);
+            });
+            
+            // Temporarily replace cart content with filtered items
+            Cart::instance('cart')->destroy();
+            foreach ($filteredContent as $item) {
+                Cart::instance('cart')->add(
+                    $item->id,
+                    $item->name,
+                    $item->qty,
+                    $item->price,
+                    $item->options->toArray()
+                );
+            }
+        }
+        
         if ($products->isEmpty()) {
             return $this
                 ->httpResponse()
@@ -1089,6 +1125,9 @@ class PublicCheckoutController extends BaseController
         $products = $order->getOrderProducts();
 
         OrderHelper::clearSessions($token);
+        
+        // Clear selected items session after successful checkout
+        session()->forget('checkout_selected_items');
 
         $thankYouView = Theme::getThemeNamespace('views.ecommerce.orders.thank-you');
 

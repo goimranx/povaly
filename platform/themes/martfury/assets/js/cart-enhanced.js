@@ -58,10 +58,27 @@
             const checkedItems = document.querySelectorAll('.ps-cart-checkbox-item:checked');
             const itemCountEl = document.getElementById('cart-summary-item-count');
             const subtotalEl = document.getElementById('cart-summary-subtotal');
+            const taxEl = document.getElementById('cart-summary-tax');
+            const totalEl = document.getElementById('cart-summary-total');
             
             if (!itemCountEl || !subtotalEl) return;
             
-            // Always calculate based on selected items (all are selected by default)
+            // If nothing selected, show 0
+            if (checkedItems.length === 0) {
+                itemCountEl.textContent = '0';
+                
+                // Get currency from original
+                const originalText = subtotalEl.textContent;
+                const currencyMatch = originalText.match(/[^\d.,\s]+/);
+                const currency = currencyMatch ? currencyMatch[0] : '৳';
+                
+                subtotalEl.textContent = currency + '0.00';
+                if (taxEl) taxEl.textContent = currency + '0.00';
+                if (totalEl) totalEl.textContent = currency + '0.00';
+                return;
+            }
+            
+            // Calculate based on selected items only
             let selectedSubtotal = 0;
             
             checkedItems.forEach(checkbox => {
@@ -94,7 +111,33 @@
             const currencyMatch = originalText.match(/[^\d.,\s]+/);
             const currency = currencyMatch ? currencyMatch[0] : '৳';
             
-            subtotalEl.textContent = currency + selectedSubtotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            const formattedSubtotal = currency + selectedSubtotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            subtotalEl.textContent = formattedSubtotal;
+            
+            // Calculate tax if tax element exists
+            if (taxEl && taxEl.dataset.total) {
+                const originalTotal = parseFloat(subtotalEl.dataset.total);
+                const originalTax = parseFloat(taxEl.dataset.total);
+                
+                // Calculate tax proportionally
+                const taxRate = originalTotal > 0 ? originalTax / originalTotal : 0;
+                const selectedTax = selectedSubtotal * taxRate;
+                
+                const formattedTax = currency + selectedTax.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                taxEl.textContent = formattedTax;
+                
+                // Update total (subtotal + tax)
+                if (totalEl) {
+                    const selectedTotal = selectedSubtotal + selectedTax;
+                    const formattedTotal = currency + selectedTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    totalEl.textContent = formattedTotal;
+                }
+            } else {
+                // No tax, total = subtotal
+                if (totalEl) {
+                    totalEl.textContent = formattedSubtotal;
+                }
+            }
         }
         
         /**
@@ -209,11 +252,7 @@
         /**
          * Initialize on page load
          */
-        // Select ALL items by default
-        itemCheckboxes.forEach(cb => cb.checked = true);
-        storeCheckboxes.forEach(cb => cb.checked = true);
-        mainCheckbox.checked = true;
-        
+        // Don't select anything by default - let user choose
         updateMainCheckbox();
         storeCheckboxes.forEach(cb => {
             if (cb.dataset.storeId) {
