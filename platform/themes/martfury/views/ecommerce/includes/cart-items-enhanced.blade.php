@@ -5,38 +5,49 @@
     $instanceToUse = $currentCartInstance ?? 'cart';
     $productsToUse = $currentProducts ?? $products;
     
+    \Log::info('[Cart Items Debug] Instance: ' . $instanceToUse . ', Products count: ' . count($productsToUse));
+    \Log::info('[Cart Items Debug] Product IDs: ' . $productsToUse->pluck('id')->join(', '));
+    
     $groupedProducts = collect();
-    foreach(Cart::instance($instanceToUse)->content() as $key => $cartItem) {
-        $product = $productsToUse->find($cartItem->id);
-        if (!empty($product)) {
-            $storeId = $product->original_product->store_id ?? 0;
-            $storeName = $storeId && $product->original_product->store 
-                ? $product->original_product->store->name 
-                : __('Direct Sale');
-            $storeLogo = $storeId && $product->original_product->store 
-                ? $product->original_product->store->logo_url 
-                : null;
-            $storeUrl = $storeId && $product->original_product->store 
-                ? $product->original_product->store->url 
-                : null;
-            
-            if (!$groupedProducts->has($storeId)) {
-                $groupedProducts->put($storeId, [
-                    'name' => $storeName,
-                    'logo' => $storeLogo,
-                    'url' => $storeUrl,
-                    'badge' => $storeId && $product->original_product->store ? $product->original_product->store->badge : null,
-                    'items' => collect(),
-                ]);
-            }
-            
+    
+    // Group products directly from $productsToUse (already filtered by cart instance)
+    foreach($productsToUse as $product) {
+        $storeId = $product->original_product->store_id ?? 0;
+        $storeName = $storeId && $product->original_product->store 
+            ? $product->original_product->store->name 
+            : __('Direct Sale');
+        $storeLogo = $storeId && $product->original_product->store 
+            ? $product->original_product->store->logo_url 
+            : null;
+        $storeUrl = $storeId && $product->original_product->store 
+            ? $product->original_product->store->url 
+            : null;
+        
+        if (!$groupedProducts->has($storeId)) {
+            $groupedProducts->put($storeId, [
+                'name' => $storeName,
+                'logo' => $storeLogo,
+                'url' => $storeUrl,
+                'badge' => $storeId && $product->original_product->store ? $product->original_product->store->badge : null,
+                'items' => collect(),
+            ]);
+        }
+        
+        // Find the cart item for this product
+        $cartItem = Cart::instance($instanceToUse)->content()->first(function($item) use ($product) {
+            return $item->id == $product->id;
+        });
+        
+        if ($cartItem) {
             $groupedProducts[$storeId]['items']->push([
-                'key' => $key,
+                'key' => $cartItem->rowId,
                 'cartItem' => $cartItem,
                 'product' => $product,
             ]);
         }
     }
+    
+    \Log::info('[Cart Items Debug] Grouped stores count: ' . $groupedProducts->count());
 @endphp
 
 {{-- Render store groups --}}
