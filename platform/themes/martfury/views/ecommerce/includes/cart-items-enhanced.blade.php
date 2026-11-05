@@ -44,19 +44,28 @@
                 <span class="ps-cart-checkmark"></span>
             </label>
             <div class="ps-cart-store-info">
-                @if($storeData['logo'])
-                    <img src="{{ $storeData['logo'] }}" alt="{{ $storeData['name'] }}" class="ps-cart-store-logo">
-                @else
-                    <div class="ps-cart-store-icon">
-                        <i class="icon-store"></i>
+                @if($storeId == 0)
+                    {{-- Direct Sale - Show Povaly logo and text --}}
+                    <div class="ps-cart-povaly-logo">
+                        <img src="{{ theme_option('logo') }}" alt="{{ theme_option('site_title') }}" class="ps-cart-store-logo">
                     </div>
-                @endif
-                @if($storeData['url'])
-                    <a href="{{ $storeData['url'] }}" class="ps-cart-store-name">
-                        {{ $storeData['name'] }} {!! $storeData['badge'] ?? '' !!}
-                    </a>
+                    <span class="ps-cart-store-name">{{ __('Sold and shipped by') }} {{ theme_option('site_title') }}</span>
                 @else
-                    <span class="ps-cart-store-name">{{ $storeData['name'] }}</span>
+                    {{-- Store with logo or icon --}}
+                    @if($storeData['logo'])
+                        <img src="{{ $storeData['logo'] }}" alt="{{ $storeData['name'] }}" class="ps-cart-store-logo">
+                    @else
+                        <div class="ps-cart-store-icon">
+                            <i class="icon-store"></i>
+                        </div>
+                    @endif
+                    @if($storeData['url'])
+                        <a href="{{ $storeData['url'] }}" class="ps-cart-store-name">
+                            {{ $storeData['name'] }} {!! $storeData['badge'] ?? '' !!}
+                        </a>
+                    @else
+                        <span class="ps-cart-store-name">{{ $storeData['name'] }}</span>
+                    @endif
                 @endif
             </div>
         </div>

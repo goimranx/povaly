@@ -45,7 +45,7 @@
 /* Selection Header */
 .ps-cart-selection-header {
     padding: 0 24px;
-    border-bottom: 1px solid var(--global-color-border-strong);
+    border-top: 1px solid var(--global-color-border-strong);
 }
 
 .ps-cart-selection-header-inner {
@@ -191,6 +191,23 @@
     object-fit: cover;
 }
 
+.ps-cart-povaly-logo {
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--global-color-border-strong);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+
 .ps-cart-store-icon {
     width: 20px;
     height: 20px;
@@ -310,6 +327,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    justify-content: flex-end;
 }
 
 .ps-cart-product-remove {
@@ -332,6 +350,11 @@
     
     .product__qty {
         margin: 0;
+    }
+    
+    .qty-input {
+        width: 140px;
+        height: 35px;
     }
 }
 
