@@ -123,6 +123,51 @@ class PublicCartController extends BaseController
         session()->forget('checkout_selected_items');
         session()->forget('checkout_processing_items');
         
+        // RESTORE items from confirm_payment back to main cart when user returns
+        if (Cart::instance('confirm_payment')->isNotEmpty()) {
+            \Log::info('[Cart] Restoring items from confirm_payment to main cart', [
+                'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
+                'main_cart_count_before' => Cart::instance('cart')->count()
+            ]);
+            
+            $confirmPaymentItems = Cart::instance('confirm_payment')->content();
+            
+            foreach ($confirmPaymentItems as $item) {
+                // Check if item already exists in main cart (by product id and options)
+                $existingInMainCart = Cart::instance('cart')->search(function ($cartItem) use ($item) {
+                    return $cartItem->id == $item->id && $cartItem->options == $item->options;
+                })->first();
+                
+                if (!$existingInMainCart) {
+                    // Item not in main cart - add it back
+                    $addedItem = Cart::instance('cart')->add(
+                        $item->id,
+                        $item->name,
+                        $item->qty,
+                        $item->price,
+                        $item->options->toArray()
+                    );
+                    
+                    // Associate model if available
+                    if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
+                        $addedItem->associate($item->associatedModel);
+                    }
+                    
+                    \Log::info('[Cart] Restored item to main cart', [
+                        'product_id' => $item->id,
+                        'qty' => $item->qty
+                    ]);
+                }
+            }
+            
+            // Clear confirm_payment cart after restoration
+            Cart::instance('confirm_payment')->destroy();
+            
+            \Log::info('[Cart] Items restored, confirm_payment cleared', [
+                'main_cart_count_after' => Cart::instance('cart')->count()
+            ]);
+        }
+        
         if ($token = $request->query('token')) {
             try {
                 $abandonedCartService = app(AbandonedCartService::class);
