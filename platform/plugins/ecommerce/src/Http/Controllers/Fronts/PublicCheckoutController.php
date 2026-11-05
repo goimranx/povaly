@@ -1000,6 +1000,14 @@ class PublicCheckoutController extends BaseController
         do_action('ecommerce_post_checkout', $products, $request, $token, $sessionData);
 
         if (is_plugin_active('marketplace')) {
+            \Log::info('[POST Checkout] BEFORE marketplace filter', [
+                'token' => $token,
+                'products_type' => get_class($products),
+                'products_count' => $products instanceof Collection ? $products->count() : count($products),
+                'product_ids' => $products->pluck('id')->toArray() ?? [],
+                'filter_name' => 'HANDLE_PROCESS_POST_CHECKOUT_ORDER_DATA_ECOMMERCE'
+            ]);
+            
             return apply_filters(
                 HANDLE_PROCESS_POST_CHECKOUT_ORDER_DATA_ECOMMERCE,
                 $products,
