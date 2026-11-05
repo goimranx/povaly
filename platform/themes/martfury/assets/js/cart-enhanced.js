@@ -315,7 +315,10 @@
         setupCheckoutButton();
     }
     
-    // Export for external use
-    window.initCartEnhanced = initCart;
+    // Export for external use and reset initialization flag
+    window.initCartEnhanced = function() {
+        initialized = false; // Reset flag so it can reinitialize
+        initCart();
+    };
     
 })();
