@@ -1,37 +1,38 @@
 {{-- Cart Summary --}}
 @php
-    // Use confirm_payment cart instance when in checkout, otherwise use main cart
-    // IMPORTANT: Check if we're in confirm payment tab context
-    $isConfirmPaymentTab = isset($isConfirmPaymentContext) && $isConfirmPaymentContext === true;
-    $cartInstance = $isConfirmPaymentTab ? 'confirm_payment' : 'cart';
+    // Use the cart instance and discount amounts passed from parent context
+    $instanceToUse = $currentCartInstance ?? 'cart';
+    $productsToUse = $currentProducts ?? $products;
+    $promotionToUse = $currentPromotionDiscount ?? $promotionDiscountAmount;
+    $couponToUse = $currentCouponDiscount ?? $couponDiscountAmount;
 @endphp
 <div class="ps-block--shopping-total">
     <div class="ps-block__header">
         <p>
-            {{ __('Subtotal') }} (<span id="cart-summary-item-count" data-total="{{ count($products) }}">{{ count($products) }}</span> {{ __('items') }}): 
-            <span id="cart-summary-subtotal" data-total="{{ Cart::instance($cartInstance)->rawSubTotal() }}">{{ format_price(Cart::instance($cartInstance)->rawSubTotal()) }}</span>
+            {{ __('Subtotal') }} (<span id="cart-summary-item-count" data-total="{{ count($productsToUse) }}">{{ count($productsToUse) }}</span> {{ __('items') }}): 
+            <span id="cart-summary-subtotal" data-total="{{ Cart::instance($instanceToUse)->rawSubTotal() }}">{{ format_price(Cart::instance($instanceToUse)->rawSubTotal()) }}</span>
         </p>
     </div>
     @if (EcommerceHelper::isTaxEnabled())
         <div class="ps-block__header">
-            <p>{{ __('Tax') }}: <span id="cart-summary-tax" data-total="{{ Cart::instance($cartInstance)->rawTax() }}">{{ format_price(Cart::instance($cartInstance)->rawTax()) }}</span></p>
+            <p>{{ __('Tax') }}: <span id="cart-summary-tax" data-total="{{ Cart::instance($instanceToUse)->rawTax() }}">{{ format_price(Cart::instance($instanceToUse)->rawTax()) }}</span></p>
         </div>
     @endif
-    @if ($couponDiscountAmount > 0 && session('applied_coupon_code'))
+    @if ($couponToUse > 0 && session('applied_coupon_code'))
         <div class="ps-block__header">
             <p>{{ __('Coupon code: :code', ['code' => session('applied_coupon_code')]) }} 
                 (<small><a class="btn-remove-coupon-code text-danger" data-url="{{ route('public.coupon.remove') }}" href="javascript:void(0)" data-processing-text="{{ __('Removing...') }}">{{ __('Remove') }}</a></small>):
-                <span> {{ format_price($couponDiscountAmount) }}</span>
+                <span> {{ format_price($couponToUse) }}</span>
             </p>
         </div>
     @endif
-    @if ($promotionDiscountAmount)
+    @if ($promotionToUse)
         <div class="ps-block__header">
-            <p>{{ __('Discount promotion') }}: <span> {{ format_price($promotionDiscountAmount) }}</span></p>
+            <p>{{ __('Discount promotion') }}: <span> {{ format_price($promotionToUse) }}</span></p>
         </div>
     @endif
     <div class="ps-block__content">
-        <h3>{{ __('Total') }}: <span id="cart-summary-total" data-total="{{ Cart::instance($cartInstance)->rawTotal() - $promotionDiscountAmount - $couponDiscountAmount }}">{{ ($promotionDiscountAmount + $couponDiscountAmount) > Cart::instance($cartInstance)->rawTotal() ? format_price(0) : format_price(Cart::instance($cartInstance)->rawTotal() - $promotionDiscountAmount - $couponDiscountAmount) }}</span></h3>
+        <h3>{{ __('Total') }}: <span id="cart-summary-total" data-total="{{ Cart::instance($instanceToUse)->rawTotal() - $promotionToUse - $couponToUse }}">{{ ($promotionToUse + $couponToUse) > Cart::instance($instanceToUse)->rawTotal() ? format_price(0) : format_price(Cart::instance($instanceToUse)->rawTotal() - $promotionToUse - $couponToUse) }}</span></h3>
         <p><small>({{ __('Shipping fees not included') }})</small></p>
     </div>
 </div>

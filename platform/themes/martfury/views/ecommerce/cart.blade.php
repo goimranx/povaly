@@ -40,7 +40,12 @@
                 <div class="ps-cart-tab-content {{ $activeTab === 'shopping' ? 'active' : '' }}" data-tab-content="shopping">
                     @if ($hasMainCartItems)
                         @php
-                            $isConfirmPaymentContext = false; // Flag for includes
+                            // Set context for shopping cart
+                            $currentCartInstance = 'cart';
+                            $currentProducts = $products;
+                            $currentPromotionDiscount = $promotionDiscountAmount;
+                            $currentCouponDiscount = $couponDiscountAmount;
+                            $tabId = 'shopping';
                         @endphp
                         <form class="form--shopping-cart" method="post" action="{{ route('public.cart.update') }}">
                             @csrf
@@ -64,7 +69,7 @@
                                                               data-text-all="{{ __('Select all') }} ({count})"
                                                               data-text-all-selected="{{ __('All selected') }} ({count})"
                                                               data-text-partial="{{ __('Select all') }} ({selected} {{ __('of') }} {total})">
-                                                            {{ __('Select all') }} ({{ count($products) }})
+                                                            {{ __('Select all') }} ({{ count($currentProducts) }})
                                                         </span>
                                                     </label>
                                                 </div>
@@ -110,15 +115,12 @@
                 <div class="ps-cart-tab-content {{ $activeTab === 'confirm-payment' ? 'active' : '' }}" data-tab-content="confirm-payment">
                     @if ($hasConfirmPaymentItems)
                         @php
-                            // Switch context to confirm_payment for rendering
-                            $tempProducts = $products;
-                            $tempPromotionDiscount = $promotionDiscountAmount;
-                            $tempCouponDiscount = $couponDiscountAmount;
-                            
-                            $products = $confirmPaymentProducts;
-                            $promotionDiscountAmount = $confirmPaymentPromotionDiscount ?? 0;
-                            $couponDiscountAmount = $confirmPaymentCouponDiscount ?? 0;
-                            $isConfirmPaymentContext = true; // Flag for includes
+                            // Set context for confirm payment cart
+                            $currentCartInstance = 'confirm_payment';
+                            $currentProducts = $confirmPaymentProducts;
+                            $currentPromotionDiscount = $confirmPaymentPromotionDiscount ?? 0;
+                            $currentCouponDiscount = $confirmPaymentCouponDiscount ?? 0;
+                            $tabId = 'confirm-payment';
                         @endphp
                         
                         <form class="form--shopping-cart form--confirm-payment" method="post" action="{{ route('public.cart.update') }}">
@@ -145,14 +147,6 @@
                                 </div>
                             </div>
                         </form>
-                        
-                        @php
-                            // Restore original variables
-                            $products = $tempProducts;
-                            $promotionDiscountAmount = $tempPromotionDiscount;
-                            $couponDiscountAmount = $tempCouponDiscount;
-                            $isConfirmPaymentContext = false;
-                        @endphp
                     @else
                         <div class="ps-cart-empty-section">
                             <div class="ps-cart-empty">
