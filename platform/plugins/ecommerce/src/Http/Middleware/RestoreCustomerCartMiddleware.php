@@ -33,6 +33,76 @@ class RestoreCustomerCartMiddleware
             } else {
                 $this->handleGuestCart($request, $cart);
             }
+            
+            // RESTORE abandoned checkout items from confirm_payment to main cart
+            // This runs on every page load to ensure flyout/header are always up-to-date
+            $this->restoreAbandonedCheckout($cart);
+            
+        } catch (Throwable) {
+            // Silently ignore during upgrade when customer_id column doesn't exist yet
+        }
+
+        return $next($request);
+    }
+    
+    protected function restoreAbandonedCheckout($cart): void
+    {
+        // Only restore if confirm_payment cart has items (checkout was abandoned)
+        if (Cart::instance('confirm_payment')->isEmpty()) {
+            return;
+        }
+        
+        \Log::info('[Middleware] Restoring abandoned checkout items to main cart', [
+            'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
+            'main_cart_count_before' => $cart->count()
+        ]);
+        
+        $confirmPaymentItems = Cart::instance('confirm_payment')->content();
+        
+        foreach ($confirmPaymentItems as $item) {
+            // Check if item already exists in main cart (by product id and options)
+            $existingInMainCart = $cart->search(function ($cartItem) use ($item) {
+                return $cartItem->id == $item->id && $cartItem->options == $item->options;
+            })->first();
+            
+            if (!$existingInMainCart) {
+                // Item not in main cart - add it back
+                $addedItem = $cart->add(
+                    $item->id,
+                    $item->name,
+                    $item->qty,
+                    $item->price,
+                    $item->options->toArray()
+                );
+                
+                // Associate model if available
+                if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
+                    $addedItem->associate($item->associatedModel);
+                }
+                
+                \Log::info('[Middleware] Restored abandoned item to main cart', [
+                    'product_id' => $item->id,
+                    'qty' => $item->qty
+                ]);
+            }
+        }
+        
+        // Clear confirm_payment cart after restoration
+        Cart::instance('confirm_payment')->destroy();
+        
+        // Persist the main cart
+        if (auth('customer')->check()) {
+            $cart->storeForCustomer(auth('customer')->id());
+        } else {
+            $guestIdentifier = request()->cookie('guest_cart_id');
+            if ($guestIdentifier) {
+                $cart->store($guestIdentifier);
+            }
+        }
+        
+        \Log::info('[Middleware] Abandoned items restored and persisted', [
+            'main_cart_count_after' => $cart->count()
+        ]);
         } catch (Throwable) {
             // Silently ignore during upgrade when customer_id column doesn't exist yet
         }

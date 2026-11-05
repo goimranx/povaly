@@ -123,57 +123,8 @@ class PublicCartController extends BaseController
         session()->forget('checkout_selected_items');
         session()->forget('checkout_processing_items');
         
-        // RESTORE items from confirm_payment back to main cart ONLY if checkout was abandoned
-        // If checkout was completed successfully, confirm_payment will be empty (already destroyed)
-        // So this only runs when user backed out of checkout without completing payment
-        if (Cart::instance('confirm_payment')->isNotEmpty()) {
-            \Log::info('[Cart] Restoring abandoned checkout items to main cart', [
-                'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
-                'main_cart_count_before' => Cart::instance('cart')->count()
-            ]);
-            
-            $confirmPaymentItems = Cart::instance('confirm_payment')->content();
-            
-            foreach ($confirmPaymentItems as $item) {
-                // Check if item already exists in main cart (by product id and options)
-                $existingInMainCart = Cart::instance('cart')->search(function ($cartItem) use ($item) {
-                    return $cartItem->id == $item->id && $cartItem->options == $item->options;
-                })->first();
-                
-                if (!$existingInMainCart) {
-                    // Item not in main cart - add it back
-                    $addedItem = Cart::instance('cart')->add(
-                        $item->id,
-                        $item->name,
-                        $item->qty,
-                        $item->price,
-                        $item->options->toArray()
-                    );
-                    
-                    // Associate model if available
-                    if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
-                        $addedItem->associate($item->associatedModel);
-                    }
-                    
-                    \Log::info('[Cart] Restored abandoned item to main cart', [
-                        'product_id' => $item->id,
-                        'qty' => $item->qty
-                    ]);
-                }
-            }
-            
-            // Clear confirm_payment cart after restoration (user abandoned checkout)
-            Cart::instance('confirm_payment')->destroy();
-            
-            \Log::info('[Cart] Abandoned items restored, confirm_payment cleared', [
-                'main_cart_count_after' => Cart::instance('cart')->count()
-            ]);
-            
-            // Persist the restored cart so it's available everywhere (flyout, header, etc.)
-            $this->persistCart();
-            
-            \Log::info('[Cart] Main cart persisted after restoration');
-        }
+        // Cart restoration from confirm_payment now happens in RestoreCustomerCartMiddleware
+        // This ensures it works globally on every page, not just when visiting /cart
         
         if ($token = $request->query('token')) {
             try {
