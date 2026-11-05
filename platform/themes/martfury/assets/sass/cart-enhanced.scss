@@ -635,6 +635,10 @@
         padding: 10px 0;
     }
     
+    .ps-section--shopping {
+        padding-top: 0 !important;
+    }
+    
     .ps-cart-layout {
         gap: 15px;
     }
@@ -648,11 +652,11 @@
     }
     
     .ps-cart-store-header {
-        padding: 10px 12px;
+        padding: 10px 15px;
     }
     
     .ps-cart-store-products {
-        padding: 12px;
+        padding: 10px 0;
     }
     
     .ps-cart-product-item {
