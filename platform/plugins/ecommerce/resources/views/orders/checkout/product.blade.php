@@ -30,6 +30,7 @@
                 class="ec-checkout-quantity"
                 data-url="{{ route('public.cart.update') }}"
                 data-row-id="{{ $cartItem->rowId }}"
+                data-cart-instance="confirm_payment"
             >
                 <button type="button" class="ec-checkout-quantity-control ec-checkout-quantity-minus" data-bb-toggle="decrease-qty">
                     <x-core::icon name="ti ti-minus" />
@@ -41,6 +42,7 @@
                     min="1"
                     max="{{ $product->with_storehouse_management ? $product->quantity : 1000 }}"
                     data-bb-toggle="update-cart"
+                    data-cart-instance="confirm_payment"
                     readonly
                 />
                 <button type="button" class="ec-checkout-quantity-control ec-checkout-quantity-plus" data-bb-toggle="increase-qty">

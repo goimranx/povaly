@@ -500,6 +500,7 @@ class MainCheckout {
                 const qtyKey = $currentTarget.prop('name')
                 const qtyValue = $currentTarget.val()
                 const rowId = $parent.data('row-id')
+                const cartInstance = $parent.data('cart-instance') || $currentTarget.data('cart-instance') || 'cart'
 
                 $.ajax({
                     type: 'POST',
@@ -508,6 +509,7 @@ class MainCheckout {
                         _token: $('meta[name="csrf-token"]').prop('content'),
                         [qtyKey]: qtyValue,
                         [`items[${rowId}][rowId]`]: rowId,
+                        cart_instance: cartInstance,
                     },
                     success: ({ error, message, data }) => {
                         if (error) {
