@@ -69,10 +69,10 @@ class PublicCartController extends BaseController
         
         // Persist main cart
         if (auth('customer')->check()) {
-            Cart::instance('cart')->storeForCustomer(auth('customer')->id());
+            Cart::instance('cart')->storeForCustomerQuietly(auth('customer')->id());
         } else {
             $identifier = $this->getOrCreateGuestCartIdentifier();
-            Cart::instance('cart')->updateOrStore($identifier);
+            Cart::instance('cart')->updateOrStoreQuietly($identifier);
         }
         
         // Also persist confirm_payment cart if it has items
@@ -87,10 +87,10 @@ class PublicCartController extends BaseController
             ]);
             
             if (auth('customer')->check()) {
-                Cart::instance('confirm_payment')->storeForCustomer(auth('customer')->id());
+                Cart::instance('confirm_payment')->storeForCustomerQuietly(auth('customer')->id());
             } else {
                 $identifier = $this->getOrCreateGuestCartIdentifier();
-                Cart::instance('confirm_payment')->updateOrStore($identifier);
+                Cart::instance('confirm_payment')->updateOrStoreQuietly($identifier);
             }
             
             \Log::info('[Persist Cart] confirm_payment cart persisted');
