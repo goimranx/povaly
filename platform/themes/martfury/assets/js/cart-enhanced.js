@@ -46,6 +46,72 @@
                     .replace('{total}', currentTotal);
                 if (deleteBtn) deleteBtn.disabled = false;
             }
+            
+            // Update cart summary
+            updateCartSummary();
+        }
+        
+        /**
+         * Update cart summary based on selected items
+         */
+        function updateCartSummary() {
+            const checkedItems = document.querySelectorAll('.ps-cart-checkbox-item:checked');
+            const itemCountEl = document.getElementById('cart-summary-item-count');
+            const subtotalEl = document.getElementById('cart-summary-subtotal');
+            
+            if (!itemCountEl || !subtotalEl) return;
+            
+            let selectedSubtotal = 0;
+            
+            // If nothing selected, show all items
+            if (checkedItems.length === 0) {
+                const totalCount = document.querySelectorAll('.ps-cart-checkbox-item').length;
+                itemCountEl.textContent = totalCount;
+                
+                // Use the original total from data attribute
+                const originalTotal = parseFloat(subtotalEl.dataset.total);
+                subtotalEl.textContent = formatPrice(originalTotal);
+            } else {
+                // Calculate subtotal for selected items
+                checkedItems.forEach(checkbox => {
+                    const productItem = checkbox.closest('.ps-cart-product-item');
+                    if (productItem) {
+                        const priceEl = productItem.querySelector('.ps-cart-product-price .product__price span');
+                        const qtyInput = productItem.querySelector('.qty-input');
+                        
+                        if (priceEl && qtyInput) {
+                            // Parse price (remove currency symbol and commas)
+                            const priceText = priceEl.textContent.replace(/[^0-9.]/g, '');
+                            const price = parseFloat(priceText);
+                            const qty = parseInt(qtyInput.value);
+                            
+                            if (!isNaN(price) && !isNaN(qty)) {
+                                selectedSubtotal += price * qty;
+                            }
+                        }
+                    }
+                });
+                
+                itemCountEl.textContent = checkedItems.length;
+                subtotalEl.textContent = formatPrice(selectedSubtotal);
+            }
+        }
+        
+        /**
+         * Format price helper
+         */
+        function formatPrice(amount) {
+            // Get currency symbol from original element
+            const subtotalEl = document.getElementById('cart-summary-subtotal');
+            if (!subtotalEl) return amount.toFixed(2);
+            
+            const originalText = subtotalEl.textContent;
+            const currencyMatch = originalText.match(/[^\d.,\s]+/);
+            const currency = currencyMatch ? currencyMatch[0] : '৳';
+            
+            // Format with commas
+            const formatted = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return currency + formatted;
         }
         
         /**

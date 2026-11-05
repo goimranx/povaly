@@ -27,7 +27,7 @@
 
 .ps-cart-products-card {
     background: var(--global-color-site-bg);
-    border-radius: 8px;
+    border-radius: 2px;
     overflow: hidden;
 }
 
@@ -366,7 +366,7 @@
 
 .ps-cart-summary-card {
     background: var(--global-color-site-bg);
-    border-radius: 8px;
+    border-radius: 2px;
     padding: 24px;
 }
 
@@ -434,6 +434,57 @@
 /* Crosssell Section */
 .ps-cart-crosssell-section {
     margin-top: 40px;
+}
+
+/* Cart Summary Overrides */
+.ps-shopping-cart-enhanced {
+    .ps-block--shopping-total {
+        background: none;
+        padding: 0;
+        border: none;
+        margin-bottom: 0;
+    }
+    
+    .ps-block__header {
+        margin: 0;
+        padding-bottom: 12px;
+        
+        p {
+            margin: 0;
+            color: var(--global-color-text-main);
+            font-weight: 400;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+            span {
+                font-weight: 400;
+            }
+        }
+    }
+    
+    .ps-block__content {
+        padding-top: 12px;
+        border-top: 1px solid var(--global-color-border-strong);
+        
+        h3 {
+            margin: 0;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+            span {
+                font-weight: 500;
+            }
+        }
+        
+        p {
+            margin: 8px 0 0 0;
+            font-size: 13px;
+            color: var(--global-color-text-muted);
+        }
+    }
 }
 
 /* Mobile Responsive */
