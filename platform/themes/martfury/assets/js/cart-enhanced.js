@@ -115,20 +115,16 @@
                 const confirmMessage = deleteBtn.dataset.confirmMessage || 'Are you sure you want to remove the selected items?';
                 
                 if (confirm(confirmMessage)) {
+                    // Get all row IDs
                     const rowIds = Array.from(checkedItems).map(cb => cb.dataset.rowId);
+                    
+                    // Remove items sequentially using the existing cart remove system
                     let currentIndex = 0;
+                    let totalRemoved = 0;
                     
-                    // Show loading state
-                    const cartTable = document.querySelector('.ps-cart-products-card');
-                    if (cartTable) {
-                        cartTable.classList.add('content-loading');
-                    }
-                    
-                    // Remove items one by one sequentially
                     function removeNext() {
                         if (currentIndex >= rowIds.length) {
-                            // All items removed, reload cart
-                            window.location.reload();
+                            // All done - the last item's removal will trigger cart reload
                             return;
                         }
                         
@@ -136,38 +132,21 @@
                         const removeBtn = document.querySelector(`[data-row-id="${rowId}"] .remove-cart-button`);
                         
                         if (removeBtn) {
-                            const url = removeBtn.getAttribute('data-url');
-                            
-                            // Make AJAX call to remove item
-                            fetch(url, {
-                                method: 'GET',
-                                headers: {
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                }
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (!data.error) {
-                                    // Remove the product item from DOM immediately
-                                    const productItem = document.querySelector(`[data-row-id="${rowId}"]`);
-                                    if (productItem) {
-                                        productItem.remove();
-                                    }
-                                    
-                                    // Update mini cart count
-                                    const cartCountElement = document.querySelector('.btn-shopping-cart span i');
-                                    if (cartCountElement && data.data && data.data.count !== undefined) {
-                                        cartCountElement.textContent = data.data.count;
-                                    }
-                                }
+                            // Use jQuery to trigger the existing event handler
+                            if (typeof jQuery !== 'undefined') {
+                                // Trigger jQuery click event - this will use the existing backend.js handler
+                                jQuery(removeBtn).trigger('click');
+                                
+                                // Wait a bit before removing next item to prevent race conditions
+                                setTimeout(() => {
+                                    currentIndex++;
+                                    totalRemoved++;
+                                    removeNext();
+                                }, 500); // Delay between removals
+                            } else {
                                 currentIndex++;
                                 removeNext();
-                            })
-                            .catch(error => {
-                                console.error('Error removing item:', error);
-                                currentIndex++;
-                                removeNext();
-                            });
+                            }
                         } else {
                             currentIndex++;
                             removeNext();
