@@ -55,7 +55,7 @@ class OrderSupportServiceProvider extends ServiceProvider
         $this->app->booted(function (): void {
             add_filter(HANDLE_PROCESS_ORDER_DATA_ECOMMERCE, [$this, 'handleProcessOrder'], 100, 4);
             add_filter(HANDLE_PROCESS_POST_CHECKOUT_ORDER_DATA_ECOMMERCE, [$this, 'processPostCheckoutOrder'], 100, 5);
-            add_filter(PROCESS_GET_CHECKOUT_SUCCESS_IN_ORDER, [$this, 'processGetCheckoutSuccess'], 100, 2);
+            add_filter(PROCESS_GET_CHECKOUT_SUCCESS_IN_ORDER, [$this, 'processGetCheckoutSuccess'], 100);
             add_filter(PROCESS_GET_PAYMENT_STATUS_ORDER, [$this, 'processGetPaymentStatus'], 100, 2);
             add_filter(SEND_MAIL_AFTER_PROCESS_ORDER_MULTI_DATA, [$this, 'sendMailAfterProcessOrder'], 100);
             add_filter(PROCESS_CHECKOUT_ORDER_DATA_ECOMMERCE, [$this, 'processShippingDiscountOrderData'], 100, 4);
@@ -916,8 +916,14 @@ class OrderSupportServiceProvider extends ServiceProvider
         return apply_filters(FILTER_ECOMMERCE_PROCESS_PAYMENT, $paymentData, $request);
     }
 
-    public function processGetCheckoutSuccess(string $token, $httpResponse = null)
+    public function processGetCheckoutSuccess(string $token)
     {
+        \Log::info('[Marketplace Checkout Success] METHOD CALLED - FILTER IS WORKING!', [
+            'token' => $token,
+            'method' => __METHOD__,
+            'class' => __CLASS__
+        ]);
+        
         \Log::info('[Marketplace Checkout Success] START', [
             'token' => $token,
             'url' => request()->url(),
