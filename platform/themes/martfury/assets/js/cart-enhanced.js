@@ -256,62 +256,8 @@
             });
         });
         
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const checked = tabContent.querySelectorAll('.ps-cart-checkbox-item:checked');
-                if (!checked.length || !confirm(this.dataset.confirmMessage || 'Remove selected items?')) return;
-                
-                this.disabled = true;
-                this.textContent = 'Deleting...';
-                
-                // Save state before delete
-                saveActiveTab(tabId);
-                saveCheckboxStates(tabId);
-                
-                const rowIds = Array.from(checked).map(cb => cb.dataset.rowId);
-                const firstItem = checked[0].closest('.ps-cart-product-item');
-                const cartInstance = firstItem?.querySelector('.remove-cart-button')?.dataset.cartInstance || 'cart';
-                
-                console.log('[Cart] Deleting items, saved state for:', tabId);
-                
-                if (typeof jQuery !== 'undefined') {
-                    jQuery.ajax({
-                        url: window.siteUrl + '/ajax/cart/remove-multiple',
-                        method: 'POST',
-                        data: { _token: jQuery('meta[name="csrf-token"]').attr('content'), cart_instance: cartInstance, row_ids: rowIds },
-                        success: res => {
-                            if (res.error) {
-                                Theme.showError(res.message);
-                                this.disabled = false;
-                                this.textContent = 'Delete Selected';
-                            } else {
-                                Theme.showSuccess(res.message || 'Items removed');
-                                // Clear states for removed items
-                                const savedStates = sessionStorage.getItem(STORAGE_KEY_PREFIX + tabId + '_checked');
-                                if (savedStates) {
-                                    try {
-                                        const checkedIds = JSON.parse(savedStates);
-                                        const remainingIds = checkedIds.filter(id => !rowIds.includes(id));
-                                        sessionStorage.setItem(STORAGE_KEY_PREFIX + tabId + '_checked', JSON.stringify(remainingIds));
-                                    } catch (e) {}
-                                }
-                                location.reload();
-                            }
-                        },
-                        error: () => {
-                            Theme.showError('Failed to remove items');
-                            this.disabled = false;
-                            this.textContent = 'Delete Selected';
-                        }
-                    });
-                } else {
-                    location.reload();
-                }
-            });
-        }
+        // Delete button listener is now handled via event delegation (see setupBulkDelete below)
+        // This prevents duplicate event listeners on re-initialization
         
         tabContent.querySelectorAll('.qty-input').forEach(input => {
             // Save checkbox states and active tab before qty update triggers reload
@@ -411,13 +357,99 @@
         });
     }
     
+    /**
+     * Setup bulk delete with event delegation (prevents duplicate listeners)
+     */
+    function setupBulkDelete() {
+        // Single delegated listener for all delete buttons
+        document.body.addEventListener('click', function(e) {
+            const deleteBtn = e.target.closest('#deleteSelectedBtn-shopping, #deleteSelectedBtn-confirm-payment');
+            if (!deleteBtn) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('[Cart] Bulk delete clicked');
+            
+            // Find which tab this button belongs to
+            const tabContent = deleteBtn.closest('.ps-cart-tab-content');
+            if (!tabContent) return;
+            
+            const tabId = tabContent.dataset.tabContent;
+            const checked = tabContent.querySelectorAll('.ps-cart-checkbox-item:checked');
+            
+            if (!checked.length) {
+                alert('Please select items to delete');
+                return;
+            }
+            
+            if (!confirm(deleteBtn.dataset.confirmMessage || 'Remove selected items?')) {
+                return;
+            }
+            
+            deleteBtn.disabled = true;
+            const originalText = deleteBtn.textContent;
+            deleteBtn.textContent = 'Deleting...';
+            
+            // Save state before delete
+            saveActiveTab(tabId);
+            saveCheckboxStates(tabId);
+            
+            const rowIds = Array.from(checked).map(cb => cb.dataset.rowId);
+            const firstItem = checked[0].closest('.ps-cart-product-item');
+            const cartInstance = firstItem?.querySelector('.remove-cart-button')?.dataset.cartInstance || 'cart';
+            
+            console.log('[Cart] Deleting items:', {tabId, cartInstance, count: rowIds.length});
+            
+            if (typeof jQuery !== 'undefined') {
+                jQuery.ajax({
+                    url: window.siteUrl + '/ajax/cart/remove-multiple',
+                    method: 'POST',
+                    data: { 
+                        _token: jQuery('meta[name="csrf-token"]').attr('content'), 
+                        cart_instance: cartInstance, 
+                        row_ids: rowIds 
+                    },
+                    success: res => {
+                        if (res.error) {
+                            Theme.showError(res.message);
+                            deleteBtn.disabled = false;
+                            deleteBtn.textContent = originalText;
+                        } else {
+                            Theme.showSuccess(res.message || 'Items removed');
+                            // Clear states for removed items
+                            const savedStates = sessionStorage.getItem(STORAGE_KEY_PREFIX + tabId + '_checked');
+                            if (savedStates) {
+                                try {
+                                    const checkedIds = JSON.parse(savedStates);
+                                    const remainingIds = checkedIds.filter(id => !rowIds.includes(id));
+                                    sessionStorage.setItem(STORAGE_KEY_PREFIX + tabId + '_checked', JSON.stringify(remainingIds));
+                                } catch (e) {}
+                            }
+                            location.reload();
+                        }
+                    },
+                    error: () => {
+                        Theme.showError('Failed to remove items');
+                        deleteBtn.disabled = false;
+                        deleteBtn.textContent = originalText;
+                    }
+                });
+            } else {
+                location.reload();
+            }
+        });
+    }
+    
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             setupTabs();
+            setupBulkDelete();
             initAll();
         });
     } else {
         setupTabs();
+        setupBulkDelete();
         initAll();
     }
     
