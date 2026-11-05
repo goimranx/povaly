@@ -558,6 +558,17 @@ class PublicCartController extends BaseController
         if ($request->input('checkout')) {
             Cart::instance('cart')->refresh();
 
+            // When using Buy Now/Quick Checkout, mark the newly added items for checkout
+            // This ensures they get moved to confirm_payment cart even if it already has items
+            $newItemRowIds = collect($cartItems)->pluck('rowId')->filter()->toArray();
+            if (!empty($newItemRowIds)) {
+                session(['checkout_selected_items' => $newItemRowIds]);
+                \Log::info('[Buy Now] Set checkout_selected_items', [
+                    'row_ids' => $newItemRowIds,
+                    'product_id' => $product->id
+                ]);
+            }
+
             $responseData['next_url'] = $nextUrl;
 
             $this->applyAutoCouponCode();
