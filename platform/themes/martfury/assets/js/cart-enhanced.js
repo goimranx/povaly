@@ -1,11 +1,44 @@
 /**
  * Shopping Cart Enhanced - Single Cart (No Tabs)
- * Simplified version for cart page without tabs
+ * WITH STATE PERSISTENCE across AJAX reloads
  */
 (function() {
     'use strict';
     
     let initialized = false;
+    const STORAGE_KEY = 'cart_selected_items';
+    
+    /**
+     * Save selected item states to sessionStorage
+     */
+    function saveSelectionState() {
+        const checked = document.querySelectorAll('.ps-cart-checkbox-item:checked');
+        const selectedIds = Array.from(checked).map(cb => cb.dataset.rowId);
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(selectedIds));
+        console.log('[Cart] Saved selection state:', selectedIds);
+    }
+    
+    /**
+     * Restore selected item states from sessionStorage
+     */
+    function restoreSelectionState() {
+        const saved = sessionStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+        
+        try {
+            const selectedIds = JSON.parse(saved);
+            console.log('[Cart] Restoring selection state:', selectedIds);
+            
+            selectedIds.forEach(rowId => {
+                const checkbox = document.querySelector(`.ps-cart-checkbox-item[data-row-id="${rowId}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+        } catch (e) {
+            console.error('[Cart] Failed to restore selection state:', e);
+        }
+    }
     
     /**
      * Initialize the cart functionality
@@ -23,6 +56,9 @@
         initialized = true;
         
         console.log('[Cart] Initializing cart');
+        
+        // Restore selection state FIRST
+        restoreSelectionState();
         
         function updateMainCheckbox() {
             const selected = document.querySelectorAll('.ps-cart-checkbox-item:checked').length;
@@ -113,6 +149,7 @@
                 cb.indeterminate = false;
             });
             updateMainCheckbox();
+            saveSelectionState();
         });
         
         // Store header checkboxes
@@ -124,6 +161,7 @@
                 });
                 this.indeterminate = false;
                 updateMainCheckbox();
+                saveSelectionState();
             });
         });
         
@@ -132,6 +170,19 @@
             cb.addEventListener('change', function() {
                 updateStoreCheckbox(this.dataset.storeId);
                 updateMainCheckbox();
+                saveSelectionState();
+            });
+        });
+        
+        // Save state before qty input changes (before AJAX)
+        document.querySelectorAll('.qty-input').forEach(input => {
+            input.addEventListener('focus', () => {
+                saveSelectionState();
+                console.log('[Cart] Qty input focused, saved state');
+            });
+            input.addEventListener('change', () => {
+                saveSelectionState();
+                console.log('[Cart] Qty changed, saved state');
             });
         });
         
@@ -170,6 +221,16 @@
             const cartInstance = firstItem?.querySelector('.remove-cart-button')?.dataset.cartInstance || 'cart';
             
             console.log('[Cart] Deleting items:', { cartInstance, count: rowIds.length });
+            
+            // Update saved state (remove deleted items)
+            const saved = sessionStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const selectedIds = JSON.parse(saved);
+                    const remaining = selectedIds.filter(id => !rowIds.includes(id));
+                    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+                } catch (e) {}
+            }
             
             if (typeof jQuery !== 'undefined') {
                 jQuery.ajax({
@@ -227,8 +288,15 @@
                         _token: jQuery('meta[name="csrf-token"]').attr('content'),
                         selected_items: Array.from(checkedItems).map(cb => cb.dataset.rowId)
                     },
-                    success: () => window.location.href = checkoutBtn.href,
-                    error: () => window.location.href = checkoutBtn.href
+                    success: () => {
+                        // Clear selection state when going to checkout
+                        sessionStorage.removeItem(STORAGE_KEY);
+                        window.location.href = checkoutBtn.href;
+                    },
+                    error: () => {
+                        sessionStorage.removeItem(STORAGE_KEY);
+                        window.location.href = checkoutBtn.href;
+                    }
                 });
             }
         }, true);
