@@ -116,44 +116,81 @@ class PublicCheckoutController extends BaseController
         // 3. Cart page "Checkout All" → checkout all cart items
         // 4. Any other entry point → checkout all cart items (default)
         //
-        // The session 'checkout_selected_items' is ONLY valid for ONE checkout attempt
-        // After that, it should be cleared to prevent stale selections
+        // IMPORTANT: Once checkout cart is created, we KEEP using it
+        // This allows users to modify quantities during checkout without losing changes
         
-        $selectedRowIds = session('checkout_selected_items');
-        $hasSelection = !empty($selectedRowIds) && is_array($selectedRowIds) && count($selectedRowIds) > 0;
+        // Check if checkout cart already exists and has items
+        $existingCheckoutCart = Cart::instance('checkout')->content();
+        $hasExistingCheckout = $existingCheckoutCart->isNotEmpty();
         
-        \Log::info('Checkout information - determining context', [
-            'has_selection_in_session' => $hasSelection,
-            'selected_count' => $hasSelection ? count($selectedRowIds) : 0,
-            'main_cart_count' => Cart::instance('cart')->count(),
-            'request_referer' => request()->headers->get('referer'),
-            'request_url' => request()->fullUrl()
-        ]);
-        
-        if ($hasSelection) {
-            // User came from cart page with specific items selected
-            // This is a ONE-TIME selection for this checkout
-            \Log::info('Creating checkout cart from selected items (cart page selection)');
+        if ($hasExistingCheckout) {
+            // Checkout cart already exists - use it as-is
+            // This preserves any quantity changes the user made during checkout
+            \Log::info('Using existing checkout cart', [
+                'checkout_cart_count' => Cart::instance('checkout')->count(),
+                'checkout_items' => $existingCheckoutCart->map(fn($item) => [
+                    'id' => $item->id,
+                    'qty' => $item->qty
+                ])->toArray()
+            ]);
             
-            // Clear any existing checkout cart
-            Cart::instance('checkout')->destroy();
+            $products = Cart::instance('checkout')->products();
             
-            // Get selected items from main cart
-            $mainCartContent = Cart::instance('cart')->content();
-            $selectedItems = $mainCartContent->filter(function ($item) use ($selectedRowIds) {
-                return in_array($item->rowId, $selectedRowIds);
-            });
+        } else {
+            // No checkout cart exists yet - create it based on context
+            $selectedRowIds = session('checkout_selected_items');
+            $hasSelection = !empty($selectedRowIds) && is_array($selectedRowIds) && count($selectedRowIds) > 0;
             
-            // Validate that selected items still exist in cart
-            if ($selectedItems->isEmpty()) {
-                \Log::warning('Selected items no longer exist in cart, using all items instead');
-                // Fall back to all items if selection is invalid
-                session()->forget('checkout_selected_items');
-                $selectedRowIds = null;
-                $hasSelection = false;
-            } else {
-                // Copy selected items to checkout cart
-                foreach ($selectedItems as $item) {
+            \Log::info('Creating new checkout cart - determining context', [
+                'has_selection_in_session' => $hasSelection,
+                'selected_count' => $hasSelection ? count($selectedRowIds) : 0,
+                'main_cart_count' => Cart::instance('cart')->count(),
+                'request_referer' => request()->headers->get('referer')
+            ]);
+            
+            if ($hasSelection) {
+                // User came from cart page with specific items selected
+                \Log::info('Creating checkout cart from selected items (cart page selection)');
+                
+                // Get selected items from main cart
+                $mainCartContent = Cart::instance('cart')->content();
+                $selectedItems = $mainCartContent->filter(function ($item) use ($selectedRowIds) {
+                    return in_array($item->rowId, $selectedRowIds);
+                });
+                
+                // Validate that selected items still exist in cart
+                if ($selectedItems->isEmpty()) {
+                    \Log::warning('Selected items no longer exist in cart, using all items instead');
+                    $hasSelection = false;
+                } else {
+                    // Copy selected items to checkout cart
+                    foreach ($selectedItems as $item) {
+                        $cartItem = Cart::instance('checkout')->add(
+                            $item->id,
+                            $item->name,
+                            $item->qty,
+                            $item->price,
+                            $item->options->toArray()
+                        );
+                        
+                        // Associate model if available
+                        if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
+                            $cartItem->associate($item->associatedModel);
+                        }
+                    }
+                    
+                    \Log::info('Checkout cart created with selected items', [
+                        'checkout_cart_count' => Cart::instance('checkout')->count()
+                    ]);
+                }
+            }
+            
+            if (!$hasSelection) {
+                // Default behavior: checkout ALL items from cart
+                \Log::info('Creating checkout cart from ALL cart items (default behavior)');
+                
+                // Copy ALL items from main cart to checkout cart
+                foreach (Cart::instance('cart')->content() as $item) {
                     $cartItem = Cart::instance('checkout')->add(
                         $item->id,
                         $item->name,
@@ -168,68 +205,22 @@ class PublicCheckoutController extends BaseController
                     }
                 }
                 
-                \Log::info('Checkout cart created with selected items', [
-                    'main_cart_count' => Cart::instance('cart')->count(),
+                \Log::info('Checkout cart created with all items', [
                     'checkout_cart_count' => Cart::instance('checkout')->count()
                 ]);
-                
-                // Get products from checkout cart
-                $products = Cart::instance('checkout')->products();
-                
-                \Log::info('Products retrieved from checkout cart', [
-                    'products_count' => $products->count(),
-                    'product_ids' => $products->pluck('id')->toArray(),
-                    'product_names' => $products->pluck('name')->toArray()
-                ]);
-            }
-        }
-        
-        if (!$hasSelection) {
-            // Default behavior: checkout ALL items from cart
-            // This happens when:
-            // - User clicks "Checkout All" from cart
-            // - User uses "Buy Now" from product page
-            // - User accesses checkout from anywhere else
-            // - Selection was invalid/expired
-            \Log::info('Creating checkout cart from ALL cart items (default behavior)');
-            
-            // Clear any existing checkout cart
-            Cart::instance('checkout')->destroy();
-            
-            // Copy ALL items from main cart to checkout cart
-            foreach (Cart::instance('cart')->content() as $item) {
-                $cartItem = Cart::instance('checkout')->add(
-                    $item->id,
-                    $item->name,
-                    $item->qty,
-                    $item->price,
-                    $item->options->toArray()
-                );
-                
-                // Associate model if available
-                if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
-                    $cartItem->associate($item->associatedModel);
-                }
             }
             
-            \Log::info('Checkout cart created with all items', [
-                'main_cart_count' => Cart::instance('cart')->count(),
-                'checkout_cart_count' => Cart::instance('checkout')->count()
-            ]);
-            
-            // Get products from checkout cart
+            // Get products from newly created checkout cart
             $products = Cart::instance('checkout')->products();
             
             \Log::info('Products retrieved from checkout cart', [
                 'products_count' => $products->count(),
-                'product_ids' => $products->pluck('id')->toArray(),
-                'product_names' => $products->pluck('name')->toArray()
+                'product_ids' => $products->pluck('id')->toArray()
             ]);
+            
+            // Clear the selection after using it (one-time use)
+            session()->forget('checkout_selected_items');
         }
-        
-        // IMPORTANT: Clear the selection after using it
-        // This ensures stale selections don't affect future checkouts
-        session()->forget('checkout_selected_items');
         
         // From this point forward, EVERYTHING uses the "checkout" cart instance
         // Main cart remains untouched
