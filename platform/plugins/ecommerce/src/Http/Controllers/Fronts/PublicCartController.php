@@ -140,15 +140,18 @@ class PublicCartController extends BaseController
         
         // Get confirm payment cart data
         if (Cart::instance('confirm_payment')->isNotEmpty()) {
-            // Switch to confirm_payment instance temporarily
-            $originalInstance = Cart::instance()->getInstanceName();
-            Cart::instance('confirm_payment');
+            // Temporarily switch to confirm_payment instance to get its data
+            $tempProducts = $products;
+            $tempPromotion = $promotionDiscountAmount;
+            $tempCoupon = $couponDiscountAmount;
             
-            // Use getCartData to properly load products with all data
-            [$confirmPaymentProducts, $confirmPaymentPromotionDiscount, $confirmPaymentCouponDiscount] = $this->getCartData();
+            // Get confirm payment cart data using the same method as main cart
+            [$confirmPaymentProducts, $confirmPaymentPromotionDiscount, $confirmPaymentCouponDiscount] = $this->getCartData('confirm_payment');
             
-            // Switch back to original instance
-            Cart::instance($originalInstance);
+            // Restore main cart variables (they might have been modified)
+            $products = $tempProducts;
+            $promotionDiscountAmount = $tempPromotion;
+            $couponDiscountAmount = $tempCoupon;
         }
 
         $title = __('Shopping Cart');
@@ -959,55 +962,66 @@ class PublicCartController extends BaseController
             ->setMessage(__('Checkout will proceed with all cart items'));
     }
 
-    protected function getCartData(): array
+    protected function getCartData(string $instance = 'cart'): array
     {
-        if ($this->cachedCartData !== null) {
-            return $this->cachedCartData;
-        }
+        // Don't cache if it's not the default cart instance
+        if ($instance !== 'cart' || $this->cachedCartData === null) {
+            $cartInstance = Cart::instance($instance);
+            $products = $cartInstance->products();
 
-        $cartInstance = $this->getCartInstance();
-        $products = $cartInstance->products();
+            $cartData = [
+                'rawTotal' => $cartInstance->rawTotal(),
+                'cartItems' => $cartInstance->content(),
+                'countCart' => $cartInstance->count(),
+                'productItems' => $products,
+            ];
 
-        $cartData = [
-            'rawTotal' => $cartInstance->rawTotal(),
-            'cartItems' => $cartInstance->content(),
-            'countCart' => $cartInstance->count(),
-            'productItems' => $products,
-        ];
+            $promotionDiscountAmount = $this->applyPromotionsService->execute(null, $cartData);
 
-        $promotionDiscountAmount = $this->applyPromotionsService->execute(null, $cartData);
+            $couponDiscountAmount = 0;
 
-        $couponDiscountAmount = $this->applyAutoCouponCode();
+            // Only apply coupons to main cart
+            if ($instance === 'cart') {
+                $couponDiscountAmount = $this->applyAutoCouponCode();
 
-        $sessionData = OrderHelper::getOrderSessionData();
+                $sessionData = OrderHelper::getOrderSessionData();
 
-        if (session()->has('applied_coupon_code')) {
-            $sessionData['promotion_discount_amount'] = $promotionDiscountAmount;
-            $appliedCouponCode = session('applied_coupon_code');
-            $discount = $this->handleApplyCouponService->getCouponData($appliedCouponCode, $sessionData);
+                if (session()->has('applied_coupon_code')) {
+                    $sessionData['promotion_discount_amount'] = $promotionDiscountAmount;
+                    $appliedCouponCode = session('applied_coupon_code');
+                    $discount = $this->handleApplyCouponService->getCouponData($appliedCouponCode, $sessionData);
 
-            if (! $discount) {
-                // Coupon no longer exists or has expired - drop it.
-                $this->handleRemoveCouponService->execute();
-                $couponDiscountAmount = 0;
-            } elseif ($discount->type_option == DiscountTypeOptionEnum::SHIPPING) {
-                $couponDiscountAmount = (float) Arr::get($sessionData, 'coupon_discount_amount', 0);
-            } else {
-                // Re-apply against the current cart so the discount tracks quantity
-                // changes and its conditions (minimum order, product eligibility, flash
-                // sale) are re-checked; drop it when it no longer qualifies.
-                $couponResult = $this->handleApplyCouponService->execute($appliedCouponCode, $sessionData, $cartData);
+                    if (! $discount) {
+                        // Coupon no longer exists or has expired - drop it.
+                        $this->handleRemoveCouponService->execute();
+                        $couponDiscountAmount = 0;
+                    } elseif ($discount->type_option == DiscountTypeOptionEnum::SHIPPING) {
+                        $couponDiscountAmount = (float) Arr::get($sessionData, 'coupon_discount_amount', 0);
+                    } else {
+                        // Re-apply against the current cart so the discount tracks quantity
+                        // changes and its conditions (minimum order, product eligibility, flash
+                        // sale) are re-checked; drop it when it no longer qualifies.
+                        $couponResult = $this->handleApplyCouponService->execute($appliedCouponCode, $sessionData, $cartData);
 
-                if (Arr::get($couponResult, 'error')) {
-                    $this->handleRemoveCouponService->execute();
-                    $couponDiscountAmount = 0;
-                } else {
-                    $couponDiscountAmount = max((float) Arr::get($couponResult, 'data.discount_amount', 0), 0);
+                        if (Arr::get($couponResult, 'error')) {
+                            $this->handleRemoveCouponService->execute();
+                            $couponDiscountAmount = 0;
+                        } else {
+                            $couponDiscountAmount = max((float) Arr::get($couponResult, 'data.discount_amount', 0), 0);
+                        }
+                    }
                 }
             }
-        }
 
-        $this->cachedCartData = [$products, $promotionDiscountAmount, $couponDiscountAmount];
+            $result = [$products, $promotionDiscountAmount, $couponDiscountAmount];
+            
+            // Only cache main cart data
+            if ($instance === 'cart') {
+                $this->cachedCartData = $result;
+            }
+            
+            return $result;
+        }
 
         return $this->cachedCartData;
     }
