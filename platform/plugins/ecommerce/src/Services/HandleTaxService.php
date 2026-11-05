@@ -38,7 +38,9 @@ class HandleTaxService
         $forceRecalculation = session()->has('checkout_vat_id');
 
         if ($forceRecalculation || $zipCode || ($country || $state || $city)) {
-            $cartItems = Cart::instance('cart')->content();
+            // Use checkout cart during checkout, main cart otherwise
+            $cartInstance = request()->is('checkout*') || request()->is('ajax/checkout*') ? 'checkout' : 'cart';
+            $cartItems = Cart::instance($cartInstance)->content();
 
             foreach ($products as $product) {
                 $cartItem = $cartItems->where('id', $product->getKey())->first();
@@ -50,7 +52,7 @@ class HandleTaxService
                 $taxRate = $this->taxRate($product, $country, $state, $city, $zipCode);
 
                 if ($taxRate != $cartItem->taxRate) {
-                    Cart::instance('cart')->setTax($cartItem->rowId, $taxRate);
+                    Cart::instance($cartInstance)->setTax($cartItem->rowId, $taxRate);
                 }
             }
         }

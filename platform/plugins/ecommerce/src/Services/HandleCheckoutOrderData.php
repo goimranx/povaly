@@ -110,7 +110,7 @@ class HandleCheckoutOrderData
                 $sessionCheckoutData['coupon_discount_amount'] = $couponDiscountAmount;
             }
 
-            $orderTotal = Cart::instance('cart')->rawTotal() - $promotionDiscountAmount - $couponDiscountAmount;
+            $orderTotal = Cart::instance('checkout')->rawTotal() - $promotionDiscountAmount - $couponDiscountAmount;
             $orderTotal = max($orderTotal, 0);
 
             $shipping = [];
@@ -256,7 +256,7 @@ class HandleCheckoutOrderData
             }
         }
 
-        $rawTotal = Cart::instance('cart')->rawTotal();
+        $rawTotal = Cart::instance('checkout')->rawTotal();
         $orderAmount = max($rawTotal - $promotionDiscountAmount - $couponDiscountAmount, 0);
         $orderAmount += (float) $shippingAmount;
 

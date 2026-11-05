@@ -1009,7 +1009,7 @@ class Cart
             return $this->products;
         }
 
-        $cartContent = $this->instance('cart')->content();
+        $cartContent = $this->content();  // Use current instance instead of hardcoded 'cart'
         $productIds = array_unique($cartContent->pluck('id')->toArray());
         $products = collect();
         $weight = 0;
