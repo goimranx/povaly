@@ -117,6 +117,11 @@ class PublicCartController extends BaseController
 
         $products = new Collection();
         $crossSellProducts = new Collection();
+        
+        // Get confirm payment cart products
+        $confirmPaymentProducts = new Collection();
+        $confirmPaymentPromotionDiscount = 0;
+        $confirmPaymentCouponDiscount = 0;
 
         if (Cart::instance('cart')->isNotEmpty()) {
             [$products, $promotionDiscountAmount, $couponDiscountAmount] = $this->getCartData();
@@ -125,6 +130,17 @@ class PublicCartController extends BaseController
                 $products->pluck('original_product.id')->all(),
                 (int) theme_option('number_of_cross_sale_product', 4)
             ) ?: new Collection();
+        }
+        
+        // Get confirm payment cart data
+        if (Cart::instance('confirm_payment')->isNotEmpty()) {
+            $confirmPaymentProducts = Cart::instance('confirm_payment')->products();
+            // Calculate discounts for confirm payment cart
+            $token = OrderHelper::getOrderSessionToken();
+            $confirmPaymentPromotionDiscount = $this->applyPromotionsService->execute($token);
+            $confirmPaymentCouponDiscount = session('applied_coupon_code') 
+                ? (session()->get('applied_coupon_data')['discount_amount'] ?? 0) 
+                : 0;
         }
 
         $title = __('Shopping Cart');
@@ -138,7 +154,15 @@ class PublicCartController extends BaseController
 
         return Theme::scope(
             'ecommerce.cart',
-            compact('promotionDiscountAmount', 'couponDiscountAmount', 'products', 'crossSellProducts'),
+            compact(
+                'promotionDiscountAmount', 
+                'couponDiscountAmount', 
+                'products', 
+                'crossSellProducts',
+                'confirmPaymentProducts',
+                'confirmPaymentPromotionDiscount',
+                'confirmPaymentCouponDiscount'
+            ),
             'plugins/ecommerce::themes.cart'
         )->render();
     }
