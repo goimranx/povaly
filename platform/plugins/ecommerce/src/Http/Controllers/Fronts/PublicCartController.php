@@ -123,9 +123,11 @@ class PublicCartController extends BaseController
         session()->forget('checkout_selected_items');
         session()->forget('checkout_processing_items');
         
-        // RESTORE items from confirm_payment back to main cart when user returns
+        // RESTORE items from confirm_payment back to main cart ONLY if checkout was abandoned
+        // If checkout was completed successfully, confirm_payment will be empty (already destroyed)
+        // So this only runs when user backed out of checkout without completing payment
         if (Cart::instance('confirm_payment')->isNotEmpty()) {
-            \Log::info('[Cart] Restoring items from confirm_payment to main cart', [
+            \Log::info('[Cart] Restoring abandoned checkout items to main cart', [
                 'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
                 'main_cart_count_before' => Cart::instance('cart')->count()
             ]);
@@ -153,17 +155,17 @@ class PublicCartController extends BaseController
                         $addedItem->associate($item->associatedModel);
                     }
                     
-                    \Log::info('[Cart] Restored item to main cart', [
+                    \Log::info('[Cart] Restored abandoned item to main cart', [
                         'product_id' => $item->id,
                         'qty' => $item->qty
                     ]);
                 }
             }
             
-            // Clear confirm_payment cart after restoration
+            // Clear confirm_payment cart after restoration (user abandoned checkout)
             Cart::instance('confirm_payment')->destroy();
             
-            \Log::info('[Cart] Items restored, confirm_payment cleared', [
+            \Log::info('[Cart] Abandoned items restored, confirm_payment cleared', [
                 'main_cart_count_after' => Cart::instance('cart')->count()
             ]);
         }
