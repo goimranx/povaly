@@ -351,6 +351,52 @@
                 }
             });
         }
+        
+        /**
+         * Handle flyout cart checkout - should use ALL items
+         */
+        document.addEventListener('click', function(e) {
+            const flyoutCheckoutBtn = e.target.closest('.ps-btn-flyout-checkout');
+            
+            if (flyoutCheckoutBtn && typeof jQuery !== 'undefined') {
+                e.preventDefault();
+                
+                // Clear selected items session for flyout cart checkout
+                jQuery.ajax({
+                    url: window.siteUrl + '/ajax/cart/clear-selected-items',
+                    method: 'POST',
+                    data: {
+                        _token: jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function() {
+                        window.location.href = flyoutCheckoutBtn.href;
+                    },
+                    error: function() {
+                        // If AJAX fails, proceed anyway
+                        window.location.href = flyoutCheckoutBtn.href;
+                    }
+                });
+            }
+        });
+        
+        /**
+         * Handle Buy Now button - should clear selected items session
+         */
+        document.addEventListener('click', function(e) {
+            const buyNowBtn = e.target.closest('[data-id][data-url][name="checkout"]');
+            
+            if (buyNowBtn && typeof jQuery !== 'undefined') {
+                // Clear selected items session before Buy Now proceeds
+                jQuery.ajax({
+                    url: window.siteUrl + '/ajax/cart/clear-selected-items',
+                    method: 'POST',
+                    data: {
+                        _token: jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    async: false // Make it synchronous so session clears before buy now proceeds
+                });
+            }
+        });
     });
 })();
 

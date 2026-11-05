@@ -839,6 +839,16 @@ class PublicCartController extends BaseController
             ->setMessage(__('Proceeding to checkout with selected items'));
     }
 
+    public function clearSelectedItems(Request $request)
+    {
+        // Clear the selected items session
+        session()->forget('checkout_selected_items');
+
+        return $this
+            ->httpResponse()
+            ->setMessage(__('Checkout will proceed with all cart items'));
+    }
+
     protected function getCartData(): array
     {
         if ($this->cachedCartData !== null) {

@@ -25,6 +25,7 @@ Theme::registerRoutes(function (): void {
         ->name('public.ajax.cart.')
         ->group(function (): void {
             Route::post('store-selected-items', 'storeSelectedItems')->name('store-selected-items');
+            Route::post('clear-selected-items', 'clearSelectedItems')->name('clear-selected-items');
         });
 
     Route::controller(PublicCartController::class)

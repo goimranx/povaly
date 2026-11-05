@@ -78,7 +78,7 @@
             <figure>
                 <a class="ps-btn" href="{{ route('public.cart') }}">{{ __('View Cart') }}</a>
                 @if (session('tracked_start_checkout'))
-                    <a href="{{ route('public.checkout.information', session('tracked_start_checkout')) }}" class="ps-btn">{{ __('Checkout') }}</a>
+                    <a href="{{ route('public.checkout.information', session('tracked_start_checkout')) }}" class="ps-btn ps-btn-flyout-checkout">{{ __('Checkout') }}</a>
                 @endif
             </figure>
         </div>
