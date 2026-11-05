@@ -149,13 +149,18 @@ class PublicCheckoutController extends BaseController
                 Cart::instance('cart')->destroy();
                 
                 foreach ($selectedItems as $item) {
-                    Cart::instance('cart')->add(
+                    $cartItem = Cart::instance('cart')->add(
                         $item->id,
                         $item->name,
                         $item->qty,
                         $item->price,
                         $item->options->toArray()
-                    )->associate($item->associatedModel);
+                    );
+                    
+                    // Only associate if the original item had an associated model
+                    if ($item->associatedModel) {
+                        $cartItem->associate($item->associatedModel);
+                    }
                 }
                 
                 \Log::info('Cart after replacement:', ['count' => Cart::instance('cart')->count()]);
