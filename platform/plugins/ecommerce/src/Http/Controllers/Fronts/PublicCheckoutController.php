@@ -110,10 +110,12 @@ class PublicCheckoutController extends BaseController
          */
         $products = Cart::instance('cart')->products();
         
-        // Filter products based on selected items if coming from enhanced cart
+        // ONLY filter if coming from cart page with selected items
+        // Otherwise work normally with all cart items
         $selectedRowIds = session('checkout_selected_items');
         
         if (!empty($selectedRowIds) && is_array($selectedRowIds)) {
+            // User selected specific items from cart page - filter to only those
             $cartContent = Cart::instance('cart')->content();
             
             // Get selected items data
@@ -128,10 +130,10 @@ class PublicCheckoutController extends BaseController
                     return in_array($product->id, $selectedProductIds);
                 });
                 
-                // Store original cart content
+                // Store original cart content to restore later
                 $originalCartContent = $cartContent->all();
                 
-                // Temporarily replace cart content with only selected items
+                // Temporarily replace cart with only selected items
                 Cart::instance('cart')->destroy();
                 
                 foreach ($selectedItems as $item) {
@@ -144,10 +146,14 @@ class PublicCheckoutController extends BaseController
                     )->associate($item->model);
                 }
                 
-                // Store original cart in session to restore later
+                // Mark that cart was modified for selected items checkout
                 session(['checkout_original_cart' => $originalCartContent]);
+                
+                // Prevent middleware from restoring full cart
+                session(['cart_last_restored_at' => now()->toIso8601String()]);
             }
         }
+        // If no selected items session, proceed with all items (normal flow)
         
         if ($products->isEmpty()) {
             return $this

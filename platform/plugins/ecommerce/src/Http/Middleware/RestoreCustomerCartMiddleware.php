@@ -20,6 +20,11 @@ class RestoreCustomerCartMiddleware
         try {
             $cart = Cart::instance('cart');
 
+            // Skip restoration if we're in checkout with selected items (cart was already filtered)
+            if (session()->has('checkout_original_cart')) {
+                return $next($request);
+            }
+
             if (auth('customer')->check()) {
                 $this->handleCustomerCart($cart);
             } else {
