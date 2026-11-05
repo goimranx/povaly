@@ -13,6 +13,7 @@ Theme::registerRoutes(function (): void {
         ->name('public.')
         ->group(function (): void {
             Route::get('/', 'index')->name('cart');
+            Route::post('/', 'index')->name('cart.save-tab'); // Save active tab to session
             Route::get('add/{product}', 'addByUrl')->name('cart.add-by-url');
             Route::post('add-to-cart', 'store')->name('cart.add-to-cart');
             Route::post('update', 'update')->name('cart.update');
