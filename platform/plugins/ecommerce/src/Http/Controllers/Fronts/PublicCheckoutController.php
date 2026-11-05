@@ -108,13 +108,32 @@ class PublicCheckoutController extends BaseController
         /**
          * @var Collection $products
          */
-        // PROFESSIONAL APPROACH: Use separate "checkout" cart instance
-        // This is the standard way big e-commerce sites handle checkout
+        // PROFESSIONAL APPROACH: Determine checkout context based on HOW user arrived
+        // 
+        // Standard e-commerce checkout flow:
+        // 1. Cart page with selection → checkout selected items ONLY
+        // 2. Direct "Buy Now" from product → checkout that product ONLY
+        // 3. Cart page "Checkout All" → checkout all cart items
+        // 4. Any other entry point → checkout all cart items (default)
+        //
+        // The session 'checkout_selected_items' is ONLY valid for ONE checkout attempt
+        // After that, it should be cleared to prevent stale selections
         
         $selectedRowIds = session('checkout_selected_items');
+        $hasSelection = !empty($selectedRowIds) && is_array($selectedRowIds) && count($selectedRowIds) > 0;
         
-        if (!empty($selectedRowIds) && is_array($selectedRowIds)) {
-            \Log::info('Creating checkout cart from selected items');
+        \Log::info('Checkout information - determining context', [
+            'has_selection_in_session' => $hasSelection,
+            'selected_count' => $hasSelection ? count($selectedRowIds) : 0,
+            'main_cart_count' => Cart::instance('cart')->count(),
+            'request_referer' => request()->headers->get('referer'),
+            'request_url' => request()->fullUrl()
+        ]);
+        
+        if ($hasSelection) {
+            // User came from cart page with specific items selected
+            // This is a ONE-TIME selection for this checkout
+            \Log::info('Creating checkout cart from selected items (cart page selection)');
             
             // Clear any existing checkout cart
             Cart::instance('checkout')->destroy();
@@ -125,38 +144,54 @@ class PublicCheckoutController extends BaseController
                 return in_array($item->rowId, $selectedRowIds);
             });
             
-            // Copy selected items to checkout cart
-            foreach ($selectedItems as $item) {
-                $cartItem = Cart::instance('checkout')->add(
-                    $item->id,
-                    $item->name,
-                    $item->qty,
-                    $item->price,
-                    $item->options->toArray()
-                );
-                
-                // Associate model if available (associatedModel is the class name string)
-                if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
-                    $cartItem->associate($item->associatedModel);
+            // Validate that selected items still exist in cart
+            if ($selectedItems->isEmpty()) {
+                \Log::warning('Selected items no longer exist in cart, using all items instead');
+                // Fall back to all items if selection is invalid
+                session()->forget('checkout_selected_items');
+                $selectedRowIds = null;
+                $hasSelection = false;
+            } else {
+                // Copy selected items to checkout cart
+                foreach ($selectedItems as $item) {
+                    $cartItem = Cart::instance('checkout')->add(
+                        $item->id,
+                        $item->name,
+                        $item->qty,
+                        $item->price,
+                        $item->options->toArray()
+                    );
+                    
+                    // Associate model if available
+                    if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
+                        $cartItem->associate($item->associatedModel);
+                    }
                 }
+                
+                \Log::info('Checkout cart created with selected items', [
+                    'main_cart_count' => Cart::instance('cart')->count(),
+                    'checkout_cart_count' => Cart::instance('checkout')->count()
+                ]);
+                
+                // Get products from checkout cart
+                $products = Cart::instance('checkout')->products();
+                
+                \Log::info('Products retrieved from checkout cart', [
+                    'products_count' => $products->count(),
+                    'product_ids' => $products->pluck('id')->toArray(),
+                    'product_names' => $products->pluck('name')->toArray()
+                ]);
             }
-            
-            \Log::info('Checkout cart created with selected items', [
-                'main_cart_count' => Cart::instance('cart')->count(),
-                'checkout_cart_count' => Cart::instance('checkout')->count()
-            ]);
-            
-            // Get products from checkout cart
-            $products = Cart::instance('checkout')->products();
-            
-            \Log::info('Products retrieved from checkout cart', [
-                'products_count' => $products->count(),
-                'product_ids' => $products->pluck('id')->toArray(),
-                'product_names' => $products->pluck('name')->toArray()
-            ]);
-            
-        } else {
-            \Log::info('Creating checkout cart from all items');
+        }
+        
+        if (!$hasSelection) {
+            // Default behavior: checkout ALL items from cart
+            // This happens when:
+            // - User clicks "Checkout All" from cart
+            // - User uses "Buy Now" from product page
+            // - User accesses checkout from anywhere else
+            // - Selection was invalid/expired
+            \Log::info('Creating checkout cart from ALL cart items (default behavior)');
             
             // Clear any existing checkout cart
             Cart::instance('checkout')->destroy();
@@ -171,7 +206,7 @@ class PublicCheckoutController extends BaseController
                     $item->options->toArray()
                 );
                 
-                // Associate model if available (associatedModel is the class name string)
+                // Associate model if available
                 if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
                     $cartItem->associate($item->associatedModel);
                 }
@@ -191,6 +226,10 @@ class PublicCheckoutController extends BaseController
                 'product_names' => $products->pluck('name')->toArray()
             ]);
         }
+        
+        // IMPORTANT: Clear the selection after using it
+        // This ensures stale selections don't affect future checkouts
+        session()->forget('checkout_selected_items');
         
         // From this point forward, EVERYTHING uses the "checkout" cart instance
         // Main cart remains untouched
