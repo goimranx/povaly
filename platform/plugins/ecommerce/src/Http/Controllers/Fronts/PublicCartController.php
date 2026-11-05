@@ -62,9 +62,19 @@ class PublicCartController extends BaseController
     {
         if (auth('customer')->check()) {
             Cart::instance('cart')->storeForCustomerQuietly(auth('customer')->id());
+            
+            // Also persist checkout cart if it exists
+            if (Cart::instance('checkout')->count() > 0) {
+                Cart::instance('checkout')->storeForCustomerQuietly(auth('customer')->id());
+            }
         } else {
             $identifier = $this->getOrCreateGuestCartIdentifier();
             Cart::instance('cart')->updateOrStoreQuietly($identifier);
+            
+            // Also persist checkout cart if it exists
+            if (Cart::instance('checkout')->count() > 0) {
+                Cart::instance('checkout')->updateOrStoreQuietly($identifier);
+            }
         }
     }
 
@@ -595,6 +605,18 @@ class PublicCartController extends BaseController
                         'row_id' => $item['rowId'],
                         'new_qty' => Arr::get($item, 'values.qty')
                     ]);
+                    
+                    // If updating checkout cart, also sync the main cart with the same quantity
+                    if ($isCheckoutMode) {
+                        $mainCartItem = Cart::instance('cart')->get($item['rowId']);
+                        if ($mainCartItem) {
+                            Cart::instance('cart')->update($item['rowId'], Arr::get($item, 'values'));
+                            \Log::info('Synced quantity to main cart', [
+                                'row_id' => $item['rowId'],
+                                'new_qty' => Arr::get($item, 'values.qty')
+                            ]);
+                        }
+                    }
                 }
 
                 $product->quantity = $originalQuantity;
