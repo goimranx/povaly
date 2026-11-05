@@ -260,6 +260,15 @@ class Cart
     public function update(string $rowId, int|Buyable|array $qty): bool|CartItem|null
     {
         $cartItem = $this->get($rowId);
+        
+        \Log::info('[Cart::update] Method called', [
+            'instance' => $this->instance,
+            'rowId' => $rowId,
+            'qty_param' => $qty,
+            'qty_param_type' => gettype($qty),
+            'cartItem_found' => $cartItem !== null,
+            'cartItem_current_qty' => $cartItem ? $cartItem->qty : null,
+        ]);
 
         if (! $cartItem) {
             return null;
@@ -268,7 +277,15 @@ class Cart
         if ($qty instanceof Buyable) {
             $cartItem->updateFromBuyable($qty);
         } elseif (is_array($qty)) {
+            \Log::info('[Cart::update] Calling updateFromArray', [
+                'instance' => $this->instance,
+                'qty_array' => $qty,
+            ]);
             $cartItem->updateFromArray($qty);
+            \Log::info('[Cart::update] After updateFromArray', [
+                'instance' => $this->instance,
+                'cartItem_qty' => $cartItem->qty,
+            ]);
         } else {
             $cartItem->qty = $qty;
         }
@@ -295,8 +312,18 @@ class Cart
         $cartItem->updated_at = Carbon::now();
 
         static::dispatchEvent('cart.updated', $cartItem);
+        
+        \Log::info('[Cart::update] Before putToSession', [
+            'instance' => $this->instance,
+            'cartItem_qty' => $cartItem->qty,
+        ]);
 
         $this->putToSession($content);
+        
+        \Log::info('[Cart::update] After putToSession', [
+            'instance' => $this->instance,
+            'session_value' => $this->session->get($this->instance),
+        ]);
 
         $this->products = null;
 
