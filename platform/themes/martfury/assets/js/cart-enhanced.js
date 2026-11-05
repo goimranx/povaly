@@ -23,13 +23,21 @@
         const tabContent = document.querySelector(`[data-tab-content="${tabId}"]`);
         if (!tabContent) return;
         
+        // Save item checkboxes
         const checkedItems = [];
         tabContent.querySelectorAll('.ps-cart-checkbox-item:checked').forEach(cb => {
             checkedItems.push(cb.dataset.rowId);
         });
         
+        // Save store header checkboxes
+        const checkedStores = [];
+        tabContent.querySelectorAll('.ps-cart-checkbox-store:checked').forEach(cb => {
+            checkedStores.push(cb.dataset.storeId);
+        });
+        
         sessionStorage.setItem(STORAGE_KEY_PREFIX + tabId + '_checked', JSON.stringify(checkedItems));
-        console.log('[Cart State] Saved checkbox states for', tabId, checkedItems);
+        sessionStorage.setItem(STORAGE_KEY_PREFIX + tabId + '_checked_stores', JSON.stringify(checkedStores));
+        console.log('[Cart State] Saved checkbox states for', tabId, {items: checkedItems, stores: checkedStores});
     }
     
     /**
@@ -39,19 +47,38 @@
         const tabContent = document.querySelector(`[data-tab-content="${tabId}"]`);
         if (!tabContent) return;
         
-        const savedStates = sessionStorage.getItem(STORAGE_KEY_PREFIX + tabId + '_checked');
-        if (!savedStates) return;
+        const savedItems = sessionStorage.getItem(STORAGE_KEY_PREFIX + tabId + '_checked');
+        const savedStores = sessionStorage.getItem(STORAGE_KEY_PREFIX + tabId + '_checked_stores');
+        
+        if (!savedItems && !savedStores) return;
         
         try {
-            const checkedIds = JSON.parse(savedStates);
-            console.log('[Cart State] Restoring checkbox states for', tabId, checkedIds);
+            // Restore item checkboxes
+            if (savedItems) {
+                const checkedIds = JSON.parse(savedItems);
+                console.log('[Cart State] Restoring item checkboxes for', tabId, checkedIds);
+                
+                checkedIds.forEach(rowId => {
+                    const checkbox = tabContent.querySelector(`.ps-cart-checkbox-item[data-row-id="${rowId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+            }
             
-            checkedIds.forEach(rowId => {
-                const checkbox = tabContent.querySelector(`.ps-cart-checkbox-item[data-row-id="${rowId}"]`);
-                if (checkbox) {
-                    checkbox.checked = true;
-                }
-            });
+            // Restore store header checkboxes
+            if (savedStores) {
+                const checkedStoreIds = JSON.parse(savedStores);
+                console.log('[Cart State] Restoring store checkboxes for', tabId, checkedStoreIds);
+                
+                checkedStoreIds.forEach(storeId => {
+                    const checkbox = tabContent.querySelector(`.ps-cart-checkbox-store[data-store-id="${storeId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        checkbox.indeterminate = false;
+                    }
+                });
+            }
         } catch (e) {
             console.error('[Cart State] Failed to restore checkbox states:', e);
         }
@@ -205,6 +232,8 @@
                 cb.indeterminate = false;
             });
             updateMainCheckbox();
+            // Save state when select-all changes
+            saveCheckboxStates(tabId);
         });
         
         tabContent.querySelectorAll('.ps-cart-checkbox-store').forEach(storeCb => {
@@ -213,6 +242,8 @@
                 tabContent.querySelectorAll(`.ps-cart-checkbox-item[data-store-id="${storeId}"]`).forEach(cb => cb.checked = this.checked);
                 this.indeterminate = false;
                 updateMainCheckbox();
+                // Save state when store checkbox changes
+                saveCheckboxStates(tabId);
             });
         });
         
@@ -311,7 +342,12 @@
                 updateMainCheckbox();
             }, 100);
         } else {
+            // Update main checkbox and store checkboxes based on current state
             updateMainCheckbox();
+            // Update each store's checkbox state
+            const storeIds = new Set();
+            itemCheckboxes.forEach(cb => storeIds.add(cb.dataset.storeId));
+            storeIds.forEach(storeId => updateStoreCheckbox(storeId));
         }
     }
     
