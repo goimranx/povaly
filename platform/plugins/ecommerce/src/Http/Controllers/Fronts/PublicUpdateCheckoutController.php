@@ -32,7 +32,22 @@ class PublicUpdateCheckoutController extends BaseController
         /**
          * @var Collection $products
          */
-        $products = Cart::instance('cart')->products();
+        // Check if we're in a checkout with selected items
+        $hasSelectedItems = session()->has('selected_cart_items');
+        
+        if ($hasSelectedItems) {
+            // Use checkout cart instance when items were selected
+            $products = Cart::instance('checkout')->products();
+            \Log::info('AJAX Update: Using checkout cart instance', [
+                'products_count' => $products->count()
+            ]);
+        } else {
+            // Use main cart when all items are being checked out
+            $products = Cart::instance('cart')->products();
+            \Log::info('AJAX Update: Using main cart instance', [
+                'products_count' => $products->count()
+            ]);
+        }
 
         $checkoutOrderData = $handleCheckoutOrderData->execute(
             $request,
