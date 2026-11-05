@@ -546,10 +546,21 @@ class PublicCartController extends BaseController
         }
 
         $data = $request->input('items', []);
+        
+        // Determine which cart instance to update based on context
+        // If checkout cart exists and has items, we're in checkout mode
+        $isCheckoutMode = Cart::instance('checkout')->count() > 0;
+        $cartInstance = $isCheckoutMode ? 'checkout' : 'cart';
+        
+        \Log::info('Cart update request', [
+            'is_checkout_mode' => $isCheckoutMode,
+            'cart_instance' => $cartInstance,
+            'items_to_update' => count($data)
+        ]);
 
         $outOfQuantity = false;
         foreach ($data as $item) {
-            $cartItem = Cart::instance('cart')->get($item['rowId']);
+            $cartItem = Cart::instance($cartInstance)->get($item['rowId']);
 
             if (! $cartItem) {
                 continue;
@@ -577,7 +588,13 @@ class PublicCartController extends BaseController
                 if ($product->isOutOfStock()) {
                     $outOfQuantity = true;
                 } else {
-                    Cart::instance('cart')->update($item['rowId'], Arr::get($item, 'values'));
+                    Cart::instance($cartInstance)->update($item['rowId'], Arr::get($item, 'values'));
+                    
+                    \Log::info('Updated cart item', [
+                        'cart_instance' => $cartInstance,
+                        'row_id' => $item['rowId'],
+                        'new_qty' => Arr::get($item, 'values.qty')
+                    ]);
                 }
 
                 $product->quantity = $originalQuantity;
@@ -588,7 +605,7 @@ class PublicCartController extends BaseController
             return $this
                 ->httpResponse()
                 ->setError()
-                ->setData($this->getDataForResponse())
+                ->setData($this->getDataForResponse($isCheckoutMode))
                 ->setMessage(trans('plugins/ecommerce::products.cart.not_enough_quantity'));
         }
 
@@ -596,7 +613,7 @@ class PublicCartController extends BaseController
 
         return $this
             ->httpResponse()
-            ->setData($this->getDataForResponse())
+            ->setData($this->getDataForResponse($isCheckoutMode))
             ->setMessage(trans('plugins/ecommerce::products.cart.updated_cart_success'));
     }
 
@@ -927,11 +944,16 @@ class PublicCartController extends BaseController
         return $this->cachedCartData;
     }
 
-    protected function getDataForResponse(): array
+    protected function getDataForResponse(bool $useCheckoutCart = false): array
     {
         $cartContent = null;
 
-        $cartInstance = $this->getCartInstance();
+        // Use checkout cart if requested and it has items
+        if ($useCheckoutCart && Cart::instance('checkout')->count() > 0) {
+            $cartInstance = Cart::instance('checkout');
+        } else {
+            $cartInstance = $this->getCartInstance();
+        }
 
         $cartData = $this->getCartData();
 

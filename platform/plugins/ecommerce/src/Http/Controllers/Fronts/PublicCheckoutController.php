@@ -119,12 +119,16 @@ class PublicCheckoutController extends BaseController
         // IMPORTANT: Once checkout cart is created, we KEEP using it
         // This allows users to modify quantities during checkout without losing changes
         
-        // Check if checkout cart already exists and has items
+        // Check if user has made a new selection (from cart page)
+        $selectedRowIds = session('checkout_selected_items');
+        $hasNewSelection = !empty($selectedRowIds) && is_array($selectedRowIds) && count($selectedRowIds) > 0;
+        
+        // Check if checkout cart already exists
         $existingCheckoutCart = Cart::instance('checkout')->content();
         $hasExistingCheckout = $existingCheckoutCart->isNotEmpty();
         
-        if ($hasExistingCheckout) {
-            // Checkout cart already exists - use it as-is
+        if ($hasExistingCheckout && !$hasNewSelection) {
+            // Checkout cart already exists AND no new selection - use it as-is
             // This preserves any quantity changes the user made during checkout
             \Log::info('Using existing checkout cart', [
                 'checkout_cart_count' => Cart::instance('checkout')->count(),
@@ -137,9 +141,16 @@ class PublicCheckoutController extends BaseController
             $products = Cart::instance('checkout')->products();
             
         } else {
-            // No checkout cart exists yet - create it based on context
-            $selectedRowIds = session('checkout_selected_items');
-            $hasSelection = !empty($selectedRowIds) && is_array($selectedRowIds) && count($selectedRowIds) > 0;
+            // Either no checkout cart exists, OR user made a new selection
+            // In both cases, we need to (re)create the checkout cart
+            
+            if ($hasExistingCheckout) {
+                // Clear existing checkout cart before creating new one
+                \Log::info('Clearing existing checkout cart due to new selection');
+                Cart::instance('checkout')->destroy();
+            }
+            
+            $hasSelection = $hasNewSelection;
             
             \Log::info('Creating new checkout cart - determining context', [
                 'has_selection_in_session' => $hasSelection,
