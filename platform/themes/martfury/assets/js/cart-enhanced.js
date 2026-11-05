@@ -385,24 +385,29 @@
     }
     
     function setupTabs() {
-        document.querySelectorAll('.ps-cart-tab-button').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const tab = this.dataset.tab;
-                console.log('[Cart] Tab clicked:', tab);
-                
-                // Save active tab
-                saveActiveTab(tab);
-                
-                // Apply to UI
-                applyActiveTab(tab);
-                
-                // Reinitialize (will restore checkbox states)
-                setTimeout(() => {
-                    if (typeof window.initCartEnhanced === 'function') {
-                        window.initCartEnhanced();
-                    }
-                }, 100);
-            });
+        // Use event delegation so tab switching works even after .load() replaces buttons
+        document.body.addEventListener('click', function(e) {
+            const btn = e.target.closest('.ps-cart-tab-button');
+            if (!btn) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const tab = btn.dataset.tab;
+            console.log('[Cart] Tab clicked:', tab);
+            
+            // Save active tab
+            saveActiveTab(tab);
+            
+            // Apply to UI
+            applyActiveTab(tab);
+            
+            // Reinitialize (will restore checkbox states)
+            setTimeout(() => {
+                if (typeof window.initCartEnhanced === 'function') {
+                    window.initCartEnhanced();
+                }
+            }, 100);
         });
     }
     
