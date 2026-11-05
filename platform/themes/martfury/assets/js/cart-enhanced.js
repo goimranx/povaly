@@ -55,6 +55,7 @@
         
         function updateSummary() {
             const checked = tabContent.querySelectorAll('.ps-cart-checkbox-item:checked');
+            // Scope all queries to THIS tab's content only
             const itemCountEl = tabContent.querySelector('#cart-summary-item-count');
             const subtotalEl = tabContent.querySelector('#cart-summary-subtotal');
             const taxEl = tabContent.querySelector('#cart-summary-tax');
@@ -178,7 +179,10 @@
         }
         
         tabContent.querySelectorAll('.qty-input').forEach(input => {
-            input.addEventListener('change', () => sessionStorage.setItem('cart_keep_tab', tabId));
+            input.addEventListener('change', () => {
+                console.log('[Cart] Saving tab:', tabId);
+                sessionStorage.setItem('cart_keep_tab', tabId);
+            });
         });
         
         // Initial state
@@ -197,18 +201,26 @@
     }
     
     function initAll() {
+        console.log('[Cart] Initializing both carts');
         cartStates.shopping.initialized = false;
         cartStates['confirm-payment'].initialized = false;
         
         initCartTab('shopping');
         initCartTab('confirm-payment');
         
-        // Restore active tab
+        // Restore active tab after reload
         const keepTab = sessionStorage.getItem('cart_keep_tab');
+        console.log('[Cart] Restore tab from storage:', keepTab);
         if (keepTab) {
-            const btn = document.querySelector(`[data-tab="${keepTab}"]`);
-            if (btn && !btn.classList.contains('active')) btn.click();
-            sessionStorage.removeItem('cart_keep_tab');
+            setTimeout(() => {
+                const btn = document.querySelector(`[data-tab="${keepTab}"]`);
+                console.log('[Cart] Found tab button:', btn);
+                if (btn && !btn.classList.contains('active')) {
+                    console.log('[Cart] Clicking tab button for:', keepTab);
+                    btn.click();
+                }
+                sessionStorage.removeItem('cart_keep_tab');
+            }, 100);
         }
     }
     
