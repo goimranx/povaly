@@ -33,11 +33,90 @@ class RestoreCustomerCartMiddleware
             } else {
                 $this->handleGuestCart($request, $cart);
             }
+            
+            // RESTORE abandoned checkout items when user LEAVES checkout
+            // Check if user WAS in checkout (session flag) but is NOT on checkout page now
+            $isCheckoutPage = $request->is('checkout/*') || $request->is('*/checkout/*');
+            $wasInCheckout = session()->has('user_in_checkout');
+            
+            if ($wasInCheckout && !$isCheckoutPage) {
+                // User has left checkout - restore items from confirm_payment to main cart
+                $this->restoreAbandonedCheckout($cart, $request);
+                // Clear the flag so restoration only happens once
+                session()->forget('user_in_checkout');
+            }
+            
         } catch (Throwable) {
             // Silently ignore during upgrade when customer_id column doesn't exist yet
         }
 
         return $next($request);
+    }
+    
+    protected function restoreAbandonedCheckout($cart, $request): void
+    {
+        // Only restore if confirm_payment cart has items (checkout was abandoned)
+        if (Cart::instance('confirm_payment')->isEmpty()) {
+            return;
+        }
+        
+        \Log::info('[Middleware] Restoring abandoned checkout items to main cart', [
+            'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
+            'main_cart_count_before' => $cart->count()
+        ]);
+        
+        $confirmPaymentItems = Cart::instance('confirm_payment')->content();
+        
+        foreach ($confirmPaymentItems as $item) {
+            // Check if item already exists in main cart
+            $existingInMainCart = $cart->search(function ($cartItem) use ($item) {
+                return $cartItem->id == $item->id && $cartItem->options == $item->options;
+            })->first();
+            
+            if (!$existingInMainCart) {
+                // Item not in main cart - add it back
+                $addedItem = $cart->add(
+                    $item->id,
+                    $item->name,
+                    $item->qty,
+                    $item->price,
+                    $item->options->toArray()
+                );
+                
+                // Associate model if available
+                if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
+                    $addedItem->associate($item->associatedModel);
+                }
+                
+                \Log::info('[Middleware] Restored abandoned item to main cart', [
+                    'product_id' => $item->id,
+                    'qty' => $item->qty
+                ]);
+            }
+        }
+        
+        // Clear confirm_payment cart after restoration
+        Cart::instance('confirm_payment')->destroy();
+        
+        // Persist the main cart
+        if (auth('customer')->check()) {
+            $cart->storeForCustomer(auth('customer')->id());
+        } else {
+            $guestIdentifier = $request->cookie('guest_cart_id');
+            if ($guestIdentifier) {
+                $cart->store($guestIdentifier);
+            }
+        }
+        
+        // Update cart timestamp to force global refresh
+        $cart->setLastUpdatedAt(now());
+        
+        // Clear middleware cache to ensure fresh data
+        session()->forget('cart_last_restored_at');
+        
+        \Log::info('[Middleware] Abandoned items restored and persisted', [
+            'main_cart_count_after' => $cart->count()
+        ]);
     }
 
     protected function handleCustomerCart($cart): void

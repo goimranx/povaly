@@ -75,6 +75,9 @@ class PublicCheckoutController extends BaseController
                 ->httpResponse()
                 ->setNextUrl(route('customer.login') . '?redirect=' . urlencode($request->fullUrl()));
         }
+        
+        // Mark that user is currently in checkout (for cart restoration tracking)
+        session(['user_in_checkout' => true]);
 
         if ($token !== session('tracked_start_checkout')) {
             $order = Order::query()->where(['token' => $token, 'is_finished' => false])->first();

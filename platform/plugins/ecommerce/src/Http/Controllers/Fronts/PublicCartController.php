@@ -172,7 +172,14 @@ class PublicCartController extends BaseController
             // Persist the restored cart so it's available everywhere (flyout, header, etc.)
             $this->persistCart();
             
-            \Log::info('[Cart] Main cart persisted after restoration');
+            // Force session update by touching the cart instance
+            // This ensures the flyout/header will see the updated count immediately
+            Cart::instance('cart')->setLastUpdatedAt(now());
+            
+            // Clear the middleware's restoration cache to force a fresh check
+            session()->forget('cart_last_restored_at');
+            
+            \Log::info('[Cart] Main cart persisted and session updated after restoration');
         }
         
         if ($token = $request->query('token')) {
