@@ -1694,7 +1694,9 @@ class OrderSupportServiceProvider extends ServiceProvider
 
     protected function getStoresInCart($includeProducts = false): array
     {
-        $originalProducts = Cart::instance('cart')->products()->pluck('original_product');
+        // Use confirm_payment cart instance during checkout, fall back to cart for other contexts
+        $cartInstance = Cart::instance('confirm_payment')->count() > 0 ? 'confirm_payment' : 'cart';
+        $originalProducts = Cart::instance($cartInstance)->products()->pluck('original_product');
         $storeIdsInCart = $originalProducts->pluck('store_id');
         $stores = Store::query()->whereIn('id', $storeIdsInCart)->get();
         $storesInCart = [];
