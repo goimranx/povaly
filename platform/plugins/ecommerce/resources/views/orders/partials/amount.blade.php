@@ -5,8 +5,8 @@
 </div>
 
 @php
-    $cartSubTotal = Cart::instance('cart')->rawSubTotal();
-    $cartTax = Cart::instance('cart')->rawTax();
+    $cartSubTotal = Cart::instance('checkout')->rawSubTotal();
+    $cartTax = Cart::instance('checkout')->rawTax();
     $hasShipping = ! empty($shipping) && Arr::get($sessionCheckoutData, 'is_available_shipping', true) && $shippingAmount > 0;
     $hasDiscount = $couponDiscountAmount > 0 || $promotionDiscountAmount > 0;
     $hasPaymentFee = isset($paymentFee) && $paymentFee > 0;
@@ -39,7 +39,7 @@
                 <p class="price-text tax-price-text">
                     {{ format_price($cartTax) }}
                     @if ($cartTax && EcommerceHelper::isDisplayCheckoutTaxInformation())
-                        <small>({{ Cart::instance('cart')->taxClassesName() }})</small>
+                        <small>({{ Cart::instance('checkout')->taxClassesName() }})</small>
                     @endif
                 </p>
             </div>
