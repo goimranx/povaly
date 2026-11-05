@@ -163,11 +163,6 @@
                                 </div>
                             </div>
                         </div>
-                                    <button class="down" type="button">-</button>
-                                    <input type="number" class="form-control qty-input" min="1" value="{{ $cartItem->qty }}" title="{{ __('Qty') }}" name="items[{{ $key }}][values][qty]">
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             @endforeach
