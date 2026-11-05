@@ -826,7 +826,7 @@ class PublicCheckoutController extends BaseController
                 );
         }
 
-        if (EcommerceHelper::getMinimumOrderAmount() > Cart::instance('cart')->rawSubTotal()) {
+        if (EcommerceHelper::getMinimumOrderAmount() > Cart::instance('checkout')->rawSubTotal()) {
             return $this
                 ->httpResponse()
                 ->setError()
@@ -834,7 +834,7 @@ class PublicCheckoutController extends BaseController
                     __('Minimum order amount is :amount, you need to buy more :more to place an order!', [
                         'amount' => format_price(EcommerceHelper::getMinimumOrderAmount()),
                         'more' => format_price(
-                            EcommerceHelper::getMinimumOrderAmount() - Cart::instance('cart')->rawSubTotal()
+                            EcommerceHelper::getMinimumOrderAmount() - Cart::instance('checkout')->rawSubTotal()
                         ),
                     ])
                 );
@@ -1248,7 +1248,7 @@ class PublicCheckoutController extends BaseController
         abort_unless(EcommerceHelper::isCartEnabled(), 404);
 
         if (is_plugin_active('marketplace')) {
-            $products = Cart::instance('cart')->products();
+            $products = Cart::instance('checkout')->products();
             $result = apply_filters(HANDLE_POST_REMOVE_COUPON_CODE_ECOMMERCE, $products, $request);
         } else {
             $result = $removeCouponService->execute();
