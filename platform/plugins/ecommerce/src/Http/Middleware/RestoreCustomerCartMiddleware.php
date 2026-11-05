@@ -128,12 +128,6 @@ class RestoreCustomerCartMiddleware
             'main_cart_count_after' => $cart->count()
         ]);
     }
-        } catch (Throwable) {
-            // Silently ignore during upgrade when customer_id column doesn't exist yet
-        }
-
-        return $next($request);
-    }
 
     protected function handleCustomerCart($cart): void
     {
