@@ -61,28 +61,22 @@
             
             if (!itemCountEl || !subtotalEl) return;
             
+            // Always calculate based on selected items (all are selected by default)
             let selectedSubtotal = 0;
             
-            // If nothing selected, show all items
-            if (checkedItems.length === 0) {
-                const totalCount = document.querySelectorAll('.ps-cart-checkbox-item').length;
-                itemCountEl.textContent = totalCount;
-                
-                // Use the original total from data attribute
-                const originalTotal = parseFloat(subtotalEl.dataset.total);
-                subtotalEl.textContent = formatPrice(originalTotal);
-            } else {
-                // Calculate subtotal for selected items
-                checkedItems.forEach(checkbox => {
-                    const productItem = checkbox.closest('.ps-cart-product-item');
-                    if (productItem) {
-                        const priceEl = productItem.querySelector('.ps-cart-product-price .product__price span');
-                        const qtyInput = productItem.querySelector('.qty-input');
+            checkedItems.forEach(checkbox => {
+                const productItem = checkbox.closest('.ps-cart-product-item');
+                if (productItem) {
+                    const priceEl = productItem.querySelector('.ps-cart-product-price .product__price span');
+                    const qtyInput = productItem.querySelector('.qty-input');
+                    
+                    if (priceEl && qtyInput) {
+                        // Parse price (remove currency symbol, commas, and keep only numbers and decimal)
+                        const priceText = priceEl.textContent.trim();
+                        const priceMatch = priceText.match(/[\d,]+\.?\d*/);
                         
-                        if (priceEl && qtyInput) {
-                            // Parse price (remove currency symbol and commas)
-                            const priceText = priceEl.textContent.replace(/[^0-9.]/g, '');
-                            const price = parseFloat(priceText);
+                        if (priceMatch) {
+                            const price = parseFloat(priceMatch[0].replace(/,/g, ''));
                             const qty = parseInt(qtyInput.value);
                             
                             if (!isNaN(price) && !isNaN(qty)) {
@@ -90,28 +84,17 @@
                             }
                         }
                     }
-                });
-                
-                itemCountEl.textContent = checkedItems.length;
-                subtotalEl.textContent = formatPrice(selectedSubtotal);
-            }
-        }
-        
-        /**
-         * Format price helper
-         */
-        function formatPrice(amount) {
-            // Get currency symbol from original element
-            const subtotalEl = document.getElementById('cart-summary-subtotal');
-            if (!subtotalEl) return amount.toFixed(2);
+                }
+            });
             
+            itemCountEl.textContent = checkedItems.length;
+            
+            // Format price with proper currency
             const originalText = subtotalEl.textContent;
             const currencyMatch = originalText.match(/[^\d.,\s]+/);
             const currency = currencyMatch ? currencyMatch[0] : '৳';
             
-            // Format with commas
-            const formatted = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-            return currency + formatted;
+            subtotalEl.textContent = currency + selectedSubtotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
         
         /**
@@ -226,6 +209,11 @@
         /**
          * Initialize on page load
          */
+        // Select ALL items by default
+        itemCheckboxes.forEach(cb => cb.checked = true);
+        storeCheckboxes.forEach(cb => cb.checked = true);
+        mainCheckbox.checked = true;
+        
         updateMainCheckbox();
         storeCheckboxes.forEach(cb => {
             if (cb.dataset.storeId) {
@@ -244,5 +232,49 @@
     
     // Make function globally available for manual reinit
     window.initCartEnhanced = initCartEnhanced;
+    
+    /**
+     * Handle checkout with selected items only
+     */
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkoutBtn = document.querySelector('.ps-cart-actions a[href*="checkout.information"]');
+        
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', function(e) {
+                const checkedItems = document.querySelectorAll('.ps-cart-checkbox-item:checked');
+                
+                if (checkedItems.length === 0) {
+                    e.preventDefault();
+                    alert('Please select at least one item to checkout');
+                    return false;
+                }
+                
+                // Get selected row IDs
+                const selectedRowIds = Array.from(checkedItems).map(cb => cb.dataset.rowId);
+                
+                // Store in session via AJAX before redirecting
+                if (typeof jQuery !== 'undefined') {
+                    e.preventDefault();
+                    
+                    jQuery.ajax({
+                        url: window.siteUrl + '/ajax/cart/store-selected-items',
+                        method: 'POST',
+                        data: {
+                            _token: jQuery('meta[name="csrf-token"]').attr('content'),
+                            selected_items: selectedRowIds
+                        },
+                        success: function(response) {
+                            // Redirect to checkout
+                            window.location.href = checkoutBtn.href;
+                        },
+                        error: function() {
+                            // If AJAX fails, go to checkout with all items (fallback)
+                            window.location.href = checkoutBtn.href;
+                        }
+                    });
+                }
+            });
+        }
+    });
 })();
 
