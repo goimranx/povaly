@@ -207,17 +207,20 @@ class OrderHelper
             $this->decreaseProductQuantity($order);
         }
 
-        Cart::instance('cart')->destroy();
+        // DON'T destroy main cart - it contains items that weren't checked out
+        // Only the confirm_payment cart should be destroyed after successful checkout
+        // Cart::instance('cart')->destroy();
 
-        if (auth('customer')->check()) {
-            Cart::instance('cart')->deleteCustomerCart(auth('customer')->id());
-        } else {
-            $guestCartId = request()->cookie('guest_cart_id');
-            if ($guestCartId) {
-                Cart::instance('cart')->deleteGuestCart($guestCartId);
-                cookie()->queue(cookie()->forget('guest_cart_id'));
-            }
-        }
+        // DON'T delete customer/guest cart from database either
+        // if (auth('customer')->check()) {
+        //     Cart::instance('cart')->deleteCustomerCart(auth('customer')->id());
+        // } else {
+        //     $guestCartId = request()->cookie('guest_cart_id');
+        //     if ($guestCartId) {
+        //         Cart::instance('cart')->deleteGuestCart($guestCartId);
+        //         cookie()->queue(cookie()->forget('guest_cart_id'));
+        //     }
+        // }
 
         session()->forget('applied_coupon_code');
 
