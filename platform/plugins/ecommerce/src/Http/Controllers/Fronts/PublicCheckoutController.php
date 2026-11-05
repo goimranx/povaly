@@ -865,7 +865,21 @@ class PublicCheckoutController extends BaseController
 
         \Log::info('[POST Checkout] Validation passed, proceeding with order');
 
+        \Log::info('[POST Checkout] About to fetch products from confirm_payment cart', [
+            'token' => $token,
+            'cart_instance' => 'confirm_payment',
+            'cart_count_before' => Cart::instance('confirm_payment')->count(),
+            'cart_content_keys' => Cart::instance('confirm_payment')->content()->keys()->toArray()
+        ]);
+
         $products = Cart::instance('confirm_payment')->products();
+        
+        \Log::info('[POST Checkout] Products fetched', [
+            'token' => $token,
+            'products_count' => $products->count(),
+            'product_ids' => $products->pluck('id')->toArray(),
+            'products_class' => get_class($products)
+        ]);
 
         if (
             EcommerceHelper::isEnabledSupportDigitalProducts() &&
