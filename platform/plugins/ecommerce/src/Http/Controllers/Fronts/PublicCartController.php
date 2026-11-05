@@ -62,19 +62,9 @@ class PublicCartController extends BaseController
     {
         if (auth('customer')->check()) {
             Cart::instance('cart')->storeForCustomerQuietly(auth('customer')->id());
-            
-            // Also persist checkout cart if it exists
-            if (Cart::instance('checkout')->count() > 0) {
-                Cart::instance('checkout')->storeForCustomerQuietly(auth('customer')->id());
-            }
         } else {
             $identifier = $this->getOrCreateGuestCartIdentifier();
             Cart::instance('cart')->updateOrStoreQuietly($identifier);
-            
-            // Also persist checkout cart if it exists
-            if (Cart::instance('checkout')->count() > 0) {
-                Cart::instance('checkout')->updateOrStoreQuietly($identifier);
-            }
         }
     }
 
@@ -556,21 +546,10 @@ class PublicCartController extends BaseController
         }
 
         $data = $request->input('items', []);
-        
-        // Determine which cart instance to update based on context
-        // If checkout cart exists and has items, we're in checkout mode
-        $isCheckoutMode = Cart::instance('checkout')->count() > 0;
-        $cartInstance = $isCheckoutMode ? 'checkout' : 'cart';
-        
-        \Log::info('Cart update request', [
-            'is_checkout_mode' => $isCheckoutMode,
-            'cart_instance' => $cartInstance,
-            'items_to_update' => count($data)
-        ]);
 
         $outOfQuantity = false;
         foreach ($data as $item) {
-            $cartItem = Cart::instance($cartInstance)->get($item['rowId']);
+            $cartItem = Cart::instance('cart')->get($item['rowId']);
 
             if (! $cartItem) {
                 continue;
@@ -598,25 +577,7 @@ class PublicCartController extends BaseController
                 if ($product->isOutOfStock()) {
                     $outOfQuantity = true;
                 } else {
-                    Cart::instance($cartInstance)->update($item['rowId'], Arr::get($item, 'values'));
-                    
-                    \Log::info('Updated cart item', [
-                        'cart_instance' => $cartInstance,
-                        'row_id' => $item['rowId'],
-                        'new_qty' => Arr::get($item, 'values.qty')
-                    ]);
-                    
-                    // If updating checkout cart, also sync the main cart with the same quantity
-                    if ($isCheckoutMode) {
-                        $mainCartItem = Cart::instance('cart')->get($item['rowId']);
-                        if ($mainCartItem) {
-                            Cart::instance('cart')->update($item['rowId'], Arr::get($item, 'values'));
-                            \Log::info('Synced quantity to main cart', [
-                                'row_id' => $item['rowId'],
-                                'new_qty' => Arr::get($item, 'values.qty')
-                            ]);
-                        }
-                    }
+                    Cart::instance('cart')->update($item['rowId'], Arr::get($item, 'values'));
                 }
 
                 $product->quantity = $originalQuantity;
@@ -627,7 +588,7 @@ class PublicCartController extends BaseController
             return $this
                 ->httpResponse()
                 ->setError()
-                ->setData($this->getDataForResponse($isCheckoutMode))
+                ->setData($this->getDataForResponse())
                 ->setMessage(trans('plugins/ecommerce::products.cart.not_enough_quantity'));
         }
 
@@ -635,7 +596,7 @@ class PublicCartController extends BaseController
 
         return $this
             ->httpResponse()
-            ->setData($this->getDataForResponse($isCheckoutMode))
+            ->setData($this->getDataForResponse())
             ->setMessage(trans('plugins/ecommerce::products.cart.updated_cart_success'));
     }
 
@@ -966,16 +927,11 @@ class PublicCartController extends BaseController
         return $this->cachedCartData;
     }
 
-    protected function getDataForResponse(bool $useCheckoutCart = false): array
+    protected function getDataForResponse(): array
     {
         $cartContent = null;
 
-        // Use checkout cart if requested and it has items
-        if ($useCheckoutCart && Cart::instance('checkout')->count() > 0) {
-            $cartInstance = Cart::instance('checkout');
-        } else {
-            $cartInstance = $this->getCartInstance();
-        }
+        $cartInstance = $this->getCartInstance();
 
         $cartData = $this->getCartData();
 
