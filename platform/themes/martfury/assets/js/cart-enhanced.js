@@ -1,153 +1,31 @@
 /**
- * Shopping Cart Enhanced - Completely Separated Carts
- * Shopping and Confirm Payment carts are 100% independent
- * WITH PERSISTENT STATE across AJAX reloads
+ * Shopping Cart Enhanced - Single Cart (No Tabs)
+ * Simplified version for cart page without tabs
  */
 (function() {
     'use strict';
     
-    // Completely separate state for each cart - NO shared state
-    const cartStates = {
-        shopping: { initialized: false },
-        'confirm-payment': { initialized: false }
-    };
-    
-    // Storage keys for persistent state
-    const STORAGE_KEY_PREFIX = 'cart_enhanced_';
-    const ACTIVE_TAB_KEY = STORAGE_KEY_PREFIX + 'active_tab';
+    let initialized = false;
     
     /**
-     * Save checkbox states to sessionStorage
+     * Initialize the cart functionality
      */
-    function saveCheckboxStates(tabId) {
-        const tabContent = document.querySelector(`[data-tab-content="${tabId}"]`);
-        if (!tabContent) return;
+    function initCart() {
+        if (initialized) return;
         
-        // Save item checkboxes
-        const checkedItems = [];
-        tabContent.querySelectorAll('.ps-cart-checkbox-item:checked').forEach(cb => {
-            checkedItems.push(cb.dataset.rowId);
-        });
-        
-        // Save store header checkboxes
-        const checkedStores = [];
-        tabContent.querySelectorAll('.ps-cart-checkbox-store:checked').forEach(cb => {
-            checkedStores.push(cb.dataset.storeId);
-        });
-        
-        sessionStorage.setItem(STORAGE_KEY_PREFIX + tabId + '_checked', JSON.stringify(checkedItems));
-        sessionStorage.setItem(STORAGE_KEY_PREFIX + tabId + '_checked_stores', JSON.stringify(checkedStores));
-        console.log('[Cart State] Saved checkbox states for', tabId, {items: checkedItems, stores: checkedStores});
-    }
-    
-    /**
-     * Restore checkbox states from sessionStorage
-     */
-    function restoreCheckboxStates(tabId) {
-        const tabContent = document.querySelector(`[data-tab-content="${tabId}"]`);
-        if (!tabContent) return;
-        
-        const savedItems = sessionStorage.getItem(STORAGE_KEY_PREFIX + tabId + '_checked');
-        const savedStores = sessionStorage.getItem(STORAGE_KEY_PREFIX + tabId + '_checked_stores');
-        
-        if (!savedItems && !savedStores) return;
-        
-        try {
-            // Restore item checkboxes
-            if (savedItems) {
-                const checkedIds = JSON.parse(savedItems);
-                console.log('[Cart State] Restoring item checkboxes for', tabId, checkedIds);
-                
-                checkedIds.forEach(rowId => {
-                    const checkbox = tabContent.querySelector(`.ps-cart-checkbox-item[data-row-id="${rowId}"]`);
-                    if (checkbox) {
-                        checkbox.checked = true;
-                    }
-                });
-            }
-            
-            // Restore store header checkboxes
-            if (savedStores) {
-                const checkedStoreIds = JSON.parse(savedStores);
-                console.log('[Cart State] Restoring store checkboxes for', tabId, checkedStoreIds);
-                
-                checkedStoreIds.forEach(storeId => {
-                    const checkbox = tabContent.querySelector(`.ps-cart-checkbox-store[data-store-id="${storeId}"]`);
-                    if (checkbox) {
-                        checkbox.checked = true;
-                        checkbox.indeterminate = false;
-                    }
-                });
-            }
-        } catch (e) {
-            console.error('[Cart State] Failed to restore checkbox states:', e);
-        }
-    }
-    
-    /**
-     * Save active tab to sessionStorage AND server
-     */
-    function saveActiveTab(tabName) {
-        sessionStorage.setItem(ACTIVE_TAB_KEY, tabName);
-        console.log('[Cart State] Saved active tab to sessionStorage:', tabName);
-        
-        // Also save to server session
-        if (typeof jQuery !== 'undefined') {
-            jQuery.ajax({
-                url: window.location.pathname,
-                method: 'POST',
-                data: {
-                    _token: jQuery('meta[name="csrf-token"]').attr('content'),
-                    active_tab: tabName
-                },
-                success: () => console.log('[Cart State] Saved active tab to server:', tabName)
-            });
-        }
-    }
-    
-    /**
-     * Get active tab (from sessionStorage or default)
-     */
-    function getActiveTab() {
-        const saved = sessionStorage.getItem(ACTIVE_TAB_KEY);
-        if (saved) {
-            console.log('[Cart State] Restored active tab from sessionStorage:', saved);
-            return saved;
-        }
-        
-        // Fallback to server-rendered active tab
-        const activeButton = document.querySelector('.ps-cart-tab-button.active');
-        const tab = activeButton ? activeButton.dataset.tab : 'shopping';
-        console.log('[Cart State] Using server active tab:', tab);
-        return tab;
-    }
-    
-    /**
-     * Initialize a cart tab - completely independent from other tabs
-     */
-    function initCartTab(tabId) {
-        // Skip if already initialized
-        if (cartStates[tabId].initialized) return;
-        
-        const tabContent = document.querySelector(`[data-tab-content="${tabId}"]`);
-        if (!tabContent) return;
-        
-        const mainCheckbox = tabContent.querySelector(`#selectAllCheckbox-${tabId}`);
-        const selectAllText = tabContent.querySelector(`#selectAllText-${tabId}`);
-        const deleteBtn = tabContent.querySelector(`#deleteSelectedBtn-${tabId}`);
-        const itemCheckboxes = tabContent.querySelectorAll('.ps-cart-checkbox-item');
+        const mainCheckbox = document.querySelector('#selectAllCheckbox-shopping');
+        const selectAllText = document.querySelector('#selectAllText-shopping');
+        const deleteBtn = document.querySelector('#deleteSelectedBtn-shopping');
+        const itemCheckboxes = document.querySelectorAll('.ps-cart-checkbox-item');
         
         if (!mainCheckbox || !itemCheckboxes.length) return;
         
-        cartStates[tabId].initialized = true;
+        initialized = true;
         
-        console.log('[Cart Init] Initializing tab:', tabId);
-        
-        // Restore checkbox states FIRST
-        restoreCheckboxStates(tabId);
+        console.log('[Cart] Initializing cart');
         
         function updateMainCheckbox() {
-            const selected = tabContent.querySelectorAll('.ps-cart-checkbox-item:checked').length;
+            const selected = document.querySelectorAll('.ps-cart-checkbox-item:checked').length;
             const total = itemCheckboxes.length;
             
             if (selected === 0) {
@@ -170,12 +48,11 @@
         }
         
         function updateSummary() {
-            const checked = tabContent.querySelectorAll('.ps-cart-checkbox-item:checked');
-            // Scope all queries to THIS tab's content only
-            const itemCountEl = tabContent.querySelector('#cart-summary-item-count');
-            const subtotalEl = tabContent.querySelector('#cart-summary-subtotal');
-            const taxEl = tabContent.querySelector('#cart-summary-tax');
-            const totalEl = tabContent.querySelector('#cart-summary-total');
+            const checked = document.querySelectorAll('.ps-cart-checkbox-item:checked');
+            const itemCountEl = document.querySelector('#cart-summary-item-count');
+            const subtotalEl = document.querySelector('#cart-summary-subtotal');
+            const taxEl = document.querySelector('#cart-summary-tax');
+            const totalEl = document.querySelector('#cart-summary-total');
             
             if (!itemCountEl || !subtotalEl) return;
             
@@ -205,227 +82,111 @@
             itemCountEl.textContent = checked.length;
             subtotalEl.textContent = formatPrice(subtotal);
             
+            // Handle tax if present
             if (taxEl && taxEl.dataset.total) {
-                const origSubtotal = parseFloat(subtotalEl.dataset.total) || 1;
-                const origTax = parseFloat(taxEl.dataset.total) || 0;
-                const tax = subtotal * (origTax / origSubtotal);
-                taxEl.textContent = formatPrice(tax);
-                if (totalEl) totalEl.textContent = formatPrice(subtotal + tax);
+                const originalSubtotal = parseFloat(subtotalEl.dataset.total) || 1;
+                const originalTax = parseFloat(taxEl.dataset.total) || 0;
+                const calculatedTax = subtotal * (originalTax / originalSubtotal);
+                taxEl.textContent = formatPrice(calculatedTax);
+                if (totalEl) totalEl.textContent = formatPrice(subtotal + calculatedTax);
             } else if (totalEl) {
                 totalEl.textContent = formatPrice(subtotal);
             }
         }
         
         function updateStoreCheckbox(storeId) {
-            const storeCb = tabContent.querySelector(`.ps-cart-checkbox-store[data-store-id="${storeId}"]`);
-            if (!storeCb) return;
-            const items = tabContent.querySelectorAll(`.ps-cart-checkbox-item[data-store-id="${storeId}"]`);
-            const checked = tabContent.querySelectorAll(`.ps-cart-checkbox-item[data-store-id="${storeId}"]:checked`);
-            storeCb.checked = checked.length === items.length;
-            storeCb.indeterminate = checked.length > 0 && checked.length < items.length;
+            const storeCheckbox = document.querySelector(`.ps-cart-checkbox-store[data-store-id="${storeId}"]`);
+            if (!storeCheckbox) return;
+            
+            const storeItems = document.querySelectorAll(`.ps-cart-checkbox-item[data-store-id="${storeId}"]`);
+            const checkedItems = document.querySelectorAll(`.ps-cart-checkbox-item[data-store-id="${storeId}"]:checked`);
+            
+            storeCheckbox.checked = checkedItems.length === storeItems.length;
+            storeCheckbox.indeterminate = checkedItems.length > 0 && checkedItems.length < storeItems.length;
         }
         
+        // Main checkbox - select/deselect all
         mainCheckbox.addEventListener('change', function() {
             itemCheckboxes.forEach(cb => cb.checked = this.checked);
-            tabContent.querySelectorAll('.ps-cart-checkbox-store').forEach(cb => {
+            document.querySelectorAll('.ps-cart-checkbox-store').forEach(cb => {
                 cb.checked = this.checked;
                 cb.indeterminate = false;
             });
             updateMainCheckbox();
-            // Save state when select-all changes
-            saveCheckboxStates(tabId);
         });
         
-        tabContent.querySelectorAll('.ps-cart-checkbox-store').forEach(storeCb => {
-            storeCb.addEventListener('change', function() {
+        // Store header checkboxes
+        document.querySelectorAll('.ps-cart-checkbox-store').forEach(storeCheckbox => {
+            storeCheckbox.addEventListener('change', function() {
                 const storeId = this.dataset.storeId;
-                tabContent.querySelectorAll(`.ps-cart-checkbox-item[data-store-id="${storeId}"]`).forEach(cb => cb.checked = this.checked);
+                document.querySelectorAll(`.ps-cart-checkbox-item[data-store-id="${storeId}"]`).forEach(cb => {
+                    cb.checked = this.checked;
+                });
                 this.indeterminate = false;
                 updateMainCheckbox();
-                // Save state when store checkbox changes
-                saveCheckboxStates(tabId);
             });
         });
         
+        // Item checkboxes
         itemCheckboxes.forEach(cb => {
             cb.addEventListener('change', function() {
                 updateStoreCheckbox(this.dataset.storeId);
                 updateMainCheckbox();
-                // Save state when checkbox changes
-                saveCheckboxStates(tabId);
             });
         });
         
-        // Delete button listener is now handled via event delegation (see setupBulkDelete below)
-        // This prevents duplicate event listeners on re-initialization
-        
-        tabContent.querySelectorAll('.qty-input').forEach(input => {
-            // Save checkbox states and active tab before qty update triggers reload
-            input.addEventListener('focus', () => {
-                const activeTab = getActiveTab();
-                saveActiveTab(activeTab);
-                saveCheckboxStates(activeTab);
-                console.log('[Cart] Qty input focused, saved state for:', activeTab);
-            });
-            
-            // Also save when change event fires (just before AJAX)
-            input.addEventListener('change', () => {
-                const activeTab = getActiveTab();
-                saveActiveTab(activeTab);
-                saveCheckboxStates(activeTab);
-                console.log('[Cart] Qty changed, saved state for:', activeTab);
-            });
-        });
-        
-        // Initial state
-        if (tabId === 'confirm-payment') {
-            setTimeout(() => {
-                itemCheckboxes.forEach(cb => cb.checked = true);
-                tabContent.querySelectorAll('.ps-cart-checkbox-store').forEach(cb => {
-                    cb.checked = true;
-                    cb.indeterminate = false;
-                });
-                updateMainCheckbox();
-            }, 100);
-        } else {
-            // Update main checkbox and store checkboxes based on current state
-            updateMainCheckbox();
-            // Update each store's checkbox state
-            const storeIds = new Set();
-            itemCheckboxes.forEach(cb => storeIds.add(cb.dataset.storeId));
-            storeIds.forEach(storeId => updateStoreCheckbox(storeId));
-        }
-    }
-    
-    function initAll() {
-        console.log('[Cart] Initializing both carts');
-        
-        // Reset initialization flags
-        cartStates.shopping.initialized = false;
-        cartStates['confirm-payment'].initialized = false;
-        
-        // Restore and apply active tab FIRST
-        const activeTab = getActiveTab();
-        applyActiveTab(activeTab);
-        
-        // Initialize both tabs
-        initCartTab('shopping');
-        initCartTab('confirm-payment');
-        
-        console.log('[Cart] Initialization complete, active tab:', activeTab);
+        // Initialize store checkbox states
+        updateMainCheckbox();
+        const storeIds = new Set();
+        itemCheckboxes.forEach(cb => storeIds.add(cb.dataset.storeId));
+        storeIds.forEach(id => updateStoreCheckbox(id));
     }
     
     /**
-     * Apply active tab to UI
-     */
-    function applyActiveTab(tabName) {
-        console.log('[Cart] Applying active tab:', tabName);
-        
-        document.querySelectorAll('.ps-cart-tab-button').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.tab === tabName);
-        });
-        
-        document.querySelectorAll('.ps-cart-tab-content').forEach(content => {
-            content.classList.toggle('active', content.dataset.tabContent === tabName);
-        });
-    }
-    
-    function setupTabs() {
-        // Use event delegation so tab switching works even after .load() replaces buttons
-        document.body.addEventListener('click', function(e) {
-            const btn = e.target.closest('.ps-cart-tab-button');
-            if (!btn) return;
-            
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const tab = btn.dataset.tab;
-            console.log('[Cart] Tab clicked:', tab);
-            
-            // Save active tab
-            saveActiveTab(tab);
-            
-            // Apply to UI
-            applyActiveTab(tab);
-            
-            // Reinitialize (will restore checkbox states)
-            setTimeout(() => {
-                if (typeof window.initCartEnhanced === 'function') {
-                    window.initCartEnhanced();
-                }
-            }, 100);
-        });
-    }
-    
-    /**
-     * Setup bulk delete with event delegation (prevents duplicate listeners)
+     * Setup bulk delete functionality
      */
     function setupBulkDelete() {
-        // Single delegated listener for all delete buttons
         document.body.addEventListener('click', function(e) {
-            const deleteBtn = e.target.closest('#deleteSelectedBtn-shopping, #deleteSelectedBtn-confirm-payment');
+            const deleteBtn = e.target.closest('#deleteSelectedBtn-shopping');
             if (!deleteBtn) return;
             
             e.preventDefault();
             e.stopPropagation();
             
-            console.log('[Cart] Bulk delete clicked');
-            
-            // Find which tab this button belongs to
-            const tabContent = deleteBtn.closest('.ps-cart-tab-content');
-            if (!tabContent) return;
-            
-            const tabId = tabContent.dataset.tabContent;
-            const checked = tabContent.querySelectorAll('.ps-cart-checkbox-item:checked');
-            
-            if (!checked.length) {
+            const checkedItems = document.querySelectorAll('.ps-cart-checkbox-item:checked');
+            if (!checkedItems.length) {
                 alert('Please select items to delete');
                 return;
             }
             
-            if (!confirm(deleteBtn.dataset.confirmMessage || 'Remove selected items?')) {
-                return;
-            }
+            if (!confirm(deleteBtn.dataset.confirmMessage || 'Remove selected items?')) return;
             
             deleteBtn.disabled = true;
             const originalText = deleteBtn.textContent;
             deleteBtn.textContent = 'Deleting...';
             
-            // Save state before delete
-            saveActiveTab(tabId);
-            saveCheckboxStates(tabId);
-            
-            const rowIds = Array.from(checked).map(cb => cb.dataset.rowId);
-            const firstItem = checked[0].closest('.ps-cart-product-item');
+            const rowIds = Array.from(checkedItems).map(cb => cb.dataset.rowId);
+            const firstItem = checkedItems[0].closest('.ps-cart-product-item');
             const cartInstance = firstItem?.querySelector('.remove-cart-button')?.dataset.cartInstance || 'cart';
             
-            console.log('[Cart] Deleting items:', {tabId, cartInstance, count: rowIds.length});
+            console.log('[Cart] Deleting items:', { cartInstance, count: rowIds.length });
             
             if (typeof jQuery !== 'undefined') {
                 jQuery.ajax({
                     url: window.siteUrl + '/ajax/cart/remove-multiple',
                     method: 'POST',
-                    data: { 
-                        _token: jQuery('meta[name="csrf-token"]').attr('content'), 
-                        cart_instance: cartInstance, 
-                        row_ids: rowIds 
+                    data: {
+                        _token: jQuery('meta[name="csrf-token"]').attr('content'),
+                        cart_instance: cartInstance,
+                        row_ids: rowIds
                     },
-                    success: res => {
-                        if (res.error) {
-                            Theme.showError(res.message);
+                    success: (response) => {
+                        if (response.error) {
+                            Theme.showError(response.message);
                             deleteBtn.disabled = false;
                             deleteBtn.textContent = originalText;
                         } else {
-                            Theme.showSuccess(res.message || 'Items removed');
-                            // Clear states for removed items
-                            const savedStates = sessionStorage.getItem(STORAGE_KEY_PREFIX + tabId + '_checked');
-                            if (savedStates) {
-                                try {
-                                    const checkedIds = JSON.parse(savedStates);
-                                    const remainingIds = checkedIds.filter(id => !rowIds.includes(id));
-                                    sessionStorage.setItem(STORAGE_KEY_PREFIX + tabId + '_checked', JSON.stringify(remainingIds));
-                                } catch (e) {}
-                            }
+                            Theme.showSuccess(response.message || 'Items removed');
                             location.reload();
                         }
                     },
@@ -441,55 +202,52 @@
         });
     }
     
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            setupTabs();
-            setupBulkDelete();
-            initAll();
-        });
-    } else {
-        setupTabs();
-        setupBulkDelete();
-        initAll();
+    /**
+     * Setup checkout button to store selected items
+     */
+    function setupCheckoutButton() {
+        document.addEventListener('click', function(e) {
+            const checkoutBtn = e.target.closest('.ps-cart-actions a[href*="checkout"], .ps-btn--primary[href*="checkout"], a.ps-btn[href*="information"]');
+            if (!checkoutBtn || !checkoutBtn.closest('.ps-cart-summary-card')) return;
+            
+            const checkedItems = document.querySelectorAll('.ps-cart-checkbox-item:checked');
+            if (!checkedItems.length) {
+                e.preventDefault();
+                alert('Please select at least one item');
+                return false;
+            }
+            
+            // Store selected items before checkout
+            if (typeof jQuery !== 'undefined') {
+                e.preventDefault();
+                jQuery.ajax({
+                    url: window.siteUrl + '/ajax/cart/store-selected-items',
+                    method: 'POST',
+                    data: {
+                        _token: jQuery('meta[name="csrf-token"]').attr('content'),
+                        selected_items: Array.from(checkedItems).map(cb => cb.dataset.rowId)
+                    },
+                    success: () => window.location.href = checkoutBtn.href,
+                    error: () => window.location.href = checkoutBtn.href
+                });
+            }
+        }, true);
     }
     
-    window.initCartEnhanced = initAll;
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            initCart();
+            setupBulkDelete();
+            setupCheckoutButton();
+        });
+    } else {
+        initCart();
+        setupBulkDelete();
+        setupCheckoutButton();
+    }
     
-    /**
-     * Global function to save cart state (called from backend.js)
-     */
-    window.saveCartState = function() {
-        const activeTab = getActiveTab();
-        console.log('[Cart] saveCartState called, saving for:', activeTab);
-        saveActiveTab(activeTab);
-        saveCheckboxStates(activeTab);
-    };
+    // Export for external use
+    window.initCartEnhanced = initCart;
     
-    document.addEventListener('click', function(e) {
-        const btn = e.target.closest('.ps-cart-actions a[href*="checkout"], .ps-btn--primary[href*="checkout"], a.ps-btn[href*="information"]');
-        if (!btn || !btn.closest('.ps-cart-summary-card')) return;
-        
-        const activeTab = document.querySelector('.ps-cart-tab-content.active');
-        const checked = activeTab?.querySelectorAll('.ps-cart-checkbox-item:checked') || [];
-        
-        if (!checked.length) {
-            e.preventDefault();
-            alert('Please select at least one item');
-            return false;
-        }
-        
-        if (typeof jQuery !== 'undefined') {
-            e.preventDefault();
-            jQuery.ajax({
-                url: window.siteUrl + '/ajax/cart/store-selected-items',
-                method: 'POST',
-                data: {
-                    _token: jQuery('meta[name="csrf-token"]').attr('content'),
-                    selected_items: Array.from(checked).map(cb => cb.dataset.rowId)
-                },
-                success: () => window.location.href = btn.href,
-                error: () => window.location.href = btn.href
-            });
-        }
-    }, true);
 })();
