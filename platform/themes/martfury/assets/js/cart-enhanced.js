@@ -4,12 +4,20 @@
 (function() {
     'use strict';
     
+    // Track initialized tabs to prevent duplicate event listeners
+    const initializedTabs = new Set();
+    
     /**
      * Initialize cart enhanced functionality for a specific tab
      */
     function initCartTab(tabId) {
         const tabContent = document.querySelector(`[data-tab-content="${tabId}"]`);
         if (!tabContent) return;
+        
+        // Check if this tab is already initialized
+        if (initializedTabs.has(tabId)) {
+            return;
+        }
         
         const mainCheckbox = tabContent.querySelector(`#selectAllCheckbox-${tabId}`);
         const selectAllText = tabContent.querySelector(`#selectAllText-${tabId}`);
@@ -20,6 +28,9 @@
         if (!mainCheckbox || !itemCheckboxes.length) {
             return; // No cart items in this tab
         }
+        
+        // Mark this tab as initialized
+        initializedTabs.add(tabId);
         
         /**
          * Update main checkbox state and text
@@ -219,15 +230,15 @@
                 const checkedItems = tabContent.querySelectorAll('.ps-cart-checkbox-item:checked');
                 if (checkedItems.length === 0) return;
                 
-                const confirmMessage = deleteBtn.dataset.confirmMessage || 'Are you sure you want to remove the selected items?';
+                const confirmMessage = this.dataset.confirmMessage || 'Are you sure you want to remove the selected items?';
                 
                 if (!confirm(confirmMessage)) {
                     return;
                 }
                 
                 // Disable button to prevent multiple clicks
-                deleteBtn.disabled = true;
-                deleteBtn.textContent = 'Deleting...';
+                this.disabled = true;
+                this.textContent = 'Deleting...';
                 
                 const rowIds = Array.from(checkedItems).map(cb => cb.dataset.rowId);
                 
@@ -235,6 +246,8 @@
                 const firstItem = checkedItems[0].closest('.ps-cart-product-item');
                 const removeBtn = firstItem ? firstItem.querySelector('.remove-cart-button') : null;
                 const cartInstance = removeBtn ? removeBtn.dataset.cartInstance : 'cart';
+                
+                const self = this;
                 
                 // Send all row IDs in a single batch request
                 if (typeof jQuery !== 'undefined') {
@@ -249,8 +262,8 @@
                         success: function(response) {
                             if (response.error) {
                                 Theme.showError(response.message);
-                                deleteBtn.disabled = false;
-                                deleteBtn.textContent = 'Delete Selected';
+                                self.disabled = false;
+                                self.textContent = 'Delete Selected';
                             } else {
                                 Theme.showSuccess(response.message || 'Items removed successfully');
                                 location.reload();
@@ -258,7 +271,7 @@
                         },
                         error: function() {
                             // Fallback: remove items one by one
-                            removeItemsSequentially(rowIds, cartInstance, deleteBtn);
+                            removeItemsSequentially(rowIds, cartInstance, self);
                         }
                     });
                 } else {
@@ -354,16 +367,25 @@
         initCartTab('confirm-payment');
     }
     
+    /**
+     * Reset initialization tracking (for when cart content is fully reloaded)
+     */
+    function resetCartEnhanced() {
+        initializedTabs.clear();
+        initCartEnhanced();
+    }
+    
     // Initialize on DOM ready
     document.addEventListener('DOMContentLoaded', initCartEnhanced);
     
-    // Reinitialize after tab switch
+    // Reinitialize after tab switch (but don't re-attach event listeners)
     if (typeof jQuery !== 'undefined') {
         jQuery(document).on('cartEnhancedReloaded', initCartEnhanced);
     }
     
-    // Make function globally available
+    // Make functions globally available
     window.initCartEnhanced = initCartEnhanced;
+    window.resetCartEnhanced = resetCartEnhanced;
     
     /**
      * Handle checkout with selected items only
