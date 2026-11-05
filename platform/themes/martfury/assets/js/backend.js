@@ -533,7 +533,7 @@
         // Add-to-cart form handler is in main.js (MartApp.addProductToCart)
 
         function ajaxUpdateCart(_self) {
-            _self.closest('.ps-table--shopping-cart').addClass('content-loading')
+            _self.closest('.ps-table--shopping-cart, .ps-cart-products-card, .form--shopping-cart').addClass('content-loading')
 
             $.ajax({
                 type: 'POST',
@@ -545,7 +545,7 @@
                 success: res => {
                     if (res.error) {
                         Theme.showError(res.message)
-                        _self.closest('.ps-table--shopping-cart').removeClass('content-loading')
+                        _self.closest('.ps-table--shopping-cart, .ps-cart-products-card, .form--shopping-cart').removeClass('content-loading')
                         _self.closest('.product__qty').find('.qty-input').val(res.data.count).prop('placeholder', res.data.count)
                         return false
                     }
@@ -554,6 +554,10 @@
                         if (typeof Theme.lazyLoadInstance !== 'undefined') {
                             Theme.lazyLoadInstance.update()
                         }
+                        // Reinitialize cart enhanced after reload
+                        if (typeof window.initCartEnhanced === 'function') {
+                            window.initCartEnhanced()
+                        }
                     })
 
                     $.ajax({
@@ -561,7 +565,7 @@
                         method: 'GET',
                         success: response => {
                             if (!response.error) {
-                                _self.closest('.ps-table--shopping-cart').removeClass('content-loading')
+                                _self.closest('.ps-table--shopping-cart, .ps-cart-products-card, .form--shopping-cart').removeClass('content-loading')
                                 $('.ps-cart--mobile').html(response.data.html)
                                 $('.btn-shopping-cart span i').text(response.data.count)
                                 Theme.showSuccess(res.message)
@@ -572,13 +576,13 @@
                             }
                         },
                         error: res => {
-                            _self.closest('.ps-table--shopping-cart').removeClass('content-loading')
+                            _self.closest('.ps-table--shopping-cart, .ps-cart-products-card, .form--shopping-cart').removeClass('content-loading')
                             Theme.showError(res.message)
                         },
                     })
                 },
                 error: res => {
-                    _self.closest('.ps-table--shopping-cart').removeClass('content-loading')
+                    _self.closest('.ps-table--shopping-cart, .ps-cart-products-card, .form--shopping-cart').removeClass('content-loading')
                     Theme.showError(res.message)
                 },
             })
@@ -714,6 +718,11 @@
         })
 
         $(document).on('change', '.ps-table--shopping-cart .product__qty .qty-input', function() {
+            ajaxUpdateCart($(this))
+        })
+        
+        // Also handle form--shopping-cart (enhanced cart page)
+        $(document).on('change', '.form--shopping-cart .product__qty .qty-input', function() {
             ajaxUpdateCart($(this))
         })
 

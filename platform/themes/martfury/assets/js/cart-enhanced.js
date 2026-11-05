@@ -261,138 +261,15 @@
         });
         
         /**
-         * Monitor quantity changes to update totals
+         * Monitor quantity changes to update summary (visual only, backend.js handles AJAX)
          */
         const qtyInputs = document.querySelectorAll('.ps-cart-product-item .qty-input');
         qtyInputs.forEach(input => {
-            let debounceTimer;
-            
-            // Listen for input changes and submit via AJAX
+            // Listen for changes to update visual summary
             input.addEventListener('change', function() {
-                updateCartSummary();
-                
-                // Debounce the AJAX call
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    submitCartUpdate(input);
-                }, 500);
+                setTimeout(updateCartSummary, 100);
             });
-            
-            // Listen for button clicks (+ and -)
-            const productItem = input.closest('.ps-cart-product-item');
-            if (productItem) {
-                const upBtn = productItem.querySelector('.product__qty .up');
-                const downBtn = productItem.querySelector('.product__qty .down');
-                
-                if (upBtn) {
-                    upBtn.addEventListener('click', function() {
-                        setTimeout(updateCartSummary, 100);
-                    });
-                }
-                
-                if (downBtn) {
-                    downBtn.addEventListener('click', function() {
-                        setTimeout(updateCartSummary, 100);
-                    });
-                }
-            }
         });
-        
-        /**
-         * Submit cart update via AJAX (using same approach as backend.js)
-         */
-        function submitCartUpdate(qtyInput) {
-            if (typeof jQuery === 'undefined') return;
-            
-            const $input = jQuery(qtyInput);
-            const $form = $input.closest('form.form--shopping-cart');
-            if (!$form.length) return;
-            
-            // Add loading state
-            $form.addClass('content-loading');
-            
-            // Submit via AJAX using FormData
-            jQuery.ajax({
-                type: 'POST',
-                cache: false,
-                url: $form.prop('action'),
-                data: new FormData($form[0]),
-                contentType: false,
-                processData: false,
-                success: function(res) {
-                    if (res.error) {
-                        if (typeof Theme !== 'undefined' && Theme.showError) {
-                            Theme.showError(res.message);
-                        } else {
-                            alert(res.message);
-                        }
-                        $form.removeClass('content-loading');
-                        
-                        // Reset input to actual cart value
-                        if (res.data && res.data.count) {
-                            $input.val(res.data.count).prop('placeholder', res.data.count);
-                        }
-                        return;
-                    }
-                    
-                    // Reload the cart section
-                    jQuery('.ps-section--shopping').load(window.location.href + ' .ps-section--shopping > *', function() {
-                        if (typeof Theme !== 'undefined' && Theme.lazyLoadInstance) {
-                            Theme.lazyLoadInstance.update();
-                        }
-                        
-                        // Reinitialize cart enhanced after reload
-                        if (typeof window.initCartEnhanced === 'function') {
-                            window.initCartEnhanced();
-                        }
-                    });
-                    
-                    // Update flyout cart
-                    jQuery.ajax({
-                        url: window.siteUrl + '/ajax/cart',
-                        method: 'GET',
-                        success: function(response) {
-                            if (!response.error) {
-                                $form.removeClass('content-loading');
-                                
-                                // Update mobile cart if exists
-                                if (response.data.html) {
-                                    jQuery('.ps-cart--mobile').html(response.data.html);
-                                }
-                                
-                                // Update cart count
-                                if (response.data.count !== undefined) {
-                                    jQuery('.btn-shopping-cart span i, [data-bb-toggle="cart-sidebar"] .cart-counter').text(response.data.count);
-                                }
-                                
-                                // Show success message
-                                if (res.message) {
-                                    if (typeof Theme !== 'undefined' && Theme.showSuccess) {
-                                        Theme.showSuccess(res.message);
-                                    }
-                                }
-                                
-                                if (typeof Theme !== 'undefined' && Theme.lazyLoadInstance) {
-                                    Theme.lazyLoadInstance.update();
-                                }
-                            }
-                        },
-                        error: function() {
-                            $form.removeClass('content-loading');
-                        }
-                    });
-                },
-                error: function(xhr) {
-                    $form.removeClass('content-loading');
-                    
-                    if (typeof Theme !== 'undefined' && Theme.handleError) {
-                        Theme.handleError(xhr);
-                    } else {
-                        alert('An error occurred. Please try again.');
-                    }
-                }
-            });
-        }
         
         // Also monitor for updates via cart update AJAX
         if (typeof jQuery !== 'undefined') {
