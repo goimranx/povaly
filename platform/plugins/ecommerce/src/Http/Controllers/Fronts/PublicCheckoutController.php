@@ -1248,31 +1248,15 @@ class PublicCheckoutController extends BaseController
         OrderHelper::clearSessions($token);
         
         // Clear confirm payment cart after successful payment
-        // Items are already out of main cart (moved during checkout)
-        
-        foreach ($checkoutCart as $checkoutItem) {
-            // Find and remove this item from main cart by ID and options
-            $mainCartItem = $mainCart->content()->first(function ($mainItem) use ($checkoutItem) {
-                return $mainItem->id == $checkoutItem->id && 
-                       $mainItem->options == $checkoutItem->options;
-            });
-            
-            if ($mainCartItem) {
-                $mainCart->remove($mainCartItem->rowId);
-            }
-        }
-        
-        // Destroy confirm payment cart - payment completed
         Cart::instance('confirm_payment')->destroy();
-        \Log::info('Confirm payment cart cleared after successful payment');
+        \Log::info('[Checkout Success] Confirm payment cart cleared after successful payment', [
+            'order_id' => $order->id,
+            'token' => $token
+        ]);
         
         // Clear checkout sessions
         session()->forget('checkout_selected_items');
         session()->forget('checkout_processing_items');
-        
-        \Log::info('Order completed, removed items from main cart', [
-            'remaining_cart_count' => Cart::instance('cart')->count()
-        ]);
 
         $thankYouView = Theme::getThemeNamespace('views.ecommerce.orders.thank-you');
 
