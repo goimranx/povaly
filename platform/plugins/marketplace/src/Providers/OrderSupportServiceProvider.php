@@ -918,30 +918,66 @@ class OrderSupportServiceProvider extends ServiceProvider
 
     public function processGetCheckoutSuccess(string $token)
     {
+        \Log::info('[Marketplace Checkout Success] START', [
+            'token' => $token,
+            'url' => request()->url(),
+            'session_id' => session()->getId()
+        ]);
+        
         $orders = Order::query()
             ->where('token', $token)
             ->with(['address', 'products'])
             ->get();
+
+        \Log::info('[Marketplace Checkout Success] Orders found', [
+            'token' => $token,
+            'order_count' => $orders->count(),
+            'order_ids' => $orders->pluck('id')->toArray()
+        ]);
 
         foreach ($orders as $order) {
             if ($order->payment_fee > 0 && $order->amount > 0) {
                 $orderAmount = $order->sub_total + $order->tax_amount + $order->shipping_amount
                     + ($order->shipping_tax_amount ?? 0) + $order->payment_fee - $order->discount_amount;
                 if ($order->amount != $orderAmount) {
+                    \Log::info('[Marketplace Checkout Success] Updating order amount', [
+                        'order_id' => $order->id,
+                        'old_amount' => $order->amount,
+                        'new_amount' => $orderAmount
+                    ]);
                     $order->amount = $orderAmount;
                     $order->save();
                 }
             }
         }
 
-        abort_if($orders->isEmpty(), 404);
+        if ($orders->isEmpty()) {
+            \Log::error('[Marketplace Checkout Success] No orders found - returning 404', [
+                'token' => $token
+            ]);
+            abort(404);
+        }
 
         if ($orders->where('is_finished', false)->isNotEmpty()) {
+            \Log::info('[Marketplace Checkout Success] Processing unfinished orders', [
+                'unfinished_count' => $orders->where('is_finished', false)->count()
+            ]);
+            
             foreach ($orders->where('is_finished', false) as $order) {
                 if ((float) $order->amount && ! $order->payment_id) {
+                    \Log::warning('[Marketplace Checkout Success] Skipping order - has amount but no payment', [
+                        'order_id' => $order->id,
+                        'amount' => $order->amount
+                    ]);
                     continue;
                 }
 
+                \Log::info('[Marketplace Checkout Success] Finalizing order', [
+                    'order_id' => $order->id,
+                    'amount' => $order->amount,
+                    'payment_id' => $order->payment_id
+                ]);
+                
                 $order->is_finished = true;
                 $order->save();
 
@@ -952,18 +988,31 @@ class OrderSupportServiceProvider extends ServiceProvider
             }
         }
 
+        \Log::info('[Marketplace Checkout Success] Clearing sessions and cart', [
+            'token' => $token,
+            'confirm_cart_count_before' => Cart::instance('confirm_payment')->count()
+        ]);
+
         OrderHelper::clearSessions($token);
         
         // Clear confirm payment cart after successful payment
         Cart::instance('confirm_payment')->destroy();
-        \Log::info('[Marketplace Checkout Success] Confirm payment cart cleared', [
+        
+        \Log::info('[Marketplace Checkout Success] Cart cleared', [
             'token' => $token,
-            'order_count' => $orders->count()
+            'confirm_cart_count_after' => Cart::instance('confirm_payment')->count(),
+            'session_data_cleared' => true
         ]);
         
         // Clear checkout sessions
         session()->forget('checkout_selected_items');
         session()->forget('checkout_processing_items');
+
+        \Log::info('[Marketplace Checkout Success] Rendering thank you page', [
+            'token' => $token,
+            'order_count' => $orders->count(),
+            'view' => 'plugins/marketplace::orders.thank-you'
+        ]);
 
         return view('plugins/marketplace::orders.thank-you', compact('orders'));
     }

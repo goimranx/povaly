@@ -1223,6 +1223,13 @@ class PublicCheckoutController extends BaseController
 
     public function getCheckoutSuccess(string $token)
     {
+        \Log::info('[Checkout Success] START', [
+            'token' => $token,
+            'url' => request()->url(),
+            'session_id' => session()->getId(),
+            'marketplace_active' => is_plugin_active('marketplace')
+        ]);
+        
         abort_unless(EcommerceHelper::isCartEnabled(), 404);
 
         /**
@@ -1234,24 +1241,44 @@ class PublicCheckoutController extends BaseController
             ->latest('id')
             ->firstOrFail();
 
+        \Log::info('[Checkout Success] Order found', [
+            'token' => $token,
+            'order_id' => $order->id,
+            'is_finished' => $order->is_finished,
+            'amount' => $order->amount,
+            'payment_id' => $order->payment_id
+        ]);
+
         if (session('tracked_start_checkout')) {
             app(GoogleTagManager::class)->purchase($order);
             app(FacebookPixel::class)->purchase($order);
         }
 
         if (is_plugin_active('marketplace')) {
+            \Log::info('[Checkout Success] Redirecting to marketplace handler', [
+                'token' => $token,
+                'order_id' => $order->id
+            ]);
             return apply_filters(PROCESS_GET_CHECKOUT_SUCCESS_IN_ORDER, $token, $this->httpResponse());
         }
 
         $products = $order->getOrderProducts();
 
+        \Log::info('[Checkout Success] Clearing sessions and cart', [
+            'token' => $token,
+            'order_id' => $order->id,
+            'confirm_cart_count_before' => Cart::instance('confirm_payment')->count()
+        ]);
+
         OrderHelper::clearSessions($token);
         
         // Clear confirm payment cart after successful payment
         Cart::instance('confirm_payment')->destroy();
-        \Log::info('[Checkout Success] Confirm payment cart cleared after successful payment', [
+        
+        \Log::info('[Checkout Success] Cart cleared', [
+            'token' => $token,
             'order_id' => $order->id,
-            'token' => $token
+            'confirm_cart_count_after' => Cart::instance('confirm_payment')->count()
         ]);
         
         // Clear checkout sessions
@@ -1259,6 +1286,13 @@ class PublicCheckoutController extends BaseController
         session()->forget('checkout_processing_items');
 
         $thankYouView = Theme::getThemeNamespace('views.ecommerce.orders.thank-you');
+
+        \Log::info('[Checkout Success] Rendering thank you page', [
+            'token' => $token,
+            'order_id' => $order->id,
+            'view' => $thankYouView,
+            'view_exists' => view()->exists($thankYouView)
+        ]);
 
         if (view()->exists($thankYouView)) {
             return view($thankYouView, compact('order', 'products'));
