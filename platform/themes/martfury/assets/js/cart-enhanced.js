@@ -265,30 +265,105 @@
          */
         const qtyInputs = document.querySelectorAll('.ps-cart-product-item .qty-input');
         qtyInputs.forEach(input => {
-            // Listen for input changes
+            let debounceTimer;
+            
+            // Listen for input changes and submit via AJAX
             input.addEventListener('change', function() {
                 updateCartSummary();
+                
+                // Debounce the AJAX call
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    submitCartUpdate(input);
+                }, 500);
             });
             
             // Listen for button clicks (+ and -)
             const productItem = input.closest('.ps-cart-product-item');
             if (productItem) {
-                const decreaseBtn = productItem.querySelector('.decrease');
-                const increaseBtn = productItem.querySelector('.increase');
+                const upBtn = productItem.querySelector('.product__qty .up');
+                const downBtn = productItem.querySelector('.product__qty .down');
                 
-                if (decreaseBtn) {
-                    decreaseBtn.addEventListener('click', function() {
+                if (upBtn) {
+                    upBtn.addEventListener('click', function() {
                         setTimeout(updateCartSummary, 100);
                     });
                 }
                 
-                if (increaseBtn) {
-                    increaseBtn.addEventListener('click', function() {
+                if (downBtn) {
+                    downBtn.addEventListener('click', function() {
                         setTimeout(updateCartSummary, 100);
                     });
                 }
             }
         });
+        
+        /**
+         * Submit cart update via AJAX
+         */
+        function submitCartUpdate(qtyInput) {
+            if (typeof jQuery === 'undefined') return;
+            
+            const form = qtyInput.closest('form.form--shopping-cart');
+            if (!form) return;
+            
+            // Get form data
+            const formData = jQuery(form).serialize();
+            
+            // Submit AJAX request
+            jQuery.ajax({
+                type: 'POST',
+                url: jQuery(form).attr('action'),
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.error) {
+                        if (response.message) {
+                            alert(response.message);
+                        }
+                        // Reload page on error
+                        location.reload();
+                    } else {
+                        // Update cart data in the page without full reload
+                        if (response.data) {
+                            updateCartUI(response.data);
+                        }
+                        
+                        // Trigger cart updated event
+                        jQuery(document).trigger('cart.updated', [response.data]);
+                        
+                        // Show success message briefly if needed
+                        if (response.message) {
+                            // Optional: show a small toast notification
+                            console.log(response.message);
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Cart update failed:', error);
+                    // On error, reload the page to ensure consistency
+                    location.reload();
+                }
+            });
+        }
+        
+        /**
+         * Update cart UI with response data
+         */
+        function updateCartUI(data) {
+            // Update flyout cart count if available
+            if (data.count !== undefined) {
+                jQuery('[data-bb-toggle="cart-sidebar"] .cart-counter, .cart-dropdown .cart-counter').text(data.count);
+            }
+            
+            // Update cart totals if they're in the response
+            if (data.total_price) {
+                // This will be handled by the summary update
+            }
+            
+            // Refresh the cart summary
+            updateCartSummary();
+        }
         
         // Also monitor for updates via cart update AJAX
         if (typeof jQuery !== 'undefined') {
