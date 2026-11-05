@@ -155,7 +155,7 @@ class PublicCheckoutController extends BaseController
                         $item->qty,
                         $item->price,
                         $item->options->toArray()
-                    )->associate($item->model);
+                    )->associate($item->associatedModel);
                 }
                 
                 \Log::info('Cart after replacement:', ['count' => Cart::instance('cart')->count()]);
