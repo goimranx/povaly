@@ -1032,10 +1032,9 @@ class Cart
 
     public function products(): Collection|EloquentCollection
     {
-        if ($this->products) {
-            return $this->products;
-        }
-
+        // Don't use cached products - always fetch fresh to avoid instance contamination
+        // The cache was causing confirm_payment cart to return cart instance's empty products
+        
         \Log::info('Cart::products() called for instance: ' . $this->currentInstance());
 
         $cartContent = $this->content();  // Use current instance instead of hardcoded 'cart'
@@ -1103,9 +1102,8 @@ class Cart
             'product_names' => $this->products->pluck('name')->toArray()
         ]);
 
-        if ($this->products->isEmpty()) {
-            $this->instance('cart')->destroy();
-        }
+        // Don't destroy cart instance here - it causes instance switching issues
+        // The empty check was destroying the wrong instance
 
         return $this->products;
     }
