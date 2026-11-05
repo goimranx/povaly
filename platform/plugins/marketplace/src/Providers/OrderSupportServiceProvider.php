@@ -152,7 +152,7 @@ class OrderSupportServiceProvider extends ServiceProvider
         \Log::info('[Marketplace POST Checkout] Products grouped by store', [
             'token' => $token,
             'store_count' => count($groupedProducts),
-            'store_ids' => array_keys($groupedProducts)
+            'store_ids' => $groupedProducts instanceof Collection ? $groupedProducts->keys()->toArray() : array_keys($groupedProducts)
         ]);
 
         // Block checkout if any store in the cart is on vacation (covers items added before the vendor paused the store).
