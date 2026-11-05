@@ -567,8 +567,8 @@
                             Theme.lazyLoadInstance.update()
                         }
                         // Reinitialize cart enhanced after reload
-                        if (typeof window.initCartEnhanced === 'function') {
-                            window.initCartEnhanced()
+                        if (typeof window.resetCartEnhanced === 'function') {
+                            window.resetCartEnhanced()
                         }
                     })
 
@@ -632,6 +632,10 @@
                         $('.ps-section--shopping').load(window.location.href + '?applied_coupon=1 .ps-section--shopping > *', function() {
                             _self.prop('disabled', false).removeClass('btn-disabled').removeClass('button-loading')
                             Theme.showSuccess(res.message)
+                            // Reinitialize cart enhanced after reload
+                            if (typeof window.resetCartEnhanced === 'function') {
+                                window.resetCartEnhanced()
+                            }
                         })
                     } else {
                         Theme.showError(res.message)
@@ -661,6 +665,10 @@
                     if (!res.error) {
                         $('.ps-section--shopping').load(window.location.href + ' .ps-section--shopping > *', function() {
                             _self.text(buttonText)
+                            // Reinitialize cart enhanced after reload
+                            if (typeof window.resetCartEnhanced === 'function') {
+                                window.resetCartEnhanced()
+                            }
                         })
                     } else {
                         Theme.showError(res.message)

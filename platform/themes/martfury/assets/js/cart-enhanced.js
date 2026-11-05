@@ -74,30 +74,23 @@
             
             if (!itemCountEl || !subtotalEl) return;
             
-            // If nothing selected, show original full totals (not zero)
+            // Get currency from original text
+            const originalText = subtotalEl.textContent;
+            const currencyMatch = originalText.match(/[^\d.,\s]+/);
+            const currency = currencyMatch ? currencyMatch[0] : '৳';
+            
+            const formatPrice = (value) => {
+                const num = parseFloat(value);
+                if (isNaN(num)) return currency + '0.00';
+                return currency + num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            };
+            
+            // If nothing selected, show zero
             if (checkedItems.length === 0) {
-                // Restore from data attributes
-                const originalCount = itemCountEl.dataset.total || '0';
-                const originalSubtotal = subtotalEl.dataset.total || '0';
-                const originalTax = taxEl ? (taxEl.dataset.total || '0') : '0';
-                const originalTotal = totalEl ? (totalEl.dataset.total || '0') : '0';
-                
-                itemCountEl.textContent = originalCount;
-                
-                // Get currency from original text
-                const originalText = subtotalEl.textContent;
-                const currencyMatch = originalText.match(/[^\d.,\s]+/);
-                const currency = currencyMatch ? currencyMatch[0] : '৳';
-                
-                const formatPrice = (value) => {
-                    const num = parseFloat(value);
-                    if (isNaN(num)) return currency + '0.00';
-                    return currency + num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                };
-                
-                subtotalEl.textContent = formatPrice(originalSubtotal);
-                if (taxEl) taxEl.textContent = formatPrice(originalTax);
-                if (totalEl) totalEl.textContent = formatPrice(originalTotal);
+                itemCountEl.textContent = '0';
+                subtotalEl.textContent = formatPrice(0);
+                if (taxEl) taxEl.textContent = formatPrice(0);
+                if (totalEl) totalEl.textContent = formatPrice(0);
                 return;
             }
             
@@ -128,12 +121,7 @@
             
             itemCountEl.textContent = checkedItems.length;
             
-            // Format price with proper currency
-            const originalText = subtotalEl.textContent;
-            const currencyMatch = originalText.match(/[^\d.,\s]+/);
-            const currency = currencyMatch ? currencyMatch[0] : '৳';
-            
-            const formattedSubtotal = currency + selectedSubtotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            const formattedSubtotal = formatPrice(selectedSubtotal);
             subtotalEl.textContent = formattedSubtotal;
             
             // Calculate tax if tax element exists
@@ -144,12 +132,12 @@
                 const taxRate = originalTotal > 0 ? originalTax / originalTotal : 0;
                 const selectedTax = selectedSubtotal * taxRate;
                 
-                const formattedTax = currency + selectedTax.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                const formattedTax = formatPrice(selectedTax);
                 taxEl.textContent = formattedTax;
                 
                 if (totalEl) {
                     const selectedTotal = selectedSubtotal + selectedTax;
-                    const formattedTotal = currency + selectedTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    const formattedTotal = formatPrice(selectedTotal);
                     totalEl.textContent = formattedTotal;
                 }
             } else {
@@ -354,17 +342,77 @@
         const qtyInputs = tabContent.querySelectorAll('.ps-cart-product-item .qty-input');
         qtyInputs.forEach(input => {
             input.addEventListener('change', function() {
-                setTimeout(() => updateCartSummary(tabContent), 100);
+                // Save current state before qty change triggers reload
+                saveCartState(tabId);
             });
         });
+        
+        /**
+         * Save cart state to sessionStorage
+         */
+        function saveCartState(currentTabId) {
+            const checkedRowIds = Array.from(tabContent.querySelectorAll('.ps-cart-checkbox-item:checked'))
+                .map(cb => cb.dataset.rowId);
+            
+            sessionStorage.setItem('cart_active_tab', currentTabId);
+            sessionStorage.setItem(`cart_selected_items_${currentTabId}`, JSON.stringify(checkedRowIds));
+        }
+    }
+    
+    /**
+     * Restore cart state after page reload
+     */
+    function restoreCartState() {
+        const activeTabId = sessionStorage.getItem('cart_active_tab');
+        
+        if (activeTabId) {
+            // Switch to the active tab
+            const tabButton = document.querySelector(`[data-tab="${activeTabId}"]`);
+            if (tabButton && !tabButton.classList.contains('active')) {
+                tabButton.click();
+            }
+            
+            // Restore selected items for this tab
+            const selectedItems = sessionStorage.getItem(`cart_selected_items_${activeTabId}`);
+            if (selectedItems) {
+                const rowIds = JSON.parse(selectedItems);
+                const tabContent = document.querySelector(`[data-tab-content="${activeTabId}"]`);
+                
+                if (tabContent) {
+                    rowIds.forEach(rowId => {
+                        const checkbox = tabContent.querySelector(`.ps-cart-checkbox-item[data-row-id="${rowId}"]`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+                    });
+                    
+                    // Trigger update to recalculate checkboxes and summary
+                    const mainCheckbox = tabContent.querySelector(`#selectAllCheckbox-${activeTabId}`);
+                    if (mainCheckbox) {
+                        // Manually trigger the update logic
+                        const event = new Event('change');
+                        const firstCheckbox = tabContent.querySelector('.ps-cart-checkbox-item');
+                        if (firstCheckbox) {
+                            firstCheckbox.dispatchEvent(event);
+                        }
+                    }
+                }
+            }
+        }
     }
     
     /**
      * Initialize all tabs
      */
     function initCartEnhanced() {
+        // Clear initialization tracking when page reloads
+        initializedTabs.clear();
+        
         initCartTab('shopping');
         initCartTab('confirm-payment');
+        
+        // Restore state after initialization
+        restoreCartState();
     }
     
     /**
@@ -376,11 +424,18 @@
     }
     
     // Initialize on DOM ready
-    document.addEventListener('DOMContentLoaded', initCartEnhanced);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCartEnhanced);
+    } else {
+        // DOM already loaded, initialize immediately
+        initCartEnhanced();
+    }
     
-    // Reinitialize after tab switch (but don't re-attach event listeners)
+    // Reinitialize after AJAX cart reload
     if (typeof jQuery !== 'undefined') {
-        jQuery(document).on('cartEnhancedReloaded', initCartEnhanced);
+        jQuery(document).on('cartEnhancedReloaded', function() {
+            resetCartEnhanced();
+        });
     }
     
     // Make functions globally available
