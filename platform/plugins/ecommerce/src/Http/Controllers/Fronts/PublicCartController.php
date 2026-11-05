@@ -132,6 +132,9 @@ class PublicCartController extends BaseController
         if (Cart::instance('cart')->isNotEmpty()) {
             [$products, $promotionDiscountAmount, $couponDiscountAmount] = $this->getCartData();
 
+            \Log::info('[Cart Debug] Main cart products count: ' . count($products));
+            \Log::info('[Cart Debug] Main cart instance: cart');
+
             $crossSellProducts = get_cart_cross_sale_products(
                 $products->pluck('original_product.id')->all(),
                 (int) theme_option('number_of_cross_sale_product', 4)
@@ -143,6 +146,14 @@ class PublicCartController extends BaseController
             // Get products directly from confirm_payment instance
             $confirmPaymentCart = Cart::instance('confirm_payment');
             $confirmPaymentProducts = $confirmPaymentCart->products();
+            
+            \Log::info('[Cart Debug] Confirm payment products count: ' . count($confirmPaymentProducts));
+            \Log::info('[Cart Debug] Confirm payment instance: confirm_payment');
+            \Log::info('[Cart Debug] Confirm payment raw content: ' . json_encode($confirmPaymentCart->content()->map(fn($item) => [
+                'id' => $item->id,
+                'name' => $item->name,
+                'qty' => $item->qty
+            ])));
             
             // Build cart data for promotions (separate from main cart)
             $confirmPaymentCartData = [

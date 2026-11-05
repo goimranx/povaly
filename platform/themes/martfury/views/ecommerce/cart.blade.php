@@ -46,6 +46,11 @@
                             $currentPromotionDiscount = $promotionDiscountAmount;
                             $currentCouponDiscount = $couponDiscountAmount;
                             $tabId = 'shopping';
+                            
+                            \Log::info('[Blade Debug] Rendering shopping tab');
+                            \Log::info('[Blade Debug] Shopping - currentCartInstance: ' . $currentCartInstance);
+                            \Log::info('[Blade Debug] Shopping - currentProducts count: ' . count($currentProducts));
+                            \Log::info('[Blade Debug] Shopping - product names: ' . $currentProducts->pluck('name')->join(', '));
                         @endphp
                         <form class="form--shopping-cart" method="post" action="{{ route('public.cart.update') }}">
                             @csrf
@@ -121,6 +126,11 @@
                             $currentPromotionDiscount = $confirmPaymentPromotionDiscount ?? 0;
                             $currentCouponDiscount = $confirmPaymentCouponDiscount ?? 0;
                             $tabId = 'confirm-payment';
+                            
+                            \Log::info('[Blade Debug] Rendering confirm-payment tab');
+                            \Log::info('[Blade Debug] Confirm - currentCartInstance: ' . $currentCartInstance);
+                            \Log::info('[Blade Debug] Confirm - currentProducts count: ' . count($currentProducts));
+                            \Log::info('[Blade Debug] Confirm - product names: ' . $currentProducts->pluck('name')->join(', '));
                         @endphp
                         
                         <form class="form--shopping-cart form--confirm-payment" method="post" action="{{ route('public.cart.update') }}">
