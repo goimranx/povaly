@@ -60,6 +60,13 @@ class PublicCartController extends BaseController
 
     protected function persistCart(): void
     {
+        \Log::info('[Persist Cart] Starting', [
+            'session_id' => session()->getId(),
+            'customer_id' => auth('customer')->id(),
+            'main_cart_count' => Cart::instance('cart')->count(),
+            'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
+        ]);
+        
         // Persist main cart
         if (auth('customer')->check()) {
             Cart::instance('cart')->storeForCustomerQuietly(auth('customer')->id());
@@ -70,13 +77,26 @@ class PublicCartController extends BaseController
         
         // Also persist confirm_payment cart if it has items
         if (Cart::instance('confirm_payment')->isNotEmpty()) {
+            \Log::info('[Persist Cart] Persisting confirm_payment cart', [
+                'content' => Cart::instance('confirm_payment')->content()->map(fn($item) => [
+                    'rowId' => $item->rowId,
+                    'id' => $item->id,
+                    'qty' => $item->qty,
+                    'name' => $item->name,
+                ])->toArray(),
+            ]);
+            
             if (auth('customer')->check()) {
                 Cart::instance('confirm_payment')->storeForCustomerQuietly(auth('customer')->id());
             } else {
                 $identifier = $this->getOrCreateGuestCartIdentifier();
                 Cart::instance('confirm_payment')->updateOrStoreQuietly($identifier);
             }
+            
+            \Log::info('[Persist Cart] confirm_payment cart persisted');
         }
+        
+        \Log::info('[Persist Cart] Completed');
     }
 
     protected function getOrCreateGuestCartIdentifier(): string
@@ -143,6 +163,17 @@ class PublicCartController extends BaseController
         
         // Load CONFIRM PAYMENT CART data (completely separate)
         if (Cart::instance('confirm_payment')->isNotEmpty()) {
+            \Log::info('[Cart Index] Loading confirm_payment cart', [
+                'session_id' => session()->getId(),
+                'customer_id' => auth('customer')->id(),
+                'raw_content' => Cart::instance('confirm_payment')->content()->map(fn($item) => [
+                    'rowId' => $item->rowId,
+                    'id' => $item->id,
+                    'qty' => $item->qty,
+                    'name' => $item->name,
+                ])->toArray(),
+            ]);
+            
             // Get products directly from confirm_payment instance
             $confirmPaymentCart = Cart::instance('confirm_payment');
             
@@ -155,6 +186,11 @@ class PublicCartController extends BaseController
                 ->whereIn('id', $productIds)
                 ->wherePublished()
                 ->get();
+            
+            \Log::info('[Cart Index] Loaded confirm_payment products from DB', [
+                'product_ids' => $confirmPaymentProducts->pluck('id')->toArray(),
+                'product_names' => $confirmPaymentProducts->pluck('name')->toArray(),
+            ]);
             
             \Log::info('[Cart Debug] Confirm payment products count: ' . count($confirmPaymentProducts));
             \Log::info('[Cart Debug] Confirm payment instance: confirm_payment');
@@ -654,14 +690,38 @@ class PublicCartController extends BaseController
 
         // Get cart instance from request, default to 'cart'
         $cartInstance = $request->input('cart_instance', 'cart');
+        
+        \Log::info('[Cart Update] Starting update', [
+            'cart_instance' => $cartInstance,
+            'request_data' => $request->input('items'),
+            'session_id' => session()->getId(),
+            'customer_id' => auth('customer')->id(),
+        ]);
 
         $data = $request->input('items', []);
 
         $outOfQuantity = false;
         foreach ($data as $item) {
+            \Log::info('[Cart Update] Processing item', [
+                'cart_instance' => $cartInstance,
+                'rowId' => $item['rowId'],
+                'new_qty' => $item['values']['qty'] ?? null,
+            ]);
+            
             $cartItem = Cart::instance($cartInstance)->get($item['rowId']);
+            
+            \Log::info('[Cart Update] Cart item fetched', [
+                'cart_instance' => $cartInstance,
+                'found' => $cartItem !== null,
+                'current_qty' => $cartItem ? $cartItem->qty : null,
+                'product_id' => $cartItem ? $cartItem->id : null,
+            ]);
 
             if (! $cartItem) {
+                \Log::warning('[Cart Update] Cart item not found', [
+                    'cart_instance' => $cartInstance,
+                    'rowId' => $item['rowId'],
+                ]);
                 continue;
             }
 
@@ -686,8 +746,26 @@ class PublicCartController extends BaseController
 
                 if ($product->isOutOfStock()) {
                     $outOfQuantity = true;
+                    \Log::warning('[Cart Update] Product out of stock', [
+                        'cart_instance' => $cartInstance,
+                        'product_id' => $product->id,
+                    ]);
                 } else {
+                    \Log::info('[Cart Update] Updating cart item', [
+                        'cart_instance' => $cartInstance,
+                        'rowId' => $item['rowId'],
+                        'new_qty' => Arr::get($item, 'values.qty'),
+                    ]);
+                    
                     Cart::instance($cartInstance)->update($item['rowId'], Arr::get($item, 'values'));
+                    
+                    // Verify the update
+                    $updatedItem = Cart::instance($cartInstance)->get($item['rowId']);
+                    \Log::info('[Cart Update] After update verification', [
+                        'cart_instance' => $cartInstance,
+                        'rowId' => $item['rowId'],
+                        'qty_after_update' => $updatedItem ? $updatedItem->qty : null,
+                    ]);
                 }
 
                 $product->quantity = $originalQuantity;
@@ -702,7 +780,29 @@ class PublicCartController extends BaseController
                 ->setMessage(trans('plugins/ecommerce::products.cart.not_enough_quantity'));
         }
 
+        \Log::info('[Cart Update] Before persistCart', [
+            'cart_instance' => $cartInstance,
+            'cart_count' => Cart::instance($cartInstance)->count(),
+            'cart_content' => Cart::instance($cartInstance)->content()->map(fn($item) => [
+                'rowId' => $item->rowId,
+                'id' => $item->id,
+                'qty' => $item->qty,
+                'name' => $item->name,
+            ])->toArray(),
+        ]);
+
         $this->persistCart();
+        
+        \Log::info('[Cart Update] After persistCart', [
+            'cart_instance' => $cartInstance,
+            'cart_count' => Cart::instance($cartInstance)->count(),
+            'cart_content' => Cart::instance($cartInstance)->content()->map(fn($item) => [
+                'rowId' => $item->rowId,
+                'id' => $item->id,
+                'qty' => $item->qty,
+                'name' => $item->name,
+            ])->toArray(),
+        ]);
 
         return $this
             ->httpResponse()
