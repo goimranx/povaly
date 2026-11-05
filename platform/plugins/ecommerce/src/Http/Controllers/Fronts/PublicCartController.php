@@ -123,8 +123,8 @@ class PublicCartController extends BaseController
         session()->forget('checkout_selected_items');
         session()->forget('checkout_processing_items');
         
-        // Cart restoration from confirm_payment now happens in RestoreCustomerCartMiddleware
-        // This ensures it works globally on every page, not just when visiting /cart
+        // Note: Cart restoration from confirm_payment is now handled globally
+        // by RestoreCustomerCartMiddleware on first non-AJAX page load after leaving checkout
         
         if ($token = $request->query('token')) {
             try {

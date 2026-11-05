@@ -34,9 +34,17 @@ class RestoreCustomerCartMiddleware
                 $this->handleGuestCart($request, $cart);
             }
             
-            // RESTORE abandoned checkout items from confirm_payment to main cart
-            // This runs on every page load to ensure flyout/header are always up-to-date
-            $this->restoreAbandonedCheckout($cart);
+            // RESTORE abandoned checkout items - but ONLY if user has LEFT checkout
+            // Check if confirm_payment cart exists AND we're not currently in checkout
+            // AND this isn't an AJAX request (which might be from checkout page)
+            $isCheckoutPage = $request->is('checkout/*') || $request->is('*/checkout/*');
+            $isAjaxRequest = $request->ajax() || $request->wantsJson();
+            
+            // Only restore on full page loads (not AJAX) when NOT on checkout page
+            // This ensures we don't interfere with checkout AJAX calls
+            if (!$isCheckoutPage && !$isAjaxRequest) {
+                $this->restoreAbandonedCheckout($cart, $request);
+            }
             
         } catch (Throwable) {
             // Silently ignore during upgrade when customer_id column doesn't exist yet
@@ -45,7 +53,7 @@ class RestoreCustomerCartMiddleware
         return $next($request);
     }
     
-    protected function restoreAbandonedCheckout($cart): void
+    protected function restoreAbandonedCheckout($cart, $request): void
     {
         // Only restore if confirm_payment cart has items (checkout was abandoned)
         if (Cart::instance('confirm_payment')->isEmpty()) {
@@ -60,7 +68,7 @@ class RestoreCustomerCartMiddleware
         $confirmPaymentItems = Cart::instance('confirm_payment')->content();
         
         foreach ($confirmPaymentItems as $item) {
-            // Check if item already exists in main cart (by product id and options)
+            // Check if item already exists in main cart
             $existingInMainCart = $cart->search(function ($cartItem) use ($item) {
                 return $cartItem->id == $item->id && $cartItem->options == $item->options;
             })->first();
@@ -94,7 +102,7 @@ class RestoreCustomerCartMiddleware
         if (auth('customer')->check()) {
             $cart->storeForCustomer(auth('customer')->id());
         } else {
-            $guestIdentifier = request()->cookie('guest_cart_id');
+            $guestIdentifier = $request->cookie('guest_cart_id');
             if ($guestIdentifier) {
                 $cart->store($guestIdentifier);
             }
