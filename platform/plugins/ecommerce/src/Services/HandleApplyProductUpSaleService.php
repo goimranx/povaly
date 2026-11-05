@@ -20,9 +20,14 @@ class HandleApplyProductUpSaleService
 
     public function handle(): void
     {
+        // Save current instance to restore it after
+        $currentInstance = Cart::currentInstance();
+        
         $cart = Cart::instance('cart');
 
         if ($cart->isEmpty()) {
+            // Restore instance before returning
+            Cart::instance($currentInstance);
             return;
         }
 
@@ -131,6 +136,9 @@ class HandleApplyProductUpSaleService
                 );
             }
         }
+        
+        // Restore original instance
+        Cart::instance($currentInstance);
     }
 
     /**
