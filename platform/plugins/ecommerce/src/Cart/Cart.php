@@ -1009,7 +1009,16 @@ class Cart
             return $this->products;
         }
 
+        \Log::info('Cart::products() called for instance: ' . $this->currentInstance());
+
         $cartContent = $this->content();  // Use current instance instead of hardcoded 'cart'
+        
+        \Log::info('Cart content retrieved', [
+            'instance' => $this->currentInstance(),
+            'content_count' => $cartContent->count(),
+            'product_ids' => $cartContent->pluck('id')->toArray()
+        ]);
+        
         $productIds = array_unique($cartContent->pluck('id')->toArray());
         $products = collect();
         $weight = 0;
@@ -1059,6 +1068,13 @@ class Cart
 
         $this->products = $productsInCart->unique('unique_id');
         $this->weight = $weight;
+        
+        \Log::info('Cart::products() final result', [
+            'instance' => $this->currentInstance(),
+            'products_count' => $this->products->count(),
+            'product_ids' => $this->products->pluck('id')->toArray(),
+            'product_names' => $this->products->pluck('name')->toArray()
+        ]);
 
         if ($this->products->isEmpty()) {
             $this->instance('cart')->destroy();

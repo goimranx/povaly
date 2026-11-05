@@ -149,6 +149,12 @@ class PublicCheckoutController extends BaseController
             // Get products from checkout cart
             $products = Cart::instance('checkout')->products();
             
+            \Log::info('Products retrieved from checkout cart', [
+                'products_count' => $products->count(),
+                'product_ids' => $products->pluck('id')->toArray(),
+                'product_names' => $products->pluck('name')->toArray()
+            ]);
+            
         } else {
             \Log::info('Creating checkout cart from all items');
             
@@ -178,6 +184,12 @@ class PublicCheckoutController extends BaseController
             
             // Get products from checkout cart
             $products = Cart::instance('checkout')->products();
+            
+            \Log::info('Products retrieved from checkout cart', [
+                'products_count' => $products->count(),
+                'product_ids' => $products->pluck('id')->toArray(),
+                'product_names' => $products->pluck('name')->toArray()
+            ]);
         }
         
         // From this point forward, EVERYTHING uses the "checkout" cart instance
@@ -291,6 +303,15 @@ class PublicCheckoutController extends BaseController
 
         app(GoogleTagManager::class)->beginCheckout($productsArray, $orderAmount);
         app(FacebookPixel::class)->checkout($productsArray, $orderAmount);
+        
+        \Log::info('=== BEFORE RENDERING CHECKOUT VIEW ===');
+        \Log::info('Data being passed to view - products count: ' . $products->count());
+        \Log::info('Data being passed to view - products:', $products->pluck('name', 'id')->toArray());
+        \Log::info('Data being passed to view - orderAmount: ' . $orderAmount);
+        \Log::info('Data being passed to view - rawTotal: ' . $rawTotal);
+        \Log::info('Checkout cart at this point - count: ' . Cart::instance('checkout')->count());
+        \Log::info('Main cart at this point - count: ' . Cart::instance('cart')->count());
+        \Log::info('=== END BEFORE RENDERING CHECKOUT VIEW ===');
 
         $checkoutView = Theme::getThemeNamespace('views.ecommerce.orders.checkout');
 

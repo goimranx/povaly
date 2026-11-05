@@ -5,12 +5,44 @@
 </div>
 
 @php
+    \Log::info('=== CHECKOUT AMOUNT PARTIAL DEBUG ===');
+    \Log::info('Products count passed to view: ' . $products->count());
+    \Log::info('Products in view:', $products->pluck('name', 'id')->toArray());
+    
+    \Log::info('Main cart instance count: ' . Cart::instance('cart')->count());
+    \Log::info('Main cart content:', Cart::instance('cart')->content()->map(fn($item) => [
+        'id' => $item->id,
+        'name' => $item->name,
+        'qty' => $item->qty,
+        'price' => $item->price
+    ])->toArray());
+    
+    \Log::info('Checkout cart instance count: ' . Cart::instance('checkout')->count());
+    \Log::info('Checkout cart content:', Cart::instance('checkout')->content()->map(fn($item) => [
+        'id' => $item->id,
+        'name' => $item->name,
+        'qty' => $item->qty,
+        'price' => $item->price
+    ])->toArray());
+    
     $cartSubTotal = Cart::instance('checkout')->rawSubTotal();
     $cartTax = Cart::instance('checkout')->rawTax();
+    
+    \Log::info('Cart subtotal from checkout instance: ' . $cartSubTotal);
+    \Log::info('Cart tax from checkout instance: ' . $cartTax);
+    
+    $mainCartSubTotal = Cart::instance('cart')->rawSubTotal();
+    $mainCartTax = Cart::instance('cart')->rawTax();
+    
+    \Log::info('Main cart subtotal for comparison: ' . $mainCartSubTotal);
+    \Log::info('Main cart tax for comparison: ' . $mainCartTax);
+    
     $hasShipping = ! empty($shipping) && Arr::get($sessionCheckoutData, 'is_available_shipping', true) && $shippingAmount > 0;
     $hasDiscount = $couponDiscountAmount > 0 || $promotionDiscountAmount > 0;
     $hasPaymentFee = isset($paymentFee) && $paymentFee > 0;
     $showSubtotal = $cartSubTotal != $orderAmount || $cartTax > 0 || $hasShipping || $hasDiscount || $hasPaymentFee;
+    
+    \Log::info('=== END AMOUNT PARTIAL DEBUG ===');
 @endphp
 
 {{-- Order summary (subtotal, discounts, fees, total) wrapped so it can be
