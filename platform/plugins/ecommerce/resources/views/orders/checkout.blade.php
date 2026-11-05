@@ -3,7 +3,7 @@
 @section('title', theme_option('ecommerce_checkout_seo_title') ?: __('Checkout'))
 
 @section('content')
-    @if (Cart::instance('checkout')->isNotEmpty())
+    @if (Cart::instance('confirm_payment')->isNotEmpty())
         @if (is_plugin_active('payment'))
             @include('plugins/payment::partials.header')
         @endif

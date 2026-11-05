@@ -33,21 +33,21 @@ class PublicUpdateCheckoutController extends BaseController
          * @var Collection $products
          */
         // Check if we're in a checkout with selected items
-        // Check if checkout cart has items (more reliable than session check)
-        $checkoutCartCount = Cart::instance('checkout')->count();
-        $hasSelectedItems = $checkoutCartCount > 0;
+        // Check if confirm payment cart has items (more reliable than session check)
+        $confirmPaymentCartCount = Cart::instance('confirm_payment')->count();
+        $hasSelectedItems = $confirmPaymentCartCount > 0;
         
         \Log::info('AJAX Update: Determining cart instance', [
-            'checkout_cart_count' => $checkoutCartCount,
+            'confirm_payment_cart_count' => $confirmPaymentCartCount,
             'has_selected_items' => $hasSelectedItems,
             'session_has_key' => session()->has('selected_cart_items'),
             'session_value' => session()->get('selected_cart_items', [])
         ]);
         
         if ($hasSelectedItems) {
-            // Use checkout cart instance when items were selected
-            $products = Cart::instance('checkout')->products();
-            \Log::info('AJAX Update: Using checkout cart instance', [
+            // Use confirm payment cart instance when items were selected
+            $products = Cart::instance('confirm_payment')->products();
+            \Log::info('AJAX Update: Using confirm payment cart instance', [
                 'products_count' => $products->count()
             ]);
         } else {

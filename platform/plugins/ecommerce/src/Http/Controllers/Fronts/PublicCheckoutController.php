@@ -108,101 +108,95 @@ class PublicCheckoutController extends BaseController
         /**
          * @var Collection $products
          */
-        // PROFESSIONAL APPROACH: Determine checkout context based on HOW user arrived
-        // 
-        // Standard e-commerce checkout flow:
-        // 1. Cart page with selection → checkout selected items ONLY
-        // 2. Direct "Buy Now" from product → checkout that product ONLY
-        // 3. Cart page "Checkout All" → checkout all cart items
-        // 4. Any other entry point → checkout all cart items (default)
+        // TWO-CART SYSTEM:
+        // 1. Main Cart ('cart') - Regular shopping cart
+        // 2. Confirm Payment Cart ('confirm_payment') - Items in checkout process
         //
-        // IMPORTANT: Once checkout cart is created, we KEEP using it
-        // This allows users to modify quantities during checkout without losing changes
+        // FLOW:
+        // - When user clicks checkout, items MOVE from main cart → confirm payment cart
+        // - Items are REMOVED from main cart (they're now "in checkout")
+        // - If user clicks checkout again, NEW items MERGE with existing confirm payment cart
+        // - After successful payment, confirm payment cart is cleared
+        // - Both carts share same session lifetime for tracking/notification purposes
         
         // Check if user has made a new selection (from cart page)
         $selectedRowIds = session('checkout_selected_items');
         $hasNewSelection = !empty($selectedRowIds) && is_array($selectedRowIds) && count($selectedRowIds) > 0;
         
-        // Check if checkout cart already exists
-        $existingCheckoutCart = Cart::instance('checkout')->content();
-        $hasExistingCheckout = $existingCheckoutCart->isNotEmpty();
+        // Check if confirm payment cart already exists
+        $existingConfirmCart = Cart::instance('confirm_payment')->content();
+        $hasExistingConfirmCart = $existingConfirmCart->isNotEmpty();
         
-        if ($hasExistingCheckout && !$hasNewSelection) {
-            // Checkout cart already exists AND no new selection - use it as-is
-            // This preserves any quantity changes the user made during checkout
-            \Log::info('Using existing checkout cart', [
-                'checkout_cart_count' => Cart::instance('checkout')->count(),
-                'checkout_items' => $existingCheckoutCart->map(fn($item) => [
+        if (!$hasNewSelection && $hasExistingConfirmCart) {
+            // No new selection AND confirm payment cart exists - use existing confirm payment cart
+            // This preserves any quantity changes user made during checkout
+            \Log::info('Using existing confirm payment cart', [
+                'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
+                'confirm_payment_items' => $existingConfirmCart->map(fn($item) => [
                     'id' => $item->id,
-                    'qty' => $item->qty
+                    'qty' => $item->qty,
+                    'rowId' => $item->rowId
                 ])->toArray()
             ]);
             
-            $products = Cart::instance('checkout')->products();
+            $products = Cart::instance('confirm_payment')->products();
             
         } else {
-            // Either no checkout cart exists, OR user made a new selection
-            // In both cases, we need to (re)create the checkout cart
-            
-            if ($hasExistingCheckout) {
-                // Clear existing checkout cart before creating new one
-                \Log::info('Clearing existing checkout cart due to new selection');
-                Cart::instance('checkout')->destroy();
-            }
+            // New selection detected - MOVE/MERGE items from main cart to confirm payment cart
             
             $hasSelection = $hasNewSelection;
             
-            \Log::info('Creating new checkout cart - determining context', [
-                'has_selection_in_session' => $hasSelection,
+            \Log::info('Moving items to confirm payment cart', [
+                'has_selection' => $hasSelection,
                 'selected_count' => $hasSelection ? count($selectedRowIds) : 0,
                 'main_cart_count' => Cart::instance('cart')->count(),
-                'request_referer' => request()->headers->get('referer')
+                'existing_confirm_payment_count' => Cart::instance('confirm_payment')->count()
             ]);
+            
+            $itemsToMove = collect();
             
             if ($hasSelection) {
                 // User came from cart page with specific items selected
-                \Log::info('Creating checkout cart from selected items (cart page selection)');
+                \Log::info('Moving selected items to confirm payment cart');
                 
                 // Get selected items from main cart
                 $mainCartContent = Cart::instance('cart')->content();
-                $selectedItems = $mainCartContent->filter(function ($item) use ($selectedRowIds) {
+                $itemsToMove = $mainCartContent->filter(function ($item) use ($selectedRowIds) {
                     return in_array($item->rowId, $selectedRowIds);
                 });
                 
-                // Validate that selected items still exist in cart
-                if ($selectedItems->isEmpty()) {
+                if ($itemsToMove->isEmpty()) {
                     \Log::warning('Selected items no longer exist in cart, using all items instead');
                     $hasSelection = false;
-                } else {
-                    // Copy selected items to checkout cart
-                    foreach ($selectedItems as $item) {
-                        $cartItem = Cart::instance('checkout')->add(
-                            $item->id,
-                            $item->name,
-                            $item->qty,
-                            $item->price,
-                            $item->options->toArray()
-                        );
-                        
-                        // Associate model if available
-                        if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
-                            $cartItem->associate($item->associatedModel);
-                        }
-                    }
-                    
-                    \Log::info('Checkout cart created with selected items', [
-                        'checkout_cart_count' => Cart::instance('checkout')->count()
-                    ]);
                 }
             }
             
             if (!$hasSelection) {
-                // Default behavior: checkout ALL items from cart
-                \Log::info('Creating checkout cart from ALL cart items (default behavior)');
+                // Default: Move ALL items from main cart
+                \Log::info('Moving ALL cart items to confirm payment cart');
+                $itemsToMove = Cart::instance('cart')->content();
+            }
+            
+            // MERGE logic: Add/update items in confirm payment cart
+            foreach ($itemsToMove as $item) {
+                // Check if item already exists in confirm payment cart
+                $existingItem = $existingConfirmCart->where('id', $item->id)
+                    ->where('options', $item->options)
+                    ->first();
                 
-                // Copy ALL items from main cart to checkout cart
-                foreach (Cart::instance('cart')->content() as $item) {
-                    $cartItem = Cart::instance('checkout')->add(
+                if ($existingItem) {
+                    // Item exists - UPDATE quantity (merge)
+                    $newQty = $existingItem->qty + $item->qty;
+                    Cart::instance('confirm_payment')->update($existingItem->rowId, $newQty);
+                    \Log::info('Merged item in confirm payment cart', [
+                        'product_id' => $item->id,
+                        'old_qty' => $existingItem->qty,
+                        'add_qty' => $item->qty,
+                        'new_qty' => $newQty
+                    ]);
+                } else {
+                    // Item doesn't exist - ADD to confirm payment cart
+                    $cartItem = Cart::instance('confirm_payment')->add(
                         $item->id,
                         $item->name,
                         $item->qty,
@@ -214,17 +208,31 @@ class PublicCheckoutController extends BaseController
                     if (!empty($item->associatedModel) && is_string($item->associatedModel)) {
                         $cartItem->associate($item->associatedModel);
                     }
+                    
+                    \Log::info('Added new item to confirm payment cart', [
+                        'product_id' => $item->id,
+                        'qty' => $item->qty
+                    ]);
                 }
                 
-                \Log::info('Checkout cart created with all items', [
-                    'checkout_cart_count' => Cart::instance('checkout')->count()
+                // REMOVE item from main cart (it's now in checkout)
+                Cart::instance('cart')->remove($item->rowId);
+                \Log::info('Removed item from main cart', [
+                    'rowId' => $item->rowId,
+                    'product_id' => $item->id
                 ]);
             }
             
-            // Get products from newly created checkout cart
-            $products = Cart::instance('checkout')->products();
+            \Log::info('Items moved to confirm payment cart', [
+                'moved_count' => $itemsToMove->count(),
+                'confirm_payment_total_count' => Cart::instance('confirm_payment')->count(),
+                'main_cart_remaining' => Cart::instance('cart')->count()
+            ]);
             
-            \Log::info('Products retrieved from checkout cart', [
+            // Get products from confirm payment cart
+            $products = Cart::instance('confirm_payment')->products();
+            
+            \Log::info('Products retrieved from confirm payment cart', [
                 'products_count' => $products->count(),
                 'product_ids' => $products->pluck('id')->toArray()
             ]);
@@ -233,8 +241,8 @@ class PublicCheckoutController extends BaseController
             session()->forget('checkout_selected_items');
         }
         
-        // From this point forward, EVERYTHING uses the "checkout" cart instance
-        // Main cart remains untouched
+        // From this point forward, EVERYTHING uses the "confirm_payment" cart instance
+        // Main cart is preserved with remaining items
         
         if ($products->isEmpty()) {
             return $this
@@ -350,7 +358,7 @@ class PublicCheckoutController extends BaseController
         \Log::info('Data being passed to view - products:', $products->pluck('name', 'id')->toArray());
         \Log::info('Data being passed to view - orderAmount: ' . $orderAmount);
         \Log::info('Data being passed to view - rawTotal: ' . $rawTotal);
-        \Log::info('Checkout cart at this point - count: ' . Cart::instance('checkout')->count());
+        \Log::info('Confirm payment cart at this point - count: ' . Cart::instance('confirm_payment')->count());
         \Log::info('Main cart at this point - count: ' . Cart::instance('cart')->count());
         \Log::info('=== END BEFORE RENDERING CHECKOUT VIEW ===');
 
@@ -551,9 +559,9 @@ class PublicCheckoutController extends BaseController
 
         $sessionData = array_merge($sessionData, $addressData);
 
-        Cart::instance('checkout')->refresh();
+        Cart::instance('confirm_payment')->refresh();
 
-        $products = Cart::instance('checkout')->products();
+        $products = Cart::instance('confirm_payment')->products();
 
         $shippingMethod = $request->input('shipping_method', Arr::get($sessionData, 'shipping_method'));
         $shippingOption = $request->input('shipping_option', Arr::get($sessionData, 'shipping_option'));
@@ -592,7 +600,7 @@ class PublicCheckoutController extends BaseController
         // its stale items/total while the payment is captured for the new cart amount. We
         // detect a cart change by comparing the cart's last-updated timestamp against the one
         // recorded when the order products were last built, and force a rebuild when they differ.
-        $cartLastUpdatedAt = Cart::instance('checkout')->getLastUpdatedAt();
+        $cartLastUpdatedAt = Cart::instance('confirm_payment')->getLastUpdatedAt();
         $storedCartUpdatedAt = Arr::get($sessionData, 'created_order_product');
         $cartChangedSinceOrder = $storedCartUpdatedAt
             && $cartLastUpdatedAt
@@ -622,7 +630,7 @@ class PublicCheckoutController extends BaseController
                     ? $existingOrder->payment_fee
                     : Arr::get($sessionData, 'payment_fee', 0);
 
-                $amountToUse = Cart::instance('checkout')->rawTotal() + $shippingAmountToUse + $shippingTaxAmountToUse + $paymentFeeToUse;
+                $amountToUse = Cart::instance('confirm_payment')->rawTotal() + $shippingAmountToUse + $shippingTaxAmountToUse + $paymentFeeToUse;
 
                 $shippingMethodToUse = $shippingMethod ?? ShippingMethodEnum::DEFAULT;
                 $shippingOptionToUse = $shippingOption;
@@ -630,7 +638,7 @@ class PublicCheckoutController extends BaseController
                 $shippingAmountToUse = $existingOrder ? $existingOrder->shipping_amount : 0;
                 $shippingTaxAmountToUse = $existingOrder ? $existingOrder->shipping_tax_amount : 0;
                 $paymentFeeToUse = $existingOrder ? $existingOrder->payment_fee : 0;
-                $amountToUse = $existingOrder ? $existingOrder->amount : Cart::instance('checkout')->rawTotal();
+                $amountToUse = $existingOrder ? $existingOrder->amount : Cart::instance('confirm_payment')->rawTotal();
                 $shippingMethodToUse = $existingOrder ? $existingOrder->shipping_method : ($shippingMethod ?? ShippingMethodEnum::DEFAULT);
                 $shippingOptionToUse = $existingOrder ? $existingOrder->shipping_option : $shippingOption;
             }
@@ -643,8 +651,8 @@ class PublicCheckoutController extends BaseController
                 'shipping_amount' => $shippingAmountToUse,
                 'shipping_tax_amount' => $shippingTaxAmountToUse,
                 'payment_fee' => $paymentFeeToUse,
-                'tax_amount' => Cart::instance('checkout')->rawTax(),
-                'sub_total' => Cart::instance('checkout')->rawSubTotal(),
+                'tax_amount' => Cart::instance('confirm_payment')->rawTax(),
+                'sub_total' => Cart::instance('confirm_payment')->rawSubTotal(),
                 'coupon_code' => session('applied_coupon_code'),
                 'discount_amount' => 0,
                 'status' => OrderStatusEnum::PENDING,
@@ -683,11 +691,11 @@ class PublicCheckoutController extends BaseController
         $canRebuildOrderProducts = $orderToBuildProductsFor && ! OrderHelper::isOrderLocked($orderToBuildProductsFor);
 
         if ($canRebuildOrderProducts && (! isset($sessionData['created_order_product']) || $cartChangedSinceOrder)) {
-            $weight = Cart::instance('checkout')->weight();
+            $weight = Cart::instance('confirm_payment')->weight();
 
             OrderProduct::query()->where(['order_id' => $sessionData['created_order_id']])->delete();
 
-            foreach (Cart::instance('checkout')->content() as $cartItem) {
+            foreach (Cart::instance('confirm_payment')->content() as $cartItem) {
                 $product = Product::query()->find($cartItem->id);
 
                 if (! $product) {
@@ -839,14 +847,14 @@ class PublicCheckoutController extends BaseController
                 ->setNextUrl(route('customer.login') . '?redirect=' . urlencode(route('public.checkout.information', $token)));
         }
 
-        if (Cart::instance('checkout')->isEmpty()) {
+        if (Cart::instance('confirm_payment')->isEmpty()) {
             return $this
                 ->httpResponse()
                 ->setError()
                 ->setMessage(__('No products in cart'));
         }
 
-        $products = Cart::instance('checkout')->products();
+        $products = Cart::instance('confirm_payment')->products();
 
         if (
             EcommerceHelper::isEnabledSupportDigitalProducts() &&
@@ -859,7 +867,7 @@ class PublicCheckoutController extends BaseController
                 ->setMessage(__('Your shopping cart has digital product(s), so you need to sign in to continue!'));
         }
 
-        $totalQuality = Cart::instance('checkout')->rawTotalQuantity();
+        $totalQuality = Cart::instance('confirm_payment')->rawTotalQuantity();
 
         if (($minimumQuantity = EcommerceHelper::getMinimumOrderQuantity()) > 0
             && $totalQuality < $minimumQuantity) {
@@ -888,7 +896,7 @@ class PublicCheckoutController extends BaseController
                 );
         }
 
-        if (EcommerceHelper::getMinimumOrderAmount() > Cart::instance('checkout')->rawSubTotal()) {
+        if (EcommerceHelper::getMinimumOrderAmount() > Cart::instance('confirm_payment')->rawSubTotal()) {
             return $this
                 ->httpResponse()
                 ->setError()
@@ -896,7 +904,7 @@ class PublicCheckoutController extends BaseController
                     __('Minimum order amount is :amount, you need to buy more :more to place an order!', [
                         'amount' => format_price(EcommerceHelper::getMinimumOrderAmount()),
                         'more' => format_price(
-                            EcommerceHelper::getMinimumOrderAmount() - Cart::instance('checkout')->rawSubTotal()
+                            EcommerceHelper::getMinimumOrderAmount() - Cart::instance('confirm_payment')->rawSubTotal()
                         ),
                     ])
                 );
@@ -907,7 +915,7 @@ class PublicCheckoutController extends BaseController
         $sessionData = $this->processOrderData($token, $sessionData, $request, true);
 
         $cartItems = [];
-        foreach (Cart::instance('checkout')->content() as $cartItem) {
+        foreach (Cart::instance('confirm_payment')->content() as $cartItem) {
             $cartItems[] = [
                 'product_id' => $cartItem->id,
                 'qty' => $cartItem->qty,
@@ -975,9 +983,9 @@ class PublicCheckoutController extends BaseController
         $promotionDiscountAmount = $handleApplyPromotionsService->execute($token);
         $couponDiscountAmount = Arr::get($sessionData, 'coupon_discount_amount');
         $totalDiscountAmount = $promotionDiscountAmount + $couponDiscountAmount;
-        $rawTotal = Cart::instance('checkout')->rawTotal();
-        $subTotal = Cart::instance('checkout')->rawSubTotal();
-        $taxAmount = Cart::instance('checkout')->rawTax();
+        $rawTotal = Cart::instance('confirm_payment')->rawTotal();
+        $subTotal = Cart::instance('confirm_payment')->rawSubTotal();
+        $taxAmount = Cart::instance('confirm_payment')->rawTax();
         $orderAmount = max($rawTotal - $totalDiscountAmount, 0);
 
         $isAvailableShipping = EcommerceHelper::isAvailableShipping($products);
@@ -1117,8 +1125,8 @@ class PublicCheckoutController extends BaseController
 
         OrderProduct::query()->where(['order_id' => $order->getKey()])->delete();
 
-        // Get cart content from checkout instance
-        $cartContent = Cart::instance('checkout')->content();
+        // Get cart content from confirm payment instance
+        $cartContent = Cart::instance('confirm_payment')->content();
         
         // If user selected specific items from cart page, only process those
         $processingItems = session('checkout_processing_items');
@@ -1239,9 +1247,8 @@ class PublicCheckoutController extends BaseController
 
         OrderHelper::clearSessions($token);
         
-        // Remove ordered items from MAIN cart and destroy checkout cart
-        $checkoutCart = Cart::instance('checkout')->content();
-        $mainCart = Cart::instance('cart');
+        // Clear confirm payment cart after successful payment
+        // Items are already out of main cart (moved during checkout)
         
         foreach ($checkoutCart as $checkoutItem) {
             // Find and remove this item from main cart by ID and options
@@ -1255,8 +1262,9 @@ class PublicCheckoutController extends BaseController
             }
         }
         
-        // Destroy checkout cart
-        Cart::instance('checkout')->destroy();
+        // Destroy confirm payment cart - payment completed
+        Cart::instance('confirm_payment')->destroy();
+        \Log::info('Confirm payment cart cleared after successful payment');
         
         // Clear checkout sessions
         session()->forget('checkout_selected_items');
@@ -1310,7 +1318,7 @@ class PublicCheckoutController extends BaseController
         abort_unless(EcommerceHelper::isCartEnabled(), 404);
 
         if (is_plugin_active('marketplace')) {
-            $products = Cart::instance('checkout')->products();
+            $products = Cart::instance('confirm_payment')->products();
             $result = apply_filters(HANDLE_POST_REMOVE_COUPON_CODE_ECOMMERCE, $products, $request);
         } else {
             $result = $removeCouponService->execute();

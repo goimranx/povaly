@@ -17,16 +17,16 @@
         'price' => $item->price
     ])->toArray());
     
-    \Log::info('Checkout cart instance count: ' . Cart::instance('checkout')->count());
-    \Log::info('Checkout cart content:', Cart::instance('checkout')->content()->map(fn($item) => [
+    \Log::info('Confirm payment cart instance count: ' . Cart::instance('confirm_payment')->count());
+    \Log::info('Confirm payment cart content:', Cart::instance('confirm_payment')->content()->map(fn($item) => [
         'id' => $item->id,
         'name' => $item->name,
         'qty' => $item->qty,
         'price' => $item->price
     ])->toArray());
     
-    $cartSubTotal = Cart::instance('checkout')->rawSubTotal();
-    $cartTax = Cart::instance('checkout')->rawTax();
+    $cartSubTotal = Cart::instance('confirm_payment')->rawSubTotal();
+    $cartTax = Cart::instance('confirm_payment')->rawTax();
     
     \Log::info('Cart subtotal from checkout instance: ' . $cartSubTotal);
     \Log::info('Cart tax from checkout instance: ' . $cartTax);
@@ -71,7 +71,7 @@
                 <p class="price-text tax-price-text">
                     {{ format_price($cartTax) }}
                     @if ($cartTax && EcommerceHelper::isDisplayCheckoutTaxInformation())
-                        <small>({{ Cart::instance('checkout')->taxClassesName() }})</small>
+                        <small>({{ Cart::instance('confirm_payment')->taxClassesName() }})</small>
                     @endif
                 </p>
             </div>

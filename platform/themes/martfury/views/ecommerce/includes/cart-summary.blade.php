@@ -1,7 +1,7 @@
 {{-- Cart Summary --}}
 @php
-    // Use checkout cart instance when in checkout, otherwise use main cart
-    $cartInstance = request()->is('checkout*') ? 'checkout' : 'cart';
+    // Use confirm_payment cart instance when in checkout, otherwise use main cart
+    $cartInstance = request()->is('checkout*') ? 'confirm_payment' : 'cart';
 @endphp
 <div class="ps-block--shopping-total">
     <div class="ps-block__header">

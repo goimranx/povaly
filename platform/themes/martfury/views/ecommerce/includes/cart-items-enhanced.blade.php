@@ -1,7 +1,7 @@
 {{-- Group products by store --}}
 @php
-    // Use checkout cart instance when in checkout, otherwise use main cart
-    $cartInstance = request()->is('checkout*') ? 'checkout' : 'cart';
+    // Use confirm_payment cart instance when in checkout, otherwise use main cart
+    $cartInstance = request()->is('checkout*') ? 'confirm_payment' : 'cart';
     $groupedProducts = collect();
     foreach(Cart::instance($cartInstance)->content() as $key => $cartItem) {
         $product = $products->find($cartItem->id);
