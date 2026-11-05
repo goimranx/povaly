@@ -140,13 +140,15 @@ class PublicCartController extends BaseController
         
         // Get confirm payment cart data
         if (Cart::instance('confirm_payment')->isNotEmpty()) {
-            $confirmPaymentProducts = Cart::instance('confirm_payment')->products();
-            // Calculate discounts for confirm payment cart
-            $token = OrderHelper::getOrderSessionToken();
-            $confirmPaymentPromotionDiscount = $this->applyPromotionsService->execute($token);
-            $confirmPaymentCouponDiscount = session('applied_coupon_code') 
-                ? (session()->get('applied_coupon_data')['discount_amount'] ?? 0) 
-                : 0;
+            // Switch to confirm_payment instance temporarily
+            $originalInstance = Cart::instance()->getInstanceName();
+            Cart::instance('confirm_payment');
+            
+            // Use getCartData to properly load products with all data
+            [$confirmPaymentProducts, $confirmPaymentPromotionDiscount, $confirmPaymentCouponDiscount] = $this->getCartData();
+            
+            // Switch back to original instance
+            Cart::instance($originalInstance);
         }
 
         $title = __('Shopping Cart');
