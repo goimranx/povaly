@@ -299,70 +299,99 @@
         });
         
         /**
-         * Submit cart update via AJAX
+         * Submit cart update via AJAX (using same approach as backend.js)
          */
         function submitCartUpdate(qtyInput) {
             if (typeof jQuery === 'undefined') return;
             
-            const form = qtyInput.closest('form.form--shopping-cart');
-            if (!form) return;
+            const $input = jQuery(qtyInput);
+            const $form = $input.closest('form.form--shopping-cart');
+            if (!$form.length) return;
             
-            // Get form data
-            const formData = jQuery(form).serialize();
+            // Add loading state
+            $form.addClass('content-loading');
             
-            // Submit AJAX request
+            // Submit via AJAX using FormData
             jQuery.ajax({
                 type: 'POST',
-                url: jQuery(form).attr('action'),
-                data: formData,
-                dataType: 'json',
-                success: function(response) {
-                    if (response.error) {
-                        if (response.message) {
-                            alert(response.message);
+                cache: false,
+                url: $form.prop('action'),
+                data: new FormData($form[0]),
+                contentType: false,
+                processData: false,
+                success: function(res) {
+                    if (res.error) {
+                        if (typeof Theme !== 'undefined' && Theme.showError) {
+                            Theme.showError(res.message);
+                        } else {
+                            alert(res.message);
                         }
-                        // Reload page on error
-                        location.reload();
-                    } else {
-                        // Update cart data in the page without full reload
-                        if (response.data) {
-                            updateCartUI(response.data);
-                        }
+                        $form.removeClass('content-loading');
                         
-                        // Trigger cart updated event
-                        jQuery(document).trigger('cart.updated', [response.data]);
-                        
-                        // Show success message briefly if needed
-                        if (response.message) {
-                            // Optional: show a small toast notification
-                            console.log(response.message);
+                        // Reset input to actual cart value
+                        if (res.data && res.data.count) {
+                            $input.val(res.data.count).prop('placeholder', res.data.count);
                         }
+                        return;
                     }
+                    
+                    // Reload the cart section
+                    jQuery('.ps-section--shopping').load(window.location.href + ' .ps-section--shopping > *', function() {
+                        if (typeof Theme !== 'undefined' && Theme.lazyLoadInstance) {
+                            Theme.lazyLoadInstance.update();
+                        }
+                        
+                        // Reinitialize cart enhanced after reload
+                        if (typeof window.initCartEnhanced === 'function') {
+                            window.initCartEnhanced();
+                        }
+                    });
+                    
+                    // Update flyout cart
+                    jQuery.ajax({
+                        url: window.siteUrl + '/ajax/cart',
+                        method: 'GET',
+                        success: function(response) {
+                            if (!response.error) {
+                                $form.removeClass('content-loading');
+                                
+                                // Update mobile cart if exists
+                                if (response.data.html) {
+                                    jQuery('.ps-cart--mobile').html(response.data.html);
+                                }
+                                
+                                // Update cart count
+                                if (response.data.count !== undefined) {
+                                    jQuery('.btn-shopping-cart span i, [data-bb-toggle="cart-sidebar"] .cart-counter').text(response.data.count);
+                                }
+                                
+                                // Show success message
+                                if (res.message) {
+                                    if (typeof Theme !== 'undefined' && Theme.showSuccess) {
+                                        Theme.showSuccess(res.message);
+                                    }
+                                }
+                                
+                                if (typeof Theme !== 'undefined' && Theme.lazyLoadInstance) {
+                                    Theme.lazyLoadInstance.update();
+                                }
+                            }
+                        },
+                        error: function() {
+                            $form.removeClass('content-loading');
+                        }
+                    });
                 },
-                error: function(xhr, status, error) {
-                    console.error('Cart update failed:', error);
-                    // On error, reload the page to ensure consistency
-                    location.reload();
+                error: function(xhr) {
+                    $form.removeClass('content-loading');
+                    
+                    if (typeof Theme !== 'undefined' && Theme.handleError) {
+                        Theme.handleError(xhr);
+                    } else {
+                        alert('An error occurred. Please try again.');
+                    }
                 }
             });
-        }
-        
-        /**
-         * Update cart UI with response data
-         */
-        function updateCartUI(data) {
-            // Update flyout cart count if available
-            if (data.count !== undefined) {
-                jQuery('[data-bb-toggle="cart-sidebar"] .cart-counter, .cart-dropdown .cart-counter').text(data.count);
-            }
-            
-            // Update cart totals if they're in the response
-            if (data.total_price) {
-                // This will be handled by the summary update
-            }
-            
-            // Refresh the cart summary
-            updateCartSummary();
         }
         
         // Also monitor for updates via cart update AJAX
