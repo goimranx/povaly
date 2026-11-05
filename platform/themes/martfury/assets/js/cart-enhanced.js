@@ -304,7 +304,17 @@
         if (checkoutBtn && checkoutBtn.closest('.ps-cart-summary-card')) {
             console.log('Checkout button clicked!', checkoutBtn);
             
-            const checkedItems = document.querySelectorAll('.ps-cart-checkbox-item:checked');
+            // Determine which tab is active
+            const activeTab = document.querySelector('.ps-cart-tab-content.active');
+            const isConfirmPaymentTab = activeTab && activeTab.dataset.tabContent === 'confirm-payment';
+            
+            // Get checkboxes from ACTIVE TAB ONLY
+            const checkedItems = activeTab 
+                ? activeTab.querySelectorAll('.ps-cart-checkbox-item:checked')
+                : document.querySelectorAll('.ps-cart-checkbox-item:checked');
+            
+            console.log('Active tab:', isConfirmPaymentTab ? 'confirm-payment' : 'shopping');
+            console.log('Checked items in active tab:', checkedItems.length);
             
             if (checkedItems.length === 0) {
                 e.preventDefault();
@@ -312,7 +322,7 @@
                 return false;
             }
             
-            // Get selected row IDs
+            // Get selected row IDs from active tab
             const selectedRowIds = Array.from(checkedItems).map(cb => cb.dataset.rowId);
             
             console.log('Selected row IDs:', selectedRowIds);

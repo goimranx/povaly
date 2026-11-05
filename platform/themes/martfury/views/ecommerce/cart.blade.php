@@ -9,10 +9,10 @@
     $hasConfirmPaymentItems = isset($confirmPaymentProducts) && count($confirmPaymentProducts) > 0;
     $hasAnyItems = $hasMainCartItems || $hasConfirmPaymentItems;
     
-    // Determine which tab should be active
-    $activeTab = 'shopping'; // default
+    // Determine which tab should be active (check session or default)
+    $activeTab = session('cart_active_tab', 'shopping'); // Remember last active tab
     if (!$hasMainCartItems && $hasConfirmPaymentItems) {
-        $activeTab = 'confirm-payment'; // Switch to confirm payment if main cart is empty
+        $activeTab = 'confirm-payment'; // Auto-switch if main cart empty
     }
 @endphp
 
@@ -39,6 +39,9 @@
                 {{-- Shopping Cart Tab Content --}}
                 <div class="ps-cart-tab-content {{ $activeTab === 'shopping' ? 'active' : '' }}" data-tab-content="shopping">
                     @if ($hasMainCartItems)
+                        @php
+                            $isConfirmPaymentContext = false; // Flag for includes
+                        @endphp
                         <form class="form--shopping-cart" method="post" action="{{ route('public.cart.update') }}">
                             @csrf
                             <div class="ps-cart-layout">
@@ -55,9 +58,9 @@
                                             <div class="ps-cart-selection-header-inner">
                                                 <div class="ps-cart-selection-left">
                                                     <label class="ps-cart-checkbox-wrapper">
-                                                        <input type="checkbox" class="ps-cart-checkbox-main" id="selectAllCheckbox">
+                                                        <input type="checkbox" class="ps-cart-checkbox-main" id="selectAllCheckbox-shopping">
                                                         <span class="ps-cart-checkmark"></span>
-                                                        <span class="ps-cart-select-text" id="selectAllText"
+                                                        <span class="ps-cart-select-text" id="selectAllText-shopping"
                                                               data-text-all="{{ __('Select all') }} ({count})"
                                                               data-text-all-selected="{{ __('All selected') }} ({count})"
                                                               data-text-partial="{{ __('Select all') }} ({selected} {{ __('of') }} {total})">
@@ -66,7 +69,7 @@
                                                     </label>
                                                 </div>
                                                 <div class="ps-cart-selection-right">
-                                                    <button type="button" class="ps-cart-delete-btn" id="deleteSelectedBtn" 
+                                                    <button type="button" class="ps-cart-delete-btn" id="deleteSelectedBtn-shopping" 
                                                             data-confirm-message="{{ __('Are you sure you want to remove the selected items?') }}" disabled>
                                                         <i class="icon-trash"></i> {{ __('Delete') }}
                                                     </button>
@@ -107,7 +110,7 @@
                 <div class="ps-cart-tab-content {{ $activeTab === 'confirm-payment' ? 'active' : '' }}" data-tab-content="confirm-payment">
                     @if ($hasConfirmPaymentItems)
                         @php
-                            // Temporarily switch to confirm_payment instance for rendering
+                            // Switch context to confirm_payment for rendering
                             $tempProducts = $products;
                             $tempPromotionDiscount = $promotionDiscountAmount;
                             $tempCouponDiscount = $couponDiscountAmount;
@@ -115,6 +118,7 @@
                             $products = $confirmPaymentProducts;
                             $promotionDiscountAmount = $confirmPaymentPromotionDiscount ?? 0;
                             $couponDiscountAmount = $confirmPaymentCouponDiscount ?? 0;
+                            $isConfirmPaymentContext = true; // Flag for includes
                         @endphp
                         
                         <form class="form--shopping-cart form--confirm-payment" method="post" action="{{ route('public.cart.update') }}">
@@ -126,7 +130,7 @@
                                         {{-- Header --}}
                                         <div class="ps-cart-header">
                                             <h1>{{ __('Confirm Payment') }}</h1>
-                                            <p class="ps-cart-subtitle">{{ __('Items currently in checkout process') }}</p>
+                                            <p class="ps-cart-subtitle">{{ __('Items currently in checkout process - All items selected by default') }}</p>
                                         </div>
 
                                         @include(Theme::getThemeNamespace('views.ecommerce.includes.cart-items-enhanced'))
@@ -147,6 +151,7 @@
                             $products = $tempProducts;
                             $promotionDiscountAmount = $tempPromotionDiscount;
                             $couponDiscountAmount = $tempCouponDiscount;
+                            $isConfirmPaymentContext = false;
                         @endphp
                     @else
                         <div class="ps-cart-empty-section">
@@ -192,9 +197,22 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Tab switching functionality
+    // Tab switching functionality with session storage
     const tabButtons = document.querySelectorAll('.ps-cart-tab-button');
     const tabContents = document.querySelectorAll('.ps-cart-tab-content');
+    
+    // Remember active tab for page reloads
+    function saveActiveTab(tabName) {
+        // Save to session via AJAX
+        fetch('{{ route("public.cart") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ active_tab: tabName })
+        }).catch(() => {});
+    }
     
     tabButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -206,13 +224,39 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Add active class to clicked button and corresponding content
             this.classList.add('active');
-            document.querySelector(`[data-tab-content="${tabName}"]`).classList.add('active');
+            const targetContent = document.querySelector(`[data-tab-content="${tabName}"]`);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+            
+            // Save active tab
+            saveActiveTab(tabName);
             
             // Reinitialize cart enhanced for the active tab
+            setTimeout(() => {
+                if (typeof window.initCartEnhanced === 'function') {
+                    window.initCartEnhanced();
+                }
+            }, 100);
+        });
+    });
+    
+    // Auto-select all items in confirm payment tab on load
+    const confirmPaymentTab = document.querySelector('[data-tab-content="confirm-payment"]');
+    if (confirmPaymentTab && confirmPaymentTab.classList.contains('active')) {
+        setTimeout(() => {
+            const confirmPaymentCheckboxes = confirmPaymentTab.querySelectorAll('.ps-cart-checkbox-item');
+            confirmPaymentCheckboxes.forEach(cb => {
+                if (!cb.checked) {
+                    cb.checked = true;
+                }
+            });
+            
+            // Trigger update
             if (typeof window.initCartEnhanced === 'function') {
                 window.initCartEnhanced();
             }
-        });
-    });
+        }, 200);
+    }
 });
 </script>

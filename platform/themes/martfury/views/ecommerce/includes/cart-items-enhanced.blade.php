@@ -1,7 +1,10 @@
 {{-- Group products by store --}}
 @php
     // Use confirm_payment cart instance when in checkout, otherwise use main cart
-    $cartInstance = request()->is('checkout*') ? 'confirm_payment' : 'cart';
+    // IMPORTANT: Check if we're in confirm payment tab context
+    $isConfirmPaymentTab = isset($isConfirmPaymentContext) && $isConfirmPaymentContext === true;
+    $cartInstance = $isConfirmPaymentTab ? 'confirm_payment' : 'cart';
+    
     $groupedProducts = collect();
     foreach(Cart::instance($cartInstance)->content() as $key => $cartItem) {
         $product = $products->find($cartItem->id);

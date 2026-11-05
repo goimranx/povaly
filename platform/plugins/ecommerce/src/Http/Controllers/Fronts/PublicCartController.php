@@ -93,6 +93,12 @@ class PublicCartController extends BaseController
 
     public function index(Request $request)
     {
+        // Save active tab preference
+        if ($request->isMethod('post') && $request->has('active_tab')) {
+            session(['cart_active_tab' => $request->input('active_tab')]);
+            return response()->json(['success' => true]);
+        }
+        
         // Clear checkout sessions when returning to cart
         session()->forget('checkout_selected_items');
         session()->forget('checkout_processing_items');
