@@ -16,10 +16,14 @@ class PersistCartOnLogout
 
         $customer = $event->user;
 
-        if (Cart::instance('cart')->isEmpty()) {
-            return;
+        // Save main cart
+        if (Cart::instance('cart')->isNotEmpty()) {
+            Cart::instance('cart')->storeForCustomerQuietly($customer->id);
         }
-
-        Cart::instance('cart')->storeForCustomerQuietly($customer->id);
+        
+        // Save confirm_payment cart
+        if (Cart::instance('confirm_payment')->isNotEmpty()) {
+            Cart::instance('confirm_payment')->storeForCustomerQuietly($customer->id);
+        }
     }
 }

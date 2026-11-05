@@ -59,6 +59,18 @@ class RestoreCustomerCartMiddleware
             } elseif ($cart->isNotEmpty()) {
                 $cart->destroy();
             }
+            
+            // Also restore confirm_payment cart for logged-in users
+            $confirmPaymentCart = Cart::instance('confirm_payment');
+            $confirmPaymentDbUpdatedAt = $confirmPaymentCart->getCustomerCartUpdatedAt($customerId);
+            
+            if ($confirmPaymentDbUpdatedAt) {
+                $confirmPaymentSessionUpdatedAt = $confirmPaymentCart->getLastUpdatedAt();
+                
+                if (! $confirmPaymentSessionUpdatedAt || $confirmPaymentDbUpdatedAt->gt($confirmPaymentSessionUpdatedAt)) {
+                    $confirmPaymentCart->restoreForCustomerQuietly($customerId);
+                }
+            }
 
             session(['cart_last_restored_at' => Carbon::now()->toIso8601String()]);
         }

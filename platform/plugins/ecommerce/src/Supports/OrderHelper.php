@@ -902,7 +902,7 @@ class OrderHelper
         session()->forget('tracked_start_checkout');
     }
 
-    public function handleAddCart(Product $product, Request $request, bool $relativePath = true): array
+    public function handleAddCart(Product $product, Request $request, bool $relativePath = true, string $cartInstance = 'cart'): array
     {
         if ($product->status != BaseStatusEnum::PUBLISHED) {
             throw new ProductIsNotActivatedYetException();
@@ -946,7 +946,7 @@ class OrderHelper
 
         $price = $product->price()->getPrice(false);
 
-        Cart::instance('cart')->add(
+        Cart::instance($cartInstance)->add(
             $product->getKey(),
             BaseHelper::clean($parentProduct->name ?: $product->name),
             $request->input('qty', 1),
@@ -965,7 +965,7 @@ class OrderHelper
             ]
         );
 
-        return Cart::instance('cart')->content()->toArray();
+        return Cart::instance($cartInstance)->content()->toArray();
     }
 
     protected function getTranslatedVariationAttributes(Product $product): string

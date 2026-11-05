@@ -60,11 +60,22 @@ class PublicCartController extends BaseController
 
     protected function persistCart(): void
     {
+        // Persist main cart
         if (auth('customer')->check()) {
             Cart::instance('cart')->storeForCustomerQuietly(auth('customer')->id());
         } else {
             $identifier = $this->getOrCreateGuestCartIdentifier();
             Cart::instance('cart')->updateOrStoreQuietly($identifier);
+        }
+        
+        // Also persist confirm_payment cart if it has items
+        if (Cart::instance('confirm_payment')->isNotEmpty()) {
+            if (auth('customer')->check()) {
+                Cart::instance('confirm_payment')->storeForCustomerQuietly(auth('customer')->id());
+            } else {
+                $identifier = $this->getOrCreateGuestCartIdentifier();
+                Cart::instance('confirm_payment')->updateOrStoreQuietly($identifier);
+            }
         }
     }
 
@@ -160,6 +171,42 @@ class PublicCartController extends BaseController
 
         if ($product->variations->isNotEmpty() && ! $product->is_variation && $product->defaultVariation->product->id) {
             $product = $product->defaultVariation->product;
+        }
+        
+        // SMART ADD TO CART LOGIC:
+        // Check if this product/variation already exists in confirm_payment cart
+        // If YES → Update quantity there instead of adding to main cart
+        // If NO → Add to main cart as normal
+        $targetCartInstance = 'cart'; // default
+        $confirmPaymentCart = Cart::instance('confirm_payment');
+        
+        if ($confirmPaymentCart->isNotEmpty()) {
+            // Parse options to match cart item
+            $productOptions = $this->parseOptionsFromRequest($request, $product);
+            
+            // Find if this exact product+variation exists in confirm_payment cart
+            $existingInConfirmPayment = $confirmPaymentCart->content()->first(function ($item) use ($product, $productOptions) {
+                if ($item->id != $product->id) {
+                    return false;
+                }
+                
+                // Compare attributes (variations)
+                $itemAttrs = $item->options['attributes'] ?? '';
+                $requestAttrs = $productOptions['attributes'] ?? '';
+                
+                return $itemAttrs === $requestAttrs;
+            });
+            
+            if ($existingInConfirmPayment) {
+                // Product exists in confirm_payment cart - update quantity there
+                $targetCartInstance = 'confirm_payment';
+                \Log::info('Smart Add to Cart: Product exists in confirm payment cart, updating there', [
+                    'product_id' => $product->id,
+                    'existing_qty' => $existingInConfirmPayment->qty,
+                    'add_qty' => $request->integer('qty', 1),
+                    'rowId' => $existingInConfirmPayment->rowId
+                ]);
+            }
         }
 
         // Apply up-sale pricing if reference product is provided
@@ -292,7 +339,7 @@ class PublicCartController extends BaseController
 
         $requestQuantity = $request->integer('qty', 1);
 
-        $existingAddedToCart = Cart::instance('cart')->content()->firstWhere('id', $product->id);
+        $existingAddedToCart = Cart::instance($targetCartInstance)->content()->firstWhere('id', $product->id);
 
         if ($existingAddedToCart) {
             $requestQuantity += $existingAddedToCart->qty;
@@ -305,7 +352,7 @@ class PublicCartController extends BaseController
         }
 
         $outOfQuantity = false;
-        $cartContent = Cart::instance('cart')->content();
+        $cartContent = Cart::instance($targetCartInstance)->content();
         $existingItem = $cartContent->firstWhere('id', $product->id);
 
         if ($existingItem) {
@@ -372,7 +419,7 @@ class PublicCartController extends BaseController
         }
 
         try {
-            $cartItems = OrderHelper::handleAddCart($product, $request);
+            $cartItems = OrderHelper::handleAddCart($product, $request, true, $targetCartInstance);
         } catch (Exception $e) {
             return $response
                 ->setError()
