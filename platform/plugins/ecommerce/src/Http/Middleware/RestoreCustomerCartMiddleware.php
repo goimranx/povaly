@@ -50,6 +50,17 @@ class RestoreCustomerCartMiddleware
             // 4. confirm_payment cart has items (checkout wasn't completed)
             $isAjaxRequest = $request->ajax() || $request->wantsJson();
             
+            \Log::info('[Middleware] Restoration check', [
+                'current_url' => $request->url(),
+                'current_path' => $request->path(),
+                'referrer' => $referrer,
+                'is_checkout_page' => $isCheckoutPage,
+                'came_from_checkout' => $cameFromCheckout,
+                'is_ajax' => $isAjaxRequest,
+                'confirm_payment_count' => Cart::instance('confirm_payment')->count(),
+                'will_restore' => $cameFromCheckout && !$isCheckoutPage && !$isAjaxRequest
+            ]);
+            
             if ($cameFromCheckout && !$isCheckoutPage && !$isAjaxRequest) {
                 $this->restoreAbandonedCheckout($cart, $request);
             }
