@@ -953,6 +953,17 @@ class OrderSupportServiceProvider extends ServiceProvider
         }
 
         OrderHelper::clearSessions($token);
+        
+        // Clear confirm payment cart after successful payment
+        Cart::instance('confirm_payment')->destroy();
+        \Log::info('[Marketplace Checkout Success] Confirm payment cart cleared', [
+            'token' => $token,
+            'order_count' => $orders->count()
+        ]);
+        
+        // Clear checkout sessions
+        session()->forget('checkout_selected_items');
+        session()->forget('checkout_processing_items');
 
         return view('plugins/marketplace::orders.thank-you', compact('orders'));
     }
