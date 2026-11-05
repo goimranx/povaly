@@ -15,7 +15,7 @@
 
 .ps-cart-layout {
     display: grid;
-    grid-template-columns: 1fr 400px;
+    grid-template-columns: 1fr 300px;
     gap: 20px;
     align-items: start;
 }
@@ -371,31 +371,11 @@
 }
 
 .ps-cart-coupon-section {
-    margin-top: 24px;
-    padding-top: 24px;
-    border-top: 1px solid var(--global-color-border-strong);
-    
-    h3 {
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 12px;
-    }
-    
-    .form-group {
-        margin-bottom: 12px;
-    }
-    
-    .coupon-code {
-        width: 100%;
-    }
-    
-    .btn-apply-coupon-code {
-        width: 100%;
-    }
+    display: none;
 }
 
 .ps-cart-actions {
-    margin-top: 24px;
+    margin-top: 15px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -404,17 +384,30 @@
         width: 100%;
         text-align: center;
         justify-content: center;
+        border-radius: 50px;
+        padding: 10px 25px;
+        transition: all 0.3s;
     }
     
     .ps-btn--primary {
-        background: var(--global-color-primary);
-        color: white;
+        background: var(--ec-btn-cart-bg);
+        color: var(--ec-btn-cart-text);
         border: none;
+        
+        &:hover {
+            background: var(--ec-btn-cart-bg-hover);
+        }
     }
     
     .ps-btn--secondary {
         background: transparent;
         border: 1px solid var(--global-color-border-strong);
+        color: var(--global-color-text-body);
+        
+        &:hover {
+            background: var(--global-color-card-bg);
+            color: var(--global-color-text-main);
+        }
     }
 }
 
@@ -447,7 +440,8 @@
     
     .ps-block__header {
         margin: 0;
-        padding-bottom: 12px;
+        padding: 0 0 5px 0;
+        border: none;
         
         p {
             margin: 0;
@@ -464,25 +458,34 @@
     }
     
     .ps-block__content {
-        padding-top: 12px;
-        border-top: 1px solid var(--global-color-border-strong);
+        padding: 0;
+        border: none;
         
         h3 {
             margin: 0;
-            font-weight: 500;
+            font-weight: 400;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: var(--global-color-text-main);
             
             span {
-                font-weight: 500;
+                font-weight: 400;
+            }
+            
+            &.cart-summary-total {
+                font-weight: 400;
+                color: var(--global-color-text-main);
             }
         }
         
         p {
             margin: 8px 0 0 0;
             font-size: 13px;
-            color: var(--global-color-text-muted);
+            
+            small {
+                color: var(--global-color-text-muted);
+            }
         }
     }
 }

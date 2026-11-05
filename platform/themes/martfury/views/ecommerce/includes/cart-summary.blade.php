@@ -42,7 +42,7 @@
 {{-- Action Buttons --}}
 <div class="ps-cart-actions">
     <a class="ps-btn ps-btn--secondary btn-cart-button-action" href="{{ route('public.products') }}">
-        <i class="icon-arrow-left"></i> {{ __('Back to Shop') }}
+        <i class="icon-arrow-left"></i> {{ __('Shop more') }}
     </a>
     <a class="ps-btn ps-btn--primary btn-cart-button-action" href="{{ route('public.checkout.information', OrderHelper::getOrderSessionToken()) }}">
         {{ __('Proceed to checkout') }} <i class="icon-arrow-right"></i>
