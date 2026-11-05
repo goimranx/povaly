@@ -39,12 +39,19 @@ class RestoreCustomerCartMiddleware
             $isCheckoutPage = $request->is('checkout/*') || $request->is('*/checkout/*');
             $wasInCheckout = session()->has('user_in_checkout');
             
-            if ($wasInCheckout && !$isCheckoutPage) {
-                // User has left checkout - restore items from confirm_payment to main cart
+            // IMPORTANT: Only restore on full page loads (not AJAX) when leaving checkout
+            // This prevents interference with checkout AJAX updates
+            $isAjaxRequest = $request->ajax() || $request->wantsJson();
+            
+            if ($wasInCheckout && !$isCheckoutPage && !$isAjaxRequest) {
+                // User has left checkout via full page navigation - restore items
                 $this->restoreAbandonedCheckout($cart, $request);
                 // Clear the flag so restoration only happens once
                 session()->forget('user_in_checkout');
             }
+            
+            // If we're back on checkout page, keep the flag (user might navigate back)
+            // If AJAX request, don't touch the flag (might be from checkout page)
             
         } catch (Throwable) {
             // Silently ignore during upgrade when customer_id column doesn't exist yet
