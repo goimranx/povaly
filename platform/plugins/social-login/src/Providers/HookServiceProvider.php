@@ -45,7 +45,7 @@ class HookServiceProvider extends ServiceProvider
                         asset('vendor/core/plugins/social-login/css/social-login.css'),
                         [],
                         [],
-                        '1.2.1'
+                        cache_bust()
                     );
 
                 do_action('social_login_assets_register');
