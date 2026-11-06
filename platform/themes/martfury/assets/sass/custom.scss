@@ -736,7 +736,7 @@ form {
 
     .auth-logo {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
         
         a {
             display: inline-block;
@@ -753,18 +753,16 @@ form {
         max-width: 400px;
         width: 100%;
         padding: 30px;
-        background: #ffffff;
-        border: 1px solid #ddd;
+        background: transparent;
+        border: 1px solid var(--global-color-border-strong);
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
         .auth-card__banner {
             display: none;
         }
 
         .auth-card__header {
-            padding: 0 0 20px 0;
-            text-align: center;
+            padding: 0;
 
             .auth-card__header-icon {
                 display: none;
@@ -773,7 +771,8 @@ form {
             .auth-card__header-title {
                 font-size: 26px;
                 font-weight: 400;
-                color: #111;
+                color: var(--global-color-text-main);
+                text-align: left;
                 margin: 0 0 10px 0;
             }
 
@@ -793,7 +792,7 @@ form {
                 .form-label {
                     font-size: 13px;
                     font-weight: 700;
-                    color: #111;
+                    color: var(--global-color-text-main);
                     margin-bottom: 5px;
                     display: block;
                 }
@@ -806,13 +805,14 @@ form {
                     width: 100%;
                     padding: 10px 12px;
                     font-size: 14px;
-                    border: 1px solid #a6a6a6;
+                    border: 1px solid var(--global-color-text-main);
                     border-radius: 3px;
-                    box-shadow: 0 1px 2px rgba(15, 17, 17, 0.15) inset;
+                    box-shadow: none;
+                    color: var(--global-color-text-main);
                     
                     &:focus {
-                        border-color: #e77600;
-                        box-shadow: 0 0 0 3px rgba(231, 118, 0, 0.2), 0 1px 2px rgba(15, 17, 17, 0.15) inset;
+                        border-color: var(--global-color-text-main);
+                        box-shadow: none;
                         outline: none;
                     }
                 }
@@ -855,12 +855,37 @@ form {
                     label {
                         font-size: 13px;
                         font-weight: normal;
-                        color: #111;
+                        color: var(--global-color-text-main);
                         cursor: pointer;
+                        display: flex;
+                        align-items: center;
                     }
 
                     input[type="checkbox"] {
-                        margin-right: 5px;
+                        appearance: none;
+                        width: 16px;
+                        height: 16px;
+                        border: 1px solid var(--global-color-border-strong);
+                        border-radius: 3px;
+                        margin-right: 8px;
+                        cursor: pointer;
+                        position: relative;
+                        
+                        &:checked {
+                            background: var(--global-color-link);
+                            border-color: var(--global-color-link);
+                            
+                            &:after {
+                                content: '✓';
+                                position: absolute;
+                                top: 50%;
+                                left: 50%;
+                                transform: translate(-50%, -50%);
+                                color: #fff;
+                                font-size: 12px;
+                                line-height: 1;
+                            }
+                        }
                     }
                 }
 
@@ -869,11 +894,11 @@ form {
                     
                     a {
                         font-size: 13px;
-                        color: #0066c0;
+                        color: var(--global-color-link);
                         text-decoration: none;
                         
                         &:hover {
-                            color: #c45500;
+                            color: var(--global-color-link-hover);
                             text-decoration: underline;
                         }
                     }
@@ -883,7 +908,7 @@ form {
                     text-decoration: underline;
                 }
 
-                // Submit button with Amazon style
+                // Submit button
                 .d-grid {
                     display: block;
                     width: 100%;
@@ -894,28 +919,27 @@ form {
                 .btn-auth-submit,
                 button[type="submit"] {
                     width: 100%;
-                    background: linear-gradient(to bottom, #f7dfa5, #f0c14b);
-                    border: 1px solid #a88734;
-                    border-radius: 3px;
-                    color: #111;
+                    background: var(--ec-btn-cart-bg);
+                    border: 1px solid var(--ec-btn-cart-bg);
+                    border-radius: 50px;
+                    color: var(--ec-btn-cart-text);
                     font-size: 14px;
-                    padding: 8px 12px;
+                    padding: 10px 12px;
                     font-weight: normal;
-                    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset;
                     cursor: pointer;
+                    transition: background-color 0.2s;
                     
                     svg {
                         display: none;
                     }
                     
                     &:hover {
-                        background: linear-gradient(to bottom, #f5d78e, #eeb933);
-                        border-color: #a88734;
+                        background: var(--ec-btn-cart-bg-hover);
+                        border-color: var(--ec-btn-cart-bg-hover);
                     }
 
                     &:focus {
                         outline: none;
-                        box-shadow: 0 0 0 3px rgba(231, 118, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.4) inset;
                     }
                 }
 
@@ -923,18 +947,18 @@ form {
                 .mt-3,
                 .text-center {
                     font-size: 13px;
-                    color: #111;
-                    padding-top: 15px;
+                    color: var(--global-color-text-main);
+                    padding: 0;
                     margin-top: 15px;
-                    border-top: 1px solid #e7e7e7;
+                    border: none;
                     text-align: center;
                     
                     a {
-                        color: #0066c0;
+                        color: var(--global-color-link);
                         text-decoration: none;
                         
                         &:hover {
-                            color: #c45500;
+                            color: var(--global-color-link-hover);
                             text-decoration: underline;
                         }
                     }
@@ -943,12 +967,11 @@ form {
                 // Social login section
                 .login-options {
                     margin-top: 20px;
-                    padding-top: 20px;
-                    border-top: 1px solid #e7e7e7;
 
                     .login-options-title {
                         text-align: center;
-                        margin-bottom: 15px;
+                        padding: 10px 0;
+                        margin: 0;
                         
                         p {
                             font-size: 13px;
@@ -963,7 +986,7 @@ form {
                                 top: 50%;
                                 width: 40%;
                                 height: 1px;
-                                background: #e7e7e7;
+                                background: var(--global-color-border-strong);
                             }
                             
                             &:before {
@@ -989,16 +1012,16 @@ form {
                                 align-items: center;
                                 justify-content: center;
                                 padding: 10px 12px;
-                                border: 1px solid #d5d9d9;
+                                border: 1px solid var(--global-color-border-strong);
                                 border-radius: 3px;
-                                background: #fff;
-                                color: #111;
+                                background: transparent;
+                                color: var(--global-color-text-main);
                                 font-size: 14px;
                                 text-decoration: none;
                                 transition: background-color 0.2s;
 
                                 &:hover {
-                                    background: #f7fafa;
+                                    background: transparent;
                                 }
 
                                 img {
@@ -1031,14 +1054,14 @@ form {
                                 justify-content: center;
                                 width: 44px;
                                 height: 44px;
-                                border: 1px solid #d5d9d9;
+                                border: 1px solid var(--global-color-border-strong);
                                 border-radius: 50%;
-                                background: #fff;
-                                transition: all 0.2s;
+                                background: transparent;
+                                transition: background-color 0.2s;
 
                                 &:hover {
-                                    background: #f7fafa;
-                                    transform: translateY(-2px);
+                                    background: transparent;
+                                    transform: none;
                                 }
 
                                 i {
@@ -1061,7 +1084,7 @@ form {
         padding: 30px 15px;
         
         .auth-logo {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             
             img {
                 max-height: 40px;
