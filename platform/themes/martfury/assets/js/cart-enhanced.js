@@ -195,7 +195,7 @@
             if (cartBottomBar && navigationBar && window.innerWidth <= 767) {
                 const navHeight = navigationBar.offsetHeight;
                 const bottomBarHeight = cartBottomBar.offsetHeight;
-                const offcanvasBottom = navHeight + bottomBarHeight;
+                const offcanvasBottom = navHeight + bottomBarHeight - 1; // 1px less to attach to checkout bar
                 
                 productDetailOffcanvas.style.bottom = offcanvasBottom + 'px';
                 productDetailOverlay.style.bottom = offcanvasBottom + 'px';
@@ -499,7 +499,7 @@
             if (cartBottomBar && navigationBar && window.innerWidth <= 767) {
                 const navHeight = navigationBar.offsetHeight;
                 const bottomBarHeight = cartBottomBar.offsetHeight;
-                const offcanvasBottom = navHeight + bottomBarHeight;
+                const offcanvasBottom = navHeight + bottomBarHeight - 1; // 1px less to attach to checkout bar
                 
                 // Position offcanvas above checkout bar
                 cartDetailsOffcanvas.style.bottom = offcanvasBottom + 'px';
