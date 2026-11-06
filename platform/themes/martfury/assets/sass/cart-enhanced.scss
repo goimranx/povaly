@@ -595,13 +595,14 @@
     }
     
     .ps-shopping-cart-enhanced {
-        padding: 10px 0;
+        padding: 0;
         /* Add padding to bottom of cart to prevent content being hidden behind sticky bar */
         padding-bottom: 120px;
     }
     
     .ps-section--shopping {
         padding-top: 0 !important;
+        padding-bottom: 0 !important;
     }
     
     .ps-cart-layout {
@@ -765,7 +766,7 @@
         background: var(--global-color-site-bg);
         border-top: 1px solid var(--global-color-primary-border);
         z-index: 999;
-        padding: 12px 15px;
+        padding: 10px 15px;
         transition: bottom 0.3s ease;
     }
     
@@ -774,7 +775,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        padding: 10px 0;
+        padding: 0;
     }
     
     .ps-cart-mobile-select-all {
