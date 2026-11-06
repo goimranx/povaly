@@ -1103,7 +1103,7 @@
         border-bottom: 1px solid var(--global-color-border);
         position: sticky;
         top: 0;
-        background: var(--global-color-card-bg);
+        background: var(--global-color-site-bg);
         z-index: 1;
         display: flex;
         justify-content: space-between;
@@ -1138,7 +1138,7 @@
     }
     
     .ps-cart-product-detail-content {
-        padding: 20px 15px;
+        padding: 10px 15px;
         background: var(--global-color-site-bg);
     }
     
@@ -1178,7 +1178,7 @@
             }
             
             &.sale span {
-                color: var(--global-color-primary);
+                color: var(--global-color-text-main);
             }
             
             small {
@@ -1196,7 +1196,7 @@
             .qty-input {
                 width: 140px;
                 height: 36px;
-                padding: 0 8px;
+                padding: 0 25px;
                 border: 1px solid var(--global-color-border);
                 border-radius: 4px;
                 text-align: center;
@@ -1204,8 +1204,9 @@
             
             .up,
             .down {
-                width: 40px;
-                height: 40px;
+                width: 25px;
+                max-width: 25px;
+                height: 25px;
                 padding: 0;
                 background: var(--global-color-card-bg);
                 border: 1px solid var(--global-color-border);
