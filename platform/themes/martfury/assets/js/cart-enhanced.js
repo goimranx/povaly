@@ -46,16 +46,31 @@
     function positionMobileBottomBar() {
         const cartBottomBar = document.querySelector('.ps-cart-mobile-bottom-bar');
         const navigationBar = document.querySelector('.navigation--list');
+        const offcanvas = document.querySelector('.ps-cart-details-offcanvas');
         
         if (!cartBottomBar) return;
         
         function updatePosition() {
             if (navigationBar && window.innerWidth <= 767) {
                 const navHeight = navigationBar.offsetHeight;
+                const bottomBarHeight = cartBottomBar.offsetHeight;
+                
+                // Position checkout bar above navigation
                 cartBottomBar.style.bottom = navHeight + 'px';
+                
+                // Position offcanvas above checkout bar
+                if (offcanvas) {
+                    const offcanvasBottom = navHeight + bottomBarHeight;
+                    offcanvas.style.bottom = offcanvasBottom + 'px';
+                    console.log('[Cart] Positioned offcanvas above checkout bar:', offcanvasBottom + 'px');
+                }
+                
                 console.log('[Cart] Positioned mobile bar above navigation:', navHeight + 'px');
             } else {
                 cartBottomBar.style.bottom = '0px';
+                if (offcanvas) {
+                    offcanvas.style.bottom = '0px';
+                }
             }
         }
         
@@ -308,6 +323,10 @@
         
         function openCartDetails() {
             updateCartDetailsContent();
+            // Update position before opening
+            if (window.cartPositionUpdater) {
+                window.cartPositionUpdater();
+            }
             cartDetailsOffcanvas.classList.add('active');
             cartDetailsOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
