@@ -320,8 +320,14 @@
                 const navHeight = navigationBar.offsetHeight;
                 const bottomBarHeight = cartBottomBar.offsetHeight;
                 const offcanvasBottom = navHeight + bottomBarHeight;
+                
+                // Position offcanvas above checkout bar
                 cartDetailsOffcanvas.style.bottom = offcanvasBottom + 'px';
-                console.log('[Cart] Positioned offcanvas above checkout bar:', offcanvasBottom + 'px');
+                
+                // Position overlay to stop at the checkout bar (not cover bottom bars)
+                cartDetailsOverlay.style.bottom = offcanvasBottom + 'px';
+                
+                console.log('[Cart] Positioned offcanvas and overlay above checkout bar:', offcanvasBottom + 'px');
             }
             
             // Small delay to ensure bottom is set before adding active class
@@ -340,6 +346,7 @@
             // Reset bottom to 0 after closing animation
             setTimeout(() => {
                 cartDetailsOffcanvas.style.bottom = '0px';
+                cartDetailsOverlay.style.bottom = '0px';
             }, 300);
         }
         
