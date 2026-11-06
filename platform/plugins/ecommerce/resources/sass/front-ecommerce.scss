@@ -572,9 +572,9 @@
     }
 
     &-filter {
-        margin-bottom: 30px;
-        background: #f5f5f5;
-        padding: 20px;
+        margin-bottom: 0;
+        background: transparent;
+        padding: 0;
 
         &-content {
             &:has(.bb-product-filter-items) {
