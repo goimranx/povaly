@@ -203,6 +203,19 @@
                 .ps-cart-recommended-section .ec-card__actions {
                     display: none !important;
                 }
+
+                /* Empty cart button styling */
+                .ps-cart-empty .ps-btn {
+                    background: var(--global-color-primary) !important;
+                    color: var(--global-color-text-on-dark) !important;
+                    border-radius: 50px !important;
+                    border: none !important;
+                }
+
+                .ps-cart-empty .ps-btn:hover {
+                    background: var(--global-color-primary-hover) !important;
+                    color: var(--global-color-text-on-dark) !important;
+                }
             </style>
         @else
             {{-- Empty cart --}}
