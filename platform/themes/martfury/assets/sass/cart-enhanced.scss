@@ -1190,29 +1190,9 @@
     }
     
     .ps-product-detail-qty {
-        .product__qty {
-            display: inline-flex;
-            
-            .qty-input {
-                width: 140px;
-                height: 36px;
-                padding: 0 25px;
-                border: 1px solid var(--global-color-border);
-                border-radius: 4px;
-                text-align: center;
-            }
-            
-            .up,
-            .down {
-                width: 25px;
-                max-width: 25px;
-                height: 25px;
-                padding: 0;
-                background: var(--global-color-card-bg);
-                border: 1px solid var(--global-color-border);
-                border-radius: 4px;
-            }
-        }
+        font-size: 14px;
+        color: var(--global-color-text-muted);
+        font-weight: 400;
     }
     
     .ps-product-detail-stock {

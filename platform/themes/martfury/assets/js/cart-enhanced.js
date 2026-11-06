@@ -155,12 +155,7 @@
                             </div>
                         </div>
                         <div class="ps-product-detail-qty">
-                            <div class="form-group--number product__qty">
-                                <button class="up" type="button">+</button>
-                                <button class="down" type="button">-</button>
-                                <input type="number" class="form-control qty-input" min="1" value="${data.qty}" 
-                                       data-row-id="${data.rowId}" readonly>
-                            </div>
+                            Qty: ${data.qty}
                         </div>
                     </div>
                 </div>
