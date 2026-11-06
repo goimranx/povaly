@@ -131,6 +131,10 @@
         }
 
         @media (max-width: 767px) {
+            .ps-footer {
+                padding-top: 0 !important;
+            }
+
             .ps-guest-signin-prompt {
                 padding: 30px 0;
             }

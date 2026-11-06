@@ -93,6 +93,8 @@
     }
 
     @include media('<sm') {
+        padding-top: 0;
+        
         &__widgets {
             flex-flow: row wrap;
 
@@ -109,6 +111,8 @@
     }
 
     @include media('<xs') {
+        padding-top: 0;
+        
         &__widgets {
             padding: 0 10px 35px 10px;
             
