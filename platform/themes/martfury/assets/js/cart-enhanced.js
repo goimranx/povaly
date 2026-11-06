@@ -41,6 +41,36 @@
     }
     
     /**
+     * Position mobile bottom bar above navigation bar
+     */
+    function positionMobileBottomBar() {
+        const cartBottomBar = document.querySelector('.ps-cart-mobile-bottom-bar');
+        const navigationBar = document.querySelector('.navigation--list');
+        
+        if (!cartBottomBar) return;
+        
+        function updatePosition() {
+            if (navigationBar && window.innerWidth <= 767) {
+                const navHeight = navigationBar.offsetHeight;
+                cartBottomBar.style.bottom = navHeight + 'px';
+                console.log('[Cart] Positioned mobile bar above navigation:', navHeight + 'px');
+            } else {
+                cartBottomBar.style.bottom = '0px';
+            }
+        }
+        
+        // Initial position
+        updatePosition();
+        
+        // Update on window resize
+        window.addEventListener('resize', updatePosition);
+        
+        // Update after a short delay to ensure navigation bar is rendered
+        setTimeout(updatePosition, 100);
+        setTimeout(updatePosition, 500);
+    }
+    
+    /**
      * Initialize the cart functionality
      */
     function initCart() {
@@ -380,11 +410,13 @@
             initCart();
             setupBulkDelete();
             setupCheckoutButton();
+            positionMobileBottomBar();
         });
     } else {
         initCart();
         setupBulkDelete();
         setupCheckoutButton();
+        positionMobileBottomBar();
     }
     
     // Export for external use and reset initialization flag
