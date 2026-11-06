@@ -249,7 +249,7 @@
                     <a class="navigation__item bb-nav-toggle ps-toggle--sidebar" href="#search-sidebar" data-open-icon="icon-magnifier" data-open-text="{{ __('Search') }}" data-close-text="{{ __('Close') }}"><i class="icon-magnifier"></i><span> {{ __('Search') }}</span></a>
                     
                     {{-- Cart --}}
-                    <a class="navigation__item bb-nav-toggle ps-toggle--sidebar" href="#cart-mobile" data-open-icon="icon-bag2" data-open-text="{{ __('Cart') }}" data-close-text="{{ __('Close') }}"><i class="icon-bag2"></i><span> {{ __('Cart') }}</span></a>
+                    <a class="navigation__item" href="{{ route('public.cart') }}"><i class="icon-bag2"></i><span> {{ __('Cart') }}</span></a>
                     
                     {{-- Account (Me) --}}
                     <a class="navigation__item" href="{{ auth('customer')->check() ? route('customer.overview') : route('customer.login') }}"><i class="icon-user"></i><span> {{ __('Me') }}</span></a>
