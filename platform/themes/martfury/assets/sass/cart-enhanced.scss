@@ -811,7 +811,7 @@
         right: 0;
         bottom: 0; /* Will be dynamically set */
         background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
+        z-index: 1051;
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.3s ease, visibility 0.3s ease, bottom 0.3s ease;
@@ -1001,12 +1001,23 @@
         gap: 4px;
         transition: all 0.3s;
         
-        &:hover {
+        &:hover:not(:disabled) {
             opacity: 0.8;
+        }
+        
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
         }
         
         i {
             font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+        
+        &.active i {
+            transform: rotate(180deg);
         }
     }
     

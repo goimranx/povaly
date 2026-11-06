@@ -105,6 +105,7 @@
             const selected = document.querySelectorAll('.ps-cart-checkbox-item:checked').length;
             const total = itemCheckboxes.length;
             const mobileCheckoutBtn = document.querySelector('#mobileCheckoutBtn');
+            const mobileDetailsBtn = document.querySelector('#mobileDetailsBtn');
             
             if (selected === 0) {
                 mainCheckbox.checked = false;
@@ -119,6 +120,7 @@
                 if (deleteBtn) deleteBtn.disabled = true;
                 if (deleteBtnHeader) deleteBtnHeader.disabled = true;
                 if (mobileCheckoutBtn) mobileCheckoutBtn.disabled = true;
+                if (mobileDetailsBtn) mobileDetailsBtn.disabled = true;
             } else if (selected === total) {
                 mainCheckbox.checked = true;
                 mainCheckbox.indeterminate = false;
@@ -132,6 +134,7 @@
                 if (deleteBtn) deleteBtn.disabled = false;
                 if (deleteBtnHeader) deleteBtnHeader.disabled = false;
                 if (mobileCheckoutBtn) mobileCheckoutBtn.disabled = false;
+                if (mobileDetailsBtn) mobileDetailsBtn.disabled = false;
             } else {
                 mainCheckbox.checked = false;
                 mainCheckbox.indeterminate = true;
@@ -145,6 +148,7 @@
                 if (deleteBtn) deleteBtn.disabled = false;
                 if (deleteBtnHeader) deleteBtnHeader.disabled = false;
                 if (mobileCheckoutBtn) mobileCheckoutBtn.disabled = false;
+                if (mobileDetailsBtn) mobileDetailsBtn.disabled = false;
             }
             updateSummary();
         }
@@ -289,9 +293,13 @@
         const cartDetailsClose = document.querySelector('#cartDetailsClose');
         
         if (mobileDetailsBtn && cartDetailsOffcanvas) {
-            // Open offcanvas
+            // Toggle offcanvas on Details button click
             mobileDetailsBtn.addEventListener('click', function() {
-                openCartDetails();
+                if (cartDetailsOffcanvas.classList.contains('active')) {
+                    closeCartDetails();
+                } else {
+                    openCartDetails();
+                }
             });
             
             // Close on overlay click
@@ -311,6 +319,11 @@
         
         function openCartDetails() {
             updateCartDetailsContent();
+            
+            // Add active class to Details button to rotate chevron
+            if (mobileDetailsBtn) {
+                mobileDetailsBtn.classList.add('active');
+            }
             
             // Calculate position above checkout bar only when opening
             const cartBottomBar = document.querySelector('.ps-cart-mobile-bottom-bar');
@@ -339,6 +352,11 @@
         }
         
         function closeCartDetails() {
+            // Remove active class from Details button to restore chevron
+            if (mobileDetailsBtn) {
+                mobileDetailsBtn.classList.remove('active');
+            }
+            
             cartDetailsOffcanvas.classList.remove('active');
             cartDetailsOverlay.classList.remove('active');
             document.body.style.overflow = '';
