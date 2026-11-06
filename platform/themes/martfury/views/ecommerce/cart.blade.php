@@ -24,13 +24,17 @@
                     {{-- Left Section: Products --}}
                     <div class="ps-cart-products-section">
                         <div class="ps-cart-products-card">
-                            {{-- Header with Shopping Cart title --}}
+                            {{-- Header with Shopping Cart title and Delete button --}}
                             <div class="ps-cart-header">
                                 <h1>{{ __('Shopping Cart') }}</h1>
+                                <button type="button" class="ps-cart-delete-btn ps-cart-delete-btn-header" id="deleteSelectedBtn-shopping-header" 
+                                        data-confirm-message="{{ __('Are you sure you want to remove the selected items?') }}" disabled>
+                                    <i class="icon-trash"></i> {{ __('Delete') }}
+                                </button>
                             </div>
 
-                            {{-- Selection Header --}}
-                            <div class="ps-cart-selection-header">
+                            {{-- Selection Header (Desktop) --}}
+                            <div class="ps-cart-selection-header ps-cart-selection-header-desktop">
                                 <div class="ps-cart-selection-header-inner">
                                     <div class="ps-cart-selection-left">
                                         <label class="ps-cart-checkbox-wrapper">
@@ -61,6 +65,35 @@
                     <div class="ps-cart-summary-section">
                         <div class="ps-cart-summary-card">
                             @include(Theme::getThemeNamespace('views.ecommerce.includes.cart-summary'))
+                        </div>
+                    </div>
+                </div>
+                
+                {{-- Mobile Sticky Bottom Bar --}}
+                <div class="ps-cart-mobile-bottom-bar">
+                    <div class="ps-cart-mobile-bottom-bar-inner">
+                        <div class="ps-cart-mobile-select-all">
+                            <label class="ps-cart-checkbox-wrapper">
+                                <input type="checkbox" class="ps-cart-checkbox-main ps-cart-checkbox-mobile" id="selectAllCheckbox-shopping-mobile">
+                                <span class="ps-cart-checkmark"></span>
+                                <span class="ps-cart-select-text-mobile" id="selectAllText-shopping-mobile">
+                                    {{ __('Select all') }}
+                                </span>
+                            </label>
+                        </div>
+                        <div class="ps-cart-mobile-checkout">
+                            <div class="ps-cart-mobile-total">
+                                <span class="ps-cart-mobile-total-label">{{ __('Total') }}:</span>
+                                <span class="ps-cart-mobile-total-amount" id="mobileTotalAmount">{{ format_price(0) }}</span>
+                            </div>
+                            <button type="button" class="ps-cart-mobile-details-btn" id="mobileDetailsBtn">
+                                {{ __('Details') }} <i class="icon-chevron-up"></i>
+                            </button>
+                        </div>
+                        <div class="ps-cart-mobile-checkout-btn-wrapper">
+                            <button type="button" class="ps-btn ps-btn--primary ps-cart-mobile-checkout-btn" id="mobileCheckoutBtn">
+                                {{ __('Checkout') }}
+                            </button>
                         </div>
                     </div>
                 </div>

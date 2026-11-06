@@ -98,12 +98,19 @@
 
 .ps-cart-header {
     padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     
     h1 {
         font-size: 24px;
         font-weight: 700;
         margin: 0;
         color: var(--global-color-text-main);
+    }
+    
+    .ps-cart-delete-btn-header {
+        display: none;
     }
 }
 
@@ -555,6 +562,11 @@
     }
 }
 
+/* Mobile Sticky Bottom Bar - Hidden by default */
+.ps-cart-mobile-bottom-bar {
+    display: none;
+}
+
 /* Mobile Responsive */
 @media (max-width: 1200px) {
     .ps-cart-layout {
@@ -573,56 +585,7 @@
 }
 
 @media (max-width: 767px) {
-    .ps-cart-product-item {
-        grid-template-columns: auto 60px 1fr;
-        gap: 12px;
-    }
-    
-    .ps-cart-product-image {
-        grid-column: 2;
-    }
-    
-    .ps-cart-product-details {
-        grid-column: 3;
-    }
-    
-    .ps-cart-product-name-price {
-        flex-direction: column;
-        gap: 4px;
-    }
-    
-    .ps-cart-product-price .product__price {
-        text-align: left;
-    }
-    
-    .ps-cart-header h1 {
-        font-size: 20px;
-    }
-    
-    .ps-cart-selection-header {
-        padding: 0 16px;
-    }
-    
-    .ps-cart-store-header {
-        padding: 12px 16px;
-    }
-    
-    .ps-cart-product-item {
-        padding: 16px;
-    }
-    
-    /* Responsive tabs */
-    .ps-cart-tab-button {
-        padding: 12px 16px;
-        font-size: 14px;
-        
-        .tab-title {
-            font-size: 13px;
-        }
-    }
-}
-
-@media (max-width: 480px) {
+    /* Container and padding overrides */
     .ps-container:has(.ps-cart-container) {
         padding: 0 !important;
     }
@@ -633,6 +596,8 @@
     
     .ps-shopping-cart-enhanced {
         padding: 10px 0;
+        /* Add padding to bottom of cart to prevent content being hidden behind sticky bar */
+        padding-bottom: 120px;
     }
     
     .ps-section--shopping {
@@ -643,14 +608,30 @@
         gap: 15px;
     }
     
+    /* Header and selection */
     .ps-cart-header {
         padding: 16px;
+        
+        h1 {
+            font-size: 20px;
+        }
+        
+        /* Show delete button in header on mobile */
+        .ps-cart-delete-btn-header {
+            display: flex;
+        }
     }
     
+    /* Hide desktop selection header on mobile */
     .ps-cart-selection-header {
         padding: 0 12px;
     }
     
+    .ps-cart-selection-header-desktop {
+        display: none;
+    }
+    
+    /* Store sections */
     .ps-cart-store-header {
         padding: 10px 15px;
     }
@@ -659,19 +640,37 @@
         padding: 10px 0;
     }
     
+    /* Product items */
     .ps-cart-product-item {
         grid-template-columns: auto 50px 1fr;
         gap: 10px;
         padding: 12px 0;
     }
     
-    .ps-cart-product-image img {
-        width: 50px;
-        height: 50px;
+    .ps-cart-product-image {
+        grid-column: 2;
+        
+        img {
+            width: 50px;
+            height: 50px;
+        }
+    }
+    
+    .ps-cart-product-details {
+        grid-column: 3;
     }
     
     .ps-cart-product-name {
         font-size: 14px;
+    }
+    
+    .ps-cart-product-name-price {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .ps-cart-product-price .product__price {
+        text-align: left;
     }
     
     .ps-cart-product-attributes,
@@ -690,6 +689,7 @@
         height: 32px;
     }
     
+    /* Summary section */
     .ps-cart-summary-card {
         padding: 16px;
     }
@@ -697,5 +697,116 @@
     .ps-cart-actions .ps-btn {
         padding: 8px 20px;
         font-size: 14px;
+    }
+    
+    /* Responsive tabs */
+    .ps-cart-tab-button {
+        padding: 12px 16px;
+        font-size: 14px;
+        
+        .tab-title {
+            font-size: 13px;
+        }
+    }
+    
+    /* Mobile Sticky Bottom Bar */
+    .ps-cart-mobile-bottom-bar {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--global-color-site-bg);
+        border-top: 1px solid var(--global-color-border-strong);
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        padding: 12px 15px;
+    }
+    
+    .ps-cart-mobile-bottom-bar-inner {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .ps-cart-mobile-select-all {
+        flex-shrink: 0;
+        
+        .ps-cart-checkbox-wrapper {
+            margin: 0;
+            gap: 8px;
+        }
+        
+        .ps-cart-select-text-mobile {
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--global-color-text-main);
+            white-space: nowrap;
+        }
+        
+        /* Hide text when partial or all selected - show only checkbox */
+        &.ps-hide-text .ps-cart-select-text-mobile {
+            display: none;
+        }
+    }
+    
+    .ps-cart-mobile-checkout {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .ps-cart-mobile-total {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        
+        .ps-cart-mobile-total-label {
+            font-size: 13px;
+            color: var(--global-color-text-muted);
+        }
+        
+        .ps-cart-mobile-total-amount {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--global-color-text-main);
+        }
+    }
+    
+    .ps-cart-mobile-details-btn {
+        background: transparent;
+        border: none;
+        color: var(--global-color-primary);
+        font-size: 13px;
+        font-weight: 500;
+        padding: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.3s;
+        
+        &:hover {
+            opacity: 0.8;
+        }
+        
+        i {
+            font-size: 12px;
+        }
+    }
+    
+    .ps-cart-mobile-checkout-btn-wrapper {
+        flex-shrink: 0;
+    }
+    
+    .ps-cart-mobile-checkout-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 50px;
+        white-space: nowrap;
+        min-width: 100px;
     }
 }

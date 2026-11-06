@@ -47,9 +47,14 @@
         if (initialized) return;
         
         const mainCheckbox = document.querySelector('#selectAllCheckbox-shopping');
+        const mobileCheckbox = document.querySelector('#selectAllCheckbox-shopping-mobile');
         const selectAllText = document.querySelector('#selectAllText-shopping');
+        const selectAllTextMobile = document.querySelector('#selectAllText-shopping-mobile');
         const deleteBtn = document.querySelector('#deleteSelectedBtn-shopping');
+        const deleteBtnHeader = document.querySelector('#deleteSelectedBtn-shopping-header');
         const itemCheckboxes = document.querySelectorAll('.ps-cart-checkbox-item');
+        const mobileTotalAmount = document.querySelector('#mobileTotalAmount');
+        const mobileSelectAllWrapper = document.querySelector('.ps-cart-mobile-select-all');
         
         if (!mainCheckbox || !itemCheckboxes.length) return;
         
@@ -67,18 +72,39 @@
             if (selected === 0) {
                 mainCheckbox.checked = false;
                 mainCheckbox.indeterminate = false;
+                if (mobileCheckbox) {
+                    mobileCheckbox.checked = false;
+                    mobileCheckbox.indeterminate = false;
+                }
                 selectAllText.textContent = selectAllText.dataset.textAll.replace('{count}', total);
+                if (selectAllTextMobile) selectAllTextMobile.textContent = 'Select all';
+                if (mobileSelectAllWrapper) mobileSelectAllWrapper.classList.remove('ps-hide-text');
                 if (deleteBtn) deleteBtn.disabled = true;
+                if (deleteBtnHeader) deleteBtnHeader.disabled = true;
             } else if (selected === total) {
                 mainCheckbox.checked = true;
                 mainCheckbox.indeterminate = false;
+                if (mobileCheckbox) {
+                    mobileCheckbox.checked = true;
+                    mobileCheckbox.indeterminate = false;
+                }
                 selectAllText.textContent = selectAllText.dataset.textAllSelected.replace('{count}', total);
+                // Hide text on mobile when all selected
+                if (mobileSelectAllWrapper) mobileSelectAllWrapper.classList.add('ps-hide-text');
                 if (deleteBtn) deleteBtn.disabled = false;
+                if (deleteBtnHeader) deleteBtnHeader.disabled = false;
             } else {
                 mainCheckbox.checked = false;
                 mainCheckbox.indeterminate = true;
+                if (mobileCheckbox) {
+                    mobileCheckbox.checked = false;
+                    mobileCheckbox.indeterminate = true;
+                }
                 selectAllText.textContent = selectAllText.dataset.textPartial.replace('{selected}', selected).replace('{total}', total);
+                // Hide text on mobile when partial selected
+                if (mobileSelectAllWrapper) mobileSelectAllWrapper.classList.add('ps-hide-text');
                 if (deleteBtn) deleteBtn.disabled = false;
+                if (deleteBtnHeader) deleteBtnHeader.disabled = false;
             }
             updateSummary();
         }
@@ -89,6 +115,7 @@
             const subtotalEl = document.querySelector('#cart-summary-subtotal');
             const taxEl = document.querySelector('#cart-summary-tax');
             const totalEl = document.querySelector('#cart-summary-total');
+            const mobileTotalAmount = document.querySelector('#mobileTotalAmount');
             
             if (!itemCountEl || !subtotalEl) return;
             
@@ -100,6 +127,7 @@
                 subtotalEl.textContent = formatPrice(0);
                 if (taxEl) taxEl.textContent = formatPrice(0);
                 if (totalEl) totalEl.textContent = formatPrice(0);
+                if (mobileTotalAmount) mobileTotalAmount.textContent = formatPrice(0);
                 return;
             }
             
@@ -119,14 +147,21 @@
             subtotalEl.textContent = formatPrice(subtotal);
             
             // Handle tax if present
+            let finalTotal = subtotal;
             if (taxEl && taxEl.dataset.total) {
                 const originalSubtotal = parseFloat(subtotalEl.dataset.total) || 1;
                 const originalTax = parseFloat(taxEl.dataset.total) || 0;
                 const calculatedTax = subtotal * (originalTax / originalSubtotal);
                 taxEl.textContent = formatPrice(calculatedTax);
-                if (totalEl) totalEl.textContent = formatPrice(subtotal + calculatedTax);
+                finalTotal = subtotal + calculatedTax;
+                if (totalEl) totalEl.textContent = formatPrice(finalTotal);
             } else if (totalEl) {
                 totalEl.textContent = formatPrice(subtotal);
+            }
+            
+            // Update mobile total
+            if (mobileTotalAmount) {
+                mobileTotalAmount.textContent = formatPrice(finalTotal);
             }
         }
         
@@ -148,9 +183,24 @@
                 cb.checked = this.checked;
                 cb.indeterminate = false;
             });
+            if (mobileCheckbox) mobileCheckbox.checked = this.checked;
             updateMainCheckbox();
             saveSelectionState();
         });
+        
+        // Mobile checkbox - sync with main checkbox
+        if (mobileCheckbox) {
+            mobileCheckbox.addEventListener('change', function() {
+                itemCheckboxes.forEach(cb => cb.checked = this.checked);
+                document.querySelectorAll('.ps-cart-checkbox-store').forEach(cb => {
+                    cb.checked = this.checked;
+                    cb.indeterminate = false;
+                });
+                mainCheckbox.checked = this.checked;
+                updateMainCheckbox();
+                saveSelectionState();
+            });
+        }
         
         // Store header checkboxes
         document.querySelectorAll('.ps-cart-checkbox-store').forEach(storeCheckbox => {
@@ -191,6 +241,28 @@
         const storeIds = new Set();
         itemCheckboxes.forEach(cb => storeIds.add(cb.dataset.storeId));
         storeIds.forEach(id => updateStoreCheckbox(id));
+        
+        // Mobile Details button - scroll to summary
+        const mobileDetailsBtn = document.querySelector('#mobileDetailsBtn');
+        if (mobileDetailsBtn) {
+            mobileDetailsBtn.addEventListener('click', function() {
+                const summaryCard = document.querySelector('.ps-cart-summary-card');
+                if (summaryCard) {
+                    summaryCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        }
+        
+        // Mobile Checkout button - trigger validation and checkout
+        const mobileCheckoutBtn = document.querySelector('#mobileCheckoutBtn');
+        if (mobileCheckoutBtn) {
+            mobileCheckoutBtn.addEventListener('click', function() {
+                const checkoutLink = document.querySelector('.ps-cart-actions a[href*="checkout"], .ps-btn--primary[href*="checkout"], a.ps-btn[href*="information"]');
+                if (checkoutLink) {
+                    checkoutLink.click();
+                }
+            });
+        }
     }
     
     /**
@@ -198,7 +270,7 @@
      */
     function setupBulkDelete() {
         document.body.addEventListener('click', function(e) {
-            const deleteBtn = e.target.closest('#deleteSelectedBtn-shopping');
+            const deleteBtn = e.target.closest('#deleteSelectedBtn-shopping, #deleteSelectedBtn-shopping-header');
             if (!deleteBtn) return;
             
             e.preventDefault();
