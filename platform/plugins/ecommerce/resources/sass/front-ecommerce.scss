@@ -577,11 +577,26 @@
         padding: 0;
 
         &-content {
-            &:has(.bb-product-filter-items) {
-                max-height: 700px;
-                overflow-y: auto;
-                overscroll-behavior-y: contain;
-                scrollbar-width: thin;
+            max-height: 500px;
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
+            scrollbar-width: thin;
+
+            &::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background: var(--global-color-border-strong);
+                border-radius: 3px;
+            }
+
+            &::-webkit-scrollbar-thumb:hover {
+                background: var(--global-color-text-body);
             }
 
             .form-select {
