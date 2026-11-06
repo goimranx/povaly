@@ -114,7 +114,19 @@
                     <div class="ps-cart-product-details">
                         {{-- Product Name and Price --}}
                         <div class="ps-cart-product-name-price">
-                            <a href="{{ $product->original_product->url }}" class="ps-cart-product-name">
+                            <a href="{{ $product->original_product->url }}" 
+                               class="ps-cart-product-name" 
+                               data-product-detail-trigger
+                               data-row-id="{{ $cartItem->rowId }}"
+                               data-product-name="{{ $product->original_product->name }}"
+                               data-product-image="{{ RvMedia::getImageUrl(Arr::get($cartItem->options, 'image', $product->original_product->image), 'thumb', false, RvMedia::getDefaultImage()) }}"
+                               data-product-price="{{ format_price($cartItem->price) }}"
+                               data-product-price-raw="{{ $cartItem->price }}"
+                               data-product-original-price="{{ $product->front_sale_price != $product->price ? format_price($product->price) : '' }}"
+                               data-product-qty="{{ $cartItem->qty }}"
+                               data-product-stock-status="{{ $product->isOutOfStock() ? strip_tags($product->stock_status_html) : __('In Stock') }}"
+                               data-product-attributes="{{ !empty($cartItem->options['attributes']) ? $cartItem->options['attributes'] : '' }}"
+                               data-product-url="{{ $product->original_product->url }}">
                                 <span class="ps-cart-product-name-text">
                                     {{ $product->original_product->name }}
                                     @if ($product->isOutOfStock())

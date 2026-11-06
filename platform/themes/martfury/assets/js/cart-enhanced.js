@@ -93,6 +93,135 @@
     }
     
     /**
+     * Setup product detail offcanvas
+     */
+    function setupProductDetailOffcanvas() {
+        const productDetailOffcanvas = document.querySelector('#productDetailOffcanvas');
+        const productDetailOverlay = document.querySelector('#productDetailOverlay');
+        const productDetailClose = document.querySelector('#productDetailClose');
+        const productDetailContent = document.querySelector('#productDetailContent');
+        
+        if (!productDetailOffcanvas) return;
+        
+        // Open product detail on mobile when clicking product name
+        document.body.addEventListener('click', function(e) {
+            if (window.innerWidth > 767) return; // Only on mobile
+            
+            const trigger = e.target.closest('[data-product-detail-trigger]');
+            if (!trigger) return;
+            
+            e.preventDefault();
+            
+            // Get product data from attributes
+            const productData = {
+                rowId: trigger.dataset.rowId,
+                name: trigger.dataset.productName,
+                image: trigger.dataset.productImage,
+                price: trigger.dataset.productPrice,
+                priceRaw: trigger.dataset.productPriceRaw,
+                originalPrice: trigger.dataset.productOriginalPrice,
+                qty: trigger.dataset.productQty,
+                stockStatus: trigger.dataset.productStockStatus,
+                attributes: trigger.dataset.productAttributes,
+                url: trigger.dataset.productUrl
+            };
+            
+            openProductDetail(productData);
+        });
+        
+        // Close handlers
+        if (productDetailOverlay) {
+            productDetailOverlay.addEventListener('click', closeProductDetail);
+        }
+        if (productDetailClose) {
+            productDetailClose.addEventListener('click', closeProductDetail);
+        }
+        
+        function openProductDetail(data) {
+            // Build HTML
+            const isOnSale = data.originalPrice !== '';
+            const isOutOfStock = data.stockStatus.toLowerCase().includes('out of stock');
+            
+            let html = `
+                <div class="ps-product-detail-top">
+                    <div class="ps-product-detail-image">
+                        <img src="${data.image}" alt="${data.name}">
+                    </div>
+                    <div class="ps-product-detail-price-qty">
+                        <div class="ps-product-detail-price">
+                            <div class="product__price ${isOnSale ? 'sale' : ''}">
+                                <span>${data.price}</span>
+                                ${isOnSale ? `<small><del>${data.originalPrice}</del></small>` : ''}
+                            </div>
+                        </div>
+                        <div class="ps-product-detail-qty">
+                            <div class="form-group--number product__qty">
+                                <button class="up" type="button">+</button>
+                                <button class="down" type="button">-</button>
+                                <input type="number" class="form-control qty-input" min="1" value="${data.qty}" 
+                                       data-row-id="${data.rowId}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ps-product-detail-stock ${isOutOfStock ? 'out-of-stock' : ''}">
+                    ${data.stockStatus}
+                </div>
+                <div class="ps-product-detail-name">
+                    ${data.name}
+                </div>
+            `;
+            
+            if (data.attributes) {
+                html += `
+                    <div class="ps-product-detail-attributes">
+                        <p><strong>Variations:</strong> ${data.attributes}</p>
+                    </div>
+                `;
+            }
+            
+            html += `
+                <div class="ps-product-detail-actions">
+                    <a href="${data.url}">View Full Details</a>
+                </div>
+            `;
+            
+            productDetailContent.innerHTML = html;
+            
+            // Position above checkout bar
+            const cartBottomBar = document.querySelector('.ps-cart-mobile-bottom-bar');
+            const navigationBar = document.querySelector('.navigation--list');
+            
+            if (cartBottomBar && navigationBar && window.innerWidth <= 767) {
+                const navHeight = navigationBar.offsetHeight;
+                const bottomBarHeight = cartBottomBar.offsetHeight;
+                const offcanvasBottom = navHeight + bottomBarHeight;
+                
+                productDetailOffcanvas.style.bottom = offcanvasBottom + 'px';
+                productDetailOverlay.style.bottom = offcanvasBottom + 'px';
+            }
+            
+            // Show offcanvas
+            setTimeout(() => {
+                productDetailOffcanvas.classList.add('active');
+                productDetailOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }, 10);
+        }
+        
+        function closeProductDetail() {
+            productDetailOffcanvas.classList.remove('active');
+            productDetailOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            setTimeout(() => {
+                productDetailOffcanvas.style.bottom = '0px';
+                productDetailOverlay.style.bottom = '0px';
+            }, 300);
+        }
+    }
+    
+    /**
      * Initialize the cart functionality
      */
     function initCart() {
@@ -456,6 +585,9 @@
                 }
             });
         }
+        
+        // Product Detail Offcanvas - open when clicking product name chevron on mobile
+        setupProductDetailOffcanvas();
     }
     
     /**

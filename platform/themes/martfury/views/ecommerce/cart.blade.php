@@ -132,6 +132,20 @@
                         </div>
                     </div>
                 </div>
+                
+                {{-- Mobile Product Details Offcanvas --}}
+                <div class="ps-cart-product-detail-overlay" id="productDetailOverlay"></div>
+                <div class="ps-cart-product-detail-offcanvas" id="productDetailOffcanvas">
+                    <div class="ps-cart-product-detail-header">
+                        <h3>{{ __('Product Details') }}</h3>
+                        <button type="button" class="ps-cart-product-detail-close" id="productDetailClose">
+                            <i class="icon-cross"></i>
+                        </button>
+                    </div>
+                    <div class="ps-cart-product-detail-content" id="productDetailContent">
+                        {{-- Product details will be dynamically added here --}}
+                    </div>
+                </div>
             </form>
             
             @if (count($crossSellProducts) > 0)
