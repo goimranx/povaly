@@ -726,7 +726,9 @@
     .ps-cart-mobile-bottom-bar-inner {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 12px;
+        padding: 10px 0;
     }
     
     .ps-cart-mobile-select-all {
@@ -750,11 +752,17 @@
         }
     }
     
+    .ps-cart-mobile-right-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+    
     .ps-cart-mobile-checkout {
-        flex: 1;
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: flex-end;
         gap: 4px;
     }
     
@@ -802,11 +810,26 @@
     }
     
     .ps-cart-mobile-checkout-btn {
-        padding: 10px 20px;
+        padding: 10px 16px;
         font-size: 14px;
         font-weight: 600;
         border-radius: 50px;
         white-space: nowrap;
         min-width: 100px;
+        background: var(--global-color-primary);
+        color: var(--global-color-text-main);
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        &:hover:not(:disabled) {
+            opacity: 0.9;
+        }
+        
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
     }
 }

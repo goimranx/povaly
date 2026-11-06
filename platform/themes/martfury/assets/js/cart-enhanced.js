@@ -98,6 +98,7 @@
         function updateMainCheckbox() {
             const selected = document.querySelectorAll('.ps-cart-checkbox-item:checked').length;
             const total = itemCheckboxes.length;
+            const mobileCheckoutBtn = document.querySelector('#mobileCheckoutBtn');
             
             if (selected === 0) {
                 mainCheckbox.checked = false;
@@ -111,6 +112,7 @@
                 if (mobileSelectAllWrapper) mobileSelectAllWrapper.classList.remove('ps-hide-text');
                 if (deleteBtn) deleteBtn.disabled = true;
                 if (deleteBtnHeader) deleteBtnHeader.disabled = true;
+                if (mobileCheckoutBtn) mobileCheckoutBtn.disabled = true;
             } else if (selected === total) {
                 mainCheckbox.checked = true;
                 mainCheckbox.indeterminate = false;
@@ -123,6 +125,7 @@
                 if (mobileSelectAllWrapper) mobileSelectAllWrapper.classList.add('ps-hide-text');
                 if (deleteBtn) deleteBtn.disabled = false;
                 if (deleteBtnHeader) deleteBtnHeader.disabled = false;
+                if (mobileCheckoutBtn) mobileCheckoutBtn.disabled = false;
             } else {
                 mainCheckbox.checked = false;
                 mainCheckbox.indeterminate = true;
@@ -135,6 +138,7 @@
                 if (mobileSelectAllWrapper) mobileSelectAllWrapper.classList.add('ps-hide-text');
                 if (deleteBtn) deleteBtn.disabled = false;
                 if (deleteBtnHeader) deleteBtnHeader.disabled = false;
+                if (mobileCheckoutBtn) mobileCheckoutBtn.disabled = false;
             }
             updateSummary();
         }

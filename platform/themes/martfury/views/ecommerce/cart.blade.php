@@ -81,19 +81,21 @@
                                 </span>
                             </label>
                         </div>
-                        <div class="ps-cart-mobile-checkout">
-                            <div class="ps-cart-mobile-total">
-                                <span class="ps-cart-mobile-total-label">{{ __('Total') }}:</span>
-                                <span class="ps-cart-mobile-total-amount" id="mobileTotalAmount">{{ format_price(0) }}</span>
+                        <div class="ps-cart-mobile-right-wrapper">
+                            <div class="ps-cart-mobile-checkout">
+                                <div class="ps-cart-mobile-total">
+                                    <span class="ps-cart-mobile-total-label">{{ __('Total') }}:</span>
+                                    <span class="ps-cart-mobile-total-amount" id="mobileTotalAmount">{{ format_price(0) }}</span>
+                                </div>
+                                <button type="button" class="ps-cart-mobile-details-btn" id="mobileDetailsBtn">
+                                    {{ __('Details') }} <i class="icon-chevron-up"></i>
+                                </button>
                             </div>
-                            <button type="button" class="ps-cart-mobile-details-btn" id="mobileDetailsBtn">
-                                {{ __('Details') }} <i class="icon-chevron-up"></i>
-                            </button>
-                        </div>
-                        <div class="ps-cart-mobile-checkout-btn-wrapper">
-                            <button type="button" class="ps-btn ps-btn--primary ps-cart-mobile-checkout-btn" id="mobileCheckoutBtn">
-                                {{ __('Checkout') }}
-                            </button>
+                            <div class="ps-cart-mobile-checkout-btn-wrapper">
+                                <button type="button" class="ps-btn ps-btn--primary ps-cart-mobile-checkout-btn" id="mobileCheckoutBtn" disabled>
+                                    {{ __('Checkout') }}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
