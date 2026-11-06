@@ -187,6 +187,20 @@
                 .ps-cart-recommended-section .ps-smart-products .ps-container {
                     padding: 0 !important;
                 }
+
+                /* Hide specific elements from product cards in these sections */
+                .ps-cart-recently-viewed-section .ec-card__float-toggle,
+                .ps-cart-recently-viewed-section .ec-card__delivery,
+                .ps-cart-recently-viewed-section .ec-card__view-count,
+                .ps-cart-recently-viewed-section .ec-card__sale-duration,
+                .ps-cart-recently-viewed-section .ec-card__price-row,
+                .ps-cart-recommended-section .ec-card__float-toggle,
+                .ps-cart-recommended-section .ec-card__delivery,
+                .ps-cart-recommended-section .ec-card__view-count,
+                .ps-cart-recommended-section .ec-card__sale-duration,
+                .ps-cart-recommended-section .ec-card__price-row {
+                    display: none !important;
+                }
             </style>
         @else
             {{-- Empty cart --}}
