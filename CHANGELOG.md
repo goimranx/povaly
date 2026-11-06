@@ -5,6 +5,83 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2024-11-06
+
+### ✨ New Features
+
+#### 🔐 Authentication Pages Redesign
+- **Minimal Amazon-style design** for login/register pages
+- Transparent card background with clean borders
+- Centered logo support with new `logo_black` theme option
+- Custom checkbox styling with global color variables
+- 50px border-radius buttons with theme colors
+- No header/footer layout for auth pages (minimal.blade.php)
+- Password reset pages use minimal layout
+- Social login section with clean styling
+
+#### 🎨 Product Filters Enhancement
+- **Transparent background** (removed gray boxes)
+- **Global color variables** for all filter elements
+- Custom scrollbar with 500px max-height
+- Filter titles: 14px, 600 weight, text-main color
+- Filter items: text-body color
+- Checkboxes: border-strong outline, link color when checked
+- No padding, margins, or border-bottom on filter sections
+
+#### 📦 Products Page Restructure
+- **Main products shown first** (search/filter results priority)
+- **Recommended items moved to bottom** of page
+- **Featured brands carousel removed** (was empty/unused)
+- Filter/sort bar moved to page top (full-width)
+- Cleaner hierarchy and better UX flow
+
+### 🎨 UI/UX Improvements
+
+#### Design System Updates
+- **Shortcode headings** changed from h3 to h2
+- Desktop: 22px font-size, 700 weight
+- Mobile: 20px font-size
+- Updated: featured-products, smart-products, deal-and-offers, trending-products, featured-banners
+- Homepage ps-container: 15px horizontal padding
+
+#### Cache Busting Implementation
+- Social login CSS uses `cache_bust()` helper
+- Dynamic versioning: timestamp on staging, tag version on production
+- Proper asset version management via VersionHelper
+
+### 🐛 Bug Fixes
+
+#### Filter System
+- **Fixed scroll not working** (removed :has() selector)
+- Custom scrollbar styling added
+- Filter content scrolls properly with 500px max-height
+
+#### Social Login
+- **Removed hover transform** on social login buttons
+- Buttons stay in place (no translateY jump)
+- Only shadow effect on hover
+
+### 🔧 Technical Improvements
+
+#### Code Organization
+- Auth page styles moved to `front-card.scss` (proper location)
+- Removed duplicate styles from `custom.scss`
+- Cleaner separation: plugin styles in plugin, theme overrides in theme
+- All auth colors use CSS variables from header-meta
+
+#### CSS Variables Usage
+- `--global-color-text-main` for headings
+- `--global-color-text-body` for regular text
+- `--global-color-link` for links and active states
+- `--global-color-link-hover` for hover states
+- `--global-color-border-strong` for borders
+- `--ec-btn-cart-bg/text/hover` for buttons
+
+### 📝 Files Changed
+- 68 files changed
+- 3,755 additions
+- 795 deletions
+
 ## [2.4.1] - 2024-11-05
 
 ### 🐛 Bug Fixes
