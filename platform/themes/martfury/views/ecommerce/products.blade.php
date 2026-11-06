@@ -1,39 +1,33 @@
 <div class="ps-page--shop">
-    @if (theme_option('show_featured_brands_on_products_page', 'yes') == 'yes')
-        @php
-            $featuredBrands = get_featured_brands();
-        @endphp
-        @if($featuredBrands->isNotEmpty())
-            <div class="mt-40">
-                <div class="ps-shop-brand ps-carousel--responsive owl-slider"
-                     data-owl-auto="true"
-                     data-owl-loop="false"
-                     data-owl-speed="10000"
-                     data-owl-gap="0"
-                     data-owl-nav="false"
-                     data-owl-dots="true"
-                     data-owl-item="7"
-                     data-owl-item-xs="2"
-                     data-owl-item-sm="2"
-                     data-owl-item-md="3"
-                     data-owl-item-lg="4"
-                     data-owl-item-xl="6"
-                     data-owl-duration="1000"
-                     data-owl-mousedrag="on"
-                >
-                    @foreach($featuredBrands as $brand)
-                        @if($brand->website)
-                            <a href="{{ $brand->website }}">
-                        @endif
-                        <img src="{{ RvMedia::getImageUrl($brand->logo, null, false, RvMedia::getDefaultImage()) }}" alt="{{ $brand->name }}" loading="lazy"/>
-                        @if($brand->website)
-                            </a>
-                        @endif
-                    @endforeach
+    <div class="bg-light py-2 mb-3">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 col-sm-6 col-md-3 d-xl-none px-2 px-sm-3">
+                    <div class="header__filter d-xl-none mx-auto mb-3 mb-sm-0">
+                        <button id="products-filter-sidebar" type="button">
+                            <i class="icon-equalizer"></i><span class="ms-2">{{ __('Filter') }}</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3 col-xl-6 d-none d-md-block">
+                    <div class="products-found pt-2">
+                        <strong>{{ $products->total() }}</strong><span class="ms-1">{{ __('Products found') }}</span>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 px-2 px-sm-3">
+                    <div class="d-flex justify-content-center justify-content-sm-end">
+                        @include(Theme::getThemeNamespace() . '::views/ecommerce/includes/sort')
+                        <div class="ps-shopping__view ms-2">
+                            <ul class="products-layout mb-0 p-0">
+                                <li @if (request()->get('layout') != 'list') class="active" @endif><a href="#grid" data-layout="grid"><i class="icon-grid"></i></a></li>
+                                <li @if (request()->get('layout') == 'list') class="active" @endif><a href="#list" data-layout="list"><i class="icon-list4"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
-        @endif
-    @endif
+        </div>
+    </div>
 
     <div class="ps-layout--shop">
         <div class="ps-layout__left">
