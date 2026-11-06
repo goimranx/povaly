@@ -787,7 +787,7 @@
     .ps-cart-details-offcanvas {
         display: block;
         position: fixed;
-        bottom: 0; /* Will be dynamically positioned by JS */
+        bottom: 0; /* Start at bottom (hidden) */
         left: 0;
         right: 0;
         background: var(--global-color-site-bg);
@@ -795,7 +795,7 @@
         box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
         z-index: 1001;
         transform: translateY(100%);
-        transition: transform 0.3s ease, bottom 0.3s ease;
+        transition: transform 0.3s ease;
         max-height: 70vh;
         overflow-y: auto;
         
