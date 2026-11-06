@@ -155,7 +155,7 @@
 
             {{-- Recommended Products Section --}}
             <div class="ps-cart-recommended-section">
-                {!! do_shortcode('[smart-products title="Recommended for you" items_to_show="600" items_per_page="10" load_more_type="auto" enable_caching="no" enable_lazy_loading="no"][/smart-products]') !!}
+                {!! do_shortcode('[smart-products title="You may also like" items_to_show="600" items_per_page="10" load_more_type="auto" enable_caching="no" enable_lazy_loading="no"][/smart-products]') !!}
             </div>
 
             <style>
@@ -194,11 +194,13 @@
                 .ps-cart-recently-viewed-section .ec-card__view-count,
                 .ps-cart-recently-viewed-section .ec-card__sale-duration,
                 .ps-cart-recently-viewed-section .ec-card__price-row,
+                .ps-cart-recently-viewed-section .ec-card__actions,
                 .ps-cart-recommended-section .ec-card__float-toggle,
                 .ps-cart-recommended-section .ec-card__delivery,
                 .ps-cart-recommended-section .ec-card__view-count,
                 .ps-cart-recommended-section .ec-card__sale-duration,
-                .ps-cart-recommended-section .ec-card__price-row {
+                .ps-cart-recommended-section .ec-card__price-row,
+                .ps-cart-recommended-section .ec-card__actions {
                     display: none !important;
                 }
             </style>
