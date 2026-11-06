@@ -6,7 +6,7 @@
                 <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
                     <div class="ps-block--deal-of-day">
                         <div class="ps-block__header">
-                            <h3>{{ $deal_title }}</h3>
+                            <h2 style="font-size: 22px; font-weight: 700; margin: 0;">{{ $deal_title }}</h2>
                             @if($deal_products && $deal_products->isNotEmpty() && $deal_limit > 1)
                                 <div class="ps-block__nav">
                                     <button type="button" class="ps-carousel-nav-btn ps-carousel-prev" data-target=".ps-carousel--deal">
@@ -65,7 +65,7 @@
                 <div class="col-xl-9 col-lg-9 col-md-12 col-sm-12 col-12">
                     <div class="ps-block--offers">
                         <div class="ps-block__header">
-                            <h3>{{ $offers_title }}</h3>
+                            <h2 style="font-size: 22px; font-weight: 700; margin: 0;">{{ $offers_title }}</h2>
                             @if($offers_link_url && $offers_link_url !== '#')
                                 <a href="{{ $offers_link_url }}" class="ps-block__more">{{ $offers_link_text }}</a>
                             @endif
@@ -130,12 +130,18 @@
         padding: 0 0 10px 0;
     }
 
-    .ps-block--deal-of-day .ps-block__header h3 {
-        font-size: 1.6rem;
-        font-weight: 600;
+    .ps-block--deal-of-day .ps-block__header h2 {
+        font-size: 22px;
+        font-weight: 700;
         color: var(--global-color-text-main);
         margin: 0;
         padding: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .ps-block--deal-of-day .ps-block__header h2 {
+            font-size: 20px;
+        }
     }
 
     .ps-block--deal-of-day .ps-block__header .ps-block__nav {
@@ -206,12 +212,18 @@
         gap: 15px;
     }
 
-    .ps-block--offers .ps-block__header h3 {
-        font-size: 1.65rem;
-        font-weight: 600;
+    .ps-block--offers .ps-block__header h2 {
+        font-size: 22px;
+        font-weight: 700;
         color: var(--global-color-text-main);
         margin: 0;
         flex-shrink: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .ps-block--offers .ps-block__header h2 {
+            font-size: 20px;
+        }
     }
 
     .ps-block--offers .ps-block__more {

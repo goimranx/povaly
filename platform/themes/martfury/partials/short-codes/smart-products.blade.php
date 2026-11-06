@@ -2,7 +2,7 @@
     <div class="ps-container">
         <div class="ps-block--smart-products">
             <div class="ps-block__header">
-                <h3>{{ $title }}</h3>
+                <h2 style="font-size: 22px; font-weight: 700; margin: 0;">{{ $title }}</h2>
             </div>
             <div class="ps-block__content">
                 <div class="ps-grid--smart-products js-smart-products-grid"
@@ -63,11 +63,17 @@
         padding: 0 0 10px 0;
     }
 
-    .ps-block--smart-products .ps-block__header h3 {
-        font-size: 1.65rem;
-        font-weight: 600;
+    .ps-block--smart-products .ps-block__header h2 {
+        font-size: 22px;
+        font-weight: 700;
         color: var(--global-color-text-main);
         margin: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .ps-block--smart-products .ps-block__header h2 {
+            font-size: 20px;
+        }
     }
 
     .ps-block--smart-products .ps-block__content {

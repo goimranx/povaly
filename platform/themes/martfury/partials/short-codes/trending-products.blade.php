@@ -2,7 +2,7 @@
     <div class="ps-container">
         <div class="ps-block--trending">
             <div class="ps-block__header">
-                <h3>{!! BaseHelper::clean($title) !!}</h3>
+                <h2 style="font-size: 22px; font-weight: 700; margin: 0;">{!! BaseHelper::clean($title) !!}</h2>
                 <a href="{{ route('public.products') }}" class="ps-block__more" title="{{ __('View all products') }}">{{ __('View All') }}</a>
             </div>
             <div class="ps-block__content">
@@ -63,12 +63,18 @@
         gap: 15px;
     }
 
-    .ps-block--trending .ps-block__header h3 {
-        font-size: 1.65rem;
-        font-weight: 600;
+    .ps-block--trending .ps-block__header h2 {
+        font-size: 22px;
+        font-weight: 700;
         color: var(--global-color-text-main);
         margin: 0;
         flex-shrink: 0;
+    }
+    
+    @media (max-width: 768px) {
+        .ps-block--trending .ps-block__header h2 {
+            font-size: 20px;
+        }
     }
 
     .ps-block--trending .ps-block__more {
