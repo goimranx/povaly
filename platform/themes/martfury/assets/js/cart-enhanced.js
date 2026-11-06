@@ -527,8 +527,11 @@
     window.initCartEnhanced = function() {
         initialized = false; // Reset flag so it can reinitialize
         initCart();
-        // Reposition mobile bar after reinit
+        // Reposition mobile bars after reinit
         if (window.cartPositionUpdater) {
+            // Update immediately
+            window.cartPositionUpdater();
+            // Also update with delays for stability (after DOM settles)
             setTimeout(() => window.cartPositionUpdater(), 100);
             setTimeout(() => window.cartPositionUpdater(), 500);
         }
