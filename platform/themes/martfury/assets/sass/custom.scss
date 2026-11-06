@@ -724,57 +724,47 @@ form {
     }
 }
 
-.ps-my-account {
+// Auth wrapper - clean layout without Bootstrap
+.auth-wrapper {
     background: var(--global-color-site-bg);
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 40px 20px;
 
     .auth-logo {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 30px;
+        
+        a {
+            display: inline-block;
+        }
         
         img {
             max-height: 50px;
             height: auto;
+            width: auto;
         }
-    }
-
-    .container {
-        max-width: 100%;
-        padding: 0;
-    }
-
-    .row {
-        margin: 0;
-    }
-
-    .col-xl-6,
-    .col-lg-8 {
-        padding: 0;
     }
 
     .auth-card {
         max-width: 400px;
-        margin: 0 auto;
+        width: 100%;
         padding: 30px;
         background: #ffffff;
-        border: 1px solid var(--global-color-border-light);
+        border: 1px solid #ddd;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
+        .auth-card__banner {
+            display: none;
+        }
+
         .auth-card__header {
             padding: 0 0 20px 0;
-            border: none;
             text-align: center;
-
-            .d-flex {
-                flex-direction: column !important;
-                align-items: center !important;
-                gap: 0 !important;
-            }
 
             .auth-card__header-icon {
                 display: none;
@@ -783,8 +773,8 @@ form {
             .auth-card__header-title {
                 font-size: 26px;
                 font-weight: 400;
-                color: var(--global-color-text-main);
-                margin-bottom: 0;
+                color: #111;
+                margin: 0 0 10px 0;
             }
 
             .auth-card__header-description {
@@ -795,7 +785,7 @@ form {
         .auth-card__body {
             padding: 0;
 
-            .ps-form--account {
+            form {
                 .mb-3 {
                     margin-bottom: 15px !important;
                 }
@@ -803,8 +793,9 @@ form {
                 .form-label {
                     font-size: 13px;
                     font-weight: 700;
-                    color: var(--global-color-text-main);
+                    color: #111;
                     margin-bottom: 5px;
+                    display: block;
                 }
 
                 .auth-input-icon {
@@ -812,6 +803,7 @@ form {
                 }
 
                 .form-control {
+                    width: 100%;
                     padding: 10px 12px;
                     font-size: 14px;
                     border: 1px solid #a6a6a6;
@@ -825,13 +817,19 @@ form {
                     }
                 }
 
-                .ps-5 {
-                    padding-left: 12px !important;
+                .position-relative {
+                    position: relative;
                 }
 
                 .input-password-toggle {
+                    position: absolute;
                     right: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
                     padding: 0;
+                    background: none;
+                    border: none;
+                    cursor: pointer;
                     
                     svg {
                         width: 20px;
@@ -839,34 +837,72 @@ form {
                     }
                 }
 
-                .ps-checkbox {
+                // Remove Bootstrap grid classes
+                .row {
+                    display: flex;
+                    flex-wrap: wrap;
+                    margin: 0 0 15px 0;
+                }
+
+                .col-6 {
+                    flex: 0 0 50%;
+                    max-width: 50%;
+                    padding: 0;
+                }
+
+                .ps-checkbox,
+                .custom-checkbox {
                     label {
                         font-size: 13px;
                         font-weight: normal;
-                        color: var(--global-color-text-body);
+                        color: #111;
+                        cursor: pointer;
+                    }
+
+                    input[type="checkbox"] {
+                        margin-right: 5px;
                     }
                 }
 
-                .text-end a {
-                    font-size: 13px;
-                    color: #0066c0;
-                    text-decoration: none;
+                .text-end {
+                    text-align: right;
                     
-                    &:hover {
-                        color: #c45500;
-                        text-decoration: underline;
+                    a {
+                        font-size: 13px;
+                        color: #0066c0;
+                        text-decoration: none;
+                        
+                        &:hover {
+                            color: #c45500;
+                            text-decoration: underline;
+                        }
                     }
                 }
 
-                .ps-btn {
+                .text-decoration-underline {
+                    text-decoration: underline;
+                }
+
+                // Submit button with Amazon style
+                .d-grid {
+                    display: block;
+                    width: 100%;
+                    margin: 20px 0 15px 0;
+                }
+
+                .btn-primary,
+                .btn-auth-submit,
+                button[type="submit"] {
+                    width: 100%;
                     background: linear-gradient(to bottom, #f7dfa5, #f0c14b);
                     border: 1px solid #a88734;
                     border-radius: 3px;
                     color: #111;
                     font-size: 14px;
-                    padding: 8px;
+                    padding: 8px 12px;
                     font-weight: normal;
                     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset;
+                    cursor: pointer;
                     
                     svg {
                         display: none;
@@ -876,13 +912,22 @@ form {
                         background: linear-gradient(to bottom, #f5d78e, #eeb933);
                         border-color: #a88734;
                     }
+
+                    &:focus {
+                        outline: none;
+                        box-shadow: 0 0 0 3px rgba(231, 118, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.4) inset;
+                    }
                 }
 
-                .mt-3 {
+                // Footer text (register link, etc)
+                .mt-3,
+                .text-center {
                     font-size: 13px;
-                    color: var(--global-color-text-body);
+                    color: #111;
                     padding-top: 15px;
+                    margin-top: 15px;
                     border-top: 1px solid #e7e7e7;
+                    text-align: center;
                     
                     a {
                         color: #0066c0;
@@ -898,12 +943,17 @@ form {
                 .login-options {
                     display: none;
                 }
+
+                // Hide phone country selector styling
+                .iti {
+                    width: 100%;
+                }
             }
         }
     }
 
     @media (max-width: 767px) {
-        padding: 15px;
+        padding: 30px 15px;
         
         .auth-logo {
             margin-bottom: 25px;
@@ -916,8 +966,10 @@ form {
         .auth-card {
             padding: 20px;
             
-            .auth-card__header-title {
-                font-size: 22px;
+            .auth-card__header {
+                .auth-card__header-title {
+                    font-size: 22px;
+                }
             }
         }
     }
