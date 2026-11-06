@@ -311,9 +311,9 @@
         color: var(--global-color-text-main);
         padding: 5px;
         border-radius: 4px;
-        font-size: 1.7rem;
-        line-height:1.2;
-        font-weight: 600;
+        font-size: 22px;
+        line-height: 1.2;
+        font-weight: 700;
         z-index: 10;
     }
 
@@ -330,9 +330,9 @@
     }
 
     .ps-banner-box-header span {
-        font-size:1.85rem;
-        line-height:1.2;
-        font-weight:600;
+        font-size: 22px;
+        line-height: 1.2;
+        font-weight: 700;
         color: var(--global-color-text-main);
     }
 
@@ -429,8 +429,8 @@
         .ps-banner-bottom-row {
             grid-template-columns: 2fr 1fr;
         }
-        .ps-banner-image-text, .ps-banner-box-header span{
-            font-size:1.35rem;
+        .ps-banner-image-text, .ps-banner-box-header span {
+            font-size: 20px;
         }
     }
 
@@ -506,9 +506,8 @@
             padding:20px 0 10px 0;
             margin:0;
         }
-        .ps-banner-image-text, .ps-banner-box-header span{
-            font-size:1.35rem;
-
+        .ps-banner-image-text, .ps-banner-box-header span {
+            font-size: 20px;
         }
     }
 </style>

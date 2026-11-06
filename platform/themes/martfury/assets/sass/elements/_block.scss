@@ -480,8 +480,8 @@
         border-bottom: 1px solid #f0f0f0;
 
         h3 {
-            font-weight: 400;
-            font-size: 24px;
+            font-weight: 700;
+            font-size: 22px;
             color: $color-heading;
         }
     }
@@ -498,6 +498,14 @@
 
             &:hover {
                 color: $color-heading;
+            }
+        }
+    }
+
+    @include media('<md') {
+        .ps-block__header {
+            h3 {
+                font-size: 20px;
             }
         }
     }

@@ -1280,6 +1280,12 @@
                 .ps-product__browsing-history {
                     margin: 0 !important;
                 }
+                
+                /* Product page context only: Remove left/right padding from ps-container inside recently viewed */
+                .ps-product__browsing-history .ps-recently-viewed-products .ps-container {
+                    padding-left: 0 !important;
+                    padding-right: 0 !important;
+                }
             </style>
 
             <!-- BROWSING HISTORY SECTION -->
