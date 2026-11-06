@@ -170,6 +170,23 @@
                     padding-top: 15px;
                     border-top: 1px solid var(--global-color-border-strong);
                 }
+
+                /* Remove background and set container padding to 0 for these sections on cart page */
+                .ps-cart-recently-viewed-section .ps-recently-viewed-products {
+                    background: transparent !important;
+                }
+
+                .ps-cart-recently-viewed-section .ps-recently-viewed-products .ps-container {
+                    padding: 0 !important;
+                }
+
+                .ps-cart-recommended-section .ps-smart-products {
+                    background: transparent !important;
+                }
+
+                .ps-cart-recommended-section .ps-smart-products .ps-container {
+                    padding: 0 !important;
+                }
             </style>
         @else
             {{-- Empty cart --}}
