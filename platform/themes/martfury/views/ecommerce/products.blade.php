@@ -43,6 +43,8 @@
             </div>
         </div>
         <div class="ps-layout__right">
+            @include(Theme::getThemeNamespace('views.ecommerce.includes.products-list'))
+            
             @if (theme_option('show_recommend_items_on_products_page', 'yes') == 'yes')
                 <div class="ps-block--shop-features">
                     <div class="ps-block__header">
@@ -85,7 +87,6 @@
                     </div>
                 </div>
             @endif
-            @include(Theme::getThemeNamespace('views.ecommerce.includes.products-list'))
         </div>
     </div>
 </div>
