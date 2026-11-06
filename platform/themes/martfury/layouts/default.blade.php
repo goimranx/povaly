@@ -1,4 +1,6 @@
-{!! Theme::partial('header') !!}
+@if (Theme::get('showHeader') !== false)
+    {!! Theme::partial('header') !!}
+@endif
 <main>
     @if (Theme::breadcrumb()->enabled())
         <div class="ps-breadcrumb">
@@ -15,4 +17,6 @@
     </div>
 </main>
 
-{!! Theme::partial('footer') !!}
+@if (Theme::get('showFooter') !== false)
+    {!! Theme::partial('footer') !!}
+@endif

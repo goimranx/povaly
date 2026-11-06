@@ -1,3 +1,8 @@
+@php
+    Theme::set('showHeader', false);
+    Theme::set('showFooter', false);
+@endphp
+
 <div class="ps-my-account">
     {!!
         $form
