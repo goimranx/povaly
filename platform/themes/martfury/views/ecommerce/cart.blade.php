@@ -92,7 +92,7 @@
                                 </button>
                             </div>
                             <div class="ps-cart-mobile-checkout-btn-wrapper">
-                                <button type="button" class="ps-btn ps-btn--primary ps-cart-mobile-checkout-btn" id="mobileCheckoutBtn" disabled>
+                                <button type="button" class="ps-cart-mobile-checkout-btn" id="mobileCheckoutBtn" disabled>
                                     {{ __('Checkout') }}
                                 </button>
                             </div>

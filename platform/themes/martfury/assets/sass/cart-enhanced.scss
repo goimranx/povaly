@@ -694,6 +694,10 @@
         padding: 16px;
     }
     
+    .ps-cart-summary-section {
+        display: none;
+    }
+    
     .ps-cart-actions .ps-btn {
         padding: 8px 20px;
         font-size: 14px;
@@ -763,7 +767,7 @@
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        gap: 4px;
+        gap: 1px;
     }
     
     .ps-cart-mobile-total {
@@ -813,11 +817,11 @@
         padding: 10px 16px;
         font-size: 14px;
         font-weight: 600;
-        border-radius: 50px;
+        border-radius: 6px;
         white-space: nowrap;
         min-width: 100px;
         background: var(--global-color-primary);
-        color: var(--global-color-text-main);
+        color: var(--global-color-text-on-dark);
         border: none;
         cursor: pointer;
         transition: all 0.3s ease;
