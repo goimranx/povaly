@@ -148,11 +148,29 @@
                 </div>
             </form>
             
-            @if (count($crossSellProducts) > 0)
-                <div class="ps-cart-crosssell-section">
-                    {!! Theme::partial('cross-sell-products', compact('crossSellProducts')) !!}
-                </div>
-            @endif
+            {{-- Recently Viewed Products Section --}}
+            <div class="ps-cart-recently-viewed-section">
+                {!! do_shortcode('[browsing-history title="Recently Viewed"]') !!}
+            </div>
+
+            {{-- Recommended Products Section --}}
+            <div class="ps-cart-recommended-section">
+                {!! do_shortcode('[smart-products title="Recommended For You"]') !!}
+            </div>
+
+            <style>
+                .ps-cart-recently-viewed-section {
+                    margin-top: 15px;
+                    padding-top: 15px;
+                    border-top: 1px solid var(--global-color-border-strong);
+                }
+
+                .ps-cart-recommended-section {
+                    margin-top: 15px;
+                    padding-top: 15px;
+                    border-top: 1px solid var(--global-color-border-strong);
+                }
+            </style>
         @else
             {{-- Empty cart --}}
             <div class="ps-cart-empty-section">
