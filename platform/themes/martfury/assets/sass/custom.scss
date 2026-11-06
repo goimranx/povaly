@@ -940,8 +940,113 @@ form {
                     }
                 }
 
+                // Social login section
                 .login-options {
-                    display: none;
+                    margin-top: 20px;
+                    padding-top: 20px;
+                    border-top: 1px solid #e7e7e7;
+
+                    .login-options-title {
+                        text-align: center;
+                        margin-bottom: 15px;
+                        
+                        p {
+                            font-size: 13px;
+                            color: #767676;
+                            margin: 0;
+                            position: relative;
+                            
+                            &:before,
+                            &:after {
+                                content: '';
+                                position: absolute;
+                                top: 50%;
+                                width: 40%;
+                                height: 1px;
+                                background: #e7e7e7;
+                            }
+                            
+                            &:before {
+                                left: 0;
+                            }
+                            
+                            &:after {
+                                right: 0;
+                            }
+                        }
+                    }
+
+                    .social-login-basic {
+                        list-style: none;
+                        padding: 0;
+                        margin: 0;
+
+                        li {
+                            margin-bottom: 10px;
+
+                            a {
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                padding: 10px 12px;
+                                border: 1px solid #d5d9d9;
+                                border-radius: 3px;
+                                background: #fff;
+                                color: #111;
+                                font-size: 14px;
+                                text-decoration: none;
+                                transition: background-color 0.2s;
+
+                                &:hover {
+                                    background: #f7fafa;
+                                }
+
+                                img {
+                                    width: 20px;
+                                    height: 20px;
+                                    margin-right: 10px;
+                                }
+
+                                span {
+                                    flex: 1;
+                                    text-align: center;
+                                }
+                            }
+                        }
+                    }
+
+                    .social-icons {
+                        list-style: none;
+                        padding: 0;
+                        margin: 0;
+                        display: flex;
+                        justify-content: center;
+                        gap: 10px;
+                        flex-wrap: wrap;
+
+                        li {
+                            a {
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                width: 44px;
+                                height: 44px;
+                                border: 1px solid #d5d9d9;
+                                border-radius: 50%;
+                                background: #fff;
+                                transition: all 0.2s;
+
+                                &:hover {
+                                    background: #f7fafa;
+                                    transform: translateY(-2px);
+                                }
+
+                                i {
+                                    font-size: 20px;
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Hide phone country selector styling
