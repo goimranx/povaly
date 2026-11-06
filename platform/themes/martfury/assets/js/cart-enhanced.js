@@ -7,6 +7,7 @@
     
     let initialized = false;
     const STORAGE_KEY = 'cart_selected_items';
+    const OFFCANVAS_STATE_KEY = 'cart_offcanvas_open';
     
     /**
      * Save selected item states to sessionStorage
@@ -16,6 +17,21 @@
         const selectedIds = Array.from(checked).map(cb => cb.dataset.rowId);
         sessionStorage.setItem(STORAGE_KEY, JSON.stringify(selectedIds));
         console.log('[Cart] Saved selection state:', selectedIds);
+    }
+    
+    /**
+     * Save offcanvas open state
+     */
+    function saveOffcanvasState(isOpen) {
+        sessionStorage.setItem(OFFCANVAS_STATE_KEY, isOpen ? '1' : '0');
+        console.log('[Cart] Saved offcanvas state:', isOpen);
+    }
+    
+    /**
+     * Get offcanvas open state
+     */
+    function getOffcanvasState() {
+        return sessionStorage.getItem(OFFCANVAS_STATE_KEY) === '1';
     }
     
     /**
@@ -100,6 +116,9 @@
         
         // Restore selection state FIRST
         restoreSelectionState();
+        
+        // Position mobile bars and store the updater function
+        window.cartPositionUpdater = positionMobileBottomBar();
         
         function updateMainCheckbox() {
             const selected = document.querySelectorAll('.ps-cart-checkbox-item:checked').length;
@@ -272,10 +291,18 @@
         document.querySelectorAll('.qty-input').forEach(input => {
             input.addEventListener('focus', () => {
                 saveSelectionState();
+                // Also save offcanvas state
+                if (cartDetailsOffcanvas && cartDetailsOffcanvas.classList.contains('active')) {
+                    saveOffcanvasState(true);
+                }
                 console.log('[Cart] Qty input focused, saved state');
             });
             input.addEventListener('change', () => {
                 saveSelectionState();
+                // Also save offcanvas state
+                if (cartDetailsOffcanvas && cartDetailsOffcanvas.classList.contains('active')) {
+                    saveOffcanvasState(true);
+                }
                 console.log('[Cart] Qty changed, saved state');
             });
         });
@@ -285,6 +312,14 @@
         const storeIds = new Set();
         itemCheckboxes.forEach(cb => storeIds.add(cb.dataset.storeId));
         storeIds.forEach(id => updateStoreCheckbox(id));
+        
+        // Restore offcanvas state if it was open before AJAX reload
+        if (getOffcanvasState() && mobileDetailsBtn && cartDetailsOffcanvas) {
+            // Reopen offcanvas after a short delay to allow DOM to settle
+            setTimeout(() => {
+                openCartDetails();
+            }, 50);
+        }
         
         // Mobile Details button - toggle offcanvas
         const mobileDetailsBtn = document.querySelector('#mobileDetailsBtn');
@@ -320,6 +355,9 @@
         function openCartDetails() {
             updateCartDetailsContent();
             
+            // Save offcanvas open state
+            saveOffcanvasState(true);
+            
             // Add active class to Details button to rotate chevron
             if (mobileDetailsBtn) {
                 mobileDetailsBtn.classList.add('active');
@@ -352,6 +390,9 @@
         }
         
         function closeCartDetails() {
+            // Save offcanvas closed state
+            saveOffcanvasState(false);
+            
             // Remove active class from Details button to restore chevron
             if (mobileDetailsBtn) {
                 mobileDetailsBtn.classList.remove('active');
@@ -545,14 +586,6 @@
     window.initCartEnhanced = function() {
         initialized = false; // Reset flag so it can reinitialize
         initCart();
-        // Reposition mobile bars after reinit
-        if (window.cartPositionUpdater) {
-            // Update immediately
-            window.cartPositionUpdater();
-            // Also update with delays for stability (after DOM settles)
-            setTimeout(() => window.cartPositionUpdater(), 100);
-            setTimeout(() => window.cartPositionUpdater(), 500);
-        }
     };
     
 })();
