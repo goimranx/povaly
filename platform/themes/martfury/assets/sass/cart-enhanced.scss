@@ -1061,7 +1061,7 @@
     // Product Details Offcanvas (similar to cart details)
     .ps-cart-product-detail-overlay,
     .ps-cart-product-detail-offcanvas {
-        display: block;
+        display: none; /* Hidden by default, shown only on mobile */
         position: fixed;
         z-index: 1051;
     }
