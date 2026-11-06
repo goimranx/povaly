@@ -63,9 +63,9 @@
     </footer>
 
     <style>
-        /* Footer ps-container - transparent background */
+        /* Footer ps-container - site background */
         .ps-footer .ps-container {
-            background: transparent !important;
+            background: var(--global-color-site-bg) !important;
         }
 
         /* Guest Sign In Prompt Section - Top of Footer */
