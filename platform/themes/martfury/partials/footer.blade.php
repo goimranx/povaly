@@ -1,5 +1,19 @@
  <footer class="ps-footer">
         <div class="ps-container">
+            <!-- GUEST SIGN IN PROMPT SECTION (Top of Footer) -->
+            @guest('customer')
+                <div class="ps-guest-signin-prompt">
+                    <div class="ps-guest-signin-prompt__content">
+                        <h3 class="ps-guest-signin-prompt__title">{{ __('Shop easy and get personalized recommendations') }}</h3>
+                        <a href="{{ route('customer.login') }}" class="btn-guest-signin">{{ __('Sign in now') }}</a>
+                        <p class="ps-guest-signin-prompt__register">
+                            {{ __('New customer at povaly?') }} 
+                            <a href="{{ route('customer.register') }}" class="link-register">{{ __('Start here') }}</a>
+                        </p>
+                    </div>
+                </div>
+            @endguest
+
             <div class="ps-footer__widgets">
                 @if (theme_option('hotline') || theme_option('address') || theme_option('email') || theme_option('social-name-1'))
                     <aside class="widget widget_footer widget_contact-us">
@@ -46,35 +60,15 @@
                 @endif
             </div>
         </div>
-
-        <!-- GUEST SIGN IN PROMPT SECTION (Above Footer) -->
-        @guest('customer')
-            <div class="ps-guest-signin-prompt">
-                <div class="ps-container">
-                    <div class="ps-guest-signin-prompt__content">
-                        <h3 class="ps-guest-signin-prompt__title">{{ __('Shop easy and get personalized recommendations') }}</h3>
-                        <a href="{{ route('customer.login') }}" class="btn-guest-signin">{{ __('Sign in now') }}</a>
-                        <p class="ps-guest-signin-prompt__register">
-                            {{ __('New customer at povaly?') }} 
-                            <a href="{{ route('customer.register') }}" class="link-register">{{ __('Start here') }}</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        @endguest
     </footer>
 
     <style>
-        /* Guest Sign In Prompt Section - Above Footer */
+        /* Guest Sign In Prompt Section - Top of Footer */
         .ps-guest-signin-prompt {
-            margin: 0;
-            padding: 40px 0;
+            margin: 0 0 40px 0;
+            padding: 40px 15px;
             background: var(--global-color-site-bg);
-            border-top: 1px solid var(--global-color-border-strong);
-        }
-
-        .ps-guest-signin-prompt .ps-container {
-            padding: 0 15px;
+            border-bottom: 1px solid var(--global-color-border-strong);
         }
 
         .ps-guest-signin-prompt__content {
