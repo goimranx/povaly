@@ -610,7 +610,7 @@
     
     /* Header and selection */
     .ps-cart-header {
-        padding: 16px;
+        padding: 15px;
         
         h1 {
             font-size: 20px;
@@ -642,17 +642,22 @@
     
     /* Product items */
     .ps-cart-product-item {
-        grid-template-columns: auto 50px 1fr;
-        gap: 10px;
-        padding: 12px 0;
+        grid-template-columns: auto 70px 1fr;
+        gap: 6px;
+        padding: 10px 15px;
+        align-items: center;
+    }
+    
+    .ps-cart-checkbox-wrapper {
+        align-self: center;
     }
     
     .ps-cart-product-image {
         grid-column: 2;
         
         img {
-            width: 50px;
-            height: 50px;
+            width: 70px;
+            height: 70px;
         }
     }
     
@@ -662,6 +667,20 @@
     
     .ps-cart-product-name {
         font-size: 14px;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+        
+        &:after {
+            content: '\f054';
+            font-family: 'Linearicons';
+            font-size: 12px;
+            margin-left: 6px;
+            opacity: 0.6;
+        }
     }
     
     .ps-cart-product-name-price {
@@ -669,8 +688,20 @@
         gap: 4px;
     }
     
-    .ps-cart-product-price .product__price {
-        text-align: left;
+    .ps-cart-product-price {
+        .product__price {
+            text-align: left;
+            
+            &.sale {
+                span {
+                    color: var(--global-color-primary);
+                }
+                
+                small {
+                    color: var(--global-color-text-muted);
+                }
+            }
+        }
     }
     
     .ps-cart-product-attributes,
@@ -679,14 +710,25 @@
     }
     
     .ps-cart-product-actions {
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
         gap: 8px;
-        align-items: flex-start;
     }
     
-    .ps-cart-product-quantity .qty-input {
-        width: 120px;
-        height: 32px;
+    .ps-cart-product-quantity {
+        .qty-input {
+            width: 100px;
+            height: 32px;
+            padding-left: 8px;
+            padding-right: 8px;
+            border: none;
+        }
+        
+        .qty-btn {
+            padding: 2px;
+            background: var(--global-color-card-bg);
+        }
     }
     
     /* Summary section */
