@@ -590,11 +590,12 @@
         }
 
         &-title {
-            font-weight: 500;
-            font-size: 18px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--global-color-text-main);
             border-bottom: none;
             padding-bottom: 0;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         &-items {
@@ -629,7 +630,7 @@
 
                 label {
                     font-size: 14px;
-                    color: #55585b;
+                    color: var(--global-color-text-body);
                     position: relative;
                     padding-inline-start: 26px;
                     line-height: 21px;
@@ -740,8 +741,8 @@
                     &:checked {
                         & ~ label {
                             &::after {
-                                background-color: var(--primary-color);
-                                border-color: var(--primary-color);
+                                background-color: var(--global-color-link);
+                                border-color: var(--global-color-link);
                             }
 
                             &::before {
@@ -763,7 +764,7 @@
                             height: 16px;
                             line-height: 12px;
                             text-align: center;
-                            border: 2px solid #dadada;
+                            border: 2px solid var(--global-color-border-strong);
                             z-index: 1;
                             transition: all 0.2s;
                         }
@@ -800,10 +801,10 @@
             align-items: center;
             gap: 0.5rem;
             font-size: 14px;
-            color: #55585b;
+            color: var(--global-color-text-body);
 
             &.active {
-                color: var(--primary-color);
+                color: var(--global-color-link);
             }
 
             svg,
