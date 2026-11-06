@@ -115,10 +115,12 @@
                         {{-- Product Name and Price --}}
                         <div class="ps-cart-product-name-price">
                             <a href="{{ $product->original_product->url }}" class="ps-cart-product-name">
-                                {{ $product->original_product->name }}
-                                @if ($product->isOutOfStock())
-                                    <span class="stock-status-label">({!! $product->stock_status_html !!})</span>
-                                @endif
+                                <span class="ps-cart-product-name-text">
+                                    {{ $product->original_product->name }}
+                                    @if ($product->isOutOfStock())
+                                        <span class="stock-status-label">({!! $product->stock_status_html !!})</span>
+                                    @endif
+                                </span>
                                 <i class="icon-chevron-right"></i>
                             </a>
                             

@@ -674,15 +674,18 @@
     
     .ps-cart-product-name {
         font-size: 14px;
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: normal;
         display: flex;
         align-items: center;
         gap: 6px;
+        min-width: 0; /* Important for flex ellipsis */
+        
+        .ps-cart-product-name-text {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
         
         i {
             font-size: 12px;
