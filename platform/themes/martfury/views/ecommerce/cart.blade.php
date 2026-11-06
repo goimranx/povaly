@@ -150,7 +150,7 @@
             
             {{-- Recently Viewed Products Section --}}
             <div class="ps-cart-recently-viewed-section">
-                {!! do_shortcode('[browsing-history title="Recently Viewed"]') !!}
+                {!! do_shortcode('[recently-viewed-products title="Recently Viewed"]') !!}
             </div>
 
             {{-- Recommended Products Section --}}
