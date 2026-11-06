@@ -68,6 +68,9 @@
         // Update after a short delay to ensure navigation bar is rendered
         setTimeout(updatePosition, 100);
         setTimeout(updatePosition, 500);
+        
+        // Return the function so it can be called after AJAX updates
+        return updatePosition;
     }
     
     /**
@@ -480,19 +483,24 @@
             initCart();
             setupBulkDelete();
             setupCheckoutButton();
-            positionMobileBottomBar();
+            window.cartPositionUpdater = positionMobileBottomBar();
         });
     } else {
         initCart();
         setupBulkDelete();
         setupCheckoutButton();
-        positionMobileBottomBar();
+        window.cartPositionUpdater = positionMobileBottomBar();
     }
     
     // Export for external use and reset initialization flag
     window.initCartEnhanced = function() {
         initialized = false; // Reset flag so it can reinitialize
         initCart();
+        // Reposition mobile bar after reinit
+        if (window.cartPositionUpdater) {
+            setTimeout(() => window.cartPositionUpdater(), 100);
+            setTimeout(() => window.cartPositionUpdater(), 500);
+        }
     };
     
 })();
