@@ -989,6 +989,10 @@ form {
     background-color: var(--footer-background-color, #ffffff);
     color: var(--footer-text-color, #666);
 
+    &__widgets {
+        background: var(--global-color-secondary-soft);
+    }
+
     a {
         color: var(--footer-text-link-color, #666);
 
