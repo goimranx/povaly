@@ -15,23 +15,6 @@
                         <input class="form-control" type="checkbox" name="remember" id="remember-me">
                         <label for="remember-me" class="control-label">%s</label>
                     </div></div>', __('Remember me'))], true)
-            ->before('open', function() {
-                $logoHtml = '';
-                if(theme_option('logo_black')) {
-                    $logoHtml = '<div class="auth-logo" style="text-align: center; margin-bottom: 30px;">
-                        <a href="' . route('public.index') . '">
-                            <img src="' . RvMedia::getImageUrl(theme_option('logo_black')) . '" alt="' . theme_option('site_title') . '" style="max-height: 60px; height: auto;">
-                        </a>
-                    </div>';
-                } elseif(theme_option('logo')) {
-                    $logoHtml = '<div class="auth-logo" style="text-align: center; margin-bottom: 30px;">
-                        <a href="' . route('public.index') . '">
-                            <img src="' . RvMedia::getImageUrl(theme_option('logo')) . '" alt="' . theme_option('site_title') . '" style="max-height: 60px; height: auto;">
-                        </a>
-                    </div>';
-                }
-                return $logoHtml;
-            })
             ->renderForm()
     !!}
 </div>
