@@ -713,13 +713,12 @@
     .ps-cart-mobile-bottom-bar {
         display: block;
         position: fixed;
-        bottom: 0;
+        bottom: 60px; /* Position above the navigation--list bottom bar */
         left: 0;
         right: 0;
         background: var(--global-color-site-bg);
-        border-top: 1px solid var(--global-color-border-strong);
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        z-index: 100;
+        border-top: 1px solid var(--global-color-primary-border);
+        z-index: 999;
         padding: 12px 15px;
     }
     
