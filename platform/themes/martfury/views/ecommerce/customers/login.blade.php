@@ -1,6 +1,5 @@
 @php
-    Theme::set('showHeader', false);
-    Theme::set('showFooter', false);
+    Theme::layout('minimal');
 @endphp
 
 <div class="ps-my-account">
