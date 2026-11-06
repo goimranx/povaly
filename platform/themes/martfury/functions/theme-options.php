@@ -325,6 +325,8 @@ app('events')->listen(RenderingThemeOptionSettings::class, function (): void {
         ->setField(['id' => 'tabs_close', 'section_id' => $sc, 'type' => 'tabsClose', 'label' => '', 'attributes' => ['name' => 'tabs_close', 'value' => null]])
 
         // GENERAL SECTION
+        ->setField(MediaImageField::make()->sectionId('opt-text-subsection-general')->name('logo')->label(__('Logo'))->priority(1))
+        ->setField(MediaImageField::make()->sectionId('opt-text-subsection-general')->name('logo_black')->label(__('Logo Black (for light backgrounds)'))->priority(2))
         ->setField(['id' => 'preloader_enabled',            'section_id' => 'opt-text-subsection-general', 'type' => 'customSelect', 'label' => __('Enable Preloader?'),              'attributes' => ['name' => 'preloader_enabled',           'list' => ['yes' => trans('core/base::base.yes'), 'no' => trans('core/base::base.no')], 'value' => 'no',  'options' => ['class' => 'form-control']]])
         ->setField(['id' => 'preloader_image',              'section_id' => 'opt-text-subsection-general', 'type' => 'mediaImage',   'label' => __('Preloader Image'),                'attributes' => ['name' => 'preloader_image', 'value' => null]])
         ->setField(['id' => 'sticky_header_enabled',        'section_id' => 'opt-text-subsection-general', 'type' => 'customSelect', 'label' => __('Enable sticky header?'),           'attributes' => ['name' => 'sticky_header_enabled',       'list' => ['yes' => trans('core/base::base.yes'), 'no' => trans('core/base::base.no')], 'value' => 'yes', 'options' => ['class' => 'form-control']]])
