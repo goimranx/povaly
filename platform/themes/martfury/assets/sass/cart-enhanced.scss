@@ -567,6 +567,11 @@
     display: none;
 }
 
+.ps-cart-details-overlay,
+.ps-cart-details-offcanvas {
+    display: none;
+}
+
 /* Mobile Responsive */
 @media (max-width: 1200px) {
     .ps-cart-layout {
@@ -778,118 +783,9 @@
         transition: bottom 0.3s ease;
     }
     
-    .ps-cart-mobile-bottom-bar-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 0;
-    }
-    
-    .ps-cart-mobile-select-all {
-        flex-shrink: 0;
-        
-        .ps-cart-checkbox-wrapper {
-            margin: 0;
-            gap: 8px;
-        }
-        
-        .ps-cart-select-text-mobile {
-            font-size: 13px;
-            font-weight: 400;
-            color: var(--global-color-text-main);
-            white-space: nowrap;
-        }
-        
-        /* Hide text when partial or all selected - show only checkbox */
-        &.ps-hide-text .ps-cart-select-text-mobile {
-            display: none;
-        }
-    }
-    
-    .ps-cart-mobile-right-wrapper {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-shrink: 0;
-    }
-    
-    .ps-cart-mobile-checkout {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 1px;
-    }
-    
-    .ps-cart-mobile-total {
-        display: flex;
-        align-items: baseline;
-        gap: 6px;
-        
-        .ps-cart-mobile-total-label {
-            font-size: 13px;
-            color: var(--global-color-text-muted);
-        }
-        
-        .ps-cart-mobile-total-amount {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--global-color-text-main);
-        }
-    }
-    
-    .ps-cart-mobile-details-btn {
-        background: transparent;
-        border: none;
-        color: var(--global-color-primary);
-        font-size: 13px;
-        font-weight: 500;
-        padding: 0;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        transition: all 0.3s;
-        
-        &:hover {
-            opacity: 0.8;
-        }
-        
-        i {
-            font-size: 12px;
-        }
-    }
-    
-    .ps-cart-mobile-checkout-btn-wrapper {
-        flex-shrink: 0;
-    }
-    
-    .ps-cart-mobile-checkout-btn {
-        padding: 10px 16px;
-        font-size: 14px;
-        font-weight: 600;
-        border-radius: 6px;
-        white-space: nowrap;
-        min-width: 100px;
-        background: var(--global-color-primary);
-        color: var(--global-color-text-on-dark);
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        
-        &:hover:not(:disabled) {
-            opacity: 0.9;
-        }
-        
-        &:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-    }
-    
     /* Mobile Details Offcanvas */
     .ps-cart-details-offcanvas {
+        display: block;
         position: fixed;
         bottom: 0; /* Will be dynamically positioned by JS */
         left: 0;
@@ -909,6 +805,7 @@
     }
     
     .ps-cart-details-overlay {
+        display: block;
         position: fixed;
         top: 0;
         left: 0;
@@ -1030,6 +927,116 @@
             font-size: 14px;
             color: var(--global-color-text-main);
             font-weight: 500;
+        }
+    }
+    
+    .ps-cart-mobile-bottom-bar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 0;
+    }
+    
+    .ps-cart-mobile-select-all {
+        flex-shrink: 0;
+        
+        .ps-cart-checkbox-wrapper {
+            margin: 0;
+            gap: 8px;
+        }
+        
+        .ps-cart-select-text-mobile {
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--global-color-text-main);
+            white-space: nowrap;
+        }
+        
+        /* Hide text when partial or all selected - show only checkbox */
+        &.ps-hide-text .ps-cart-select-text-mobile {
+            display: none;
+        }
+    }
+    
+    .ps-cart-mobile-right-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+    
+    .ps-cart-mobile-checkout {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 1px;
+    }
+    
+    .ps-cart-mobile-total {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        
+        .ps-cart-mobile-total-label {
+            font-size: 13px;
+            color: var(--global-color-text-muted);
+        }
+        
+        .ps-cart-mobile-total-amount {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--global-color-text-main);
+        }
+    }
+    
+    .ps-cart-mobile-details-btn {
+        background: transparent;
+        border: none;
+        color: var(--global-color-primary);
+        font-size: 13px;
+        font-weight: 500;
+        padding: 0;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.3s;
+        
+        &:hover {
+            opacity: 0.8;
+        }
+        
+        i {
+            font-size: 12px;
+        }
+    }
+    
+    .ps-cart-mobile-checkout-btn-wrapper {
+        flex-shrink: 0;
+    }
+    
+    .ps-cart-mobile-checkout-btn {
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 6px;
+        white-space: nowrap;
+        min-width: 100px;
+        background: var(--global-color-primary);
+        color: var(--global-color-text-on-dark);
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        &:hover:not(:disabled) {
+            opacity: 0.9;
+        }
+        
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
         }
     }
 }
