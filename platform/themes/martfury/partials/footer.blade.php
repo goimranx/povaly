@@ -63,11 +63,17 @@
     </footer>
 
     <style>
+        /* Footer ps-container - transparent background */
+        .ps-footer .ps-container {
+            background: transparent !important;
+        }
+
         /* Guest Sign In Prompt Section - Top of Footer */
         .ps-guest-signin-prompt {
             margin: 0 0 40px 0;
             padding: 40px 15px;
             background: var(--global-color-site-bg);
+            border-top: 1px solid var(--global-color-border-strong);
             border-bottom: 1px solid var(--global-color-border-strong);
         }
 
@@ -92,19 +98,19 @@
             padding: 10px 40px;
             font-size: 14px;
             font-weight: 500;
-            color: var(--ec-btn-cart-text);
-            background-color: var(--ec-btn-cart-bg);
+            color: var(--ec-btn-cart-text) !important;
+            background-color: var(--ec-btn-cart-bg) !important;
             border: none;
             border-radius: 50px;
-            text-decoration: none;
+            text-decoration: none !important;
             transition: all 0.3s ease;
             margin-bottom: 15px;
         }
 
         .btn-guest-signin:hover {
-            background-color: var(--ec-btn-cart-bg-hover);
-            color: var(--ec-btn-cart-text);
-            text-decoration: none;
+            background-color: var(--ec-btn-cart-bg-hover) !important;
+            color: var(--ec-btn-cart-text) !important;
+            text-decoration: none !important;
         }
 
         .ps-guest-signin-prompt__register {
