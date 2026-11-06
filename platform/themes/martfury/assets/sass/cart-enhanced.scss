@@ -652,6 +652,7 @@
         gap: 6px;
         padding: 10px 15px;
         align-items: center;
+        min-width: 0; /* Allow grid to shrink */
     }
     
     .ps-cart-checkbox-wrapper {
@@ -670,6 +671,15 @@
     .ps-cart-product-details {
         grid-column: 3;
         gap: 2px;
+        min-width: 0; /* Allow content to shrink */
+        overflow: hidden; /* Prevent overflow */
+    }
+    
+    .ps-cart-product-name-price {
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0; /* Allow content to shrink */
+        overflow: hidden; /* Prevent overflow */
     }
     
     .ps-cart-product-name {
@@ -678,9 +688,10 @@
         align-items: center;
         gap: 6px;
         min-width: 0; /* Important for flex ellipsis */
+        max-width: 100%; /* Don't exceed parent */
         
         .ps-cart-product-name-text {
-            flex: 1;
+            flex: 1 1 auto;
             min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -692,11 +703,6 @@
             opacity: 0.6;
             flex-shrink: 0;
         }
-    }
-    
-    .ps-cart-product-name-price {
-        flex-direction: column;
-        gap: 1px;
     }
     
     .ps-cart-product-price {
