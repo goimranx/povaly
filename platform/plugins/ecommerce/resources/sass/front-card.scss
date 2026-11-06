@@ -281,25 +281,6 @@
                             font-size: 13px;
                             color: #767676;
                             margin: 0;
-                            position: relative;
-                            
-                            &:before,
-                            &:after {
-                                content: '';
-                                position: absolute;
-                                top: 50%;
-                                width: 40%;
-                                height: 1px;
-                                background: var(--global-color-border-strong);
-                            }
-                            
-                            &:before {
-                                left: 0;
-                            }
-                            
-                            &:after {
-                                right: 0;
-                            }
                         }
                     }
 
