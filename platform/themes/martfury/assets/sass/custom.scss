@@ -2236,6 +2236,11 @@ nav.navigation--mobile-product {
 
 #homepage-1 {
     overflow-x: hidden;
+    
+    .ps-container {
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+    }
 }
 
 .auth-card {
