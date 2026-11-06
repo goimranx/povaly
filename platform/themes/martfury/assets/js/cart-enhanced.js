@@ -276,15 +276,81 @@
         itemCheckboxes.forEach(cb => storeIds.add(cb.dataset.storeId));
         storeIds.forEach(id => updateStoreCheckbox(id));
         
-        // Mobile Details button - scroll to summary
+        // Mobile Details button - toggle offcanvas
         const mobileDetailsBtn = document.querySelector('#mobileDetailsBtn');
-        if (mobileDetailsBtn) {
+        const cartDetailsOffcanvas = document.querySelector('#cartDetailsOffcanvas');
+        const cartDetailsOverlay = document.querySelector('#cartDetailsOverlay');
+        const cartDetailsClose = document.querySelector('#cartDetailsClose');
+        
+        if (mobileDetailsBtn && cartDetailsOffcanvas) {
+            // Open offcanvas
             mobileDetailsBtn.addEventListener('click', function() {
-                const summaryCard = document.querySelector('.ps-cart-summary-card');
-                if (summaryCard) {
-                    summaryCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                openCartDetails();
+            });
+            
+            // Close on overlay click
+            if (cartDetailsOverlay) {
+                cartDetailsOverlay.addEventListener('click', function() {
+                    closeCartDetails();
+                });
+            }
+            
+            // Close on close button click
+            if (cartDetailsClose) {
+                cartDetailsClose.addEventListener('click', function() {
+                    closeCartDetails();
+                });
+            }
+        }
+        
+        function openCartDetails() {
+            updateCartDetailsContent();
+            cartDetailsOffcanvas.classList.add('active');
+            cartDetailsOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeCartDetails() {
+            cartDetailsOffcanvas.classList.remove('active');
+            cartDetailsOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        function updateCartDetailsContent() {
+            const checked = document.querySelectorAll('.ps-cart-checkbox-item:checked');
+            const itemsContainer = document.querySelector('#cartDetailsItems');
+            
+            if (!itemsContainer) return;
+            
+            // Clear existing items
+            itemsContainer.innerHTML = '';
+            
+            // Add selected item images (up to 3 columns)
+            checked.forEach(cb => {
+                const item = cb.closest('.ps-cart-product-item');
+                const imgEl = item?.querySelector('.ps-cart-product-image img');
+                
+                if (imgEl) {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'ps-cart-details-item';
+                    itemDiv.innerHTML = `
+                        <img src="${imgEl.src}" alt="${imgEl.alt}">
+                        <div class="ps-cart-details-item-check">
+                            <i class="icon-check"></i>
+                        </div>
+                    `;
+                    itemsContainer.appendChild(itemDiv);
                 }
             });
+            
+            // Update summary amounts
+            const subtotalEl = document.querySelector('#cart-summary-subtotal');
+            const taxEl = document.querySelector('#cart-summary-tax');
+            const totalEl = document.querySelector('#cart-summary-total');
+            
+            if (subtotalEl) document.querySelector('#detailsSubtotal').textContent = subtotalEl.textContent;
+            if (taxEl) document.querySelector('#detailsTax').textContent = taxEl.textContent;
+            if (totalEl) document.querySelector('#detailsTotal').textContent = totalEl.textContent;
         }
         
         // Mobile Checkout button - trigger validation and checkout

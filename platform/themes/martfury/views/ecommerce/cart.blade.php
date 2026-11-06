@@ -99,6 +99,39 @@
                         </div>
                     </div>
                 </div>
+                
+                {{-- Mobile Details Offcanvas --}}
+                <div class="ps-cart-details-overlay" id="cartDetailsOverlay"></div>
+                <div class="ps-cart-details-offcanvas" id="cartDetailsOffcanvas">
+                    <div class="ps-cart-details-header">
+                        <div>
+                            <h3>{{ __('Amount') }}</h3>
+                            <p>{{ __('Selected items summary') }}</p>
+                        </div>
+                        <button type="button" class="ps-cart-details-close" id="cartDetailsClose">
+                            <i class="icon-cross"></i>
+                        </button>
+                    </div>
+                    <div class="ps-cart-details-content">
+                        <div class="ps-cart-details-items" id="cartDetailsItems">
+                            {{-- Items will be dynamically added here --}}
+                        </div>
+                        <div class="ps-cart-details-summary">
+                            <div class="ps-cart-details-row">
+                                <span>{{ __('Subtotal') }}:</span>
+                                <span id="detailsSubtotal">{{ format_price(0) }}</span>
+                            </div>
+                            <div class="ps-cart-details-row">
+                                <span>{{ __('Tax') }}:</span>
+                                <span id="detailsTax">{{ format_price(0) }}</span>
+                            </div>
+                            <div class="ps-cart-details-row">
+                                <span>{{ __('Total') }}:</span>
+                                <span id="detailsTotal">{{ format_price(0) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </form>
             
             @if (count($crossSellProducts) > 0)

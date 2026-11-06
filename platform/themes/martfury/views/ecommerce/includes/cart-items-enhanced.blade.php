@@ -119,6 +119,7 @@
                                 @if ($product->isOutOfStock())
                                     <span class="stock-status-label">({!! $product->stock_status_html !!})</span>
                                 @endif
+                                <i class="icon-chevron-right"></i>
                             </a>
                             
                             {{-- Price --}}
