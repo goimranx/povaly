@@ -19,8 +19,8 @@
                         @include(Theme::getThemeNamespace() . '::views/ecommerce/includes/sort')
                         <div class="ps-shopping__view ms-2">
                             <ul class="products-layout mb-0 p-0">
-                                <li @if (request()->get('layout') != 'list') class="active" @endif><a href="#grid" data-layout="grid"><i class="icon-grid"></i></a></li>
-                                <li @if (request()->get('layout') == 'list') class="active" @endif><a href="#list" data-layout="list"><i class="icon-list4"></i></a></li>
+                                <li @if (request()->get('layout') != 'list') class="active" @endif><a href="javascript:void(0)" data-layout="grid"><i class="icon-grid"></i></a></li>
+                                <li @if (request()->get('layout') == 'list') class="active" @endif><a href="javascript:void(0)" data-layout="list"><i class="icon-list4"></i></a></li>
                             </ul>
                         </div>
                     </div>

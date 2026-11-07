@@ -3752,6 +3752,11 @@ ul.bb-social-sharing {
     }
 }
 
+// Select2 container selection styling
+.select2-container--default .select2-selection--single {
+    border-radius: 6px !important;
+}
+
 // Products layout switcher (Grid/List icons)
 .ps-shopping__view {
     .products-layout {
@@ -3768,13 +3773,14 @@ ul.bb-social-sharing {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 40px;
-                height: 40px;
+                width: 35px;
+                height: 35px;
                 border: 1px solid var(--global-color-border-strong, #ddd);
                 border-radius: 4px;
                 background-color: transparent;
                 color: var(--global-color-text-main, #0D1B2A);
                 transition: all 0.3s ease;
+                cursor: pointer;
                 
                 i {
                     font-size: 16px;
@@ -3811,7 +3817,7 @@ ul.bb-social-sharing {
 .select2-container--default {
     .select2-results__option {
         padding: 10px 12px;
-        border-left: 2px solid transparent;
+        border-left: 1px solid transparent;
         border-right: 1px solid transparent;
         border-top: 1px solid transparent;
         border-bottom: 1px solid transparent;
@@ -3823,17 +3829,19 @@ ul.bb-social-sharing {
             border: 1px solid var(--global-color-link, #FF642C) !important;
             background-color: rgba(255, 100, 44, 0.05) !important;
             color: var(--global-color-text-main, #0D1B2A) !important;
+            transform: translateZ(0); // Force GPU acceleration to prevent jank
         }
         
-        // Selected/Active state - left 2px border, others 1px
+        // Selected/Active state - left 3px border, others 1px
         &[aria-selected="true"],
         &.select2-results__option--selected {
-            border-left: 2px solid var(--global-color-link, #FF642C) !important;
+            border-left: 3px solid var(--global-color-link, #FF642C) !important;
             border-right: 1px solid var(--global-color-link, #FF642C) !important;
             border-top: 1px solid var(--global-color-link, #FF642C) !important;
             border-bottom: 1px solid var(--global-color-link, #FF642C) !important;
             background-color: rgba(255, 100, 44, 0.05) !important;
             color: var(--global-color-text-main, #0D1B2A) !important;
+            transform: translateZ(0); // Force GPU acceleration to prevent jank
         }
     }
 }
