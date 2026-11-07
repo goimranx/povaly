@@ -3863,46 +3863,18 @@ ul.bb-social-sharing {
     .ps-product--list-view.ps-product--standard {
         // Remove all padding, margin, border from parent
         padding: 0 !important;
-        margin: 0 0 15px 0 !important;
+        margin: 0 !important;
         border: none !important;
-        background: transparent !important;
         
         // Apply horizontal layout to the inner ec-card
         .ec-card.ec-card--flyout {
             display: flex !important;
             flex-direction: row !important;
             gap: 10px !important;
-            padding: 15px !important;
-            background: #fff !important;
-            border: 1px solid var(--global-color-border, #e5e5e5) !important;
-            border-radius: 8px !important;
-            
-            .ec-card__thumb {
-                width: 180px !important;
-                min-width: 180px !important;
-                flex-shrink: 0 !important;
-                margin-bottom: 0 !important;
-                
-                @media (max-width: 767px) {
-                    width: 130px !important;
-                    min-width: 130px !important;
-                }
-            }
-            
-            .ec-card__body {
-                flex: 1 !important;
-                display: flex !important;
-                flex-direction: column !important;
-            }
-            
-            .ec-card__content {
-                flex: 1 !important;
-            }
             
             // Show inline action buttons in list view
             .ec-card__actions {
                 display: block !important;
-                margin-top: auto !important;
                 max-width: 260px !important;
             }
             
