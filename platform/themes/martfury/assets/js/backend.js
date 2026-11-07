@@ -1061,3 +1061,19 @@
 
 })(jQuery)
 
+
+
+// Custom formatting for sort dropdown to show "Sort by: [option]"
+$(document).ready(function() {
+    if ($('.ps-select-shop-sort').length && typeof $.fn.select2 !== 'undefined') {
+        $('.ps-select-shop-sort').select2({
+            minimumResultsForSearch: -1,
+            templateSelection: function(data) {
+                if (!data.id) {
+                    return data.text;
+                }
+                return $('<span>Sort by: <strong>' + data.text + '</strong></span>');
+            }
+        });
+    }
+});

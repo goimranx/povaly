@@ -3705,3 +3705,99 @@ ul.bb-social-sharing {
         }
     }
 }
+
+
+// ========================================
+// Product Listing Page Fixes
+// ========================================
+
+// Filter/Sort bar - full width
+.ps-page--shop {
+    .filter-sort-bar {
+        margin-left: -15px;
+        margin-right: -15px;
+        
+        @media (max-width: 1199px) {
+            margin-left: -15px;
+            margin-right: -15px;
+        }
+    }
+    
+    .filter-sort-container {
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+}
+
+// Sort dropdown styling
+.ps-select-shop-sort {
+    border: 1px solid var(--global-color-text-main, #0D1B2A) !important;
+    color: var(--global-color-text-main, #0D1B2A) !important;
+    min-width: 200px;
+    height: 40px;
+    padding: 0 35px 0 15px;
+    background-color: #fff;
+    border-radius: 4px;
+    font-size: 14px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230D1B2A' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    cursor: pointer;
+    
+    &:focus {
+        outline: none;
+        border-color: var(--global-color-primary, #FF642C);
+        box-shadow: 0 0 0 2px rgba(255, 100, 44, 0.1);
+    }
+}
+
+// Products layout switcher (Grid/List icons)
+.ps-shopping__view {
+    .products-layout {
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        gap: 5px;
+        
+        li {
+            margin: 0;
+            
+            a {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background-color: #fff;
+                color: #666;
+                transition: all 0.3s ease;
+                
+                i {
+                    font-size: 16px;
+                }
+                
+                &:hover {
+                    border-color: var(--global-color-text-main, #0D1B2A);
+                    color: var(--global-color-text-main, #0D1B2A);
+                    background-color: #f5f5f5;
+                }
+            }
+            
+            &.active a {
+                border-color: var(--global-color-text-main, #0D1B2A);
+                background-color: var(--global-color-text-main, #0D1B2A);
+                color: #fff;
+            }
+        }
+    }
+}
+
+// Fix alignment
+.ps-shopping__view {
+    display: flex;
+    align-items: center;
+}

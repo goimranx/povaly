@@ -1,6 +1,6 @@
 <div class="ps-page--shop">
-    <div class="bg-light py-2 mb-3">
-        <div class="container-fluid">
+    <div class="bg-light py-2 mb-3 filter-sort-bar">
+        <div class="container-fluid filter-sort-container">
             <div class="row">
                 <div class="col-12 col-sm-6 col-md-3 d-xl-none px-2 px-sm-3">
                     <div class="header__filter d-xl-none mx-auto mb-3 mb-sm-0">
