@@ -3858,19 +3858,36 @@ ul.bb-social-sharing {
 // ========================================
 
 .ps-shopping-product--list {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+    
     .ps-product--list-view.ps-product--offer,
     .ps-product--list-view.ps-product--deal,
     .ps-product--list-view.ps-product--standard {
-        // Remove all padding, margin, border from parent
+        // Force clean parent (no border even on hover)
         padding: 0 !important;
         margin: 0 !important;
         border: none !important;
+        
+        &:hover {
+            border: none !important;
+        }
         
         // Apply horizontal layout to the inner ec-card
         .ec-card.ec-card--flyout {
             display: flex !important;
             flex-direction: row !important;
             gap: 10px !important;
+            
+            .ec-card__thumb {
+                width: 35.5% !important;
+                flex-shrink: 0 !important;
+            }
+            
+            .ec-card__body {
+                flex-grow: 1 !important;
+            }
             
             // Show inline action buttons in list view
             .ec-card__actions {
@@ -3886,14 +3903,20 @@ ul.bb-social-sharing {
     }
 }
 
-// Force clean parent in both grid and list views
-.ps-shopping-product,
-.ps-shopping-product--list {
-    .ps-product--offer,
-    .ps-product--deal,
-    .ps-product--standard {
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
+// Force clean parent in both grid and list views - specifically in products page
+.ps-page--shop {
+    .ps-shopping-product,
+    .ps-shopping-product--list {
+        .ps-product--offer,
+        .ps-product--deal,
+        .ps-product--standard {
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            
+            &:hover {
+                border: none !important;
+            }
+        }
     }
 }
