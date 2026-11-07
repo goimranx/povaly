@@ -3825,6 +3825,63 @@ ul.bb-social-sharing {
     }
 }
 
+// Grid gap control - 15px between items (7.5px padding on each side)
+.ps-shopping-product {
+    .row > div[class*="col-"] {
+        padding-left: 7.5px !important;
+        padding-right: 7.5px !important;
+    }
+}
+
+// Filter button auto width and horizontal layout (always when visible - below xl breakpoint)
+.header__filter {
+    width: auto !important;
+    
+    button#products-filter-sidebar {
+        width: auto !important;
+        white-space: nowrap;
+    }
+}
+
+// Ensure filter button stays left, sort/layout stay right (always when filter visible)
+.filter-sort-bar {
+    .row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    
+    .col-12.col-sm-6.col-md-3.d-xl-none {
+        flex: 0 0 auto !important;
+        max-width: none !important;
+        width: auto !important;
+    }
+}
+
+// Mobile responsive styles (480px and below)
+@media (max-width: 480px) {
+    // Force column layout for enhanced cards on mobile
+    .ps-shopping-product {
+        .ec-card.ec-card--flyout {
+            flex-direction: column !important;
+            
+            .ec-card__thumb {
+                width: 100% !important;
+                
+                a {
+                    padding: 0 !important;
+                }
+            }
+            
+            .ec-card__body {
+                padding: 0 !important;
+                border: none !important;
+            }
+        }
+    }
+}
+
 // Products layout switcher (Grid/List icons)
 .ps-shopping__view {
     .products-layout {
