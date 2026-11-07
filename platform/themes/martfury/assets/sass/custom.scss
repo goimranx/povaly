@@ -3632,7 +3632,7 @@ ul.bb-social-sharing {
 // CKEditor Content Indent Responsive Styles
 // ========================================
 // Override CKEditor's default inline padding-left values
-// Mobile: 0 padding for better readability on small screens
+// Mobile: maintain hierarchy with 5px increments (0, 5px, 10px, 15px)
 
 .ps-document, .ck-content, .description, .product-description, [class*="content"], .ps-post__content, .page-content {
     // First indent level (default: 40px)
@@ -3659,7 +3659,7 @@ ul.bb-social-sharing {
         }
         
         @media (max-width: 767px) {
-            padding-left: 0 !important;
+            padding-left: 5px !important;
         }
     }
     
@@ -3673,7 +3673,7 @@ ul.bb-social-sharing {
         }
         
         @media (max-width: 767px) {
-            padding-left: 0 !important;
+            padding-left: 10px !important;
         }
     }
     
@@ -3687,7 +3687,21 @@ ul.bb-social-sharing {
         }
         
         @media (max-width: 767px) {
-            padding-left: 0 !important;
+            padding-left: 15px !important;
+        }
+    }
+    
+    // Fifth indent level (default: 200px) - if exists
+    *[style*="padding-left: 200px"],
+    *[style*="padding-left:200px"] {
+        padding-left: 200px !important;
+        
+        @media (max-width: 991px) {
+            padding-left: 150px !important;
+        }
+        
+        @media (max-width: 767px) {
+            padding-left: 20px !important;
         }
     }
 }
