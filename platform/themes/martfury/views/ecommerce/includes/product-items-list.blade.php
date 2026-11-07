@@ -8,10 +8,10 @@
 <input type="hidden" name="page" data-value="{{ $products->currentPage() }}">
 <input type="hidden" name="q" value="{{ BaseHelper::stringify(request()->query('q')) }}">
 
-<div class="ps-shopping-product">
+<div class="ps-shopping-product ps-shopping-product--list">
     @forelse ($products as $product)
-        <div class="ps-product ps-product--wide">
-            {!! Theme::partial('product-item-grid', ['product' => $product, 'lazy' => false]) !!}
+        <div class="ps-product ps-product--offer ps-product--list-view">
+            {!! Theme::partial('product-card-enhanced', ['product' => $product, 'lazy' => false, 'layout' => 'offer']) !!}
         </div>
     @empty
         <div class="alert alert-warning mt-4 w-100" role="alert">

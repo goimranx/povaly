@@ -3756,6 +3756,11 @@ ul.bb-social-sharing {
 // Select2 container selection styling
 .select2-container--default .select2-selection--single {
     border-radius: 6px !important;
+    
+    .select2-selection__rendered {
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+    }
 }
 
 // Products layout switcher (Grid/List icons)
@@ -3843,6 +3848,57 @@ ul.bb-social-sharing {
             background-color: rgba(255, 100, 44, 0.05) !important;
             color: var(--global-color-text-main, #0D1B2A) !important;
             transform: translateZ(0); // Force GPU acceleration to prevent jank
+        }
+    }
+}
+
+
+// ========================================
+// List View - Horizontal Product Layout (Mobile Style)
+// ========================================
+
+.ps-shopping-product--list {
+    .ps-product--list-view {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 15px !important;
+        padding: 15px !important;
+        margin-bottom: 15px !important;
+        background: #fff !important;
+        border: 1px solid var(--global-color-border, #e5e5e5) !important;
+        border-radius: 8px !important;
+        
+        .ps-product__thumbnail {
+            width: 180px !important;
+            min-width: 180px !important;
+            flex-shrink: 0 !important;
+            margin-bottom: 0 !important;
+            
+            @media (max-width: 767px) {
+                width: 130px !important;
+                min-width: 130px !important;
+            }
+        }
+        
+        .ps-product__container {
+            flex: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        .ps-product__content {
+            flex: 1 !important;
+        }
+        
+        // Force enhanced actions to show in list view
+        .ps-enhanced-actions {
+            display: block !important;
+            margin-top: auto !important;
+        }
+        
+        // Hide floating actions in list view
+        .ps-product__floating-actions {
+            display: none !important;
         }
     }
 }

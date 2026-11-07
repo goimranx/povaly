@@ -252,7 +252,7 @@
             }
         })
 
-        $(document).on('click', '.ps-shopping .products-layout li:not(.active) a', function(e) {
+        $(document).on('click', '.ps-page--shop .products-layout li:not(.active) a', function(e) {
             e.preventDefault()
             const $this = $(e.currentTarget)
             $this.closest('ul').find('li').removeClass('active')
