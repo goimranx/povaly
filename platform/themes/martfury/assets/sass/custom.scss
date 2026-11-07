@@ -3861,46 +3861,66 @@ ul.bb-social-sharing {
     .ps-product--list-view.ps-product--offer,
     .ps-product--list-view.ps-product--deal,
     .ps-product--list-view.ps-product--standard {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 15px !important;
-        padding: 15px !important;
-        margin-bottom: 15px !important;
-        background: #fff !important;
-        border: 1px solid var(--global-color-border, #e5e5e5) !important;
-        border-radius: 8px !important;
+        // Remove all padding, margin, border from parent
+        padding: 0 !important;
+        margin: 0 0 15px 0 !important;
+        border: none !important;
+        background: transparent !important;
         
-        .ps-product__thumbnail {
-            width: 180px !important;
-            min-width: 180px !important;
-            flex-shrink: 0 !important;
-            margin-bottom: 0 !important;
+        // Apply horizontal layout to the inner ec-card
+        .ec-card.ec-card--flyout {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 10px !important;
+            padding: 15px !important;
+            background: #fff !important;
+            border: 1px solid var(--global-color-border, #e5e5e5) !important;
+            border-radius: 8px !important;
             
-            @media (max-width: 767px) {
-                width: 130px !important;
-                min-width: 130px !important;
+            .ec-card__thumb {
+                width: 180px !important;
+                min-width: 180px !important;
+                flex-shrink: 0 !important;
+                margin-bottom: 0 !important;
+                
+                @media (max-width: 767px) {
+                    width: 130px !important;
+                    min-width: 130px !important;
+                }
+            }
+            
+            .ec-card__body {
+                flex: 1 !important;
+                display: flex !important;
+                flex-direction: column !important;
+            }
+            
+            .ec-card__content {
+                flex: 1 !important;
+            }
+            
+            // Force actions to show in list view
+            .ec-card__actions {
+                display: block !important;
+                margin-top: auto !important;
+            }
+            
+            // Hide floating actions in list view
+            .ec-card__float {
+                display: none !important;
             }
         }
-        
-        .ps-product__container {
-            flex: 1 !important;
-            display: flex !important;
-            flex-direction: column !important;
-        }
-        
-        .ps-product__content {
-            flex: 1 !important;
-        }
-        
-        // Force enhanced actions to show in list view
-        .ps-enhanced-actions {
-            display: block !important;
-            margin-top: auto !important;
-        }
-        
-        // Hide floating actions in list view
-        .ps-product__floating-actions {
-            display: none !important;
-        }
+    }
+}
+
+// Force clean parent in both grid and list views
+.ps-shopping-product,
+.ps-shopping-product--list {
+    .ps-product--offer,
+    .ps-product--deal,
+    .ps-product--standard {
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
     }
 }
