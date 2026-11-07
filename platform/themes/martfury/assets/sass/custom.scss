@@ -3899,10 +3899,11 @@ ul.bb-social-sharing {
                 flex: 1 !important;
             }
             
-            // Force actions to show in list view
+            // Show inline action buttons in list view
             .ec-card__actions {
                 display: block !important;
                 margin-top: auto !important;
+                max-width: 260px !important;
             }
             
             // Hide floating actions in list view
