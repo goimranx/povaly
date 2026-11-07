@@ -567,6 +567,23 @@
 }
 
 /* ============================================================
+   RESPONSIVE — mobile/tablet ≤767px
+   Show inline actions, hide floating capsule
+   ============================================================ */
+
+@media (max-width: 767px) {
+    /* Show bottom button for flyout layouts on mobile/tablet */
+    .ec-card--flyout .ec-card__actions {
+        display: block !important;
+    }
+
+    /* Hide floating actions on mobile/tablet for flyout */
+    .ec-card--flyout .ec-card__float {
+        display: none !important;
+    }
+}
+
+/* ============================================================
    RESPONSIVE — mobile ≤480px
    All layouts: hide floating, show bottom button, horizontal
    ============================================================ */
