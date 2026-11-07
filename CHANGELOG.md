@@ -5,6 +5,38 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.1] - 2024-11-07
+
+### ✨ New Features
+
+#### 📝 Typography Admin Controls
+- **H1-H6 admin settings** in Appearance > Style > Global Styling
+- Size controls for each heading (H1: 12-72px, H2: 12-60px, etc.)
+- Weight controls: 300-800 (Light to Extra Bold)
+- **Default sizes updated:**
+  - H1: 36px (was 48px), weight: 700
+  - H2: 30px (was 36px), weight: 700
+  - H3: 24px, weight: 700
+  - H4: 18px, weight: 700
+  - H5: 16px (was 14px), weight: 600
+  - H6: 14px (was 12px), weight: 600
+- Dynamic CSS variables generation from theme options
+- No code editing required for heading customization
+
+#### 📱 Responsive CKEditor Indent Control
+- **Mobile-first indent system** with hierarchy preservation
+- Desktop: full indent (40px, 80px, 120px, 160px, 200px)
+- Tablet (≤991px): reduced (30px, 60px, 90px, 120px, 150px)
+- Mobile (≤767px): minimal with 5px increments (0, 10px, 15px, 20px, 25px)
+- Maintains visual structure on small screens
+- Better readability without cutting into narrow viewports
+
+### 🎨 Technical Improvements
+- Typography uses CSS variables (--heading-h1-size, --heading-h1-weight, etc.)
+- SCSS updated to use CSS variables with fallbacks
+- Admin controls dynamically inject CSS into page head
+- Responsive indent applies to .ps-document, .ck-content, all content areas
+
 ## [2.5.0] - 2024-11-06
 
 ### ✨ New Features
