@@ -351,7 +351,7 @@ JS;
 // ══════════════════════════════════════════════════════════════════════
 // Generate Typography CSS from Theme Options
 // ══════════════════════════════════════════════════════════════════════
-add_filter('theme_front_header', function (?string $html): string {
+add_filter(THEME_FRONT_HEADER, function (?string $html): string {
     $h1Size = theme_option('heading_h1_size', 36);
     $h1Weight = theme_option('heading_h1_weight', 700);
     $h2Size = theme_option('heading_h2_size', 30);
