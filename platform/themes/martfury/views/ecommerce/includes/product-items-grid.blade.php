@@ -14,7 +14,7 @@
             @foreach($products as $product)
                 <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 col-6">
                     <div class="ps-product">
-                        {!! Theme::partial('product-item', ['product' => $product, 'lazy' => false]) !!}
+                        {!! Theme::partial('product-card-enhanced', ['product' => $product, 'lazy' => false, 'layout' => 'flyout']) !!}
                     </div>
                 </div>
             @endforeach
