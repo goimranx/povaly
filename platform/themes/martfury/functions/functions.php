@@ -346,3 +346,43 @@ JS;
         return ($html ?? '') . $script;
     }, 99);
 }
+
+
+// ══════════════════════════════════════════════════════════════════════
+// Generate Typography CSS from Theme Options
+// ══════════════════════════════════════════════════════════════════════
+add_filter('theme_front_header', function (?string $html): string {
+    $h1Size = theme_option('heading_h1_size', 36);
+    $h1Weight = theme_option('heading_h1_weight', 700);
+    $h2Size = theme_option('heading_h2_size', 30);
+    $h2Weight = theme_option('heading_h2_weight', 700);
+    $h3Size = theme_option('heading_h3_size', 24);
+    $h3Weight = theme_option('heading_h3_weight', 700);
+    $h4Size = theme_option('heading_h4_size', 18);
+    $h4Weight = theme_option('heading_h4_weight', 700);
+    $h5Size = theme_option('heading_h5_size', 16);
+    $h5Weight = theme_option('heading_h5_weight', 600);
+    $h6Size = theme_option('heading_h6_size', 14);
+    $h6Weight = theme_option('heading_h6_weight', 600);
+
+    $css = <<<CSS
+<style id="typography-custom-css">
+:root {
+    --heading-h1-size: {$h1Size}px;
+    --heading-h1-weight: {$h1Weight};
+    --heading-h2-size: {$h2Size}px;
+    --heading-h2-weight: {$h2Weight};
+    --heading-h3-size: {$h3Size}px;
+    --heading-h3-weight: {$h3Weight};
+    --heading-h4-size: {$h4Size}px;
+    --heading-h4-weight: {$h4Weight};
+    --heading-h5-size: {$h5Size}px;
+    --heading-h5-weight: {$h5Weight};
+    --heading-h6-size: {$h6Size}px;
+    --heading-h6-weight: {$h6Weight};
+}
+</style>
+CSS;
+
+    return ($html ?? '') . $css;
+}, 99);

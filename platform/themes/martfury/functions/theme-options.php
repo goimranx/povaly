@@ -43,6 +43,46 @@ app('events')->listen(RenderingThemeOptionSettings::class, function (): void {
         ->setField(['id' => 'primary_font', 'section_id' => $sc, 'type' => 'googleFonts', 'label' => __('Primary Font'), 'attributes' => ['name' => 'primary_font', 'value' => 'Work Sans']])
         ->setField($mk('gs_font', 0))
         
+        // ── TYPOGRAPHY (H1-H6) ──
+        ->setField($st('global_typography', 'Typography (Headings)', 0))
+        ->setField($mk('gs_typo_mk', 0))
+        
+        // H1
+        ->setField(['id' => 'heading_h1_size',   'section_id' => $sc, 'type' => 'number', 'label' => __('H1 Font Size (px)'),   'attributes' => ['name' => 'heading_h1_size',   'value' => 36, 'options' => ['class' => 'form-control', 'min' => 12, 'max' => 72]]])
+        ->setField($mk('gs_h1_size', 0))
+        ->setField(['id' => 'heading_h1_weight', 'section_id' => $sc, 'type' => 'customSelect', 'label' => __('H1 Font Weight'), 'attributes' => ['name' => 'heading_h1_weight', 'list' => ['300' => '300 (Light)', '400' => '400 (Normal)', '500' => '500 (Medium)', '600' => '600 (Semi Bold)', '700' => '700 (Bold)', '800' => '800 (Extra Bold)'], 'value' => '700', 'options' => ['class' => 'form-control']]])
+        ->setField($mk('gs_h1_weight', 0))
+        
+        // H2
+        ->setField(['id' => 'heading_h2_size',   'section_id' => $sc, 'type' => 'number', 'label' => __('H2 Font Size (px)'),   'attributes' => ['name' => 'heading_h2_size',   'value' => 30, 'options' => ['class' => 'form-control', 'min' => 12, 'max' => 60]]])
+        ->setField($mk('gs_h2_size', 0))
+        ->setField(['id' => 'heading_h2_weight', 'section_id' => $sc, 'type' => 'customSelect', 'label' => __('H2 Font Weight'), 'attributes' => ['name' => 'heading_h2_weight', 'list' => ['300' => '300 (Light)', '400' => '400 (Normal)', '500' => '500 (Medium)', '600' => '600 (Semi Bold)', '700' => '700 (Bold)', '800' => '800 (Extra Bold)'], 'value' => '700', 'options' => ['class' => 'form-control']]])
+        ->setField($mk('gs_h2_weight', 0))
+        
+        // H3
+        ->setField(['id' => 'heading_h3_size',   'section_id' => $sc, 'type' => 'number', 'label' => __('H3 Font Size (px)'),   'attributes' => ['name' => 'heading_h3_size',   'value' => 24, 'options' => ['class' => 'form-control', 'min' => 12, 'max' => 48]]])
+        ->setField($mk('gs_h3_size', 0))
+        ->setField(['id' => 'heading_h3_weight', 'section_id' => $sc, 'type' => 'customSelect', 'label' => __('H3 Font Weight'), 'attributes' => ['name' => 'heading_h3_weight', 'list' => ['300' => '300 (Light)', '400' => '400 (Normal)', '500' => '500 (Medium)', '600' => '600 (Semi Bold)', '700' => '700 (Bold)', '800' => '800 (Extra Bold)'], 'value' => '700', 'options' => ['class' => 'form-control']]])
+        ->setField($mk('gs_h3_weight', 0))
+        
+        // H4
+        ->setField(['id' => 'heading_h4_size',   'section_id' => $sc, 'type' => 'number', 'label' => __('H4 Font Size (px)'),   'attributes' => ['name' => 'heading_h4_size',   'value' => 18, 'options' => ['class' => 'form-control', 'min' => 12, 'max' => 36]]])
+        ->setField($mk('gs_h4_size', 0))
+        ->setField(['id' => 'heading_h4_weight', 'section_id' => $sc, 'type' => 'customSelect', 'label' => __('H4 Font Weight'), 'attributes' => ['name' => 'heading_h4_weight', 'list' => ['300' => '300 (Light)', '400' => '400 (Normal)', '500' => '500 (Medium)', '600' => '600 (Semi Bold)', '700' => '700 (Bold)', '800' => '800 (Extra Bold)'], 'value' => '700', 'options' => ['class' => 'form-control']]])
+        ->setField($mk('gs_h4_weight', 0))
+        
+        // H5
+        ->setField(['id' => 'heading_h5_size',   'section_id' => $sc, 'type' => 'number', 'label' => __('H5 Font Size (px)'),   'attributes' => ['name' => 'heading_h5_size',   'value' => 16, 'options' => ['class' => 'form-control', 'min' => 10, 'max' => 28]]])
+        ->setField($mk('gs_h5_size', 0))
+        ->setField(['id' => 'heading_h5_weight', 'section_id' => $sc, 'type' => 'customSelect', 'label' => __('H5 Font Weight'), 'attributes' => ['name' => 'heading_h5_weight', 'list' => ['300' => '300 (Light)', '400' => '400 (Normal)', '500' => '500 (Medium)', '600' => '600 (Semi Bold)', '700' => '700 (Bold)', '800' => '800 (Extra Bold)'], 'value' => '600', 'options' => ['class' => 'form-control']]])
+        ->setField($mk('gs_h5_weight', 0))
+        
+        // H6
+        ->setField(['id' => 'heading_h6_size',   'section_id' => $sc, 'type' => 'number', 'label' => __('H6 Font Size (px)'),   'attributes' => ['name' => 'heading_h6_size',   'value' => 14, 'options' => ['class' => 'form-control', 'min' => 10, 'max' => 24]]])
+        ->setField($mk('gs_h6_size', 0))
+        ->setField(['id' => 'heading_h6_weight', 'section_id' => $sc, 'type' => 'customSelect', 'label' => __('H6 Font Weight'), 'attributes' => ['name' => 'heading_h6_weight', 'list' => ['300' => '300 (Light)', '400' => '400 (Normal)', '500' => '500 (Medium)', '600' => '600 (Semi Bold)', '700' => '700 (Bold)', '800' => '800 (Extra Bold)'], 'value' => '600', 'options' => ['class' => 'form-control']]])
+        ->setField($mk('gs_h6_weight', 0))
+        
         // ── PRIMARY COLORS ──
         ->setField($st('global_primary', 'Primary Colors', 0))
         ->setField($mk('gs_primary_mk', 0))
