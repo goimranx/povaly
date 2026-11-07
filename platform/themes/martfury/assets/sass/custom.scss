@@ -3858,7 +3858,9 @@ ul.bb-social-sharing {
 // ========================================
 
 .ps-shopping-product--list {
-    .ps-product--list-view {
+    .ps-product--list-view.ps-product--offer,
+    .ps-product--list-view.ps-product--deal,
+    .ps-product--list-view.ps-product--standard {
         display: flex !important;
         flex-direction: row !important;
         gap: 15px !important;
