@@ -3770,10 +3770,10 @@ ul.bb-social-sharing {
                 justify-content: center;
                 width: 40px;
                 height: 40px;
-                border: 1px solid #ddd;
+                border: 1px solid var(--global-color-border-strong, #ddd);
                 border-radius: 4px;
-                background-color: #fff;
-                color: #666;
+                background-color: transparent;
+                color: var(--global-color-text-main, #0D1B2A);
                 transition: all 0.3s ease;
                 
                 i {
@@ -3781,16 +3781,17 @@ ul.bb-social-sharing {
                 }
                 
                 &:hover {
-                    border-color: var(--global-color-text-main, #0D1B2A);
-                    color: var(--global-color-text-main, #0D1B2A);
-                    background-color: #f5f5f5;
+                    border-color: var(--global-color-link, #FF642C);
+                    color: var(--global-color-link, #FF642C);
+                    background-color: transparent;
                 }
             }
             
             &.active a {
-                border-color: var(--global-color-text-main, #0D1B2A);
-                background-color: var(--global-color-text-main, #0D1B2A);
-                color: #fff;
+                border: 1px solid var(--global-color-link, #FF642C);
+                outline: 1px solid var(--global-color-link, #FF642C);
+                background-color: rgba(255, 100, 44, 0.05);
+                color: var(--global-color-link, #FF642C);
             }
         }
     }
@@ -3800,4 +3801,39 @@ ul.bb-social-sharing {
 .ps-shopping__view {
     display: flex;
     align-items: center;
+}
+
+// ========================================
+// Select2 Sort Dropdown Options Styling
+// ========================================
+
+// Override Select2 default option styling for sort dropdown
+.select2-container--default {
+    .select2-results__option {
+        padding: 10px 12px;
+        border-left: 2px solid transparent;
+        border-right: 1px solid transparent;
+        border-top: 1px solid transparent;
+        border-bottom: 1px solid transparent;
+        transition: all 0.2s ease;
+        
+        // Hover state - all sides 1px border with subtle background
+        &:hover,
+        &.select2-results__option--highlighted {
+            border: 1px solid var(--global-color-link, #FF642C) !important;
+            background-color: rgba(255, 100, 44, 0.05) !important;
+            color: var(--global-color-text-main, #0D1B2A) !important;
+        }
+        
+        // Selected/Active state - left 2px border, others 1px
+        &[aria-selected="true"],
+        &.select2-results__option--selected {
+            border-left: 2px solid var(--global-color-link, #FF642C) !important;
+            border-right: 1px solid var(--global-color-link, #FF642C) !important;
+            border-top: 1px solid var(--global-color-link, #FF642C) !important;
+            border-bottom: 1px solid var(--global-color-link, #FF642C) !important;
+            background-color: rgba(255, 100, 44, 0.05) !important;
+            color: var(--global-color-text-main, #0D1B2A) !important;
+        }
+    }
 }
