@@ -37,6 +37,12 @@
                     <h3>{{ __('Filter Products') }}</h3><a class="ps-btn--close ps-btn--no-border" href="#"></a>
                 </div>
                 <div class="ps-layout__left-content">
+                    {{-- Sort dropdown - shown only on mobile/tablet (below xl) --}}
+                    <div class="ps-mobile-sort mb-3 d-xl-none">
+                        <label class="d-block mb-2 fw-semibold">{{ __('Sort By') }}</label>
+                        @include(Theme::getThemeNamespace() . '::views/ecommerce/includes/sort')
+                    </div>
+                    
                     @include(Theme::getThemeNamespace() . '::views.ecommerce.includes.filters')
                 </div>
             </div>

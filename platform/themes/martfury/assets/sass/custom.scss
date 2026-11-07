@@ -3836,6 +3836,7 @@ ul.bb-social-sharing {
 // Filter button auto width and horizontal layout (always when visible - below xl breakpoint)
 .header__filter {
     width: auto !important;
+    margin: 0 !important;
     
     button#products-filter-sidebar {
         width: auto !important;
@@ -3856,6 +3857,61 @@ ul.bb-social-sharing {
         flex: 0 0 auto !important;
         max-width: none !important;
         width: auto !important;
+        padding: 0 !important;
+    }
+    
+    .col-12.col-sm-6 {
+        padding: 0 !important;
+        
+        > div {
+            display: flex !important;
+            justify-content: center !important;
+            width: auto !important;
+            
+            @media (min-width: 577px) {
+                justify-content: flex-end !important;
+            }
+        }
+    }
+}
+
+// Mobile styles for filter bar (≤576px)
+@media (max-width: 576px) {
+    .filter-sort-bar {
+        .row {
+            flex-wrap: nowrap !important;
+        }
+        
+        .col-12.col-sm-6.col-md-3.d-xl-none {
+            padding: 0 10px !important;
+        }
+    }
+}
+
+// Hide sort dropdown from top bar on mobile/tablet (shown in filter offcanvas instead)
+@media (max-width: 1199px) {
+    .filter-sort-bar {
+        .col-12.col-sm-6 {
+            .ps-select-shop-sort {
+                display: none !important;
+            }
+        }
+    }
+}
+
+// Mobile sort dropdown styling inside filter offcanvas
+.ps-mobile-sort {
+    padding: 15px;
+    border-bottom: 1px solid var(--global-color-border-strong, #ddd);
+    
+    label {
+        font-size: 14px;
+        color: var(--global-color-text-main, #0D1B2A);
+        margin-bottom: 8px !important;
+    }
+    
+    .ps-select-shop-sort {
+        width: 100% !important;
     }
 }
 
