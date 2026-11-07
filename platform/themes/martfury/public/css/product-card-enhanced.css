@@ -24,7 +24,7 @@
 /* Thumbnail */
 .ec-card__thumb {
     position: relative;
-    padding: 7px;
+    padding: 0;
     background: var(--global-color-card-bg);
     border-radius: 7px;
     margin-bottom: 5px;
@@ -32,6 +32,8 @@
 
 .ec-card__thumb a {
     display: block;
+    height: 100%;
+    padding: 7px;
 }
 
 .ec-card__thumb img {

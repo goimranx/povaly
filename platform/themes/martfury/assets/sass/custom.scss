@@ -2999,7 +2999,7 @@ ul.bb-social-sharing {
 .ps-product--offer .ps-product__thumbnail,
 .ps-product--deal .ps-product__thumbnail,
 .ps-product--standard .ps-product__thumbnail {
-    padding: 7px;
+    padding: 0;
     background: var(--global-color-card-bg);
     border-radius: 7px;
     position: relative;
@@ -3012,6 +3012,7 @@ ul.bb-social-sharing {
 .ps-product--deal .ps-product__thumbnail a,
 .ps-product--standard .ps-product__thumbnail a {
     display: block;
+    padding: 7px;
     outline: none !important;
     border: none !important;
 }
@@ -3883,6 +3884,13 @@ ul.bb-social-sharing {
             .ec-card__thumb {
                 width: 35.5% !important;
                 flex-shrink: 0 !important;
+                margin-bottom: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                
+                a {
+                    height: 100% !important;
+                }
             }
             
             .ec-card__body {
