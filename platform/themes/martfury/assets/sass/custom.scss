@@ -3626,3 +3626,84 @@ ul.bb-social-sharing {
     }
 }
 
+
+
+// ========================================
+// CKEditor Content Indent Responsive Styles
+// ========================================
+// Override CKEditor's default inline padding-left values
+// with responsive values for better mobile experience
+
+.ps-document, .ck-content, .description, .product-description, [class*="content"], .ps-post__content, .page-content {
+    // First indent level (default: 40px)
+    *[style*="padding-left: 40px"], 
+    *[style*="padding-left:40px"] {
+        padding-left: 40px !important;
+        
+        @media (max-width: 991px) {
+            padding-left: 30px !important;
+        }
+        
+        @media (max-width: 767px) {
+            padding-left: 20px !important;
+        }
+        
+        @media (max-width: 479px) {
+            padding-left: 15px !important;
+        }
+    }
+    
+    // Second indent level (default: 80px)
+    *[style*="padding-left: 80px"],
+    *[style*="padding-left:80px"] {
+        padding-left: 80px !important;
+        
+        @media (max-width: 991px) {
+            padding-left: 60px !important;
+        }
+        
+        @media (max-width: 767px) {
+            padding-left: 40px !important;
+        }
+        
+        @media (max-width: 479px) {
+            padding-left: 30px !important;
+        }
+    }
+    
+    // Third indent level (default: 120px)
+    *[style*="padding-left: 120px"],
+    *[style*="padding-left:120px"] {
+        padding-left: 120px !important;
+        
+        @media (max-width: 991px) {
+            padding-left: 90px !important;
+        }
+        
+        @media (max-width: 767px) {
+            padding-left: 60px !important;
+        }
+        
+        @media (max-width: 479px) {
+            padding-left: 45px !important;
+        }
+    }
+    
+    // Fourth indent level (default: 160px)
+    *[style*="padding-left: 160px"],
+    *[style*="padding-left:160px"] {
+        padding-left: 160px !important;
+        
+        @media (max-width: 991px) {
+            padding-left: 120px !important;
+        }
+        
+        @media (max-width: 767px) {
+            padding-left: 80px !important;
+        }
+        
+        @media (max-width: 479px) {
+            padding-left: 60px !important;
+        }
+    }
+}
