@@ -1767,21 +1767,23 @@
 
         // ── Auto-close Quick Shop after Add to Cart ───────────────────────────
         document.addEventListener('ecommerce.cart.added', function(event) {
-            // Check if the add-to-cart was from quick-shop modal
+            // Check if quick-shop modal is currently open
             const quickShopModal = document.getElementById('quick-shop-modal');
-            if (quickShopModal && event.detail && event.detail.element) {
-                const form = event.detail.element.closest('form');
-                const isQuickShop = form && quickShopModal.contains(form);
-                
-                if (isQuickShop) {
-                    // Close the offcanvas after a short delay
-                    setTimeout(() => {
-                        const offcanvasInstance = bsOffcanvas(quickShopModal);
+            if (!quickShopModal) return;
+            
+            // Check if the offcanvas is currently shown
+            const isOpen = quickShopModal.classList.contains('show');
+            
+            if (isOpen) {
+                // Close the offcanvas after a short delay
+                setTimeout(() => {
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Offcanvas) {
+                        const offcanvasInstance = bootstrap.Offcanvas.getInstance(quickShopModal);
                         if (offcanvasInstance) {
                             offcanvasInstance.hide();
                         }
-                    }, 500);
-                }
+                    }
+                }, 500);
             }
         });
     </script>
