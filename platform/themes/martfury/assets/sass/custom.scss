@@ -4300,3 +4300,16 @@ ul.bb-social-sharing {
         text-align: center !important;
     }
 }
+
+// Review sidebar centering when logged in user has met criteria but no reviews exist yet
+.review-sidebar-column-logged-met-criteria {
+    justify-content: center !important;
+    
+    .review-logged-in-container {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+}
