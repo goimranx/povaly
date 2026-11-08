@@ -55,6 +55,38 @@
                     .ps-trending-products .ps-block__more {
                         display: none !important;
                     }
+                    
+                    /* Override carousel padding - force 0 */
+                    .ps-trending-products .ps-carousel--trending.owl-slider {
+                        padding: 0 !important;
+                    }
+                    
+                    /* Override navigation arrows for this page only */
+                    @media (min-width: 768px) {
+                        .ps-trending-products .ps-carousel--trending .owl-nav button {
+                            position: absolute !important;
+                            background: rgba(255, 255, 255, 0.8) !important;
+                            opacity: 0.8 !important;
+                        }
+                        
+                        .ps-trending-products .ps-carousel--trending .owl-nav button:hover {
+                            background: rgba(255, 255, 255, 1) !important;
+                            opacity: 1 !important;
+                        }
+                        
+                        .ps-trending-products .ps-carousel--trending .owl-nav button.disabled:hover {
+                            background: rgba(255, 255, 255, 0.8) !important;
+                            opacity: 0.3 !important;
+                        }
+                        
+                        .ps-trending-products .ps-carousel--trending .owl-nav .owl-prev {
+                            left: -10px !important;
+                        }
+                        
+                        .ps-trending-products .ps-carousel--trending .owl-nav .owl-next {
+                            right: -10px !important;
+                        }
+                    }
                 </style>
                 {!! do_shortcode('[trending-products title="Most viewed products" limit="36" enable_caching="no" enable_lazy_loading="no"][/trending-products]') !!}
             @endif
