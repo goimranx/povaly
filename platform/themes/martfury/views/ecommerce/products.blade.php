@@ -65,6 +65,8 @@
                     @media (min-width: 768px) {
                         .ps-trending-products .ps-carousel--trending .owl-nav button {
                             position: absolute !important;
+                            width: 30px !important;
+                            height: 30px !important;
                             background: rgba(255, 255, 255, 0.8) !important;
                             opacity: 0.8 !important;
                         }

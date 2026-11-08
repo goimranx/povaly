@@ -975,7 +975,8 @@
         })
 
         document.addEventListener('ecommerce.product-filter.success', (event) => {
-            $('.ps-shopping .products-found').html(event.detail.data.message)
+            // Update products found counter (outside ps-shopping, in filter-sort-bar)
+            $('.products-found').html(event.detail.data.message)
         })
     })
 
