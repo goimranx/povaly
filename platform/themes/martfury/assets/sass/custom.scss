@@ -3932,10 +3932,26 @@ ul.bb-social-sharing {
 .ps-mobile-sort {
     padding: 0;
     border-bottom: 1px solid var(--global-color-border-strong, #ddd);
+    position: relative;
+    z-index: 10; /* Ensure dropdown can show above other content */
     
     .ps-select-shop-sort {
         width: 100% !important;
     }
+    
+    // Ensure Select2 dropdown can show properly
+    .select2-container {
+        width: 100% !important;
+    }
+}
+
+// Ensure Select2 dropdown shows above offcanvas content
+.select2-container--open {
+    z-index: 999999 !important;
+}
+
+.select2-dropdown {
+    z-index: 999999 !important;
 }
 
 // Fix scrolling issue when hovering over links in filter sidebar
@@ -3963,6 +3979,11 @@ ul.bb-social-sharing {
     .bb-filter-item-wrapper {
         overflow: visible !important;
         max-height: none !important;
+    }
+    
+    // Increase filter item spacing
+    .bb-product-filter-item {
+        margin-bottom: 8px !important;
     }
 }
 

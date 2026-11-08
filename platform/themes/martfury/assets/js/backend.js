@@ -1068,6 +1068,8 @@ $(document).ready(function() {
     if ($('.ps-select-shop-sort').length && typeof $.fn.select2 !== 'undefined') {
         $('.ps-select-shop-sort').select2({
             minimumResultsForSearch: -1,
+            dropdownParent: $('.ps-select-shop-sort').closest('.ps-mobile-sort').length ? 
+                            $('.ps-mobile-sort') : $('body'),
             templateSelection: function(data) {
                 if (!data.id) {
                     return data.text;
@@ -1076,4 +1078,27 @@ $(document).ready(function() {
             }
         });
     }
+    
+    // Reinitialize Select2 when filter offcanvas opens to ensure dropdown works
+    $(document).on('click', '#products-filter-sidebar', function() {
+        setTimeout(function() {
+            if ($('.ps-mobile-sort .ps-select-shop-sort').length) {
+                const $select = $('.ps-mobile-sort .ps-select-shop-sort');
+                // Destroy and reinitialize to fix dropdown parent
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    $select.select2('destroy');
+                }
+                $select.select2({
+                    minimumResultsForSearch: -1,
+                    dropdownParent: $('body'), // Attach to body to avoid overflow issues
+                    templateSelection: function(data) {
+                        if (!data.id) {
+                            return data.text;
+                        }
+                        return $('<span>Sort by: <strong>' + data.text + '</strong></span>');
+                    }
+                });
+            }
+        }, 100);
+    });
 });

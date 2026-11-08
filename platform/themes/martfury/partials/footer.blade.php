@@ -1764,6 +1764,26 @@
                 });
             });
         }
+
+        // ── Auto-close Quick Shop after Add to Cart ───────────────────────────
+        document.addEventListener('ecommerce.cart.added', function(event) {
+            // Check if the add-to-cart was from quick-shop modal
+            const quickShopModal = document.getElementById('quick-shop-modal');
+            if (quickShopModal && event.detail && event.detail.element) {
+                const form = event.detail.element.closest('form');
+                const isQuickShop = form && quickShopModal.contains(form);
+                
+                if (isQuickShop) {
+                    // Close the offcanvas after a short delay
+                    setTimeout(() => {
+                        const offcanvasInstance = bsOffcanvas(quickShopModal);
+                        if (offcanvasInstance) {
+                            offcanvasInstance.hide();
+                        }
+                    }, 500);
+                }
+            }
+        });
     </script>
 
     </body>

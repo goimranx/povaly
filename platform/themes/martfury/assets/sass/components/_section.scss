@@ -518,12 +518,14 @@
             }
 
             .ps-filter__header {
-                position: relative;
+                position: sticky;
+                top: 0;
                 margin: 0;
                 padding: 10px 15px;
                 background-color: var(--global-color-site-bg);
                 box-sizing: border-box;
                 overflow-x: hidden;
+                z-index: 3;
 
                 h3 {
                     margin-bottom: 0;
@@ -548,6 +550,7 @@
                 padding: 10px 15px;
                 box-sizing: border-box;
                 overflow-x: hidden;
+                overflow-y: visible; /* Allow dropdowns to show */
             }
         }
     }
