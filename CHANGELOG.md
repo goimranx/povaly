@@ -5,6 +5,47 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2024-12-20
+
+### ✨ Product Listing Page Redesign
+
+#### 🎨 Filter System Enhancements
+- **Mobile filter offcanvas** - slides from bottom with 75vh height
+- **Sticky filter header** (z-index 11) with clean design
+- **Visual attribute swatches** - fully clickable with pointer cursor
+- **Rating filter stars** - styled with global primary color
+- **"Department" label** replaces "Categories" with hidden icons
+- **Filter spacing** - improved margins (8px items, 10px filters, 15px attributes)
+- **Price range slider** - global link color with proper borders
+- **Fixed scrolling** - removed overflow issues on filter content
+- **Select2 dropdown** - works properly in mobile offcanvas
+
+#### 📊 Layout & Display
+- **Filter button styling** - matches layout switcher (normal/hover/active states)
+- **Sort dropdown** - hidden ≤480px, shown in filter offcanvas
+- **Products counter** - updates correctly via AJAX
+- **List view** - thumbnail centered, min-height removed
+- **"0 Product found" alert** - styled with link-subtle background
+
+#### 🌟 Trending Products Section
+- **Replaced** "Recommended Items" with "Most viewed products" shortcode
+- **36 products limit** with 4-column desktop layout (1 mobile, 2 tablet)
+- **Navigation arrows** - 30x30px, white semi-transparent, -10px positioning
+- **No padding** on carousel, hidden "View All" button
+
+#### 🔧 Technical Improvements
+- **Quick-shop auto-close** after add-to-cart (500ms delay)
+- **Enhanced product cards** used throughout listing
+- **Compiled assets** optimized for production
+- **Global color variables** used consistently
+
+### 🐛 Bug Fixes
+- Fixed horizontal overflow on mobile filter offcanvas
+- Fixed products found counter not updating during filtering
+- Fixed visual filter checkmark positioning (4px instead of 3px)
+- Fixed label line-height (22px) for better alignment
+- Fixed rating star fill targeting (only star path, not helper path)
+
 ## [2.5.1] - 2024-11-07
 
 ### ✨ New Features
