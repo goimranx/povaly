@@ -5,6 +5,56 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.1] - 2024-12-21
+
+### ✨ Review Section UX Improvements
+
+#### 🎯 Smart Guest Review Messaging
+- **Curiosity-driven FOMO text** for guest users
+- When reviews exist: "Join Our Community" with social proof messaging
+- When no reviews: "Curious What Others Think?" - creates information gap without revealing empty state
+- **Psychological triggers**: exclusivity, social proof, curiosity gap
+- Encourages sign-in through tactical messaging
+
+#### 🎨 Review Sidebar Centering (No Reviews State)
+- **Guest users**: centered layout when no reviews exist
+- **Logged-in users (not met criteria)**: centered layout with "purchase required" message
+- **Logged-in users (met criteria)**: centered layout with "write review" button
+- Consistent centering with `align-items: center` across all states
+
+#### 📱 Review Container Responsive Design
+- **Column-reverse layout** when logged-in users have no reviews
+- Padding/margin: 15px top/bottom
+- Gap: 10px between elements
+- Border: 1px solid top/bottom
+- Centered alignment for better visual balance
+
+#### 🎨 No-Review Message Styling
+- Min-width: 720px (responsive: 100% on mobile)
+- Background: subtle link color
+- Border: 1px solid with 4px left accent
+- Border-radius: 6px
+- Padding: 10px 15px
+
+#### 🔘 Button Styling Improvements
+- **Write review button**: cart button colors, fixed 220px width
+- **Sign-in button**: 320px desktop, 230px mobile
+- Hover states with cart-bg-hover color
+- All buttons maintain width on mobile (220px, not 100%)
+
+#### 📱 Mobile/Tablet Responsive
+- **Review sidebar shown at ≤991px** when no-review states active
+- **Mobile header hidden at ≤991px** for no-review states
+- **Mobile header shown at ≤991px** for default state (reviews exist)
+- Proper visibility toggling across all viewport sizes
+- Guest container: `align-items: center` for better centering
+
+### 🔧 Technical Improvements
+- Conditional CSS classes for different review states
+- Uses `:has()` selector for parent container styling
+- Forced display with `!important` where needed to override defaults
+- SCSS compiled and optimized for production
+
 ## [2.6.0] - 2024-12-20
 
 ### ✨ Product Listing Page Redesign
