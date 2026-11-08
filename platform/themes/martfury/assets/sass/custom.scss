@@ -4276,3 +4276,159 @@ ul.bb-social-sharing {
         }
     }
 }
+
+// Review sidebar centering when no reviews and guest user
+.review-sidebar-column-no-reviews.review-sidebar-column-guest {
+    justify-content: center !important;
+    align-items: center !important;
+    
+    // Force show on tablets and below (≤991px)
+    @media (max-width: 991px) {
+        display: flex !important;
+    }
+    
+    .review-guest-container {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+    
+    .btn-review-signin {
+        min-width: 320px !important;
+        
+        @media (max-width: 767px) {
+            min-width: 230px !important;
+        }
+    }
+}
+
+// Hide review-mobile-header when guest no-review class is present
+.product-review-container:has(.review-sidebar-column-no-reviews.review-sidebar-column-guest) {
+    @media (max-width: 991px) {
+        .review-mobile-header {
+            display: none !important;
+        }
+    }
+}
+
+// Show review-mobile-header at 991px for states with reviews (default)
+.product-review-container {
+    @media (max-width: 991px) {
+        .review-mobile-header {
+            display: flex !important;
+        }
+    }
+}
+
+// Review sidebar centering when logged in user with no reviews and doesn't meet criteria
+.review-sidebar-column-logged-no-reviews {
+    justify-content: center !important;
+    
+    .review-logged-in-container {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+        border: none !important;
+    }
+}
+
+// Review sidebar centering when logged in user has met criteria but no reviews exist yet
+.review-sidebar-column-logged-met-criteria {
+    justify-content: center !important;
+    
+    .review-logged-in-container {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+        border: none !important;
+    }
+}
+
+// Parent container styling when either logged criteria classes are present
+.review-sidebar-column-logged-no-reviews,
+.review-sidebar-column-logged-met-criteria {
+    ~ .review-list-container {
+        .product-review-container {
+            flex-direction: column-reverse !important;
+            padding: 15px 0 !important;
+            margin: 15px 0 !important;
+            border-top: 1px solid var(--global-color-border-strong) !important;
+            border-bottom: 1px solid var(--global-color-border-strong) !important;
+            gap: 10px !important;
+        }
+    }
+}
+
+// When logged in with criteria classes, target the parent product-review-container
+.product-review-container:has(.review-sidebar-column-logged-no-reviews),
+.product-review-container:has(.review-sidebar-column-logged-met-criteria) {
+    flex-direction: column-reverse !important;
+    padding: 15px 0 !important;
+    margin: 15px 0 !important;
+    border-top: 1px solid var(--global-color-border-strong) !important;
+    border-bottom: 1px solid var(--global-color-border-strong) !important;
+    gap: 10px !important;
+    align-items: center !important;
+    
+    // No review message styling
+    > p.text-muted.text-center {
+        min-width: 720px !important;
+        margin: 0 !important;
+        padding: 10px 15px !important;
+        background: var(--global-color-link-subtle) !important;
+        border: 1px solid var(--global-color-link) !important;
+        border-left: 4px solid var(--global-color-link) !important;
+        border-radius: 6px !important;
+        
+        @media (max-width: 767px) {
+            min-width: 100% !important;
+        }
+    }
+}
+
+// Button styling inside conditional criteria classes
+.review-sidebar-column-logged-no-reviews,
+.review-sidebar-column-logged-met-criteria {
+    min-width: 520px !important;
+    
+    // Force show on tablets and below (≤991px)
+    @media (max-width: 991px) {
+        display: flex !important;
+    }
+    
+    @media (max-width: 767px) {
+        min-width: 100% !important;
+    }
+    
+    .btn-write-review-inline {
+        border: 1px solid var(--ec-btn-cart-bg) !important;
+        background: var(--ec-btn-cart-bg) !important;
+        color: var(--ec-btn-cart-text) !important;
+        min-width: 220px !important;
+        width: 220px !important;
+        
+        @media (max-width: 767px) {
+            min-width: 220px !important;
+            width: 220px !important;
+        }
+        
+        &:hover {
+            background: var(--ec-btn-cart-bg-hover) !important;
+        }
+    }
+}
+
+// Hide review-mobile-header when conditional classes are present
+.product-review-container:has(.review-sidebar-column-logged-no-reviews),
+.product-review-container:has(.review-sidebar-column-logged-met-criteria) {
+    @media (max-width: 991px) {
+        .review-mobile-header {
+            display: none !important;
+        }
+    }
+}
