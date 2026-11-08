@@ -3893,9 +3893,9 @@ ul.bb-social-sharing {
         }
     }
     
-    // Keep sort dropdown visible at 200px width
-    .ps-select-shop-sort {
-        min-width: 200px !important;
+    // Select2 rendered text width
+    .select2-selection__rendered {
+        width: 200px !important;
     }
 }
 
@@ -3903,7 +3903,13 @@ ul.bb-social-sharing {
 @media (max-width: 480px) {
     .filter-sort-bar {
         .sort-layout-col {
-            .ps-select-shop-sort {
+            // Hide the actual Select2 container (not just the select element)
+            .select2.select2-container.select2-container--default {
+                display: none !important;
+            }
+            
+            // Also hide if it has focus state
+            .select2.select2-container.select2-container--default.select2-container--focus {
                 display: none !important;
             }
         }
