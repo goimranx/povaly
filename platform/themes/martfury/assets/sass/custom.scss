@@ -4242,23 +4242,21 @@ ul.bb-social-sharing {
 .bb-product-filter-items.filter-checkbox {
     .bb-product-filter-item {
         label {
-            // Target all star SVGs
+            // Target all star SVGs - only style the actual star path (second path)
             svg.svg-icon-ti-ti-star-filled,
             svg.svg-icon-ti-ti-star {
-                stroke: var(--global-color-primary) !important;
-                fill: var(--global-color-primary) !important;
-                
-                path {
+                // Target only the second path (the actual star shape, not the helper path)
+                path:nth-child(2),
+                path:last-child {
                     stroke: var(--global-color-primary) !important;
                     fill: var(--global-color-primary) !important;
                 }
             }
             
-            // Empty stars (outline only)
+            // Empty stars (outline only) - second path should not be filled
             svg.svg-icon-ti-ti-star {
-                fill: none !important;
-                
-                path {
+                path:nth-child(2),
+                path:last-child {
                     fill: none !important;
                 }
             }
