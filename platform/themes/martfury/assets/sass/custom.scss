@@ -4280,6 +4280,7 @@ ul.bb-social-sharing {
 // Review sidebar centering when no reviews and guest user
 .review-sidebar-column-no-reviews.review-sidebar-column-guest {
     justify-content: center !important;
+    align-items: center !important;
     
     // Force show on tablets and below (≤991px)
     @media (max-width: 991px) {
@@ -4304,9 +4305,18 @@ ul.bb-social-sharing {
 
 // Hide review-mobile-header when guest no-review class is present
 .product-review-container:has(.review-sidebar-column-no-reviews.review-sidebar-column-guest) {
-    @media (max-width: 767px) {
+    @media (max-width: 991px) {
         .review-mobile-header {
             display: none !important;
+        }
+    }
+}
+
+// Show review-mobile-header at 991px for states with reviews (default)
+.product-review-container {
+    @media (max-width: 991px) {
+        .review-mobile-header {
+            display: flex !important;
         }
     }
 }
@@ -4416,7 +4426,7 @@ ul.bb-social-sharing {
 // Hide review-mobile-header when conditional classes are present
 .product-review-container:has(.review-sidebar-column-logged-no-reviews),
 .product-review-container:has(.review-sidebar-column-logged-met-criteria) {
-    @media (max-width: 767px) {
+    @media (max-width: 991px) {
         .review-mobile-header {
             display: none !important;
         }
