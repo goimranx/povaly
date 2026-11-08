@@ -3930,17 +3930,27 @@ ul.bb-social-sharing {
 
 // Mobile sort dropdown styling inside filter offcanvas
 .ps-mobile-sort {
-    padding: 15px;
+    padding: 0;
     border-bottom: 1px solid var(--global-color-border-strong, #ddd);
-    
-    label {
-        font-size: 14px;
-        color: var(--global-color-text-main, #0D1B2A);
-        margin-bottom: 8px !important;
-    }
     
     .ps-select-shop-sort {
         width: 100% !important;
+    }
+}
+
+// Fix scrolling issue when hovering over links in filter sidebar
+.ps-layout__left-container {
+    // Enable smooth scrolling on both desktop and mobile
+    -webkit-overflow-scrolling: touch;
+    
+    // Ensure links don't block scroll events
+    a, button, label, input {
+        touch-action: manipulation;
+    }
+    
+    // Allow scrolling to work even when hovering over interactive elements
+    * {
+        touch-action: pan-y;
     }
 }
 
@@ -4090,6 +4100,7 @@ ul.bb-social-sharing {
                 margin-bottom: 0 !important;
                 display: flex !important;
                 align-items: center !important;
+                justify-content: center !important;
                 
                 a {
                     height: 100% !important;

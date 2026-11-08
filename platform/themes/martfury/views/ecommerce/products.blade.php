@@ -39,7 +39,6 @@
                 <div class="ps-layout__left-content">
                     {{-- Sort dropdown - shown only on mobile ≤480px --}}
                     <div class="ps-mobile-sort mb-3" style="display: none;">
-                        <label class="d-block mb-2 fw-semibold">{{ __('Sort By') }}</label>
                         @include(Theme::getThemeNamespace() . '::views/ecommerce/includes/sort')
                     </div>
                     
