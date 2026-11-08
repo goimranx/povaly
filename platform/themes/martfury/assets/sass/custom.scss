@@ -4276,3 +4276,40 @@ ul.bb-social-sharing {
         }
     }
 }
+
+// Review sidebar centering when no reviews and guest user
+.review-sidebar-column-no-reviews.review-sidebar-column-guest {
+    justify-content: center !important;
+    
+    .review-guest-container {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+    }
+}
+
+// Review sidebar centering when logged in user with no reviews and doesn't meet criteria
+.review-sidebar-column-logged-no-reviews {
+    justify-content: center !important;
+    
+    .review-logged-in-container {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+}
+
+// Review sidebar centering when logged in user has met criteria but no reviews exist yet
+.review-sidebar-column-logged-met-criteria {
+    justify-content: center !important;
+    
+    .review-logged-in-container {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+}
