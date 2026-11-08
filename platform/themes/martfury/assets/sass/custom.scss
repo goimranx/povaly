@@ -4237,3 +4237,31 @@ ul.bb-social-sharing {
         cursor: pointer !important;
     }
 }
+
+// Rating filter stars - use global primary color
+.bb-product-filter-items.filter-checkbox {
+    .bb-product-filter-item {
+        label {
+            // Target all star SVGs
+            svg.svg-icon-ti-ti-star-filled,
+            svg.svg-icon-ti-ti-star {
+                stroke: var(--global-color-primary) !important;
+                fill: var(--global-color-primary) !important;
+                
+                path {
+                    stroke: var(--global-color-primary) !important;
+                    fill: var(--global-color-primary) !important;
+                }
+            }
+            
+            // Empty stars (outline only)
+            svg.svg-icon-ti-ti-star {
+                fill: none !important;
+                
+                path {
+                    fill: none !important;
+                }
+            }
+        }
+    }
+}
