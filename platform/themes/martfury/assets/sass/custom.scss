@@ -4217,3 +4217,23 @@ ul.bb-social-sharing {
 .ps-shopping-product {
     min-height: 0 !important;
 }
+
+// Make visual attribute swatches clickable
+.bb-product-attribute-swatch-display {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+}
+
+// When clicking on swatch, trigger the checkbox
+.bb-product-filter-item {
+    position: relative;
+    
+    .bb-product-attribute-swatch-display {
+        cursor: pointer !important;
+    }
+    
+    // Make the entire item clickable area
+    label {
+        cursor: pointer !important;
+    }
+}

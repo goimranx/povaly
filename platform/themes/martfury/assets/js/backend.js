@@ -1103,3 +1103,20 @@ $(document).ready(function() {
         }, 100);
     });
 });
+
+    // Make visual attribute swatches clickable
+    $(document).on('click', '.bb-product-attribute-swatch-display', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Find the associated checkbox input
+        const $checkbox = $(this).siblings('input[type="checkbox"]');
+        
+        if ($checkbox.length) {
+            // Toggle the checkbox
+            $checkbox.prop('checked', !$checkbox.prop('checked'));
+            
+            // Trigger change event to update filters
+            $checkbox.trigger('change');
+        }
+    });
