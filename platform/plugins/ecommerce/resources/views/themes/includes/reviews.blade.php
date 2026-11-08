@@ -122,8 +122,8 @@
                                 <span>{{ __('to see customer reviews.') }}</span>
                             </div>
                         @else
-                            <h3 class="review-guest-title">{{ __('Be the First to Review') }}</h3>
-                            <p class="review-guest-no-reviews">{{ __('This product is waiting for its first review. Sign in now and help others make the right choice by sharing your experience!') }}</p>
+                            <h3 class="review-guest-title">{{ __('Curious What Others Think?') }}</h3>
+                            <p class="review-guest-no-reviews">{{ __('Our members have exclusive access to customer insights and experiences. Sign in to discover what shoppers are saying about this product.') }}</p>
                             
                             <a href="{{ route('customer.login') }}" class="btn-review-signin">
                                 {{ trans('plugins/ecommerce::ecommerce.sign_in') }}
