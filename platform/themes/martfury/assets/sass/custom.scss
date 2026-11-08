@@ -3853,14 +3853,14 @@ ul.bb-social-sharing {
         align-items: center !important;
     }
     
-    .col-12.col-sm-6.col-md-3.d-xl-none {
+    .filter-button-col {
         flex: 0 0 auto !important;
         max-width: none !important;
         width: auto !important;
         padding: 0 !important;
     }
     
-    .col-12.col-sm-6 {
+    .sort-layout-col {
         padding: 0 !important;
         
         > div {
@@ -3882,20 +3882,43 @@ ul.bb-social-sharing {
             flex-wrap: nowrap !important;
         }
         
-        .col-12.col-sm-6.col-md-3.d-xl-none {
-            padding: 0 10px !important;
+        .filter-button-col {
+            padding: 0 !important; // Complete zero - no horizontal padding
+            width: auto !important;
         }
+        
+        .sort-layout-col {
+            padding: 0 !important; // Complete zero - no horizontal padding
+            width: auto !important;
+        }
+    }
+    
+    // Keep sort dropdown visible at 200px width
+    .ps-select-shop-sort {
+        min-width: 200px !important;
     }
 }
 
-// Hide sort dropdown from top bar on mobile/tablet (shown in filter offcanvas instead)
-@media (max-width: 1199px) {
+// Hide sort dropdown from top bar at mobile ≤480px (shown in filter offcanvas instead)
+@media (max-width: 480px) {
     .filter-sort-bar {
-        .col-12.col-sm-6 {
+        .sort-layout-col {
             .ps-select-shop-sort {
                 display: none !important;
             }
         }
+    }
+    
+    // Show sort in filter offcanvas on mobile
+    .ps-mobile-sort {
+        display: block !important;
+    }
+}
+
+// Hide sort in filter offcanvas above 480px (shown in top bar instead)
+@media (min-width: 481px) {
+    .ps-mobile-sort {
+        display: none !important;
     }
 }
 
