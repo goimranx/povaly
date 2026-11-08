@@ -4263,3 +4263,16 @@ ul.bb-social-sharing {
         }
     }
 }
+
+// Hide icons in category filter items
+.bb-product-filter {
+    .bb-product-filter-items {
+        .bb-product-filter-link {
+            i,
+            svg.icon,
+            img {
+                display: none !important;
+            }
+        }
+    }
+}
