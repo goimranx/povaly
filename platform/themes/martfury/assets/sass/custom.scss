@@ -4281,10 +4281,33 @@ ul.bb-social-sharing {
 .review-sidebar-column-no-reviews.review-sidebar-column-guest {
     justify-content: center !important;
     
+    // Force show on tablets and below (≤991px)
+    @media (max-width: 991px) {
+        display: flex !important;
+    }
+    
     .review-guest-container {
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
+        align-items: center !important;
+    }
+    
+    .btn-review-signin {
+        min-width: 320px !important;
+        
+        @media (max-width: 767px) {
+            min-width: 230px !important;
+        }
+    }
+}
+
+// Hide review-mobile-header when guest no-review class is present
+.product-review-container:has(.review-sidebar-column-no-reviews.review-sidebar-column-guest) {
+    @media (max-width: 767px) {
+        .review-mobile-header {
+            display: none !important;
+        }
     }
 }
 
@@ -4340,6 +4363,7 @@ ul.bb-social-sharing {
     border-top: 1px solid var(--global-color-border-strong) !important;
     border-bottom: 1px solid var(--global-color-border-strong) !important;
     gap: 10px !important;
+    align-items: center !important;
     
     // No review message styling
     > p.text-muted.text-center {
@@ -4362,6 +4386,11 @@ ul.bb-social-sharing {
 .review-sidebar-column-logged-met-criteria {
     min-width: 520px !important;
     
+    // Force show on tablets and below (≤991px)
+    @media (max-width: 991px) {
+        display: flex !important;
+    }
+    
     @media (max-width: 767px) {
         min-width: 100% !important;
     }
@@ -4374,12 +4403,22 @@ ul.bb-social-sharing {
         width: 220px !important;
         
         @media (max-width: 767px) {
-            min-width: 100% !important;
-            width: 100% !important;
+            min-width: 220px !important;
+            width: 220px !important;
         }
         
         &:hover {
             background: var(--ec-btn-cart-bg-hover) !important;
+        }
+    }
+}
+
+// Hide review-mobile-header when conditional classes are present
+.product-review-container:has(.review-sidebar-column-logged-no-reviews),
+.product-review-container:has(.review-sidebar-column-logged-met-criteria) {
+    @media (max-width: 767px) {
+        .review-mobile-header {
+            display: none !important;
         }
     }
 }
