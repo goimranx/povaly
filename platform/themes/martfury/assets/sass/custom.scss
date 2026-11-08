@@ -4276,3 +4276,14 @@ ul.bb-social-sharing {
         }
     }
 }
+
+// Review sidebar centering when no reviews and guest user
+.review-sidebar-column-no-reviews.review-sidebar-column-guest {
+    justify-content: center !important;
+    
+    .review-guest-container {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+    }
+}
