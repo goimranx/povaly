@@ -4287,3 +4287,16 @@ ul.bb-social-sharing {
         justify-content: center !important;
     }
 }
+
+// Review sidebar centering when logged in user with no reviews and doesn't meet criteria
+.review-sidebar-column-logged-no-reviews {
+    justify-content: center !important;
+    
+    .review-logged-in-container {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+}

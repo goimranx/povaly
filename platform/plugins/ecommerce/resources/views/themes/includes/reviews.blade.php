@@ -45,7 +45,7 @@
         </div>
 
         {{-- Desktop: Sidebar Column --}}
-        <div class="review-sidebar-column d-none d-lg-flex @auth('customer') flex-column gap-3 @else flex-row gap-3 review-sidebar-column-guest @endauth @if(!$showAvgRating) review-sidebar-column-no-reviews @endif" style="width: 15.5%; flex-grow: 1;">
+        <div class="review-sidebar-column d-none d-lg-flex @auth('customer') flex-column gap-3 @if(!$showAvgRating && isset($checkReview) && $checkReview['error']) review-sidebar-column-logged-no-reviews @endif @else flex-row gap-3 review-sidebar-column-guest @endauth @if(!$showAvgRating) review-sidebar-column-no-reviews @endif" style="width: 15.5%; flex-grow: 1;">
             @if ($showAvgRating)
                 <div class="review-sidebar-wrapper" id="review-rating-summary">
                     <div class="product-review-number review-sidebar-sticky">
