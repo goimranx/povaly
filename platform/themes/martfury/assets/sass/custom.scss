@@ -3952,6 +3952,18 @@ ul.bb-social-sharing {
     * {
         touch-action: pan-y;
     }
+    
+    // Fix: Prevent individual filter sections from having their own scroll
+    // This was preventing the main container scroll from working
+    .bb-product-filter-content {
+        overflow: visible !important;
+        max-height: none !important;
+    }
+    
+    .bb-filter-item-wrapper {
+        overflow: visible !important;
+        max-height: none !important;
+    }
 }
 
 // Mobile responsive styles (480px and below)
