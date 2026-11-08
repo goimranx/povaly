@@ -50,7 +50,7 @@
             @include(Theme::getThemeNamespace('views.ecommerce.includes.products-list'))
             
             @if (theme_option('show_recommend_items_on_products_page', 'yes') == 'yes')
-                {!! do_shortcode('[trending-products title="Trending Products" limit="12"][/trending-products]') !!}
+                {!! do_shortcode('[trending-products title="Most viewed products" limit="12" enable_caching="no" enable_lazy_loading="no"][/trending-products]') !!}
             @endif
         </div>
     </div>
