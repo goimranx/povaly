@@ -50,6 +50,12 @@
             @include(Theme::getThemeNamespace('views.ecommerce.includes.products-list'))
             
             @if (theme_option('show_recommend_items_on_products_page', 'yes') == 'yes')
+                <style>
+                    /* Hide "View All" button on products listing page */
+                    .ps-trending-products .ps-block__more {
+                        display: none !important;
+                    }
+                </style>
                 {!! do_shortcode('[trending-products title="Most viewed products" limit="12" enable_caching="no" enable_lazy_loading="no"][/trending-products]') !!}
             @endif
         </div>
