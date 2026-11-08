@@ -110,11 +110,10 @@
             @guest('customer')
                 <div class="review-guest-wrapper" style="width: 60%; flex-grow: 1;" id="review-guest-section">
                     <div class="review-guest-container">
-                        <h3 class="review-guest-title">{{ __('Customer Say') }}</h3>
-                        
                         @if($product->reviews->isNotEmpty())
+                            <h3 class="review-guest-title">{{ __('Join Our Community') }}</h3>
                             <p class="review-guest-summary">
-                                {{ __('Customers find this product to be of good quality and appreciate its features. Many highlight the excellent value for money and performance. Some mention positive experiences with durability and ease of use.') }}
+                                {{ __('Thousands of verified customers have shared their experiences. Sign in to read authentic reviews and make informed decisions.') }}
                             </p>
                             
                             <div class="review-guest-signin-box">
@@ -123,7 +122,8 @@
                                 <span>{{ __('to see customer reviews.') }}</span>
                             </div>
                         @else
-                            <p class="review-guest-no-reviews">{{ __('No customer reviews yet. Be the first to share your thoughts!') }}</p>
+                            <h3 class="review-guest-title">{{ __('Be the First to Review') }}</h3>
+                            <p class="review-guest-no-reviews">{{ __('This product is waiting for its first review. Sign in now and help others make the right choice by sharing your experience!') }}</p>
                             
                             <a href="{{ route('customer.login') }}" class="btn-review-signin">
                                 {{ trans('plugins/ecommerce::ecommerce.sign_in') }}
