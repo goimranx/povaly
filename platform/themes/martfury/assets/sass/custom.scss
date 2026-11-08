@@ -4175,3 +4175,45 @@ ul.bb-social-sharing {
         }
     }
 }
+
+// Filter visual styles (swatches/color filters)
+.filter-visual {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+}
+
+// UI Slider styles (price range slider)
+.ui-slider-handle {
+    background: var(--global-color-link) !important;
+    border: 2px solid var(--global-color-site-bg) !important;
+    outline: 2px solid var(--global-color-link) !important;
+}
+
+.ui-slider-range {
+    background: var(--global-color-link) !important;
+}
+
+// Filter attribute item spacing
+.bb-product-filter-attribute-item {
+    margin-bottom: 15px !important;
+    padding-bottom: 15px !important;
+}
+
+// Filter margin spacing
+.bb-product-filter {
+    margin-top: 10px !important;
+}
+
+// "0 Product found" alert styling
+.ps-shopping-product .alert.alert-warning {
+    border: 1px solid var(--global-color-link) !important;
+    border-left: 4px solid var(--global-color-link) !important;
+    color: var(--global-color-text-main) !important;
+    background: var(--global-color-link-subtle) !important;
+}
+
+// Remove min-height from product items
+.ps-shopping-product {
+    min-height: 0 !important;
+}
