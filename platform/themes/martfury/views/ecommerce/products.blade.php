@@ -56,7 +56,7 @@
                         display: none !important;
                     }
                 </style>
-                {!! do_shortcode('[trending-products title="Most viewed products" limit="12" enable_caching="no" enable_lazy_loading="no"][/trending-products]') !!}
+                {!! do_shortcode('[trending-products title="Most viewed products" limit="36" enable_caching="no" enable_lazy_loading="no"][/trending-products]') !!}
             @endif
         </div>
     </div>
