@@ -648,7 +648,7 @@
                     color: var(--global-color-text-body);
                     position: relative;
                     padding-inline-start: 26px;
-                    line-height: 21px;
+                    line-height: 22px;
 
                     &:hover {
                         cursor: pointer;
@@ -718,7 +718,7 @@
                             &::before {
                                 visibility: visible;
                                 opacity: 1;
-                                top: 3px;
+                                top: 4px;
                             }
                         }
                     }
