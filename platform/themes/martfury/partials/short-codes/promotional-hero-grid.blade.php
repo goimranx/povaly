@@ -8,13 +8,13 @@
                         {!! RvMedia::image($shortCode->left_image, 'Hero Banner') !!}
                         <div class="ps-hero-content ps-hero-content-topleft">
                             @if($shortCode->left_subtitle)
-                                <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->left_subtitle) !!}</div>
+                                <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->left_subtitle, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</div>
                             @endif
                             @if($shortCode->left_title)
-                                <h2 class="ps-hero-title">{!! BaseHelper::clean($shortCode->left_title) !!}</h2>
+                                <h2 class="ps-hero-title">{!! BaseHelper::clean($shortCode->left_title, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</h2>
                             @endif
                             @if($shortCode->left_button_text)
-                                <span class="ps-hero-button ps-hero-button-filled">{!! BaseHelper::clean($shortCode->left_button_text) !!}</span>
+                                <span class="ps-hero-button ps-hero-button-filled">{!! BaseHelper::clean($shortCode->left_button_text, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</span>
                             @endif
                         </div>
                     </a>
@@ -31,13 +31,13 @@
                             {!! RvMedia::image($shortCode->middle_top_image, 'Horizontal Top Banner') !!}
                             <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
                                 @if($shortCode->middle_top_subtitle)
-                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_top_subtitle) !!}</div>
+                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_top_subtitle, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</div>
                                 @endif
                                 @if($shortCode->middle_top_title)
-                                    <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_top_title) !!}</h3>
+                                    <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_top_title, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</h3>
                                 @endif
                                 @if($shortCode->middle_top_button_text)
-                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_top_button_text) !!}</span>
+                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_top_button_text, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</span>
                                 @endif
                             </div>
                         </a>
@@ -49,13 +49,13 @@
                             {!! RvMedia::image($shortCode->middle_center_image, 'Horizontal Middle Banner') !!}
                             <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
                                 @if($shortCode->middle_center_subtitle)
-                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_center_subtitle) !!}</div>
+                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_center_subtitle, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</div>
                                 @endif
                                 @if($shortCode->middle_center_title)
-                                    <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_center_title) !!}</h3>
+                                    <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_center_title, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</h3>
                                 @endif
                                 @if($shortCode->middle_center_button_text)
-                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_center_button_text) !!}</span>
+                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_center_button_text, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</span>
                                 @endif
                             </div>
                         </a>
@@ -69,13 +69,13 @@
                             {!! RvMedia::image($shortCode->middle_bottom_left_image, 'Small Banner Left') !!}
                             <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small ps-hero-content-reverse">
                                 @if($shortCode->middle_bottom_left_title)
-                                    <h4 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_bottom_left_title) !!}</h4>
+                                    <h4 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_bottom_left_title, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</h4>
                                 @endif
                                 @if($shortCode->middle_bottom_left_subtitle)
-                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_bottom_left_subtitle) !!}</div>
+                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_bottom_left_subtitle, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</div>
                                 @endif
                                 @if($shortCode->middle_bottom_left_button_text)
-                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_bottom_left_button_text) !!}</span>
+                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_bottom_left_button_text, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</span>
                                 @endif
                             </div>
                         </a>
@@ -86,13 +86,13 @@
                             {!! RvMedia::image($shortCode->middle_bottom_center_image, 'Small Banner Center') !!}
                             <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small ps-hero-content-reverse">
                                 @if($shortCode->middle_bottom_center_title)
-                                    <h4 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_bottom_center_title) !!}</h4>
+                                    <h4 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_bottom_center_title, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</h4>
                                 @endif
                                 @if($shortCode->middle_bottom_center_subtitle)
-                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_bottom_center_subtitle) !!}</div>
+                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_bottom_center_subtitle, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</div>
                                 @endif
                                 @if($shortCode->middle_bottom_center_button_text)
-                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_bottom_center_button_text) !!}</span>
+                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_bottom_center_button_text, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</span>
                                 @endif
                             </div>
                         </a>
@@ -103,13 +103,13 @@
                             {!! RvMedia::image($shortCode->middle_bottom_right_image, 'Small Banner Right') !!}
                             <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small ps-hero-content-reverse">
                                 @if($shortCode->middle_bottom_right_title)
-                                    <h4 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_bottom_right_title) !!}</h4>
+                                    <h4 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_bottom_right_title, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</h4>
                                 @endif
                                 @if($shortCode->middle_bottom_right_subtitle)
-                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_bottom_right_subtitle) !!}</div>
+                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_bottom_right_subtitle, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</div>
                                 @endif
                                 @if($shortCode->middle_bottom_right_button_text)
-                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_bottom_right_button_text) !!}</span>
+                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_bottom_right_button_text, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</span>
                                 @endif
                             </div>
                         </a>
@@ -124,13 +124,13 @@
                         {!! RvMedia::image($shortCode->right_image, 'Tall Banner') !!}
                         <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
                             @if($shortCode->right_subtitle)
-                                <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->right_subtitle) !!}</div>
+                                <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->right_subtitle, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</div>
                             @endif
                             @if($shortCode->right_title)
-                                <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->right_title) !!}</h3>
+                                <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->right_title, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</h3>
                             @endif
                             @if($shortCode->right_button_text)
-                                <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->right_button_text) !!}</span>
+                                <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->right_button_text, ['HTML.Allowed' => 'span[class|id|style],div[class|id|style],br,strong,em,b,i']) !!}</span>
                             @endif
                         </div>
                     </a>
