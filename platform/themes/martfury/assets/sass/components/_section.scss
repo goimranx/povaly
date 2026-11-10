@@ -2175,8 +2175,8 @@
 }
 
 .ps-section--account {
-    padding: 15px 0 60px 0;
-    margin: 0;
+    padding: 15px 0 60px 0 !important;
+    margin: 0 !important;
 
     .ps-section__header {
         padding-bottom: 30px;

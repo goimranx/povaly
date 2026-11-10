@@ -640,11 +640,12 @@
 
 .ps-widget--account-dashboard {
     .ps-widget__header {
+        padding-bottom: 15px;
         
         .ps-widget__header-content {
             .ps-widget__title {
                 margin: 0 0 8px 0;
-                font-size: 32px;
+                font-size: 28px;
                 font-weight: 700;
                 color: var(--global-color-text-main);
                 line-height: 1.2;
@@ -654,7 +655,7 @@
                 margin: 0;
                 font-size: 16px;
                 font-weight: 500;
-                color: var(--global-color-text-body);
+                color: var(--global-color-text-muted);
                 line-height: 1.5;
             }
         }

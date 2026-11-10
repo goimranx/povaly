@@ -1,6 +1,6 @@
 @extends(EcommerceHelper::viewPath('customers.master'))
 
-@section('title', trans('plugins/ecommerce::customer-dashboard.account_settings'))
+@section('title', __('Account Settings'))
 
 @section('content')
     {!! apply_filters('ecommerce_customer_edit_account_before_content', '') !!}

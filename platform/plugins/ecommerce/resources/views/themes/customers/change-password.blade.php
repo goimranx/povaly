@@ -1,6 +1,6 @@
 @extends(EcommerceHelper::viewPath('customers.layouts.account-settings'))
 
-@section('title', trans('plugins/ecommerce::customer-dashboard.change_password'))
+@section('title', __('Change Password'))
 
 @section('account-content')
     {!! $form->renderForm() !!}
