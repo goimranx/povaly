@@ -43,3 +43,7 @@
         </div>
     </div>
 </section>
+
+{!! shortcode()->compile('[trending-products title="Continue shopping - You may also like" limit="12" enable_caching="no" enable_lazy_loading="no"][/trending-products]') !!}
+
+{!! shortcode()->compile('[recently-viewed-products title="Your browsing history" enable_caching="no" enable_lazy_loading="no"][/recently-viewed-products]') !!}
