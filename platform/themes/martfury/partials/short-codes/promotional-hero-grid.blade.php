@@ -507,6 +507,11 @@
     }
 
     @media (max-width: 480px) {
+        /* Reduce padding on smaller mobile screens */
+        .ps-hero-grid-wrapper {
+            padding: 0 10px;
+        }
+        
         .ps-hero-left,
         .ps-hero-middle,
         .ps-hero-right {
