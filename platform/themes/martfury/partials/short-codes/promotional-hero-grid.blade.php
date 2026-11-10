@@ -402,6 +402,7 @@
             display: none;
         }
 
+        /* Mobile: All sections use standard width for horizontal scroll */
         .ps-hero-left,
         .ps-hero-middle,
         .ps-hero-right {
@@ -410,16 +411,16 @@
             scroll-snap-align: start;
         }
         
-        /* Mobile: All sections have same width (85%), adjusted for proper display */
+        /* Keep same aspect ratios as desktop on mobile */
         
         .ps-hero-banner-large {
-            /* Mobile Aspect Ratio: 1.2:1.66 (adjusted for mobile width) */
-            padding-bottom: 138.33%;
+            /* Same as desktop: 1.6:2.216 */
+            padding-bottom: 138.5%;
         }
         
         .ps-hero-banner-tall {
-            /* Mobile Aspect Ratio: 1.2:2.21 (adjusted for mobile width) */
-            padding-bottom: 184.17%;
+            /* Same as desktop: 1.2:2.208 */
+            padding-bottom: 184%;
         }
 
         /* Middle column - keep horizontal split on mobile */
@@ -436,15 +437,15 @@
             gap: 10px;
         }
 
-        /* Top Left Horizontal Banner */
+        /* Top Left Horizontal Banner - Keep same ratio */
         .ps-hero-banner-horizontal-top {
-            /* Mobile Aspect Ratio: 0.6:0.75 (half of mobile middle width) */
+            /* Same as desktop: 1.2:1.5 */
             padding-bottom: 125%;
         }
 
-        /* Top Right Horizontal Banner */
+        /* Top Right Horizontal Banner - Keep same ratio */
         .ps-hero-banner-horizontal-middle {
-            /* Mobile Aspect Ratio: 0.6:0.75 (half of mobile middle width) */
+            /* Same as desktop: 1.2:1.5 */
             padding-bottom: 125%;
         }
 
@@ -456,8 +457,8 @@
         }
         
         .ps-hero-banner-small {
-            /* Mobile Aspect Ratio: 0.4:0.385 (stacked to match total height) */
-            padding-bottom: 96.25%;
+            /* Same as desktop: 0.8:0.72 */
+            padding-bottom: 90%;
         }
 
         .ps-hero-title {
