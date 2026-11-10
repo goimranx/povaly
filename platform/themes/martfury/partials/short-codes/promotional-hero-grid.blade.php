@@ -386,14 +386,16 @@
     }
 
     @media (max-width: 768px) {
-        /* Make ps-container scrollable - remove padding */
-        .ps-promotional-hero-grid .ps-container {
+        /* Make ps-container scrollable - override homepage padding */
+        .ps-promotional-hero-grid .ps-container,
+        #homepage-1 .ps-promotional-hero-grid .ps-container {
             overflow-x: auto;
             overflow-y: hidden;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
-            padding: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
         }
         
         .ps-promotional-hero-grid .ps-container::-webkit-scrollbar {
