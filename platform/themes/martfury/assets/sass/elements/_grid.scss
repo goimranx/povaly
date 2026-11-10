@@ -62,6 +62,14 @@ body {
     }
 }
 
+// Force homepage container padding on mobile
+#homepage-1 .ps-container {
+    @media (max-width: 480px) {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+}
+
 @media (min-width: 1200px) {
     .container {
         min-width: 1230px;
