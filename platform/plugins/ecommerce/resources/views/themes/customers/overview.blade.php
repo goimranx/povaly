@@ -13,28 +13,24 @@
     <!-- Welcome Section -->
     <div class="bb-customer-profile-wrapper">
         <div class="bb-customer-profile">
-            <div class="row align-items-center">
-                <div class="col-auto">
-                    <div class="bb-customer-profile-avatar">
-                        {{ RvMedia::image($customer->avatar_url, $customer->name, attributes: ['class' => 'bb-customer-profile-avatar-img', 'data-bb-value' => 'customer-avatar']) }}
-                        <div class="bb-customer-profile-avatar-overlay">
-                            <input type="file" id="customer-avatar" name="avatar" data-bb-toggle="change-customer-avatar" data-url="{{ route('customer.avatar') }}" />
-                            <label for="customer-avatar" title="{{ trans('plugins/ecommerce::customer-dashboard.change_avatar') }}">
-                                <x-core::icon name="ti ti-camera" />
-                            </label>
-                        </div>
+            <div class="bb-customer-profile-left">
+                <div class="bb-customer-profile-avatar">
+                    {{ RvMedia::image($customer->avatar_url, $customer->name, attributes: ['class' => 'bb-customer-profile-avatar-img']) }}
+                    <div class="bb-customer-profile-avatar-overlay">
+                        <input type="file" id="customer-avatar" name="avatar" data-bb-toggle="change-customer-avatar" data-url="{{ route('customer.avatar') }}" />
+                        <label for="customer-avatar" title="{{ trans('plugins/ecommerce::customer-dashboard.change_avatar') }}">
+                            <x-core::icon name="ti ti-camera" />
+                        </label>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="bb-customer-profile-info text-md-center text-start">
-                        <h2 class="h4 mb-2">
-                            {!! BaseHelper::clean(trans('plugins/ecommerce::customer-dashboard.welcome_back', ['name' => $customer->name])) !!}
-                        </h2>
-                        <p class="text-muted mb-0">
-                            {{ trans('plugins/ecommerce::customer-dashboard.manage_account_description') }}
-                        </p>
-                    </div>
+                <div class="bb-customer-profile-info">
+                    <h2 class="bb-customer-profile-name">{{ $customer->name }}</h2>
+                    <p class="bb-customer-profile-email">{{ $customer->email }}</p>
                 </div>
+            </div>
+            <div class="bb-customer-profile-right">
+                <a href="{{ route('customer.edit-account') }}" class="bb-customer-profile-link">{{ __('Edit account') }}</a>
+                <a href="{{ route('customer.logout') }}" class="bb-customer-profile-link">{{ __('Sign out') }}</a>
             </div>
         </div>
     </div>
@@ -42,49 +38,37 @@
     <!-- Quick Actions -->
     <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="card h-100 border-0 bg-primary bg-opacity-10">
-                <div class="card-body text-center">
-                    <div class="bg-primary bg-opacity-20 rounded-circle p-3 d-inline-flex mb-3">
-                        <x-core::icon name="ti ti-shopping-bag" class="text-white" size="lg" />
-                    </div>
-                    <h5 class="card-title h6 mb-2">{{ trans('plugins/ecommerce::customer-dashboard.view_orders') }}</h5>
-                    <p class="card-text text-muted small mb-3">{{ trans('plugins/ecommerce::customer-dashboard.track_orders_description') }}</p>
-                    <a href="{{ route('customer.orders') }}" class="btn btn-primary btn-sm">
-                        {{ trans('plugins/ecommerce::customer-dashboard.view_orders') }}
-                        <x-core::icon name="ti ti-arrow-right" class="ms-1" />
-                    </a>
+            <a href="{{ route('customer.orders') }}" class="bb-quick-action-card">
+                <div class="bb-quick-action-icon">
+                    <x-core::icon name="ti ti-shopping-bag" />
                 </div>
-            </div>
+                <div class="bb-quick-action-content">
+                    <h5 class="bb-quick-action-title">{{ trans('plugins/ecommerce::customer-dashboard.view_orders') }}</h5>
+                    <p class="bb-quick-action-text">{{ trans('plugins/ecommerce::customer-dashboard.track_orders_description') }}</p>
+                </div>
+            </a>
         </div>
         <div class="col-md-4">
-            <div class="card h-100 border-0 bg-success bg-opacity-10">
-                <div class="card-body text-center">
-                    <div class="bg-success bg-opacity-20 rounded-circle p-3 d-inline-flex mb-3">
-                        <x-core::icon name="ti ti-map-pin" class="text-white" size="lg" />
-                    </div>
-                    <h5 class="card-title h6 mb-2">{{ trans('plugins/ecommerce::customer-dashboard.manage_addresses') }}</h5>
-                    <p class="card-text text-muted small mb-3">{{ trans('plugins/ecommerce::customer-dashboard.update_addresses_description') }}</p>
-                    <a href="{{ route('customer.address') }}" class="btn btn-success btn-sm">
-                        {{ trans('plugins/ecommerce::customer-dashboard.manage_addresses') }}
-                        <x-core::icon name="ti ti-arrow-right" class="ms-1" />
-                    </a>
+            <a href="{{ route('customer.address') }}" class="bb-quick-action-card">
+                <div class="bb-quick-action-icon">
+                    <x-core::icon name="ti ti-map-pin" />
                 </div>
-            </div>
+                <div class="bb-quick-action-content">
+                    <h5 class="bb-quick-action-title">{{ trans('plugins/ecommerce::customer-dashboard.manage_addresses') }}</h5>
+                    <p class="bb-quick-action-text">{{ trans('plugins/ecommerce::customer-dashboard.update_addresses_description') }}</p>
+                </div>
+            </a>
         </div>
         <div class="col-md-4">
-            <div class="card h-100 border-0 bg-warning bg-opacity-10">
-                <div class="card-body text-center">
-                    <div class="bg-warning bg-opacity-20 rounded-circle p-3 d-inline-flex mb-3">
-                        <x-core::icon name="ti ti-settings" class="text-white" size="lg" />
-                    </div>
-                    <h5 class="card-title h6 mb-2">{{ trans('plugins/ecommerce::customer-dashboard.account_settings') }}</h5>
-                    <p class="card-text text-muted small mb-3">{{ trans('plugins/ecommerce::customer-dashboard.edit_profile_description') }}</p>
-                    <a href="{{ route('customer.edit-account') }}" class="btn btn-warning btn-sm">
-                        {{ trans('plugins/ecommerce::customer-dashboard.edit_account') }}
-                        <x-core::icon name="ti ti-arrow-right" class="ms-1" />
-                    </a>
+            <a href="{{ route('customer.edit-account') }}" class="bb-quick-action-card">
+                <div class="bb-quick-action-icon">
+                    <x-core::icon name="ti ti-settings" />
                 </div>
-            </div>
+                <div class="bb-quick-action-content">
+                    <h5 class="bb-quick-action-title">{{ trans('plugins/ecommerce::customer-dashboard.account_settings') }}</h5>
+                    <p class="bb-quick-action-text">{{ trans('plugins/ecommerce::customer-dashboard.edit_profile_description') }}</p>
+                </div>
+            </a>
         </div>
     </div>
 

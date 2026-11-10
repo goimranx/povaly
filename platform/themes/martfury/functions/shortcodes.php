@@ -1260,13 +1260,20 @@ app()->booted(function (): void {
     shortcode()->setAdminConfig('promotional-hero-grid', function (array $attributes) {
         return ShortcodeForm::createFromArray($attributes)
             ->withLazyLoading()
-            // 1. Left - Large Banner
+            ->add(
+                'html_support_notice',
+                AlertField::class,
+                AlertFieldOption::make()
+                    ->content(__('All text fields support HTML tags (e.g., &lt;br /&gt; for line breaks)'))
+                    ->type('info')
+            )
+            // 1. Left Column - Large Banner (1.6fr)
             ->add(
                 'left_image',
                 MediaImageField::class,
                 MediaImageFieldOption::make()
                     ->label(__('1. Left - Large Image'))
-                    ->helperText(__('Recommended Ratio: 2.2:1.8 (or 11:9)'))
+                    ->helperText(__('Recommended Aspect Ratio: 1.6:2.44 (Width 1600px × Height 2440px)'))
             )
             ->add(
                 'left_link',
@@ -1296,148 +1303,220 @@ app()->booted(function (): void {
                     ->label(__('1. Left - Button Text'))
                     ->placeholder(__('Shop Now'))
             )
-            // 2. Middle - Top Vertical Banner
+            // 2. Middle Column - Top Left Horizontal Banner
             ->add(
-                'right_top_image',
+                'middle_top_image',
                 MediaImageField::class,
                 MediaImageFieldOption::make()
-                    ->label(__('2. Middle - Top Vertical Image'))
-                    ->helperText(__('Recommended Ratio: 1.8:1.08 (or 5:3)'))
+                    ->label(__('2. Middle Top Left - Horizontal Image'))
+                    ->helperText(__('Recommended Aspect Ratio: 1.2:1.5 (Width 1200px × Height 1500px)'))
             )
             ->add(
-                'right_top_link',
+                'middle_top_link',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('2. Middle - Top Link'))
+                    ->label(__('2. Middle Top Left - Link'))
                     ->placeholder('#')
             )
             ->add(
-                'right_top_subtitle',
+                'middle_top_subtitle',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('2. Middle - Top Subtitle'))
+                    ->label(__('2. Middle Top Left - Subtitle'))
                     ->placeholder(__('Hot Deal'))
             )
             ->add(
-                'right_top_title',
+                'middle_top_title',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('2. Middle - Top Title'))
+                    ->label(__('2. Middle Top Left - Title'))
                     ->placeholder(__('Special Offer'))
             )
             ->add(
-                'right_top_button_text',
+                'middle_top_button_text',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('2. Middle - Top Button Text'))
+                    ->label(__('2. Middle Top Left - Button Text'))
                     ->placeholder(__('View More'))
             )
-            // 3. Middle - Bottom Left Banner
+            // 3. Middle Column - Top Right Horizontal Banner
             ->add(
-                'right_middle_left_image',
+                'middle_center_image',
                 MediaImageField::class,
                 MediaImageFieldOption::make()
-                    ->label(__('3. Middle - Bottom Left Image'))
-                    ->helperText(__('Recommended Ratio: 0.9:0.72 (or 5:4)'))
+                    ->label(__('3. Middle Top Right - Horizontal Image'))
+                    ->helperText(__('Recommended Aspect Ratio: 1.2:1.5 (Width 1200px × Height 1500px)'))
             )
             ->add(
-                'right_middle_left_link',
+                'middle_center_link',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('3. Middle - Bottom Left Link'))
+                    ->label(__('3. Middle Top Right - Link'))
                     ->placeholder('#')
             )
             ->add(
-                'right_middle_left_title',
+                'middle_center_subtitle',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('3. Middle - Bottom Left Title'))
-                    ->placeholder(__('Category Name'))
-            )
-            ->add(
-                'right_middle_left_subtitle',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('3. Middle - Bottom Left Subtitle'))
-                    ->placeholder(__('Description'))
-            )
-            ->add(
-                'right_middle_left_button_text',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('3. Middle - Bottom Left Button Text'))
-                    ->placeholder(__('Explore'))
-            )
-            // 4. Middle - Bottom Right Banner
-            ->add(
-                'right_middle_right_image',
-                MediaImageField::class,
-                MediaImageFieldOption::make()
-                    ->label(__('4. Middle - Bottom Right Image'))
-                    ->helperText(__('Recommended Ratio: 0.9:0.72 (or 5:4)'))
-            )
-            ->add(
-                'right_middle_right_link',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('4. Middle - Bottom Right Link'))
-                    ->placeholder('#')
-            )
-            ->add(
-                'right_middle_right_title',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('4. Middle - Bottom Right Title'))
-                    ->placeholder(__('Category Name'))
-            )
-            ->add(
-                'right_middle_right_subtitle',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('4. Middle - Bottom Right Subtitle'))
-                    ->placeholder(__('Description'))
-            )
-            ->add(
-                'right_middle_right_button_text',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('4. Middle - Bottom Right Button Text'))
-                    ->placeholder(__('Explore'))
-            )
-            // 5. Right - Tall Banner
-            ->add(
-                'right_bottom_image',
-                MediaImageField::class,
-                MediaImageFieldOption::make()
-                    ->label(__('5. Right - Tall Image'))
-                    ->helperText(__('Recommended Ratio: 1.2:1.8 (or 2:3)'))
-            )
-            ->add(
-                'right_bottom_link',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('5. Right - Link'))
-                    ->placeholder('#')
-            )
-            ->add(
-                'right_bottom_subtitle',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('5. Right - Subtitle'))
+                    ->label(__('3. Middle Top Right - Subtitle'))
                     ->placeholder(__('Limited Time'))
             )
             ->add(
-                'right_bottom_title',
+                'middle_center_title',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('5. Right - Title'))
+                    ->label(__('3. Middle Top Right - Title'))
                     ->placeholder(__('Flash Sale'))
             )
             ->add(
-                'right_bottom_button_text',
+                'middle_center_button_text',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('5. Right - Button Text'))
+                    ->label(__('3. Middle Top Right - Button Text'))
+                    ->placeholder(__('Shop Now'))
+            )
+            // 4. Middle Column - Bottom Left Small Banner
+            ->add(
+                'middle_bottom_left_image',
+                MediaImageField::class,
+                MediaImageFieldOption::make()
+                    ->label(__('4. Middle Bottom Left - Small Image'))
+                    ->helperText(__('Recommended Aspect Ratio: 1:1.2 (Width 1000px × Height 1200px)'))
+            )
+            ->add(
+                'middle_bottom_left_link',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('4. Middle Bottom Left - Link'))
+                    ->placeholder('#')
+            )
+            ->add(
+                'middle_bottom_left_title',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('4. Middle Bottom Left - Title'))
+                    ->placeholder(__('Category Name'))
+            )
+            ->add(
+                'middle_bottom_left_subtitle',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('4. Middle Bottom Left - Subtitle'))
+                    ->placeholder(__('Description'))
+            )
+            ->add(
+                'middle_bottom_left_button_text',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('4. Middle Bottom Left - Button Text'))
+                    ->placeholder(__('Explore'))
+            )
+            // 5. Middle Column - Bottom Center Small Banner
+            ->add(
+                'middle_bottom_center_image',
+                MediaImageField::class,
+                MediaImageFieldOption::make()
+                    ->label(__('5. Middle Bottom Center - Small Image'))
+                    ->helperText(__('Recommended Aspect Ratio: 1:1.2 (Width 1000px × Height 1200px)'))
+            )
+            ->add(
+                'middle_bottom_center_link',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('5. Middle Bottom Center - Link'))
+                    ->placeholder('#')
+            )
+            ->add(
+                'middle_bottom_center_title',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('5. Middle Bottom Center - Title'))
+                    ->placeholder(__('Category Name'))
+            )
+            ->add(
+                'middle_bottom_center_subtitle',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('5. Middle Bottom Center - Subtitle'))
+                    ->placeholder(__('Description'))
+            )
+            ->add(
+                'middle_bottom_center_button_text',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('5. Middle Bottom Center - Button Text'))
+                    ->placeholder(__('Explore'))
+            )
+            // 6. Middle Column - Bottom Right Small Banner
+            ->add(
+                'middle_bottom_right_image',
+                MediaImageField::class,
+                MediaImageFieldOption::make()
+                    ->label(__('6. Middle Bottom Right - Small Image'))
+                    ->helperText(__('Recommended Aspect Ratio: 1:1.2 (Width 1000px × Height 1200px)'))
+            )
+            ->add(
+                'middle_bottom_right_link',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('6. Middle Bottom Right - Link'))
+                    ->placeholder('#')
+            )
+            ->add(
+                'middle_bottom_right_title',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('6. Middle Bottom Right - Title'))
+                    ->placeholder(__('Category Name'))
+            )
+            ->add(
+                'middle_bottom_right_subtitle',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('6. Middle Bottom Right - Subtitle'))
+                    ->placeholder(__('Description'))
+            )
+            ->add(
+                'middle_bottom_right_button_text',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('6. Middle Bottom Right - Button Text'))
+                    ->placeholder(__('Explore'))
+            )
+            // 7. Right Column - Tall Banner (1.2fr)
+            ->add(
+                'right_image',
+                MediaImageField::class,
+                MediaImageFieldOption::make()
+                    ->label(__('7. Right - Tall Image'))
+                    ->helperText(__('Recommended Aspect Ratio: 1.2:2.448 (Width 1200px × Height 2448px)'))
+            )
+            ->add(
+                'right_link',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('7. Right - Link'))
+                    ->placeholder('#')
+            )
+            ->add(
+                'right_subtitle',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('7. Right - Subtitle'))
+                    ->placeholder(__('Limited Time'))
+            )
+            ->add(
+                'right_title',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('7. Right - Title'))
+                    ->placeholder(__('Flash Sale'))
+            )
+            ->add(
+                'right_button_text',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('7. Right - Button Text'))
                     ->placeholder(__('Shop Now'))
             );
     });

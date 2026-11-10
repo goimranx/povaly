@@ -2175,13 +2175,53 @@
 }
 
 .ps-section--account {
-    padding: 60px 0;
+    padding: 15px 0 60px 0 !important;
+    margin: 0 !important;
 
     .ps-section__header {
         padding-bottom: 30px;
 
         h3 {
             font-weight: 600;
+        }
+    }
+    
+    .ps-section__right {
+        padding-top: 80px;
+    }
+    
+    // Mobile: remove padding from columns
+    @media (max-width: 767px) {
+        .col-lg-4,
+        .col-lg-8 {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    }
+    
+    // Remove container padding on mobile
+    + .container {
+        @media (max-width: 767px) {
+            padding-left: 0;
+            padding-right: 0;
+        }
+        
+        // Remove left padding from block headers
+        .ps-block__header {
+            padding-left: 0;
+            
+            // Shortcode section titles should wrap
+            h2, h3, h4, h5, h6 {
+                white-space: normal;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                width: 100%;
+            }
+        }
+        
+        // Hide "View More" links in shortcode sections
+        .ps-block__more {
+            display: none !important;
         }
     }
 }

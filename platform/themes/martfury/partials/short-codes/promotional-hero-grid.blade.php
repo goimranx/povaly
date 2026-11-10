@@ -1,77 +1,115 @@
 <div class="ps-promotional-hero-grid">
     <div class="ps-container">
         <div class="ps-hero-grid-wrapper">
-            {{-- Left Column (2fr) - Large Banner --}}
+            {{-- Left Column (1.6fr) - Large Banner --}}
             <div class="ps-hero-left">
                 @if($shortCode->left_image)
                     <a href="{{ $shortCode->left_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-large">
                         {!! RvMedia::image($shortCode->left_image, 'Hero Banner') !!}
                         <div class="ps-hero-content ps-hero-content-topleft">
                             @if($shortCode->left_subtitle)
-                                <div class="ps-hero-subtitle">{{ $shortCode->left_subtitle }}</div>
+                                <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->left_subtitle) !!}</div>
                             @endif
                             @if($shortCode->left_title)
-                                <h2 class="ps-hero-title">{{ $shortCode->left_title }}</h2>
+                                <h2 class="ps-hero-title">{!! BaseHelper::clean($shortCode->left_title) !!}</h2>
                             @endif
                             @if($shortCode->left_button_text)
-                                <span class="ps-hero-button ps-hero-button-filled">{{ $shortCode->left_button_text }}</span>
+                                <span class="ps-hero-button ps-hero-button-filled">{!! BaseHelper::clean($shortCode->left_button_text) !!}</span>
                             @endif
                         </div>
                     </a>
                 @endif
             </div>
 
-            {{-- Middle Column (2fr) - Top Vertical + Bottom Split --}}
+            {{-- Middle Column (2.4fr) - Top Horizontal Split + Bottom 3-Split --}}
             <div class="ps-hero-middle">
-                {{-- Top Vertical Banner --}}
-                @if($shortCode->right_top_image)
-                    <a href="{{ $shortCode->right_top_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-vertical">
-                        {!! RvMedia::image($shortCode->right_top_image, 'Vertical Banner') !!}
-                        <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
-                            @if($shortCode->right_top_subtitle)
-                                <div class="ps-hero-subtitle">{{ $shortCode->right_top_subtitle }}</div>
-                            @endif
-                            @if($shortCode->right_top_title)
-                                <h3 class="ps-hero-title">{{ $shortCode->right_top_title }}</h3>
-                            @endif
-                            @if($shortCode->right_top_button_text)
-                                <span class="ps-hero-button ps-hero-button-text">{{ $shortCode->right_top_button_text }}</span>
-                            @endif
-                        </div>
-                    </a>
-                @endif
-
-                {{-- Bottom Split (1fr + 1fr) --}}
-                <div class="ps-hero-split">
-                    @if($shortCode->right_middle_left_image)
-                        <a href="{{ $shortCode->right_middle_left_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-small">
-                            {!! RvMedia::image($shortCode->right_middle_left_image, 'Small Banner') !!}
-                            <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small ps-hero-content-reverse">
-                                @if($shortCode->right_middle_left_title)
-                                    <h4 class="ps-hero-title">{{ $shortCode->right_middle_left_title }}</h4>
+                {{-- Top Horizontal Split (Left + Right) --}}
+                <div class="ps-hero-horizontal-split">
+                    {{-- Top Left Horizontal Banner --}}
+                    @if($shortCode->middle_top_image)
+                        <a href="{{ $shortCode->middle_top_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-horizontal-top">
+                            {!! RvMedia::image($shortCode->middle_top_image, 'Horizontal Top Banner') !!}
+                            <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
+                                @if($shortCode->middle_top_subtitle)
+                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_top_subtitle) !!}</div>
                                 @endif
-                                @if($shortCode->right_middle_left_subtitle)
-                                    <div class="ps-hero-subtitle">{{ $shortCode->right_middle_left_subtitle }}</div>
+                                @if($shortCode->middle_top_title)
+                                    <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_top_title) !!}</h3>
                                 @endif
-                                @if($shortCode->right_middle_left_button_text)
-                                    <span class="ps-hero-button ps-hero-button-text">{{ $shortCode->right_middle_left_button_text }}</span>
+                                @if($shortCode->middle_top_button_text)
+                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_top_button_text) !!}</span>
                                 @endif
                             </div>
                         </a>
                     @endif
 
-                    @if($shortCode->right_middle_right_image)
-                        <a href="{{ $shortCode->right_middle_right_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-small">
-                            {!! RvMedia::image($shortCode->right_middle_right_image, 'Small Banner') !!}
+                    {{-- Top Right Horizontal Banner --}}
+                    @if($shortCode->middle_center_image)
+                        <a href="{{ $shortCode->middle_center_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-horizontal-middle">
+                            {!! RvMedia::image($shortCode->middle_center_image, 'Horizontal Middle Banner') !!}
+                            <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
+                                @if($shortCode->middle_center_subtitle)
+                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_center_subtitle) !!}</div>
+                                @endif
+                                @if($shortCode->middle_center_title)
+                                    <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_center_title) !!}</h3>
+                                @endif
+                                @if($shortCode->middle_center_button_text)
+                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_center_button_text) !!}</span>
+                                @endif
+                            </div>
+                        </a>
+                    @endif
+                </div>
+
+                {{-- Bottom Split (1fr + 1fr + 1fr) - 3 Small Banners --}}
+                <div class="ps-hero-split">
+                    @if($shortCode->middle_bottom_left_image)
+                        <a href="{{ $shortCode->middle_bottom_left_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-small">
+                            {!! RvMedia::image($shortCode->middle_bottom_left_image, 'Small Banner Left') !!}
                             <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small ps-hero-content-reverse">
-                                @if($shortCode->right_middle_right_title)
-                                    <h4 class="ps-hero-title">{{ $shortCode->right_middle_right_title }}</h4>
+                                @if($shortCode->middle_bottom_left_title)
+                                    <h4 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_bottom_left_title) !!}</h4>
                                 @endif
-                                @if($shortCode->right_middle_right_subtitle)
-                                    <div class="ps-hero-subtitle">{{ $shortCode->right_middle_right_subtitle }}</div>
+                                @if($shortCode->middle_bottom_left_subtitle)
+                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_bottom_left_subtitle) !!}</div>
                                 @endif
-                                @if($shortCode->right_middle_right_button_text)
-                                    <span class="ps-hero-button ps-hero-button-text">{{ $shortCode->right_middle_right_button_text }}</span>
+                                @if($shortCode->middle_bottom_left_button_text)
+                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_bottom_left_button_text) !!}</span>
+                                @endif
+                            </div>
+                        </a>
+                    @endif
+
+                    @if($shortCode->middle_bottom_center_image)
+                        <a href="{{ $shortCode->middle_bottom_center_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-small">
+                            {!! RvMedia::image($shortCode->middle_bottom_center_image, 'Small Banner Center') !!}
+                            <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small ps-hero-content-reverse">
+                                @if($shortCode->middle_bottom_center_title)
+                                    <h4 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_bottom_center_title) !!}</h4>
+                                @endif
+                                @if($shortCode->middle_bottom_center_subtitle)
+                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_bottom_center_subtitle) !!}</div>
+                                @endif
+                                @if($shortCode->middle_bottom_center_button_text)
+                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_bottom_center_button_text) !!}</span>
+                                @endif
+                            </div>
+                        </a>
+                    @endif
+
+                    @if($shortCode->middle_bottom_right_image)
+                        <a href="{{ $shortCode->middle_bottom_right_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-small">
+                            {!! RvMedia::image($shortCode->middle_bottom_right_image, 'Small Banner Right') !!}
+                            <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small ps-hero-content-reverse">
+                                @if($shortCode->middle_bottom_right_title)
+                                    <h4 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_bottom_right_title) !!}</h4>
+                                @endif
+                                @if($shortCode->middle_bottom_right_subtitle)
+                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_bottom_right_subtitle) !!}</div>
+                                @endif
+                                @if($shortCode->middle_bottom_right_button_text)
+                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_bottom_right_button_text) !!}</span>
                                 @endif
                             </div>
                         </a>
@@ -79,20 +117,20 @@
                 </div>
             </div>
 
-            {{-- Right Column (1fr) - Single Large Banner --}}
+            {{-- Right Column (1.2fr) - Tall Banner --}}
             <div class="ps-hero-right">
-                @if($shortCode->right_bottom_image)
-                    <a href="{{ $shortCode->right_bottom_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-tall">
-                        {!! RvMedia::image($shortCode->right_bottom_image, 'Tall Banner') !!}
+                @if($shortCode->right_image)
+                    <a href="{{ $shortCode->right_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-tall">
+                        {!! RvMedia::image($shortCode->right_image, 'Tall Banner') !!}
                         <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
-                            @if($shortCode->right_bottom_subtitle)
-                                <div class="ps-hero-subtitle">{{ $shortCode->right_bottom_subtitle }}</div>
+                            @if($shortCode->right_subtitle)
+                                <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->right_subtitle) !!}</div>
                             @endif
-                            @if($shortCode->right_bottom_title)
-                                <h3 class="ps-hero-title">{{ $shortCode->right_bottom_title }}</h3>
+                            @if($shortCode->right_title)
+                                <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->right_title) !!}</h3>
                             @endif
-                            @if($shortCode->right_bottom_button_text)
-                                <span class="ps-hero-button ps-hero-button-text">{{ $shortCode->right_bottom_button_text }}</span>
+                            @if($shortCode->right_button_text)
+                                <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->right_button_text) !!}</span>
                             @endif
                         </div>
                     </a>
@@ -110,9 +148,10 @@
         overflow: hidden;
     }
 
+    /* Main Grid Wrapper - Updated to 1.6fr 2.4fr 1.2fr */
     .ps-hero-grid-wrapper {
         display: grid;
-        grid-template-columns: 2.2fr 1.8fr 1.2fr;
+        grid-template-columns: 1.6fr 2.4fr 1.2fr;
         gap: 7px;
         width: 100%;
         max-width: 100%;
@@ -245,18 +284,18 @@
         text-decoration: none;
     }
 
-    /* Left Column - Large Banner */
+    /* Left Column (1.6fr) - Large Banner */
     .ps-hero-left {
         width: 100%;
     }
     
     .ps-hero-banner-large {
         width: 100%;
-        /* Canva Ratio: 2.2:1.8 (or 11:9) */
-        padding-bottom: 81.82%;
+        /* Aspect Ratio: 1.6:2.44 */
+        padding-bottom: 152.5%;
     }
 
-    /* Middle Column - Flexible container */
+    /* Middle Column (2.4fr) - Top Horizontal Split + Bottom 3-Split */
     .ps-hero-middle {
         display: flex;
         flex-direction: column;
@@ -264,33 +303,49 @@
         width: 100%;
     }
 
-    .ps-hero-banner-vertical {
-        width: 100%;
-        /* Canva Ratio: 1.8:1.08 (or 5:3) */
-        padding-bottom: 60%;
-    }
-
-    .ps-hero-split {
+    /* Top Horizontal Split - 2 Banners Side by Side */
+    .ps-hero-horizontal-split {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 7px;
     }
 
-    .ps-hero-banner-small {
+    /* Top Left Horizontal Banner */
+    .ps-hero-banner-horizontal-top {
         width: 100%;
-        /* Canva Ratio: 0.9:0.702 (or 5:4) */
-        padding-bottom: 78%;
+        /* Aspect Ratio: 1.2:1.5 */
+        padding-bottom: 125%;
     }
 
-    /* Right Column - Tall Banner */
+    /* Top Right Horizontal Banner */
+    .ps-hero-banner-horizontal-middle {
+        width: 100%;
+        /* Aspect Ratio: 1.2:1.5 */
+        padding-bottom: 125%;
+    }
+
+    /* Bottom Split - 3 Small Banners */
+    .ps-hero-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 7px;
+    }
+
+    .ps-hero-banner-small {
+        width: 100%;
+        /* Aspect Ratio: 1:1.2 */
+        padding-bottom: 120%;
+    }
+
+    /* Right Column (1.2fr) - Tall Banner */
     .ps-hero-right {
         width: 100%;
     }
     
     .ps-hero-banner-tall {
         width: 100%;
-        /* Canva Ratio: 1.2:1.8 (or 2:3) */
-        padding-bottom: 150%;
+        /* Aspect Ratio: 1.2:2.448 */
+        padding-bottom: 204%;
     }
 
     /* Responsive Design */
@@ -331,63 +386,83 @@
     }
 
     @media (max-width: 768px) {
-        .ps-hero-grid-wrapper {
-            display: flex;
-            flex-wrap: nowrap;
+        /* Make ps-container scrollable - override homepage padding */
+        .ps-promotional-hero-grid .ps-container,
+        #homepage-1 .ps-promotional-hero-grid .ps-container {
             overflow-x: auto;
             overflow-y: hidden;
             scroll-snap-type: x mandatory;
-            gap: 10px;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
-            padding-bottom: 5px;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
         }
         
-        .ps-hero-grid-wrapper::-webkit-scrollbar {
+        .ps-promotional-hero-grid .ps-container::-webkit-scrollbar {
             display: none;
         }
 
+        /* Set minimum width for grid wrapper and add padding for edge spacing */
+        .ps-hero-grid-wrapper {
+            min-width: 1100px;
+            width: max-content;
+            padding: 0 15px;
+        }
+
+        /* Keep all desktop styles - center snap alignment */
         .ps-hero-left,
         .ps-hero-middle,
         .ps-hero-right {
-            flex: 0 0 85%;
-            min-width: 85%;
-            scroll-snap-align: start;
+            scroll-snap-align: center;
         }
         
-        /* All sections have same width (85%), so use same base aspect for equal heights */
-        
+        /* Keep same aspect ratios as desktop */
         .ps-hero-banner-large {
-            /* Canva Ratio (Mobile): 1.22:1 (or 6:5) */
-            padding-bottom: 81.97%;
+            /* Same as desktop: 1.6:2.44 */
+            padding-bottom: 152.5%;
         }
         
         .ps-hero-banner-tall {
-            /* Canva Ratio (Mobile): 1.22:1 (or 6:5) */
-            padding-bottom: 81.97%;
+            /* Same as desktop: 1.2:2.448 */
+            padding-bottom: 204%;
         }
 
-        /* Middle column - combined height should equal left/right */
+        /* Middle column maintains grid structure */
         .ps-hero-middle {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
         
-        .ps-hero-banner-vertical {
-            /* Canva Ratio (Mobile): 1.22:0.585 (or 1200x585px) */
-            padding-bottom: 47.95%;
-        }
-
-        .ps-hero-split {
+        /* Top Horizontal Split - Keep grid */
+        .ps-hero-horizontal-split {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
+
+        /* Top Left Horizontal Banner */
+        .ps-hero-banner-horizontal-top {
+            /* Same as desktop: 1.2:1.5 */
+            padding-bottom: 125%;
+        }
+
+        /* Top Right Horizontal Banner */
+        .ps-hero-banner-horizontal-middle {
+            /* Same as desktop: 1.2:1.5 */
+            padding-bottom: 125%;
+        }
+
+        /* Bottom Split - Keep 3 items grid */
+        .ps-hero-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
         
         .ps-hero-banner-small {
-            /* Canva Ratio (Mobile): 1.22:0.8 (or 1200x800px) */
-            padding-bottom: 65.57%;
+            /* Same as desktop: 1:1.2 */
+            padding-bottom: 120%;
         }
 
         .ps-hero-title {
@@ -432,6 +507,11 @@
     }
 
     @media (max-width: 480px) {
+        /* Reduce padding on smaller mobile screens */
+        .ps-hero-grid-wrapper {
+            padding: 0 10px;
+        }
+        
         .ps-hero-left,
         .ps-hero-middle,
         .ps-hero-right {

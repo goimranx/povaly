@@ -2208,11 +2208,6 @@ nav.navigation--mobile-product {
 
 #homepage-1 {
     overflow-x: hidden;
-    
-    .ps-container {
-        padding-left: 15px !important;
-        padding-right: 15px !important;
-    }
 }
 
 .auth-card {
@@ -3993,14 +3988,6 @@ ul.bb-social-sharing {
     .ps-shopping-product {
         .ec-card.ec-card--flyout {
             flex-direction: column !important;
-            
-            .ec-card__thumb {
-                width: 100% !important;
-                
-                a {
-                    padding: 0 !important;
-                }
-            }
             
             .ec-card__body {
                 padding: 0 !important;

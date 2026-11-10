@@ -13,7 +13,7 @@
             display: inline-block;
             position: absolute;
             top: -8px;
-            right: 30px;
+            right: 20px;
             width: 16px;
             height: 16px;
             border-left: 1px solid #e1e1e1;
@@ -32,7 +32,7 @@
     .ps-cart__content {
         position: absolute;
         min-width: 370px;
-        right: -30px;
+        right: -20px;
         z-index: 30;
         padding-top: 10px;
         @include transform(translate(0 20px));
@@ -151,5 +151,22 @@
 
     .ps-btn {
         padding: 12px 30px;
+    }
+}
+
+// Mobile responsive for cart flyout
+@media (max-width: 480px) {
+    .ps-cart--mini .ps-cart__content {
+        right: -10px !important;
+        min-width: calc(100vw - 5px) !important;
+        width: calc(100vw - 5px) !important;
+    }
+    
+    .ps-cart--mini .ps-cart__items:before {
+        right: 20px !important;
+    }
+    
+    .ps-cart--mobile .ps-cart__content {
+        padding: 20px 0 0 10px !important;
     }
 }

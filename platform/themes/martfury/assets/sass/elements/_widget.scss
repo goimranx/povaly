@@ -640,32 +640,24 @@
 
 .ps-widget--account-dashboard {
     .ps-widget__header {
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding-bottom: 20px;
-
-        img {
-            flex-basis: 60px;
-            max-width: 60px;
-            border-radius: 50%;
-        }
-
-        figure {
-            flex-basis: 100%;
-            padding-left: 10px;
-
-            figcaption {
-                font-size: 16px;
-                color: $color-text;
+        padding-bottom: 15px;
+        
+        .ps-widget__header-content {
+            .ps-widget__title {
+                margin: 0 0 8px 0;
+                font-size: 28px;
+                font-weight: 700;
+                color: var(--global-color-text-main);
+                line-height: 1.2;
+                text-transform: capitalize;
             }
-
-            p {
-                margin-bottom: 0;
+            
+            .ps-widget__subtitle {
+                margin: 0;
                 font-size: 16px;
-                font-weight: 600;
-                color: $color-heading;
+                font-weight: 500;
+                color: var(--global-color-text-muted);
+                line-height: 1.5;
             }
         }
     }
@@ -674,36 +666,71 @@
         @extend %list-reset;
 
         ul {
-            border: 1px solid #d1d1d1;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
 
             li {
-                border-bottom: 1px solid #d1d1d1;
+                border: none;
+                overflow: visible;
+                
                 a {
-                    display: block;
-                    padding: 15px 20px;
+                    display: flex;
+                    align-items: center;
+                    padding: 4px;
                     line-height: 20px;
                     font-size: 16px;
-                    font-weight: 500;
-                    color: $color-heading;
+                    font-weight: 400;
+                    color: var(--global-color-text-main);
                     text-transform: capitalize;
-                    i {
+                    background-color: transparent;
+                    border-radius: 7px;
+                    transition: all 0.15s ease-in-out;
+                    border: 1px solid transparent;
+                    outline: 1px solid transparent;
+                    
+                    i, svg.icon {
                         margin-right: 10px;
+                        width: 32px;
+                        height: 32px;
+                        padding: 6px;
+                        border: 1px solid var(--global-color-primary-border);
+                        background: var(--global-color-site-bg);
+                        border-radius: 6px;
+                        color: var(--global-color-text-main);
+                        transition: all 0.15s ease-in-out;
+                        flex-shrink: 0;
                     }
+                    
                     &:hover {
-                        background-color: $color-1st;
-                        color: #fff;
+                        background-color: var(--global-color-card-bg);
+                        color: var(--global-color-text-main);
+                        border-color: var(--global-color-link);
+                        
+                        i, svg.icon {
+                            border-color: var(--global-color-primary-border);
+                            background: var(--global-color-site-bg);
+                        }
+                    }
+                    
+                    &.active {
+                        background-color: var(--global-color-link-subtle);
+                        color: var(--global-color-text-main);
+                        font-weight: 400;
+                        border-color: var(--global-color-link);
+                        outline-color: var(--global-color-link);
+                        
+                        i, svg.icon {
+                            border: 1px solid var(--global-color-primary-border);
+                            background: var(--global-color-site-bg);
+                            color: var(--global-color-text-main);
+                        }
                     }
                 }
 
                 &:last-child {
                     border-bottom: none;
-                }
-
-                &.active {
-                    background-color: $color-1st;
-                    a {
-                        color: #fff;
-                    }
                 }
             }
         }
