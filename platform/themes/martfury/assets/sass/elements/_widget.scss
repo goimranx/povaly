@@ -683,7 +683,8 @@
                     background-color: transparent;
                     border-radius: 7px;
                     transition: all 0.15s ease-in-out;
-                    border: none;
+                    border: 1px solid transparent;
+                    outline: 1px solid transparent;
                     
                     i, svg.icon {
                         margin-right: 10px;
@@ -693,7 +694,7 @@
                         border: 1px solid var(--global-color-primary-border);
                         background: var(--global-color-site-bg);
                         border-radius: 6px;
-                        color: var(--global-color-link);
+                        color: var(--global-color-text-main);
                         transition: all 0.15s ease-in-out;
                         flex-shrink: 0;
                     }
@@ -701,6 +702,7 @@
                     &:hover {
                         background-color: var(--global-color-card-bg);
                         color: var(--global-color-text-main);
+                        border-color: var(--global-color-link);
                         
                         i, svg.icon {
                             border-color: var(--global-color-primary-border);
@@ -710,13 +712,15 @@
                     
                     &.active {
                         background-color: var(--global-color-link-subtle);
-                        color: var(--global-color-link);
+                        color: var(--global-color-text-main);
                         font-weight: 400;
+                        border-color: var(--global-color-link);
+                        outline-color: var(--global-color-link);
                         
                         i, svg.icon {
                             border: 1px solid var(--global-color-primary-border);
                             background: var(--global-color-site-bg);
-                            color: var(--global-color-link);
+                            color: var(--global-color-text-main);
                         }
                     }
                 }
