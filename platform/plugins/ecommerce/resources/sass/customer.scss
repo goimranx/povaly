@@ -710,7 +710,7 @@ svg.icon {
                 position: absolute;
                 bottom: -2px;
                 right: -2px;
-                background-color: var(--global-color-link);
+                background-color: var(--global-color-link-subtle);
                 border-radius: 50%;
                 width: 20px;
                 height: 20px;
@@ -719,11 +719,6 @@ svg.icon {
                 justify-content: center;
                 border: 2px solid var(--global-color-link-subtle);
                 cursor: pointer;
-                transition: background-color 0.2s;
-
-                &:hover {
-                    background-color: var(--global-color-link-hover);
-                }
 
                 input[type="file"] {
                     display: none;
@@ -731,7 +726,7 @@ svg.icon {
 
                 label {
                     cursor: pointer;
-                    color: #ffffff;
+                    color: var(--global-color-text-main);
                     margin: 0;
                     display: flex;
                     align-items: center;
@@ -743,6 +738,7 @@ svg.icon {
                     svg {
                         width: 12px;
                         height: 12px;
+                        color: var(--global-color-text-main);
                     }
                 }
             }
