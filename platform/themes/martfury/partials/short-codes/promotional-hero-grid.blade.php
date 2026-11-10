@@ -386,31 +386,32 @@
     }
 
     @media (max-width: 768px) {
-        /* Make ps-container scrollable */
+        /* Make ps-container scrollable - remove padding */
         .ps-promotional-hero-grid .ps-container {
             overflow-x: auto;
             overflow-y: hidden;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
-            padding-bottom: 5px;
+            padding: 0 !important;
         }
         
         .ps-promotional-hero-grid .ps-container::-webkit-scrollbar {
             display: none;
         }
 
-        /* Set minimum width for grid wrapper to enable scrolling */
+        /* Set minimum width for grid wrapper and add padding for edge spacing */
         .ps-hero-grid-wrapper {
             min-width: 1100px;
             width: max-content;
+            padding: 0 15px;
         }
 
-        /* Keep all desktop styles - same aspect ratios */
+        /* Keep all desktop styles - center snap alignment */
         .ps-hero-left,
         .ps-hero-middle,
         .ps-hero-right {
-            scroll-snap-align: start;
+            scroll-snap-align: center;
         }
         
         /* Keep same aspect ratios as desktop */
