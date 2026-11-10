@@ -157,13 +157,16 @@
 // Mobile responsive for cart flyout
 @media (max-width: 480px) {
     .ps-cart--mini .ps-cart__content {
-        right: 0 !important;
-        left: 0 !important;
-        min-width: 100vw !important;
-        width: 100vw !important;
+        right: -10px !important;
+        min-width: calc(100vw - 5px) !important;
+        width: calc(100vw - 5px) !important;
     }
     
     .ps-cart--mini .ps-cart__items:before {
         right: 20px !important;
+    }
+    
+    .ps-cart--mobile .ps-cart__content {
+        padding: 20px 0 0 10px !important;
     }
 }
