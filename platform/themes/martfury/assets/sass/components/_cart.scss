@@ -13,7 +13,7 @@
             display: inline-block;
             position: absolute;
             top: -8px;
-            right: 30px;
+            right: 20px;
             width: 16px;
             height: 16px;
             border-left: 1px solid #e1e1e1;
@@ -32,7 +32,7 @@
     .ps-cart__content {
         position: absolute;
         min-width: 370px;
-        right: -30px;
+        right: -20px;
         z-index: 30;
         padding-top: 10px;
         @include transform(translate(0 20px));
