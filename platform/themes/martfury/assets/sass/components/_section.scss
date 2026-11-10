@@ -2207,6 +2207,11 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
+        
+        // Hide "View More" links in shortcode sections
+        .ps-block__more {
+            display: none !important;
+        }
     }
 }
 
