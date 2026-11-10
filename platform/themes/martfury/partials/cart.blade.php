@@ -23,7 +23,7 @@
                                     </a>
                                 </div>
                                 <div class="ps-product__content">
-                                    <a class="ps-product__remove remove-cart-item" href="#" data-url="{{ route('public.cart.remove', $cartItem->rowId) }}"><i class="icon-cross"></i></a>
+                                    <a class="ps-product__remove remove-cart-item" href="#" data-url="{{ route('public.cart.remove', $cartItem->rowId) }}"><i class="ph ph-x-circle"></i></a>
                                     <a href="{{ $product->original_product->url }}"> {{ $product->original_product->name }}  @if ($product->isOutOfStock()) <span class="stock-status-label">({!! $product->stock_status_html !!})</span> @endif</a>
                                     <p class="mb-0">
                                         <small>
