@@ -835,6 +835,86 @@ svg.icon {
     }
 }
 
+// Quick Action Cards
+.bb-quick-action-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: var(--global-color-site-bg);
+    border: 1px solid var(--global-color-primary-border);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s;
+    height: 100%;
+
+    &:hover {
+        border-color: var(--global-color-link);
+        transform: translateY(-2px);
+    }
+
+    .bb-quick-action-icon {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--global-color-link-subtle);
+        border-radius: 50%;
+
+        svg {
+            width: 20px;
+            height: 20px;
+            color: var(--global-color-link);
+        }
+    }
+
+    .bb-quick-action-content {
+        flex: 1;
+        min-width: 0;
+
+        .bb-quick-action-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--global-color-text-main);
+            margin: 0 0 4px 0;
+            line-height: 1.3;
+        }
+
+        .bb-quick-action-text {
+            font-size: 14px;
+            color: var(--global-color-text-body);
+            margin: 0;
+            line-height: 1.4;
+        }
+    }
+
+    @media (max-width: 767px) {
+        padding: 12px;
+
+        .bb-quick-action-icon {
+            width: 36px;
+            height: 36px;
+
+            svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        .bb-quick-action-content {
+            .bb-quick-action-title {
+                font-size: 14px;
+            }
+
+            .bb-quick-action-text {
+                font-size: 13px;
+            }
+        }
+    }
+}
+
 @media (min-width: 768px) {
     .col-md-3 {
         flex: 0 0 auto;
