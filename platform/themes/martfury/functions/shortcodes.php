@@ -1260,6 +1260,13 @@ app()->booted(function (): void {
     shortcode()->setAdminConfig('promotional-hero-grid', function (array $attributes) {
         return ShortcodeForm::createFromArray($attributes)
             ->withLazyLoading()
+            ->add(
+                'html_support_notice',
+                AlertField::class,
+                AlertFieldOption::make()
+                    ->content(__('All text fields support HTML tags (e.g., &lt;br /&gt; for line breaks)'))
+                    ->type('info')
+            )
             // 1. Left Column - Large Banner (1.6fr)
             ->add(
                 'left_image',
@@ -1279,25 +1286,22 @@ app()->booted(function (): void {
                 'left_subtitle',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('1. Left - Subtitle (HTML Supported)'))
+                    ->label(__('1. Left - Subtitle'))
                     ->placeholder(__('New Arrival'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'left_title',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('1. Left - Title (HTML Supported)'))
+                    ->label(__('1. Left - Title'))
                     ->placeholder(__('Amazing Products'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'left_button_text',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('1. Left - Button Text (HTML Supported)'))
+                    ->label(__('1. Left - Button Text'))
                     ->placeholder(__('Shop Now'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             // 2. Middle Column - Top Left Horizontal Banner
             ->add(
@@ -1318,25 +1322,22 @@ app()->booted(function (): void {
                 'middle_top_subtitle',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('2. Middle Top Left - Subtitle (HTML Supported)'))
+                    ->label(__('2. Middle Top Left - Subtitle'))
                     ->placeholder(__('Hot Deal'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'middle_top_title',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('2. Middle Top Left - Title (HTML Supported)'))
+                    ->label(__('2. Middle Top Left - Title'))
                     ->placeholder(__('Special Offer'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'middle_top_button_text',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('2. Middle Top Left - Button Text (HTML Supported)'))
+                    ->label(__('2. Middle Top Left - Button Text'))
                     ->placeholder(__('View More'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             // 3. Middle Column - Top Right Horizontal Banner
             ->add(
@@ -1357,25 +1358,22 @@ app()->booted(function (): void {
                 'middle_center_subtitle',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('3. Middle Top Right - Subtitle (HTML Supported)'))
+                    ->label(__('3. Middle Top Right - Subtitle'))
                     ->placeholder(__('Limited Time'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'middle_center_title',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('3. Middle Top Right - Title (HTML Supported)'))
+                    ->label(__('3. Middle Top Right - Title'))
                     ->placeholder(__('Flash Sale'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'middle_center_button_text',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('3. Middle Top Right - Button Text (HTML Supported)'))
+                    ->label(__('3. Middle Top Right - Button Text'))
                     ->placeholder(__('Shop Now'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             // 4. Middle Column - Bottom Left Small Banner
             ->add(
@@ -1396,25 +1394,22 @@ app()->booted(function (): void {
                 'middle_bottom_left_title',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('4. Middle Bottom Left - Title (HTML Supported)'))
+                    ->label(__('4. Middle Bottom Left - Title'))
                     ->placeholder(__('Category Name'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'middle_bottom_left_subtitle',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('4. Middle Bottom Left - Subtitle (HTML Supported)'))
+                    ->label(__('4. Middle Bottom Left - Subtitle'))
                     ->placeholder(__('Description'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'middle_bottom_left_button_text',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('4. Middle Bottom Left - Button Text (HTML Supported)'))
+                    ->label(__('4. Middle Bottom Left - Button Text'))
                     ->placeholder(__('Explore'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             // 5. Middle Column - Bottom Center Small Banner
             ->add(
@@ -1435,25 +1430,22 @@ app()->booted(function (): void {
                 'middle_bottom_center_title',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('5. Middle Bottom Center - Title (HTML Supported)'))
+                    ->label(__('5. Middle Bottom Center - Title'))
                     ->placeholder(__('Category Name'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'middle_bottom_center_subtitle',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('5. Middle Bottom Center - Subtitle (HTML Supported)'))
+                    ->label(__('5. Middle Bottom Center - Subtitle'))
                     ->placeholder(__('Description'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'middle_bottom_center_button_text',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('5. Middle Bottom Center - Button Text (HTML Supported)'))
+                    ->label(__('5. Middle Bottom Center - Button Text'))
                     ->placeholder(__('Explore'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             // 6. Middle Column - Bottom Right Small Banner
             ->add(
@@ -1474,25 +1466,22 @@ app()->booted(function (): void {
                 'middle_bottom_right_title',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('6. Middle Bottom Right - Title (HTML Supported)'))
+                    ->label(__('6. Middle Bottom Right - Title'))
                     ->placeholder(__('Category Name'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'middle_bottom_right_subtitle',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('6. Middle Bottom Right - Subtitle (HTML Supported)'))
+                    ->label(__('6. Middle Bottom Right - Subtitle'))
                     ->placeholder(__('Description'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'middle_bottom_right_button_text',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('6. Middle Bottom Right - Button Text (HTML Supported)'))
+                    ->label(__('6. Middle Bottom Right - Button Text'))
                     ->placeholder(__('Explore'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             // 7. Right Column - Tall Banner (1.2fr)
             ->add(
@@ -1513,25 +1502,22 @@ app()->booted(function (): void {
                 'right_subtitle',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('7. Right - Subtitle (HTML Supported)'))
+                    ->label(__('7. Right - Subtitle'))
                     ->placeholder(__('Limited Time'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'right_title',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('7. Right - Title (HTML Supported)'))
+                    ->label(__('7. Right - Title'))
                     ->placeholder(__('Flash Sale'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'right_button_text',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('7. Right - Button Text (HTML Supported)'))
+                    ->label(__('7. Right - Button Text'))
                     ->placeholder(__('Shop Now'))
-                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             );
     });
 
