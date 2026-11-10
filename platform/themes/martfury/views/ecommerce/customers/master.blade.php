@@ -6,7 +6,7 @@
                     <aside class="ps-widget--account-dashboard">
                         <div class="ps-widget__header">
                             <div class="ps-widget__header-content">
-                                <h2 class="ps-widget__title">{{ isset($__env->yieldContent('title')) ? $__env->yieldContent('title') : __('Your Account') }}</h2>
+                                <h2 class="ps-widget__title">@yield('title', __('Your Account'))</h2>
                                 <p class="ps-widget__subtitle">
                                     {{ auth('customer')->user()->name }}, Email: {{ auth('customer')->user()->email }}
                                 </p>
