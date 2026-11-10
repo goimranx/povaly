@@ -472,7 +472,8 @@ svg.icon {
     }
 
     // Order cards styling (minimal & clean)
-    &.order-cards {
+    &.order-cards,
+    &.invoice-cards {
         .bb-customer-card {
             .bb-customer-card-header {
                 .bb-customer-card-title {
