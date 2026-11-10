@@ -646,7 +646,7 @@
         flex-shrink: 0 !important;
         margin-bottom: 0 !important;
         border-radius: 8px 0 0 8px !important;
-        padding: 6px !important;
+        padding: 0 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -658,6 +658,7 @@
         display: flex !important;
         align-items: center !important;
         width: 100% !important;
+        padding: 5px !important;
     }
 
     .ec-card--flyout .ec-card__thumb img,
