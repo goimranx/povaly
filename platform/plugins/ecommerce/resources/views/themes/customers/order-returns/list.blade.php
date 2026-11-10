@@ -1,6 +1,6 @@
 @extends(EcommerceHelper::viewPath('customers.master'))
 
-@section('title', trans('plugins/ecommerce::customer-dashboard.order_return_requests'))
+@section('title', __('Order Returns'))
 
 @section('content')
     <div class="bb-customer-content-wrapper">
