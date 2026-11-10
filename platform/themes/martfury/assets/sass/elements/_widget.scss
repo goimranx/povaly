@@ -682,11 +682,11 @@
                 a {
                     display: flex;
                     align-items: center;
-                    padding: 10px;
+                    padding: 7px;
                     line-height: 20px;
                     font-size: 16px;
-                    font-weight: 500;
-                    color: var(--global-color-link);
+                    font-weight: 400;
+                    color: var(--global-color-text-main);
                     text-transform: capitalize;
                     background-color: transparent;
                     border-radius: 7px;
@@ -708,24 +708,18 @@
                     
                     &:hover {
                         background-color: var(--global-color-card-bg);
-                        color: var(--global-color-link);
+                        color: var(--global-color-text-main);
                         
                         i, svg.icon {
                             border-color: var(--global-color-primary-border);
                             background: var(--global-color-site-bg);
                         }
                     }
-                }
-
-                &:last-child {
-                    border-bottom: none;
-                }
-
-                &.active {
-                    a {
+                    
+                    &.active {
                         background-color: var(--global-color-link-subtle);
                         color: var(--global-color-link);
-                        font-weight: 600;
+                        font-weight: 400;
                         
                         i, svg.icon {
                             border: 1px solid var(--global-color-primary-border);
@@ -733,6 +727,10 @@
                             color: var(--global-color-link);
                         }
                     }
+                }
+
+                &:last-child {
+                    border-bottom: none;
                 }
             }
         }
