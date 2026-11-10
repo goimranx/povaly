@@ -45,11 +45,7 @@
 </section>
 
 <div class="container">
-    {!! shortcode()->fields()->getContent() ? do_shortcode(shortcode()->fields()->getContent()) : '' !!}
+    {!! do_shortcode('[trending-products title="Customers who shop on our store mostly viewed" limit="12" enable_caching="no" enable_lazy_loading="no"][/trending-products]') !!}
     
-    @if(!shortcode()->fields()->getContent())
-        {!! do_shortcode('[trending-products title="Customers who shop on our store mostly viewed" limit="12" enable_caching="no" enable_lazy_loading="no"][/trending-products]') !!}
-        
-        {!! do_shortcode('[recently-viewed-products title="Your browsing history" enable_caching="no" enable_lazy_loading="no"][/recently-viewed-products]') !!}
-    @endif
+    {!! do_shortcode('[recently-viewed-products title="Your browsing history" enable_caching="no" enable_lazy_loading="no"][/recently-viewed-products]') !!}
 </div>
