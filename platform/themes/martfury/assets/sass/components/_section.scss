@@ -2189,6 +2189,25 @@
     .ps-section__right {
         padding-top: 80px;
     }
+    
+    // Remove container padding on mobile
+    + .container {
+        @media (max-width: 767px) {
+            padding-left: 0;
+            padding-right: 0;
+        }
+        
+        // Shortcode section titles should wrap
+        .ps-section__header,
+        .section-title-lg,
+        .section-title-md,
+        .section-title-sm,
+        h2, h3, h4 {
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+    }
 }
 
 .ps-section--account-setting {
