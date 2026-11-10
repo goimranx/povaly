@@ -13,28 +13,18 @@
     <!-- Welcome Section -->
     <div class="bb-customer-profile-wrapper">
         <div class="bb-customer-profile">
-            <div class="row align-items-center">
-                <div class="col-auto">
-                    <div class="bb-customer-profile-avatar">
-                        {{ RvMedia::image($customer->avatar_url, $customer->name, attributes: ['class' => 'bb-customer-profile-avatar-img', 'data-bb-value' => 'customer-avatar']) }}
-                        <div class="bb-customer-profile-avatar-overlay">
-                            <input type="file" id="customer-avatar" name="avatar" data-bb-toggle="change-customer-avatar" data-url="{{ route('customer.avatar') }}" />
-                            <label for="customer-avatar" title="{{ trans('plugins/ecommerce::customer-dashboard.change_avatar') }}">
-                                <x-core::icon name="ti ti-camera" />
-                            </label>
-                        </div>
-                    </div>
+            <div class="bb-customer-profile-left">
+                <div class="bb-customer-profile-avatar">
+                    {{ RvMedia::image($customer->avatar_url, $customer->name, attributes: ['class' => 'bb-customer-profile-avatar-img']) }}
                 </div>
-                <div class="col">
-                    <div class="bb-customer-profile-info text-md-center text-start">
-                        <h2 class="h4 mb-2">
-                            {!! BaseHelper::clean(trans('plugins/ecommerce::customer-dashboard.welcome_back', ['name' => $customer->name])) !!}
-                        </h2>
-                        <p class="text-muted mb-0">
-                            {{ trans('plugins/ecommerce::customer-dashboard.manage_account_description') }}
-                        </p>
-                    </div>
+                <div class="bb-customer-profile-info">
+                    <h2 class="bb-customer-profile-name">{{ $customer->name }}</h2>
+                    <p class="bb-customer-profile-email">{{ $customer->email }}</p>
                 </div>
+            </div>
+            <div class="bb-customer-profile-right">
+                <a href="{{ route('customer.edit-account') }}" class="bb-customer-profile-link">{{ __('Switch Accounts') }}</a>
+                <a href="{{ route('customer.logout') }}" class="bb-customer-profile-link">{{ __('Sign Out') }}</a>
             </div>
         </div>
     </div>
