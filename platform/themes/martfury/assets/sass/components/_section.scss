@@ -2190,6 +2190,15 @@
         padding-top: 80px;
     }
     
+    // Mobile: remove padding from columns
+    @media (max-width: 767px) {
+        .col-lg-4,
+        .col-lg-8 {
+            padding-left: 0;
+            padding-right: 0;
+        }
+    }
+    
     // Remove container padding on mobile
     + .container {
         @media (max-width: 767px) {
