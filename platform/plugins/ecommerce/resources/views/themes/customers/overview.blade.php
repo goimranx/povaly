@@ -38,49 +38,37 @@
     <!-- Quick Actions -->
     <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="card h-100 border-0 bg-primary bg-opacity-10">
-                <div class="card-body text-center">
-                    <div class="bg-primary bg-opacity-20 rounded-circle p-3 d-inline-flex mb-3">
-                        <x-core::icon name="ti ti-shopping-bag" class="text-white" size="lg" />
-                    </div>
-                    <h5 class="card-title h6 mb-2">{{ trans('plugins/ecommerce::customer-dashboard.view_orders') }}</h5>
-                    <p class="card-text text-muted small mb-3">{{ trans('plugins/ecommerce::customer-dashboard.track_orders_description') }}</p>
-                    <a href="{{ route('customer.orders') }}" class="btn btn-primary btn-sm">
-                        {{ trans('plugins/ecommerce::customer-dashboard.view_orders') }}
-                        <x-core::icon name="ti ti-arrow-right" class="ms-1" />
-                    </a>
+            <a href="{{ route('customer.orders') }}" class="bb-quick-action-card">
+                <div class="bb-quick-action-icon">
+                    <x-core::icon name="ti ti-shopping-bag" />
                 </div>
-            </div>
+                <div class="bb-quick-action-content">
+                    <h5 class="bb-quick-action-title">{{ trans('plugins/ecommerce::customer-dashboard.view_orders') }}</h5>
+                    <p class="bb-quick-action-text">{{ trans('plugins/ecommerce::customer-dashboard.track_orders_description') }}</p>
+                </div>
+            </a>
         </div>
         <div class="col-md-4">
-            <div class="card h-100 border-0 bg-success bg-opacity-10">
-                <div class="card-body text-center">
-                    <div class="bg-success bg-opacity-20 rounded-circle p-3 d-inline-flex mb-3">
-                        <x-core::icon name="ti ti-map-pin" class="text-white" size="lg" />
-                    </div>
-                    <h5 class="card-title h6 mb-2">{{ trans('plugins/ecommerce::customer-dashboard.manage_addresses') }}</h5>
-                    <p class="card-text text-muted small mb-3">{{ trans('plugins/ecommerce::customer-dashboard.update_addresses_description') }}</p>
-                    <a href="{{ route('customer.address') }}" class="btn btn-success btn-sm">
-                        {{ trans('plugins/ecommerce::customer-dashboard.manage_addresses') }}
-                        <x-core::icon name="ti ti-arrow-right" class="ms-1" />
-                    </a>
+            <a href="{{ route('customer.address') }}" class="bb-quick-action-card">
+                <div class="bb-quick-action-icon">
+                    <x-core::icon name="ti ti-map-pin" />
                 </div>
-            </div>
+                <div class="bb-quick-action-content">
+                    <h5 class="bb-quick-action-title">{{ trans('plugins/ecommerce::customer-dashboard.manage_addresses') }}</h5>
+                    <p class="bb-quick-action-text">{{ trans('plugins/ecommerce::customer-dashboard.update_addresses_description') }}</p>
+                </div>
+            </a>
         </div>
         <div class="col-md-4">
-            <div class="card h-100 border-0 bg-warning bg-opacity-10">
-                <div class="card-body text-center">
-                    <div class="bg-warning bg-opacity-20 rounded-circle p-3 d-inline-flex mb-3">
-                        <x-core::icon name="ti ti-settings" class="text-white" size="lg" />
-                    </div>
-                    <h5 class="card-title h6 mb-2">{{ trans('plugins/ecommerce::customer-dashboard.account_settings') }}</h5>
-                    <p class="card-text text-muted small mb-3">{{ trans('plugins/ecommerce::customer-dashboard.edit_profile_description') }}</p>
-                    <a href="{{ route('customer.edit-account') }}" class="btn btn-warning btn-sm">
-                        {{ trans('plugins/ecommerce::customer-dashboard.edit_account') }}
-                        <x-core::icon name="ti ti-arrow-right" class="ms-1" />
-                    </a>
+            <a href="{{ route('customer.edit-account') }}" class="bb-quick-action-card">
+                <div class="bb-quick-action-icon">
+                    <x-core::icon name="ti ti-settings" />
                 </div>
-            </div>
+                <div class="bb-quick-action-content">
+                    <h5 class="bb-quick-action-title">{{ trans('plugins/ecommerce::customer-dashboard.account_settings') }}</h5>
+                    <p class="bb-quick-action-text">{{ trans('plugins/ecommerce::customer-dashboard.edit_profile_description') }}</p>
+                </div>
+            </a>
         </div>
     </div>
 
