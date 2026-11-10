@@ -21,43 +21,46 @@
                 @endif
             </div>
 
-            {{-- Middle Column (2.4fr) - Top Horizontal + Middle Horizontal + Bottom 3-Split --}}
+            {{-- Middle Column (2.4fr) - Top Horizontal Split + Bottom 3-Split --}}
             <div class="ps-hero-middle">
-                {{-- Top Horizontal Banner --}}
-                @if($shortCode->middle_top_image)
-                    <a href="{{ $shortCode->middle_top_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-horizontal-top">
-                        {!! RvMedia::image($shortCode->middle_top_image, 'Horizontal Top Banner') !!}
-                        <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
-                            @if($shortCode->middle_top_subtitle)
-                                <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_top_subtitle) !!}</div>
-                            @endif
-                            @if($shortCode->middle_top_title)
-                                <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_top_title) !!}</h3>
-                            @endif
-                            @if($shortCode->middle_top_button_text)
-                                <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_top_button_text) !!}</span>
-                            @endif
-                        </div>
-                    </a>
-                @endif
+                {{-- Top Horizontal Split (Left + Right) --}}
+                <div class="ps-hero-horizontal-split">
+                    {{-- Top Left Horizontal Banner --}}
+                    @if($shortCode->middle_top_image)
+                        <a href="{{ $shortCode->middle_top_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-horizontal-top">
+                            {!! RvMedia::image($shortCode->middle_top_image, 'Horizontal Top Banner') !!}
+                            <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
+                                @if($shortCode->middle_top_subtitle)
+                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_top_subtitle) !!}</div>
+                                @endif
+                                @if($shortCode->middle_top_title)
+                                    <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_top_title) !!}</h3>
+                                @endif
+                                @if($shortCode->middle_top_button_text)
+                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_top_button_text) !!}</span>
+                                @endif
+                            </div>
+                        </a>
+                    @endif
 
-                {{-- Middle Horizontal Banner --}}
-                @if($shortCode->middle_center_image)
-                    <a href="{{ $shortCode->middle_center_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-horizontal-middle">
-                        {!! RvMedia::image($shortCode->middle_center_image, 'Horizontal Middle Banner') !!}
-                        <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
-                            @if($shortCode->middle_center_subtitle)
-                                <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_center_subtitle) !!}</div>
-                            @endif
-                            @if($shortCode->middle_center_title)
-                                <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_center_title) !!}</h3>
-                            @endif
-                            @if($shortCode->middle_center_button_text)
-                                <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_center_button_text) !!}</span>
-                            @endif
-                        </div>
-                    </a>
-                @endif
+                    {{-- Top Right Horizontal Banner --}}
+                    @if($shortCode->middle_center_image)
+                        <a href="{{ $shortCode->middle_center_link ?? '#' }}" class="ps-hero-banner ps-hero-banner-horizontal-middle">
+                            {!! RvMedia::image($shortCode->middle_center_image, 'Horizontal Middle Banner') !!}
+                            <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
+                                @if($shortCode->middle_center_subtitle)
+                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_center_subtitle) !!}</div>
+                                @endif
+                                @if($shortCode->middle_center_title)
+                                    <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_center_title) !!}</h3>
+                                @endif
+                                @if($shortCode->middle_center_button_text)
+                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_center_button_text) !!}</span>
+                                @endif
+                            </div>
+                        </a>
+                    @endif
+                </div>
 
                 {{-- Bottom Split (1fr + 1fr + 1fr) - 3 Small Banners --}}
                 <div class="ps-hero-split">
@@ -292,7 +295,7 @@
         padding-bottom: 112.5%;
     }
 
-    /* Middle Column (2.4fr) - Top Horizontal + Middle Horizontal + Bottom 3-Split */
+    /* Middle Column (2.4fr) - Top Horizontal Split + Bottom 3-Split */
     .ps-hero-middle {
         display: flex;
         flex-direction: column;
@@ -300,18 +303,25 @@
         width: 100%;
     }
 
-    /* Top Horizontal Banner */
-    .ps-hero-banner-horizontal-top {
-        width: 100%;
-        /* Aspect Ratio: 2.4:0.54 (or 20:4.5) */
-        padding-bottom: 22.5%;
+    /* Top Horizontal Split - 2 Banners Side by Side */
+    .ps-hero-horizontal-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
     }
 
-    /* Middle Horizontal Banner */
+    /* Top Left Horizontal Banner */
+    .ps-hero-banner-horizontal-top {
+        width: 100%;
+        /* Aspect Ratio: 1.2:0.54 (or 20:9) */
+        padding-bottom: 45%;
+    }
+
+    /* Top Right Horizontal Banner */
     .ps-hero-banner-horizontal-middle {
         width: 100%;
-        /* Aspect Ratio: 2.4:0.54 (or 20:4.5) */
-        padding-bottom: 22.5%;
+        /* Aspect Ratio: 1.2:0.54 (or 20:9) */
+        padding-bottom: 45%;
     }
 
     /* Bottom Split - 3 Small Banners */
@@ -419,13 +429,20 @@
             gap: 10px;
         }
         
-        /* Top Horizontal Banner */
+        /* Top Horizontal Split - Stack vertically on mobile */
+        .ps-hero-horizontal-split {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Top Left Horizontal Banner */
         .ps-hero-banner-horizontal-top {
             /* Mobile Aspect Ratio: 1.2:0.27 */
             padding-bottom: 22.5%;
         }
 
-        /* Middle Horizontal Banner */
+        /* Top Right Horizontal Banner */
         .ps-hero-banner-horizontal-middle {
             /* Mobile Aspect Ratio: 1.2:0.27 */
             padding-bottom: 22.5%;
