@@ -674,29 +674,33 @@
         @extend %list-reset;
 
         ul {
-            border: 1px solid #d1d1d1;
+            border: none;
 
             li {
-                border-bottom: 1px solid #d1d1d1;
+                border: none;
                 
                 a {
                     display: flex;
                     align-items: center;
-                    padding: 15px 20px;
+                    padding: 10px;
                     line-height: 20px;
                     font-size: 16px;
                     font-weight: 500;
                     color: var(--global-color-link);
                     text-transform: capitalize;
                     background-color: transparent;
+                    border-radius: 7px;
                     transition: all 0.15s ease-in-out;
+                    border: none;
                     
                     i, svg.icon {
                         margin-right: 10px;
+                        width: 32px;
+                        height: 32px;
                         padding: 6px;
                         border: 1px solid var(--global-color-primary-border);
                         background: var(--global-color-site-bg);
-                        border-radius: 4px;
+                        border-radius: 6px;
                         color: var(--global-color-link);
                         transition: all 0.15s ease-in-out;
                         flex-shrink: 0;
