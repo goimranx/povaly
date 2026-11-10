@@ -291,8 +291,8 @@
     
     .ps-hero-banner-large {
         width: 100%;
-        /* Aspect Ratio: 1.6:1.8 (matches column height) */
-        padding-bottom: 112.5%;
+        /* Aspect Ratio: 1.6:2.216 */
+        padding-bottom: 138.5%;
     }
 
     /* Middle Column (2.4fr) - Top Horizontal Split + Bottom 3-Split */
@@ -313,15 +313,15 @@
     /* Top Left Horizontal Banner */
     .ps-hero-banner-horizontal-top {
         width: 100%;
-        /* Aspect Ratio: 1.2:0.54 (or 20:9) */
-        padding-bottom: 45%;
+        /* Aspect Ratio: 1.2:1.5 */
+        padding-bottom: 125%;
     }
 
     /* Top Right Horizontal Banner */
     .ps-hero-banner-horizontal-middle {
         width: 100%;
-        /* Aspect Ratio: 1.2:0.54 (or 20:9) */
-        padding-bottom: 45%;
+        /* Aspect Ratio: 1.2:1.5 */
+        padding-bottom: 125%;
     }
 
     /* Bottom Split - 3 Small Banners */
@@ -344,8 +344,8 @@
     
     .ps-hero-banner-tall {
         width: 100%;
-        /* Aspect Ratio: 1.2:1.8 (or 2:3) */
-        padding-bottom: 150%;
+        /* Aspect Ratio: 1.2:2.208 */
+        padding-bottom: 184%;
     }
 
     /* Responsive Design */
@@ -410,42 +410,42 @@
             scroll-snap-align: start;
         }
         
-        /* Mobile: All sections have same width (85%), adjusted for equal heights */
+        /* Mobile: All sections have same width (85%), adjusted for proper display */
         
         .ps-hero-banner-large {
-            /* Mobile Aspect Ratio: 1.2:1 (or 6:5) */
-            padding-bottom: 83.33%;
+            /* Mobile Aspect Ratio: 1.2:1.66 (adjusted for mobile width) */
+            padding-bottom: 138.33%;
         }
         
         .ps-hero-banner-tall {
-            /* Mobile Aspect Ratio: 1.2:1 (or 6:5) */
-            padding-bottom: 83.33%;
+            /* Mobile Aspect Ratio: 1.2:2.21 (adjusted for mobile width) */
+            padding-bottom: 184.17%;
         }
 
-        /* Middle column - combined height should equal left/right */
+        /* Middle column - keep horizontal split on mobile */
         .ps-hero-middle {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
         
-        /* Top Horizontal Split - Stack vertically on mobile */
+        /* Top Horizontal Split - Keep side by side on mobile */
         .ps-hero-horizontal-split {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
 
         /* Top Left Horizontal Banner */
         .ps-hero-banner-horizontal-top {
-            /* Mobile Aspect Ratio: 1.2:0.27 */
-            padding-bottom: 22.5%;
+            /* Mobile Aspect Ratio: 0.6:0.75 (half of mobile middle width) */
+            padding-bottom: 125%;
         }
 
         /* Top Right Horizontal Banner */
         .ps-hero-banner-horizontal-middle {
-            /* Mobile Aspect Ratio: 1.2:0.27 */
-            padding-bottom: 22.5%;
+            /* Mobile Aspect Ratio: 0.6:0.75 (half of mobile middle width) */
+            padding-bottom: 125%;
         }
 
         /* Bottom Split - 3 Small Banners */
