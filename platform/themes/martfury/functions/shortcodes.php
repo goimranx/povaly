@@ -845,7 +845,7 @@ app()->booted(function (): void {
                             'collection' => __('Collection'),
                             'product' => __('Specific Products'),
                         ])
-                        ->defaultValue('category')
+                        ->selected($attributes['deal_type'] ?? 'category')
                         ->attributes([
                             'data-bb-toggle' => 'collapse',
                             'data-bb-target' => '.deal-source-wrapper',
@@ -937,7 +937,7 @@ app()->booted(function (): void {
                         'collection' => __('Collection'),
                         'product' => __('Specific Products'),
                     ])
-                    ->defaultValue('category')
+                    ->selected($attributes['offers_type'] ?? 'category')
                     ->attributes([
                         'data-bb-toggle' => 'collapse',
                         'data-bb-target' => '.offers-source-wrapper',
