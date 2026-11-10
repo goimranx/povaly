@@ -1273,7 +1273,7 @@ app()->booted(function (): void {
                 MediaImageField::class,
                 MediaImageFieldOption::make()
                     ->label(__('1. Left - Large Image'))
-                    ->helperText(__('Recommended Aspect Ratio: 1.6:2.216 (Width 1600px × Height 2216px)'))
+                    ->helperText(__('Recommended Aspect Ratio: 1.6:2.44 (Width 1600px × Height 2440px)'))
             )
             ->add(
                 'left_link',
@@ -1381,7 +1381,7 @@ app()->booted(function (): void {
                 MediaImageField::class,
                 MediaImageFieldOption::make()
                     ->label(__('4. Middle Bottom Left - Small Image'))
-                    ->helperText(__('Recommended Aspect Ratio: 0.8:0.72 (Width 800px × Height 720px)'))
+                    ->helperText(__('Recommended Aspect Ratio: 1:1.2 (Width 1000px × Height 1200px)'))
             )
             ->add(
                 'middle_bottom_left_link',
@@ -1417,7 +1417,7 @@ app()->booted(function (): void {
                 MediaImageField::class,
                 MediaImageFieldOption::make()
                     ->label(__('5. Middle Bottom Center - Small Image'))
-                    ->helperText(__('Recommended Aspect Ratio: 0.8:0.72 (Width 800px × Height 720px)'))
+                    ->helperText(__('Recommended Aspect Ratio: 1:1.2 (Width 1000px × Height 1200px)'))
             )
             ->add(
                 'middle_bottom_center_link',
@@ -1453,7 +1453,7 @@ app()->booted(function (): void {
                 MediaImageField::class,
                 MediaImageFieldOption::make()
                     ->label(__('6. Middle Bottom Right - Small Image'))
-                    ->helperText(__('Recommended Aspect Ratio: 0.8:0.72 (Width 800px × Height 720px)'))
+                    ->helperText(__('Recommended Aspect Ratio: 1:1.2 (Width 1000px × Height 1200px)'))
             )
             ->add(
                 'middle_bottom_right_link',
@@ -1489,7 +1489,7 @@ app()->booted(function (): void {
                 MediaImageField::class,
                 MediaImageFieldOption::make()
                     ->label(__('7. Right - Tall Image'))
-                    ->helperText(__('Recommended Aspect Ratio: 1.2:2.208 (Width 1200px × Height 2208px)'))
+                    ->helperText(__('Recommended Aspect Ratio: 1.2:2.448 (Width 1200px × Height 2448px)'))
             )
             ->add(
                 'right_link',
