@@ -190,7 +190,7 @@
     .ps-hero-content-topleft {
         top: 15px;
         left: 15px;
-        max-width: 70%;
+        max-width: 93%;
     }
 
     .ps-hero-content-small {

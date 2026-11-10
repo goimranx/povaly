@@ -10,7 +10,7 @@
                             {!! RvMedia::image($shortCode->left_top_image, 'Left Top Banner') !!}
                             @if($shortCode->left_top_button_text)
                                 <span class="ps-banner-button">
-                                    <span class="ps-banner-button-text">{{ $shortCode->left_top_button_text }}</span>
+                                    <span class="ps-banner-button-text">{!! $shortCode->left_top_button_text !!}</span>
                                     <i class="ps-banner-button-icon icon-arrow-right"></i>
                                 </span>
                             @endif
@@ -25,7 +25,7 @@
                             {!! RvMedia::image($shortCode->right_top_image, 'Right Top Banner') !!}
                             @if($shortCode->right_top_button_text)
                                 <span class="ps-banner-button">
-                                    <span class="ps-banner-button-text">{{ $shortCode->right_top_button_text }}</span>
+                                    <span class="ps-banner-button-text">{!! $shortCode->right_top_button_text !!}</span>
                                     <i class="ps-banner-button-icon icon-arrow-right"></i>
                                 </span>
                             @endif
@@ -41,7 +41,7 @@
                     {{-- Left Box with 2 Images Side by Side --}}
                     <div class="ps-banner-box ps-banner-box-images">
                         @if($shortCode->left_bottom_left_title)
-                            <div class="ps-banner-box-title">{{ $shortCode->left_bottom_left_title }}</div>
+                            <div class="ps-banner-box-title">{!! $shortCode->left_bottom_left_title !!}</div>
                         @endif
                         <div class="ps-banner-images-grid">
                             @if($shortCode->left_bottom_left_image1)
@@ -49,7 +49,7 @@
                                     <a href="{{ $shortCode->left_bottom_left_image1_link ?? '#' }}">
                                         {!! RvMedia::image($shortCode->left_bottom_left_image1, 'Image 1') !!}
                                         @if($shortCode->left_bottom_left_image1_text)
-                                            <span class="ps-banner-image-text">{{ $shortCode->left_bottom_left_image1_text }}</span>
+                                            <span class="ps-banner-image-text">{!! $shortCode->left_bottom_left_image1_text !!}</span>
                                         @endif
                                     </a>
                                 </div>
@@ -59,7 +59,7 @@
                                     <a href="{{ $shortCode->left_bottom_left_image2_link ?? '#' }}">
                                         {!! RvMedia::image($shortCode->left_bottom_left_image2, 'Image 2') !!}
                                         @if($shortCode->left_bottom_left_image2_text)
-                                            <span class="ps-banner-image-text">{{ $shortCode->left_bottom_left_image2_text }}</span>
+                                            <span class="ps-banner-image-text">{!! $shortCode->left_bottom_left_image2_text !!}</span>
                                         @endif
                                     </a>
                                 </div>
@@ -71,7 +71,7 @@
                     <div class="ps-banner-box ps-banner-box-grid">
                         @if($shortCode->left_bottom_right_header_text)
                             <a href="{{ $shortCode->left_bottom_right_header_link ?? '#' }}" class="ps-banner-box-header">
-                                <span>{{ $shortCode->left_bottom_right_header_text }}</span>
+                                <span>{!! $shortCode->left_bottom_right_header_text !!}</span>
                                 <i class="icon-chevron-right"></i>
                             </a>
                         @endif
@@ -112,7 +112,7 @@
                 <div class="ps-banner-box ps-banner-stack">
                     @if($shortCode->right_bottom_header_text)
                         <a href="{{ $shortCode->right_bottom_header_link ?? '#' }}" class="ps-banner-box-header">
-                            <span>{{ $shortCode->right_bottom_header_text }}</span>
+                            <span>{!! $shortCode->right_bottom_header_text !!}</span>
                             <i class="icon-chevron-right"></i>
                         </a>
                     @endif
