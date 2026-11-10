@@ -1,6 +1,6 @@
 @extends(EcommerceHelper::viewPath('customers.master'))
 
-@section('title', __('Your Orders'))
+@section('title', trans('plugins/ecommerce::customer-dashboard.orders'))
 
 @section('content')
     {!! apply_filters('ecommerce_customer_orders_before_content', '') !!}

@@ -1,6 +1,6 @@
 @extends(EcommerceHelper::viewPath('customers.master'))
 
-@section('title', __('Address Book'))
+@section('title', trans('plugins/ecommerce::customer-dashboard.address_books'))
 
 @section('content')
     {!! apply_filters('ecommerce_customer_addresses_before_content', '') !!}
