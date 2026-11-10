@@ -692,6 +692,7 @@ svg.icon {
         }
 
         .bb-customer-profile-avatar {
+            position: relative;
             flex-shrink: 0;
             width: 48px;
             height: 48px;
@@ -702,6 +703,47 @@ svg.icon {
                 border-radius: 50%;
                 object-fit: cover;
                 background-color: #d1d5db;
+            }
+
+            .bb-customer-profile-avatar-overlay {
+                position: absolute;
+                bottom: -2px;
+                right: -2px;
+                background-color: var(--global-color-link);
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 2px solid var(--global-color-link-subtle);
+                cursor: pointer;
+                transition: background-color 0.2s;
+
+                &:hover {
+                    background-color: var(--global-color-link-hover);
+                }
+
+                input[type="file"] {
+                    display: none;
+                }
+
+                label {
+                    cursor: pointer;
+                    color: #ffffff;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+                    height: 100%;
+                    font-size: 10px;
+                    
+                    svg {
+                        width: 12px;
+                        height: 12px;
+                    }
+                }
             }
         }
 
@@ -740,10 +782,12 @@ svg.icon {
                 text-decoration: none;
                 font-weight: 500;
                 white-space: nowrap;
-                transition: opacity 0.2s;
+                text-transform: capitalize;
+                transition: color 0.2s;
 
                 &:hover {
-                    opacity: 0.8;
+                    color: var(--global-color-link-hover);
+                    text-decoration: underline;
                 }
             }
         }
@@ -758,6 +802,16 @@ svg.icon {
             .bb-customer-profile-avatar {
                 width: 40px;
                 height: 40px;
+
+                .bb-customer-profile-avatar-overlay {
+                    width: 18px;
+                    height: 18px;
+
+                    label svg {
+                        width: 10px;
+                        height: 10px;
+                    }
+                }
             }
 
             .bb-customer-profile-info {
