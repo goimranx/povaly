@@ -4,6 +4,14 @@
             <div class="col-lg-4">
                 <div class="ps-section__left">
                     <aside class="ps-widget--account-dashboard">
+                        <div class="ps-widget__header">
+                            <div class="ps-widget__header-content">
+                                <h2 class="ps-widget__title">{{ $title ?? __('Your Account') }}</h2>
+                                <p class="ps-widget__subtitle">
+                                    {{ auth('customer')->user()->name }}, Email: {{ auth('customer')->user()->email }}
+                                </p>
+                            </div>
+                        </div>
                         <div class="ps-widget__content">
                             <ul>
                                 @foreach (DashboardMenu::getAll('customer') as $item)

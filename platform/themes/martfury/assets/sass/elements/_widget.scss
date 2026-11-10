@@ -640,32 +640,26 @@
 
 .ps-widget--account-dashboard {
     .ps-widget__header {
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: space-between;
-        align-items: flex-start;
+        padding-top: 15px;
         padding-bottom: 20px;
-
-        img {
-            flex-basis: 60px;
-            max-width: 60px;
-            border-radius: 50%;
-        }
-
-        figure {
-            flex-basis: 100%;
-            padding-left: 10px;
-
-            figcaption {
-                font-size: 16px;
-                color: $color-text;
+        margin: 0 0 20px 0;
+        border-bottom: 1px solid var(--global-color-primary-border);
+        
+        .ps-widget__header-content {
+            .ps-widget__title {
+                margin: 0 0 8px 0;
+                font-size: 32px;
+                font-weight: 700;
+                color: var(--global-color-text-main);
+                line-height: 1.2;
             }
-
-            p {
-                margin-bottom: 0;
+            
+            .ps-widget__subtitle {
+                margin: 0;
                 font-size: 16px;
-                font-weight: 600;
-                color: $color-heading;
+                font-weight: 500;
+                color: var(--global-color-text-body);
+                line-height: 1.5;
             }
         }
     }
