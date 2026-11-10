@@ -680,7 +680,8 @@
                 border-bottom: 1px solid #d1d1d1;
                 
                 a {
-                    display: block;
+                    display: flex;
+                    align-items: center;
                     padding: 15px 20px;
                     line-height: 20px;
                     font-size: 16px;
@@ -692,13 +693,23 @@
                     
                     i, svg.icon {
                         margin-right: 10px;
+                        padding: 6px;
+                        border: 1px solid var(--global-color-primary-border);
+                        background: var(--global-color-site-bg);
+                        border-radius: 4px;
                         color: var(--global-color-link);
-                        transition: color 0.15s ease-in-out;
+                        transition: all 0.15s ease-in-out;
+                        flex-shrink: 0;
                     }
                     
                     &:hover {
                         background-color: var(--global-color-card-bg);
                         color: var(--global-color-link);
+                        
+                        i, svg.icon {
+                            border-color: var(--global-color-primary-border);
+                            background: var(--global-color-site-bg);
+                        }
                     }
                 }
 
@@ -713,6 +724,8 @@
                         font-weight: 600;
                         
                         i, svg.icon {
+                            border: 1px solid var(--global-color-primary-border);
+                            background: var(--global-color-site-bg);
                             color: var(--global-color-link);
                         }
                     }
