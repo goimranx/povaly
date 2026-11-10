@@ -45,8 +45,8 @@
             }
 
             .bb-file-button {
-                background-color: var(--primary-color);
-                color: #fff;
+                background: var(--global-color-border-strong);
+                color: var(--global-color-text-main);
             }
         }
 
@@ -110,10 +110,11 @@
 
         .bb-file-button {
             flex-shrink: 0;
-            padding: 0.5rem 1rem;
-            background-color: #e9ecef;
-            color: #495057;
-            border-radius: 0.375rem;
+            padding: 6px 15px;
+            background: var(--ec-btn-buy-bg);
+            color: var(--ec-btn-buy-text);
+            border: none;
+            border-radius: 6px;
             font-weight: 500;
             font-size: 0.875rem;
             transition: all 0.3s ease;
@@ -148,8 +149,17 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
+        padding: 6px 15px;
+        background: var(--ec-btn-buy-bg);
+        color: var(--ec-btn-buy-text);
+        border: none;
+        border-radius: 6px;
         white-space: nowrap;
+        transition: background-color 0.2s;
+
+        &:hover {
+            background: var(--ec-btn-buy-bg-hover);
+        }
 
         @media (max-width: 767px) {
             width: 100%;
