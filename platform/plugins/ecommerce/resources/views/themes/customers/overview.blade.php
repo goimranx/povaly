@@ -1,6 +1,6 @@
 @extends(EcommerceHelper::viewPath('customers.master'))
 
-@section('title', __('Your Account'))
+@section('title', trans('plugins/ecommerce::customer-dashboard.overview'))
 
 @section('content')
     @php

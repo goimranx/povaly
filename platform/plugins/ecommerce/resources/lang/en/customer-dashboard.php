@@ -2,7 +2,7 @@
 
 return [
     // Overview page
-    'overview' => 'Overview',
+    'overview' => 'Your account',
     'change_avatar' => 'Change avatar',
     'welcome_back' => 'Welcome back, <strong>:name</strong>!',
     'manage_account_description' => 'Manage your account, view orders, and update your preferences from your personal dashboard.',
@@ -10,7 +10,7 @@ return [
     'track_orders_description' => 'Track your recent orders and order history',
     'manage_addresses' => 'Manage Addresses',
     'update_addresses_description' => 'Update your shipping and billing addresses',
-    'account_settings' => 'Account Settings',
+    'account_settings' => 'Account settings',
     'edit_profile_description' => 'Edit your profile and account details',
     'edit_account' => 'Edit Account',
     'ready_to_start_shopping' => 'Ready to start shopping?',
@@ -18,11 +18,11 @@ return [
     'browse_products' => 'Browse Products',
 
     // Account settings
-    'profile_information' => 'Profile Information',
+    'profile_information' => 'Profile information',
     'update_profile_description' => 'Update your account profile information and email address.',
     'change_password' => 'Change password',
     'ensure_secure_password' => 'Ensure your account is using a long, random password to stay secure.',
-    'delete_account' => 'Delete Account',
+    'delete_account' => 'Delete account',
     'delete_account_description' => 'Permanently delete your account and all associated data.',
     'warning' => 'Warning',
     'delete_account_warning' => 'This action will permanently delete your account and all associated data and is irreversible. Please be sure before proceeding.',
@@ -56,7 +56,7 @@ return [
     'are_you_sure_delete_address' => 'Are you sure you want to delete this address?',
 
     // Orders
-    'orders' => 'Orders',
+    'orders' => 'Your orders',
     'order_code' => 'Order :code',
     'total_amount' => 'Total Amount',
     'items' => 'Items',
@@ -111,8 +111,8 @@ return [
     'no_digital_products_description' => 'You have not purchased any digital products yet.',
 
     // Order returns
-    'request_return_products' => 'Request Return Product(s)',
-    'order_return_requests' => 'Order Return Requests',
+    'request_return_products' => 'Request return product(s)',
+    'order_return_requests' => 'Order returns',
     'return_request_code' => 'Return Request :code',
     'original_order' => 'Original Order',
     'click_to_view_order_details' => 'Click to view order details',

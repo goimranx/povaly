@@ -1,6 +1,6 @@
 @extends(EcommerceHelper::viewPath('customers.master'))
 
-@section('title', __('Product Reviews'))
+@section('title', SeoHelper::getTitle())
 
 @section('content')
     <div class="bb-customer-content-wrapper">
