@@ -892,6 +892,7 @@ app()->booted(function (): void {
                     ->choices($products)
                     ->searchable()
                     ->multiple()
+                    ->selected(!empty($attributes['deal_product_ids']) ? explode(',', $attributes['deal_product_ids']) : [])
             )
             ->add('deal_source_product_close', 'html', ['html' => '</div>'])
             
@@ -984,6 +985,7 @@ app()->booted(function (): void {
                     ->choices($products)
                     ->searchable()
                     ->multiple()
+                    ->selected(!empty($attributes['offers_product_ids']) ? explode(',', $attributes['offers_product_ids']) : [])
             )
             ->add('offers_source_product_close', 'html', ['html' => '</div>'])
             
