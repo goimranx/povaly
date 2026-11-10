@@ -291,8 +291,8 @@
     
     .ps-hero-banner-large {
         width: 100%;
-        /* Aspect Ratio: 1.6:2.216 */
-        padding-bottom: 138.5%;
+        /* Aspect Ratio: 1.6:2.44 */
+        padding-bottom: 152.5%;
     }
 
     /* Middle Column (2.4fr) - Top Horizontal Split + Bottom 3-Split */
@@ -333,8 +333,8 @@
 
     .ps-hero-banner-small {
         width: 100%;
-        /* Aspect Ratio: 0.8:0.72 (or 10:9) */
-        padding-bottom: 90%;
+        /* Aspect Ratio: 1:1.2 */
+        padding-bottom: 120%;
     }
 
     /* Right Column (1.2fr) - Tall Banner */
@@ -344,8 +344,8 @@
     
     .ps-hero-banner-tall {
         width: 100%;
-        /* Aspect Ratio: 1.2:2.208 */
-        padding-bottom: 184%;
+        /* Aspect Ratio: 1.2:2.448 */
+        padding-bottom: 204%;
     }
 
     /* Responsive Design */
@@ -386,70 +386,71 @@
     }
 
     @media (max-width: 768px) {
-        .ps-hero-grid-wrapper {
-            display: flex;
-            flex-wrap: nowrap;
+        /* Make ps-container scrollable */
+        .ps-promotional-hero-grid .ps-container {
             overflow-x: auto;
             overflow-y: hidden;
             scroll-snap-type: x mandatory;
-            gap: 10px;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
             padding-bottom: 5px;
         }
         
-        .ps-hero-grid-wrapper::-webkit-scrollbar {
+        .ps-promotional-hero-grid .ps-container::-webkit-scrollbar {
             display: none;
         }
 
-        /* Mobile: All sections use standard width for horizontal scroll */
+        /* Set minimum width for grid wrapper to enable scrolling */
+        .ps-hero-grid-wrapper {
+            min-width: 1100px;
+            width: max-content;
+        }
+
+        /* Keep all desktop styles - same aspect ratios */
         .ps-hero-left,
         .ps-hero-middle,
         .ps-hero-right {
-            flex: 0 0 85%;
-            min-width: 85%;
             scroll-snap-align: start;
         }
         
-        /* Keep same aspect ratios as desktop on mobile */
-        
+        /* Keep same aspect ratios as desktop */
         .ps-hero-banner-large {
-            /* Same as desktop: 1.6:2.216 */
-            padding-bottom: 138.5%;
+            /* Same as desktop: 1.6:2.44 */
+            padding-bottom: 152.5%;
         }
         
         .ps-hero-banner-tall {
-            /* Same as desktop: 1.2:2.208 */
-            padding-bottom: 184%;
+            /* Same as desktop: 1.2:2.448 */
+            padding-bottom: 204%;
         }
 
-        /* Middle column - keep horizontal split on mobile */
+        /* Middle column maintains grid structure */
         .ps-hero-middle {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
         
-        /* Top Horizontal Split - Keep side by side on mobile */
+        /* Top Horizontal Split - Keep grid */
         .ps-hero-horizontal-split {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
 
-        /* Top Left Horizontal Banner - Keep same ratio */
+        /* Top Left Horizontal Banner */
         .ps-hero-banner-horizontal-top {
             /* Same as desktop: 1.2:1.5 */
             padding-bottom: 125%;
         }
 
-        /* Top Right Horizontal Banner - Keep same ratio */
+        /* Top Right Horizontal Banner */
         .ps-hero-banner-horizontal-middle {
             /* Same as desktop: 1.2:1.5 */
             padding-bottom: 125%;
         }
 
-        /* Bottom Split - 3 Small Banners */
+        /* Bottom Split - Keep 3 items grid */
         .ps-hero-split {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -457,8 +458,8 @@
         }
         
         .ps-hero-banner-small {
-            /* Same as desktop: 0.8:0.72 */
-            padding-bottom: 90%;
+            /* Same as desktop: 1:1.2 */
+            padding-bottom: 120%;
         }
 
         .ps-hero-title {
