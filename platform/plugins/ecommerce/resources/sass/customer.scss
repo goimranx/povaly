@@ -519,14 +519,24 @@ svg.icon {
             }
 
             .bb-customer-card-footer {
-                .btn {
-                    border-radius: 4px;
+                .btn,
+                a {
+                    background: var(--ec-btn-buy-bg);
+                    color: var(--ec-btn-buy-text);
+                    padding: 6px 15px;
+                    border: none;
+                    border-radius: 6px;
                     font-weight: 500;
-                    padding: 0.5rem 1rem;
                     font-size: 0.8125rem;
                     display: inline-flex;
                     align-items: center;
                     gap: 0.375rem;
+                    text-decoration: none;
+                    transition: background-color 0.2s;
+
+                    &:hover {
+                        background: var(--ec-btn-buy-bg-hover);
+                    }
 
                     .icon {
                         width: 1rem;
@@ -836,7 +846,7 @@ svg.icon {
 .bb-quick-action-card {
     display: flex;
     align-items: flex-start;
-    gap: 20px;
+    gap: 7px;
     padding: 16px;
     background: var(--global-color-site-bg);
     border: 1px solid var(--global-color-primary-border);
