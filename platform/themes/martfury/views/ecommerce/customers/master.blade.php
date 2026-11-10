@@ -44,6 +44,6 @@
     </div>
 </section>
 
-{!! shortcode()->compile('[trending-products title="Customers who shop on our store also viewed" limit="12" enable_caching="no" enable_lazy_loading="no"][/trending-products]') !!}
+{!! shortcode()->compile('[trending-products title="Customers who shop on our store mostly viewed" limit="12" enable_caching="no" enable_lazy_loading="no"][/trending-products]') !!}
 
 {!! shortcode()->compile('[recently-viewed-products title="Your browsing history" enable_caching="no" enable_lazy_loading="no"][/recently-viewed-products]') !!}
