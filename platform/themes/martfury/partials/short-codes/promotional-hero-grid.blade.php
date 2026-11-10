@@ -204,7 +204,10 @@
     }
 
     /* Typography */
-    .ps-hero-subtitle {
+    .ps-hero-subtitle,
+    .ps-hero-subtitle *,
+    .ps-hero-subtitle span,
+    .ps-hero-subtitle div {
         font-size: 16px;
         font-weight: 400;
         color: var(--global-color-text-on-dark);
@@ -213,12 +216,18 @@
         line-height: 1.4;
     }
 
-    .ps-hero-content-small .ps-hero-subtitle {
+    .ps-hero-content-small .ps-hero-subtitle,
+    .ps-hero-content-small .ps-hero-subtitle *,
+    .ps-hero-content-small .ps-hero-subtitle span,
+    .ps-hero-content-small .ps-hero-subtitle div {
         font-size: 14px;
         color: var(--global-color-text-main);
     }
 
-    .ps-hero-title {
+    .ps-hero-title,
+    .ps-hero-title *,
+    .ps-hero-title span,
+    .ps-hero-title div {
         font-size: 48px;
         font-weight: 700;
         color: var(--global-color-text-on-dark);
@@ -227,7 +236,10 @@
         text-transform: capitalize;
     }
 
-    .ps-hero-content-small .ps-hero-title {
+    .ps-hero-content-small .ps-hero-title,
+    .ps-hero-content-small .ps-hero-title *,
+    .ps-hero-content-small .ps-hero-title span,
+    .ps-hero-content-small .ps-hero-title div {
         font-size: 20px;
         font-weight: 700;
         color: var(--global-color-text-main);
@@ -235,7 +247,10 @@
     }
 
     /* Buttons */
-    .ps-hero-button {
+    .ps-hero-button,
+    .ps-hero-button *,
+    .ps-hero-button span,
+    .ps-hero-button div {
         display: inline-block;
         font-size: 14px;
         font-weight: 600;
