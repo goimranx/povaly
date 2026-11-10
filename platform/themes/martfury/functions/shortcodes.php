@@ -1260,13 +1260,13 @@ app()->booted(function (): void {
     shortcode()->setAdminConfig('promotional-hero-grid', function (array $attributes) {
         return ShortcodeForm::createFromArray($attributes)
             ->withLazyLoading()
-            // 1. Left - Large Banner
+            // 1. Left Column - Large Banner (1.6fr)
             ->add(
                 'left_image',
                 MediaImageField::class,
                 MediaImageFieldOption::make()
                     ->label(__('1. Left - Large Image'))
-                    ->helperText(__('Recommended Ratio: 2.2:1.8 (or 11:9)'))
+                    ->helperText(__('Recommended Aspect Ratio: 1.6:1.8 (Width 1600px × Height 1800px)'))
             )
             ->add(
                 'left_link',
@@ -1279,166 +1279,259 @@ app()->booted(function (): void {
                 'left_subtitle',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('1. Left - Subtitle'))
+                    ->label(__('1. Left - Subtitle (HTML Supported)'))
                     ->placeholder(__('New Arrival'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'left_title',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('1. Left - Title'))
+                    ->label(__('1. Left - Title (HTML Supported)'))
                     ->placeholder(__('Amazing Products'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
                 'left_button_text',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('1. Left - Button Text'))
+                    ->label(__('1. Left - Button Text (HTML Supported)'))
                     ->placeholder(__('Shop Now'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
-            // 2. Middle - Top Vertical Banner
+            // 2. Middle Column - Top Horizontal Banner
             ->add(
-                'right_top_image',
+                'middle_top_image',
                 MediaImageField::class,
                 MediaImageFieldOption::make()
-                    ->label(__('2. Middle - Top Vertical Image'))
-                    ->helperText(__('Recommended Ratio: 1.8:1.08 (or 5:3)'))
+                    ->label(__('2. Middle Top - Horizontal Image'))
+                    ->helperText(__('Recommended Aspect Ratio: 2.4:0.54 (Width 2400px × Height 540px)'))
             )
             ->add(
-                'right_top_link',
+                'middle_top_link',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('2. Middle - Top Link'))
+                    ->label(__('2. Middle Top - Link'))
                     ->placeholder('#')
             )
             ->add(
-                'right_top_subtitle',
+                'middle_top_subtitle',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('2. Middle - Top Subtitle'))
+                    ->label(__('2. Middle Top - Subtitle (HTML Supported)'))
                     ->placeholder(__('Hot Deal'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
-                'right_top_title',
+                'middle_top_title',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('2. Middle - Top Title'))
+                    ->label(__('2. Middle Top - Title (HTML Supported)'))
                     ->placeholder(__('Special Offer'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
-                'right_top_button_text',
+                'middle_top_button_text',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('2. Middle - Top Button Text'))
+                    ->label(__('2. Middle Top - Button Text (HTML Supported)'))
                     ->placeholder(__('View More'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
-            // 3. Middle - Bottom Left Banner
+            // 3. Middle Column - Center Horizontal Banner
             ->add(
-                'right_middle_left_image',
+                'middle_center_image',
                 MediaImageField::class,
                 MediaImageFieldOption::make()
-                    ->label(__('3. Middle - Bottom Left Image'))
-                    ->helperText(__('Recommended Ratio: 0.9:0.72 (or 5:4)'))
+                    ->label(__('3. Middle Center - Horizontal Image'))
+                    ->helperText(__('Recommended Aspect Ratio: 2.4:0.54 (Width 2400px × Height 540px)'))
             )
             ->add(
-                'right_middle_left_link',
+                'middle_center_link',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('3. Middle - Bottom Left Link'))
+                    ->label(__('3. Middle Center - Link'))
                     ->placeholder('#')
             )
             ->add(
-                'right_middle_left_title',
+                'middle_center_subtitle',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('3. Middle - Bottom Left Title'))
-                    ->placeholder(__('Category Name'))
-            )
-            ->add(
-                'right_middle_left_subtitle',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('3. Middle - Bottom Left Subtitle'))
-                    ->placeholder(__('Description'))
-            )
-            ->add(
-                'right_middle_left_button_text',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('3. Middle - Bottom Left Button Text'))
-                    ->placeholder(__('Explore'))
-            )
-            // 4. Middle - Bottom Right Banner
-            ->add(
-                'right_middle_right_image',
-                MediaImageField::class,
-                MediaImageFieldOption::make()
-                    ->label(__('4. Middle - Bottom Right Image'))
-                    ->helperText(__('Recommended Ratio: 0.9:0.72 (or 5:4)'))
-            )
-            ->add(
-                'right_middle_right_link',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('4. Middle - Bottom Right Link'))
-                    ->placeholder('#')
-            )
-            ->add(
-                'right_middle_right_title',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('4. Middle - Bottom Right Title'))
-                    ->placeholder(__('Category Name'))
-            )
-            ->add(
-                'right_middle_right_subtitle',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('4. Middle - Bottom Right Subtitle'))
-                    ->placeholder(__('Description'))
-            )
-            ->add(
-                'right_middle_right_button_text',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('4. Middle - Bottom Right Button Text'))
-                    ->placeholder(__('Explore'))
-            )
-            // 5. Right - Tall Banner
-            ->add(
-                'right_bottom_image',
-                MediaImageField::class,
-                MediaImageFieldOption::make()
-                    ->label(__('5. Right - Tall Image'))
-                    ->helperText(__('Recommended Ratio: 1.2:1.8 (or 2:3)'))
-            )
-            ->add(
-                'right_bottom_link',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('5. Right - Link'))
-                    ->placeholder('#')
-            )
-            ->add(
-                'right_bottom_subtitle',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('5. Right - Subtitle'))
+                    ->label(__('3. Middle Center - Subtitle (HTML Supported)'))
                     ->placeholder(__('Limited Time'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
-                'right_bottom_title',
+                'middle_center_title',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('5. Right - Title'))
+                    ->label(__('3. Middle Center - Title (HTML Supported)'))
                     ->placeholder(__('Flash Sale'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             )
             ->add(
-                'right_bottom_button_text',
+                'middle_center_button_text',
                 TextField::class,
                 TextFieldOption::make()
-                    ->label(__('5. Right - Button Text'))
+                    ->label(__('3. Middle Center - Button Text (HTML Supported)'))
                     ->placeholder(__('Shop Now'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
+            )
+            // 4. Middle Column - Bottom Left Small Banner
+            ->add(
+                'middle_bottom_left_image',
+                MediaImageField::class,
+                MediaImageFieldOption::make()
+                    ->label(__('4. Middle Bottom Left - Small Image'))
+                    ->helperText(__('Recommended Aspect Ratio: 0.8:0.72 (Width 800px × Height 720px)'))
+            )
+            ->add(
+                'middle_bottom_left_link',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('4. Middle Bottom Left - Link'))
+                    ->placeholder('#')
+            )
+            ->add(
+                'middle_bottom_left_title',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('4. Middle Bottom Left - Title (HTML Supported)'))
+                    ->placeholder(__('Category Name'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
+            )
+            ->add(
+                'middle_bottom_left_subtitle',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('4. Middle Bottom Left - Subtitle (HTML Supported)'))
+                    ->placeholder(__('Description'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
+            )
+            ->add(
+                'middle_bottom_left_button_text',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('4. Middle Bottom Left - Button Text (HTML Supported)'))
+                    ->placeholder(__('Explore'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
+            )
+            // 5. Middle Column - Bottom Center Small Banner
+            ->add(
+                'middle_bottom_center_image',
+                MediaImageField::class,
+                MediaImageFieldOption::make()
+                    ->label(__('5. Middle Bottom Center - Small Image'))
+                    ->helperText(__('Recommended Aspect Ratio: 0.8:0.72 (Width 800px × Height 720px)'))
+            )
+            ->add(
+                'middle_bottom_center_link',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('5. Middle Bottom Center - Link'))
+                    ->placeholder('#')
+            )
+            ->add(
+                'middle_bottom_center_title',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('5. Middle Bottom Center - Title (HTML Supported)'))
+                    ->placeholder(__('Category Name'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
+            )
+            ->add(
+                'middle_bottom_center_subtitle',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('5. Middle Bottom Center - Subtitle (HTML Supported)'))
+                    ->placeholder(__('Description'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
+            )
+            ->add(
+                'middle_bottom_center_button_text',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('5. Middle Bottom Center - Button Text (HTML Supported)'))
+                    ->placeholder(__('Explore'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
+            )
+            // 6. Middle Column - Bottom Right Small Banner
+            ->add(
+                'middle_bottom_right_image',
+                MediaImageField::class,
+                MediaImageFieldOption::make()
+                    ->label(__('6. Middle Bottom Right - Small Image'))
+                    ->helperText(__('Recommended Aspect Ratio: 0.8:0.72 (Width 800px × Height 720px)'))
+            )
+            ->add(
+                'middle_bottom_right_link',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('6. Middle Bottom Right - Link'))
+                    ->placeholder('#')
+            )
+            ->add(
+                'middle_bottom_right_title',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('6. Middle Bottom Right - Title (HTML Supported)'))
+                    ->placeholder(__('Category Name'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
+            )
+            ->add(
+                'middle_bottom_right_subtitle',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('6. Middle Bottom Right - Subtitle (HTML Supported)'))
+                    ->placeholder(__('Description'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
+            )
+            ->add(
+                'middle_bottom_right_button_text',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('6. Middle Bottom Right - Button Text (HTML Supported)'))
+                    ->placeholder(__('Explore'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
+            )
+            // 7. Right Column - Tall Banner (1.2fr)
+            ->add(
+                'right_image',
+                MediaImageField::class,
+                MediaImageFieldOption::make()
+                    ->label(__('7. Right - Tall Image'))
+                    ->helperText(__('Recommended Aspect Ratio: 1.2:1.8 (Width 1200px × Height 1800px)'))
+            )
+            ->add(
+                'right_link',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('7. Right - Link'))
+                    ->placeholder('#')
+            )
+            ->add(
+                'right_subtitle',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('7. Right - Subtitle (HTML Supported)'))
+                    ->placeholder(__('Limited Time'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
+            )
+            ->add(
+                'right_title',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('7. Right - Title (HTML Supported)'))
+                    ->placeholder(__('Flash Sale'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
+            )
+            ->add(
+                'right_button_text',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('7. Right - Button Text (HTML Supported)'))
+                    ->placeholder(__('Shop Now'))
+                    ->helperText(__('You can use HTML tags like <br /> for line breaks'))
             );
     });
 
