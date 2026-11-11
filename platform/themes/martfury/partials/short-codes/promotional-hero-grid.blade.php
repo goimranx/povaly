@@ -317,6 +317,19 @@
         text-decoration: none;
     }
 
+    /* White text utility - wrap text in span for white color */
+    .ps-hero-title span {
+        color: #fff !important;
+    }
+
+    .ps-hero-subtitle span {
+        color: #fff !important;
+    }
+
+    .ps-hero-button span {
+        color: #fff !important;
+    }
+
     /* Left Column (1.6fr) - Large Banner */
     .ps-hero-left {
         width: 100%;

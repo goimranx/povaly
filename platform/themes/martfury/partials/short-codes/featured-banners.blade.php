@@ -259,7 +259,10 @@
         flex-direction: column;
     }
 
-    .ps-banner-box-title {
+    .ps-banner-box-title,
+    .ps-banner-box-title *,
+    .ps-banner-box-title span,
+    .ps-banner-box-title div {
         font-size: 16px;
         font-weight: 600;
         color: var(--global-color-text-main);
@@ -304,7 +307,10 @@
         border-radius: 6px;
     }
 
-    .ps-banner-image-text {
+    .ps-banner-image-text,
+    .ps-banner-image-text *,
+    .ps-banner-image-text span,
+    .ps-banner-image-text div {
         position: absolute;
         top: 10px;
         left: 10px;
@@ -315,6 +321,19 @@
         line-height: 1.2;
         font-weight: 700;
         z-index: 10;
+    }
+
+    /* White text utility - wrap text in span for white color */
+    .ps-banner-image-text span {
+        color: #fff !important;
+    }
+
+    .ps-banner-box-title span {
+        color: #fff !important;
+    }
+
+    .ps-banner-box-header span span {
+        color: #fff !important;
     }
 
     /* Left Bottom Right - Header + 2x2 Grid */
@@ -330,6 +349,15 @@
     }
 
     .ps-banner-box-header span {
+        font-size: 22px;
+        line-height: 1.2;
+        font-weight: 700;
+        color: var(--global-color-text-main);
+    }
+
+    .ps-banner-box-header span *,
+    .ps-banner-box-header span span,
+    .ps-banner-box-header span div {
         font-size: 22px;
         line-height: 1.2;
         font-weight: 700;
