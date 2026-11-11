@@ -307,10 +307,7 @@
         border-radius: 6px;
     }
 
-    .ps-banner-image-text,
-    .ps-banner-image-text *,
-    .ps-banner-image-text span,
-    .ps-banner-image-text div {
+    .ps-banner-image-text {
         position: absolute;
         top: 10px;
         left: 10px;
@@ -321,6 +318,15 @@
         line-height: 1.2;
         font-weight: 700;
         z-index: 10;
+    }
+
+    .ps-banner-image-text *,
+    .ps-banner-image-text span,
+    .ps-banner-image-text div {
+        color: var(--global-color-text-main);
+        font-size: 22px;
+        line-height: 1.2;
+        font-weight: 700;
     }
 
     /* White text utility - wrap text in span for white color */
@@ -534,7 +540,14 @@
             padding:20px 0 10px 0;
             margin:0;
         }
-        .ps-banner-image-text, .ps-banner-box-header span {
+        
+        .ps-banner-image-text {
+            font-size: 20px;
+            top: 7px;
+            left: 7px;
+        }
+        
+        .ps-banner-box-header span {
             font-size: 20px;
         }
     }
