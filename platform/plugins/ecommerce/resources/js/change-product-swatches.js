@@ -92,7 +92,19 @@ class ChangeProductSwatches {
                 $label.text($item.data('title') || '')
             }
 
+            console.log('%c🔴 [SWATCH CLICK] About to trigger change event', 'background: #ff0000; color: #fff; font-size: 14px; font-weight: bold; padding: 2px 6px;', {
+                radio: $radio[0],
+                radioId: $radio.attr('id'),
+                radioName: $radio.attr('name'),
+                radioValue: $radio.val(),
+                isChecked: $radio.is(':checked'),
+                hasProductAttributesParent: $radio.closest('.product-attributes').length > 0,
+                productAttributesId: $radio.closest('.product-attributes').attr('id')
+            })
+
             $radio.trigger('change')
+            
+            console.log('%c🔴 [SWATCH CLICK] Change event triggered', 'background: #ff0000; color: #fff; font-size: 14px; padding: 2px 6px;')
         })
 
         $body
@@ -129,6 +141,23 @@ class ChangeProductSwatches {
                 console.log('%c🟡 [CHANGE EVENT] About to call getProductVariation', 'background: #ffcc00; color: #000; font-size: 14px; padding: 2px 6px;')
                 _self.getProductVariation($parent)
             })
+        
+        console.log('%c✅ [HANDLER REGISTERED] Change event handler attached to body', 'background: #00ff00; color: #000; font-size: 14px; font-weight: bold; padding: 2px 6px;', {
+            selector: '.product-attributes input, .product-attributes select',
+            inputsFound: $('.product-attributes input').length,
+            selectsFound: $('.product-attributes select').length,
+            firstInputId: $('.product-attributes input').first().attr('id'),
+            firstInputName: $('.product-attributes input').first().attr('name')
+        })
+        
+        // Test that the handler can be triggered
+        setTimeout(() => {
+            console.log('%c🧪 [HANDLER TEST] Testing if change handler fires...', 'background: #ff00ff; color: #fff; font-size: 14px; font-weight: bold; padding: 2px 6px;')
+            const $testInput = $('.product-attributes input').first()
+            if ($testInput.length) {
+                $testInput.trigger('change')
+            }
+        }, 2000)
 
         if ($('.product-attribute-swatches').length) {
             window.addEventListener(
