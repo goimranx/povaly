@@ -494,6 +494,7 @@ class ChangeProductSwatches {
                 },
                 success: (res) => {
                     if (res && res.data && !res.data.error_message) {
+                        // Update price
                         const price = _self.formatPrice(Math.round(res.data.sale_price || res.data.price))
                         const origPrice = res.data.price > res.data.sale_price ? _self.formatPrice(Math.round(res.data.price)) : null
                         
@@ -502,6 +503,20 @@ class ChangeProductSwatches {
                             html += `<del class="qs-var-item__price-orig">${origPrice}</del>`
                         }
                         $priceDiv.html(html)
+                        
+                        // Update thumbnail - SAME LOGIC AS PRICE!
+                        const $thumb = $item.find('.qs-var-item__thumb img')
+                        if ($thumb.length && res.data.image_with_sizes && res.data.image_with_sizes.thumb) {
+                            const thumbUrl = res.data.image_with_sizes.thumb
+                            console.log('🖼️ [SWATCH PRICE UPDATE] Also updating thumbnail:', {
+                                colorId: colorId,
+                                colorTitle: $item.data('title'),
+                                variationId: res.data.id,
+                                oldSrc: $thumb.attr('src'),
+                                newSrc: thumbUrl
+                            })
+                            $thumb.attr('src', thumbUrl)
+                        }
                     }
                 }
             })
