@@ -420,25 +420,41 @@
                 this.jumpToImage(firstVariationImage.index);
                 this.scrollThumbnailsToShow(firstVariationImage.index);
             } else {
-                console.log('[PV Gallery DEBUG] No Direct Variation Images - Using Map', {
-                    variationId: variationId,
-                    targetIndexFromMap: this.variationMap[variationId] !== undefined ? this.variationMap[variationId] : 'NOT FOUND'
-                });
-                
-                // If variationMap has the index, use it
+                // CRITICAL FIX: When no images found after reordering, try the variation map FIRST
+                // This handles the case where shared images were deduplicated
                 let targetIndex = this.variationMap[variationId];
                 
+                console.log('[PV Gallery DEBUG] No Direct Variation Images - Trying Map', {
+                    variationId: variationId,
+                    mapExists: this.variationMap.hasOwnProperty(variationId),
+                    targetIndexFromMap: targetIndex !== undefined ? targetIndex : 'NOT FOUND',
+                    mapSize: Object.keys(this.variationMap).length
+                });
+                
                 if (targetIndex !== undefined) {
+                    console.log('[PV Gallery DEBUG] Using Map Index', {
+                        variationId: variationId,
+                        jumpIndex: targetIndex
+                    });
                     this.jumpToImage(targetIndex);
                     this.scrollThumbnailsToShow(targetIndex);
                     return;
                 }
                 
-                // Try to find any image with this variation ID
+                // Last resort: Try to find any image with this variation ID in the full array
                 const firstVariationImage = this.allImages.find(img => img.variationId == variationId);
                 if (firstVariationImage) {
+                    console.log('[PV Gallery DEBUG] Found in Full Array', {
+                        variationId: variationId,
+                        jumpIndex: firstVariationImage.index
+                    });
                     this.jumpToImage(firstVariationImage.index);
                     this.scrollThumbnailsToShow(firstVariationImage.index);
+                } else {
+                    console.error('[PV Gallery DEBUG] FAILED - No images or map entry for variation', {
+                        variationId: variationId,
+                        availableVariations: Object.keys(this.variationMap)
+                    });
                 }
             }
         }
