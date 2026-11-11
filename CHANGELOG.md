@@ -5,6 +5,30 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.2] - 2024-11-11
+
+### 🐛 Bug Fixes
+
+#### Honeypot Protection - Admin Route Detection
+- **Strengthened admin route detection to prevent false positives**
+  - Added multiple detection methods (4 checks instead of 1)
+  - `$request->is('admin')` - Exact match
+  - `$request->is('admin/*')` - Wildcard pattern  
+  - `str_starts_with($request->path(), 'admin/')` - String prefix
+  - `$request->segment(1) === 'admin'` - First URL segment
+  - Ensures ALL admin URLs bypass honeypot validation
+  
+#### Technical Details
+- Previous single check `$request->is('admin/*')` wasn't catching all cases
+- Visual builder AJAX requests were still triggering validation
+- Comprehensive check now covers all edge cases
+- Admin panel fully functional without honeypot interference
+
+### 📝 Notes
+- Second hotfix for v2.7.0 honeypot feature
+- Frontend forms remain fully protected
+- No security impact - admin already protected by authentication
+
 ## [2.7.1] - 2024-11-11
 
 ### 🐛 Bug Fixes
