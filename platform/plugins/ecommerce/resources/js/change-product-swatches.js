@@ -300,6 +300,12 @@ class ChangeProductSwatches {
     handleResponse = function(res, $productAttributes, slugAttributes, id, updateUrl) {
         let _self = this
 
+        console.log('[Swatch Response] Handle response called', {
+            hasData: !!res.data,
+            variationId: res.data?.id,
+            imageWithSizes: res.data?.image_with_sizes
+        })
+
         if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnChangeSwatchesSuccess === 'function') {
             window.EcommerceApp.defaultOnChangeSwatchesSuccess(res, $productAttributes)
         }
@@ -353,6 +359,7 @@ class ChangeProductSwatches {
             }
 
             // Update visual swatch thumbnails after variation response
+            console.log('[Swatch Response] About to call updateVisualSwatchThumbnails')
             _self.updateVisualSwatchThumbnails(data, $productAttributes)
         }
         
