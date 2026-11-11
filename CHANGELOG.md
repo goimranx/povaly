@@ -5,6 +5,43 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.3] - 2024-11-11
+
+### 🐛 Critical Bug Fix
+
+#### Honeypot Protection - Default Disabled
+- **Changed honeypot default from enabled to disabled**
+  - Prevents breaking admin operations on fresh installs
+  - Resolves "Form token is missing" errors globally
+  - Admin now must explicitly enable via Settings
+  - No more false positives breaking valid operations
+
+#### Technical Details
+- `HoneypotProtection::isEnabled()` now returns `false` by default
+- Setting key: `enable_honeypot` (must be explicitly set to 1/true)
+- Admin can enable in: Settings → Captcha → Enable Honeypot Protection
+- Frontend forms protected only when admin enables it
+
+#### Impact
+- ✅ Admin panel fully functional
+- ✅ Visual builder works without errors
+- ✅ Settings pages save correctly
+- ✅ AJAX requests no longer blocked
+- ✅ Honeypot still available as opt-in security layer
+
+### 🚨 Root Cause
+- Honeypot was enabled by default (`true`)
+- Applied to ALL requests including admin
+- Validation required fields that didn't exist in admin forms
+- Led to cascade of "Form token is missing" errors
+
+### 📝 Migration Path
+If you want honeypot protection on frontend:
+1. Go to Admin → Settings → Captcha
+2. Enable "Honeypot Protection" toggle
+3. Apply to desired frontend forms
+4. Protects: login, contact, registration forms
+
 ## [2.7.2] - 2024-11-11
 
 ### 🐛 Bug Fixes

@@ -1,6 +1,6 @@
 # Povaly E-commerce Platform
 
-> **Version:** 2.7.2  
+> **Version:** 2.7.3  
 > **Status:** ✅ Stable Release  
 > **Built on:** Botble CMS v1.41.11  
 > **License:** Commercial
