@@ -5,6 +5,119 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2024-11-11
+
+### ✨ New Features
+
+#### 🔐 Advanced Bot Protection System
+- **Cloudflare Turnstile Integration**
+  - Privacy-first alternative to reCAPTCHA
+  - User-friendly challenge (90% one-click verification)
+  - Free unlimited use
+  - No Google tracking or data collection
+  - Auto/Light/Dark theme support
+  - Admin UI for easy configuration
+  
+- **Honeypot Protection (Silent Bot Detection)**
+  - Hidden fields that trap automated bots (70-80% catch rate)
+  - Smart timing validation with autofill-safe logic
+  - Three-tier detection: instant block (<0.5s), log fast (0.5-0.8s), allow normal (0.8s+)
+  - HMAC-SHA256 signed timestamp tokens (1-hour expiry)
+  - Zero user friction - completely invisible to legitimate users
+  - Enabled by default with admin toggle
+  
+- **Multi-Layer Captcha System**
+  - Support for 4 captcha types: Turnstile, reCAPTCHA v2, reCAPTCHA v3, Math Captcha
+  - Per-form configuration (admin login, password reset, contact, registration)
+  - Progressive enforcement strategy
+  - Comprehensive admin settings UI with collapsible sections
+
+#### 📚 Security Documentation
+- **CAPTCHA_SETUP.md** - Complete setup guide
+  - Step-by-step configuration for all captcha types
+  - Comparison chart with recommendations
+  - Troubleshooting section with autofill concerns addressed
+  - Progressive enforcement strategy guide
+  - Privacy protection details
+  - Security monitoring instructions
+
+### 🎨 UI/UX Enhancements
+
+#### Promotional Hero Grid Shortcode
+- **HTML Support in Content Fields**
+  - Title, subtitle, and button text support HTML tags
+  - Raw output without sanitization for creative freedom
+  - Allows custom styling via inline span elements
+  
+- **Custom Typography Controls**
+  - Left section: 44px title (desktop)
+  - Middle top: 24px title
+  - Middle bottom: 19px title
+  - Right section: 29px title
+  - Responsive scaling: tablet 30px, mobile 33px base with proportional adjustments
+  
+- **White Text Utility**
+  - `<span>` wrapper automatically applies white color
+  - Font-weight inheritance for all nested elements
+  - Proper CSS specificity with `*, span, div` selectors
+
+- **Responsive Optimizations**
+  - Max-width changed from 70% to 93% for better mobile display
+  - Content positioning adjustments for all screen sizes
+
+#### Featured Banners Shortcode
+- **HTML Support Added**
+  - All text fields (title, subtitle, button) support HTML
+  - Consistent with promotional hero grid behavior
+  - Font-weight inheritance for nested elements
+  
+- **Positioning Improvements**
+  - Fixed nested element position inheritance issues
+  - Mobile positioning: 7px for better alignment
+  - Separate position controls for parent and children
+
+### 🎨 Theme Improvements
+
+#### Cart Flyout
+- **Icon Update** - Replaced linearicons close icon with Phosphor `ph-x-circle`
+- Consistent iconography across theme
+
+### 🔧 Technical Improvements
+
+#### Captcha Plugin Architecture
+- `TurnstileCaptcha.php` - New captcha class extending base contract
+- `HoneypotProtection.php` - Standalone protection system
+- `TurnstileField.php`, `HoneypotField.php` - Form field renderers
+- Blade templates for Turnstile widget rendering (header, HTML, script)
+- Extended `CaptchaServiceProvider` with Turnstile and honeypot support
+- Updated `CaptchaSettingForm` with new fields and collapsibles
+- Validation rules: `turnstile` and `honeypot` validators
+- Request validation updated to accept Turnstile as captcha type
+
+#### Security Logging
+- Honeypot violations logged with IP, user agent, timing data
+- Instant bot submissions tracked separately from autofill submissions
+- Token expiration and validation failures logged for monitoring
+
+### 🐛 Bug Fixes
+
+#### Form Validation
+- Fixed captcha toggle showing incorrect state when Turnstile is selected
+- Fixed `enable_captcha` reading from settings instead of `reCaptchaEnabled()`
+- Fixed captcha type selector to include Turnstile in allowed values
+- Fixed honeypot validation to accept array data from validator
+
+#### Shortcode Issues
+- Fixed promotional hero grid HTML attributes being stripped
+- Fixed featured banners font-weight not inheriting properly
+- Fixed visual builder server errors with missing AlertField imports
+
+### 🔄 Breaking Changes
+None - All changes are backwards compatible
+
+### 📦 Dependencies
+- No new external dependencies (Turnstile uses CDN, honeypot is native PHP)
+
 ## [2.6.1] - 2024-12-21
 
 ### ✨ Review Section UX Improvements
@@ -95,6 +208,119 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed visual filter checkmark positioning (4px instead of 3px)
 - Fixed label line-height (22px) for better alignment
 - Fixed rating star fill targeting (only star path, not helper path)
+
+## [2.7.0] - 2024-11-11
+
+### ✨ New Features
+
+#### 🔐 Advanced Bot Protection System
+- **Cloudflare Turnstile Integration**
+  - Privacy-first alternative to reCAPTCHA
+  - User-friendly challenge (90% one-click verification)
+  - Free unlimited use
+  - No Google tracking or data collection
+  - Auto/Light/Dark theme support
+  - Admin UI for easy configuration
+  
+- **Honeypot Protection (Silent Bot Detection)**
+  - Hidden fields that trap automated bots (70-80% catch rate)
+  - Smart timing validation with autofill-safe logic
+  - Three-tier detection: instant block (<0.5s), log fast (0.5-0.8s), allow normal (0.8s+)
+  - HMAC-SHA256 signed timestamp tokens (1-hour expiry)
+  - Zero user friction - completely invisible to legitimate users
+  - Enabled by default with admin toggle
+  
+- **Multi-Layer Captcha System**
+  - Support for 4 captcha types: Turnstile, reCAPTCHA v2, reCAPTCHA v3, Math Captcha
+  - Per-form configuration (admin login, password reset, contact, registration)
+  - Progressive enforcement strategy
+  - Comprehensive admin settings UI with collapsible sections
+
+#### 📚 Security Documentation
+- **CAPTCHA_SETUP.md** - Complete setup guide
+  - Step-by-step configuration for all captcha types
+  - Comparison chart with recommendations
+  - Troubleshooting section with autofill concerns addressed
+  - Progressive enforcement strategy guide
+  - Privacy protection details
+  - Security monitoring instructions
+
+### 🎨 UI/UX Enhancements
+
+#### Promotional Hero Grid Shortcode
+- **HTML Support in Content Fields**
+  - Title, subtitle, and button text support HTML tags
+  - Raw output without sanitization for creative freedom
+  - Allows custom styling via inline span elements
+  
+- **Custom Typography Controls**
+  - Left section: 44px title (desktop)
+  - Middle top: 24px title
+  - Middle bottom: 19px title
+  - Right section: 29px title
+  - Responsive scaling: tablet 30px, mobile 33px base with proportional adjustments
+  
+- **White Text Utility**
+  - `<span>` wrapper automatically applies white color
+  - Font-weight inheritance for all nested elements
+  - Proper CSS specificity with `*, span, div` selectors
+
+- **Responsive Optimizations**
+  - Max-width changed from 70% to 93% for better mobile display
+  - Content positioning adjustments for all screen sizes
+
+#### Featured Banners Shortcode
+- **HTML Support Added**
+  - All text fields (title, subtitle, button) support HTML
+  - Consistent with promotional hero grid behavior
+  - Font-weight inheritance for nested elements
+  
+- **Positioning Improvements**
+  - Fixed nested element position inheritance issues
+  - Mobile positioning: 7px for better alignment
+  - Separate position controls for parent and children
+
+### 🎨 Theme Improvements
+
+#### Cart Flyout
+- **Icon Update** - Replaced linearicons close icon with Phosphor `ph-x-circle`
+- Consistent iconography across theme
+
+### 🔧 Technical Improvements
+
+#### Captcha Plugin Architecture
+- `TurnstileCaptcha.php` - New captcha class extending base contract
+- `HoneypotProtection.php` - Standalone protection system
+- `TurnstileField.php`, `HoneypotField.php` - Form field renderers
+- Blade templates for Turnstile widget rendering (header, HTML, script)
+- Extended `CaptchaServiceProvider` with Turnstile and honeypot support
+- Updated `CaptchaSettingForm` with new fields and collapsibles
+- Validation rules: `turnstile` and `honeypot` validators
+- Request validation updated to accept Turnstile as captcha type
+
+#### Security Logging
+- Honeypot violations logged with IP, user agent, timing data
+- Instant bot submissions tracked separately from autofill submissions
+- Token expiration and validation failures logged for monitoring
+
+### 🐛 Bug Fixes
+
+#### Form Validation
+- Fixed captcha toggle showing incorrect state when Turnstile is selected
+- Fixed `enable_captcha` reading from settings instead of `reCaptchaEnabled()`
+- Fixed captcha type selector to include Turnstile in allowed values
+- Fixed honeypot validation to accept array data from validator
+
+#### Shortcode Issues
+- Fixed promotional hero grid HTML attributes being stripped
+- Fixed featured banners font-weight not inheriting properly
+- Fixed visual builder server errors with missing AlertField imports
+
+### 🔄 Breaking Changes
+None - All changes are backwards compatible
+
+### 📦 Dependencies
+- No new external dependencies (Turnstile uses CDN, honeypot is native PHP)
 
 ## [2.5.1] - 2024-11-07
 
