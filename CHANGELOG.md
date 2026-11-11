@@ -5,6 +5,42 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.4] - 2024-11-11
+
+### 🚨 EMERGENCY FIX - Honeypot Completely Disabled
+
+#### Honeypot Feature Disabled
+- **All honeypot code commented out**
+  - Removed from core_request_rules filter
+  - Removed from FormAbstract field injection
+  - Feature will be redesigned in future version
+  - Better to disable than have buggy functionality
+
+#### Why?
+- Honeypot causing persistent "Form token is missing" errors
+- Even with disable-by-default, edge cases kept breaking things
+- Cache issues preventing proper feature detection
+- Admin operations continuously failing
+
+#### Result
+- ✅ Admin panel fully functional
+- ✅ Visual builder working without errors
+- ✅ All settings pages saveable
+- ✅ AJAX requests no longer blocked
+- ✅ Turnstile captcha still protecting frontend
+- ✅ No more validation failures
+
+#### Migration Path
+- Honeypot feature temporarily unavailable
+- Will be reimplemented with better design in future version
+- Frontend still protected by Turnstile + rate limiting
+- Admin still protected by authentication + CSRF
+
+### 📝 Note
+This is a temporary measure to restore full admin functionality.
+The honeypot concept is valuable but the implementation had 
+fundamental issues that couldn't be resolved with minor fixes.
+
 ## [2.7.3] - 2024-11-11
 
 ### 🐛 Critical Bug Fix
