@@ -5,6 +5,28 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.1] - 2024-11-11
+
+### 🐛 Bug Fixes
+
+#### Honeypot Protection
+- **Fixed admin forms breaking with "Form token is missing" error**
+  - Honeypot now only applies to frontend forms (`FormFront` instances)
+  - Admin panel forms excluded (visual builder, AJAX requests)
+  - Validation rules skip `admin/*` routes
+  - Admin forms use existing CSRF protection, don't need honeypot
+
+#### Technical Details
+- Changed honeypot injection to check `$form instanceof FormFront`
+- Added route check: `! $request->is('admin/*')` for validation rules
+- CKEditor visual builder now works without errors
+- All admin operations unaffected by honeypot
+
+### 📝 Notes
+- This is a hotfix for v2.7.0
+- Frontend forms still protected by honeypot (login, contact, registration)
+- No changes to security posture - admin already protected by authentication
+
 ## [2.7.0] - 2024-11-11
 
 ### ✨ New Features
