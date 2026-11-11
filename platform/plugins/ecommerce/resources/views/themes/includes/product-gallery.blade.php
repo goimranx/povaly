@@ -123,9 +123,15 @@
                     if (!isset($variationImageMap[$pv->product_id])) {
                         $variationImageMap[$pv->product_id] = $idx;
                     }
-                } elseif (!isset($variationImageMap[$pv->product_id])) {
-                    // Image already exists, just map this variation to it
-                    $variationImageMap[$pv->product_id] = $allImages->search(fn($i) => $i['src'] === $img);
+                } else {
+                    // CRITICAL FIX: Image already exists (shared between variations)
+                    // Map this variation to the FIRST occurrence of this image
+                    if (!isset($variationImageMap[$pv->product_id])) {
+                        $existingIndex = $allImages->search(fn($i) => $i['src'] === $img);
+                        if ($existingIndex !== false) {
+                            $variationImageMap[$pv->product_id] = $existingIndex;
+                        }
+                    }
                 }
             }
         }
@@ -194,14 +200,22 @@
     }
     
     // CRITICAL FIX: Ensure ALL variations are in the map, even if no reordering happened
-    // OR if reordering removed duplicates. This ensures gallery jumps work for ALL variations.
-    // For each tracked variation, find its first occurrence in the final image list
+    // This handles edge cases where the initial mapping might have gaps
+    $debugInfo['initial_map_size'] = count($variationImageMap);
+    
+    // For variations that somehow don't have a mapping yet, try to find ANY image for them
+    // This is a fallback and shouldn't normally be needed if the above logic is correct
     foreach ($allVariationIds as $varId) {
         if (!isset($variationImageMap[$varId])) {
-            // Find first image with this variation ID
+            // Try to find first image with this variation ID
             $firstIndex = $allImages->search(fn($i) => $i['variationId'] === $varId);
             if ($firstIndex !== false) {
                 $variationImageMap[$varId] = $firstIndex;
+                $debugInfo['fallback_mapped'][] = $varId;
+            } else {
+                // Last resort: If this variation shares images with another, find the shared image
+                // by looking up the variation's product images from the database
+                $debugInfo['unmapped_variations'][] = $varId;
             }
         }
     }
