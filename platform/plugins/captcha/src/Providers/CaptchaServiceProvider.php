@@ -118,8 +118,8 @@ class CaptchaServiceProvider extends ServiceProvider
                 }
             }
 
-            // Add honeypot protection (silent, always before other fields)
-            if (HoneypotProtection::isEnabled() && ! $form->has('honeypot')) {
+            // Add honeypot protection (ONLY for frontend FormFront forms, not admin forms)
+            if (HoneypotProtection::isEnabled() && ! $form->has('honeypot') && $form instanceof FormFront) {
                 $form->addBefore(
                     $fieldKey,
                     'honeypot',
@@ -158,8 +158,8 @@ class CaptchaServiceProvider extends ServiceProvider
 
         $this->app['events']->listen(Routing::class, function (): void {
             add_filter('core_request_rules', function (array $rules, Request $request) {
-                // Add honeypot rules first (applies to all forms)
-                if (HoneypotProtection::isEnabled()) {
+                // Skip honeypot for admin panel AJAX requests (visual builder, etc.)
+                if (HoneypotProtection::isEnabled() && ! $request->is('admin/*')) {
                     $rules = [...$rules, ...HoneypotProtection::rules()];
                 }
 
