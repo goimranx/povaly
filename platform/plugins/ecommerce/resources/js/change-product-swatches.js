@@ -212,6 +212,12 @@ class ChangeProductSwatches {
 
         let id = $productAttributes.prop('id')
         
+        console.log('🚀 [AJAX] Calling variation API', {
+            attributes,
+            url: $productAttributes.data('target'),
+            id
+        })
+        
         // Create cache key from attributes and language
         const locale = document.documentElement.lang || 'en'
         const cacheKey = JSON.stringify(attributes.sort()) + (referenceProduct || '') + '_v1_' + locale
@@ -219,6 +225,7 @@ class ChangeProductSwatches {
         // Check cache first
         const cached = _self.getFromCache(cacheKey)
         if (cached) {
+            console.log('💾 [AJAX] Using cached response')
             // Use cached response
             _self.handleResponse(cached, $productAttributes, slugAttributes, id, updateUrl)
             return
@@ -240,6 +247,11 @@ class ChangeProductSwatches {
                 }
             },
             success: (res) => {
+                console.log('✅ [AJAX] Success response received', {
+                    hasData: !!res.data,
+                    variationId: res.data?.id
+                })
+                
                 // Store in cache
                 _self.setCache(cacheKey, res)
                 
@@ -252,6 +264,7 @@ class ChangeProductSwatches {
                 }
             },
             error: (res) => {
+                console.error('❌ [AJAX] Error response', res)
                 if (window.onChangeSwatchesError && typeof window.onChangeSwatchesError === 'function') {
                     window.onChangeSwatchesError(res, $productAttributes)
                 }
