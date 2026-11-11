@@ -171,6 +171,11 @@ class ChangeProductSwatches {
     getProductVariation($productAttributes) {
         let _self = this
 
+        console.log('%c🟢 [GET VARIATION] Function called', 'background: #00cc00; color: #fff; font-size: 14px; padding: 2px 6px;', {
+            hasProductAttributes: !!$productAttributes,
+            length: $productAttributes?.length
+        })
+
         let attributes = []
         let slugAttributes = {}
 
@@ -178,6 +183,7 @@ class ChangeProductSwatches {
          * Break current request
          */
         if (_self.xhr) {
+            console.log('⏹️ [GET VARIATION] Aborting previous XHR')
             _self.xhr.abort()
 
             _self.xhr = null
@@ -187,6 +193,10 @@ class ChangeProductSwatches {
          * Get attributes
          */
         let $attributeSwatches = $productAttributes.find('.attribute-swatches-wrapper')
+        
+        console.log('🔍 [GET VARIATION] Found attribute wrappers:', {
+            count: $attributeSwatches.length
+        })
 
         let referenceProduct = null
         $attributeSwatches.each((index, el) => {
@@ -201,6 +211,13 @@ class ChangeProductSwatches {
 
             let slug = $input.data('slug')
             let value = $input.val()
+            
+            console.log(`📋 [GET VARIATION] Attribute ${index}:`, {
+                type: $current.data('type'),
+                slug,
+                value,
+                hasInput: $input.length > 0
+            })
 
             if (value) {
                 let setSlug = $current.find('.attribute-swatch').data('slug')
@@ -210,6 +227,12 @@ class ChangeProductSwatches {
 
                 referenceProduct = $input.data('reference-product')
             }
+        })
+        
+        console.log('📦 [GET VARIATION] Collected attributes:', {
+            attributes,
+            slugAttributes,
+            referenceProduct
         })
 
         _self.callAjax(attributes, $productAttributes, slugAttributes, true, referenceProduct)
