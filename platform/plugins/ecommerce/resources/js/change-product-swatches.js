@@ -76,6 +76,9 @@ class ChangeProductSwatches {
                 $label.text($item.data('title') || '')
             }
 
+            // Update thumbnail image for visual swatches
+            _self.updateSwatchThumbnail($item)
+
             $radio.trigger('change')
         })
 
@@ -499,6 +502,42 @@ class ChangeProductSwatches {
                     $mainImage.attr('src', fullSizeUrl)
                 }
             }
+        }
+    }
+
+    updateSwatchThumbnail($item) {
+        // Update the thumbnail image inside the swatch item when it's selected
+        const imageUrl = $item.data('variation-image')
+        const $thumb = $item.find('.qs-var-item__thumb')
+        
+        if (!$thumb.length || !imageUrl) {
+            return
+        }
+
+        console.log('[Visual Swatch Update] Updating thumbnail', {
+            title: $item.data('title'),
+            newImage: imageUrl
+        })
+
+        // Clear existing thumbnail content
+        $thumb.empty()
+
+        // If image URL exists, add image element
+        if (imageUrl) {
+            const $img = $('<img />')
+                .attr('src', imageUrl)
+                .attr('alt', $item.data('title') || '')
+                .attr('loading', 'lazy')
+            
+            $thumb.append($img)
+        } else {
+            // If no image, show color swatch
+            const color = $item.find('input[type=radio]').closest('.bb-product-attribute-swatch-item').data('color') || '#cccccc'
+            const $colorSpan = $('<span />')
+                .addClass('qs-var-item__color-fill')
+                .css('background-color', color)
+            
+            $thumb.append($colorSpan)
         }
     }
 
