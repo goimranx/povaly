@@ -202,6 +202,7 @@
     // CRITICAL FIX: Ensure ALL variations are in the map, even if no reordering happened
     // This handles edge cases where the initial mapping might have gaps
     $debugInfo['initial_map_size'] = count($variationImageMap);
+    $debugInfo['all_variation_ids'] = $allVariationIds;
     
     // For variations that somehow don't have a mapping yet, try to find ANY image for them
     // This is a fallback and shouldn't normally be needed if the above logic is correct
@@ -213,9 +214,37 @@
                 $variationImageMap[$varId] = $firstIndex;
                 $debugInfo['fallback_mapped'][] = $varId;
             } else {
-                // Last resort: If this variation shares images with another, find the shared image
-                // by looking up the variation's product images from the database
-                $debugInfo['unmapped_variations'][] = $varId;
+                // SUPER CRITICAL FIX: If variation has NO unique images, it shares parent images
+                // Load the variation product and check its images against allImages
+                $varProduct = \Botble\Ecommerce\Models\Product::find($varId);
+                if ($varProduct) {
+                    // Check if variation's featured image OR any gallery image exists in allImages
+                    $varImageToFind = $varProduct->image;
+                    if (!$varImageToFind && !empty($varProduct->images)) {
+                        $varImageToFind = $varProduct->images[0];
+                    }
+                    
+                    if ($varImageToFind) {
+                        // Find this image in allImages (regardless of variationId)
+                        $sharedImageIndex = $allImages->search(fn($i) => $i['src'] === $varImageToFind);
+                        if ($sharedImageIndex !== false) {
+                            $variationImageMap[$varId] = $sharedImageIndex;
+                            $debugInfo['shared_image_mapped'][] = [
+                                'varId' => $varId,
+                                'image' => basename($varImageToFind),
+                                'index' => $sharedImageIndex
+                            ];
+                        } else {
+                            $debugInfo['unmapped_variations'][] = $varId;
+                        }
+                    } else {
+                        // No images at all - map to index 0 (first image)
+                        $variationImageMap[$varId] = 0;
+                        $debugInfo['default_mapped'][] = $varId;
+                    }
+                } else {
+                    $debugInfo['unmapped_variations'][] = $varId;
+                }
             }
         }
     }
