@@ -158,8 +158,10 @@ class CaptchaServiceProvider extends ServiceProvider
 
         $this->app['events']->listen(Routing::class, function (): void {
             add_filter('core_request_rules', function (array $rules, Request $request) {
-                // Skip honeypot for admin panel AJAX requests (visual builder, etc.)
-                if (HoneypotProtection::isEnabled() && ! $request->is('admin/*')) {
+                // Completely skip honeypot for ANY admin URL
+                $isAdmin = $request->is('admin') || $request->is('admin/*') || str_starts_with($request->path(), 'admin/') || $request->segment(1) === 'admin';
+                
+                if (HoneypotProtection::isEnabled() && ! $isAdmin) {
                     $rules = [...$rules, ...HoneypotProtection::rules()];
                 }
 
