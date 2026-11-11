@@ -195,6 +195,8 @@ HTML;
      */
     public static function isEnabled(): bool
     {
-        return (bool) setting('enable_honeypot', true);
+        // Disabled by default until properly configured
+        // Admin can enable via Settings → Captcha → Enable Honeypot Protection
+        return (bool) setting('enable_honeypot', false);
     }
 }
