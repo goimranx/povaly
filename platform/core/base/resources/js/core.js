@@ -1372,6 +1372,45 @@ class Botble {
                     $current.sortable()
                 }
             })
+
+            // Pre-form submission: sync image order from DOM to match field values
+            // When images are drag-reordered, this ensures the form submission preserves the order
+            $(document).on('submit', 'form', function(e) {
+                $listImages.find('.list-gallery-media-images').each((index, galleryContainer) => {
+                    const $container = $(galleryContainer)
+                    const fieldName = $container.data('name')
+                    
+                    if (!fieldName) {
+                        return
+                    }
+
+                    // Collect image URLs in current DOM order (as they appear after drag/reorder)
+                    const imageUrls = []
+                    $container.find('.gallery-image-item-handler .image-data').each((i, input) => {
+                        const url = $(input).val()
+                        if (url) {
+                            imageUrls.push(url)
+                        }
+                    })
+
+                    if (imageUrls.length > 0) {
+                        // Remove all existing hidden inputs with this field name
+                        $container.closest('.gallery-images-wrapper').find('input[name="' + fieldName + '"][type="hidden"]').remove()
+                        
+                        // Re-add hidden inputs in the correct order
+                        imageUrls.forEach((url, idx) => {
+                            $container.append($('<input>', {
+                                type: 'hidden',
+                                name: fieldName,
+                                value: url,
+                                class: 'image-data'
+                            }))
+                        })
+                        
+                        console.log('[ImageOrder] Pre-submission sync:', fieldName, 'URLs in order:', imageUrls)
+                    }
+                })
+            })
         }
     }
 
