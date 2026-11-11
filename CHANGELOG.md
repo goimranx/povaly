@@ -5,6 +5,45 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2024-11-11
+
+### ✨ Feature - Honeypot Protection Re-enabled with Per-Form Settings
+
+#### Honeypot Now Works Like reCAPTCHA
+- **Per-form selective enabling** - Enable honeypot only on forms you want to protect
+  - Contact Form, Newsletter, Testimonial, etc. can have different settings
+  - Admin controls which forms get honeypot protection via checkboxes
+  
+- **Request-level tracking** - Only validates forms where honeypot field is actually rendered
+  - No validation errors on admin forms without honeypot
+  - Other forms work smoothly without overhead
+  
+- **Consistent admin UI** - Same pattern as reCAPTCHA v2/v3 and Math Captcha
+  - Global on/off toggle
+  - Per-form protection checkboxes
+  - Clear labeling in settings
+
+#### How It Works
+1. Admin enables "Honeypot Protection" globally in Captcha Settings
+2. Selects which forms should be protected (Contact Form, Newsletter, etc.)
+3. Honeypot field auto-renders on selected forms only
+4. Form submission timing is validated (blocks instant/too-slow submissions)
+5. Empty honeypot field is verified (catches auto-filled bot submissions)
+6. Admin panel unaffected (no forms checked by default)
+
+#### Bot Protection Timeline
+- **0-0.5s** → Blocked (instant submission = bot)
+- **0.5-0.8s** → Logged only (autofill + human click scenario)
+- **0.8s-1h** → Allowed (normal human submission)
+- **1h+** → Blocked (token expired)
+
+#### Benefits
+- ✅ Protects contact/newsletter forms from automated bot submissions
+- ✅ Works alongside Turnstile for multi-layer protection
+- ✅ Zero impact on admin operations
+- ✅ Granular per-form control
+- ✅ Request-level validation (no false positives)
+
 ## [2.7.4] - 2024-11-11
 
 ### 🚨 EMERGENCY FIX - Honeypot Completely Disabled
