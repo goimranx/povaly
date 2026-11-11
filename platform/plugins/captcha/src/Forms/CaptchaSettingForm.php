@@ -50,6 +50,7 @@ class CaptchaSettingForm extends SettingForm
                     ->choices([
                         'v2' => trans('plugins/captcha::captcha.settings.v2_description'),
                         'v3' => trans('plugins/captcha::captcha.settings.v3_description'),
+                        'turnstile' => trans('plugins/captcha::captcha.settings.turnstile_description'),
                     ])
                     ->selected($captchaType = Captcha::reCaptchaType())
             )
@@ -77,6 +78,21 @@ class CaptchaSettingForm extends SettingForm
                     ->selected(setting('recaptcha_score', 0.6))
             )
             ->addCloseCollapsible('captcha_type', 'v3')
+            ->addOpenCollapsible('captcha_type', 'turnstile', $captchaType)
+            ->add(
+                'turnstile_theme',
+                SelectField::class,
+                SelectFieldOption::make()
+                    ->label(trans('plugins/captcha::captcha.settings.turnstile_theme'))
+                    ->choices([
+                        'auto' => trans('plugins/captcha::captcha.settings.turnstile_theme_auto'),
+                        'light' => trans('plugins/captcha::captcha.settings.turnstile_theme_light'),
+                        'dark' => trans('plugins/captcha::captcha.settings.turnstile_theme_dark'),
+                    ])
+                    ->selected(setting('turnstile_theme', 'auto'))
+                    ->helperText(trans('plugins/captcha::captcha.settings.turnstile_theme_helper'))
+            )
+            ->addCloseCollapsible('captcha_type', 'turnstile')
             ->add(
                 'captcha_site_key',
                 TextField::class,
@@ -97,9 +113,14 @@ class CaptchaSettingForm extends SettingForm
                     ->helperText(trans(
                         'plugins/captcha::captcha.settings.recaptcha_credential_helper',
                         [
-                            'link' => Html::link(
+                            'recaptcha_link' => Html::link(
                                 'https://www.google.com/recaptcha/admin#list',
-                                trans('plugins/captcha::captcha.settings.recaptcha_credential_helper_here'),
+                                'Google reCAPTCHA',
+                                ['target' => '_blank']
+                            ),
+                            'turnstile_link' => Html::link(
+                                'https://dash.cloudflare.com/?to=/:account/turnstile',
+                                'Cloudflare Turnstile',
                                 ['target' => '_blank']
                             ),
                         ]

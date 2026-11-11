@@ -18,7 +18,9 @@ use Botble\Captcha\CaptchaV3;
 use Botble\Captcha\Facades\Captcha as CaptchaFacade;
 use Botble\Captcha\Forms\Fields\MathCaptchaField;
 use Botble\Captcha\Forms\Fields\ReCaptchaField;
+use Botble\Captcha\Forms\Fields\TurnstileField;
 use Botble\Captcha\MathCaptcha;
+use Botble\Captcha\TurnstileCaptcha;
 use Botble\Setting\PanelSections\SettingOthersPanelSection;
 use Botble\Support\Http\Requests\Request;
 use Botble\Theme\FormFront;
@@ -39,8 +41,13 @@ class CaptchaServiceProvider extends ServiceProvider
         $this->app->singleton('captcha', function () {
             $key = setting('captcha_site_key');
             $secret = setting('captcha_secret');
+            $type = setting('captcha_type');
 
-            if (setting('captcha_type') === 'v3') {
+            if ($type === 'turnstile') {
+                return new TurnstileCaptcha($key, $secret);
+            }
+
+            if ($type === 'v3') {
                 return new CaptchaV3($key, $secret);
             }
 
@@ -118,6 +125,15 @@ class CaptchaServiceProvider extends ServiceProvider
                 );
             }
 
+            if (CaptchaFacade::turnstileEnabled() && ! $form->has('turnstile') && CaptchaFacade::formSetting($form::class, 'enable_recaptcha')) {
+                $form->addBefore(
+                    $fieldKey,
+                    'turnstile',
+                    TurnstileField::class,
+                    $attributes
+                );
+            }
+
             if (CaptchaFacade::mathCaptchaEnabled() && ! $form->has('math_captcha') && CaptchaFacade::formSetting($form::class, 'enable_math_captcha')) {
                 $form->addBefore(
                     $fieldKey,
@@ -143,6 +159,10 @@ class CaptchaServiceProvider extends ServiceProvider
                 }
 
                 if (CaptchaFacade::reCaptchaEnabled() && CaptchaFacade::formSetting($form, 'enable_recaptcha')) {
+                    $rules = [...$rules, ...CaptchaFacade::rules()];
+                }
+
+                if (CaptchaFacade::turnstileEnabled() && CaptchaFacade::formSetting($form, 'enable_recaptcha')) {
                     $rules = [...$rules, ...CaptchaFacade::rules()];
                 }
 
@@ -175,6 +195,14 @@ class CaptchaServiceProvider extends ServiceProvider
                 Validator::validate($request->input(), CaptchaFacade::rules());
             }
 
+            if (
+                CaptchaFacade::turnstileEnabled()
+                && (! $form || ! class_exists($form) || CaptchaFacade::formSetting($form, 'enable_recaptcha'))
+                && ! $request instanceof Request
+            ) {
+                Validator::validate($request->input(), CaptchaFacade::rules());
+            }
+
             if (CaptchaFacade::mathCaptchaEnabled() && (! $form || ! class_exists($form) || CaptchaFacade::formSetting($form, 'enable_math_captcha'))) {
                 Validator::validate($request->input(), CaptchaFacade::mathCaptchaRules());
             }
@@ -184,6 +212,7 @@ class CaptchaServiceProvider extends ServiceProvider
             return [
                 ...$messages,
                 'captcha' => trans('plugins/captcha::captcha.captcha_verification_failed'),
+                'turnstile' => trans('plugins/captcha::captcha.turnstile_verification_failed'),
                 'math_captcha' => trans('plugins/captcha::captcha.math_captcha_verification_failed'),
             ];
         }, 999);
@@ -223,6 +252,14 @@ class CaptchaServiceProvider extends ServiceProvider
 
             return $app['captcha']->verify($value, $this->app['request']->getClientIp(), $parameters);
         }, trans('plugins/captcha::captcha.captcha_verification_failed'));
+
+        $validator->extend('turnstile', function ($attribute, $value) use ($app) {
+            if (! is_string($value)) {
+                return false;
+            }
+
+            return $app['captcha']->verify($value, $this->app['request']->getClientIp());
+        }, trans('plugins/captcha::captcha.turnstile_verification_failed'));
 
         $validator->extend('math_captcha', function ($attribute, $value) {
             if (! is_string($value)) {

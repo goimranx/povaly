@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static array rules()
  * @method static bool isEnabled()
  * @method static bool reCaptchaEnabled()
+ * @method static bool turnstileEnabled()
  * @method static bool mathCaptchaEnabled()
  * @method static array mathCaptchaRules()
  * @method static string captchaType()
