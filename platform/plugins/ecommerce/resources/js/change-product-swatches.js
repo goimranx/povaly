@@ -536,15 +536,25 @@ class ChangeProductSwatches {
                         // Update thumbnail - SAME LOGIC AS PRICE!
                         const $thumb = $item.find('.qs-var-item__thumb img')
                         if ($thumb.length && res.data.image_with_sizes && res.data.image_with_sizes.thumb) {
-                            const thumbUrl = res.data.image_with_sizes.thumb
+                            let thumbUrl = res.data.image_with_sizes.thumb
+                            
+                            // Handle case where thumb is an array of URLs - use first one
+                            if (Array.isArray(thumbUrl)) {
+                                thumbUrl = thumbUrl[0]
+                            }
+                            
                             console.log('🖼️ [SWATCH PRICE UPDATE] Also updating thumbnail:', {
                                 colorId: colorId,
                                 colorTitle: $item.data('title'),
                                 variationId: res.data.id,
                                 oldSrc: $thumb.attr('src'),
-                                newSrc: thumbUrl
+                                newSrc: thumbUrl,
+                                wasArray: Array.isArray(res.data.image_with_sizes.thumb)
                             })
-                            $thumb.attr('src', thumbUrl)
+                            
+                            if (thumbUrl) {
+                                $thumb.attr('src', thumbUrl)
+                            }
                         }
                     }
                 }
