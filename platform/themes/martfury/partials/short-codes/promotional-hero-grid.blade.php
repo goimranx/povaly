@@ -224,11 +224,12 @@
         color: var(--global-color-text-main);
     }
 
+    /* Default title - Left large banner */
     .ps-hero-title,
     .ps-hero-title *,
     .ps-hero-title span,
     .ps-hero-title div {
-        font-size: 48px;
+        font-size: 44px;
         font-weight: 700;
         color: var(--global-color-text-on-dark);
         line-height: 1.1;
@@ -236,14 +237,31 @@
         text-transform: capitalize;
     }
 
+    /* Small content title - base size */
     .ps-hero-content-small .ps-hero-title,
     .ps-hero-content-small .ps-hero-title *,
     .ps-hero-content-small .ps-hero-title span,
     .ps-hero-content-small .ps-hero-title div {
-        font-size: 20px;
+        font-size: 24px;
         font-weight: 700;
         color: var(--global-color-text-main);
         line-height: 1.2;
+    }
+
+    /* Middle bottom 3 small banners - specific size */
+    .ps-hero-split .ps-hero-title,
+    .ps-hero-split .ps-hero-title *,
+    .ps-hero-split .ps-hero-title span,
+    .ps-hero-split .ps-hero-title div {
+        font-size: 19px;
+    }
+
+    /* Right tall banner - specific size */
+    .ps-hero-right .ps-hero-title,
+    .ps-hero-right .ps-hero-title *,
+    .ps-hero-right .ps-hero-title span,
+    .ps-hero-right .ps-hero-title div {
+        font-size: 29px;
     }
 
     /* Buttons */
@@ -365,12 +383,24 @@
 
     /* Responsive Design */
     @media (max-width: 992px) {
+        /* Left large banner - 2px less */
         .ps-hero-title {
-            font-size: 36px;
+            font-size: 42px;
         }
 
+        /* Middle top horizontal - 2px less */
         .ps-hero-content-small .ps-hero-title {
+            font-size: 22px;
+        }
+
+        /* Middle bottom 3 small - 1px less */
+        .ps-hero-split .ps-hero-title {
             font-size: 18px;
+        }
+
+        /* Right tall banner - 2px less */
+        .ps-hero-right .ps-hero-title {
+            font-size: 27px;
         }
         
         .ps-hero-subtitle {
@@ -480,12 +510,24 @@
             padding-bottom: 120%;
         }
 
+        /* Left large banner - 3px less */
         .ps-hero-title {
-            font-size: 28px;
+            font-size: 41px;
         }
 
+        /* Middle top horizontal - 2px less */
         .ps-hero-content-small .ps-hero-title {
-            font-size: 16px;
+            font-size: 22px;
+        }
+
+        /* Middle bottom 3 small - 1px less */
+        .ps-hero-split .ps-hero-title {
+            font-size: 18px;
+        }
+
+        /* Right tall banner - 2px less */
+        .ps-hero-right .ps-hero-title {
+            font-size: 27px;
         }
         
         .ps-hero-subtitle {
@@ -534,12 +576,24 @@
             min-width: 90%;
         }
 
+        /* Left large banner - 3px less */
         .ps-hero-title {
+            font-size: 41px;
+        }
+
+        /* Middle top horizontal - 2px less */
+        .ps-hero-content-small .ps-hero-title {
             font-size: 22px;
         }
 
-        .ps-hero-content-small .ps-hero-title {
-            font-size: 14px;
+        /* Middle bottom 3 small - 1px less */
+        .ps-hero-split .ps-hero-title {
+            font-size: 18px;
+        }
+
+        /* Right tall banner - 2px less */
+        .ps-hero-right .ps-hero-title {
+            font-size: 27px;
         }
 
         .ps-hero-subtitle {
