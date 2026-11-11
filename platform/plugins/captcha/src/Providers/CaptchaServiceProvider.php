@@ -118,8 +118,11 @@ class CaptchaServiceProvider extends ServiceProvider
                 }
             }
 
-            // Add honeypot protection (ONLY for frontend FormFront forms, not admin forms)
+            // Honeypot with per-form tracking - only validate forms where honeypot is rendered
             if (HoneypotProtection::isEnabled() && ! $form->has('honeypot') && $form instanceof FormFront) {
+                // Mark request as having honeypot form for validation
+                request()->attributes->set('has_honeypot_form', true);
+
                 $form->addBefore(
                     $fieldKey,
                     'honeypot',
@@ -158,10 +161,8 @@ class CaptchaServiceProvider extends ServiceProvider
 
         $this->app['events']->listen(Routing::class, function (): void {
             add_filter('core_request_rules', function (array $rules, Request $request) {
-                // Completely skip honeypot for ANY admin URL
-                $isAdmin = $request->is('admin') || $request->is('admin/*') || str_starts_with($request->path(), 'admin/') || $request->segment(1) === 'admin';
-                
-                if (HoneypotProtection::isEnabled() && ! $isAdmin) {
+                // Honeypot validation only applies if honeypot was actually rendered on the form
+                if (HoneypotProtection::isEnabled() && $request->attributes->get('has_honeypot_form')) {
                     $rules = [...$rules, ...HoneypotProtection::rules()];
                 }
 

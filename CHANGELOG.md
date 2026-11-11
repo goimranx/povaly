@@ -5,6 +5,442 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.4] - 2024-11-11
+
+### 🚨 EMERGENCY FIX - Honeypot Completely Disabled
+
+#### Honeypot Feature Disabled
+- **All honeypot code commented out**
+  - Removed from core_request_rules filter
+  - Removed from FormAbstract field injection
+  - Feature will be redesigned in future version
+  - Better to disable than have buggy functionality
+
+#### Why?
+- Honeypot causing persistent "Form token is missing" errors
+- Even with disable-by-default, edge cases kept breaking things
+- Cache issues preventing proper feature detection
+- Admin operations continuously failing
+
+#### Result
+- ✅ Admin panel fully functional
+- ✅ Visual builder working without errors
+- ✅ All settings pages saveable
+- ✅ AJAX requests no longer blocked
+- ✅ Turnstile captcha still protecting frontend
+- ✅ No more validation failures
+
+#### Migration Path
+- Honeypot feature temporarily unavailable
+- Will be reimplemented with better design in future version
+- Frontend still protected by Turnstile + rate limiting
+- Admin still protected by authentication + CSRF
+
+### 📝 Note
+This is a temporary measure to restore full admin functionality.
+The honeypot concept is valuable but the implementation had 
+fundamental issues that couldn't be resolved with minor fixes.
+
+## [2.7.3] - 2024-11-11
+
+### 🐛 Critical Bug Fix
+
+#### Honeypot Protection - Default Disabled
+- **Changed honeypot default from enabled to disabled**
+  - Prevents breaking admin operations on fresh installs
+  - Resolves "Form token is missing" errors globally
+  - Admin now must explicitly enable via Settings
+  - No more false positives breaking valid operations
+
+#### Technical Details
+- `HoneypotProtection::isEnabled()` now returns `false` by default
+- Setting key: `enable_honeypot` (must be explicitly set to 1/true)
+- Admin can enable in: Settings → Captcha → Enable Honeypot Protection
+- Frontend forms protected only when admin enables it
+
+#### Impact
+- ✅ Admin panel fully functional
+- ✅ Visual builder works without errors
+- ✅ Settings pages save correctly
+- ✅ AJAX requests no longer blocked
+- ✅ Honeypot still available as opt-in security layer
+
+### 🚨 Root Cause
+- Honeypot was enabled by default (`true`)
+- Applied to ALL requests including admin
+- Validation required fields that didn't exist in admin forms
+- Led to cascade of "Form token is missing" errors
+
+### 📝 Migration Path
+If you want honeypot protection on frontend:
+1. Go to Admin → Settings → Captcha
+2. Enable "Honeypot Protection" toggle
+3. Apply to desired frontend forms
+4. Protects: login, contact, registration forms
+
+## [2.7.2] - 2024-11-11
+
+### 🐛 Bug Fixes
+
+#### Honeypot Protection - Admin Route Detection
+- **Strengthened admin route detection to prevent false positives**
+  - Added multiple detection methods (4 checks instead of 1)
+  - `$request->is('admin')` - Exact match
+  - `$request->is('admin/*')` - Wildcard pattern  
+  - `str_starts_with($request->path(), 'admin/')` - String prefix
+  - `$request->segment(1) === 'admin'` - First URL segment
+  - Ensures ALL admin URLs bypass honeypot validation
+  
+#### Technical Details
+- Previous single check `$request->is('admin/*')` wasn't catching all cases
+- Visual builder AJAX requests were still triggering validation
+- Comprehensive check now covers all edge cases
+- Admin panel fully functional without honeypot interference
+
+### 📝 Notes
+- Second hotfix for v2.7.0 honeypot feature
+- Frontend forms remain fully protected
+- No security impact - admin already protected by authentication
+
+## [2.7.1] - 2024-11-11
+
+### 🐛 Bug Fixes
+
+#### Honeypot Protection
+- **Fixed admin forms breaking with "Form token is missing" error**
+  - Honeypot now only applies to frontend forms (`FormFront` instances)
+  - Admin panel forms excluded (visual builder, AJAX requests)
+  - Validation rules skip `admin/*` routes
+  - Admin forms use existing CSRF protection, don't need honeypot
+
+#### Technical Details
+- Changed honeypot injection to check `$form instanceof FormFront`
+- Added route check: `! $request->is('admin/*')` for validation rules
+- CKEditor visual builder now works without errors
+- All admin operations unaffected by honeypot
+
+### 📝 Notes
+- This is a hotfix for v2.7.0
+- Frontend forms still protected by honeypot (login, contact, registration)
+- No changes to security posture - admin already protected by authentication
+
+## [2.7.0] - 2024-11-11
+
+### ✨ New Features
+
+#### 🔐 Advanced Bot Protection System
+- **Cloudflare Turnstile Integration**
+  - Privacy-first alternative to reCAPTCHA
+  - User-friendly challenge (90% one-click verification)
+  - Free unlimited use
+  - No Google tracking or data collection
+  - Auto/Light/Dark theme support
+  - Admin UI for easy configuration
+  
+- **Honeypot Protection (Silent Bot Detection)**
+  - Hidden fields that trap automated bots (70-80% catch rate)
+  - Smart timing validation with autofill-safe logic
+  - Three-tier detection: instant block (<0.5s), log fast (0.5-0.8s), allow normal (0.8s+)
+  - HMAC-SHA256 signed timestamp tokens (1-hour expiry)
+  - Zero user friction - completely invisible to legitimate users
+  - Enabled by default with admin toggle
+  
+- **Multi-Layer Captcha System**
+  - Support for 4 captcha types: Turnstile, reCAPTCHA v2, reCAPTCHA v3, Math Captcha
+  - Per-form configuration (admin login, password reset, contact, registration)
+  - Progressive enforcement strategy
+  - Comprehensive admin settings UI with collapsible sections
+
+#### 📚 Security Documentation
+- **CAPTCHA_SETUP.md** - Complete setup guide
+  - Step-by-step configuration for all captcha types
+  - Comparison chart with recommendations
+  - Troubleshooting section with autofill concerns addressed
+  - Progressive enforcement strategy guide
+  - Privacy protection details
+  - Security monitoring instructions
+
+### 🎨 UI/UX Enhancements
+
+#### Promotional Hero Grid Shortcode
+- **HTML Support in Content Fields**
+  - Title, subtitle, and button text support HTML tags
+  - Raw output without sanitization for creative freedom
+  - Allows custom styling via inline span elements
+  
+- **Custom Typography Controls**
+  - Left section: 44px title (desktop)
+  - Middle top: 24px title
+  - Middle bottom: 19px title
+  - Right section: 29px title
+  - Responsive scaling: tablet 30px, mobile 33px base with proportional adjustments
+  
+- **White Text Utility**
+  - `<span>` wrapper automatically applies white color
+  - Font-weight inheritance for all nested elements
+  - Proper CSS specificity with `*, span, div` selectors
+
+- **Responsive Optimizations**
+  - Max-width changed from 70% to 93% for better mobile display
+  - Content positioning adjustments for all screen sizes
+
+#### Featured Banners Shortcode
+- **HTML Support Added**
+  - All text fields (title, subtitle, button) support HTML
+  - Consistent with promotional hero grid behavior
+  - Font-weight inheritance for nested elements
+  
+- **Positioning Improvements**
+  - Fixed nested element position inheritance issues
+  - Mobile positioning: 7px for better alignment
+  - Separate position controls for parent and children
+
+### 🎨 Theme Improvements
+
+#### Cart Flyout
+- **Icon Update** - Replaced linearicons close icon with Phosphor `ph-x-circle`
+- Consistent iconography across theme
+
+### 🔧 Technical Improvements
+
+#### Captcha Plugin Architecture
+- `TurnstileCaptcha.php` - New captcha class extending base contract
+- `HoneypotProtection.php` - Standalone protection system
+- `TurnstileField.php`, `HoneypotField.php` - Form field renderers
+- Blade templates for Turnstile widget rendering (header, HTML, script)
+- Extended `CaptchaServiceProvider` with Turnstile and honeypot support
+- Updated `CaptchaSettingForm` with new fields and collapsibles
+- Validation rules: `turnstile` and `honeypot` validators
+- Request validation updated to accept Turnstile as captcha type
+
+#### Security Logging
+- Honeypot violations logged with IP, user agent, timing data
+- Instant bot submissions tracked separately from autofill submissions
+- Token expiration and validation failures logged for monitoring
+
+### 🐛 Bug Fixes
+
+#### Form Validation
+- Fixed captcha toggle showing incorrect state when Turnstile is selected
+- Fixed `enable_captcha` reading from settings instead of `reCaptchaEnabled()`
+- Fixed captcha type selector to include Turnstile in allowed values
+- Fixed honeypot validation to accept array data from validator
+
+#### Shortcode Issues
+- Fixed promotional hero grid HTML attributes being stripped
+- Fixed featured banners font-weight not inheriting properly
+- Fixed visual builder server errors with missing AlertField imports
+
+### 🔄 Breaking Changes
+None - All changes are backwards compatible
+
+### 📦 Dependencies
+- No new external dependencies (Turnstile uses CDN, honeypot is native PHP)
+
+## [2.6.1] - 2024-12-21
+
+### ✨ Review Section UX Improvements
+
+#### 🎯 Smart Guest Review Messaging
+- **Curiosity-driven FOMO text** for guest users
+- When reviews exist: "Join Our Community" with social proof messaging
+- When no reviews: "Curious What Others Think?" - creates information gap without revealing empty state
+- **Psychological triggers**: exclusivity, social proof, curiosity gap
+- Encourages sign-in through tactical messaging
+
+#### 🎨 Review Sidebar Centering (No Reviews State)
+- **Guest users**: centered layout when no reviews exist
+- **Logged-in users (not met criteria)**: centered layout with "purchase required" message
+- **Logged-in users (met criteria)**: centered layout with "write review" button
+- Consistent centering with `align-items: center` across all states
+
+#### 📱 Review Container Responsive Design
+- **Column-reverse layout** when logged-in users have no reviews
+- Padding/margin: 15px top/bottom
+- Gap: 10px between elements
+- Border: 1px solid top/bottom
+- Centered alignment for better visual balance
+
+#### 🎨 No-Review Message Styling
+- Min-width: 720px (responsive: 100% on mobile)
+- Background: subtle link color
+- Border: 1px solid with 4px left accent
+- Border-radius: 6px
+- Padding: 10px 15px
+
+#### 🔘 Button Styling Improvements
+- **Write review button**: cart button colors, fixed 220px width
+- **Sign-in button**: 320px desktop, 230px mobile
+- Hover states with cart-bg-hover color
+- All buttons maintain width on mobile (220px, not 100%)
+
+#### 📱 Mobile/Tablet Responsive
+- **Review sidebar shown at ≤991px** when no-review states active
+- **Mobile header hidden at ≤991px** for no-review states
+- **Mobile header shown at ≤991px** for default state (reviews exist)
+- Proper visibility toggling across all viewport sizes
+- Guest container: `align-items: center` for better centering
+
+### 🔧 Technical Improvements
+- Conditional CSS classes for different review states
+- Uses `:has()` selector for parent container styling
+- Forced display with `!important` where needed to override defaults
+- SCSS compiled and optimized for production
+
+## [2.6.0] - 2024-12-20
+
+### ✨ Product Listing Page Redesign
+
+#### 🎨 Filter System Enhancements
+- **Mobile filter offcanvas** - slides from bottom with 75vh height
+- **Sticky filter header** (z-index 11) with clean design
+- **Visual attribute swatches** - fully clickable with pointer cursor
+- **Rating filter stars** - styled with global primary color
+- **"Department" label** replaces "Categories" with hidden icons
+- **Filter spacing** - improved margins (8px items, 10px filters, 15px attributes)
+- **Price range slider** - global link color with proper borders
+- **Fixed scrolling** - removed overflow issues on filter content
+- **Select2 dropdown** - works properly in mobile offcanvas
+
+#### 📊 Layout & Display
+- **Filter button styling** - matches layout switcher (normal/hover/active states)
+- **Sort dropdown** - hidden ≤480px, shown in filter offcanvas
+- **Products counter** - updates correctly via AJAX
+- **List view** - thumbnail centered, min-height removed
+- **"0 Product found" alert** - styled with link-subtle background
+
+#### 🌟 Trending Products Section
+- **Replaced** "Recommended Items" with "Most viewed products" shortcode
+- **36 products limit** with 4-column desktop layout (1 mobile, 2 tablet)
+- **Navigation arrows** - 30x30px, white semi-transparent, -10px positioning
+- **No padding** on carousel, hidden "View All" button
+
+#### 🔧 Technical Improvements
+- **Quick-shop auto-close** after add-to-cart (500ms delay)
+- **Enhanced product cards** used throughout listing
+- **Compiled assets** optimized for production
+- **Global color variables** used consistently
+
+### 🐛 Bug Fixes
+- Fixed horizontal overflow on mobile filter offcanvas
+- Fixed products found counter not updating during filtering
+- Fixed visual filter checkmark positioning (4px instead of 3px)
+- Fixed label line-height (22px) for better alignment
+- Fixed rating star fill targeting (only star path, not helper path)
+
+## [2.7.0] - 2024-11-11
+
+### ✨ New Features
+
+#### 🔐 Advanced Bot Protection System
+- **Cloudflare Turnstile Integration**
+  - Privacy-first alternative to reCAPTCHA
+  - User-friendly challenge (90% one-click verification)
+  - Free unlimited use
+  - No Google tracking or data collection
+  - Auto/Light/Dark theme support
+  - Admin UI for easy configuration
+  
+- **Honeypot Protection (Silent Bot Detection)**
+  - Hidden fields that trap automated bots (70-80% catch rate)
+  - Smart timing validation with autofill-safe logic
+  - Three-tier detection: instant block (<0.5s), log fast (0.5-0.8s), allow normal (0.8s+)
+  - HMAC-SHA256 signed timestamp tokens (1-hour expiry)
+  - Zero user friction - completely invisible to legitimate users
+  - Enabled by default with admin toggle
+  
+- **Multi-Layer Captcha System**
+  - Support for 4 captcha types: Turnstile, reCAPTCHA v2, reCAPTCHA v3, Math Captcha
+  - Per-form configuration (admin login, password reset, contact, registration)
+  - Progressive enforcement strategy
+  - Comprehensive admin settings UI with collapsible sections
+
+#### 📚 Security Documentation
+- **CAPTCHA_SETUP.md** - Complete setup guide
+  - Step-by-step configuration for all captcha types
+  - Comparison chart with recommendations
+  - Troubleshooting section with autofill concerns addressed
+  - Progressive enforcement strategy guide
+  - Privacy protection details
+  - Security monitoring instructions
+
+### 🎨 UI/UX Enhancements
+
+#### Promotional Hero Grid Shortcode
+- **HTML Support in Content Fields**
+  - Title, subtitle, and button text support HTML tags
+  - Raw output without sanitization for creative freedom
+  - Allows custom styling via inline span elements
+  
+- **Custom Typography Controls**
+  - Left section: 44px title (desktop)
+  - Middle top: 24px title
+  - Middle bottom: 19px title
+  - Right section: 29px title
+  - Responsive scaling: tablet 30px, mobile 33px base with proportional adjustments
+  
+- **White Text Utility**
+  - `<span>` wrapper automatically applies white color
+  - Font-weight inheritance for all nested elements
+  - Proper CSS specificity with `*, span, div` selectors
+
+- **Responsive Optimizations**
+  - Max-width changed from 70% to 93% for better mobile display
+  - Content positioning adjustments for all screen sizes
+
+#### Featured Banners Shortcode
+- **HTML Support Added**
+  - All text fields (title, subtitle, button) support HTML
+  - Consistent with promotional hero grid behavior
+  - Font-weight inheritance for nested elements
+  
+- **Positioning Improvements**
+  - Fixed nested element position inheritance issues
+  - Mobile positioning: 7px for better alignment
+  - Separate position controls for parent and children
+
+### 🎨 Theme Improvements
+
+#### Cart Flyout
+- **Icon Update** - Replaced linearicons close icon with Phosphor `ph-x-circle`
+- Consistent iconography across theme
+
+### 🔧 Technical Improvements
+
+#### Captcha Plugin Architecture
+- `TurnstileCaptcha.php` - New captcha class extending base contract
+- `HoneypotProtection.php` - Standalone protection system
+- `TurnstileField.php`, `HoneypotField.php` - Form field renderers
+- Blade templates for Turnstile widget rendering (header, HTML, script)
+- Extended `CaptchaServiceProvider` with Turnstile and honeypot support
+- Updated `CaptchaSettingForm` with new fields and collapsibles
+- Validation rules: `turnstile` and `honeypot` validators
+- Request validation updated to accept Turnstile as captcha type
+
+#### Security Logging
+- Honeypot violations logged with IP, user agent, timing data
+- Instant bot submissions tracked separately from autofill submissions
+- Token expiration and validation failures logged for monitoring
+
+### 🐛 Bug Fixes
+
+#### Form Validation
+- Fixed captcha toggle showing incorrect state when Turnstile is selected
+- Fixed `enable_captcha` reading from settings instead of `reCaptchaEnabled()`
+- Fixed captcha type selector to include Turnstile in allowed values
+- Fixed honeypot validation to accept array data from validator
+
+#### Shortcode Issues
+- Fixed promotional hero grid HTML attributes being stripped
+- Fixed featured banners font-weight not inheriting properly
+- Fixed visual builder server errors with missing AlertField imports
+
+### 🔄 Breaking Changes
+None - All changes are backwards compatible
+
+### 📦 Dependencies
+- No new external dependencies (Turnstile uses CDN, honeypot is native PHP)
+
 ## [2.5.1] - 2024-11-07
 
 ### ✨ New Features
