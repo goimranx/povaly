@@ -13,12 +13,14 @@ class CaptchaSettingRequest extends Request
     {
         $rules = [
             'enable_captcha' => $onOffRule = new OnOffRule(),
-            'captcha_type' => ['nullable', 'in:v2,v3', $enableCaptchaRule = 'required_if:enable_captcha,1'],
+            'captcha_type' => ['nullable', 'in:v2,v3,turnstile', $enableCaptchaRule = 'required_if:enable_captcha,1'],
             'captcha_hide_badge' => $onOffRule,
             'captcha_show_disclaimer' => $onOffRule,
             'captcha_site_key' => ['nullable', 'string', $enableCaptchaRule],
             'captcha_secret' => ['nullable', 'string', $enableCaptchaRule],
             'enable_math_captcha' => $onOffRule,
+            'enable_honeypot' => $onOffRule,
+            'turnstile_theme' => ['nullable', 'in:auto,light,dark'],
             'recaptcha_score' => ['nullable', Rule::in(Captcha::scores()), 'required_if:captcha_type,v3'],
         ];
 

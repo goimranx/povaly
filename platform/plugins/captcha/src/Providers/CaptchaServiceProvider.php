@@ -16,9 +16,11 @@ use Botble\Base\Traits\LoadAndPublishDataTrait;
 use Botble\Captcha\Captcha;
 use Botble\Captcha\CaptchaV3;
 use Botble\Captcha\Facades\Captcha as CaptchaFacade;
+use Botble\Captcha\Forms\Fields\HoneypotField;
 use Botble\Captcha\Forms\Fields\MathCaptchaField;
 use Botble\Captcha\Forms\Fields\ReCaptchaField;
 use Botble\Captcha\Forms\Fields\TurnstileField;
+use Botble\Captcha\HoneypotProtection;
 use Botble\Captcha\MathCaptcha;
 use Botble\Captcha\TurnstileCaptcha;
 use Botble\Setting\PanelSections\SettingOthersPanelSection;
@@ -90,7 +92,7 @@ class CaptchaServiceProvider extends ServiceProvider
         CaptchaFacade::registerFormSupport(ResetPasswordForm::class, ResetPasswordRequest::class, trans('plugins/captcha::captcha.admin_reset_password_form'));
 
         FormAbstract::beforeRendering(function (FormAbstract $form): void {
-            if (! CaptchaFacade::isEnabled() && ! CaptchaFacade::mathCaptchaEnabled()) {
+            if (! CaptchaFacade::isEnabled() && ! CaptchaFacade::mathCaptchaEnabled() && ! HoneypotProtection::isEnabled()) {
                 return;
             }
 
@@ -114,6 +116,16 @@ class CaptchaServiceProvider extends ServiceProvider
                 if ($form->getFormInputClass()) {
                     $attributes['attr'] = ['class' => $form->getFormInputClass()];
                 }
+            }
+
+            // Add honeypot protection (silent, always before other fields)
+            if (HoneypotProtection::isEnabled() && ! $form->has('honeypot')) {
+                $form->addBefore(
+                    $fieldKey,
+                    'honeypot',
+                    HoneypotField::class,
+                    ['colspan' => $form->getColumns('lg')]
+                );
             }
 
             if (CaptchaFacade::reCaptchaEnabled() && ! $form->has('recaptcha') && CaptchaFacade::formSetting($form::class, 'enable_recaptcha')) {
@@ -146,6 +158,11 @@ class CaptchaServiceProvider extends ServiceProvider
 
         $this->app['events']->listen(Routing::class, function (): void {
             add_filter('core_request_rules', function (array $rules, Request $request) {
+                // Add honeypot rules first (applies to all forms)
+                if (HoneypotProtection::isEnabled()) {
+                    $rules = [...$rules, ...HoneypotProtection::rules()];
+                }
+
                 if (! CaptchaFacade::isEnabled() && ! CaptchaFacade::mathCaptchaEnabled()) {
                     return $rules;
                 }
@@ -214,6 +231,7 @@ class CaptchaServiceProvider extends ServiceProvider
                 'captcha' => trans('plugins/captcha::captcha.captcha_verification_failed'),
                 'turnstile' => trans('plugins/captcha::captcha.turnstile_verification_failed'),
                 'math_captcha' => trans('plugins/captcha::captcha.math_captcha_verification_failed'),
+                ...HoneypotProtection::messages(),
             ];
         }, 999);
 
@@ -268,6 +286,10 @@ class CaptchaServiceProvider extends ServiceProvider
 
             return $this->app['math-captcha']->verify($value);
         }, trans('plugins/captcha::captcha.math_captcha_verification_failed'));
+
+        $validator->extend('honeypot', function ($attribute, $value, $parameters, $validator) {
+            return HoneypotProtection::validate($validator->getData());
+        }, 'Invalid form submission detected.');
     }
 
     public function mapParameterToOptions(?array $parameters = []): array

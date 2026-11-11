@@ -32,7 +32,7 @@ class CaptchaSettingForm extends SettingForm
                 OnOffCheckboxField::class,
                 CheckboxFieldOption::make()
                     ->label(trans('plugins/captcha::captcha.settings.enable_recaptcha'))
-                    ->value($value = old('enable_captcha', Captcha::reCaptchaEnabled() ? '1' : '0'))
+                    ->value($value = old('enable_captcha', (bool) setting('enable_captcha') ? '1' : '0'))
             )
             ->addOpenCollapsible('enable_captcha', '1', $value)
             ->add(
@@ -52,7 +52,7 @@ class CaptchaSettingForm extends SettingForm
                         'v3' => trans('plugins/captcha::captcha.settings.v3_description'),
                         'turnstile' => trans('plugins/captcha::captcha.settings.turnstile_description'),
                     ])
-                    ->selected($captchaType = Captcha::reCaptchaType())
+                    ->selected($captchaType = setting('captcha_type', 'v2') ?: 'v2')
             )
             ->addOpenCollapsible('captcha_type', 'v3', $captchaType)
             ->add(
@@ -137,7 +137,15 @@ class CaptchaSettingForm extends SettingForm
             )
             ->addOpenCollapsible('enable_math_captcha', '1', $value)
             ->addSelectFormFields('enable_math_captcha')
-            ->addCloseCollapsible('enable_math_captcha', '1');
+            ->addCloseCollapsible('enable_math_captcha', '1')
+            ->add(
+                'enable_honeypot',
+                OnOffCheckboxField::class,
+                CheckboxFieldOption::make()
+                    ->label(trans('plugins/captcha::captcha.settings.enable_honeypot'))
+                    ->value(old('enable_honeypot', setting('enable_honeypot', true) ? '1' : '0'))
+                    ->helperText(trans('plugins/captcha::captcha.settings.honeypot_helper'))
+            );
     }
 
     public function addSelectFormFields(string $key): static

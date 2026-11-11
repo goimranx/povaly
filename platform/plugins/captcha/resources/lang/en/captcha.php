@@ -24,6 +24,8 @@ return [
         'turnstile_theme_light' => 'Light',
         'turnstile_theme_dark' => 'Dark',
         'turnstile_theme_helper' => 'Choose the visual theme for Cloudflare Turnstile widget.',
+        'enable_honeypot' => 'Enable Honeypot Protection',
+        'honeypot_helper' => 'Adds hidden fields that trap bots. Works silently alongside captcha for extra security. Recommended to keep enabled.',
         'enable_math_captcha' => 'Enable Math CAPTCHA',
         'enable_for_form' => 'Enable for :form',
     ],
