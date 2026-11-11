@@ -118,8 +118,7 @@ class CaptchaServiceProvider extends ServiceProvider
                 }
             }
 
-            // Honeypot with per-form tracking - only validate forms where honeypot is rendered
-            if (HoneypotProtection::isEnabled() && ! $form->has('honeypot') && $form instanceof FormFront) {
+            if (HoneypotProtection::isEnabled() && ! $form->has('honeypot') && $form instanceof FormFront && CaptchaFacade::formSetting($form::class, 'enable_honeypot')) {
                 // Mark request as having honeypot form for validation
                 request()->attributes->set('has_honeypot_form', true);
 
