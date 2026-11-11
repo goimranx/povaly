@@ -53,12 +53,21 @@ class ChangeProductSwatches {
             let $item = $this.closest('.bb-product-attribute-swatch-item')
             let $wrapper = $this.closest('.bb-product-attribute-swatch')
 
+            console.log('[Swatch Click] Label clicked', {
+                title: $item.data('title'),
+                isDisabled: $item.hasClass('disabled'),
+                isAlreadyChecked: $radio.is(':checked'),
+                isVisual: $wrapper.find('.visual-swatch').length > 0
+            })
+
             // Don't allow clicking disabled items
             if ($item.hasClass('disabled')) {
+                console.log('[Swatch Click] Item is disabled, ignoring click')
                 return
             }
 
             if ($radio.is(':checked')) {
+                console.log('[Swatch Click] Item already selected, ignoring click')
                 return
             }
 
@@ -75,6 +84,11 @@ class ChangeProductSwatches {
             if ($label.length) {
                 $label.text($item.data('title') || '')
             }
+
+            console.log('[Swatch Click] Swatch selected, updating thumbnail', {
+                title: $item.data('title'),
+                imageUrl: $item.data('variation-image')
+            })
 
             // Update thumbnail image for visual swatches
             _self.updateSwatchThumbnail($item)
