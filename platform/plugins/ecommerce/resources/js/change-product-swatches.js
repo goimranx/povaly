@@ -509,36 +509,47 @@ class ChangeProductSwatches {
         // Update the thumbnail image inside the swatch item when it's selected
         const imageUrl = $item.data('variation-image')
         const $thumb = $item.find('.qs-var-item__thumb')
+        const title = $item.data('title')
         
-        if (!$thumb.length || !imageUrl) {
+        console.log('[Visual Swatch Update] Updating thumbnail', {
+            title: title,
+            imageUrl: imageUrl,
+            thumbFound: $thumb.length > 0,
+            currentThumbHtml: $thumb.html()
+        })
+        
+        if (!$thumb.length) {
+            console.warn('[Visual Swatch Update] Thumbnail element not found for:', title)
             return
         }
 
-        console.log('[Visual Swatch Update] Updating thumbnail', {
-            title: $item.data('title'),
-            newImage: imageUrl
-        })
+        if (!imageUrl) {
+            console.warn('[Visual Swatch Update] No image URL for swatch:', title)
+            return
+        }
 
         // Clear existing thumbnail content
         $thumb.empty()
 
-        // If image URL exists, add image element
-        if (imageUrl) {
-            const $img = $('<img />')
-                .attr('src', imageUrl)
-                .attr('alt', $item.data('title') || '')
-                .attr('loading', 'lazy')
-            
-            $thumb.append($img)
-        } else {
-            // If no image, show color swatch
-            const color = $item.find('input[type=radio]').closest('.bb-product-attribute-swatch-item').data('color') || '#cccccc'
-            const $colorSpan = $('<span />')
-                .addClass('qs-var-item__color-fill')
-                .css('background-color', color)
-            
-            $thumb.append($colorSpan)
-        }
+        // Add image element
+        const $img = $('<img />')
+            .attr('src', imageUrl)
+            .attr('alt', title || '')
+            .attr('loading', 'lazy')
+            .on('load', function() {
+                console.log('[Visual Swatch Update] Thumbnail image loaded:', { title, imageUrl })
+            })
+            .on('error', function() {
+                console.error('[Visual Swatch Update] Thumbnail image failed to load:', { title, imageUrl })
+            })
+        
+        $thumb.append($img)
+        
+        console.log('[Visual Swatch Update] Thumbnail updated successfully:', { 
+            title, 
+            newImage: imageUrl,
+            newThumbHtml: $thumb.html().substring(0, 100)
+        })
     }
 
     restoreSelectedImage() {
