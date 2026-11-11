@@ -53,17 +53,28 @@ class ChangeProductSwatches {
         $body.on('click', '.product-attributes .visual-swatch label, .product-attributes .text-swatch label', (e) => {
             e.preventDefault()
 
+            console.log('%c🔵 [SWATCH CLICK] Visual/Text swatch clicked', 'background: #0066ff; color: #fff; font-size: 14px; padding: 2px 6px;')
+
             let $this = $(e.currentTarget)
             let $radio = $this.find('input[type=radio]')
             let $item = $this.closest('.bb-product-attribute-swatch-item')
             let $wrapper = $this.closest('.bb-product-attribute-swatch')
 
+            console.log('🔵 [SWATCH CLICK] Swatch details:', {
+                itemId: $item.data('id'),
+                itemTitle: $item.data('title'),
+                isDisabled: $item.hasClass('disabled'),
+                isAlreadyChecked: $radio.is(':checked')
+            })
+
             // Don't allow clicking disabled items
             if ($item.hasClass('disabled')) {
+                console.log('⛔ [SWATCH CLICK] Item is disabled, ignoring click')
                 return
             }
 
             if ($radio.is(':checked')) {
+                console.log('⛔ [SWATCH CLICK] Already selected, ignoring click')
                 return
             }
 
@@ -318,14 +329,16 @@ class ChangeProductSwatches {
     handleResponse = function(res, $productAttributes, slugAttributes, id, updateUrl) {
         let _self = this
 
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-        console.log('📦 [SWATCH RESPONSE] Handle response called', {
-            hasData: !!res.data,
-            variationId: res.data?.id,
-            hasImageWithSizes: !!res.data?.image_with_sizes,
-            imageThumbUrl: res.data?.image_with_sizes?.thumb
+        console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #ff00ff; font-weight: bold;')
+        console.log('%c📦 [SWATCH RESPONSE] Handle response called', 'background: #ff00ff; color: #fff; font-size: 14px; font-weight: bold; padding: 2px 6px;', {
+            hasRes: !!res,
+            hasData: !!res?.data,
+            variationId: res?.data?.id,
+            hasImageWithSizes: !!res?.data?.image_with_sizes,
+            imageThumbUrl: res?.data?.image_with_sizes?.thumb,
+            fullResponse: res
         })
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+        console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #ff00ff; font-weight: bold;')
 
         if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnChangeSwatchesSuccess === 'function') {
             window.EcommerceApp.defaultOnChangeSwatchesSuccess(res, $productAttributes)
