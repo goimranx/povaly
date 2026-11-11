@@ -77,6 +77,17 @@ class StoreProductService
             $images = array_values(array_filter((array) $imagesInput));
         }
 
+        // DEBUG: Log image serialization
+        \Log::info('[PRODUCT IMAGE DEBUG] Image Serialization', [
+            'product_id' => $product->id,
+            'is_variation' => $product->is_variation ?? false,
+            'images_input_count' => is_array($imagesInput ?? []) ? count($imagesInput) : 0,
+            'images_after_filter_count' => count($images),
+            'images_array' => array_map(fn($i) => basename($i ?? ''), $images),
+            'images_json' => json_encode($images),
+            'request_timestamp' => now()->toDateTimeString(),
+        ]);
+
         $product->images = json_encode($images);
 
         if (! $hasVariation || $forceUpdateAll) {

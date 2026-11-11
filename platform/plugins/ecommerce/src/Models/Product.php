@@ -462,8 +462,25 @@ class Product extends BaseModel
                         $images = array_filter($images);
                     }
 
+                    // DEBUG: Log image deserialization
+                    if (isset($this->id)) {
+                        \Log::debug('[PRODUCT IMAGE DEBUG] Image Deserialization', [
+                            'product_id' => $this->id,
+                            'is_variation' => $this->is_variation ?? false,
+                            'raw_value_length' => strlen((string) $value),
+                            'raw_value_type' => is_array($value) ? 'array' : gettype($value),
+                            'deserialized_count' => count($images ?? []),
+                            'images_basenames' => array_map(fn($i) => basename($i ?? ''), $images ?? []),
+                        ]);
+                    }
+
                     return $images ?: [];
-                } catch (Exception) {
+                } catch (Exception $e) {
+                    \Log::error('[PRODUCT IMAGE DEBUG] Image Deserialization Error', [
+                        'product_id' => $this->id ?? 'unknown',
+                        'error' => $e->getMessage(),
+                        'raw_value' => substr((string) $value, 0, 100),
+                    ]);
                     return [];
                 }
             }

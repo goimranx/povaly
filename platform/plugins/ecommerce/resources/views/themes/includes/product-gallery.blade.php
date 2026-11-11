@@ -17,6 +17,7 @@
 
     // DEBUG: Log what we're starting with
     $debugInfo = [
+        'timestamp' => now()->toDateTimeString(),
         'product_id' => $product->id,
         'product_name' => $product->name,
         'is_variation' => $product->is_variation ?? false,
@@ -75,9 +76,25 @@
             ->get();
         $debugInfo['variations_loaded'] = $productVariations->count();
         
+        // DEBUG: Log variation image loading
+        \Log::debug('[GALLERY DEBUG] Loading Variation Images', [
+            'product_id' => $product->id,
+            'total_variations' => $productVariations->count(),
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+        
         foreach ($productVariations as $pv) {
             if (!$pv->product) continue;
             $varImages = [];
+            
+            // DEBUG: Log each variation's images
+            \Log::debug('[GALLERY DEBUG] Variation Images Processing', [
+                'variation_id' => $pv->id,
+                'product_id' => $pv->product_id,
+                'variation_featured_image' => basename($pv->product->image ?? 'NULL'),
+                'variation_images_count' => !empty($pv->product->images) ? count($pv->product->images) : 0,
+                'variation_images_list' => !empty($pv->product->images) ? array_map(fn($i) => basename($i), $pv->product->images) : [],
+            ]);
             
             // Variation featured image first
             if (!empty($pv->product->image)) {
