@@ -385,11 +385,17 @@ class ChangeProductSwatches {
             return
         }
         
-        // Update each visual swatch price by fetching its variation data
+        console.log('[Visual Swatch Update] Starting swatch updates', {
+            selectedAttrIds: selectedAttrIds,
+            totalVisualSwatches: $productAttributes.find('.qs-var-item').length
+        })
+        
+        // Update each visual swatch price AND image by fetching its variation data
         $productAttributes.find('.qs-var-item').each(function() {
             const $item = $(this)
             const colorId = parseInt($item.data('id'))
             const $priceDiv = $item.find('.qs-var-item__price')
+            const $thumbImg = $item.find('.qs-var-item__thumb img')
             
             if (!$priceDiv.length || !colorId) return
             
@@ -412,6 +418,7 @@ class ChangeProductSwatches {
                 },
                 success: (res) => {
                     if (res && res.data && !res.data.error_message) {
+                        // Update price
                         const price = _self.formatPrice(Math.round(res.data.sale_price || res.data.price))
                         const origPrice = res.data.price > res.data.sale_price ? _self.formatPrice(Math.round(res.data.price)) : null
                         
@@ -420,6 +427,31 @@ class ChangeProductSwatches {
                             html += `<del class="qs-var-item__price-orig">${origPrice}</del>`
                         }
                         $priceDiv.html(html)
+                        
+                        // CRITICAL FIX: Update thumbnail image based on variation's featured image
+                        if ($thumbImg.length && res.data.image) {
+                            // Get full image URL from the variation's featured image
+                            const newImageUrl = res.data.image
+                            const thumbUrl = newImageUrl.replace(/^https?:\/\/[^\/]+/, '').replace(/(\.[^.]+)$/, '-150x150$1')
+                            const fullThumbUrl = window.location.origin + thumbUrl
+                            
+                            console.log('[Visual Swatch Update] Updating image', {
+                                colorId: colorId,
+                                oldSrc: $thumbImg.attr('src'),
+                                newSrc: fullThumbUrl
+                            })
+                            
+                            $thumbImg.attr('src', fullThumbUrl)
+                        }
+                        
+                        // Store variation ID in swatch for later gallery reference
+                        if (res.data.id) {
+                            $item.data('variation-id', res.data.id)
+                            console.log('[Visual Swatch Update] Stored variation ID', {
+                                colorId: colorId,
+                                variationId: res.data.id
+                            })
+                        }
                     }
                 }
             })

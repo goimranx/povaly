@@ -386,15 +386,6 @@
             
             const variationId = data.variationId || data.variation_id || data.id || data.productId || data.product_id;
             
-            // DEBUG: Log variation change
-            console.log('[PV Gallery DEBUG] Variation Change Event', {
-                variationId: variationId,
-                eventData: data,
-                variationMapExists: variationId in this.variationMap,
-                mappedIndex: this.variationMap[variationId] || 'NOT FOUND',
-                timestamp: new Date().toISOString(),
-            });
-            
             if (!variationId) {
                 return;
             }
@@ -405,34 +396,20 @@
             // Now find all images for this variation from the reordered allImages
             const variationImages = this.allImages.filter(img => img.variationId == variationId);
             
-            // DEBUG: Log found variation images
-            console.log('[PV Gallery DEBUG] Variation Images Found', {
+            console.log('[PV Gallery] Variation Change', {
                 variationId: variationId,
-                imagesCount: variationImages.length,
-                images: variationImages.map(img => ({
-                    index: img.index,
-                    url: img.url.substring(img.url.lastIndexOf('/') + 1),
-                })),
-            });
+                imagesFound: variationImages.length,
+                jumpingToIndex: variationImages.length > 0 ? variationImages[0].index : 'none'
+            })
             
             if (variationImages.length > 0) {
                 // Jump to first image of this variation
                 const firstVariationImage = variationImages[0];
-                console.log('[PV Gallery DEBUG] Jumping to First Variation Image', {
-                    variationId: variationId,
-                    jumpIndex: firstVariationImage.index,
-                    url: firstVariationImage.url.substring(firstVariationImage.url.lastIndexOf('/') + 1),
-                });
                 this.jumpToImage(firstVariationImage.index);
                 this.scrollThumbnailsToShow(firstVariationImage.index);
             } else {
                 // If variationMap has the index, use it
                 let targetIndex = this.variationMap[variationId];
-                
-                console.log('[PV Gallery DEBUG] No Direct Variation Images - Using Map', {
-                    variationId: variationId,
-                    targetIndexFromMap: targetIndex || 'NOT FOUND',
-                });
                 
                 if (targetIndex !== undefined) {
                     this.jumpToImage(targetIndex);
@@ -443,10 +420,6 @@
                 // Try to find any image with this variation ID
                 const firstVariationImage = this.allImages.find(img => img.variationId == variationId);
                 if (firstVariationImage) {
-                    console.log('[PV Gallery DEBUG] Found Image via Search', {
-                        variationId: variationId,
-                        index: firstVariationImage.index,
-                    });
                     this.jumpToImage(firstVariationImage.index);
                     this.scrollThumbnailsToShow(firstVariationImage.index);
                 }
@@ -518,15 +491,9 @@
             }));
             
             // Update currentIndex to point to the first image of the new variation
-            // OR maintain the current image if it's from a different variation
             const firstNewVariationImage = this.allImages.find(img => img.variationId === variationId);
             if (firstNewVariationImage) {
                 this.currentIndex = firstNewVariationImage.index;
-                console.log('[PV Gallery DEBUG] reorderThumbnails - Updated currentIndex', {
-                    oldIndex: oldCurrentIndex,
-                    newIndex: this.currentIndex,
-                    variationId: variationId,
-                });
             }
         }
         
