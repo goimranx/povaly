@@ -118,15 +118,16 @@ class CaptchaServiceProvider extends ServiceProvider
                 }
             }
 
-            // Add honeypot protection (ONLY for frontend FormFront forms, not admin forms)
-            if (HoneypotProtection::isEnabled() && ! $form->has('honeypot') && $form instanceof FormFront) {
-                $form->addBefore(
-                    $fieldKey,
-                    'honeypot',
-                    HoneypotField::class,
-                    ['colspan' => $form->getColumns('lg')]
-                );
-            }
+            // Honeypot completely disabled - causing validation issues
+            // Will be reimplemented in future version
+            // if (HoneypotProtection::isEnabled() && ! $form->has('honeypot') && $form instanceof FormFront) {
+            //     $form->addBefore(
+            //         $fieldKey,
+            //         'honeypot',
+            //         HoneypotField::class,
+            //         ['colspan' => $form->getColumns('lg')]
+            //     );
+            // }
 
             if (CaptchaFacade::reCaptchaEnabled() && ! $form->has('recaptcha') && CaptchaFacade::formSetting($form::class, 'enable_recaptcha')) {
                 $form->addBefore(
@@ -158,12 +159,11 @@ class CaptchaServiceProvider extends ServiceProvider
 
         $this->app['events']->listen(Routing::class, function (): void {
             add_filter('core_request_rules', function (array $rules, Request $request) {
-                // Completely skip honeypot for ANY admin URL
-                $isAdmin = $request->is('admin') || $request->is('admin/*') || str_starts_with($request->path(), 'admin/') || $request->segment(1) === 'admin';
-                
-                if (HoneypotProtection::isEnabled() && ! $isAdmin) {
-                    $rules = [...$rules, ...HoneypotProtection::rules()];
-                }
+                // COMPLETELY DISABLED - Honeypot causing too many issues
+                // Will be reimplemented in future version with better design
+                // if (HoneypotProtection::isEnabled() && ! $isAdmin) {
+                //     $rules = [...$rules, ...HoneypotProtection::rules()];
+                // }
 
                 if (! CaptchaFacade::isEnabled() && ! CaptchaFacade::mathCaptchaEnabled()) {
                     return $rules;
