@@ -98,8 +98,22 @@ class ChangeProductSwatches {
         $body
             .off('change', '.product-attributes input, .product-attributes select')
             .on('change', '.product-attributes input, .product-attributes select', (event) => {
+                console.log('%c🟡 [CHANGE EVENT] Radio/select change event fired!', 'background: #ffcc00; color: #000; font-size: 14px; font-weight: bold; padding: 2px 6px;', {
+                    element: event.currentTarget,
+                    tagName: event.currentTarget.tagName,
+                    type: event.currentTarget.type,
+                    value: event.currentTarget.value,
+                    checked: event.currentTarget.checked
+                })
+                
                 const $element = $(event.currentTarget)
                 const $parent = $element.closest('.product-attributes')
+                
+                console.log('%c🟡 [CHANGE EVENT] Found parent container:', 'background: #ffcc00; color: #000; font-size: 14px; padding: 2px 6px;', {
+                    hasParent: $parent.length > 0,
+                    parentId: $parent.attr('id'),
+                    parentClasses: $parent.attr('class')
+                })
 
                 // If it's a select dropdown, update the label
                 if ($element.is('select')) {
@@ -112,6 +126,7 @@ class ChangeProductSwatches {
                     }
                 }
 
+                console.log('%c🟡 [CHANGE EVENT] About to call getProductVariation', 'background: #ffcc00; color: #000; font-size: 14px; padding: 2px 6px;')
                 _self.getProductVariation($parent)
             })
 
