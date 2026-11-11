@@ -53,21 +53,12 @@ class ChangeProductSwatches {
             let $item = $this.closest('.bb-product-attribute-swatch-item')
             let $wrapper = $this.closest('.bb-product-attribute-swatch')
 
-            console.log('[Swatch Click] Label clicked', {
-                title: $item.data('title'),
-                isDisabled: $item.hasClass('disabled'),
-                isAlreadyChecked: $radio.is(':checked'),
-                isVisual: $wrapper.find('.visual-swatch').length > 0
-            })
-
             // Don't allow clicking disabled items
             if ($item.hasClass('disabled')) {
-                console.log('[Swatch Click] Item is disabled, ignoring click')
                 return
             }
 
             if ($radio.is(':checked')) {
-                console.log('[Swatch Click] Item already selected, ignoring click')
                 return
             }
 
@@ -84,14 +75,6 @@ class ChangeProductSwatches {
             if ($label.length) {
                 $label.text($item.data('title') || '')
             }
-
-            console.log('[Swatch Click] Swatch selected, updating thumbnail', {
-                title: $item.data('title'),
-                imageUrl: $item.data('variation-image')
-            })
-
-            // Update thumbnail image for visual swatches
-            _self.updateSwatchThumbnail($item)
 
             $radio.trigger('change')
         })
@@ -368,6 +351,9 @@ class ChangeProductSwatches {
                     $clipboardBtn.attr('data-clipboard-text', url.href)
                 }
             }
+
+            // Update visual swatch thumbnails after variation response
+            _self.updateVisualSwatchThumbnails(data, $productAttributes)
         }
         
         // Update swatch prices based on currently selected variation
@@ -519,50 +505,44 @@ class ChangeProductSwatches {
         }
     }
 
-    updateSwatchThumbnail($item) {
-        // Update the thumbnail image inside the swatch item when it's selected
-        const imageUrl = $item.data('variation-image')
-        const $thumb = $item.find('.qs-var-item__thumb')
-        const title = $item.data('title')
-        
-        console.log('[Visual Swatch Update] Updating thumbnail', {
-            title: title,
-            imageUrl: imageUrl,
-            thumbFound: $thumb.length > 0,
-            currentThumbHtml: $thumb.html()
+    updateVisualSwatchThumbnails(variationData, $productAttributes) {
+        // Update all visual swatch thumbnails based on current variation selection
+        if (!variationData || !variationData.image_with_sizes) {
+            return
+        }
+
+        console.log('[Visual Swatch Update] Starting swatch updates', {
+            selectedAttrIds: variationData.attributes || [],
+            variationId: variationData.id,
+            mainImage: variationData.image_with_sizes.thumb
         })
-        
-        if (!$thumb.length) {
-            console.warn('[Visual Swatch Update] Thumbnail element not found for:', title)
-            return
-        }
 
-        if (!imageUrl) {
-            console.warn('[Visual Swatch Update] No image URL for swatch:', title)
-            return
-        }
+        // Find all visual swatches (those with thumbnails)
+        $productAttributes.find('.visual-swatch .qs-var-item').each(function() {
+            const $item = $(this)
+            const $thumb = $item.find('.qs-var-item__thumb')
+            const colorId = parseInt($item.data('id'))
+            const variationIds = $item.data('variation-ids') // Array of variation IDs for this color
+            
+            if (!$thumb.length || !colorId) {
+                return // Skip items without thumbnails or IDs
+            }
 
-        // Clear existing thumbnail content
-        $thumb.empty()
-
-        // Add image element
-        const $img = $('<img />')
-            .attr('src', imageUrl)
-            .attr('alt', title || '')
-            .attr('loading', 'lazy')
-            .on('load', function() {
-                console.log('[Visual Swatch Update] Thumbnail image loaded:', { title, imageUrl })
-            })
-            .on('error', function() {
-                console.error('[Visual Swatch Update] Thumbnail image failed to load:', { title, imageUrl })
-            })
-        
-        $thumb.append($img)
-        
-        console.log('[Visual Swatch Update] Thumbnail updated successfully:', { 
-            title, 
-            newImage: imageUrl,
-            newThumbHtml: $thumb.html().substring(0, 100)
+            // Check if this color attribute is part of the current selection
+            const isInCurrentSelection = variationData.attributes && variationData.attributes.includes(colorId)
+            
+            if (isInCurrentSelection && variationData.image_with_sizes) {
+                // This is the selected color - use the main variation image
+                const thumbUrl = variationData.image_with_sizes.thumb
+                
+                console.log('[Visual Swatch Update] Updating selected color swatch', {
+                    colorId: colorId,
+                    variationId: variationData.id,
+                    newImage: thumbUrl
+                })
+                
+                $thumb.find('img').attr('src', thumbUrl)
+            }
         })
     }
 
