@@ -399,7 +399,10 @@
                 return;
             }
             
-            // Find all images for this variation
+            // CRITICAL FIX: Reorder thumbnails FIRST to update allImages array
+            this.reorderThumbnails(variationId);
+            
+            // Now find all images for this variation from the reordered allImages
             const variationImages = this.allImages.filter(img => img.variationId == variationId);
             
             // DEBUG: Log found variation images
@@ -413,9 +416,6 @@
             });
             
             if (variationImages.length > 0) {
-                // Reorganize thumbnails: show variation images first, then others
-                this.reorderThumbnails(variationId);
-                
                 // Jump to first image of this variation
                 const firstVariationImage = variationImages[0];
                 console.log('[PV Gallery DEBUG] Jumping to First Variation Image', {
@@ -505,22 +505,28 @@
                 }
             });
             
-            // Update allImages array to reflect new order
+            // CRITICAL FIX: Rebuild allImages array with the new order and track current index properly
+            const oldCurrentIndex = this.currentIndex;
+            const oldActiveVariationId = this.allImages.find(img => img.index === oldCurrentIndex)?.variationId;
+            
+            // Rebuild with new order
             this.allImages = allThumbs.map((thumb, idx) => ({
                 index: parseInt(thumb.getAttribute('data-index')),
                 url: thumb.getAttribute('data-image'),
-                variationId: thumb.getAttribute('data-variation-id'),
+                variationId: thumb.getAttribute('data-variation-id') || null,
                 thumb: thumb
             }));
             
-            // Update currentIndex to point to the currently active image's new position
-            const activeThumb = allThumbs.find(t => t.classList.contains('pv-active'));
-            if (activeThumb) {
-                const activeDataIndex = parseInt(activeThumb.getAttribute('data-index'));
-                const activeImageData = this.allImages.find(img => img.index === activeDataIndex);
-                if (activeImageData) {
-                    this.currentIndex = activeImageData.index;
-                }
+            // Update currentIndex to point to the first image of the new variation
+            // OR maintain the current image if it's from a different variation
+            const firstNewVariationImage = this.allImages.find(img => img.variationId === variationId);
+            if (firstNewVariationImage) {
+                this.currentIndex = firstNewVariationImage.index;
+                console.log('[PV Gallery DEBUG] reorderThumbnails - Updated currentIndex', {
+                    oldIndex: oldCurrentIndex,
+                    newIndex: this.currentIndex,
+                    variationId: variationId,
+                });
             }
         }
         
