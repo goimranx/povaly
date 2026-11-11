@@ -390,24 +390,41 @@
                 return;
             }
             
+            console.log('[PV Gallery DEBUG] Variation Change Event', {
+                variationId: variationId,
+                variationMapExists: this.variationMap.hasOwnProperty(variationId),
+                mappedIndex: this.variationMap[variationId] !== undefined ? this.variationMap[variationId] : 'NOT FOUND',
+                timestamp: new Date().toISOString()
+            });
+            
             // CRITICAL FIX: Reorder thumbnails FIRST to update allImages array
             this.reorderThumbnails(variationId);
             
             // Now find all images for this variation from the reordered allImages
             const variationImages = this.allImages.filter(img => img.variationId == variationId);
             
-            console.log('[PV Gallery] Variation Change', {
+            console.log('[PV Gallery DEBUG] Variation Images Found', {
                 variationId: variationId,
-                imagesFound: variationImages.length,
-                jumpingToIndex: variationImages.length > 0 ? variationImages[0].index : 'none'
-            })
+                imagesCount: variationImages.length,
+                images: variationImages.map(img => img.url ? img.url.split('/').pop() : 'no-url')
+            });
             
             if (variationImages.length > 0) {
                 // Jump to first image of this variation
                 const firstVariationImage = variationImages[0];
+                console.log('[PV Gallery DEBUG] Jumping to First Variation Image', {
+                    variationId: variationId,
+                    jumpIndex: firstVariationImage.index,
+                    url: firstVariationImage.url ? firstVariationImage.url.split('/').pop() : 'no-url'
+                });
                 this.jumpToImage(firstVariationImage.index);
                 this.scrollThumbnailsToShow(firstVariationImage.index);
             } else {
+                console.log('[PV Gallery DEBUG] No Direct Variation Images - Using Map', {
+                    variationId: variationId,
+                    targetIndexFromMap: this.variationMap[variationId] !== undefined ? this.variationMap[variationId] : 'NOT FOUND'
+                });
+                
                 // If variationMap has the index, use it
                 let targetIndex = this.variationMap[variationId];
                 
