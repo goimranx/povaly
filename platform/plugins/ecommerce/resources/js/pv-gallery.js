@@ -212,8 +212,9 @@
             const imageData = this.allImages.find(img => img.index === index);
             
             // DEBUG: Log jump operation
-            console.log('[PV Gallery DEBUG] Jump To Image', {
+            console.log('🖼️ [PV Gallery] JUMP TO IMAGE', {
                 requestedIndex: index,
+                currentMainImageSrc: this.mainImage ? this.mainImage.src.split('/').pop() : 'NO MAIN IMAGE',
                 foundImageData: imageData ? {
                     index: imageData.index,
                     variationId: imageData.variationId || 'parent',
@@ -221,7 +222,15 @@
                 } : 'NOT FOUND',
             });
             
-            if (!imageData || !this.mainImage) return;
+            if (!imageData) {
+                console.error('❌ [PV Gallery] JUMP FAILED - imageData not found for index', index);
+                return;
+            }
+            
+            if (!this.mainImage) {
+                console.error('❌ [PV Gallery] JUMP FAILED - this.mainImage is null');
+                return;
+            }
             
             // Hide video facade and show main image
             const mainContainer = this.mainImage.parentElement.classList.contains('pv-slide-track')
@@ -245,15 +254,25 @@
             const targetUrl = fullSizeUrl;
             
             // DEBUG: Log URL transformation
-            console.log('[PV Gallery DEBUG] URL Transformation', {
+            console.log('🖼️ [PV Gallery] URL TRANSFORMATION', {
                 originalUrl: imageData.url.substring(imageData.url.lastIndexOf('/') + 1),
                 fullSizeUrl: fullSizeUrl.substring(fullSizeUrl.lastIndexOf('/') + 1),
                 strippedCorrectly: !fullSizeUrl.includes('-150x150') && !fullSizeUrl.includes('-thumb'),
             });
             
+            console.log('🖼️ [PV Gallery] UPDATING MAIN IMAGE SRC', {
+                oldSrc: this.mainImage.src.split('/').pop(),
+                newSrc: fullSizeUrl.split('/').pop(),
+                willChange: this.mainImage.src !== fullSizeUrl
+            });
+            
             // Update main image with full-size URL
             this.mainImage.src = fullSizeUrl;
             this.mainImage.srcset = '';
+            
+            console.log('✅ [PV Gallery] MAIN IMAGE SRC UPDATED', {
+                actualSrc: this.mainImage.src.split('/').pop()
+            });
             
             // Clear previous onload handler
             this.mainImage.onload = null;
@@ -390,20 +409,41 @@
                 return;
             }
             
-            console.log('[PV Gallery DEBUG] Variation Change Event', {
+            console.log('🔄 [PV Gallery] VARIATION CHANGE START', {
                 variationId: variationId,
+                currentIndex: this.currentIndex,
+                currentImageUrl: this.mainImage ? this.mainImage.src.split('/').pop() : 'NO MAIN IMAGE',
                 variationMapExists: this.variationMap.hasOwnProperty(variationId),
                 mappedIndex: this.variationMap[variationId] !== undefined ? this.variationMap[variationId] : 'NOT FOUND',
                 timestamp: new Date().toISOString()
             });
             
             // CRITICAL FIX: Reorder thumbnails FIRST to update allImages array
+            console.log('🔄 [PV Gallery] BEFORE REORDER', {
+                allImagesCount: this.allImages.length,
+                firstThreeImages: this.allImages.slice(0, 3).map(img => ({
+                    index: img.index,
+                    variationId: img.variationId,
+                    url: img.url ? img.url.split('/').pop() : 'no-url'
+                }))
+            });
+            
             this.reorderThumbnails(variationId);
+            
+            console.log('🔄 [PV Gallery] AFTER REORDER', {
+                allImagesCount: this.allImages.length,
+                firstThreeImages: this.allImages.slice(0, 3).map(img => ({
+                    index: img.index,
+                    variationId: img.variationId,
+                    url: img.url ? img.url.split('/').pop() : 'no-url'
+                })),
+                currentIndexAfterReorder: this.currentIndex
+            });
             
             // Now find all images for this variation from the reordered allImages
             const variationImages = this.allImages.filter(img => img.variationId == variationId);
             
-            console.log('[PV Gallery DEBUG] Variation Images Found', {
+            console.log('🔄 [PV Gallery] VARIATION IMAGES FOUND', {
                 variationId: variationId,
                 imagesCount: variationImages.length,
                 images: variationImages.map(img => img.url ? img.url.split('/').pop() : 'no-url')
@@ -461,9 +501,15 @@
         
         reorderThumbnails(variationId) {
             
+            console.log('📋 [PV Gallery] REORDER THUMBNAILS START', {
+                variationId: variationId,
+                originalThumbnailDataCount: this.originalThumbnailData.length
+            });
+            
             // Get photo thumbnails container
             const photoContainer = this.container.querySelector('.pv-thumbs-photos');
             if (!photoContainer) {
+                console.warn('⚠️ [PV Gallery] REORDER FAILED - photoContainer not found');
                 return;
             }
             
@@ -481,7 +527,19 @@
                 }
             });
             
+            console.log('📋 [PV Gallery] REORDER SEPARATION', {
+                variationId: variationId,
+                variationThumbsCount: variationThumbs.length,
+                otherThumbsCount: otherThumbs.length,
+                variationThumbs: variationThumbs.map(t => ({
+                    index: t.index,
+                    variationId: t.variationId,
+                    url: t.imageUrl ? t.imageUrl.split('/').pop() : 'no-url'
+                }))
+            });
+            
             if (variationThumbs.length === 0) {
+                console.warn('⚠️ [PV Gallery] REORDER SKIPPED - no thumbnails for variation', variationId);
                 return;
             }
             
