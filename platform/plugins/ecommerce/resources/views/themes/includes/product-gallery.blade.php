@@ -61,6 +61,7 @@
 
     // 3. All variation images (CRITICAL: Load ALL variations, not just selected one!)
     $variationImageMap = []; // product_id → first index in $allImages
+    $allVariationIds = []; // Track all variation IDs for comprehensive mapping later
     $productVariations = null;
     
     if ($product->has_variation) {
@@ -85,6 +86,10 @@
         
         foreach ($productVariations as $pv) {
             if (!$pv->product) continue;
+            
+            // Track this variation ID for later mapping
+            $allVariationIds[] = $pv->product_id;
+            
             $varImages = [];
             
             // DEBUG: Log each variation's images
@@ -189,18 +194,21 @@
     }
     
     // CRITICAL FIX: Ensure ALL variations are in the map, even if no reordering happened
-    // This ensures gallery jumps work for ALL variations, not just the pre-selected one
-    if (empty($variationImageMap)) {
-        foreach ($allImages as $idx => $imgData) {
-            if ($imgData['variationId'] && !isset($variationImageMap[$imgData['variationId']])) {
-                $variationImageMap[$imgData['variationId']] = $idx;
+    // OR if reordering removed duplicates. This ensures gallery jumps work for ALL variations.
+    // For each tracked variation, find its first occurrence in the final image list
+    foreach ($allVariationIds as $varId) {
+        if (!isset($variationImageMap[$varId])) {
+            // Find first image with this variation ID
+            $firstIndex = $allImages->search(fn($i) => $i['variationId'] === $varId);
+            if ($firstIndex !== false) {
+                $variationImageMap[$varId] = $firstIndex;
             }
         }
-        $debugInfo['map_built_manually'] = 'YES - map was empty';
     }
     
     // DEBUG: Log the variation map
     $debugInfo['variation_map_size'] = count($variationImageMap);
+    $debugInfo['variation_ids_tracked'] = count($allVariationIds);
     $debugInfo['variation_map'] = $variationImageMap;
     
     // ── Get videos (product level, not variation-specific) ──────────────────────────────────
