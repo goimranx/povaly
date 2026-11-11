@@ -1,9 +1,14 @@
+// 🚀 POVALY SWATCH SYSTEM v2.9.4 - BUILD TIME: 2024-12-11 [CACHE BUST TEST]
+console.log('%c🚀 POVALY SWATCH SYSTEM v2.9.4 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
+console.log('📅 Build Time: 2024-12-11 | Cache Bust Test Active');
+
 class ChangeProductSwatches {
     constructor() {
         this.xhr = null
         this.cache = new Map() // Client-side cache for variation responses
         this.cacheTimeout = 5 * 60 * 1000 // 5 minutes cache
 
+        console.log('🔧 ChangeProductSwatches constructor initialized');
         this.handleEvents()
     }
 
