@@ -300,11 +300,14 @@ class ChangeProductSwatches {
     handleResponse = function(res, $productAttributes, slugAttributes, id, updateUrl) {
         let _self = this
 
-        console.log('[Swatch Response] Handle response called', {
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+        console.log('📦 [SWATCH RESPONSE] Handle response called', {
             hasData: !!res.data,
             variationId: res.data?.id,
-            imageWithSizes: res.data?.image_with_sizes
+            hasImageWithSizes: !!res.data?.image_with_sizes,
+            imageThumbUrl: res.data?.image_with_sizes?.thumb
         })
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
 
         if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnChangeSwatchesSuccess === 'function') {
             window.EcommerceApp.defaultOnChangeSwatchesSuccess(res, $productAttributes)
@@ -359,7 +362,7 @@ class ChangeProductSwatches {
             }
 
             // Update visual swatch thumbnails after variation response
-            console.log('[Swatch Response] About to call updateVisualSwatchThumbnails')
+            console.log('🎯 [SWATCH RESPONSE] About to call updateVisualSwatchThumbnails')
             _self.updateVisualSwatchThumbnails(data, $productAttributes)
         }
         
@@ -434,9 +437,7 @@ class ChangeProductSwatches {
                 }
             })
         })
-    }
-
-    
+    }    
     formatPrice(price) {
         const currencies = window.currencies || {}
         const symbol = currencies.symbol || '$'
@@ -514,15 +515,18 @@ class ChangeProductSwatches {
 
     updateVisualSwatchThumbnails(variationData, $productAttributes) {
         // Update all visual swatch thumbnails based on current variation selection
-        console.log('[Visual Swatch Update] Called with data:', {
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
+        console.log('🎨 [SWATCH THUMBNAIL UPDATE] Called with data:', {
             hasData: !!variationData,
             variationId: variationData?.id,
             hasImageWithSizes: !!variationData?.image_with_sizes,
-            fullData: variationData
+            attributes: variationData?.attributes,
+            imageData: variationData?.image_with_sizes
         })
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
         
         if (!variationData) {
-            console.warn('[Visual Swatch Update] No variation data provided')
+            console.warn('❌ [SWATCH] No variation data provided')
             return
         }
 
@@ -535,11 +539,11 @@ class ChangeProductSwatches {
         }
 
         if (!thumbUrl) {
-            console.warn('[Visual Swatch Update] No image URL found in variation data')
+            console.warn('❌ [SWATCH] No image URL found in variation data')
             return
         }
 
-        console.log('[Visual Swatch Update] Starting swatch updates', {
+        console.log('✅ [SWATCH] Starting swatch updates', {
             selectedAttrIds: variationData.attributes || [],
             variationId: variationData.id,
             thumbUrl: thumbUrl,
@@ -547,6 +551,7 @@ class ChangeProductSwatches {
         })
 
         // Find all visual swatches (those with thumbnails)
+        let updatedCount = 0
         $productAttributes.find('.visual-swatch .qs-var-item').each(function() {
             const $item = $(this)
             const $thumb = $item.find('.qs-var-item__thumb')
@@ -562,11 +567,12 @@ class ChangeProductSwatches {
             
             if (isInCurrentSelection) {
                 // This is the selected color - update its thumbnail
-                console.log('[Visual Swatch Update] Updating thumbnail', {
+                console.log('🖼️  [SWATCH] Updating thumbnail for:', {
                     colorId: colorId,
                     title: $item.data('title'),
                     variationId: variationData.id,
-                    newImage: thumbUrl
+                    oldSrc: $img.attr('src'),
+                    newSrc: thumbUrl
                 })
                 
                 if ($img.length) {
@@ -581,8 +587,12 @@ class ChangeProductSwatches {
                         })
                     )
                 }
+                updatedCount++
             }
         })
+        
+        console.log(`✅ [SWATCH] Update complete! Updated ${updatedCount} thumbnail(s)`)
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
     }
 
     restoreSelectedImage() {
