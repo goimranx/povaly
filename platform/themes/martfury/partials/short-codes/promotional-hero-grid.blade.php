@@ -8,13 +8,13 @@
                         {!! RvMedia::image($shortCode->left_image, 'Hero Banner') !!}
                         <div class="ps-hero-content ps-hero-content-topleft">
                             @if($shortCode->left_subtitle)
-                                <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->left_subtitle) !!}</div>
+                                <div class="ps-hero-subtitle">{!! $shortCode->left_subtitle !!}</div>
                             @endif
                             @if($shortCode->left_title)
-                                <h2 class="ps-hero-title">{!! BaseHelper::clean($shortCode->left_title) !!}</h2>
+                                <h2 class="ps-hero-title">{!! $shortCode->left_title !!}</h2>
                             @endif
                             @if($shortCode->left_button_text)
-                                <span class="ps-hero-button ps-hero-button-filled">{!! BaseHelper::clean($shortCode->left_button_text) !!}</span>
+                                <span class="ps-hero-button ps-hero-button-filled">{!! $shortCode->left_button_text !!}</span>
                             @endif
                         </div>
                     </a>
@@ -31,13 +31,13 @@
                             {!! RvMedia::image($shortCode->middle_top_image, 'Horizontal Top Banner') !!}
                             <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
                                 @if($shortCode->middle_top_subtitle)
-                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_top_subtitle) !!}</div>
+                                    <div class="ps-hero-subtitle">{!! $shortCode->middle_top_subtitle !!}</div>
                                 @endif
                                 @if($shortCode->middle_top_title)
-                                    <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_top_title) !!}</h3>
+                                    <h3 class="ps-hero-title">{!! $shortCode->middle_top_title !!}</h3>
                                 @endif
                                 @if($shortCode->middle_top_button_text)
-                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_top_button_text) !!}</span>
+                                    <span class="ps-hero-button ps-hero-button-text">{!! $shortCode->middle_top_button_text !!}</span>
                                 @endif
                             </div>
                         </a>
@@ -49,13 +49,13 @@
                             {!! RvMedia::image($shortCode->middle_center_image, 'Horizontal Middle Banner') !!}
                             <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
                                 @if($shortCode->middle_center_subtitle)
-                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_center_subtitle) !!}</div>
+                                    <div class="ps-hero-subtitle">{!! $shortCode->middle_center_subtitle !!}</div>
                                 @endif
                                 @if($shortCode->middle_center_title)
-                                    <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_center_title) !!}</h3>
+                                    <h3 class="ps-hero-title">{!! $shortCode->middle_center_title !!}</h3>
                                 @endif
                                 @if($shortCode->middle_center_button_text)
-                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_center_button_text) !!}</span>
+                                    <span class="ps-hero-button ps-hero-button-text">{!! $shortCode->middle_center_button_text !!}</span>
                                 @endif
                             </div>
                         </a>
@@ -69,13 +69,13 @@
                             {!! RvMedia::image($shortCode->middle_bottom_left_image, 'Small Banner Left') !!}
                             <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small ps-hero-content-reverse">
                                 @if($shortCode->middle_bottom_left_title)
-                                    <h4 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_bottom_left_title) !!}</h4>
+                                    <h4 class="ps-hero-title">{!! $shortCode->middle_bottom_left_title !!}</h4>
                                 @endif
                                 @if($shortCode->middle_bottom_left_subtitle)
-                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_bottom_left_subtitle) !!}</div>
+                                    <div class="ps-hero-subtitle">{!! $shortCode->middle_bottom_left_subtitle !!}</div>
                                 @endif
                                 @if($shortCode->middle_bottom_left_button_text)
-                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_bottom_left_button_text) !!}</span>
+                                    <span class="ps-hero-button ps-hero-button-text">{!! $shortCode->middle_bottom_left_button_text !!}</span>
                                 @endif
                             </div>
                         </a>
@@ -86,13 +86,13 @@
                             {!! RvMedia::image($shortCode->middle_bottom_center_image, 'Small Banner Center') !!}
                             <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small ps-hero-content-reverse">
                                 @if($shortCode->middle_bottom_center_title)
-                                    <h4 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_bottom_center_title) !!}</h4>
+                                    <h4 class="ps-hero-title">{!! $shortCode->middle_bottom_center_title !!}</h4>
                                 @endif
                                 @if($shortCode->middle_bottom_center_subtitle)
-                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_bottom_center_subtitle) !!}</div>
+                                    <div class="ps-hero-subtitle">{!! $shortCode->middle_bottom_center_subtitle !!}</div>
                                 @endif
                                 @if($shortCode->middle_bottom_center_button_text)
-                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_bottom_center_button_text) !!}</span>
+                                    <span class="ps-hero-button ps-hero-button-text">{!! $shortCode->middle_bottom_center_button_text !!}</span>
                                 @endif
                             </div>
                         </a>
@@ -103,13 +103,13 @@
                             {!! RvMedia::image($shortCode->middle_bottom_right_image, 'Small Banner Right') !!}
                             <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small ps-hero-content-reverse">
                                 @if($shortCode->middle_bottom_right_title)
-                                    <h4 class="ps-hero-title">{!! BaseHelper::clean($shortCode->middle_bottom_right_title) !!}</h4>
+                                    <h4 class="ps-hero-title">{!! $shortCode->middle_bottom_right_title !!}</h4>
                                 @endif
                                 @if($shortCode->middle_bottom_right_subtitle)
-                                    <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->middle_bottom_right_subtitle) !!}</div>
+                                    <div class="ps-hero-subtitle">{!! $shortCode->middle_bottom_right_subtitle !!}</div>
                                 @endif
                                 @if($shortCode->middle_bottom_right_button_text)
-                                    <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->middle_bottom_right_button_text) !!}</span>
+                                    <span class="ps-hero-button ps-hero-button-text">{!! $shortCode->middle_bottom_right_button_text !!}</span>
                                 @endif
                             </div>
                         </a>
@@ -124,13 +124,13 @@
                         {!! RvMedia::image($shortCode->right_image, 'Tall Banner') !!}
                         <div class="ps-hero-content ps-hero-content-topleft ps-hero-content-small">
                             @if($shortCode->right_subtitle)
-                                <div class="ps-hero-subtitle">{!! BaseHelper::clean($shortCode->right_subtitle) !!}</div>
+                                <div class="ps-hero-subtitle">{!! $shortCode->right_subtitle !!}</div>
                             @endif
                             @if($shortCode->right_title)
-                                <h3 class="ps-hero-title">{!! BaseHelper::clean($shortCode->right_title) !!}</h3>
+                                <h3 class="ps-hero-title">{!! $shortCode->right_title !!}</h3>
                             @endif
                             @if($shortCode->right_button_text)
-                                <span class="ps-hero-button ps-hero-button-text">{!! BaseHelper::clean($shortCode->right_button_text) !!}</span>
+                                <span class="ps-hero-button ps-hero-button-text">{!! $shortCode->right_button_text !!}</span>
                             @endif
                         </div>
                     </a>
@@ -190,7 +190,7 @@
     .ps-hero-content-topleft {
         top: 15px;
         left: 15px;
-        max-width: 70%;
+        max-width: 93%;
     }
 
     .ps-hero-content-small {
@@ -204,7 +204,10 @@
     }
 
     /* Typography */
-    .ps-hero-subtitle {
+    .ps-hero-subtitle,
+    .ps-hero-subtitle *,
+    .ps-hero-subtitle span,
+    .ps-hero-subtitle div {
         font-size: 16px;
         font-weight: 400;
         color: var(--global-color-text-on-dark);
@@ -213,13 +216,20 @@
         line-height: 1.4;
     }
 
-    .ps-hero-content-small .ps-hero-subtitle {
+    .ps-hero-content-small .ps-hero-subtitle,
+    .ps-hero-content-small .ps-hero-subtitle *,
+    .ps-hero-content-small .ps-hero-subtitle span,
+    .ps-hero-content-small .ps-hero-subtitle div {
         font-size: 14px;
         color: var(--global-color-text-main);
     }
 
-    .ps-hero-title {
-        font-size: 48px;
+    /* Default title - Left large banner */
+    .ps-hero-title,
+    .ps-hero-title *,
+    .ps-hero-title span,
+    .ps-hero-title div {
+        font-size: 44px;
         font-weight: 700;
         color: var(--global-color-text-on-dark);
         line-height: 1.1;
@@ -227,15 +237,38 @@
         text-transform: capitalize;
     }
 
-    .ps-hero-content-small .ps-hero-title {
-        font-size: 20px;
+    /* Small content title - base size */
+    .ps-hero-content-small .ps-hero-title,
+    .ps-hero-content-small .ps-hero-title *,
+    .ps-hero-content-small .ps-hero-title span,
+    .ps-hero-content-small .ps-hero-title div {
+        font-size: 24px;
         font-weight: 700;
         color: var(--global-color-text-main);
         line-height: 1.2;
     }
 
+    /* Middle bottom 3 small banners - specific size */
+    .ps-hero-split .ps-hero-title,
+    .ps-hero-split .ps-hero-title *,
+    .ps-hero-split .ps-hero-title span,
+    .ps-hero-split .ps-hero-title div {
+        font-size: 19px;
+    }
+
+    /* Right tall banner - specific size */
+    .ps-hero-right .ps-hero-title,
+    .ps-hero-right .ps-hero-title *,
+    .ps-hero-right .ps-hero-title span,
+    .ps-hero-right .ps-hero-title div {
+        font-size: 29px;
+    }
+
     /* Buttons */
-    .ps-hero-button {
+    .ps-hero-button,
+    .ps-hero-button *,
+    .ps-hero-button span,
+    .ps-hero-button div {
         display: inline-block;
         font-size: 14px;
         font-weight: 600;
@@ -282,6 +315,19 @@
     .ps-hero-content-small .ps-hero-button-text:hover {
         color: var(--global-color-text-main);
         text-decoration: none;
+    }
+
+    /* White text utility - wrap text in span for white color */
+    .ps-hero-title span {
+        color: #fff !important;
+    }
+
+    .ps-hero-subtitle span {
+        color: #fff !important;
+    }
+
+    .ps-hero-button span {
+        color: #fff !important;
     }
 
     /* Left Column (1.6fr) - Large Banner */
@@ -350,12 +396,24 @@
 
     /* Responsive Design */
     @media (max-width: 992px) {
+        /* Tablet - Left large banner 30px */
         .ps-hero-title {
-            font-size: 36px;
+            font-size: 30px;
         }
 
+        /* Middle top horizontal - proportional to left (30/44 * 24 = 16.36 ≈ 16px) */
         .ps-hero-content-small .ps-hero-title {
-            font-size: 18px;
+            font-size: 16px;
+        }
+
+        /* Middle bottom 3 small - proportional (30/44 * 19 = 12.95 ≈ 13px) */
+        .ps-hero-split .ps-hero-title {
+            font-size: 13px;
+        }
+
+        /* Right tall banner - proportional (30/44 * 29 = 19.77 ≈ 20px) */
+        .ps-hero-right .ps-hero-title {
+            font-size: 20px;
         }
         
         .ps-hero-subtitle {
@@ -465,12 +523,24 @@
             padding-bottom: 120%;
         }
 
+        /* Mobile (768px) - Left large banner 33px */
         .ps-hero-title {
-            font-size: 28px;
+            font-size: 33px;
         }
 
+        /* Middle top horizontal - proportional (33/44 * 24 = 18px) */
         .ps-hero-content-small .ps-hero-title {
-            font-size: 16px;
+            font-size: 18px;
+        }
+
+        /* Middle bottom 3 small - proportional (33/44 * 19 = 14.25 ≈ 14px) */
+        .ps-hero-split .ps-hero-title {
+            font-size: 14px;
+        }
+
+        /* Right tall banner - proportional (33/44 * 29 = 21.75 ≈ 22px) */
+        .ps-hero-right .ps-hero-title {
+            font-size: 22px;
         }
         
         .ps-hero-subtitle {
@@ -519,12 +589,24 @@
             min-width: 90%;
         }
 
+        /* Mobile (480px) - Left large banner 33px (same as 768px) */
         .ps-hero-title {
-            font-size: 22px;
+            font-size: 33px;
         }
 
+        /* Middle top horizontal - proportional (33/44 * 24 = 18px) */
         .ps-hero-content-small .ps-hero-title {
+            font-size: 18px;
+        }
+
+        /* Middle bottom 3 small - proportional (33/44 * 19 = 14.25 ≈ 14px) */
+        .ps-hero-split .ps-hero-title {
             font-size: 14px;
+        }
+
+        /* Right tall banner - proportional (33/44 * 29 = 21.75 ≈ 22px) */
+        .ps-hero-right .ps-hero-title {
+            font-size: 22px;
         }
 
         .ps-hero-subtitle {

@@ -10,7 +10,7 @@
                             {!! RvMedia::image($shortCode->left_top_image, 'Left Top Banner') !!}
                             @if($shortCode->left_top_button_text)
                                 <span class="ps-banner-button">
-                                    <span class="ps-banner-button-text">{{ $shortCode->left_top_button_text }}</span>
+                                    <span class="ps-banner-button-text">{!! $shortCode->left_top_button_text !!}</span>
                                     <i class="ps-banner-button-icon icon-arrow-right"></i>
                                 </span>
                             @endif
@@ -25,7 +25,7 @@
                             {!! RvMedia::image($shortCode->right_top_image, 'Right Top Banner') !!}
                             @if($shortCode->right_top_button_text)
                                 <span class="ps-banner-button">
-                                    <span class="ps-banner-button-text">{{ $shortCode->right_top_button_text }}</span>
+                                    <span class="ps-banner-button-text">{!! $shortCode->right_top_button_text !!}</span>
                                     <i class="ps-banner-button-icon icon-arrow-right"></i>
                                 </span>
                             @endif
@@ -41,7 +41,7 @@
                     {{-- Left Box with 2 Images Side by Side --}}
                     <div class="ps-banner-box ps-banner-box-images">
                         @if($shortCode->left_bottom_left_title)
-                            <div class="ps-banner-box-title">{{ $shortCode->left_bottom_left_title }}</div>
+                            <div class="ps-banner-box-title">{!! $shortCode->left_bottom_left_title !!}</div>
                         @endif
                         <div class="ps-banner-images-grid">
                             @if($shortCode->left_bottom_left_image1)
@@ -49,7 +49,7 @@
                                     <a href="{{ $shortCode->left_bottom_left_image1_link ?? '#' }}">
                                         {!! RvMedia::image($shortCode->left_bottom_left_image1, 'Image 1') !!}
                                         @if($shortCode->left_bottom_left_image1_text)
-                                            <span class="ps-banner-image-text">{{ $shortCode->left_bottom_left_image1_text }}</span>
+                                            <span class="ps-banner-image-text">{!! $shortCode->left_bottom_left_image1_text !!}</span>
                                         @endif
                                     </a>
                                 </div>
@@ -59,7 +59,7 @@
                                     <a href="{{ $shortCode->left_bottom_left_image2_link ?? '#' }}">
                                         {!! RvMedia::image($shortCode->left_bottom_left_image2, 'Image 2') !!}
                                         @if($shortCode->left_bottom_left_image2_text)
-                                            <span class="ps-banner-image-text">{{ $shortCode->left_bottom_left_image2_text }}</span>
+                                            <span class="ps-banner-image-text">{!! $shortCode->left_bottom_left_image2_text !!}</span>
                                         @endif
                                     </a>
                                 </div>
@@ -71,7 +71,7 @@
                     <div class="ps-banner-box ps-banner-box-grid">
                         @if($shortCode->left_bottom_right_header_text)
                             <a href="{{ $shortCode->left_bottom_right_header_link ?? '#' }}" class="ps-banner-box-header">
-                                <span>{{ $shortCode->left_bottom_right_header_text }}</span>
+                                <span>{!! $shortCode->left_bottom_right_header_text !!}</span>
                                 <i class="icon-chevron-right"></i>
                             </a>
                         @endif
@@ -112,7 +112,7 @@
                 <div class="ps-banner-box ps-banner-stack">
                     @if($shortCode->right_bottom_header_text)
                         <a href="{{ $shortCode->right_bottom_header_link ?? '#' }}" class="ps-banner-box-header">
-                            <span>{{ $shortCode->right_bottom_header_text }}</span>
+                            <span>{!! $shortCode->right_bottom_header_text !!}</span>
                             <i class="icon-chevron-right"></i>
                         </a>
                     @endif
@@ -259,7 +259,10 @@
         flex-direction: column;
     }
 
-    .ps-banner-box-title {
+    .ps-banner-box-title,
+    .ps-banner-box-title *,
+    .ps-banner-box-title span,
+    .ps-banner-box-title div {
         font-size: 16px;
         font-weight: 600;
         color: var(--global-color-text-main);
@@ -317,6 +320,28 @@
         z-index: 10;
     }
 
+    .ps-banner-image-text *,
+    .ps-banner-image-text span,
+    .ps-banner-image-text div {
+        color: var(--global-color-text-main);
+        font-size: 22px;
+        line-height: 1.2;
+        font-weight: 700;
+    }
+
+    /* White text utility - wrap text in span for white color */
+    .ps-banner-image-text span {
+        color: #fff !important;
+    }
+
+    .ps-banner-box-title span {
+        color: #fff !important;
+    }
+
+    .ps-banner-box-header span span {
+        color: #fff !important;
+    }
+
     /* Left Bottom Right - Header + 2x2 Grid */
     .ps-banner-box-header {
         display: flex;
@@ -330,6 +355,15 @@
     }
 
     .ps-banner-box-header span {
+        font-size: 22px;
+        line-height: 1.2;
+        font-weight: 700;
+        color: var(--global-color-text-main);
+    }
+
+    .ps-banner-box-header span *,
+    .ps-banner-box-header span span,
+    .ps-banner-box-header span div {
         font-size: 22px;
         line-height: 1.2;
         font-weight: 700;
@@ -506,7 +540,14 @@
             padding:20px 0 10px 0;
             margin:0;
         }
-        .ps-banner-image-text, .ps-banner-box-header span {
+        
+        .ps-banner-image-text {
+            font-size: 20px;
+            top: 7px;
+            left: 7px;
+        }
+        
+        .ps-banner-box-header span {
             font-size: 20px;
         }
     }

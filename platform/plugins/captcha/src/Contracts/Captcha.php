@@ -36,7 +36,7 @@ abstract class Captcha
 
     public function isEnabled(): bool
     {
-        return $this->reCaptchaEnabled();
+        return $this->reCaptchaEnabled() || $this->turnstileEnabled();
     }
 
     public function reCaptchaEnabled(): bool
@@ -45,7 +45,17 @@ abstract class Captcha
             return false;
         }
 
-        return (bool) setting('enable_captcha');
+        $captchaType = setting('captcha_type', 'v2');
+        return (bool) setting('enable_captcha') && in_array($captchaType, ['v2', 'v3']);
+    }
+
+    public function turnstileEnabled(): bool
+    {
+        if (! $this->siteKey || ! $this->secretKey) {
+            return false;
+        }
+
+        return (bool) setting('enable_captcha') && setting('captcha_type') === 'turnstile';
     }
 
     public function mathCaptchaEnabled(): bool
@@ -72,6 +82,7 @@ abstract class Captcha
     {
         return [
             'captcha' => trans('plugins/captcha::captcha.captcha'),
+            'cf-turnstile-response' => trans('plugins/captcha::captcha.captcha'),
             'math-captcha' => trans('plugins/captcha::captcha.math_captcha'),
         ];
     }

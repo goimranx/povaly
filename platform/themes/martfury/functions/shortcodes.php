@@ -3,6 +3,7 @@
 use Botble\Ads\Facades\AdsManager;
 use Botble\Ads\Repositories\Interfaces\AdsInterface;
 use Botble\Base\Enums\BaseStatusEnum;
+use Botble\Base\Forms\FieldOptions\AlertFieldOption;
 use Botble\Base\Forms\FieldOptions\CoreIconFieldOption;
 use Botble\Base\Forms\FieldOptions\DatePickerFieldOption;
 use Botble\Base\Forms\FieldOptions\MediaImageFieldOption;
@@ -11,6 +12,7 @@ use Botble\Base\Forms\FieldOptions\OnOffFieldOption;
 use Botble\Base\Forms\FieldOptions\SelectFieldOption;
 use Botble\Base\Forms\FieldOptions\TextareaFieldOption;
 use Botble\Base\Forms\FieldOptions\TextFieldOption;
+use Botble\Base\Forms\Fields\AlertField;
 use Botble\Base\Forms\Fields\CoreIconField;
 use Botble\Base\Forms\Fields\DatetimeField;
 use Botble\Base\Forms\Fields\MediaImageField;
@@ -843,7 +845,7 @@ app()->booted(function (): void {
                             'collection' => __('Collection'),
                             'product' => __('Specific Products'),
                         ])
-                        ->defaultValue('category')
+                        ->selected($attributes['deal_type'] ?? 'category')
                         ->attributes([
                             'data-bb-toggle' => 'collapse',
                             'data-bb-target' => '.deal-source-wrapper',
@@ -890,6 +892,7 @@ app()->booted(function (): void {
                     ->choices($products)
                     ->searchable()
                     ->multiple()
+                    ->selected(!empty($attributes['deal_product_ids']) ? explode(',', $attributes['deal_product_ids']) : [])
             )
             ->add('deal_source_product_close', 'html', ['html' => '</div>'])
             
@@ -935,7 +938,7 @@ app()->booted(function (): void {
                         'collection' => __('Collection'),
                         'product' => __('Specific Products'),
                     ])
-                    ->defaultValue('category')
+                    ->selected($attributes['offers_type'] ?? 'category')
                     ->attributes([
                         'data-bb-toggle' => 'collapse',
                         'data-bb-target' => '.offers-source-wrapper',
@@ -982,6 +985,7 @@ app()->booted(function (): void {
                     ->choices($products)
                     ->searchable()
                     ->multiple()
+                    ->selected(!empty($attributes['offers_product_ids']) ? explode(',', $attributes['offers_product_ids']) : [])
             )
             ->add('offers_source_product_close', 'html', ['html' => '</div>'])
             

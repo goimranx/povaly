@@ -16,9 +16,13 @@ use Botble\Base\Traits\LoadAndPublishDataTrait;
 use Botble\Captcha\Captcha;
 use Botble\Captcha\CaptchaV3;
 use Botble\Captcha\Facades\Captcha as CaptchaFacade;
+use Botble\Captcha\Forms\Fields\HoneypotField;
 use Botble\Captcha\Forms\Fields\MathCaptchaField;
 use Botble\Captcha\Forms\Fields\ReCaptchaField;
+use Botble\Captcha\Forms\Fields\TurnstileField;
+use Botble\Captcha\HoneypotProtection;
 use Botble\Captcha\MathCaptcha;
+use Botble\Captcha\TurnstileCaptcha;
 use Botble\Setting\PanelSections\SettingOthersPanelSection;
 use Botble\Support\Http\Requests\Request;
 use Botble\Theme\FormFront;
@@ -39,8 +43,13 @@ class CaptchaServiceProvider extends ServiceProvider
         $this->app->singleton('captcha', function () {
             $key = setting('captcha_site_key');
             $secret = setting('captcha_secret');
+            $type = setting('captcha_type');
 
-            if (setting('captcha_type') === 'v3') {
+            if ($type === 'turnstile') {
+                return new TurnstileCaptcha($key, $secret);
+            }
+
+            if ($type === 'v3') {
                 return new CaptchaV3($key, $secret);
             }
 
@@ -83,7 +92,7 @@ class CaptchaServiceProvider extends ServiceProvider
         CaptchaFacade::registerFormSupport(ResetPasswordForm::class, ResetPasswordRequest::class, trans('plugins/captcha::captcha.admin_reset_password_form'));
 
         FormAbstract::beforeRendering(function (FormAbstract $form): void {
-            if (! CaptchaFacade::isEnabled() && ! CaptchaFacade::mathCaptchaEnabled()) {
+            if (! CaptchaFacade::isEnabled() && ! CaptchaFacade::mathCaptchaEnabled() && ! HoneypotProtection::isEnabled()) {
                 return;
             }
 
@@ -109,11 +118,30 @@ class CaptchaServiceProvider extends ServiceProvider
                 }
             }
 
+            // Add honeypot protection (silent, always before other fields)
+            if (HoneypotProtection::isEnabled() && ! $form->has('honeypot')) {
+                $form->addBefore(
+                    $fieldKey,
+                    'honeypot',
+                    HoneypotField::class,
+                    ['colspan' => $form->getColumns('lg')]
+                );
+            }
+
             if (CaptchaFacade::reCaptchaEnabled() && ! $form->has('recaptcha') && CaptchaFacade::formSetting($form::class, 'enable_recaptcha')) {
                 $form->addBefore(
                     $fieldKey,
                     'recaptcha',
                     ReCaptchaField::class,
+                    $attributes
+                );
+            }
+
+            if (CaptchaFacade::turnstileEnabled() && ! $form->has('turnstile') && CaptchaFacade::formSetting($form::class, 'enable_recaptcha')) {
+                $form->addBefore(
+                    $fieldKey,
+                    'turnstile',
+                    TurnstileField::class,
                     $attributes
                 );
             }
@@ -130,6 +158,11 @@ class CaptchaServiceProvider extends ServiceProvider
 
         $this->app['events']->listen(Routing::class, function (): void {
             add_filter('core_request_rules', function (array $rules, Request $request) {
+                // Add honeypot rules first (applies to all forms)
+                if (HoneypotProtection::isEnabled()) {
+                    $rules = [...$rules, ...HoneypotProtection::rules()];
+                }
+
                 if (! CaptchaFacade::isEnabled() && ! CaptchaFacade::mathCaptchaEnabled()) {
                     return $rules;
                 }
@@ -143,6 +176,10 @@ class CaptchaServiceProvider extends ServiceProvider
                 }
 
                 if (CaptchaFacade::reCaptchaEnabled() && CaptchaFacade::formSetting($form, 'enable_recaptcha')) {
+                    $rules = [...$rules, ...CaptchaFacade::rules()];
+                }
+
+                if (CaptchaFacade::turnstileEnabled() && CaptchaFacade::formSetting($form, 'enable_recaptcha')) {
                     $rules = [...$rules, ...CaptchaFacade::rules()];
                 }
 
@@ -175,6 +212,14 @@ class CaptchaServiceProvider extends ServiceProvider
                 Validator::validate($request->input(), CaptchaFacade::rules());
             }
 
+            if (
+                CaptchaFacade::turnstileEnabled()
+                && (! $form || ! class_exists($form) || CaptchaFacade::formSetting($form, 'enable_recaptcha'))
+                && ! $request instanceof Request
+            ) {
+                Validator::validate($request->input(), CaptchaFacade::rules());
+            }
+
             if (CaptchaFacade::mathCaptchaEnabled() && (! $form || ! class_exists($form) || CaptchaFacade::formSetting($form, 'enable_math_captcha'))) {
                 Validator::validate($request->input(), CaptchaFacade::mathCaptchaRules());
             }
@@ -184,7 +229,9 @@ class CaptchaServiceProvider extends ServiceProvider
             return [
                 ...$messages,
                 'captcha' => trans('plugins/captcha::captcha.captcha_verification_failed'),
+                'turnstile' => trans('plugins/captcha::captcha.turnstile_verification_failed'),
                 'math_captcha' => trans('plugins/captcha::captcha.math_captcha_verification_failed'),
+                ...HoneypotProtection::messages(),
             ];
         }, 999);
 
@@ -224,6 +271,14 @@ class CaptchaServiceProvider extends ServiceProvider
             return $app['captcha']->verify($value, $this->app['request']->getClientIp(), $parameters);
         }, trans('plugins/captcha::captcha.captcha_verification_failed'));
 
+        $validator->extend('turnstile', function ($attribute, $value) use ($app) {
+            if (! is_string($value)) {
+                return false;
+            }
+
+            return $app['captcha']->verify($value, $this->app['request']->getClientIp());
+        }, trans('plugins/captcha::captcha.turnstile_verification_failed'));
+
         $validator->extend('math_captcha', function ($attribute, $value) {
             if (! is_string($value)) {
                 return false;
@@ -231,6 +286,10 @@ class CaptchaServiceProvider extends ServiceProvider
 
             return $this->app['math-captcha']->verify($value);
         }, trans('plugins/captcha::captcha.math_captcha_verification_failed'));
+
+        $validator->extend('honeypot', function ($attribute, $value, $parameters, $validator) {
+            return HoneypotProtection::validate($validator->getData());
+        }, 'Invalid form submission detected.');
     }
 
     public function mapParameterToOptions(?array $parameters = []): array
