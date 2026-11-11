@@ -507,22 +507,44 @@ class ChangeProductSwatches {
 
     updateVisualSwatchThumbnails(variationData, $productAttributes) {
         // Update all visual swatch thumbnails based on current variation selection
-        if (!variationData || !variationData.image_with_sizes) {
+        console.log('[Visual Swatch Update] Called with data:', {
+            hasData: !!variationData,
+            variationId: variationData?.id,
+            hasImageWithSizes: !!variationData?.image_with_sizes,
+            fullData: variationData
+        })
+        
+        if (!variationData) {
+            console.warn('[Visual Swatch Update] No variation data provided')
+            return
+        }
+
+        // Get the variation image URL
+        let thumbUrl = null
+        if (variationData.image_with_sizes && variationData.image_with_sizes.thumb) {
+            thumbUrl = variationData.image_with_sizes.thumb
+        } else if (variationData.image) {
+            thumbUrl = variationData.image
+        }
+
+        if (!thumbUrl) {
+            console.warn('[Visual Swatch Update] No image URL found in variation data')
             return
         }
 
         console.log('[Visual Swatch Update] Starting swatch updates', {
             selectedAttrIds: variationData.attributes || [],
             variationId: variationData.id,
-            mainImage: variationData.image_with_sizes.thumb
+            thumbUrl: thumbUrl,
+            totalVisualSwatches: $productAttributes.find('.visual-swatch .qs-var-item').length
         })
 
         // Find all visual swatches (those with thumbnails)
         $productAttributes.find('.visual-swatch .qs-var-item').each(function() {
             const $item = $(this)
             const $thumb = $item.find('.qs-var-item__thumb')
+            const $img = $thumb.find('img')
             const colorId = parseInt($item.data('id'))
-            const variationIds = $item.data('variation-ids') // Array of variation IDs for this color
             
             if (!$thumb.length || !colorId) {
                 return // Skip items without thumbnails or IDs
@@ -531,17 +553,27 @@ class ChangeProductSwatches {
             // Check if this color attribute is part of the current selection
             const isInCurrentSelection = variationData.attributes && variationData.attributes.includes(colorId)
             
-            if (isInCurrentSelection && variationData.image_with_sizes) {
-                // This is the selected color - use the main variation image
-                const thumbUrl = variationData.image_with_sizes.thumb
-                
-                console.log('[Visual Swatch Update] Updating selected color swatch', {
+            if (isInCurrentSelection) {
+                // This is the selected color - update its thumbnail
+                console.log('[Visual Swatch Update] Updating thumbnail', {
                     colorId: colorId,
+                    title: $item.data('title'),
                     variationId: variationData.id,
                     newImage: thumbUrl
                 })
                 
-                $thumb.find('img').attr('src', thumbUrl)
+                if ($img.length) {
+                    $img.attr('src', thumbUrl)
+                } else {
+                    // No img element, create one
+                    $thumb.empty().append(
+                        $('<img />').attr({
+                            src: thumbUrl,
+                            alt: $item.data('title') || '',
+                            loading: 'lazy'
+                        })
+                    )
+                }
             }
         })
     }
