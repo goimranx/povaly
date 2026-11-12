@@ -37,17 +37,24 @@
                             // Get image: first try variation product image directly (regardless of use_image_from_product_variation flag),
                             // then fall back to attribute's own image
                             $imgUrl = null;
+                            $imgUrlFull = null;
+                            $originalImagePath = null;
+                            
                             foreach ($productVariations as $pv) {
                                 $pvAttr = $pv->productAttributes->where('attribute_set_id', $set->id)->first();
                                 if ($pvAttr && $pvAttr->id == $attribute->id) {
                                     if ($pv->product && $pv->product->image) {
-                                        $imgUrl = RvMedia::getImageUrl($pv->product->image, 'thumb');
+                                        $originalImagePath = $pv->product->image;
+                                        $imgUrl = RvMedia::getImageUrl($originalImagePath, 'thumb');
+                                        $imgUrlFull = RvMedia::getImageUrl($originalImagePath);
                                         break;
                                     }
                                 }
                             }
                             if (!$imgUrl && $attribute->image) {
-                                $imgUrl = RvMedia::getImageUrl($attribute->image, 'thumb');
+                                $originalImagePath = $attribute->image;
+                                $imgUrl = RvMedia::getImageUrl($originalImagePath, 'thumb');
+                                $imgUrlFull = RvMedia::getImageUrl($originalImagePath);
                             }
 
                             // Get prices for this variation - store all matching variation IDs
@@ -101,6 +108,7 @@
                             data-title="{{ $attribute->title }}"
                             data-stock="{{ $varStock !== null ? $varStock : '' }}"
                             data-variation-image="{{ $imgUrl }}"
+                            data-variation-image-full="{{ $imgUrlFull }}"
                             data-variation-ids="{{ json_encode($matchingVariationIds) }}"
                             @if($isDisabled) data-bs-toggle="tooltip" data-bs-title="{{ __('Not available') }}" @endif>
                             <label>

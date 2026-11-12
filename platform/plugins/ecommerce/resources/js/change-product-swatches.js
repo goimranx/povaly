@@ -1,6 +1,6 @@
-// 🚀 POVALY SWATCH SYSTEM v2.10.13 - FIX: Instant hover preview using swatch thumbnail (no AJAX)
-console.log('%c🚀 POVALY SWATCH SYSTEM v2.10.13 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
-console.log('📅 Build: v2.10.13 | FIXES: Visual swatch shows thumbnail instantly on hover');
+// 🚀 POVALY SWATCH SYSTEM v2.10.37 - FIX: Use full-size image for hover preview (not thumbnail)
+console.log('%c🚀 POVALY SWATCH SYSTEM v2.10.37 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
+console.log('📅 Build: v2.10.37 | FIXES: Visual swatch hover shows full-size image from data-variation-image-full');
 
 class ChangeProductSwatches {
     constructor() {
@@ -45,11 +45,11 @@ class ChangeProductSwatches {
                 variationIds: variationIds
             })
             
-            // NEW v2.10.36: Always use the swatch thumbnail image for instant preview (no AJAX)
-            const swatchImage = $item.data('variation-image')
-            if (swatchImage) {
+            // NEW v2.10.37: Use full-size image for hover preview (not thumbnail)
+            const swatchImageFull = $item.data('variation-image-full') || $item.data('variation-image')
+            if (swatchImageFull) {
                 $item.data('is-hover-preview', true)
-                _self.previewSwatchImage(swatchImage, $item)
+                _self.previewSwatchImage(swatchImageFull, $item)
             } else {
                 console.warn('⚠️ [HOVER PREVIEW] No variation-image data found')
             }
@@ -663,11 +663,9 @@ class ChangeProductSwatches {
                         $mainImage.data('original-src', $mainImage.attr('src'))
                     }
                     
-                    // Use the imageUrl as-is since it's already the full URL from RvMedia::getImageUrl()
-                    // Just convert thumb size to full size
-                    const fullSizeUrl = imageUrl.replace(/-150x150(\.[^.]+)$/i, '$1')
-                                                .replace(/-thumb(\.[^.]+)$/i, '$1')
-                    $mainImage.attr('src', fullSizeUrl)
+                    // v2.10.37: imageUrl is now the full-size URL from data-variation-image-full
+                    // No need for regex replacement - just use it directly
+                    $mainImage.attr('src', imageUrl)
                 }
             }
         }

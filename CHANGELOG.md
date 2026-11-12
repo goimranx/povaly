@@ -5,6 +5,16 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.37] - 2024-11-12
+
+### Fixed
+- Visual swatches: Fixed hover preview to show full-size images instead of thumbnails
+- Visual swatches: Blade template now stores both thumbnail and full-size URLs
+- Visual swatches: Added `data-variation-image-full` attribute with full-size URL from `RvMedia::getImageUrl($path)`
+- Visual swatches: JavaScript uses full-size URL directly for preview (no regex conversion needed)
+- Visual swatches: Main gallery preview now shows crisp, high-quality images on hover
+- Visual swatches: Respects all admin media storage settings (S3, CDN, local, etc.)
+
 ## [2.10.36] - 2024-11-12
 
 ### Fixed
