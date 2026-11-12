@@ -5,6 +5,15 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.27] - 2024-11-12
+
+### Fixed
+- Product lightbox: Fixed broken thumbnail images by properly converting relative paths to full URLs
+- Product lightbox: Added debug logging for URL conversion to troubleshoot image loading
+- Product lightbox: Removed `overflow: hidden` from `.product-lightbox-thumbnail` CSS
+- Product lightbox: Removed `transform: scale(1.02)` from active thumbnail images
+- Product gallery: Compiled assets to apply JS URL conversion fixes
+
 ## [2.10.26] - 2024-11-12
 
 ### Fixed
