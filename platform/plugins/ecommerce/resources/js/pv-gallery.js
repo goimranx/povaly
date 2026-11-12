@@ -205,8 +205,7 @@
                 videoFacade.style.display = 'none';
             }
             
-            // Show loading spinner
-            this.showLoading();
+            // NO loading spinner during normal navigation
             this.mainImage.style.display = 'block';
             
             // Strip size suffix to get full-size URL
@@ -220,11 +219,7 @@
             this.mainImage.srcset = '';
             this.mainImage.onload = null;
             
-            this.mainImage.onload = function() {
-                if (this.src === targetUrl) {
-                    self.hideLoading();
-                }
-            };
+            // No loading feedback needed - images are already loaded
             
             // Update active state
             this.setActive(index);
@@ -384,6 +379,23 @@
             console.log(`✅ [PV] Rebound events to ${this.thumbnails.length} thumbnails`);
         }
         
+        rebuildMobileSlides() {
+            // Rebuild mobile slides list from currently rendered images ONLY
+            if (!this._mobileSlides) return;
+            
+            console.log('📱 [PV] Rebuilding mobile slides from current images');
+            
+            this._mobileSlides = [];
+            this.allImages.forEach(img => this._mobileSlides.push({ type: 'image', data: img }));
+            this.videoThumbs.forEach((vt, i) => this._mobileSlides.push({ type: 'video', index: i, el: vt }));
+            
+            // Reset to first image
+            this._mobileIndex = 0;
+            this._updateDots();
+            
+            console.log(`✅ [PV] Mobile slides rebuilt: ${this._mobileSlides.length} slides`);
+        }
+        
         rebuildThumbnailsFromAJAX(variationId, imageUrls) {
             console.log(`📦 [PV] Rebuilding from AJAX: ${imageUrls.length} images`);
             
@@ -435,6 +447,9 @@
             
             // Re-bind events
             this.rebindThumbnailEvents();
+            
+            // Rebuild mobile slides for new images
+            this.rebuildMobileSlides();
             
             // Update selected variation ID
             this.selectedVariationId = variationId;
@@ -516,6 +531,9 @@
             
             // Re-bind events
             this.rebindThumbnailEvents();
+            
+            // Rebuild mobile slides for new images
+            this.rebuildMobileSlides();
             
             // Update selected variation ID
             this.selectedVariationId = variationId;
@@ -691,8 +709,17 @@
         
         // Mobile swipe placeholder  
         initMobile() {
+            // Only initialize on mobile - check if already initialized
+            if (this._mobileInitialized) {
+                console.log('📱 [PV] Mobile already initialized, skipping...');
+                return;
+            }
+            
             this._mainContainer = this.mainImage ? this.mainImage.parentElement : null;
             if (!this._mainContainer) return;
+            
+            this._mobileInitialized = true;
+            console.log('📱 [PV] Initializing mobile swipe...');
             
             // Build flat slide list: images then videos
             this._mobileSlides = [];
