@@ -1,17 +1,17 @@
 /**
- * PV Custom Gallery System v2.10.29
+ * PV Custom Gallery System v2.10.30
  * - Render ONLY selected variation's images (lightweight)
  * - Lazy-load lightbox with ALL images only when opened
  * - Loading spinner during thumbnail transitions
  * - Skeleton for swatch thumbnail updates
  * 
- * v2.10.29: Fixed URL comparison by normalizing image paths (remove size suffixes)
+ * v2.10.30: Fixed URL comparison by stripping domain/storage prefix before matching
  */
 (function() {
     'use strict';
     
-    console.log('%c🖼️ PV GALLERY v2.10.29 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
-    console.log('📅 Build: v2.10.29 | Fixed lightbox index with URL normalization');
+    console.log('%c🖼️ PV GALLERY v2.10.30 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
+    console.log('📅 Build: v2.10.30 | Fixed URL matching with proper normalization');
     
     class PVGallery {
         constructor(container) {
@@ -180,10 +180,18 @@
                 console.log('🖼️ [PV] Current image data:', currentImageData);
                 console.log('🖼️ [PV] Looking for URL:', currentImageData.url);
                 
-                // Normalize URLs by removing size suffixes for comparison
+                // Normalize URLs by:
+                // 1. Strip domain and /storage/ prefix if present
+                // 2. Remove size suffixes like -150x150
                 const normalizeUrl = (url) => {
-                    return url.replace(/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1')
-                              .replace(/-thumb(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
+                    let normalized = url;
+                    // Strip domain and /storage/ if present
+                    normalized = normalized.replace(/^https?:\/\/[^\/]+\/storage\//, '');
+                    normalized = normalized.replace(/^storage\//, '');
+                    // Remove size suffixes
+                    normalized = normalized.replace(/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
+                    normalized = normalized.replace(/-thumb(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
+                    return normalized;
                 };
                 
                 const currentNormalized = normalizeUrl(currentImageData.url);
@@ -192,6 +200,7 @@
                 // Find the current image URL in the global allProductImages array
                 globalIndex = this.allProductImages.findIndex(imgUrl => {
                     const normalized = normalizeUrl(imgUrl);
+                    console.log('🖼️ [PV] Comparing:', normalized, '===', currentNormalized, '?', normalized === currentNormalized);
                     return normalized === currentNormalized;
                 });
                 
