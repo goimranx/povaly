@@ -1,17 +1,17 @@
 /**
- * PV Custom Gallery System v2.10.12
+ * PV Custom Gallery System v2.10.14
  * - Hover to preview AND activate (no click needed)
  * - Click counter overlay to open lightbox
  * - Variation change jumps to first variation image
  * - Amazon-style image lens zoom on hover
  * 
- * v2.10.12: Use AJAX imageUrls for size changes + reduced logging + fixed preview for all variations
+ * v2.10.14: Fixed hover preview after size changes + kept all thumbnails visible + fixed lightbox URLs
  */
 (function() {
     'use strict';
     
-    console.log('%c🖼️ PV GALLERY v2.10.13 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
-    console.log('📅 Build: v2.10.13 | FIXES: Hover preview works + all thumbnails stay visible');
+    console.log('%c🖼️ PV GALLERY v2.10.14 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
+    console.log('📅 Build: v2.10.14 | FIXES: Hover preview with proper image lookup + all thumbnails visible + lightbox fixed');
     
     class PVGallery {
         constructor(container) {
@@ -29,9 +29,6 @@
             
             // Store ORIGINAL thumbnail data for reordering (never modified)
             this.originalThumbnailData = [];
-            
-            // Store current variation's image URLs from AJAX (for size changes)
-            this.currentVariationImages = null;
             
             this.init();
         }
@@ -373,23 +370,16 @@
             }
             
             const isPreview = data.isPreview === true;
-            const imageUrls = data.imageUrls || data.image_urls || [];
             
-            console.log(`🔄 [PV] Variation ${variationId} | Preview: ${isPreview} | AJAX Images: ${imageUrls.length}`);
-            
-            // CRITICAL FIX v2.10.13: Store AJAX image URLs for this variation
-            if (imageUrls.length > 0 && !isPreview) {
-                this.currentVariationImages = imageUrls;
-                this.rebuildGalleryFromAJAX(variationId, imageUrls);
-                return;
-            }
+            console.log(`🔄 [PV] Variation ${variationId} | Preview: ${isPreview}`);
             
             // Only reorder thumbnails on actual selection (not hover preview)
             if (!isPreview) {
                 this.reorderThumbnails(variationId);
             }
             
-            // CRITICAL FIX v2.10.13: Always find and show first image (for both preview and selection)
+            // CRITICAL FIX v2.10.14: Look for image in BOTH allImages AND originalThumbnailData
+            // This ensures hover preview works even after thumbnail reordering
             let firstImage = this.allImages.find(img => String(img.variationId) === String(variationId));
             
             if (!firstImage) {
@@ -400,64 +390,28 @@
                 }
             }
             
+            // FALLBACK: If still not found, search originalThumbnailData (for variations that share images)
+            if (!firstImage) {
+                const originalData = this.originalThumbnailData.find(t => 
+                    String(t.variationId) === String(variationId) || 
+                    (t.variationIds && t.variationIds.includes(String(variationId)))
+                );
+                
+                if (originalData) {
+                    firstImage = this.allImages.find(img => img.index === originalData.index);
+                }
+            }
+            
             if (firstImage) {
                 console.log(`✅ [PV] Showing variation ${variationId} first image at index ${firstImage.index}`);
                 this.jumpToImage(firstImage.index);
+                // Only scroll thumbnails on actual selection, not preview
                 if (!isPreview) {
                     this.scrollThumbnailsToShow(firstImage.index);
                 }
             } else {
                 console.warn(`⚠️ [PV] No image found for variation ${variationId}`);
             }
-        }
-        
-        rebuildGalleryFromAJAX(variationId, imageUrls) {
-            console.log(`📦 [PV] Rebuilding gallery from AJAX: ${imageUrls.length} images`);
-            
-            const photoContainer = this.container.querySelector('.pv-thumbs-photos');
-            if (!photoContainer) return;
-            
-            const allThumbs = Array.from(photoContainer.querySelectorAll('.pv-thumb'));
-            
-            // CRITICAL FIX v2.10.13: Keep all thumbnails visible, just update them with new order
-            // Don't hide any thumbnails - show variation images first, then keep others visible
-            
-            // Build new allImages array: variation images from AJAX first
-            this.allImages = imageUrls.map((url, idx) => ({
-                index: idx,
-                url: url,
-                variationId: variationId,
-                thumb: allThumbs[idx] || null
-            }));
-            
-            // Update thumbnails with new images (only update as many as we have from AJAX)
-            imageUrls.forEach((url, idx) => {
-                if (allThumbs[idx]) {
-                    allThumbs[idx].setAttribute('data-image', url);
-                    allThumbs[idx].setAttribute('data-index', idx);
-                    allThumbs[idx].setAttribute('data-variation-id', variationId);
-                    allThumbs[idx].style.display = ''; // Make sure it's visible
-                    
-                    const img = allThumbs[idx].querySelector('img');
-                    if (img) {
-                        const urlPath = url.replace(/^https?:\/\/[^\/]+/, '');
-                        const thumbUrl = urlPath.replace(/(\.[^.]+)$/, '-150x150$1');
-                        img.src = window.location.origin + thumbUrl;
-                    }
-                }
-            });
-            
-            // Keep remaining thumbnails visible (they still have their old images)
-            // This ensures we don't hide images, just reorder the variation ones to top
-            
-            // Show first image
-            if (this.allImages.length > 0) {
-                this.jumpToImage(0);
-                this.scrollThumbnailsToShow(0);
-            }
-            
-            // Rebuild lightbox URLs
-            this.imageUrls = imageUrls;
         }
         
         reorderThumbnails(variationId) {
