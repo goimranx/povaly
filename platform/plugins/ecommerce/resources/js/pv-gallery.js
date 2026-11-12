@@ -953,18 +953,20 @@
             }
             
             setTimeout(() => {
-                // CRITICAL: Remove ALL preloaded elements from container first
+                // CRITICAL: Remove preloaded elements EXCEPT the incoming one
                 const preloadedElements = mc.querySelectorAll('[data-preloaded="true"]');
                 preloadedElements.forEach(el => {
-                    if (mc.contains(el)) mc.removeChild(el);
+                    if (mc.contains(el) && el !== inEl) {
+                        mc.removeChild(el);
+                    }
                 });
                 
-                // Remove outgoing element
+                // Remove outgoing element if different from incoming
                 if (outEl && mc.contains(outEl) && outEl !== inEl) {
                     mc.removeChild(outEl);
                 }
                 
-                // Clean up incoming element styles
+                // Clean up incoming element styles and make it the active element
                 inEl.style.transition = 'none';
                 inEl.style.transform = '';
                 inEl.style.left = '0';

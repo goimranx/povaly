@@ -5,6 +5,13 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.25] - 2024-11-12
+
+### Fixed
+- Product gallery: Fixed blank/white screen after mobile swipe
+- Product gallery: Fixed overly aggressive cleanup that removed incoming image
+- Product gallery: Incoming element now correctly excluded from preloaded cleanup
+
 ## [2.10.24] - 2024-11-12
 
 ### Fixed
