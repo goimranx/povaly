@@ -5,6 +5,20 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.22] - 2024-11-12
+
+### Fixed
+- Product gallery: Restored Amazon-style lens zoom on image hover (desktop)
+- Product gallery: Restored mobile swipe gestures for image navigation
+- Product gallery: Restored mobile navigation dots with smooth animations
+- Product gallery: Fixed lens zoom positioning relative to product info section
+- Product gallery: Fixed mobile touch sensitivity and drag smoothness
+
+### Added
+- Product gallery: Complete lens zoom implementation with zoom panel
+- Product gallery: Complete mobile swipe with preloaded elements for smooth transitions
+- Product gallery: Mobile dots pagination with centered active indicator
+
 ## [2.10.21] - 2024-11-12
 
 ### Fixed
