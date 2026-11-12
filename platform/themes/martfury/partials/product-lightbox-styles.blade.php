@@ -508,7 +508,6 @@
             aspect-ratio: 3 / 3.5;
             border: 2px solid var(--global-color-border-light, #F0D8CB);
             border-radius: 4px;
-            overflow: hidden;
             cursor: pointer;
             transition: all 0.3s ease;
             background: var(--global-color-card-bg, #FFFFFF);
@@ -527,10 +526,6 @@
         .product-lightbox-thumbnail.active {
             border-color: var(--global-color-warning, #FBB13C);
             box-shadow: none;
-        }
-        
-        .product-lightbox-thumbnail.active img {
-            transform: scale(1.02);
         }
         
         /* Double tap hint message - HIDE on desktop, show only mobile */

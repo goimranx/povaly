@@ -1,17 +1,17 @@
 /**
- * PV Custom Gallery System v2.10.15
+ * PV Custom Gallery System v2.10.27
  * - Render ONLY selected variation's images (lightweight)
  * - Lazy-load lightbox with ALL images only when opened
  * - Loading spinner during thumbnail transitions
  * - Skeleton for swatch thumbnail updates
  * 
- * v2.10.15: Performance optimizations + lazy lightbox + loading states
+ * v2.10.27: Fixed lightbox thumbnail URLs + CSS overflow/transform fixes
  */
 (function() {
     'use strict';
     
-    console.log('%c🖼️ PV GALLERY v2.10.15 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
-    console.log('📅 Build: v2.10.15 | Lazy lightbox + loading states + variation-specific thumbnails');
+    console.log('%c🖼️ PV GALLERY v2.10.27 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
+    console.log('📅 Build: v2.10.27 | Lightbox URL conversion + CSS fixes');
     
     class PVGallery {
         constructor(container) {
@@ -156,14 +156,21 @@
             const productName = document.querySelector('.ps-product__info h1, .product-name, h1.product-title')?.textContent || 'Product';
             
             // Convert relative image paths to full URLs for lightbox
+            // Match RvMedia::getImageUrl() format which prepends storage/ automatically
+            console.log('🖼️ [PV] Original image paths:', this.allProductImages);
             const fullImageUrls = this.allProductImages.map(img => {
                 // Check if already a full URL
                 if (img.startsWith('http://') || img.startsWith('https://')) {
                     return img;
                 }
-                // Prepend storage URL
+                // Check if it already starts with storage/
+                if (img.startsWith('storage/')) {
+                    return window.location.origin + '/' + img;
+                }
+                // Prepend storage/ (RvMedia format)
                 return window.location.origin + '/storage/' + img;
             });
+            console.log('🖼️ [PV] Converted to full URLs:', fullImageUrls);
             
             // Open custom product lightbox with ALL images
             window.openProductLightbox({
@@ -192,14 +199,21 @@
             const productName = document.querySelector('.ps-product__info h1, .product-name, h1.product-title')?.textContent || 'Product';
             
             // Convert relative image paths to full URLs for lightbox
+            // Match RvMedia::getImageUrl() format which prepends storage/ automatically
+            console.log('🖼️ [PV] Original image paths:', this.allProductImages);
             const fullImageUrls = this.allProductImages.map(img => {
                 // Check if already a full URL
                 if (img.startsWith('http://') || img.startsWith('https://')) {
                     return img;
                 }
-                // Prepend storage URL
+                // Check if it already starts with storage/
+                if (img.startsWith('storage/')) {
+                    return window.location.origin + '/' + img;
+                }
+                // Prepend storage/ (RvMedia format)
                 return window.location.origin + '/storage/' + img;
             });
+            console.log('🖼️ [PV] Converted to full URLs:', fullImageUrls);
             
             // Open custom product lightbox on videos tab
             window.openProductLightbox({
