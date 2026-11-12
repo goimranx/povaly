@@ -34,6 +34,33 @@
     border-radius: 0;
 }
 
+/* Loading spinner (v2.10.15) */
+.pv-gallery-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 20;
+}
+
+.pv-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: var(--global-color-link, #0066ff);
+    border-radius: 50%;
+    animation: pv-spin 0.8s linear infinite;
+}
+
+@keyframes pv-spin {
+    to { transform: rotate(360deg); }
+}
+
 /* Action buttons overlay - top right */
 .pv-gallery-actions {
     position: absolute;

@@ -2,7 +2,7 @@
     EcommerceHelper::registerThemeAssets();
     $version = EcommerceHelper::getAssetVersion();
     
-    // Use consistent version for all assets (no filemtime)
+    // Use consistent version for all assets
     Theme::asset()->add('pv-gallery-css', 'vendor/core/plugins/ecommerce/css/pv-gallery.css', version: $version);
     Theme::asset()->container('footer')->add('pv-gallery-js', 'vendor/core/plugins/ecommerce/js/pv-gallery.js', ['jquery'], version: $version);
     
@@ -12,101 +12,53 @@
 
     $galleryStyle = theme_option('ecommerce_product_gallery_image_style') ?: ($galleryStyle ?? 'vertical');
     
-    // ── Build the unified image list (EXACT SAME LOGIC AS QUICK-SHOP) ──────────────────────────────────
-    $allImages = collect();
+    // ── v2.10.15: Build ONLY selected variation's images for initial render ──────────────────────
+    $allImages = collect();  // Images to render in thumbnails (selected variation only)
+    $allProductImages = collect(); // ALL images for lazy-loaded lightbox
+    $variationImageMap = []; // variation_id → array of indices
 
-    // DEBUG: Log what we're starting with
-    $debugInfo = [
-        'timestamp' => now()->toDateTimeString(),
-        'product_id' => $product->id,
-        'product_name' => $product->name,
-        'is_variation' => $product->is_variation ?? false,
-        'product_image' => $product->image ?? 'NULL',
-        'product_images_count' => !empty($product->images) ? count($product->images) : 0,
-        'product_images_list' => !empty($product->images) ? array_map(fn($i) => basename($i), $product->images) : [],
-        'has_variation' => $product->has_variation,
-    ];
-
-    // CRITICAL FIX: Get the ORIGINAL configurable product if this is a variation
-    // The controller may have modified $product with UpdateDefaultProductService
+    // Get the configurable product
     $configurableProduct = $product;
     if ($product->is_variation || ($product->has_variation && $product->defaultVariation && $product->defaultVariation->product_id)) {
-        // Load the original configurable product (without has_variation - it's computed)
         $configurableProduct = \Botble\Ecommerce\Models\Product::query()
             ->where('id', $product->getKey())
             ->select('id', 'name', 'image', 'images', 'is_variation')
             ->first() ?? $product;
-        $debugInfo['loaded_configurable'] = 'YES';
-        $debugInfo['configurable_images_count'] = !empty($configurableProduct->images) ? count($configurableProduct->images) : 0;
-    } else {
-        $debugInfo['loaded_configurable'] = 'NO - not needed';
     }
 
-    // 1. Product gallery images (from CONFIGURABLE product, not modified $product)
+    // Collect ALL product images for lightbox
     $galleryBase = !empty($configurableProduct->images) ? $configurableProduct->images : [];
     foreach ($galleryBase as $img) {
-        if ($img) $allImages->push(['src' => $img, 'type' => 'gallery', 'variationId' => null]);
+        if ($img) $allProductImages->push(['src' => $img, 'type' => 'gallery', 'variationId' => null]);
     }
-    $debugInfo['after_gallery'] = $allImages->count();
-
-    // 2. Featured image (CRITICAL: Use CONFIGURABLE product's featured image)
-    // This is the main product's featured image
-    if (!empty($configurableProduct->image) && !$allImages->contains('src', $configurableProduct->image)) {
-        $allImages->prepend(['src' => $configurableProduct->image, 'type' => 'featured', 'variationId' => null]);
-        $debugInfo['featured_added'] = 'YES';
-    } else {
-        $debugInfo['featured_added'] = 'NO - ' . (!empty($configurableProduct->image) ? 'already in gallery' : 'image is empty');
+    if (!empty($configurableProduct->image) && !$allProductImages->contains('src', $configurableProduct->image)) {
+        $allProductImages->prepend(['src' => $configurableProduct->image, 'type' => 'featured', 'variationId' => null]);
     }
-    $debugInfo['after_featured'] = $allImages->count();
 
-    // 3. All variation images (CRITICAL: Load ALL variations, not just selected one!)
-    $variationImageMap = []; // product_id → first index in $allImages
-    $allVariationIds = []; // Track all variation IDs for comprehensive mapping later
+    // Load ALL variations for lightbox + mapping
     $productVariations = null;
+    $selectedVariationProduct = null;
+    $selectedVariationId = null;
     
     if ($product->has_variation) {
-        // Load ALL variations with their products - SAME QUERY AS QUICK-SHOP
         $productVariations = \Botble\Ecommerce\Models\ProductVariation::query()
             ->where('configurable_product_id', $product->getKey())
             ->with([
-                'product:id,image,images,stock_status,quantity,with_storehouse_management,allow_checkout_when_out_of_stock,price,sale_price,sale_type,start_date,end_date',
+                'product:id,image,images',
                 'productAttributes',
                 'productAttributes.productAttributeSet',
             ])
             ->select('id', 'product_id', 'configurable_product_id', 'is_default')
             ->get();
-        $debugInfo['variations_loaded'] = $productVariations->count();
-        
-        // DEBUG: Log variation image loading
-        \Log::debug('[GALLERY DEBUG] Loading Variation Images', [
-            'product_id' => $product->id,
-            'total_variations' => $productVariations->count(),
-            'timestamp' => now()->toDateTimeString(),
-        ]);
-        
+
+        // Collect ALL variation images for lightbox
         foreach ($productVariations as $pv) {
             if (!$pv->product) continue;
             
-            // Track this variation ID for later mapping
-            $allVariationIds[] = $pv->product_id;
-            
             $varImages = [];
-            
-            // DEBUG: Log each variation's images
-            \Log::debug('[GALLERY DEBUG] Variation Images Processing', [
-                'variation_id' => $pv->id,
-                'product_id' => $pv->product_id,
-                'variation_featured_image' => basename($pv->product->image ?? 'NULL'),
-                'variation_images_count' => !empty($pv->product->images) ? count($pv->product->images) : 0,
-                'variation_images_list' => !empty($pv->product->images) ? array_map(fn($i) => basename($i), $pv->product->images) : [],
-            ]);
-            
-            // Variation featured image first
             if (!empty($pv->product->image)) {
                 $varImages[] = $pv->product->image;
             }
-            
-            // Variation gallery images
             if (!empty($pv->product->images) && is_array($pv->product->images)) {
                 foreach ($pv->product->images as $vi) {
                     if ($vi && !in_array($vi, $varImages)) {
@@ -115,146 +67,86 @@
                 }
             }
             
-            // Add each unique image to the collection
+            // Track indices for this variation
+            $varIndices = [];
             foreach ($varImages as $img) {
-                if (!$allImages->contains('src', $img)) {
-                    $idx = $allImages->count();
-                    $allImages->push(['src' => $img, 'type' => 'variation', 'variationId' => $pv->product_id]);
-                    if (!isset($variationImageMap[$pv->product_id])) {
-                        $variationImageMap[$pv->product_id] = $idx;
-                    }
+                if (!$allProductImages->contains('src', $img)) {
+                    $idx = $allProductImages->count();
+                    $allProductImages->push(['src' => $img, 'type' => 'variation', 'variationId' => $pv->product_id]);
+                    $varIndices[] = $idx;
                 } else {
-                    // CRITICAL FIX: Image already exists (shared between variations)
-                    // Map this variation to the FIRST occurrence of this image
-                    if (!isset($variationImageMap[$pv->product_id])) {
-                        $existingIndex = $allImages->search(fn($i) => $i['src'] === $img);
-                        if ($existingIndex !== false) {
-                            $variationImageMap[$pv->product_id] = $existingIndex;
-                        }
+                    $existingIndex = $allProductImages->search(fn($i) => $i['src'] === $img);
+                    if ($existingIndex !== false) {
+                        $varIndices[] = $existingIndex;
                     }
                 }
             }
+            
+            // Store ALL indices for this variation (not just first)
+            if (!empty($varIndices)) {
+                $variationImageMap[$pv->product_id] = $varIndices;
+            }
         }
     }
-    $debugInfo['after_variations'] = $allImages->count();
-
-    // 4. Fallback placeholder if nothing
-    if ($allImages->isEmpty()) {
-        $allImages->push(['src' => RvMedia::getDefaultImage(), 'type' => 'placeholder', 'variationId' => null]);
-    }
     
-    // DEBUG: Output to console
-    $debugJson = json_encode($debugInfo);
-    $allImagesList = $allImages->map(fn($i) => ['src' => basename($i['src']), 'type' => $i['type']])->toArray();
-    $allImagesJson = json_encode($allImagesList);
-
-    // ── Determine selected variation and reorder with smart deduplication ────────────────────
+    // Determine selected variation and render ONLY its images
     $defaultJumpIndex = 0;
     $displayProduct = $product;
-    $selectedVariationId = null;
 
-    // Check if we have a selected variation
     if ($product->has_variation && isset($productVariation) && $productVariation) {
         $displayProduct = $productVariation;
         $selectedVariationId = $productVariation->id;
         
-        // SMART REORDER WITH DEDUPLICATION:
-        // 1. Extract selected variation images
-        // 2. Remove duplicates from other groups (top group wins)
-        // 3. Rebuild: Selected Variation → Featured → Gallery → Other Variations
+        // Find the variation product to get its images in correct order
+        foreach ($productVariations as $pv) {
+            if ($pv->product_id === $selectedVariationId) {
+                $selectedVariationProduct = $pv->product;
+                break;
+            }
+        }
         
-        $variationImages = $allImages->filter(fn($i) => $i['variationId'] === $selectedVariationId)->values();
-        
-        if ($variationImages->isNotEmpty()) {
-            // Get all image URLs from selected variation
-            $variationImageUrls = $variationImages->pluck('src')->toArray();
+        // Build images array from selected variation's images ONLY (in its exact order)
+        if ($selectedVariationProduct) {
+            // Add variation's featured image first
+            if (!empty($selectedVariationProduct->image)) {
+                $allImages->push([
+                    'src' => $selectedVariationProduct->image,
+                    'type' => 'variation',
+                    'variationId' => $selectedVariationId
+                ]);
+            }
             
-            // Filter out duplicates from other groups (variation wins)
-            $otherImages = $allImages
-                ->filter(fn($i) => $i['variationId'] !== $selectedVariationId)
-                ->filter(fn($i) => !in_array($i['src'], $variationImageUrls))
-                ->values();
-            
-            // Rebuild collection: selected variation images FIRST, then deduplicated others
-            $allImages = $variationImages->concat($otherImages);
-            
-            // Rebuild variationImageMap with new indices
-            $variationImageMap = [];
-            foreach ($allImages as $idx => $imgData) {
-                if ($imgData['variationId'] && !isset($variationImageMap[$imgData['variationId']])) {
-                    $variationImageMap[$imgData['variationId']] = $idx;
+            // Add variation's gallery images in order
+            if (!empty($selectedVariationProduct->images) && is_array($selectedVariationProduct->images)) {
+                foreach ($selectedVariationProduct->images as $vImg) {
+                    if ($vImg && !$allImages->contains('src', $vImg)) {
+                        $allImages->push([
+                            'src' => $vImg,
+                            'type' => 'variation',
+                            'variationId' => $selectedVariationId
+                        ]);
+                    }
                 }
             }
             
-            // Default jump is now index 0 (first variation image)
             $defaultJumpIndex = 0;
-            $debugInfo['reordered'] = 'YES';
-            $debugInfo['variation_images_moved'] = $variationImages->count();
-            $debugInfo['duplicates_removed'] = $allImages->count() - $variationImages->count() - $otherImages->count();
-            $debugInfo['final_total'] = $allImages->count();
-        } else {
-            $debugInfo['reordered'] = 'NO - no variation images found';
         }
     } else {
-        $debugInfo['reordered'] = 'NO - no variation selected';
+        // No variation selected - show configurable product images
+        $allImages = $allProductImages->values();
     }
     
-    // CRITICAL FIX: Ensure ALL variations are in the map, even if no reordering happened
-    // This handles edge cases where the initial mapping might have gaps
-    $debugInfo['initial_map_size'] = count($variationImageMap);
-    $debugInfo['all_variation_ids'] = $allVariationIds;
-    
-    // For variations that somehow don't have a mapping yet, try to find ANY image for them
-    // This is a fallback and shouldn't normally be needed if the above logic is correct
-    foreach ($allVariationIds as $varId) {
-        if (!isset($variationImageMap[$varId])) {
-            // Try to find first image with this variation ID
-            $firstIndex = $allImages->search(fn($i) => $i['variationId'] === $varId);
-            if ($firstIndex !== false) {
-                $variationImageMap[$varId] = $firstIndex;
-                $debugInfo['fallback_mapped'][] = $varId;
-            } else {
-                // SUPER CRITICAL FIX: If variation has NO unique images, it shares parent images
-                // Load the variation product and check its images against allImages
-                $varProduct = \Botble\Ecommerce\Models\Product::find($varId);
-                if ($varProduct) {
-                    // Check if variation's featured image OR any gallery image exists in allImages
-                    $varImageToFind = $varProduct->image;
-                    if (!$varImageToFind && !empty($varProduct->images)) {
-                        $varImageToFind = $varProduct->images[0];
-                    }
-                    
-                    if ($varImageToFind) {
-                        // Find this image in allImages (regardless of variationId)
-                        $sharedImageIndex = $allImages->search(fn($i) => $i['src'] === $varImageToFind);
-                        if ($sharedImageIndex !== false) {
-                            $variationImageMap[$varId] = $sharedImageIndex;
-                            $debugInfo['shared_image_mapped'][] = [
-                                'varId' => $varId,
-                                'image' => basename($varImageToFind),
-                                'index' => $sharedImageIndex
-                            ];
-                        } else {
-                            $debugInfo['unmapped_variations'][] = $varId;
-                        }
-                    } else {
-                        // No images at all - map to index 0 (first image)
-                        $variationImageMap[$varId] = 0;
-                        $debugInfo['default_mapped'][] = $varId;
-                    }
-                } else {
-                    $debugInfo['unmapped_variations'][] = $varId;
-                }
-            }
-        }
+    // Fallback placeholder if nothing
+    if ($allImages->isEmpty()) {
+        $allImages->push(['src' => RvMedia::getDefaultImage(), 'type' => 'placeholder', 'variationId' => null]);
+        $allProductImages->push(['src' => RvMedia::getDefaultImage(), 'type' => 'placeholder', 'variationId' => null]);
     }
     
-    // DEBUG: Log the variation map
-    $debugInfo['variation_map_size'] = count($variationImageMap);
-    $debugInfo['variation_ids_tracked'] = count($allVariationIds);
-    $debugInfo['variation_map'] = $variationImageMap;
-    
-    // ── Get videos (product level, not variation-specific) ──────────────────────────────────
+    // Store all product images as JSON for lazy lightbox loading
+    $allProductImagesJson = json_encode($allProductImages->pluck('src')->toArray());
+    $variationImageMapJson = json_encode($variationImageMap);
+
+    // Get videos (product level, not variation-specific)
     $hasVideo = !empty($product->video) && is_array($product->video) && count(array_filter($product->video, fn($v) => !empty($v['url']))) > 0;
     $videoList = $hasVideo ? array_values(array_filter($product->video, fn($v) => !empty($v['url']))) : [];
     
@@ -262,21 +154,23 @@
     $totalVideos = count($videoList);
 @endphp
 
-<script>
-console.log('[PV Gallery Debug]', {!! $debugJson !!});
-console.log('[PV Gallery] All images:', {!! $allImagesJson !!});
-console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
-</script>
-
 <div class="pv-gallery-wrapper">
-    <div @class(['pv-gallery', 'pv-gallery-' . $galleryStyle]) data-default-index="{{ $defaultJumpIndex }}" data-variation-map="{{ json_encode($variationImageMap) }}">
+    <div @class(['pv-gallery', 'pv-gallery-' . $galleryStyle]) 
+         data-default-index="{{ $defaultJumpIndex }}" 
+         data-variation-map="{{ $variationImageMapJson }}"
+         data-all-images="{{ $allProductImagesJson }}"
+         data-selected-variation-id="{{ $selectedVariationId }}">
+        
         <div class="pv-gallery-main">
+            {{-- Loading spinner --}}
+            <div class="pv-gallery-loading" style="display:none;">
+                <div class="pv-spinner"></div>
+            </div>
+            
             @if ($allImages->isNotEmpty())
                 @php
                     $mainImageSrc = $allImages[$defaultJumpIndex]['src'];
-                    // Strip any size suffix like -150x150
                     $mainImageSrc = preg_replace('/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/', '$1', $mainImageSrc);
-                    // Get full URL
                     $mainImageUrl = RvMedia::url($mainImageSrc);
                 @endphp
                 <img 
@@ -290,12 +184,10 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
             
             {{-- Action buttons overlay --}}
             <div class="pv-gallery-actions">
-                {{-- Share button --}}
                 <button type="button" class="pv-action-btn pv-share-btn" title="{{ __('Share') }}" data-url="{{ $product->url }}" data-title="{{ $product->name }}">
                     <i class="ph ph-export"></i>
                 </button>
                 
-                {{-- Compare button --}}
                 @if (EcommerceHelper::isCompareEnabled())
                     <button type="button" class="pv-action-btn {{ EcommerceHelper::isProductInCompare($product->id) ? 'js-remove-from-compare-button active' : 'js-add-to-compare-button' }}" 
                             data-url="{{ route('public.compare.add', $product->id) }}"
@@ -306,7 +198,6 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
                     </button>
                 @endif
                 
-                {{-- Wishlist button --}}
                 @if (EcommerceHelper::isWishlistEnabled())
                     @php
                         $inWishlist = is_added_to_wishlist($product->id);
@@ -326,7 +217,6 @@ console.log('[PV Gallery] Total images loaded:', {{ $allImages->count() }});
             <div class="pv-thumbs-photos">
                 @foreach ($allImages as $index => $imgData)
                     @php
-                        // Strip size suffix for full-size URL in data-image
                         $fullSizeSrc = preg_replace('/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/', '$1', $imgData['src']);
                         $fullSizeUrl = RvMedia::url($fullSizeSrc);
                     @endphp
