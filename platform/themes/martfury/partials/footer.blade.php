@@ -1561,7 +1561,7 @@
         // Methods: updateVariationSwatches() and initVariationSwatchHandlers()
 
         function updateQSGalleryImages(imageUrls) {
-            console.log('[QS GALLERY] updateQSGalleryImages called with:', imageUrls);
+            console.log('[QS GALLERY v2.10.38] updateQSGalleryImages called with:', imageUrls);
             
             var offcanvas = document.getElementById('quick-shop-modal');
             if (!offcanvas) {
@@ -1586,7 +1586,7 @@
             var firstUrl = imageUrls[0];
             console.log('[QS GALLERY] Looking for image:', firstUrl);
             
-            var slides   = Array.from(gallery.querySelectorAll('.qs-slide--image'));
+            var slides = Array.from(gallery.querySelectorAll('.qs-slide--image'));
             console.log('[QS GALLERY] Found slides:', slides.length);
 
             // Helper to strip size suffixes like -150x150, -thumb, -small, etc.
@@ -1595,35 +1595,42 @@
                 return filename.replace(/-\d+x\d+(\.\w+)$/, '$1')
                               .replace(/-(thumb|small|medium|large)(\.\w+)$/, '$2');
             }
+            
+            // Helper to normalize URL for comparison (handle both full URLs and relative paths)
+            function normalizeUrl(url) {
+                if (!url) return '';
+                // Extract just the filename part for comparison
+                var filename = url.split('/').pop().split('?')[0];
+                return stripSizeSuffix(filename).toLowerCase();
+            }
+            
+            var targetFileNorm = normalizeUrl(firstUrl);
+            console.log('[QS GALLERY] Target normalized:', targetFileNorm);
 
+            // Quick search: try to find exact match first
             for (var i = 0; i < slides.length; i++) {
-                var slideSrc = slides[i].dataset.src || '';
-                // Match by filename (URL may differ in query params)
-                var slideFile = slideSrc.split('/').pop().split('?')[0];
-                var targetFile = firstUrl.split('/').pop().split('?')[0];
+                var slideImg = slides[i].querySelector('img');
+                if (!slideImg) continue;
                 
-                // Strip size suffixes for comparison
-                var slideFileClean = stripSizeSuffix(slideFile);
-                var targetFileClean = stripSizeSuffix(targetFile);
+                var slideSrc = slideImg.getAttribute('src') || slides[i].dataset.src || '';
+                var slideFileNorm = normalizeUrl(slideSrc);
                 
-                console.log('[QS GALLERY] Checking slide', i, 'slideFile:', slideFile, 'clean:', slideFileClean, 'vs target:', targetFileClean);
+                console.log('[QS GALLERY] Checking slide', i, 'normalized:', slideFileNorm);
                 
-                if (slideSrc === firstUrl || slideFile === targetFile || slideFileClean === targetFileClean) {
-                    // Jump to this slide's global index
+                if (slideFileNorm === targetFileNorm) {
+                    // Found it! Get global index
                     var allSlides = Array.from(gallery.querySelector('.qs-track').querySelectorAll('.qs-slide'));
                     var globalIdx = allSlides.indexOf(slides[i]);
-                    console.log('[QS GALLERY] Match found! Global index:', globalIdx);
+                    console.log('[QS GALLERY] ✅ Match found at index:', globalIdx);
                     if (globalIdx >= 0) {
-                        console.log('[QS GALLERY] Calling gallery._qsGo(' + globalIdx + ')');
                         gallery._qsGo(globalIdx);
                     }
                     return;
                 }
             }
 
-            console.log('[QS GALLERY] Image not found in slides - keeping current position');
-            // If not found in strip — do nothing, keep current position
-            // (variation images will be present once Bug 1 fix is deployed)
+            console.log('[QS GALLERY] ⚠️ Image not found in slides - keeping current position');
+            // If not found - do nothing, keep current position
         }
         
         // Expose globally for swatch hover/click integration

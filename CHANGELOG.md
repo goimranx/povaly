@@ -5,6 +5,16 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.39] - 2024-11-12
+
+### Fixed
+- Quick Shop gallery: Fixed variation image navigation for Color + Size combinations
+- Quick Shop gallery: Now reads current visual swatch thumbnail (already updated by price logic)
+- Quick Shop gallery: Red + XL now shows XL's images, not L's images
+- Quick Shop gallery: Optimized image search with normalized URL comparison (faster)
+- Quick Shop gallery: Hover preview uses correct full-size image for current selection
+- Quick Shop gallery: Thumbnail click properly opens lightbox with correct image
+
 ## [2.10.38] - 2024-11-12
 
 ### Fixed

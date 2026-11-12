@@ -1,6 +1,6 @@
-// 🚀 POVALY SWATCH SYSTEM v2.10.38 - FIX: Hover preview uses current thumbnail (respects selected size)
-console.log('%c🚀 POVALY SWATCH SYSTEM v2.10.38 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
-console.log('📅 Build: v2.10.38 | FIXES: Visual swatch hover reads current thumbnail for Color+Size combination');
+// 🚀 POVALY SWATCH SYSTEM v2.10.39 - FIX: Quick Shop gallery uses current thumbnail for Color+Size
+console.log('%c🚀 POVALY SWATCH SYSTEM v2.10.39 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
+console.log('📅 Build: v2.10.39 | FIXES: Quick Shop gallery reads current thumbnail (respects Color+Size combination)');
 
 class ChangeProductSwatches {
     constructor() {
@@ -683,8 +683,38 @@ class ChangeProductSwatches {
         
         if (isQuickShop) {
             // For Quick Shop Offcanvas Gallery
+            // v2.10.38: Use current thumbnail src (already updated correctly by updateSwatchPricesSimple)
+            const $thumb = $item.find('.qs-var-item__thumb img')
+            let imageToShow = imageUrl
+            
+            if ($thumb.length && $thumb.attr('src')) {
+                // The thumbnail is already the correct one for Color + Size combination
+                // Convert thumbnail URL to full-size for gallery
+                const thumbUrl = $thumb.attr('src')
+                
+                if (window.siteSettings && window.siteSettings.mediaUrl) {
+                    const mediaBase = window.siteSettings.mediaUrl
+                    const relativePath = thumbUrl.includes(mediaBase) 
+                        ? thumbUrl.substring(thumbUrl.indexOf(mediaBase) + mediaBase.length)
+                        : thumbUrl.split('/products/').pop()
+                    
+                    const fullPath = relativePath.replace(/-150x150(\.[^.]+)$/i, '$1')
+                                                 .replace(/-thumb(\.[^.]+)$/i, '$1')
+                    
+                    imageToShow = mediaBase + fullPath
+                    
+                    console.log('🎯 [QS HOVER v2.10.38] Using current thumbnail for Quick Shop:', {
+                        thumbUrl,
+                        fullUrl: imageToShow
+                    })
+                } else {
+                    imageToShow = thumbUrl.replace(/-150x150(\.[^.]+)$/i, '$1')
+                                          .replace(/-thumb(\.[^.]+)$/i, '$1')
+                }
+            }
+            
             if (typeof window.updateQSGalleryImages === 'function') {
-                window.updateQSGalleryImages([imageUrl])
+                window.updateQSGalleryImages([imageToShow])
             }
         } else {
             // For PV Gallery - show the variation image on hover
