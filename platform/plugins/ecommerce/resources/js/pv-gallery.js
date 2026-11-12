@@ -1,17 +1,17 @@
 /**
- * PV Custom Gallery System v2.10.10
+ * PV Custom Gallery System v2.10.11
  * - Hover to preview AND activate (no click needed)
  * - Click counter overlay to open lightbox
  * - Variation change jumps to first variation image
  * - Amazon-style image lens zoom on hover
  * 
- * v2.10.10: Fixed thumbnail reordering for shared images (enriched originalThumbnailData with variationMap)
+ * v2.10.11: Fixed type conversion for shared images + only reorder thumbnails on click (not hover)
  */
 (function() {
     'use strict';
     
-    console.log('%c🖼️ PV GALLERY v2.10.10 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
-    console.log('📅 Build: v2.10.10 | FIX: Thumbnail reordering now works for all variations including shared images');
+    console.log('%c🖼️ PV GALLERY v2.10.11 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
+    console.log('📅 Build: v2.10.11 | FIXES: String type conversion + no reorder on hover preview');
     
     class PVGallery {
         constructor(container) {
@@ -67,18 +67,21 @@
                 });
             });
             
-            // CRITICAL FIX v2.10.10: Enrich originalThumbnailData with ALL variation mappings from variationMap
-            // This handles shared images where DOM data-variation-id is empty but multiple variations map to same image
+            // CRITICAL FIX v2.10.11: Enrich originalThumbnailData with ALL variation mappings from variationMap
+            // Convert to consistent types for comparison
             console.log('🔧 [PV Gallery] ENRICHING originalThumbnailData with variationMap', {
                 mapSize: Object.keys(this.variationMap).length,
                 thumbnailDataCount: this.originalThumbnailData.length
             });
             
-            Object.entries(this.variationMap).forEach(([variationId, imageIndex]) => {
+            Object.entries(this.variationMap).forEach(([varIdStr, imageIndex]) => {
+                // Convert variationId to string for consistent comparison
+                const variationId = String(varIdStr);
+                
                 // Find the originalThumbnailData entry for this image index
                 const thumbData = this.originalThumbnailData.find(t => t.index === imageIndex);
                 if (thumbData) {
-                    // Add this variationId to the array
+                    // Add this variationId to the array (as string)
                     if (!thumbData.variationIds.includes(variationId)) {
                         thumbData.variationIds.push(variationId);
                     }
@@ -448,8 +451,12 @@
                 return;
             }
             
+            // CRITICAL FIX v2.10.11: Check if this is a hover preview (don't reorder thumbnails)
+            const isPreview = data.isPreview === true;
+            
             console.log('🔄 [PV Gallery] VARIATION CHANGE START', {
                 variationId: variationId,
+                isPreview: isPreview,
                 currentIndex: this.currentIndex,
                 currentImageUrl: this.mainImage ? this.mainImage.src.split('/').pop() : 'NO MAIN IMAGE',
                 variationMapExists: this.variationMap.hasOwnProperty(variationId),
@@ -457,17 +464,21 @@
                 timestamp: new Date().toISOString()
             });
             
-            // CRITICAL FIX: Reorder thumbnails FIRST to update allImages array
-            console.log('🔄 [PV Gallery] BEFORE REORDER', {
-                allImagesCount: this.allImages.length,
-                firstThreeImages: this.allImages.slice(0, 3).map(img => ({
-                    index: img.index,
-                    variationId: img.variationId,
-                    url: img.url ? img.url.split('/').pop() : 'no-url'
-                }))
-            });
-            
-            this.reorderThumbnails(variationId);
+            // Only reorder thumbnails on actual selection (not hover preview)
+            if (!isPreview) {
+                console.log('🔄 [PV Gallery] BEFORE REORDER', {
+                    allImagesCount: this.allImages.length,
+                    firstThreeImages: this.allImages.slice(0, 3).map(img => ({
+                        index: img.index,
+                        variationId: img.variationId,
+                        url: img.url ? img.url.split('/').pop() : 'no-url'
+                    }))
+                });
+                
+                this.reorderThumbnails(variationId);
+            } else {
+                console.log('👁️ [PV Gallery] PREVIEW MODE - Skipping thumbnail reorder');
+            }
             
             console.log('🔄 [PV Gallery] AFTER REORDER', {
                 allImagesCount: this.allImages.length,
@@ -555,15 +566,18 @@
             const allThumbs = Array.from(photoContainer.querySelectorAll('.pv-thumb'));
             
             // Use ORIGINAL data (not current DOM state) to separate thumbnails
-            // CRITICAL FIX v2.10.10: Check BOTH variationId and variationIds array for matches
+            // CRITICAL FIX v2.10.11: Check BOTH variationId and variationIds array for matches (with string comparison)
             const variationThumbs = [];
             const otherThumbs = [];
+            
+            // Convert to string for consistent comparison
+            const varIdStr = String(variationId);
             
             this.originalThumbnailData.forEach(original => {
                 // Check if this thumbnail belongs to the requested variation
                 // Either direct match OR in the variationIds array (for shared images)
-                const isMatch = (original.variationId == variationId) || 
-                               (original.variationIds && original.variationIds.includes(variationId));
+                const isMatch = (String(original.variationId) === varIdStr) || 
+                               (original.variationIds && original.variationIds.includes(varIdStr));
                 
                 if (isMatch) {
                     variationThumbs.push(original);
