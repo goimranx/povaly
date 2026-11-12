@@ -5,6 +5,14 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.28] - 2024-11-12
+
+### Fixed
+- Product lightbox: Fixed wrong image being selected when opening from variation gallery
+- Product lightbox: Now correctly maps local variation image index to global product image index
+- Product lightbox: Added debug logging to track local vs global index mapping
+- When clicking 3rd image in blue variation, lightbox now correctly shows that specific blue image instead of wrong image at global index 3
+
 ## [2.10.27] - 2024-11-12
 
 ### Fixed
