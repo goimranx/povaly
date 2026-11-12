@@ -5,6 +5,16 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.38] - 2024-11-12
+
+### Fixed
+- Visual swatches: Fixed hover preview to show correct image for current Color + Size combination
+- Visual swatches: Now reads the currently displayed thumbnail (already updated by price logic) for hover
+- Visual swatches: Hover preview now respects all selected attributes (e.g., Red + XL shows XL's image, not L's)
+- Visual swatches: Converts current thumbnail URL to full-size for crisp main gallery preview
+- Visual swatches: Added `window.siteSettings.mediaUrl` to visual.blade.php for proper URL handling
+- Visual swatches: Works correctly when multiple sizes have different images for same color
+
 ## [2.10.37] - 2024-11-12
 
 ### Fixed

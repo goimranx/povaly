@@ -8,7 +8,19 @@
         $selectedTitle = $selectedAttr ? $selectedAttr->title : '';
         $setId         = 'swatch-set-' . $set->id . '-' . $product->id;
         $key           = $key ?? mt_rand();
+        
+        // Get media URL base for JavaScript (same logic as product-gallery.blade.php)
+        $dummyPath = 'dummy-path-to-extract-base.jpg';
+        $fullUrl = RvMedia::url($dummyPath);
+        $baseUrl = str_replace('/' . $dummyPath, '', $fullUrl);
     @endphp
+
+    @once
+    <script>
+        window.siteSettings = window.siteSettings || {};
+        window.siteSettings.mediaUrl = '{{ $baseUrl }}';
+    </script>
+    @endonce
 
     <div class="bb-product-attribute-swatch attribute-swatches-wrapper qs-swatch-wrap"
          data-type="visual"
