@@ -5,6 +5,13 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.26] - 2024-11-12
+
+### Fixed
+- Product gallery: Fixed broken images in lightbox thumbnails
+- Product gallery: Convert relative image paths to full storage URLs before passing to lightbox
+- Product gallery: Lightbox now displays all images correctly with proper URLs
+
 ## [2.10.25] - 2024-11-12
 
 ### Fixed

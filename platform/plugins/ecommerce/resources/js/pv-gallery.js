@@ -155,10 +155,20 @@
             // Get product name from page
             const productName = document.querySelector('.ps-product__info h1, .product-name, h1.product-title')?.textContent || 'Product';
             
+            // Convert relative image paths to full URLs for lightbox
+            const fullImageUrls = this.allProductImages.map(img => {
+                // Check if already a full URL
+                if (img.startsWith('http://') || img.startsWith('https://')) {
+                    return img;
+                }
+                // Prepend storage URL
+                return window.location.origin + '/storage/' + img;
+            });
+            
             // Open custom product lightbox with ALL images
             window.openProductLightbox({
                 name: productName,
-                images: this.allProductImages,
+                images: fullImageUrls,
                 videos: this.lightboxVideos,
                 currentIndex: this.currentIndex,
                 openTab: 'images'
@@ -181,10 +191,20 @@
             // Get product name from page
             const productName = document.querySelector('.ps-product__info h1, .product-name, h1.product-title')?.textContent || 'Product';
             
+            // Convert relative image paths to full URLs for lightbox
+            const fullImageUrls = this.allProductImages.map(img => {
+                // Check if already a full URL
+                if (img.startsWith('http://') || img.startsWith('https://')) {
+                    return img;
+                }
+                // Prepend storage URL
+                return window.location.origin + '/storage/' + img;
+            });
+            
             // Open custom product lightbox on videos tab
             window.openProductLightbox({
                 name: productName,
-                images: this.allProductImages,
+                images: fullImageUrls,
                 videos: this.lightboxVideos,
                 currentVideoIndex: videoIndex,
                 openTab: 'videos'
