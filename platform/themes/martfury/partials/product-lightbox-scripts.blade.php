@@ -2154,6 +2154,18 @@ document.addEventListener('DOMContentLoaded', function() {
             thumbnailsContainer.appendChild(thumb);
         });
         
+        // Scroll to active thumbnail
+        setTimeout(function() {
+            var activeThumbnail = thumbnailsContainer.querySelector('.product-lightbox-thumbnail.active');
+            if (activeThumbnail) {
+                activeThumbnail.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest',
+                    inline: 'nearest'
+                });
+            }
+        }, 100);
+        
         // Initialize thumbnail swipe on mobile
         if (window.innerWidth <= 767) {
             initThumbnailSwipe();

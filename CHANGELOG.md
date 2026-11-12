@@ -5,6 +5,17 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.34] - 2024-11-12
+
+### Fixed
+- Product lightbox: Active thumbnail now auto-scrolls into view when lightbox opens
+- Product lightbox: Uses `scrollIntoView()` with smooth behavior
+- Product gallery: Removed all debug console.log statements for cleaner console
+- Product gallery: Cleaned up URL comparison logging
+
+### Changed
+- Code cleanup: Removed verbose debugging while keeping error warnings
+
 ## [2.10.33] - 2024-11-12
 
 ### Fixed
