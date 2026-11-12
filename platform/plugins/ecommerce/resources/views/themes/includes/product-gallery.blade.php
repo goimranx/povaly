@@ -158,7 +158,13 @@
     {{-- Pass media URL base to JavaScript (respects admin settings for S3, CDN, etc.) --}}
     <script>
         window.siteSettings = window.siteSettings || {};
-        window.siteSettings.mediaUrl = '{{ rtrim(RvMedia::url(''), '/') }}';
+        // Get the base URL by using a dummy path and stripping it
+        @php
+            $dummyPath = 'dummy.jpg';
+            $fullUrl = RvMedia::url($dummyPath);
+            $baseUrl = str_replace('/' . $dummyPath, '', $fullUrl);
+        @endphp
+        window.siteSettings.mediaUrl = '{{ $baseUrl }}';
     </script>
     
     <div @class(['pv-gallery', 'pv-gallery-' . $galleryStyle]) 

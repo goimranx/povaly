@@ -5,6 +5,14 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.33] - 2024-11-12
+
+### Fixed
+- Product gallery: Fixed broken lightbox thumbnails by properly extracting media URL base
+- Product gallery: Use dummy path technique to get correct storage URL from RvMedia
+- Product gallery: `RvMedia::url('dummy.jpg')` then strip 'dummy.jpg' to get base URL
+- Product gallery: Now correctly handles local storage, S3, CDN, and all storage drivers
+
 ## [2.10.32] - 2024-11-12
 
 ### Fixed

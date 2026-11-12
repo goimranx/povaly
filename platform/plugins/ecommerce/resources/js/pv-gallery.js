@@ -1,17 +1,17 @@
 /**
- * PV Custom Gallery System v2.10.32
+ * PV Custom Gallery System v2.10.33
  * - Render ONLY selected variation's images (lightweight)
  * - Lazy-load lightbox with ALL images only when opened
  * - Loading spinner during thumbnail transitions
  * - Skeleton for swatch thumbnail updates
  * 
- * v2.10.32: Dynamic media URL from settings (supports S3, CDN, any storage driver)
+ * v2.10.33: Fixed media URL extraction (use dummy path to get proper base URL)
  */
 (function() {
     'use strict';
     
-    console.log('%c🖼️ PV GALLERY v2.10.32 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
-    console.log('📅 Build: v2.10.32 | Dynamic storage URL from admin settings');
+    console.log('%c🖼️ PV GALLERY v2.10.33 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
+    console.log('📅 Build: v2.10.33 | Fixed media URL base extraction');
     
     class PVGallery {
         constructor(container) {
