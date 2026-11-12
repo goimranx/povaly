@@ -548,8 +548,17 @@
         
         // Lens zoom placeholder
         initLens() {
+            // Check if already initialized
+            if (this._lensInitialized) {
+                console.log('🔍 [PV] Lens already initialized, skipping...');
+                return;
+            }
+            
             const mainContainer = this.mainImage ? this.mainImage.parentElement : null;
             if (!mainContainer || !this.mainImage) return;
+            
+            this._lensInitialized = true;
+            console.log('🔍 [PV] Initializing lens zoom...');
             
             // Create lens element
             this.lensEl = document.createElement('div');
@@ -801,12 +810,17 @@
                 const dy = e.changedTouches[0].clientY - startY;
                 
                 if (Math.abs(dx) < 30 || Math.abs(dy) > Math.abs(dx / SENSITIVITY)) {
-                    // Not a valid swipe - reset everything
-                    if (liveEl) { liveEl.style.transform = ''; liveEl.style.transition = ''; }
+                    // Not a valid swipe - reset everything and REMOVE preloaded elements
+                    if (liveEl) {
+                        liveEl.style.transform = '';
+                        liveEl.style.transition = '';
+                        liveEl.style.left = '0';
+                    }
                     if (nextEl && mc.contains(nextEl)) mc.removeChild(nextEl);
                     if (prevEl && mc.contains(prevEl)) mc.removeChild(prevEl);
                     nextEl = null;
                     prevEl = null;
+                    liveEl = null;
                     return;
                 }
                 
@@ -823,6 +837,7 @@
                 
                 nextEl = null;
                 prevEl = null;
+                liveEl = null;
             }, { passive: true });
         }
         
@@ -938,12 +953,26 @@
             }
             
             setTimeout(() => {
-                // Remove outgoing
-                if (outEl && mc.contains(outEl)) mc.removeChild(outEl);
+                // CRITICAL: Remove ALL preloaded elements from container first
+                const preloadedElements = mc.querySelectorAll('[data-preloaded="true"]');
+                preloadedElements.forEach(el => {
+                    if (mc.contains(el)) mc.removeChild(el);
+                });
                 
-                // Just clear transition — keep position:absolute filling container
+                // Remove outgoing element
+                if (outEl && mc.contains(outEl) && outEl !== inEl) {
+                    mc.removeChild(outEl);
+                }
+                
+                // Clean up incoming element styles
                 inEl.style.transition = 'none';
+                inEl.style.transform = '';
                 inEl.style.left = '0';
+                inEl.style.position = 'absolute';
+                inEl.style.top = '0';
+                inEl.style.width = '100%';
+                inEl.style.height = '100%';
+                inEl.removeAttribute('data-preloaded');
                 
                 if (slide.type === 'image') {
                     this.mainImage = inEl;
@@ -1048,7 +1077,10 @@
     // Initialize all galleries on page
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.pv-gallery').forEach(container => {
-            new PVGallery(container);
+            if (!container.pvGalleryInitialized) {
+                new PVGallery(container);
+                container.pvGalleryInitialized = true;
+            }
         });
     });
     

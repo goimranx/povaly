@@ -5,6 +5,22 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.24] - 2024-11-12
+
+### Fixed
+- Product gallery: Fixed duplicate mobile dots (was creating 2 sets of dots)
+- Product gallery: Fixed duplicate lens zoom elements (was creating 2 lens divs)
+- Product gallery: Fixed stuck images after fast swipe or multi-finger gestures
+- Product gallery: Fixed swipe animation not resetting properly when gesture is abandoned
+- Product gallery: Fixed preloaded elements not being cleaned up after swipe completion
+- Product gallery: Added proper cleanup of all preloaded slide elements
+
+### Changed
+- Product gallery: Added initialization guard to both DOMContentLoaded listeners
+- Product gallery: Added `_lensInitialized` flag to prevent duplicate lens creation
+- Product gallery: Improved touchend cleanup to reset element positions and remove orphaned elements
+- Product gallery: Better handling of interrupted swipe gestures
+
 ## [2.10.23] - 2024-11-12
 
 ### Fixed
