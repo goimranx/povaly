@@ -10,8 +10,8 @@
 (function() {
     'use strict';
     
-    console.log('%c🖼️ PV GALLERY v2.10.12 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
-    console.log('📅 Build: v2.10.12 | FIXES: AJAX imageUrls + reduced logs + fixed variation preview');
+    console.log('%c🖼️ PV GALLERY v2.10.13 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
+    console.log('📅 Build: v2.10.13 | FIXES: Hover preview works + all thumbnails stay visible');
     
     class PVGallery {
         constructor(container) {
@@ -377,7 +377,7 @@
             
             console.log(`🔄 [PV] Variation ${variationId} | Preview: ${isPreview} | AJAX Images: ${imageUrls.length}`);
             
-            // CRITICAL FIX v2.10.12: Store AJAX image URLs for this variation
+            // CRITICAL FIX v2.10.13: Store AJAX image URLs for this variation
             if (imageUrls.length > 0 && !isPreview) {
                 this.currentVariationImages = imageUrls;
                 this.rebuildGalleryFromAJAX(variationId, imageUrls);
@@ -389,7 +389,7 @@
                 this.reorderThumbnails(variationId);
             }
             
-            // Find first image for this variation
+            // CRITICAL FIX v2.10.13: Always find and show first image (for both preview and selection)
             let firstImage = this.allImages.find(img => String(img.variationId) === String(variationId));
             
             if (!firstImage) {
@@ -401,8 +401,13 @@
             }
             
             if (firstImage) {
+                console.log(`✅ [PV] Showing variation ${variationId} first image at index ${firstImage.index}`);
                 this.jumpToImage(firstImage.index);
-                this.scrollThumbnailsToShow(firstImage.index);
+                if (!isPreview) {
+                    this.scrollThumbnailsToShow(firstImage.index);
+                }
+            } else {
+                console.warn(`⚠️ [PV] No image found for variation ${variationId}`);
             }
         }
         
@@ -414,7 +419,10 @@
             
             const allThumbs = Array.from(photoContainer.querySelectorAll('.pv-thumb'));
             
-            // Rebuild allImages array with new URLs
+            // CRITICAL FIX v2.10.13: Keep all thumbnails visible, just update them with new order
+            // Don't hide any thumbnails - show variation images first, then keep others visible
+            
+            // Build new allImages array: variation images from AJAX first
             this.allImages = imageUrls.map((url, idx) => ({
                 index: idx,
                 url: url,
@@ -422,23 +430,25 @@
                 thumb: allThumbs[idx] || null
             }));
             
-            // Update DOM thumbnails with new images
-            allThumbs.forEach((thumb, idx) => {
-                if (imageUrls[idx]) {
-                    thumb.setAttribute('data-image', imageUrls[idx]);
-                    thumb.setAttribute('data-index', idx);
-                    thumb.setAttribute('data-variation-id', variationId);
+            // Update thumbnails with new images (only update as many as we have from AJAX)
+            imageUrls.forEach((url, idx) => {
+                if (allThumbs[idx]) {
+                    allThumbs[idx].setAttribute('data-image', url);
+                    allThumbs[idx].setAttribute('data-index', idx);
+                    allThumbs[idx].setAttribute('data-variation-id', variationId);
+                    allThumbs[idx].style.display = ''; // Make sure it's visible
                     
-                    const img = thumb.querySelector('img');
+                    const img = allThumbs[idx].querySelector('img');
                     if (img) {
-                        const urlPath = imageUrls[idx].replace(/^https?:\/\/[^\/]+/, '');
+                        const urlPath = url.replace(/^https?:\/\/[^\/]+/, '');
                         const thumbUrl = urlPath.replace(/(\.[^.]+)$/, '-150x150$1');
                         img.src = window.location.origin + thumbUrl;
                     }
-                } else {
-                    thumb.style.display = 'none';
                 }
             });
+            
+            // Keep remaining thumbnails visible (they still have their old images)
+            // This ensures we don't hide images, just reorder the variation ones to top
             
             // Show first image
             if (this.allImages.length > 0) {
