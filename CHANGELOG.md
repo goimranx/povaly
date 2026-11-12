@@ -5,6 +5,14 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.29] - 2024-11-12
+
+### Fixed
+- Product lightbox: Fixed always selecting first image issue
+- Product lightbox: Now normalizes image URLs before comparison (removes size suffixes like -150x150)
+- Product lightbox: Added detailed debug logging for URL matching
+- Product lightbox: Correctly finds current image in global array regardless of size suffix
+
 ## [2.10.28] - 2024-11-12
 
 ### Fixed

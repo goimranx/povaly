@@ -1,17 +1,17 @@
 /**
- * PV Custom Gallery System v2.10.28
+ * PV Custom Gallery System v2.10.29
  * - Render ONLY selected variation's images (lightweight)
  * - Lazy-load lightbox with ALL images only when opened
  * - Loading spinner during thumbnail transitions
  * - Skeleton for swatch thumbnail updates
  * 
- * v2.10.28: Fixed lightbox opening wrong image - now maps local to global index
+ * v2.10.29: Fixed URL comparison by normalizing image paths (remove size suffixes)
  */
 (function() {
     'use strict';
     
-    console.log('%c🖼️ PV GALLERY v2.10.28 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
-    console.log('📅 Build: v2.10.28 | Fixed lightbox index mapping for variations');
+    console.log('%c🖼️ PV GALLERY v2.10.29 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
+    console.log('📅 Build: v2.10.29 | Fixed lightbox index with URL normalization');
     
     class PVGallery {
         constructor(container) {
@@ -177,9 +177,29 @@
             const currentImageData = this.allImages.find(img => img.index === this.currentIndex);
             let globalIndex = 0;
             if (currentImageData) {
+                console.log('🖼️ [PV] Current image data:', currentImageData);
+                console.log('🖼️ [PV] Looking for URL:', currentImageData.url);
+                
+                // Normalize URLs by removing size suffixes for comparison
+                const normalizeUrl = (url) => {
+                    return url.replace(/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1')
+                              .replace(/-thumb(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
+                };
+                
+                const currentNormalized = normalizeUrl(currentImageData.url);
+                console.log('🖼️ [PV] Normalized current URL:', currentNormalized);
+                
                 // Find the current image URL in the global allProductImages array
-                globalIndex = this.allProductImages.findIndex(imgUrl => imgUrl === currentImageData.url);
-                if (globalIndex === -1) globalIndex = 0; // Fallback to first image
+                globalIndex = this.allProductImages.findIndex(imgUrl => {
+                    const normalized = normalizeUrl(imgUrl);
+                    return normalized === currentNormalized;
+                });
+                
+                console.log('🖼️ [PV] Found global index:', globalIndex);
+                if (globalIndex === -1) {
+                    console.warn('⚠️ [PV] Could not find image in global array, defaulting to 0');
+                    globalIndex = 0;
+                }
             }
             
             console.log('🖼️ [PV] Local index:', this.currentIndex, 'Global index:', globalIndex);
