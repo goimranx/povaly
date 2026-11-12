@@ -205,8 +205,8 @@
                 videoFacade.style.display = 'none';
             }
             
-            // Show loading state
-            this.mainImage.style.opacity = '0.5';
+            // Show loading spinner
+            this.showLoading();
             this.mainImage.style.display = 'block';
             
             // Strip size suffix to get full-size URL
@@ -215,14 +215,14 @@
             const targetUrl = fullSizeUrl;
             
             // Update main image
+            const self = this;
             this.mainImage.src = fullSizeUrl;
             this.mainImage.srcset = '';
             this.mainImage.onload = null;
             
             this.mainImage.onload = function() {
                 if (this.src === targetUrl) {
-                    this.style.opacity = '1';
-                    this.style.transition = 'opacity 0.2s ease';
+                    self.hideLoading();
                 }
             };
             
@@ -350,6 +350,40 @@
             }
         }
         
+        rebindThumbnailEvents() {
+            console.log('🔗 [PV] Rebinding thumbnail events...');
+            
+            // Re-query thumbnails from DOM
+            this.thumbnails = this.container.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
+            
+            // Bind events to all thumbnails
+            this.thumbnails.forEach((thumb) => {
+                // Hover activates and shows in main image
+                thumb.addEventListener('mouseenter', () => {
+                    const index = parseInt(thumb.getAttribute('data-index'));
+                    this.jumpToImage(index);
+                });
+                
+                // Mouse leave restores the previously active image
+                thumb.addEventListener('mouseleave', () => {
+                    this.jumpToImage(this.currentIndex);
+                });
+                
+                // Click opens lightbox only for counter overlay (+N)
+                thumb.addEventListener('click', (e) => {
+                    const overlay = thumb.querySelector('.pv-thumb-overlay');
+                    if (overlay) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const index = parseInt(thumb.getAttribute('data-index'));
+                        this.openLightboxAtIndex(index);
+                    }
+                });
+            });
+            
+            console.log(`✅ [PV] Rebound events to ${this.thumbnails.length} thumbnails`);
+        }
+        
         rebuildThumbnailsFromAJAX(variationId, imageUrls) {
             console.log(`📦 [PV] Rebuilding from AJAX: ${imageUrls.length} images`);
             
@@ -444,6 +478,7 @@
             
             // Clear and rebuild
             photoContainer.innerHTML = '';
+            this.allImages = [];
             
             varImages.forEach((imgSrc, idx) => {
                 const thumbDiv = document.createElement('div');
@@ -469,44 +504,18 @@
                 }
                 
                 photoContainer.appendChild(thumbDiv);
-            });
-            
-            // Re-query thumbnails and rebind events
-            this.thumbnails = this.container.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
-            this.allImages = [];
-            
-            this.thumbnails.forEach((thumb) => {
-                const imageUrl = thumb.getAttribute('data-image');
-                const varId = thumb.getAttribute('data-variation-id');
-                const dataIndex = parseInt(thumb.getAttribute('data-index'));
                 
+                // Track in allImages
                 this.allImages.push({
-                    index: dataIndex,
-                    url: imageUrl,
-                    variationId: varId,
-                    thumb
-                });
-                
-                // Bind events
-                thumb.addEventListener('mouseenter', () => {
-                    const index = parseInt(thumb.getAttribute('data-index'));
-                    this.jumpToImage(index);
-                });
-                
-                thumb.addEventListener('mouseleave', () => {
-                    this.jumpToImage(this.currentIndex);
-                });
-                
-                thumb.addEventListener('click', (e) => {
-                    const overlay = thumb.querySelector('.pv-thumb-overlay');
-                    if (overlay) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const index = parseInt(thumb.getAttribute('data-index'));
-                        this.openLightboxAtIndex(index);
-                    }
+                    index: idx,
+                    url: imgSrc,
+                    variationId: variationId,
+                    thumb: thumbDiv
                 });
             });
+            
+            // Re-bind events
+            this.rebindThumbnailEvents();
             
             // Update selected variation ID
             this.selectedVariationId = variationId;

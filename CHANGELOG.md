@@ -5,6 +5,19 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.21] - 2024-11-12
+
+### Fixed
+- Product gallery: Fixed loading spinner not hiding after image loads
+- Product gallery: Fixed thumbnail hover not activating and showing in main image
+- Product gallery: Fixed +N overlay click not opening lightbox
+- Product gallery: Added missing rebindThumbnailEvents() method for proper event handler management
+- Product gallery: Improved image loading feedback with proper spinner hide on load
+
+### Changed
+- Product gallery: Event handlers now properly rebind after thumbnail rebuild
+- Product gallery: Loading spinner properly shows/hides during image transitions
+
 ## [2.10.20] - 2024-11-12
 
 ### Fixed
