@@ -5,6 +5,38 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.18] - 2024-11-12
+
+### Fixed
+- Fixed typo in videoThumbs selector causing video thumbnails to not work
+- Fixed thumbnail hover events not working after page load
+- Fixed variation change not updating gallery thumbnails
+- Added rebindThumbnailEvents() to properly re-attach event handlers
+- Added rebuildThumbnailsFromAJAX() to handle AJAX image responses
+- Fixed hover preview to search in allProductImages correctly
+- Main image now loads faster using AJAX imageUrls
+
+### Changed
+- Gallery now properly rebuilds thumbnails when variation changes
+- Event handlers properly re-bind after dynamic thumbnail rebuild
+- Improved performance with better event handler management
+
+## [2.10.17] - 2024-11-12
+
+### Fixed
+- Fixed typo in videoThumbs selector causing video thumbnails to not work
+- Fixed thumbnail hover events not working after page load
+- Fixed variation change not updating gallery thumbnails
+- Added rebindThumbnailEvents() to properly re-attach event handlers
+- Added rebuildThumbnailsFromAJAX() to handle AJAX image responses
+- Fixed hover preview to search in allProductImages correctly
+- Main image now loads faster using AJAX imageUrls
+
+### Changed
+- Gallery now properly rebuilds thumbnails when variation changes
+- Event handlers properly re-bind after dynamic thumbnail rebuild
+- Improved performance with better event handler management
+
 ## [2.8.0] - 2024-11-11
 
 ### ✨ Feature - Honeypot Protection Re-enabled with Per-Form Settings
