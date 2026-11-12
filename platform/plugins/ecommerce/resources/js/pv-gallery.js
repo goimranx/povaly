@@ -19,7 +19,7 @@
             this.mainImage = container.querySelector('#pv-main-image');
             this.loadingOverlay = container.querySelector('.pv-gallery-loading');
             this.thumbnails = container.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
-            this.videoThumbs = container.querySelectorAll('.pv-thumb-video)');
+            this.videoThumbs = container.querySelectorAll('.pv-thumb-video');
             this.currentIndex = parseInt(container.getAttribute('data-default-index')) || 0;
             this.variationMap = JSON.parse(container.getAttribute('data-variation-map') || '{}');
             this.allProductImages = JSON.parse(container.getAttribute('data-all-images') || '[]');
@@ -319,19 +319,98 @@
             
             console.log(`🔄 [PV] Variation ${variationId} | Preview: ${isPreview}`);
             
-            // If not preview, rebuild thumbnails from variation map
-            if (!isPreview) {
-                this.rebuildThumbnailsForVariation(variationId);
-            } else {
-                // For preview (hover), just show first image
-                const firstImageIndex = this.variationMap[variationId] ? this.variationMap[variationId][0] : null;
-                if (firstImageIndex !== null) {
-                    const firstImage = this.allImages.find(img => img.index === firstImageIndex);
-                    if (firstImage) {
-                        this.jumpToImage(firstImageIndex);
+            // AJAX provides imageUrls - use them if available
+            const imageUrls = data.imageUrls || data.image_urls || [];
+            
+            if (imageUrls.length > 0 && !isPreview) {
+                // Rebuild from AJAX response
+                this.rebuildThumbnailsFromAJAX(variationId, imageUrls);
+                return;
+            }
+            
+            // For preview (hover), just show first image from map
+            if (isPreview) {
+                const varIndices = this.variationMap[variationId];
+                if (varIndices && Array.isArray(varIndices) && varIndices.length > 0) {
+                    const firstImageUrl = this.allProductImages[varIndices[0]];
+                    if (firstImageUrl) {
+                        // Find in current allImages
+                        const firstImage = this.allImages.find(img => img.url === firstImageUrl);
+                        if (firstImage) {
+                            this.jumpToImage(firstImage.index);
+                        }
                     }
                 }
+                return;
             }
+            
+            // For actual selection without AJAX, rebuild from map
+            if (!isPreview) {
+                this.rebuildThumbnailsForVariation(variationId);
+            }
+        }
+        
+        rebuildThumbnailsFromAJAX(variationId, imageUrls) {
+            console.log(`📦 [PV] Rebuilding from AJAX: ${imageUrls.length} images`);
+            
+            this.showLoading();
+            
+            const photoContainer = this.container.querySelector('.pv-thumbs-photos');
+            if (!photoContainer) {
+                this.hideLoading();
+                return;
+            }
+            
+            // Clear and rebuild
+            photoContainer.innerHTML = '';
+            this.allImages = [];
+            
+            imageUrls.forEach((imgUrl, idx) => {
+                const thumbDiv = document.createElement('div');
+                thumbDiv.className = `pv-thumb ${idx === 0 ? 'pv-active' : ''} ${idx >= 3 ? 'pv-thumb-hidden' : ''}`;
+                thumbDiv.setAttribute('data-index', idx);
+                thumbDiv.setAttribute('data-image', imgUrl);
+                thumbDiv.setAttribute('data-variation-id', variationId);
+                
+                const thumbImg = document.createElement('img');
+                const thumbUrl = imgUrl.replace(/(\.[^.]+)$/, '-150x150$1');
+                thumbImg.src = thumbUrl;
+                thumbImg.alt = 'Product image';
+                thumbImg.loading = 'lazy';
+                
+                thumbDiv.appendChild(thumbImg);
+                
+                // Add counter on 4th item if more exist
+                if (idx === 3 && imageUrls.length > 3) {
+                    const overlay = document.createElement('span');
+                    overlay.className = 'pv-thumb-overlay';
+                    overlay.textContent = `+${imageUrls.length - 3}`;
+                    thumbDiv.appendChild(overlay);
+                }
+                
+                photoContainer.appendChild(thumbDiv);
+                
+                // Track in allImages
+                this.allImages.push({
+                    index: idx,
+                    url: imgUrl,
+                    variationId: variationId,
+                    thumb: thumbDiv
+                });
+            });
+            
+            // Re-bind events
+            this.rebindThumbnailEvents();
+            
+            // Update selected variation ID
+            this.selectedVariationId = variationId;
+            
+            // Show first image
+            if (this.allImages.length > 0) {
+                this.jumpToImage(0);
+            }
+            
+            this.hideLoading();
         }
         
         rebuildThumbnailsForVariation(variationId) {
@@ -442,12 +521,12 @@
         
         // Lens zoom placeholder
         initLens() {
-            // Lens zoom implementation (keep existing)
+            // Lens zoom implementation - keeping existing from v2.14
         }
         
-        // Mobile swipe placeholder
+        // Mobile swipe placeholder  
         initMobile() {
-            // Mobile swipe implementation (keep existing)
+            // Mobile swipe implementation - keeping existing from v2.14
         }
     }
     
