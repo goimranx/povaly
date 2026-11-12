@@ -1,6 +1,6 @@
-// 🚀 POVALY SWATCH SYSTEM v2.10.11 - FIX: Instant hover preview + thumbnail reordering for ALL variations
-console.log('%c🚀 POVALY SWATCH SYSTEM v2.10.11 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
-console.log('📅 Build: v2.10.11 | FIXES: Instant hover (no AJAX), thumbnails only reorder on click, fixed shared image detection');
+// 🚀 POVALY SWATCH SYSTEM v2.10.12 - FIX: Improved hover preview with proper size suffix removal
+console.log('%c🚀 POVALY SWATCH SYSTEM v2.10.12 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
+console.log('📅 Build: v2.10.12 | FIXES: Visual swatch hover preview handles -thumb suffix');
 
 class ChangeProductSwatches {
     constructor() {
@@ -719,20 +719,22 @@ class ChangeProductSwatches {
                 window.updateQSGalleryImages([imageUrl])
             }
         } else {
-            // For PV Gallery
+            // For PV Gallery - show the variation image on hover
             const $pvGallery = $product.find('.pv-gallery-main')
             
             if ($pvGallery.length) {
                 const $mainImage = $pvGallery.find('#pv-main-image')
                 
-                if ($mainImage.length) {
+                if ($mainImage.length && imageUrl) {
                     // Store original src if not already stored
                     if (!$mainImage.data('original-src')) {
                         $mainImage.data('original-src', $mainImage.attr('src'))
                     }
                     
-                    // Convert thumbnail URL to full-size URL (remove -150x150 suffix)
-                    const fullSizeUrl = imageUrl.replace(/-150x150(\.[^.]+)$/, '$1')
+                    // Use the imageUrl as-is since it's already the full URL from RvMedia::getImageUrl()
+                    // Just convert thumb size to full size
+                    const fullSizeUrl = imageUrl.replace(/-150x150(\.[^.]+)$/i, '$1')
+                                                .replace(/-thumb(\.[^.]+)$/i, '$1')
                     $mainImage.attr('src', fullSizeUrl)
                 }
             }

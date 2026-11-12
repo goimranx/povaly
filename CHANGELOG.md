@@ -5,6 +5,14 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.35] - 2024-11-12
+
+### Fixed
+- Visual swatches: Fixed hover preview to show variation image properly
+- Visual swatches: Now removes both -150x150 and -thumb suffixes when converting to full size
+- Visual swatches: Preview works correctly with any storage driver (uses full URLs from RvMedia)
+- Visual swatches: Hover shows the exact image displayed in the swatch thumbnail
+
 ## [2.10.34] - 2024-11-12
 
 ### Fixed
