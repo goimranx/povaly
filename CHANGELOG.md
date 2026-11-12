@@ -5,6 +5,17 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.40] - 2024-11-12
+
+### Fixed
+- Quick Shop: Disabled hover preview (was interfering with variation clicks)
+- Quick Shop: Simplified gallery navigation - just scrolls to variation image
+- Quick Shop: Removed complex thumbnail conversion logic
+- Main product page: Hover preview still works perfectly (disabled only in Quick Shop)
+- Main product page: All PV gallery and swatch functionality preserved
+- Code cleanup: Removed ALL debug console.log statements
+- Performance: Cleaner, faster code without verbose logging
+
 ## [2.10.39] - 2024-11-12
 
 ### Fixed
