@@ -1,17 +1,17 @@
 /**
- * PV Custom Gallery System v2.10.27
+ * PV Custom Gallery System v2.10.28
  * - Render ONLY selected variation's images (lightweight)
  * - Lazy-load lightbox with ALL images only when opened
  * - Loading spinner during thumbnail transitions
  * - Skeleton for swatch thumbnail updates
  * 
- * v2.10.27: Fixed lightbox thumbnail URLs + CSS overflow/transform fixes
+ * v2.10.28: Fixed lightbox opening wrong image - now maps local to global index
  */
 (function() {
     'use strict';
     
-    console.log('%c🖼️ PV GALLERY v2.10.27 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
-    console.log('📅 Build: v2.10.27 | Lightbox URL conversion + CSS fixes');
+    console.log('%c🖼️ PV GALLERY v2.10.28 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
+    console.log('📅 Build: v2.10.28 | Fixed lightbox index mapping for variations');
     
     class PVGallery {
         constructor(container) {
@@ -172,12 +172,24 @@
             });
             console.log('🖼️ [PV] Converted to full URLs:', fullImageUrls);
             
+            // Find the GLOBAL index in allProductImages for the current local image
+            // this.currentIndex is local to the variation, but lightbox needs global index
+            const currentImageData = this.allImages.find(img => img.index === this.currentIndex);
+            let globalIndex = 0;
+            if (currentImageData) {
+                // Find the current image URL in the global allProductImages array
+                globalIndex = this.allProductImages.findIndex(imgUrl => imgUrl === currentImageData.url);
+                if (globalIndex === -1) globalIndex = 0; // Fallback to first image
+            }
+            
+            console.log('🖼️ [PV] Local index:', this.currentIndex, 'Global index:', globalIndex);
+            
             // Open custom product lightbox with ALL images
             window.openProductLightbox({
                 name: productName,
                 images: fullImageUrls,
                 videos: this.lightboxVideos,
-                currentIndex: this.currentIndex,
+                currentIndex: globalIndex,
                 openTab: 'images'
             });
         }
