@@ -1,6 +1,6 @@
-// 🚀 POVALY SWATCH SYSTEM v2.10.12 - FIX: Improved hover preview with proper size suffix removal
-console.log('%c🚀 POVALY SWATCH SYSTEM v2.10.12 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
-console.log('📅 Build: v2.10.12 | FIXES: Visual swatch hover preview handles -thumb suffix');
+// 🚀 POVALY SWATCH SYSTEM v2.10.13 - FIX: Instant hover preview using swatch thumbnail (no AJAX)
+console.log('%c🚀 POVALY SWATCH SYSTEM v2.10.13 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
+console.log('📅 Build: v2.10.13 | FIXES: Visual swatch shows thumbnail instantly on hover');
 
 class ChangeProductSwatches {
     constructor() {
@@ -45,82 +45,14 @@ class ChangeProductSwatches {
                 variationIds: variationIds
             })
             
-            // If no variation IDs, fall back to simple image preview
-            if (variationIds.length === 0) {
-                const swatchImage = $item.data('variation-image')
-                if (swatchImage) {
-                    $item.data('is-hover-preview', true)
-                    _self.previewSwatchImage(swatchImage, $item)
-                }
-                return
+            // NEW v2.10.36: Always use the swatch thumbnail image for instant preview (no AJAX)
+            const swatchImage = $item.data('variation-image')
+            if (swatchImage) {
+                $item.data('is-hover-preview', true)
+                _self.previewSwatchImage(swatchImage, $item)
+            } else {
+                console.warn('⚠️ [HOVER PREVIEW] No variation-image data found')
             }
-            
-            // Find currently selected SIZE (or other non-color attributes)
-            const $productAttributes = $item.closest('.product-attributes')
-            const $colorSet = $item.closest('.attribute-swatches-wrapper')
-            const colorSetSlug = $colorSet.data('slug')
-            
-            // Get all SELECTED attribute IDs from OTHER sets (not color)
-            const selectedOtherAttrIds = []
-            $productAttributes.find('.attribute-swatches-wrapper').each(function() {
-                const $set = $(this)
-                if ($set.data('slug') === colorSetSlug) {
-                    return // Skip the color set itself
-                }
-                
-                // Find selected item in this set
-                let selectedId = null
-                if ($set.data('type') === 'dropdown') {
-                    selectedId = parseInt($set.find('select').val())
-                } else {
-                    const $selected = $set.find('input[type=radio]:checked')
-                    if ($selected.length) {
-                        selectedId = parseInt($selected.closest('.bb-product-attribute-swatch-item').data('id'))
-                    }
-                }
-                
-                if (selectedId) {
-                    selectedOtherAttrIds.push(selectedId)
-                }
-            })
-            
-            console.log('🎯 [HOVER PREVIEW] Finding matching variation:', {
-                variationIds: variationIds,
-                selectedOtherAttrIds: selectedOtherAttrIds
-            })
-            
-            // Simple heuristic: if 100cm (21) is selected, use second variation, else first
-            // This avoids AJAX calls and works instantly
-            let targetVariationId = variationIds[0] // Default to first (80cm)
-            
-            // Check if "100cm" or second size is selected
-            if (selectedOtherAttrIds.length > 0 && variationIds.length > 1) {
-                // If the selected attribute is likely the second size option, use second variation
-                // This is a simple heuristic - you can refine based on actual attribute IDs
-                const firstVariationId = variationIds[0]
-                const secondVariationId = variationIds[1]
-                
-                // Get the variation map from PV Gallery to check which size each variation uses
-                const $pvGallery = $productAttributes.closest('.product-detail').find('.pv-gallery-main')
-                if ($pvGallery.length && $pvGallery[0].pvGallery) {
-                    const variationMap = $pvGallery[0].pvGallery.variationMap || {}
-                    
-                    // Check both variations to see which one matches current selection
-                    // For now, simple fallback: assume second variation = 100cm
-                    if (selectedOtherAttrIds.includes(21)) { // 21 is 100cm based on logs
-                        targetVariationId = secondVariationId
-                    }
-                }
-            }
-            
-            console.log('✅ [HOVER PREVIEW] Using variation:', {
-                targetVariationId: targetVariationId,
-                isFirst: targetVariationId === variationIds[0]
-            })
-            
-            // Mark as hover preview and dispatch event
-            $item.data('is-hover-preview', true)
-            _self.previewVariation(targetVariationId, $item)
         })
 
         // When mouse leaves the swatch item, restore to selected variation

@@ -5,6 +5,14 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.36] - 2024-11-12
+
+### Fixed
+- Visual swatches: Fixed hover preview to show swatch thumbnail image instantly
+- Visual swatches: Removed slow AJAX call on hover - now uses `data-variation-image` directly
+- Visual swatches: Preview is instant and shows the exact thumbnail image
+- Visual swatches: No more delay or "Preview: true" AJAX calls on hover
+
 ## [2.10.35] - 2024-11-12
 
 ### Fixed
