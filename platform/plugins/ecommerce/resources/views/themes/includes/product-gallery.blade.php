@@ -155,6 +155,12 @@
 @endphp
 
 <div class="pv-gallery-wrapper">
+    {{-- Pass media URL base to JavaScript (respects admin settings for S3, CDN, etc.) --}}
+    <script>
+        window.siteSettings = window.siteSettings || {};
+        window.siteSettings.mediaUrl = '{{ rtrim(RvMedia::url(''), '/') }}';
+    </script>
+    
     <div @class(['pv-gallery', 'pv-gallery-' . $galleryStyle]) 
          data-default-index="{{ $defaultJumpIndex }}" 
          data-variation-map="{{ $variationImageMapJson }}"

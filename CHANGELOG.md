@@ -5,6 +5,21 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.32] - 2024-11-12
+
+### Fixed
+- Product gallery: Now dynamically reads media URL from admin settings (no hardcoded storage paths)
+- Product gallery: Supports ALL storage drivers (local, S3, DigitalOcean Spaces, Wasabi, Backblaze, CDN)
+- Product gallery: Supports ALL file formats (webp, jpg, png, gif, svg, etc.)
+- Product gallery: Blade template passes `RvMedia::url('')` to JavaScript as `window.siteSettings.mediaUrl`
+- Product gallery: Shows clear console errors if media URL configuration is missing
+- Product gallery: Removed hardcoded `/storage` fallback - respects admin configuration
+
+## [2.10.31] - 2024-11-12
+
+### Fixed
+- Product lightbox: Attempted to support all file types and storage paths (incomplete)
+
 ## [2.10.30] - 2024-11-12
 
 ### Fixed

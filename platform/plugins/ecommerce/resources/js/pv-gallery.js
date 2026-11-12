@@ -1,17 +1,17 @@
 /**
- * PV Custom Gallery System v2.10.30
+ * PV Custom Gallery System v2.10.32
  * - Render ONLY selected variation's images (lightweight)
  * - Lazy-load lightbox with ALL images only when opened
  * - Loading spinner during thumbnail transitions
  * - Skeleton for swatch thumbnail updates
  * 
- * v2.10.30: Fixed URL comparison by stripping domain/storage prefix before matching
+ * v2.10.32: Dynamic media URL from settings (supports S3, CDN, any storage driver)
  */
 (function() {
     'use strict';
     
-    console.log('%c🖼️ PV GALLERY v2.10.30 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
-    console.log('📅 Build: v2.10.30 | Fixed URL matching with proper normalization');
+    console.log('%c🖼️ PV GALLERY v2.10.32 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
+    console.log('📅 Build: v2.10.32 | Dynamic storage URL from admin settings');
     
     class PVGallery {
         constructor(container) {
@@ -156,20 +156,32 @@
             const productName = document.querySelector('.ps-product__info h1, .product-name, h1.product-title')?.textContent || 'Product';
             
             // Convert relative image paths to full URLs for lightbox
-            // Match RvMedia::getImageUrl() format which prepends storage/ automatically
+            // Use the media URL base from PHP (respects admin settings)
             console.log('🖼️ [PV] Original image paths:', this.allProductImages);
+            
+            // Get media URL base from window settings (set by blade template from RvMedia)
+            const mediaUrl = window.siteSettings?.mediaUrl;
+            
+            if (!mediaUrl) {
+                console.error('⚠️ [PV] Media URL not configured! Check blade template.');
+            }
+            
             const fullImageUrls = this.allProductImages.map(img => {
-                // Check if already a full URL
-                if (img.startsWith('http://') || img.startsWith('https://')) {
+                // If already a full URL (http/https or protocol-relative //), return as-is
+                if (img.match(/^(https?:)?\/\//)) {
                     return img;
                 }
-                // Check if it already starts with storage/
-                if (img.startsWith('storage/')) {
-                    return window.location.origin + '/' + img;
+                
+                // For relative paths, use the configured media URL
+                if (mediaUrl) {
+                    return mediaUrl + '/' + img.replace(/^\/+/, ''); // Remove leading slashes
                 }
-                // Prepend storage/ (RvMedia format)
-                return window.location.origin + '/storage/' + img;
+                
+                // Fallback: return the relative path as-is (will likely break, but visible in console)
+                console.warn('⚠️ [PV] No media URL configured, returning relative path:', img);
+                return img;
             });
+            
             console.log('🖼️ [PV] Converted to full URLs:', fullImageUrls);
             
             // Find the GLOBAL index in allProductImages for the current local image
@@ -181,16 +193,26 @@
                 console.log('🖼️ [PV] Looking for URL:', currentImageData.url);
                 
                 // Normalize URLs by:
-                // 1. Strip domain and /storage/ prefix if present
-                // 2. Remove size suffixes like -150x150
+                // 1. Strip protocol, domain, and any path prefix
+                // 2. Get just the filename for comparison (handles any file type)
                 const normalizeUrl = (url) => {
                     let normalized = url;
-                    // Strip domain and /storage/ if present
-                    normalized = normalized.replace(/^https?:\/\/[^\/]+\/storage\//, '');
-                    normalized = normalized.replace(/^storage\//, '');
-                    // Remove size suffixes
-                    normalized = normalized.replace(/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
-                    normalized = normalized.replace(/-thumb(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
+                    
+                    // Strip full URL parts (protocol + domain)
+                    normalized = normalized.replace(/^(https?:)?\/\/[^\/]+\//, '');
+                    
+                    // Get just the path after the last storage-related folder
+                    // This handles: storage/, public/, s3/, uploads/, media/, products/, etc.
+                    const pathMatch = normalized.match(/([^\/]+\/[^\/]+\.[a-zA-Z0-9]+)$/);
+                    if (pathMatch) {
+                        normalized = pathMatch[1]; // e.g., "products/xxxxx.webp"
+                    }
+                    
+                    // Remove size suffixes for any file format
+                    // Matches: -150x150.ext, -thumb.ext, -300x400.ext, etc.
+                    normalized = normalized.replace(/-\d+x\d+\.([a-zA-Z0-9]+)$/i, '.$1');
+                    normalized = normalized.replace(/-thumb\.([a-zA-Z0-9]+)$/i, '.$1');
+                    
                     return normalized;
                 };
                 
@@ -240,20 +262,32 @@
             const productName = document.querySelector('.ps-product__info h1, .product-name, h1.product-title')?.textContent || 'Product';
             
             // Convert relative image paths to full URLs for lightbox
-            // Match RvMedia::getImageUrl() format which prepends storage/ automatically
+            // Use the media URL base from PHP (respects admin settings)
             console.log('🖼️ [PV] Original image paths:', this.allProductImages);
+            
+            // Get media URL base from window settings (set by blade template from RvMedia)
+            const mediaUrl = window.siteSettings?.mediaUrl;
+            
+            if (!mediaUrl) {
+                console.error('⚠️ [PV] Media URL not configured! Check blade template.');
+            }
+            
             const fullImageUrls = this.allProductImages.map(img => {
-                // Check if already a full URL
-                if (img.startsWith('http://') || img.startsWith('https://')) {
+                // If already a full URL (http/https or protocol-relative //), return as-is
+                if (img.match(/^(https?:)?\/\//)) {
                     return img;
                 }
-                // Check if it already starts with storage/
-                if (img.startsWith('storage/')) {
-                    return window.location.origin + '/' + img;
+                
+                // For relative paths, use the configured media URL
+                if (mediaUrl) {
+                    return mediaUrl + '/' + img.replace(/^\/+/, ''); // Remove leading slashes
                 }
-                // Prepend storage/ (RvMedia format)
-                return window.location.origin + '/storage/' + img;
+                
+                // Fallback: return the relative path as-is (will likely break, but visible in console)
+                console.warn('⚠️ [PV] No media URL configured, returning relative path:', img);
+                return img;
             });
+            
             console.log('🖼️ [PV] Converted to full URLs:', fullImageUrls);
             
             // Open custom product lightbox on videos tab
