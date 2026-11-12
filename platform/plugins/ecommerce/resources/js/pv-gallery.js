@@ -1,12 +1,17 @@
 /**
- * PV Custom Gallery System
+ * PV Custom Gallery System v2.10.10
  * - Hover to preview AND activate (no click needed)
  * - Click counter overlay to open lightbox
  * - Variation change jumps to first variation image
  * - Amazon-style image lens zoom on hover
+ * 
+ * v2.10.10: Fixed thumbnail reordering for shared images (enriched originalThumbnailData with variationMap)
  */
 (function() {
     'use strict';
+    
+    console.log('%c🖼️ PV GALLERY v2.10.10 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
+    console.log('📅 Build: v2.10.10 | FIX: Thumbnail reordering now works for all variations including shared images');
     
     class PVGallery {
         constructor(container) {
@@ -57,8 +62,42 @@
                 this.originalThumbnailData.push({
                     imageUrl: imageUrl,
                     variationId: variationId,
-                    index: dataIndex
+                    index: dataIndex,
+                    variationIds: [] // Will be populated from variationMap
                 });
+            });
+            
+            // CRITICAL FIX v2.10.10: Enrich originalThumbnailData with ALL variation mappings from variationMap
+            // This handles shared images where DOM data-variation-id is empty but multiple variations map to same image
+            console.log('🔧 [PV Gallery] ENRICHING originalThumbnailData with variationMap', {
+                mapSize: Object.keys(this.variationMap).length,
+                thumbnailDataCount: this.originalThumbnailData.length
+            });
+            
+            Object.entries(this.variationMap).forEach(([variationId, imageIndex]) => {
+                // Find the originalThumbnailData entry for this image index
+                const thumbData = this.originalThumbnailData.find(t => t.index === imageIndex);
+                if (thumbData) {
+                    // Add this variationId to the array
+                    if (!thumbData.variationIds.includes(variationId)) {
+                        thumbData.variationIds.push(variationId);
+                    }
+                    
+                    // If this thumb has no variationId from DOM (empty/null), set it from first mapping
+                    if (!thumbData.variationId && thumbData.variationIds.length > 0) {
+                        thumbData.variationId = thumbData.variationIds[0];
+                    }
+                }
+            });
+            
+            // DEBUG: Log enriched data
+            console.log('✅ [PV Gallery] ENRICHED originalThumbnailData:', {
+                thumbnails: this.originalThumbnailData.map(t => ({
+                    index: t.index,
+                    domVariationId: t.variationId,
+                    allVariationIds: t.variationIds,
+                    url: t.imageUrl ? t.imageUrl.split('/').pop() : 'no-url'
+                }))
             });
             
             // DEBUG: Log loaded images
@@ -516,11 +555,17 @@
             const allThumbs = Array.from(photoContainer.querySelectorAll('.pv-thumb'));
             
             // Use ORIGINAL data (not current DOM state) to separate thumbnails
+            // CRITICAL FIX v2.10.10: Check BOTH variationId and variationIds array for matches
             const variationThumbs = [];
             const otherThumbs = [];
             
             this.originalThumbnailData.forEach(original => {
-                if (original.variationId == variationId) {
+                // Check if this thumbnail belongs to the requested variation
+                // Either direct match OR in the variationIds array (for shared images)
+                const isMatch = (original.variationId == variationId) || 
+                               (original.variationIds && original.variationIds.includes(variationId));
+                
+                if (isMatch) {
                     variationThumbs.push(original);
                 } else {
                     otherThumbs.push(original);
@@ -533,7 +578,8 @@
                 otherThumbsCount: otherThumbs.length,
                 variationThumbs: variationThumbs.map(t => ({
                     index: t.index,
-                    variationId: t.variationId,
+                    domVariationId: t.variationId,
+                    allVariationIds: t.variationIds || [],
                     url: t.imageUrl ? t.imageUrl.split('/').pop() : 'no-url'
                 }))
             });

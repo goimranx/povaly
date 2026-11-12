@@ -1,6 +1,6 @@
-// 🚀 POVALY SWATCH SYSTEM v2.9.4 - BUILD TIME: 2024-12-11 [CACHE BUST TEST]
-console.log('%c🚀 POVALY SWATCH SYSTEM v2.9.4 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
-console.log('📅 Build Time: 2024-12-11 | Cache Bust Test Active');
+// 🚀 POVALY SWATCH SYSTEM v2.10.10 - FIX: Hover preview + thumbnail reordering for all variations
+console.log('%c🚀 POVALY SWATCH SYSTEM v2.10.10 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
+console.log('📅 Build: v2.10.10 | FIXES: Hover preview checks current size, reordering works for shared images');
 
 class ChangeProductSwatches {
     constructor() {
@@ -17,6 +17,7 @@ class ChangeProductSwatches {
         let $body = $('body')
 
         // Hover preview for visual swatches - show image immediately without selecting
+        // CRITICAL FIX v2.10.10: Check current size selection and preview correct variation
         $body.on('mouseenter', '.product-attributes .visual-swatch label', function(e) {
             const $label = $(this)
             const $item = $label.closest('.bb-product-attribute-swatch-item')
@@ -26,14 +27,123 @@ class ChangeProductSwatches {
                 return
             }
 
-            // Get the variation image for this swatch
-            const swatchImage = $item.data('variation-image')
+            // Get all variation IDs for this color swatch (e.g., [184,185] for Pink 80cm and 100cm)
+            const variationIdsStr = $item.data('variation-ids')
+            let variationIds = []
             
-            if (swatchImage) {
-                // Mark as hover preview (not selection)
-                $item.data('is-hover-preview', true)
-                _self.previewSwatchImage(swatchImage, $item)
+            if (variationIdsStr) {
+                try {
+                    variationIds = typeof variationIdsStr === 'string' ? JSON.parse(variationIdsStr) : variationIdsStr
+                } catch (e) {
+                    console.warn('⚠️ [HOVER PREVIEW] Failed to parse variation-ids:', variationIdsStr)
+                }
             }
+            
+            console.log('🎯 [HOVER PREVIEW] Visual swatch hover:', {
+                colorId: $item.data('id'),
+                colorTitle: $item.data('title'),
+                variationIds: variationIds
+            })
+            
+            // If no variation IDs, fall back to simple image preview
+            if (variationIds.length === 0) {
+                const swatchImage = $item.data('variation-image')
+                if (swatchImage) {
+                    $item.data('is-hover-preview', true)
+                    _self.previewSwatchImage(swatchImage, $item)
+                }
+                return
+            }
+            
+            // Find currently selected SIZE (or other non-color attributes)
+            const $productAttributes = $item.closest('.product-attributes')
+            const $colorSet = $item.closest('.attribute-swatches-wrapper')
+            const colorSetSlug = $colorSet.data('slug')
+            
+            // Get all SELECTED attributes from OTHER sets (not color)
+            const selectedOtherAttrs = []
+            $productAttributes.find('.attribute-swatches-wrapper').each(function() {
+                const $set = $(this)
+                if ($set.data('slug') === colorSetSlug) {
+                    return // Skip the color set itself
+                }
+                
+                // Find selected item in this set
+                let selectedId = null
+                if ($set.data('type') === 'dropdown') {
+                    selectedId = parseInt($set.find('select').val())
+                } else {
+                    const $selected = $set.find('input[type=radio]:checked')
+                    if ($selected.length) {
+                        selectedId = parseInt($selected.closest('.bb-product-attribute-swatch-item').data('id'))
+                    }
+                }
+                
+                if (selectedId) {
+                    selectedOtherAttrs.push(selectedId)
+                }
+            })
+            
+            console.log('🎯 [HOVER PREVIEW] Selected other attributes:', {
+                selectedOtherAttrs: selectedOtherAttrs,
+                variationIds: variationIds
+            })
+            
+            // Find which variation ID matches the current selection
+            // Query the server for each variation to find which one contains the selected attributes
+            const ajaxUrl = $productAttributes.data('target')
+            if (!ajaxUrl) {
+                // Fallback to first variation
+                _self.previewVariation(variationIds[0], $item)
+                return
+            }
+            
+            // Test each variation ID to find the one matching current selection
+            let foundMatch = false
+            const testVariation = (vidIndex) => {
+                if (vidIndex >= variationIds.length) {
+                    // No match found, use first one
+                    if (!foundMatch && variationIds.length > 0) {
+                        _self.previewVariation(variationIds[0], $item)
+                    }
+                    return
+                }
+                
+                const testVarId = variationIds[vidIndex]
+                
+                // Build test attributes: this variation's attributes
+                const testAttrs = [parseInt($item.data('id'))].concat(selectedOtherAttrs)
+                
+                $.ajax({
+                    url: ajaxUrl,
+                    type: 'GET',
+                    data: {
+                        attributes: testAttrs,
+                        _: +new Date()
+                    },
+                    success: (res) => {
+                        if (res && res.data && !res.data.error_message && res.data.id == testVarId) {
+                            // Found the matching variation!
+                            console.log('✅ [HOVER PREVIEW] Found matching variation:', {
+                                variationId: testVarId,
+                                matchedAttributes: testAttrs
+                            })
+                            foundMatch = true
+                            _self.previewVariation(testVarId, $item)
+                        } else {
+                            // Try next variation
+                            testVariation(vidIndex + 1)
+                        }
+                    },
+                    error: () => {
+                        // Try next variation
+                        testVariation(vidIndex + 1)
+                    }
+                })
+            }
+            
+            // Start testing from first variation
+            testVariation(0)
         })
 
         // When mouse leaves the swatch item, restore to selected variation
@@ -596,6 +706,22 @@ class ChangeProductSwatches {
             const firstKey = this.cache.keys().next().value
             this.cache.delete(firstKey)
         }
+    }
+
+    previewVariation(variationId, $item) {
+        // Dispatch variation change event to PV Gallery without actually selecting the swatch
+        console.log('🎬 [PREVIEW VARIATION] Dispatching event for variation:', variationId)
+        
+        $item.data('is-hover-preview', true)
+        
+        // Dispatch custom event for PV Gallery to handle
+        const event = new CustomEvent('ecommerce.change-variation', {
+            detail: {
+                variationId: variationId,
+                isPreview: true
+            }
+        })
+        document.dispatchEvent(event)
     }
 
     previewSwatchImage(imageUrl, $item) {
