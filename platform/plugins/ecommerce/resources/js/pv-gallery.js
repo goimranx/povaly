@@ -1,17 +1,17 @@
 /**
- * PV Custom Gallery System v2.10.11
+ * PV Custom Gallery System v2.10.12
  * - Hover to preview AND activate (no click needed)
  * - Click counter overlay to open lightbox
  * - Variation change jumps to first variation image
  * - Amazon-style image lens zoom on hover
  * 
- * v2.10.11: Fixed type conversion for shared images + only reorder thumbnails on click (not hover)
+ * v2.10.12: Use AJAX imageUrls for size changes + reduced logging + fixed preview for all variations
  */
 (function() {
     'use strict';
     
-    console.log('%c🖼️ PV GALLERY v2.10.11 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
-    console.log('📅 Build: v2.10.11 | FIXES: String type conversion + no reorder on hover preview');
+    console.log('%c🖼️ PV GALLERY v2.10.12 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
+    console.log('📅 Build: v2.10.12 | FIXES: AJAX imageUrls + reduced logs + fixed variation preview');
     
     class PVGallery {
         constructor(container) {
@@ -21,7 +21,7 @@
             this.thumbnails = container.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
             this.videoThumbs = container.querySelectorAll('.pv-thumb-video');
             this.currentIndex = parseInt(container.getAttribute('data-default-index')) || 0;
-            this.selectedIndex = this.currentIndex; // Track actual selected/active image
+            this.selectedIndex = this.currentIndex;
             this.variationMap = JSON.parse(container.getAttribute('data-variation-map') || '{}');
             this.allImages = [];
             this.imageUrls = [];
@@ -30,14 +30,8 @@
             // Store ORIGINAL thumbnail data for reordering (never modified)
             this.originalThumbnailData = [];
             
-            // DEBUG: Gallery initialization
-            console.log('[PV Gallery DEBUG] Constructor - Initialization', {
-                currentIndex: this.currentIndex,
-                variationMap: this.variationMap,
-                thumbnailsCount: this.thumbnails.length,
-                videoThumbsCount: this.videoThumbs.length,
-                timestamp: new Date().toISOString(),
-            });
+            // Store current variation's image URLs from AJAX (for size changes)
+            this.currentVariationImages = null;
             
             this.init();
         }
@@ -68,49 +62,17 @@
             });
             
             // CRITICAL FIX v2.10.11: Enrich originalThumbnailData with ALL variation mappings from variationMap
-            // Convert to consistent types for comparison
-            console.log('🔧 [PV Gallery] ENRICHING originalThumbnailData with variationMap', {
-                mapSize: Object.keys(this.variationMap).length,
-                thumbnailDataCount: this.originalThumbnailData.length
-            });
-            
             Object.entries(this.variationMap).forEach(([varIdStr, imageIndex]) => {
-                // Convert variationId to string for consistent comparison
                 const variationId = String(varIdStr);
-                
-                // Find the originalThumbnailData entry for this image index
                 const thumbData = this.originalThumbnailData.find(t => t.index === imageIndex);
                 if (thumbData) {
-                    // Add this variationId to the array (as string)
                     if (!thumbData.variationIds.includes(variationId)) {
                         thumbData.variationIds.push(variationId);
                     }
-                    
-                    // If this thumb has no variationId from DOM (empty/null), set it from first mapping
                     if (!thumbData.variationId && thumbData.variationIds.length > 0) {
                         thumbData.variationId = thumbData.variationIds[0];
                     }
                 }
-            });
-            
-            // DEBUG: Log enriched data
-            console.log('✅ [PV Gallery] ENRICHED originalThumbnailData:', {
-                thumbnails: this.originalThumbnailData.map(t => ({
-                    index: t.index,
-                    domVariationId: t.variationId,
-                    allVariationIds: t.variationIds,
-                    url: t.imageUrl ? t.imageUrl.split('/').pop() : 'no-url'
-                }))
-            });
-            
-            // DEBUG: Log loaded images
-            console.log('[PV Gallery DEBUG] Images Loaded', {
-                totalImages: this.allImages.length,
-                images: this.allImages.map(img => ({
-                    index: img.index,
-                    variationId: img.variationId || 'parent',
-                    url: img.url.substring(img.url.lastIndexOf('/') + 1),
-                })),
             });
             
             // Initialize lightGallery on the main image
@@ -124,10 +86,6 @@
                 // Hover activates immediately
                 thumb.addEventListener('mouseenter', () => {
                     const index = parseInt(thumb.getAttribute('data-index'));
-                    console.log('[PV Gallery DEBUG] Thumbnail Hover', {
-                        index: index,
-                        url: thumb.getAttribute('data-image').substring(thumb.getAttribute('data-image').lastIndexOf('/') + 1),
-                    });
                     this.jumpToImage(index);
                 });
                 
@@ -253,24 +211,7 @@
         jumpToImage(index) {
             const imageData = this.allImages.find(img => img.index === index);
             
-            // DEBUG: Log jump operation
-            console.log('🖼️ [PV Gallery] JUMP TO IMAGE', {
-                requestedIndex: index,
-                currentMainImageSrc: this.mainImage ? this.mainImage.src.split('/').pop() : 'NO MAIN IMAGE',
-                foundImageData: imageData ? {
-                    index: imageData.index,
-                    variationId: imageData.variationId || 'parent',
-                    url: imageData.url.substring(imageData.url.lastIndexOf('/') + 1),
-                } : 'NOT FOUND',
-            });
-            
-            if (!imageData) {
-                console.error('❌ [PV Gallery] JUMP FAILED - imageData not found for index', index);
-                return;
-            }
-            
-            if (!this.mainImage) {
-                console.error('❌ [PV Gallery] JUMP FAILED - this.mainImage is null');
+            if (!imageData || !this.mainImage) {
                 return;
             }
             
@@ -288,33 +229,14 @@
             this.mainImage.style.opacity = '0.5';
             this.mainImage.style.display = 'block';
             
-            // Strip size suffix (e.g., -150x150, -thumb) to get full-size URL
+            // Strip size suffix to get full-size URL
             let fullSizeUrl = imageData.url.replace(/-\d+x\d+(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
             fullSizeUrl = fullSizeUrl.replace(/-thumb(\.webp|\.jpg|\.jpeg|\.png)$/i, '$1');
-            
-            // Store the target URL to verify in onload
             const targetUrl = fullSizeUrl;
-            
-            // DEBUG: Log URL transformation
-            console.log('🖼️ [PV Gallery] URL TRANSFORMATION', {
-                originalUrl: imageData.url.substring(imageData.url.lastIndexOf('/') + 1),
-                fullSizeUrl: fullSizeUrl.substring(fullSizeUrl.lastIndexOf('/') + 1),
-                strippedCorrectly: !fullSizeUrl.includes('-150x150') && !fullSizeUrl.includes('-thumb'),
-            });
-            
-            console.log('🖼️ [PV Gallery] UPDATING MAIN IMAGE SRC', {
-                oldSrc: this.mainImage.src.split('/').pop(),
-                newSrc: fullSizeUrl.split('/').pop(),
-                willChange: this.mainImage.src !== fullSizeUrl
-            });
             
             // Update main image with full-size URL
             this.mainImage.src = fullSizeUrl;
             this.mainImage.srcset = '';
-            
-            console.log('✅ [PV Gallery] MAIN IMAGE SRC UPDATED', {
-                actualSrc: this.mainImage.src.split('/').pop()
-            });
             
             // Clear previous onload handler
             this.mainImage.onload = null;
@@ -444,117 +366,92 @@
         }
         
         handleVariationChange(data) {
-            
             const variationId = data.variationId || data.variation_id || data.id || data.productId || data.product_id;
             
             if (!variationId) {
                 return;
             }
             
-            // CRITICAL FIX v2.10.11: Check if this is a hover preview (don't reorder thumbnails)
             const isPreview = data.isPreview === true;
+            const imageUrls = data.imageUrls || data.image_urls || [];
             
-            console.log('🔄 [PV Gallery] VARIATION CHANGE START', {
-                variationId: variationId,
-                isPreview: isPreview,
-                currentIndex: this.currentIndex,
-                currentImageUrl: this.mainImage ? this.mainImage.src.split('/').pop() : 'NO MAIN IMAGE',
-                variationMapExists: this.variationMap.hasOwnProperty(variationId),
-                mappedIndex: this.variationMap[variationId] !== undefined ? this.variationMap[variationId] : 'NOT FOUND',
-                timestamp: new Date().toISOString()
-            });
+            console.log(`🔄 [PV] Variation ${variationId} | Preview: ${isPreview} | AJAX Images: ${imageUrls.length}`);
+            
+            // CRITICAL FIX v2.10.12: Store AJAX image URLs for this variation
+            if (imageUrls.length > 0 && !isPreview) {
+                this.currentVariationImages = imageUrls;
+                this.rebuildGalleryFromAJAX(variationId, imageUrls);
+                return;
+            }
             
             // Only reorder thumbnails on actual selection (not hover preview)
             if (!isPreview) {
-                console.log('🔄 [PV Gallery] BEFORE REORDER', {
-                    allImagesCount: this.allImages.length,
-                    firstThreeImages: this.allImages.slice(0, 3).map(img => ({
-                        index: img.index,
-                        variationId: img.variationId,
-                        url: img.url ? img.url.split('/').pop() : 'no-url'
-                    }))
-                });
-                
                 this.reorderThumbnails(variationId);
-            } else {
-                console.log('👁️ [PV Gallery] PREVIEW MODE - Skipping thumbnail reorder');
             }
             
-            console.log('🔄 [PV Gallery] AFTER REORDER', {
-                allImagesCount: this.allImages.length,
-                firstThreeImages: this.allImages.slice(0, 3).map(img => ({
-                    index: img.index,
-                    variationId: img.variationId,
-                    url: img.url ? img.url.split('/').pop() : 'no-url'
-                })),
-                currentIndexAfterReorder: this.currentIndex
-            });
+            // Find first image for this variation
+            let firstImage = this.allImages.find(img => String(img.variationId) === String(variationId));
             
-            // Now find all images for this variation from the reordered allImages
-            const variationImages = this.allImages.filter(img => img.variationId == variationId);
-            
-            console.log('🔄 [PV Gallery] VARIATION IMAGES FOUND', {
-                variationId: variationId,
-                imagesCount: variationImages.length,
-                images: variationImages.map(img => img.url ? img.url.split('/').pop() : 'no-url')
-            });
-            
-            if (variationImages.length > 0) {
-                // Jump to first image of this variation
-                const firstVariationImage = variationImages[0];
-                console.log('[PV Gallery DEBUG] Jumping to First Variation Image', {
-                    variationId: variationId,
-                    jumpIndex: firstVariationImage.index,
-                    url: firstVariationImage.url ? firstVariationImage.url.split('/').pop() : 'no-url'
-                });
-                this.jumpToImage(firstVariationImage.index);
-                this.scrollThumbnailsToShow(firstVariationImage.index);
-            } else {
-                // CRITICAL FIX: When no images found after reordering, try the variation map FIRST
-                // This handles the case where shared images were deduplicated
-                let targetIndex = this.variationMap[variationId];
-                
-                console.log('[PV Gallery DEBUG] No Direct Variation Images - Trying Map', {
-                    variationId: variationId,
-                    mapExists: this.variationMap.hasOwnProperty(variationId),
-                    targetIndexFromMap: targetIndex !== undefined ? targetIndex : 'NOT FOUND',
-                    mapSize: Object.keys(this.variationMap).length
-                });
-                
+            if (!firstImage) {
+                // Try variation map
+                const targetIndex = this.variationMap[variationId];
                 if (targetIndex !== undefined) {
-                    console.log('[PV Gallery DEBUG] Using Map Index', {
-                        variationId: variationId,
-                        jumpIndex: targetIndex
-                    });
-                    this.jumpToImage(targetIndex);
-                    this.scrollThumbnailsToShow(targetIndex);
-                    return;
+                    firstImage = this.allImages.find(img => img.index === targetIndex);
                 }
-                
-                // Last resort: Try to find any image with this variation ID in the full array
-                const firstVariationImage = this.allImages.find(img => img.variationId == variationId);
-                if (firstVariationImage) {
-                    console.log('[PV Gallery DEBUG] Found in Full Array', {
-                        variationId: variationId,
-                        jumpIndex: firstVariationImage.index
-                    });
-                    this.jumpToImage(firstVariationImage.index);
-                    this.scrollThumbnailsToShow(firstVariationImage.index);
-                } else {
-                    console.error('[PV Gallery DEBUG] FAILED - No images or map entry for variation', {
-                        variationId: variationId,
-                        availableVariations: Object.keys(this.variationMap)
-                    });
-                }
+            }
+            
+            if (firstImage) {
+                this.jumpToImage(firstImage.index);
+                this.scrollThumbnailsToShow(firstImage.index);
             }
         }
         
-        reorderThumbnails(variationId) {
+        rebuildGalleryFromAJAX(variationId, imageUrls) {
+            console.log(`📦 [PV] Rebuilding gallery from AJAX: ${imageUrls.length} images`);
             
-            console.log('📋 [PV Gallery] REORDER THUMBNAILS START', {
+            const photoContainer = this.container.querySelector('.pv-thumbs-photos');
+            if (!photoContainer) return;
+            
+            const allThumbs = Array.from(photoContainer.querySelectorAll('.pv-thumb'));
+            
+            // Rebuild allImages array with new URLs
+            this.allImages = imageUrls.map((url, idx) => ({
+                index: idx,
+                url: url,
                 variationId: variationId,
-                originalThumbnailDataCount: this.originalThumbnailData.length
+                thumb: allThumbs[idx] || null
+            }));
+            
+            // Update DOM thumbnails with new images
+            allThumbs.forEach((thumb, idx) => {
+                if (imageUrls[idx]) {
+                    thumb.setAttribute('data-image', imageUrls[idx]);
+                    thumb.setAttribute('data-index', idx);
+                    thumb.setAttribute('data-variation-id', variationId);
+                    
+                    const img = thumb.querySelector('img');
+                    if (img) {
+                        const urlPath = imageUrls[idx].replace(/^https?:\/\/[^\/]+/, '');
+                        const thumbUrl = urlPath.replace(/(\.[^.]+)$/, '-150x150$1');
+                        img.src = window.location.origin + thumbUrl;
+                    }
+                } else {
+                    thumb.style.display = 'none';
+                }
             });
+            
+            // Show first image
+            if (this.allImages.length > 0) {
+                this.jumpToImage(0);
+                this.scrollThumbnailsToShow(0);
+            }
+            
+            // Rebuild lightbox URLs
+            this.imageUrls = imageUrls;
+        }
+        
+        reorderThumbnails(variationId) {
+            console.log(`📋 [PV] Reordering for variation: ${variationId}`);
             
             // Get photo thumbnails container
             const photoContainer = this.container.querySelector('.pv-thumbs-photos');
@@ -574,8 +471,6 @@
             const varIdStr = String(variationId);
             
             this.originalThumbnailData.forEach(original => {
-                // Check if this thumbnail belongs to the requested variation
-                // Either direct match OR in the variationIds array (for shared images)
                 const isMatch = (String(original.variationId) === varIdStr) || 
                                (original.variationIds && original.variationIds.includes(varIdStr));
                 
@@ -586,20 +481,7 @@
                 }
             });
             
-            console.log('📋 [PV Gallery] REORDER SEPARATION', {
-                variationId: variationId,
-                variationThumbsCount: variationThumbs.length,
-                otherThumbsCount: otherThumbs.length,
-                variationThumbs: variationThumbs.map(t => ({
-                    index: t.index,
-                    domVariationId: t.variationId,
-                    allVariationIds: t.variationIds || [],
-                    url: t.imageUrl ? t.imageUrl.split('/').pop() : 'no-url'
-                }))
-            });
-            
             if (variationThumbs.length === 0) {
-                console.warn('⚠️ [PV Gallery] REORDER SKIPPED - no thumbnails for variation', variationId);
                 return;
             }
             
