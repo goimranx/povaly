@@ -1,6 +1,6 @@
-// 🚀 POVALY SWATCH SYSTEM v2.10.44 - Revert to stable v2.10.37 code (pre-Quick Shop fixes)
-console.log('%c🚀 POVALY SWATCH SYSTEM v2.10.44 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
-console.log('📅 Build: v2.10.44 | Reverted to stable v2.10.37 base (no Quick Shop modifications)');
+// 🚀 POVALY SWATCH SYSTEM v2.10.45 - Reverted to stable v2.10.38 (pre-Quick Shop fixes, hover+preview working)
+console.log('%c🚀 POVALY SWATCH SYSTEM v2.10.45 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
+console.log('📅 Build: v2.10.45 | Stable base: v2.10.38 (hover preview respects Color+Size, no Quick Shop modifications)');
 
 class ChangeProductSwatches {
     constructor() {
@@ -45,8 +45,44 @@ class ChangeProductSwatches {
                 variationIds: variationIds
             })
             
-            // NEW v2.10.37: Use full-size image for hover preview (not thumbnail)
-            const swatchImageFull = $item.data('variation-image-full') || $item.data('variation-image')
+            // v2.10.38: Use the CURRENT thumbnail src (already updated by updateSwatchPricesSimple)
+            // This ensures we get the correct image for the current Color + Size combination
+            const $thumb = $item.find('.qs-var-item__thumb img')
+            let swatchImageFull = $item.data('variation-image-full') // fallback
+            
+            if ($thumb.length && $thumb.attr('src')) {
+                const thumbUrl = $thumb.attr('src')
+                
+                // Convert thumbnail URL to full-size URL
+                // The thumbnail is already the correct one for current Color + Size combination
+                // (updated by updateSwatchPricesSimple when size changes)
+                if (window.siteSettings && window.siteSettings.mediaUrl) {
+                    // Extract the relative path after the media URL base
+                    const mediaBase = window.siteSettings.mediaUrl
+                    const relativePath = thumbUrl.includes(mediaBase) 
+                        ? thumbUrl.substring(thumbUrl.indexOf(mediaBase) + mediaBase.length)
+                        : thumbUrl.split('/products/').pop() // fallback: extract after /products/
+                    
+                    // Remove -150x150 or -thumb suffix from filename
+                    const fullPath = relativePath.replace(/-150x150(\.[^.]+)$/i, '$1')
+                                                 .replace(/-thumb(\.[^.]+)$/i, '$1')
+                    
+                    swatchImageFull = mediaBase + fullPath
+                    
+                    console.log('🎯 [HOVER PREVIEW v2.10.38] Using current thumbnail:', {
+                        thumbUrl,
+                        mediaBase,
+                        relativePath,
+                        fullPath,
+                        swatchImageFull
+                    })
+                } else {
+                    // Fallback: simple regex replacement
+                    swatchImageFull = thumbUrl.replace(/-150x150(\.[^.]+)$/i, '$1')
+                                              .replace(/-thumb(\.[^.]+)$/i, '$1')
+                }
+            }
+            
             if (swatchImageFull) {
                 $item.data('is-hover-preview', true)
                 _self.previewSwatchImage(swatchImageFull, $item)

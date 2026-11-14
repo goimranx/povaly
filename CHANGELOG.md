@@ -5,6 +5,20 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.45] - 2024-11-14
+
+### Reverted
+- Reverted swatch system to stable v2.10.38 codebase (pre-Quick Shop fixes)
+- v2.10.38 was the last version where everything worked correctly
+- Hover preview works on product details page (respects Color+Size combination)
+- Visual swatch images show exact variation properly
+- Removed ALL Quick Shop modifications (v2.10.39 through v2.10.44)
+
+### Why
+- Quick Shop fixes (v2.10.39+) broke working swatch functionality
+- v2.10.38 had working hover preview + visual swatch images
+- Reverting to this stable base and rebuilding from here
+
 ## [2.10.44] - 2024-11-14
 
 ### Reverted
