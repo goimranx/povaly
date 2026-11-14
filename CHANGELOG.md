@@ -5,6 +5,19 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.44] - 2024-11-14
+
+### Reverted
+- Reverted swatch system back to stable v2.10.37 codebase
+- Removed ALL Quick Shop modifications (v2.10.38 through v2.10.43)
+- Quick Shop now uses original working behavior without custom gallery fixes
+- Main product page swatch functionality fully preserved and working
+
+### Why
+- Quick Shop fixes (v2.10.38-v2.10.43) caused regressions and broke working code
+- Reverting to v2.10.37 restores the last known stable state
+- New version tag (v2.10.44) ensures cache busting and updater detection
+
 ## [2.10.43] - 2024-11-14
 
 ### Fixed
