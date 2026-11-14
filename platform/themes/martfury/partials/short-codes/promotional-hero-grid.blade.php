@@ -225,16 +225,25 @@
     }
 
     /* Default title - Left large banner */
+    .ps-hero-title {
+        color: var(--global-color-text-main);
+    }
+
     .ps-hero-title,
     .ps-hero-title *,
     .ps-hero-title span,
     .ps-hero-title div {
         font-size: 44px;
         font-weight: 700;
-        color: var(--global-color-text-main);
         line-height: 1.1;
         margin: 0;
         text-transform: capitalize;
+    }
+
+    .ps-hero-title *,
+    .ps-hero-title span,
+    .ps-hero-title div {
+        color: var(--global-color-text-on-dark);
     }
 
     /* Small content title - base size */
