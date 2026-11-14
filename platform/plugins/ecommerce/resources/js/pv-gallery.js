@@ -146,8 +146,11 @@
             // Build lightbox data on first use
             this.buildLightboxData();
             
-            // Get product name from page
-            const productName = document.querySelector('.pd-title, .pd-mobile-title, .ps-product__info h1, .product-name, h1.product-title')?.textContent?.trim() || 'Product';
+            // Get product name - prefer the data attribute on the gallery container (most reliable),
+            // then fall back to DOM selectors on the page
+            const productName = this.container.getAttribute('data-product-name')?.trim()
+                || document.querySelector('.pd-title, .pd-mobile-title, .ps-product__info h1, .product-name, h1.product-title')?.textContent?.trim()
+                || 'Product';
             
             // Convert relative image paths to full URLs for lightbox
             const mediaUrl = window.siteSettings?.mediaUrl;
@@ -213,8 +216,11 @@
             // Build lightbox data on first use
             this.buildLightboxData();
             
-            // Get product name from page
-            const productName = document.querySelector('.pd-title, .pd-mobile-title, .ps-product__info h1, .product-name, h1.product-title')?.textContent?.trim() || 'Product';
+            // Get product name - prefer the data attribute on the gallery container (most reliable),
+            // then fall back to DOM selectors on the page
+            const productName = this.container.getAttribute('data-product-name')?.trim()
+                || document.querySelector('.pd-title, .pd-mobile-title, .ps-product__info h1, .product-name, h1.product-title')?.textContent?.trim()
+                || 'Product';
             
             // Convert relative image paths to full URLs for lightbox
             const mediaUrl = window.siteSettings?.mediaUrl;

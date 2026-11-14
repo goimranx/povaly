@@ -35,15 +35,31 @@ document.addEventListener('DOMContentLoaded', function() {
         // Determine which tab to open
         var defaultTab = productData.openTab || 'images';
         
+        // Show/hide tab buttons based on whether content exists
+        var hasImages = productData.images && productData.images.length > 0;
+        var hasVideos = productData.videos && productData.videos.length > 0;
+        tabs.forEach(function(tab) {
+            var tabName = tab.getAttribute('data-tab');
+            if (tabName === 'images') {
+                tab.style.display = hasImages ? '' : 'none';
+            } else if (tabName === 'videos') {
+                tab.style.display = hasVideos ? '' : 'none';
+            }
+        });
+        
+        // If the requested tab has no content, fall back to the other one
+        if (defaultTab === 'images' && !hasImages && hasVideos) defaultTab = 'videos';
+        if (defaultTab === 'videos' && !hasVideos && hasImages) defaultTab = 'images';
+        
         // Handle Images tab content
-        if (productData.images && productData.images.length > 0) {
+        if (hasImages) {
             var startIndex = productData.currentIndex || 0;
             mainImage.src = productData.images[startIndex];
             loadThumbnails(productData.images, startIndex);
         }
         
         // Handle Videos tab content
-        if (productData.videos && productData.videos.length > 0) {
+        if (hasVideos) {
             var videoIndex = productData.currentVideoIndex || 0;
             loadVideos(productData.videos, videoIndex);
             

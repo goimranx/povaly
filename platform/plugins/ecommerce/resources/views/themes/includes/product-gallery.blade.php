@@ -171,7 +171,8 @@
          data-default-index="{{ $defaultJumpIndex }}" 
          data-variation-map="{{ $variationImageMapJson }}"
          data-all-images="{{ $allProductImagesJson }}"
-         data-selected-variation-id="{{ $selectedVariationId }}">
+         data-selected-variation-id="{{ $selectedVariationId }}"
+         data-product-name="{{ $product->name }}">
         
         <div class="pv-gallery-main">
             {{-- Loading spinner --}}
@@ -247,6 +248,11 @@
                     </div>
                 @endforeach
             </div>
+            
+            {{-- Divider between images and videos --}}
+            @if ($hasVideo)
+                <div class="pv-thumbs-divider"></div>
+            @endif
             
             {{-- Video thumbnails wrapper --}}
             <div class="pv-thumbs-videos">

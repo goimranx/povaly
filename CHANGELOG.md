@@ -5,6 +5,17 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.3] - 2026-11-14
+
+### Fixed
+- Lightbox: Tab buttons (IMAGES / VIDEOS) are now hidden when that tab has no content; falls back to the available tab automatically
+- PV Gallery: Product title now reads from `data-product-name` on the gallery container (server-rendered, always reliable) instead of relying solely on DOM class selectors — fixes blank title in lightbox when opened from product detail page
+- PV Gallery: Added divider between image and video thumbnails in the thumbnail strip, matching the Quick Shop gallery behaviour
+
+### Added
+- PV Gallery blade: `data-product-name` attribute on `.pv-gallery` container for reliable title passing
+- PV Gallery CSS: `.pv-thumbs-divider` — 50% width, 2px height, `var(--global-color-primary-border)` colour, centered between image and video thumbnail sections
+
 ## [2.11.1] - 2024-11-14
 
 ### Fixed

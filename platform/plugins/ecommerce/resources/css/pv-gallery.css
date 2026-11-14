@@ -133,6 +133,16 @@
     gap: 8px;
 }
 
+/* Divider between image and video thumbnails */
+.pv-thumbs-divider {
+    width: 50%;
+    height: 2px;
+    margin: 4px auto;
+    background-color: var(--global-color-primary-border, #ddd);
+    flex-shrink: 0;
+    border-radius: 1px;
+}
+
 /* Video thumbnails wrapper */
 .pv-thumbs-videos {
     display: flex;
