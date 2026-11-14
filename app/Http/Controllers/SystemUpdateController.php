@@ -75,9 +75,9 @@ class SystemUpdateController extends Controller
                     $sendMessage("\n=== Production Deployment (Tag-based) ===", 'header');
                     $sendMessage("Current branch: {$currentBranch}", 'info');
                     
-                    // Fetch all tags
+                    // Fetch all tags (force to update any force-pushed tags)
                     $sendMessage("\n→ Fetching tags from GitHub...", 'info');
-                    $fetchOutput = $this->executeCommand('git fetch --tags', $returnCode);
+                    $fetchOutput = $this->executeCommand('git fetch --tags --force', $returnCode);
                     foreach ($fetchOutput as $line) {
                         $sendMessage($line, 'info');
                     }
