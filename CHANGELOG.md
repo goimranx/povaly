@@ -7,12 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.11.0] - 2024-11-14
 
+### Fixed
+- Cache busting: AJAX-loaded swatch script now includes `?v=` parameter (was missing version)
+- Lightbox: Fixed thumbnail grid x-overflow (added `min-width: 0` and `overflow-x: hidden`)
+- Lightbox: Fixed product name not displaying (selectors now match `.pd-title` and `.pd-mobile-title`)
+
 ### Changed
-- Removed ALL console.log, console.warn, console.error from swatch system
-- Removed ALL console.log, console.warn, console.error from PV gallery system
+- Removed ALL console.log/warn/error from swatch and gallery JS files
 - Removed test setTimeout that auto-triggered change events on page load
-- Clean production code with zero debug output
-- Updated version header comments to v2.11.0
+- Grid uses `minmax(0, 1fr)` instead of `1fr` to prevent overflow
 
 ### Files Cleaned
 - `platform/plugins/ecommerce/resources/js/change-product-swatches.js`

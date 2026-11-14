@@ -147,7 +147,7 @@
             this.buildLightboxData();
             
             // Get product name from page
-            const productName = document.querySelector('.ps-product__info h1, .product-name, h1.product-title')?.textContent || 'Product';
+            const productName = document.querySelector('.pd-title, .pd-mobile-title, .ps-product__info h1, .product-name, h1.product-title')?.textContent?.trim() || 'Product';
             
             // Convert relative image paths to full URLs for lightbox
             const mediaUrl = window.siteSettings?.mediaUrl;
@@ -214,7 +214,7 @@
             this.buildLightboxData();
             
             // Get product name from page
-            const productName = document.querySelector('.ps-product__info h1, .product-name, h1.product-title')?.textContent || 'Product';
+            const productName = document.querySelector('.pd-title, .pd-mobile-title, .ps-product__info h1, .product-name, h1.product-title')?.textContent?.trim() || 'Product';
             
             // Convert relative image paths to full URLs for lightbox
             const mediaUrl = window.siteSettings?.mediaUrl;

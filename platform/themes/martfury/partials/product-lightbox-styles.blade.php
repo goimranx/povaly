@@ -498,13 +498,16 @@
             flex: 1;
             padding: 0 20px;
             overflow-y: auto;
+            overflow-x: hidden;
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 10px;
             align-content: start;
+            min-width: 0;
         }
         
         .product-lightbox-thumbnail {
+            min-width: 0;
             aspect-ratio: 3 / 3.5;
             border: 2px solid var(--global-color-border-light, #F0D8CB);
             border-radius: 4px;

@@ -34,7 +34,7 @@ if (! function_exists('render_product_swatches')) {
             return $html;
         }
 
-        return $html . Html::script($script)->toHtml();
+        return $html . Html::script($script . '?v=' . EcommerceHelper::getAssetVersion())->toHtml();
     }
 }
 
