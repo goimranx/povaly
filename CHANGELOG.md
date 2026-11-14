@@ -5,6 +5,36 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.43] - 2024-11-14
+
+### Fixed
+- Quick Shop: Fixed 10-20 second delay when switching variations
+- Quick Shop: Now uses `data-variation-image-full` for full-size images (not thumbnails)
+- Quick Shop: Gallery instantly shows correct image without searching all slides
+- Cache busting: Added console.log version marker for debugging
+- Production: Rebuilt and recompiled all JavaScript assets
+- Production: Proper version tagging for updater system
+
+### Technical
+- Hover preview now prefers `data-variation-image-full` if available
+- `restoreSelectedImage()` uses full-size images for Quick Shop
+- Compiled production bundle includes v2.10.43 marker
+- Cache version uses Git tag for production deployments
+
+## [2.10.42] - 2024-11-14
+
+### Fixed
+- Quick Shop: Fixed 404 errors for variation images
+- Quick Shop: Gallery now receives full-size image URLs instead of thumbnails
+- Quick Shop: Swatches send full-size URLs via `data-variation-image-full`
+- Main product page: Continues using thumbnails for hover (no change)
+
+## [2.10.41] - 2024-11-13
+
+### Fixed
+- Code cleanup: Removed ALL debug console.log statements for production
+- Performance: Clean, production-ready code without verbose logging
+
 ## [2.10.40] - 2024-11-12
 
 ### Fixed

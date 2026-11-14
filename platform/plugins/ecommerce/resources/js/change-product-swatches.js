@@ -1,4 +1,6 @@
-// 🚀 POVALY SWATCH SYSTEM v2.10.42 - Fix: Quick Shop uses full-size images, not thumbnails
+// 🚀 POVALY SWATCH SYSTEM v2.10.43 - Fix: Compile and cache busting for Quick Shop fix
+
+console.log('%c🚀 POVALY SWATCH v2.10.43', 'background: #4CAF50; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 12px; border-radius: 4px;')
 
 class ChangeProductSwatches {
     constructor() {
