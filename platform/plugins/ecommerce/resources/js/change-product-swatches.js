@@ -1,14 +1,11 @@
-// 🚀 POVALY SWATCH SYSTEM v2.10.45 - Reverted to stable v2.10.38 (pre-Quick Shop fixes, hover+preview working)
-console.log('%c🚀 POVALY SWATCH SYSTEM v2.10.45 LOADED', 'background: #00ff00; color: #000; font-size: 16px; font-weight: bold; padding: 4px 8px;');
-console.log('📅 Build: v2.10.45 | Stable base: v2.10.38 (hover preview respects Color+Size, no Quick Shop modifications)');
+// 🚀 POVALY SWATCH SYSTEM v2.11.0 - Clean production build (no debug logs)
 
 class ChangeProductSwatches {
     constructor() {
         this.xhr = null
-        this.cache = new Map() // Client-side cache for variation responses
-        this.cacheTimeout = 5 * 60 * 1000 // 5 minutes cache
+        this.cache = new Map()
+        this.cacheTimeout = 5 * 60 * 1000
 
-        console.log('🔧 ChangeProductSwatches constructor initialized');
         this.handleEvents()
     }
 
@@ -35,15 +32,9 @@ class ChangeProductSwatches {
                 try {
                     variationIds = typeof variationIdsStr === 'string' ? JSON.parse(variationIdsStr) : variationIdsStr
                 } catch (e) {
-                    console.warn('⚠️ [HOVER PREVIEW] Failed to parse variation-ids:', variationIdsStr)
+                    // ignore parse errors
                 }
             }
-            
-            console.log('🎯 [HOVER PREVIEW] Visual swatch hover:', {
-                colorId: $item.data('id'),
-                colorTitle: $item.data('title'),
-                variationIds: variationIds
-            })
             
             // v2.10.38: Use the CURRENT thumbnail src (already updated by updateSwatchPricesSimple)
             // This ensures we get the correct image for the current Color + Size combination
@@ -68,14 +59,6 @@ class ChangeProductSwatches {
                                                  .replace(/-thumb(\.[^.]+)$/i, '$1')
                     
                     swatchImageFull = mediaBase + fullPath
-                    
-                    console.log('🎯 [HOVER PREVIEW v2.10.38] Using current thumbnail:', {
-                        thumbUrl,
-                        mediaBase,
-                        relativePath,
-                        fullPath,
-                        swatchImageFull
-                    })
                 } else {
                     // Fallback: simple regex replacement
                     swatchImageFull = thumbUrl.replace(/-150x150(\.[^.]+)$/i, '$1')
@@ -86,8 +69,6 @@ class ChangeProductSwatches {
             if (swatchImageFull) {
                 $item.data('is-hover-preview', true)
                 _self.previewSwatchImage(swatchImageFull, $item)
-            } else {
-                console.warn('⚠️ [HOVER PREVIEW] No variation-image data found')
             }
         })
 
@@ -108,28 +89,17 @@ class ChangeProductSwatches {
         $body.on('click', '.product-attributes .visual-swatch label, .product-attributes .text-swatch label', (e) => {
             e.preventDefault()
 
-            console.log('%c🔵 [SWATCH CLICK] Visual/Text swatch clicked', 'background: #0066ff; color: #fff; font-size: 14px; padding: 2px 6px;')
-
             let $this = $(e.currentTarget)
             let $radio = $this.find('input[type=radio]')
             let $item = $this.closest('.bb-product-attribute-swatch-item')
             let $wrapper = $this.closest('.bb-product-attribute-swatch')
 
-            console.log('🔵 [SWATCH CLICK] Swatch details:', {
-                itemId: $item.data('id'),
-                itemTitle: $item.data('title'),
-                isDisabled: $item.hasClass('disabled'),
-                isAlreadyChecked: $radio.is(':checked')
-            })
-
             // Don't allow clicking disabled items
             if ($item.hasClass('disabled')) {
-                console.log('⛔ [SWATCH CLICK] Item is disabled, ignoring click')
                 return
             }
 
             if ($radio.is(':checked')) {
-                console.log('⛔ [SWATCH CLICK] Already selected, ignoring click')
                 return
             }
 
@@ -147,40 +117,14 @@ class ChangeProductSwatches {
                 $label.text($item.data('title') || '')
             }
 
-            console.log('%c🔴 [SWATCH CLICK] About to trigger change event', 'background: #ff0000; color: #fff; font-size: 14px; font-weight: bold; padding: 2px 6px;', {
-                radio: $radio[0],
-                radioId: $radio.attr('id'),
-                radioName: $radio.attr('name'),
-                radioValue: $radio.val(),
-                isChecked: $radio.is(':checked'),
-                hasProductAttributesParent: $radio.closest('.product-attributes').length > 0,
-                productAttributesId: $radio.closest('.product-attributes').attr('id')
-            })
-
             $radio.trigger('change')
-            
-            console.log('%c🔴 [SWATCH CLICK] Change event triggered', 'background: #ff0000; color: #fff; font-size: 14px; padding: 2px 6px;')
         })
 
         $body
             .off('change', '.product-attributes input, .product-attributes select')
             .on('change', '.product-attributes input, .product-attributes select', (event) => {
-                console.log('%c🟡 [CHANGE EVENT] Radio/select change event fired!', 'background: #ffcc00; color: #000; font-size: 14px; font-weight: bold; padding: 2px 6px;', {
-                    element: event.currentTarget,
-                    tagName: event.currentTarget.tagName,
-                    type: event.currentTarget.type,
-                    value: event.currentTarget.value,
-                    checked: event.currentTarget.checked
-                })
-                
                 const $element = $(event.currentTarget)
                 const $parent = $element.closest('.product-attributes')
-                
-                console.log('%c🟡 [CHANGE EVENT] Found parent container:', 'background: #ffcc00; color: #000; font-size: 14px; padding: 2px 6px;', {
-                    hasParent: $parent.length > 0,
-                    parentId: $parent.attr('id'),
-                    parentClasses: $parent.attr('class')
-                })
 
                 // If it's a select dropdown, update the label
                 if ($element.is('select')) {
@@ -193,27 +137,9 @@ class ChangeProductSwatches {
                     }
                 }
 
-                console.log('%c🟡 [CHANGE EVENT] About to call getProductVariation', 'background: #ffcc00; color: #000; font-size: 14px; padding: 2px 6px;')
                 _self.getProductVariation($parent)
             })
         
-        console.log('%c✅ [HANDLER REGISTERED] Change event handler attached to body', 'background: #00ff00; color: #000; font-size: 14px; font-weight: bold; padding: 2px 6px;', {
-            selector: '.product-attributes input, .product-attributes select',
-            inputsFound: $('.product-attributes input').length,
-            selectsFound: $('.product-attributes select').length,
-            firstInputId: $('.product-attributes input').first().attr('id'),
-            firstInputName: $('.product-attributes input').first().attr('name')
-        })
-        
-        // Test that the handler can be triggered
-        setTimeout(() => {
-            console.log('%c🧪 [HANDLER TEST] Testing if change handler fires...', 'background: #ff00ff; color: #fff; font-size: 14px; font-weight: bold; padding: 2px 6px;')
-            const $testInput = $('.product-attributes input').first()
-            if ($testInput.length) {
-                $testInput.trigger('change')
-            }
-        }, 2000)
-
         if ($('.product-attribute-swatches').length) {
             window.addEventListener(
                 'popstate',
@@ -270,11 +196,6 @@ class ChangeProductSwatches {
     getProductVariation($productAttributes) {
         let _self = this
 
-        console.log('%c🟢 [GET VARIATION] Function called', 'background: #00cc00; color: #fff; font-size: 14px; padding: 2px 6px;', {
-            hasProductAttributes: !!$productAttributes,
-            length: $productAttributes?.length
-        })
-
         let attributes = []
         let slugAttributes = {}
 
@@ -282,9 +203,7 @@ class ChangeProductSwatches {
          * Break current request
          */
         if (_self.xhr) {
-            console.log('⏹️ [GET VARIATION] Aborting previous XHR')
             _self.xhr.abort()
-
             _self.xhr = null
         }
 
@@ -292,10 +211,6 @@ class ChangeProductSwatches {
          * Get attributes
          */
         let $attributeSwatches = $productAttributes.find('.attribute-swatches-wrapper')
-        
-        console.log('🔍 [GET VARIATION] Found attribute wrappers:', {
-            count: $attributeSwatches.length
-        })
 
         let referenceProduct = null
         $attributeSwatches.each((index, el) => {
@@ -310,13 +225,6 @@ class ChangeProductSwatches {
 
             let slug = $input.data('slug')
             let value = $input.val()
-            
-            console.log(`📋 [GET VARIATION] Attribute ${index}:`, {
-                type: $current.data('type'),
-                slug,
-                value,
-                hasInput: $input.length > 0
-            })
 
             if (value) {
                 let setSlug = $current.find('.attribute-swatch').data('slug')
@@ -326,12 +234,6 @@ class ChangeProductSwatches {
 
                 referenceProduct = $input.data('reference-product')
             }
-        })
-        
-        console.log('📦 [GET VARIATION] Collected attributes:', {
-            attributes,
-            slugAttributes,
-            referenceProduct
         })
 
         _self.callAjax(attributes, $productAttributes, slugAttributes, true, referenceProduct)
@@ -350,12 +252,6 @@ class ChangeProductSwatches {
 
         let id = $productAttributes.prop('id')
         
-        console.log('🚀 [AJAX] Calling variation API', {
-            attributes,
-            url: $productAttributes.data('target'),
-            id
-        })
-        
         // Create cache key from attributes and language
         const locale = document.documentElement.lang || 'en'
         const cacheKey = JSON.stringify(attributes.sort()) + (referenceProduct || '') + '_v1_' + locale
@@ -363,7 +259,6 @@ class ChangeProductSwatches {
         // Check cache first
         const cached = _self.getFromCache(cacheKey)
         if (cached) {
-            console.log('💾 [AJAX] Using cached response')
             // Use cached response
             _self.handleResponse(cached, $productAttributes, slugAttributes, id, updateUrl)
             return
@@ -385,11 +280,6 @@ class ChangeProductSwatches {
                 }
             },
             success: (res) => {
-                console.log('✅ [AJAX] Success response received', {
-                    hasData: !!res.data,
-                    variationId: res.data?.id
-                })
-                
                 // Store in cache
                 _self.setCache(cacheKey, res)
                 
@@ -402,7 +292,6 @@ class ChangeProductSwatches {
                 }
             },
             error: (res) => {
-                console.error('❌ [AJAX] Error response', res)
                 if (window.onChangeSwatchesError && typeof window.onChangeSwatchesError === 'function') {
                     window.onChangeSwatchesError(res, $productAttributes)
                 }
@@ -450,17 +339,6 @@ class ChangeProductSwatches {
     
     handleResponse = function(res, $productAttributes, slugAttributes, id, updateUrl) {
         let _self = this
-
-        console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #ff00ff; font-weight: bold;')
-        console.log('%c📦 [SWATCH RESPONSE] Handle response called', 'background: #ff00ff; color: #fff; font-size: 14px; font-weight: bold; padding: 2px 6px;', {
-            hasRes: !!res,
-            hasData: !!res?.data,
-            variationId: res?.data?.id,
-            hasImageWithSizes: !!res?.data?.image_with_sizes,
-            imageThumbUrl: res?.data?.image_with_sizes?.thumb,
-            fullResponse: res
-        })
-        console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #ff00ff; font-weight: bold;')
 
         if (window.EcommerceApp && typeof window.EcommerceApp.defaultOnChangeSwatchesSuccess === 'function') {
             window.EcommerceApp.defaultOnChangeSwatchesSuccess(res, $productAttributes)
@@ -515,7 +393,6 @@ class ChangeProductSwatches {
             }
 
             // Update visual swatch thumbnails after variation response
-            console.log('🎯 [SWATCH RESPONSE] About to call updateVisualSwatchThumbnails')
             _self.updateVisualSwatchThumbnails(data, $productAttributes)
         }
         
@@ -598,15 +475,6 @@ class ChangeProductSwatches {
                                 thumbUrl = thumbUrl[0]
                             }
                             
-                            console.log('🖼️ [SWATCH PRICE UPDATE] Also updating thumbnail:', {
-                                colorId: colorId,
-                                colorTitle: $item.data('title'),
-                                variationId: res.data.id,
-                                oldSrc: $thumb.attr('src'),
-                                newSrc: thumbUrl,
-                                wasArray: Array.isArray(res.data.image_with_sizes.thumb)
-                            })
-                            
                             if (thumbUrl) {
                                 $thumb.attr('src', thumbUrl)
                             }
@@ -654,9 +522,6 @@ class ChangeProductSwatches {
     }
 
     previewVariation(variationId, $item) {
-        // Dispatch variation change event to PV Gallery without actually selecting the swatch
-        console.log('🎬 [PREVIEW VARIATION] Dispatching event for variation:', variationId)
-        
         $item.data('is-hover-preview', true)
         
         // Dispatch custom event for PV Gallery to handle
@@ -708,19 +573,7 @@ class ChangeProductSwatches {
     }
 
     updateVisualSwatchThumbnails(variationData, $productAttributes) {
-        // Update all visual swatch thumbnails based on current variation selection
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-        console.log('🎨 [SWATCH THUMBNAIL UPDATE] Called with data:', {
-            hasData: !!variationData,
-            variationId: variationData?.id,
-            hasImageWithSizes: !!variationData?.image_with_sizes,
-            attributes: variationData?.attributes,
-            imageData: variationData?.image_with_sizes
-        })
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
-        
         if (!variationData) {
-            console.warn('❌ [SWATCH] No variation data provided')
             return
         }
 
@@ -733,16 +586,8 @@ class ChangeProductSwatches {
         }
 
         if (!thumbUrl) {
-            console.warn('❌ [SWATCH] No image URL found in variation data')
             return
         }
-
-        console.log('✅ [SWATCH] Starting swatch updates', {
-            selectedAttrIds: variationData.attributes || [],
-            variationId: variationData.id,
-            thumbUrl: thumbUrl,
-            totalVisualSwatches: $productAttributes.find('.visual-swatch .qs-var-item').length
-        })
 
         // Find all visual swatches (those with thumbnails)
         let updatedCount = 0
@@ -761,14 +606,6 @@ class ChangeProductSwatches {
             
             if (isInCurrentSelection) {
                 // This is the selected color - update its thumbnail
-                console.log('🖼️  [SWATCH] Updating thumbnail for:', {
-                    colorId: colorId,
-                    title: $item.data('title'),
-                    variationId: variationData.id,
-                    oldSrc: $img.attr('src'),
-                    newSrc: thumbUrl
-                })
-                
                 if ($img.length) {
                     $img.attr('src', thumbUrl)
                 } else {
@@ -784,9 +621,6 @@ class ChangeProductSwatches {
                 updatedCount++
             }
         })
-        
-        console.log(`✅ [SWATCH] Update complete! Updated ${updatedCount} thumbnail(s)`)
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
     }
 
     restoreSelectedImage() {

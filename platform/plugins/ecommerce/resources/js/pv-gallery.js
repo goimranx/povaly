@@ -1,17 +1,12 @@
 /**
- * PV Custom Gallery System v2.10.34
+ * PV Custom Gallery System v2.11.0
  * - Render ONLY selected variation's images (lightweight)
  * - Lazy-load lightbox with ALL images only when opened
  * - Loading spinner during thumbnail transitions
  * - Skeleton for swatch thumbnail updates
- * 
- * v2.10.34: Removed debug logs + auto-scroll to active thumbnail in lightbox
  */
 (function() {
     'use strict';
-    
-    console.log('%c🖼️ PV GALLERY v2.10.34 LOADED', 'background: #0099ff; color: #fff; font-size: 14px; font-weight: bold; padding: 4px 8px;');
-    console.log('📅 Build: v2.10.34 | Clean code + thumbnail auto-scroll');
     
     class PVGallery {
         constructor(container) {
@@ -137,7 +132,6 @@
         buildLightboxData() {
             if (this.lightboxBuilt) return;
             
-            console.log('🔨 [PV] Building lightbox data lazily...');
             this.lightboxBuilt = true;
             
             // Lightbox already has access to this.allProductImages and this.lightboxVideos
@@ -158,10 +152,6 @@
             // Convert relative image paths to full URLs for lightbox
             const mediaUrl = window.siteSettings?.mediaUrl;
             
-            if (!mediaUrl) {
-                console.error('⚠️ [PV] Media URL not configured! Check blade template.');
-            }
-            
             const fullImageUrls = this.allProductImages.map(img => {
                 if (img.match(/^(https?:)?\/\//)) {
                     return img;
@@ -169,7 +159,6 @@
                 if (mediaUrl) {
                     return mediaUrl + '/' + img.replace(/^\/+/, '');
                 }
-                console.warn('⚠️ [PV] No media URL configured, returning relative path:', img);
                 return img;
             });
             
@@ -230,10 +219,6 @@
             // Convert relative image paths to full URLs for lightbox
             const mediaUrl = window.siteSettings?.mediaUrl;
             
-            if (!mediaUrl) {
-                console.error('⚠️ [PV] Media URL not configured! Check blade template.');
-            }
-            
             const fullImageUrls = this.allProductImages.map(img => {
                 if (img.match(/^(https?:)?\/\//)) {
                     return img;
@@ -241,7 +226,6 @@
                 if (mediaUrl) {
                     return mediaUrl + '/' + img.replace(/^\/+/, '');
                 }
-                console.warn('⚠️ [PV] No media URL configured, returning relative path:', img);
                 return img;
             });
             
@@ -376,8 +360,6 @@
             
             const isPreview = data.isPreview === true;
             
-            console.log(`🔄 [PV] Variation ${variationId} | Preview: ${isPreview}`);
-            
             // AJAX provides imageUrls - use them if available
             const imageUrls = data.imageUrls || data.image_urls || [];
             
@@ -410,7 +392,6 @@
         }
         
         rebindThumbnailEvents() {
-            console.log('🔗 [PV] Rebinding thumbnail events...');
             
             // Re-query thumbnails from DOM
             this.thumbnails = this.container.querySelectorAll('.pv-thumb:not(.pv-thumb-video)');
@@ -439,15 +420,11 @@
                     }
                 });
             });
-            
-            console.log(`✅ [PV] Rebound events to ${this.thumbnails.length} thumbnails`);
         }
         
         rebuildMobileSlides() {
             // Rebuild mobile slides list from currently rendered images ONLY
             if (!this._mobileSlides) return;
-            
-            console.log('📱 [PV] Rebuilding mobile slides from current images');
             
             this._mobileSlides = [];
             this.allImages.forEach(img => this._mobileSlides.push({ type: 'image', data: img }));
@@ -456,12 +433,9 @@
             // Reset to first image
             this._mobileIndex = 0;
             this._updateDots();
-            
-            console.log(`✅ [PV] Mobile slides rebuilt: ${this._mobileSlides.length} slides`);
         }
         
         rebuildThumbnailsFromAJAX(variationId, imageUrls) {
-            console.log(`📦 [PV] Rebuilding from AJAX: ${imageUrls.length} images`);
             
             this.showLoading();
             
@@ -527,14 +501,11 @@
         }
         
         rebuildThumbnailsForVariation(variationId) {
-            console.log(`📦 [PV] Rebuilding thumbnails for variation: ${variationId}`);
-            
             this.showLoading();
             
             // Get variation's image indices from map
             const varIndices = this.variationMap[variationId];
             if (!varIndices || !Array.isArray(varIndices) || varIndices.length === 0) {
-                console.warn(`⚠️ [PV] No images found for variation ${variationId}`);
                 this.hideLoading();
                 return;
             }
@@ -543,7 +514,6 @@
             const varImages = varIndices.map(idx => this.allProductImages[idx]).filter(img => img);
             
             if (varImages.length === 0) {
-                console.warn(`⚠️ [PV] Could not find images at indices:`, varIndices);
                 this.hideLoading();
                 return;
             }
@@ -614,7 +584,6 @@
         initLens() {
             // Check if already initialized
             if (this._lensInitialized) {
-                console.log('🔍 [PV] Lens already initialized, skipping...');
                 return;
             }
             
@@ -622,7 +591,6 @@
             if (!mainContainer || !this.mainImage) return;
             
             this._lensInitialized = true;
-            console.log('🔍 [PV] Initializing lens zoom...');
             
             // Create lens element
             this.lensEl = document.createElement('div');
@@ -784,7 +752,6 @@
         initMobile() {
             // Only initialize on mobile - check if already initialized
             if (this._mobileInitialized) {
-                console.log('📱 [PV] Mobile already initialized, skipping...');
                 return;
             }
             
@@ -792,7 +759,6 @@
             if (!this._mainContainer) return;
             
             this._mobileInitialized = true;
-            console.log('📱 [PV] Initializing mobile swipe...');
             
             // Build flat slide list: images then videos
             this._mobileSlides = [];

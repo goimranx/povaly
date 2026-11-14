@@ -5,6 +5,19 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.0] - 2024-11-14
+
+### Changed
+- Removed ALL console.log, console.warn, console.error from swatch system
+- Removed ALL console.log, console.warn, console.error from PV gallery system
+- Removed test setTimeout that auto-triggered change events on page load
+- Clean production code with zero debug output
+- Updated version header comments to v2.11.0
+
+### Files Cleaned
+- `platform/plugins/ecommerce/resources/js/change-product-swatches.js`
+- `platform/plugins/ecommerce/resources/js/pv-gallery.js`
+
 ## [2.10.45] - 2024-11-14
 
 ### Reverted
