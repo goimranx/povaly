@@ -1,5 +1,5 @@
 /**
- * PV Custom Gallery System v2.11.0
+ * PV Custom Gallery System v2.11.1
  * - Render ONLY selected variation's images (lightweight)
  * - Lazy-load lightbox with ALL images only when opened
  * - Loading spinner during thumbnail transitions

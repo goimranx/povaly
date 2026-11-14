@@ -1,4 +1,4 @@
-// 🚀 POVALY SWATCH SYSTEM v2.11.0 - Clean production build (no debug logs)
+// 🚀 POVALY SWATCH SYSTEM v2.11.1 - Clean production build (no debug logs)
 
 class ChangeProductSwatches {
     constructor() {
