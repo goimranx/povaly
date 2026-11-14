@@ -1,4 +1,4 @@
-// 🚀 POVALY SWATCH SYSTEM v2.10.40 - Clean: Remove debug logs, fix Quick Shop
+// 🚀 POVALY SWATCH SYSTEM v2.10.42 - Fix: Quick Shop uses full-size images, not thumbnails
 
 class ChangeProductSwatches {
     constructor() {
@@ -27,25 +27,29 @@ class ChangeProductSwatches {
                 return
             }
 
-            const $thumb = $item.find('.qs-var-item__thumb img')
+            // Use data-variation-image-full if available, otherwise build from thumbnail
             let swatchImageFull = $item.data('variation-image-full')
             
-            if ($thumb.length && $thumb.attr('src')) {
-                const thumbUrl = $thumb.attr('src')
+            if (!swatchImageFull) {
+                const $thumb = $item.find('.qs-var-item__thumb img')
                 
-                if (window.siteSettings && window.siteSettings.mediaUrl) {
-                    const mediaBase = window.siteSettings.mediaUrl
-                    const relativePath = thumbUrl.includes(mediaBase) 
-                        ? thumbUrl.substring(thumbUrl.indexOf(mediaBase) + mediaBase.length)
-                        : thumbUrl.split('/products/').pop()
+                if ($thumb.length && $thumb.attr('src')) {
+                    const thumbUrl = $thumb.attr('src')
                     
-                    const fullPath = relativePath.replace(/-150x150(\.[^.]+)$/i, '$1')
-                                                 .replace(/-thumb(\.[^.]+)$/i, '$1')
-                    
-                    swatchImageFull = mediaBase + fullPath
-                } else {
-                    swatchImageFull = thumbUrl.replace(/-150x150(\.[^.]+)$/i, '$1')
-                                              .replace(/-thumb(\.[^.]+)$/i, '$1')
+                    if (window.siteSettings && window.siteSettings.mediaUrl) {
+                        const mediaBase = window.siteSettings.mediaUrl
+                        const relativePath = thumbUrl.includes(mediaBase) 
+                            ? thumbUrl.substring(thumbUrl.indexOf(mediaBase) + mediaBase.length)
+                            : thumbUrl.split('/products/').pop()
+                        
+                        const fullPath = relativePath.replace(/-150x150(\.[^.]+)$/i, '$1')
+                                                     .replace(/-thumb(\.[^.]+)$/i, '$1')
+                        
+                        swatchImageFull = mediaBase + fullPath
+                    } else {
+                        swatchImageFull = thumbUrl.replace(/-150x150(\.[^.]+)$/i, '$1')
+                                                  .replace(/-thumb(\.[^.]+)$/i, '$1')
+                    }
                 }
             }
             
@@ -505,9 +509,10 @@ class ChangeProductSwatches {
         const isQuickShop = $quickShopModal.length > 0
         
         if (isQuickShop) {
-            // Quick Shop: Just call updateQSGalleryImages to scroll to the image
+            // Quick Shop: Use FULL-SIZE image from data-variation-image-full
+            const fullSizeImage = $item.data('variation-image-full') || imageUrl
             if (typeof window.updateQSGalleryImages === 'function') {
-                window.updateQSGalleryImages([imageUrl])
+                window.updateQSGalleryImages([fullSizeImage])
             }
         } else {
             // Main page PV Gallery: Show image on hover
@@ -579,7 +584,6 @@ class ChangeProductSwatches {
             return
         }
         
-        const selectedImage = $selectedSwatch.data('variation-image')
         const $product = $selectedSwatch.closest('.bb-product-detail')
         
         if (!$product.length) {
@@ -591,7 +595,8 @@ class ChangeProductSwatches {
         const isQuickShop = $quickShopModal.length > 0
         
         if (isQuickShop) {
-            // For Quick Shop - restore to selected variation's first slide
+            // For Quick Shop - use FULL-SIZE image from data-variation-image-full
+            const selectedImage = $selectedSwatch.data('variation-image-full') || $selectedSwatch.data('variation-image')
             if (selectedImage && typeof window.updateQSGalleryImages === 'function') {
                 window.updateQSGalleryImages([selectedImage])
             }
