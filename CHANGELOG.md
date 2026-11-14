@@ -5,6 +5,11 @@ All notable changes to Povaly will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.4] - 2026-11-14
+
+### Fixed
+- Promotional Hero Grid: `.ps-hero-title` now uses `var(--global-color-text-main)` for the title element itself; child elements (`*`, `span`, `div`) retain `var(--global-color-text-on-dark)` so inline rich-text overrides are unaffected
+
 ## [2.11.3] - 2026-11-14
 
 ### Fixed
